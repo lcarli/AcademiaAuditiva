@@ -1,0 +1,109 @@
+html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    margin-bottom: 60px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.navbar {
+    border-bottom: 3px solid #007BFF; /* Adicionando uma borda azul para destacar */
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255,255,255,.5) !important;
+}
+
+.btn-link.text-white:hover {
+    color: #007BFF !important;
+}
+
+/* Rodapé */
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+@media (min-width: 992px) {
+    .navbar {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+/* Estilo para a seção de descrição */
+section.container {
+    padding: 60px 0;
+}
+
+/* Estilo para a imagem */
+img.img-fluid {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para o call-to-action */
+section.text-center {
+    padding: 60px 0;
+}
+
+.btn-primary {
+    background-color: #007BFF;
+    border: none;
+}
+
+.btn-outline-primary {
+    color: #007BFF;
+    border-color: #007BFF;
+}
+
+    .btn-primary:hover, .btn-outline-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+/* Estilo para testemunhos */
+blockquote {
+    font-size: 1.2em;
+    width: 80%;
+    margin: 50px auto;
+    font-family: Arial;
+    color: #555555;
+    padding: 1.2em 30px 1.2em 75px;
+    border-left: 8px solid #78C0A8;
+    line-height: 1.6;
+    position: relative;
+    background: #EDEDED;
+}
+
+    blockquote::before {
+        content: "\201C";
+        font-size: 4em;
+        position: absolute;
+        left: 10px;
+        top: -10px;
+        color: #78C0A8;
+    }
+
+    blockquote footer {
+        font-size: 1em;
+        color: #8B8787;
+    }
+
