@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "vy5ke6B91ILO7n5ZKeOIIJP22YNLZ+/q6ns1B7un2Sb3C1Hls479kaYtajScyF2ML2wPPHFYjd3nrPiMlgUBeg==",
+  "dgSpecHash": "2k/lE8iyk+h4FHksW6Z/XyIbg7jNzK+YQk6t7IZMrCcIW+rWiVzGISbAd/Q5rn421q4VadIGLKctpYOhZQ5Grg==",
   "success": true,
   "projectFilePath": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\AcademiaAuditiva.csproj",
   "expectedPackageFiles": [
@@ -58,6 +58,7 @@
     "C:\\Users\\lramoscostah\\.nuget\\packages\\humanizer.core.zh-hans\\2.14.1\\humanizer.core.zh-hans.2.14.1.nupkg.sha512",
     "C:\\Users\\lramoscostah\\.nuget\\packages\\humanizer.core.zh-hant\\2.14.1\\humanizer.core.zh-hant.2.14.1.nupkg.sha512",
     "C:\\Users\\lramoscostah\\.nuget\\packages\\mailkit\\4.1.0\\mailkit.4.1.0.nupkg.sha512",
+    "C:\\Users\\lramoscostah\\.nuget\\packages\\microsoft.aspnetcore.authentication.facebook\\7.0.10\\microsoft.aspnetcore.authentication.facebook.7.0.10.nupkg.sha512",
     "C:\\Users\\lramoscostah\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\7.0.10\\microsoft.aspnetcore.cryptography.internal.7.0.10.nupkg.sha512",
     "C:\\Users\\lramoscostah\\.nuget\\packages\\microsoft.aspnetcore.cryptography.keyderivation\\7.0.10\\microsoft.aspnetcore.cryptography.keyderivation.7.0.10.nupkg.sha512",
     "C:\\Users\\lramoscostah\\.nuget\\packages\\microsoft.aspnetcore.diagnostics.entityframeworkcore\\7.0.10\\microsoft.aspnetcore.diagnostics.entityframeworkcore.7.0.10.nupkg.sha512",

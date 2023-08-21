@@ -19,6 +19,15 @@ builder.Services.AddControllersWithViews();
 //Inject EmailSender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+//Add facebook login as external
+builder.Services.AddAuthentication()
+    .AddFacebook(facebookOptions =>
+    {
+        facebookOptions.AppId = "324439820147408";
+        facebookOptions.AppSecret = "fd7f51f6405d1d8920eaed61041c7a53";
+    });
+
+
 
 var app = builder.Build();
 
