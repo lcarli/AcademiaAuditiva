@@ -11,14 +11,15 @@ body {
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
+
 
 .navbar {
     border-bottom: 3px solid #007BFF; /* Adicionando uma borda azul para destacar */
@@ -79,31 +80,22 @@ section.text-center {
         border-color: #0056b3;
     }
 
-/* Estilo para testemunhos */
-blockquote {
-    font-size: 1.2em;
-    width: 80%;
-    margin: 50px auto;
-    font-family: Arial;
-    color: #555555;
-    padding: 1.2em 30px 1.2em 75px;
-    border-left: 8px solid #78C0A8;
-    line-height: 1.6;
-    position: relative;
-    background: #EDEDED;
+/* Scoreboard */
+.scoreboard {
+    border: 2px solid #007BFF; /* Cor de borda baseada na cor principal do Bootstrap */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    padding: 20px 0; /* Espaçamento superior e inferior */
+    border-radius: 5px; /* Borda arredondada */
+    background-color: #f8f9fa; /* Fundo levemente cinza baseado nas cores padrão do Bootstrap */
 }
 
-    blockquote::before {
-        content: "\201C";
-        font-size: 4em;
-        position: absolute;
-        left: 10px;
-        top: -10px;
-        color: #78C0A8;
+    .scoreboard h5 {
+        margin-bottom: 10px; /* Um pouco de espaço entre o título e o número */
     }
 
-    blockquote footer {
-        font-size: 1em;
-        color: #8B8787;
-    }
 
+/* Buttons */
+.btn.selected .guessNote.selected, .guessQuality.selected {
+    border-color: blue !important;
+    background-color: rgba(0, 0, 255, 0.1) !important;
+}

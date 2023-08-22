@@ -1,0 +1,147 @@
+﻿@{
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center exercise-content" style="display:none">
+		<div class="col-md-8">
+			<h2 class="text-center mb-4">Adivinhe a Nota</h2>
+
+			<div class="mb-4">
+				<label for="octaveRange" class="form-label">Selecionar Oitava</label>
+				<select id="octaveRange" class="form-select">
+					<option value="single">Uma Oitava (4ª Oitava)</option>
+					<option value="full">Piano Completo</option>
+				</select>
+			</div>
+
+			<div class="mb-4 text-center">
+				<button id="playNote" class="btn btn-primary me-3">Ouvir Nota</button>
+				<button id="replayNote" class="btn btn-secondary">Reouvir Nota</button>
+			</div>
+
+			<h4 class="text-center mb-3">Qual nota foi tocada?</h4>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button class="btn btn-outline-dark guessNote" data-note="C4">C</button>
+                <button class="btn btn-outline-dark guessNote" data-note="Cs4">C#</button>
+                <button class="btn btn-outline-dark guessNote" data-note="D4">D</button>
+                <button class="btn btn-outline-dark guessNote" data-note="Ds4">D#</button>
+                <button class="btn btn-outline-dark guessNote" data-note="E4">E</button>
+                <button class="btn btn-outline-dark guessNote" data-note="F4">F</button>
+                <button class="btn btn-outline-dark guessNote" data-note="Fs4">F#</button>
+                <button class="btn btn-outline-dark guessNote" data-note="G4">G</button>
+                <button class="btn btn-outline-dark guessNote" data-note="Gs4">G#</button>
+                <button class="btn btn-outline-dark guessNote" data-note="A4">A</button>
+                <button class="btn btn-outline-dark guessNote" data-note="As4">A#</button>
+                <button class="btn btn-outline-dark guessNote" data-note="B4">B</button>
+            </div>
+		</div>
+        <div class="scoreboard text-center my-4">
+            <div class="d-inline-block mx-3">
+                <h5>Acertos</h5>
+                <span id="correctCount">0</span>
+            </div>
+            <div class="d-inline-block mx-3">
+                <h5>Erros</h5>
+                <span id="errorCount">0</span>
+            </div>
+            <div class="d-inline-block mx-3">
+                <h5>Melhor Pontuação</h5>
+                <span id="bestScore">@ViewBag.BestScore</span>
+            </div>
+        </div>
+
+	</div>
+</div>
+
+
+
+
+@section Scripts {
+	<script src="https://cdn.jsdelivr.net/npm/tone@latest"></script>
+	<script>
+        $(document).ready(function () {
+
+            Swal.fire({
+                title: 'Adivinhe a Nota',
+                text: 'Ouça a nota e tente adivinhar qual é.',
+                icon: 'info',
+                confirmButtonText: 'Começar',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('.exercise-content').show(); // Mostrando o conteúdo do exercício
+                }
+            });
+
+
+            let randomNote = "";
+            let octaveRange = "single";
+
+            function getRandomNote() {
+                const notes = (octaveRange === "single")
+                    ? AcademiaAuditiva.getAllNotes().filter(note => note.includes("4"))
+                    : AcademiaAuditiva.getAllNotes();
+
+                return notes[Math.floor(Math.random() * notes.length)];
+            }
+
+            Tone.loaded().then(() => {
+                document.getElementById('playNote').addEventListener('click', () => {
+                    randomNote = getRandomNote();
+                    AcademiaAuditiva.sampler.triggerAttackRelease(randomNote, "1");
+                });
+
+                document.getElementById('replayNote').addEventListener('click', () => {
+                    if (randomNote) {
+                        AcademiaAuditiva.sampler.triggerAttackRelease(randomNote, "1");
+                    } else {
+                        alert('Primeiro clique em "Ouvir Nota"');
+                    }
+                });
+
+                document.getElementById('octaveRange').addEventListener('change', (e) => {
+                    octaveRange = e.target.value;
+                });
+            });
+
+            const guessButtons = document.querySelectorAll('.guessNote');
+            guessButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const correctCountEl = document.getElementById('correctCount');
+                    const errorCountEl = document.getElementById('errorCount');
+                    const guessedNote = e.target.getAttribute('data-note');
+
+                    if (guessedNote === randomNote) {
+                        correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Correto!',
+                            text: 'Você acertou a nota!'
+                        });
+                    } else {
+                        errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Errado!',
+                            text: `Você errou! A nota correta era ${randomNote.replace('s', '#')}.`,
+                        });
+                    }
+
+                    // Após mostrar o resultado, vamos salvar a pontuação no servidor:
+                    const correctCount = parseInt(correctCountEl.innerText);
+                    const errorCount = parseInt(errorCountEl.innerText);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Exercise/GuessNoteSaveScore",
+                        data: { correctCount: correctCount, errorCount: errorCount },
+                        error: function () {
+                            console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
+                        }
+                    });
+                });
+            });
+        });
+
+	</script>
+}

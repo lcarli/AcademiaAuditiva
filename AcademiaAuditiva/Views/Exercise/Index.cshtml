@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "Exercícios";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h2 class="mb-5">Exercícios Disponíveis</h2>
+
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="@Url.Action("GuessNote", "Exercise")">Adivinhe a Nota</a>
+                    <a href="@Url.Action("GuessChords", "Exercise")">Adivinhe o Acorde</a>
+                </li>
+                <!-- Adicione mais exercícios à medida que for criando -->
+            </ul>
+        </div>
+    </div>
+</div>
