@@ -95,7 +95,7 @@ section.text-center {
 
 
 /* Buttons */
-.btn.selected .guessNote.selected, .guessQuality.selected {
+.btn.selected, .guessNote.selected, .guessQuality.selected {
     border-color: blue !important;
     background-color: rgba(0, 0, 255, 0.1) !important;
 }
