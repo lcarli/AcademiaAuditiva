@@ -205,5 +205,66 @@ namespace AcademiaAuditiva.Controllers
 		}
 		#endregion
 
+		#region GuessQuality
+
+		public IActionResult GuessQuality()
+		{
+			int bestScore = _context.Scores
+						   .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessQuality")
+						   .OrderByDescending(s => s.BestScore)
+						   .FirstOrDefault()?.BestScore ?? 0;
+
+			ViewBag.BestScore = bestScore;
+			return View();
+		}
+
+		[HttpPost]
+		public IActionResult GuessQualityChordsSaveScore(int correctCount, int errorCount)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			// Verifique se o usuário está logado
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Json(new { success = false, message = "Usuário não está logado." });
+			}
+
+			// Obtenha o ExerciseId para "GuessQuality"
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessQuality");
+			if (exercise == null)
+			{
+				return Json(new { success = false, message = "Exercício GuessQuality não encontrado." });
+			}
+
+			int currentScore = correctCount - errorCount;
+
+			// Pegue o best score atual para o usuário neste exercício
+			var userBestScoreRecord = _context.Scores
+											  .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
+											  .OrderByDescending(s => s.BestScore)
+											  .FirstOrDefault();
+
+			int userBestScore = userBestScoreRecord != null ? userBestScoreRecord.CorrectCount - userBestScoreRecord.ErrorCount : int.MinValue;
+
+			// Salve apenas se o score atual for melhor que o melhor score do usuário para esse exercício
+			if (currentScore > userBestScore)
+			{
+				_context.Scores.Add(new Score
+				{
+					UserId = userId,
+					ExerciseId = exercise.ExerciseId,
+					CorrectCount = correctCount,
+					ErrorCount = errorCount,
+					BestScore = currentScore
+				});
+				_context.SaveChanges();
+				return Json(new { success = true, message = "Novo recorde!" });
+			}
+
+			return Json(new { success = false, message = "Não superou o recorde anterior." });
+		}
+
+		#endregion
+
 	}
 }
