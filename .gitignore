@@ -253,3 +253,9 @@ _Pvt_Extensions
 # JetBrains Rider
 .idea/
 *.sln.iml
+/.vs/AcademiaAuditiva/v17/.suo
+/.vs/AcademiaAuditiva/DesignTimeBuild/.dtbcache.v2
+/AcademiaAuditiva/bin/Debug/net7.0/AcademiaAuditiva.pdb
+/AcademiaAuditiva/bin/Debug/net7.0/AcademiaAuditiva.dll
+/AcademiaAuditiva/obj/Debug/net7.0/ref/AcademiaAuditiva.dll
+/AcademiaAuditiva/obj/Debug/net7.0/refint/AcademiaAuditiva.dll
