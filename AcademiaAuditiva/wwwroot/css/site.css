@@ -99,3 +99,19 @@ section.text-center {
     border-color: blue !important;
     background-color: rgba(0, 0, 255, 0.1) !important;
 }
+
+
+/* Exercices Links */
+.exercise-link {
+    display: block;
+    padding: 15px 0;
+    font-size: 1.2em;
+    transition: background-color 0.2s, color 0.2s;
+    color: #007BFF; /* Cor padrão do Bootstrap para links */
+}
+
+    .exercise-link:hover, .exercise-link:focus {
+        background-color: #f8f9fa; /* Cor leve de fundo para hover/focus */
+        color: #0056b3; /* Uma cor mais escura para o hover */
+        text-decoration: none; /* Remover o sublinhado padrão do hover */
+    }

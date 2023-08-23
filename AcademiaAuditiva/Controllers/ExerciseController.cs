@@ -10,7 +10,7 @@ namespace AcademiaAuditiva.Controllers
     [Authorize]
     public class ExerciseController : Controller
     {
-        private readonly ApplicationDbContext _context; // Supondo que você esteja usando EF Core
+        private readonly ApplicationDbContext _context;
 
         public ExerciseController(ApplicationDbContext context)
         {
@@ -64,8 +64,8 @@ namespace AcademiaAuditiva.Controllers
             // Obter a melhor pontuação anterior do usuário para o exercício GuessNote
             int bestScore = _context.Scores
                            .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
-                           .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
-                           .FirstOrDefault()?.CorrectCount ?? 0;
+                           .OrderByDescending(s => s.BestScore)
+                           .FirstOrDefault()?.BestScore ?? 0;
 
             // Verifique se o score atual é melhor que o bestScore
             if (currentScore > bestScore)
@@ -75,7 +75,8 @@ namespace AcademiaAuditiva.Controllers
                     UserId = userId,
                     ExerciseId = exercise.ExerciseId,
                     CorrectCount = correctCount,
-                    ErrorCount = errorCount
+                    ErrorCount = errorCount,
+                    BestScore = currentScore
                 });
                 _context.SaveChanges();
 
@@ -91,12 +92,8 @@ namespace AcademiaAuditiva.Controllers
         {
             int bestScore = _context.Scores
                            .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessChords")
-                           .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
-                           .FirstOrDefault()?.CorrectCount -
-                           _context.Scores
-                           .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessChords")
-                           .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
-                           .FirstOrDefault()?.ErrorCount ?? 0;
+                           .OrderByDescending(s => s.BestScore)
+                           .FirstOrDefault()?.BestScore ?? 0;
 
             ViewBag.BestScore = bestScore;
             return View();
@@ -125,7 +122,7 @@ namespace AcademiaAuditiva.Controllers
             // Pegue o best score atual para o usuário neste exercício
             var userBestScoreRecord = _context.Scores
                                               .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
-                                              .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
+                                              .OrderByDescending(s => s.BestScore)
                                               .FirstOrDefault();
 
             int userBestScore = userBestScoreRecord != null ? userBestScoreRecord.CorrectCount - userBestScoreRecord.ErrorCount : int.MinValue;
@@ -138,7 +135,8 @@ namespace AcademiaAuditiva.Controllers
                     UserId = userId,
                     ExerciseId = exercise.ExerciseId,
                     CorrectCount = correctCount,
-                    ErrorCount = errorCount
+                    ErrorCount = errorCount,
+                    BestScore = currentScore
                 });
                 _context.SaveChanges();
                 return Json(new { success = true, message = "Novo recorde!" });

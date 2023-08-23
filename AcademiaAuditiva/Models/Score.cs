@@ -13,6 +13,7 @@ namespace AcademiaAuditiva.Models
 
         public int CorrectCount { get; set; }
         public int ErrorCount { get; set; }
+        public int BestScore { get; set; }
 
         public DateTime DateCreated { get; set; } = DateTime.Now;
     }
