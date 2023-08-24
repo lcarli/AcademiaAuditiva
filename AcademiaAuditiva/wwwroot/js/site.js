@@ -99,8 +99,8 @@
         const allChords = this.getAllChords();
         const allNotes = this.getAllNotes();
 
-        const majorHarmonicField = ["0-major", "2-minor", "4-minor", "5-major", "7-major", "9-minor", "11-dim"];
-        const minorHarmonicField = ["0-minor", "2-dim", "4-major", "5-menor", "7-menor", "9-major", "11-major"];
+        const majorHarmonicField = ["0-major", "2-minor", "4-minor", "5-major", "7-major", "9-minor", "11-diminished"];
+        const minorHarmonicField = ["0-minor", "2-diminished", "4-major", "5-minor", "7-minor", "9-major", "11-major"];
 
         function getHarmonicNotes(rootNote, harmonicField) {
             let currentIndex = allNotes.indexOf(rootNote);

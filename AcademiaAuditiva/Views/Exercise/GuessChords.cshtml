@@ -36,16 +36,16 @@
 			<!-- Notas -->
 			<div class="d-grid gap-2 d-md-flex justify-content-md-center">
 				<button class="btn btn-outline-dark guessNote" data-note="C4">C</button>
-				<button class="btn btn-outline-dark guessNote" data-note="Cs4">C#</button>
+				<button class="btn btn-outline-dark guessNote" data-note="C#4">C#</button>
 				<button class="btn btn-outline-dark guessNote" data-note="D4">D</button>
-				<button class="btn btn-outline-dark guessNote" data-note="Ds4">D#</button>
+				<button class="btn btn-outline-dark guessNote" data-note="D#4">D#</button>
 				<button class="btn btn-outline-dark guessNote" data-note="E4">E</button>
 				<button class="btn btn-outline-dark guessNote" data-note="F4">F</button>
-				<button class="btn btn-outline-dark guessNote" data-note="Fs4">F#</button>
+				<button class="btn btn-outline-dark guessNote" data-note="F#4">F#</button>
 				<button class="btn btn-outline-dark guessNote" data-note="G4">G</button>
-				<button class="btn btn-outline-dark guessNote" data-note="Gs4">G#</button>
+				<button class="btn btn-outline-dark guessNote" data-note="G#4">G#</button>
 				<button class="btn btn-outline-dark guessNote" data-note="A4">A</button>
-				<button class="btn btn-outline-dark guessNote" data-note="As4">A#</button>
+				<button class="btn btn-outline-dark guessNote" data-note="A#4">A#</button>
 				<button class="btn btn-outline-dark guessNote" data-note="B4">B</button>
 			</div>
 
@@ -113,7 +113,7 @@
 					} else if (chordType === "both") {
 						return ["major", "minor"].includes(chord.type);
 					} else {
-						return ["major", "minor"].includes(chord.type);
+						return true;
 					}
 				});
 
@@ -183,6 +183,7 @@
 			function checkGuess() {
 				const correctCountEl = document.getElementById('correctCount');
 				const errorCountEl = document.getElementById('errorCount');
+				const bestScoreEl = document.getElementById('bestScore');
 
 				if (`${guessedNote}-${guessedQuality}` === randomChord) {
 					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
@@ -201,22 +202,35 @@
 					});
 				}
 
+				//Clean
+				randomChord = "";
+				qualityButtons.forEach(btn => btn.classList.remove('selected'));
+				noteButtons.forEach(btn => btn.classList.remove('selected'));
+
 				// After showing the result, save the score on the server:
 				const correctCount = parseInt(correctCountEl.innerText);
 				const errorCount = parseInt(errorCountEl.innerText);
+				let bestScore = parseInt(bestScoreEl.innerText);
+				const currentScore = correctCount - errorCount;
 
-				$.ajax({
-					type: "POST",
-					url: "/Exercise/GuessChordsSaveScore",
-					data: { correctCount: correctCount, errorCount: errorCount },
-					error: function () {
-						console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
-					}
-				});
+
+				if (currentScore > bestScore) {
+					bestScore = currentScore;
+					bestScoreEl.innerText = bestScore;  // Atualiza o elemento HTML
+
+					$.ajax({
+						type: "POST",
+						url: "/Exercise/GuessChordsSaveScore",
+						data: { correctCount: correctCount, errorCount: errorCount },
+						error: function () {
+							console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
+						}
+					});
+				}
 			}
 
 			document.getElementById('validateGuess').addEventListener('click', () => {
-				if (guessedNote && guessedQuality) {
+				if (guessedNote && guessedQuality && randomChord) {
 					checkGuess();
 				} else {
 					Swal.fire({

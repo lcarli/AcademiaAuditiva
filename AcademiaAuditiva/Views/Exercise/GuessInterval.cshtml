@@ -122,8 +122,8 @@
 						allNotes[startNoteIndex + 3],
 						allNotes[startNoteIndex + 5],
 						allNotes[startNoteIndex + 7],
-						allNotes[startNoteIndex + 9],
-						allNotes[startNoteIndex + 11],
+						allNotes[startNoteIndex + 8],
+						allNotes[startNoteIndex + 10],
 						allNotes[startNoteIndex + 12],
 					];
 				}
@@ -193,6 +193,7 @@
 			function checkGuess() {
 				const correctCountEl = document.getElementById('correctCount');
 				const errorCountEl = document.getElementById('errorCount');
+				const bestScoreEl = document.getElementById('bestScore');
 
 				if (guessedInterval === (randomDistance + 1)) {
 					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
@@ -210,21 +211,33 @@
 					});
 				}
 
+				//Clean
+				randomDistance = '';
+				intervalButtons.forEach(btn => btn.classList.remove('selected'));
+
+
 				const correctCount = parseInt(correctCountEl.innerText);
 				const errorCount = parseInt(errorCountEl.innerText);
+				let bestScore = parseInt(bestScoreEl.innerText);
+				const currentScore = correctCount - errorCount;
 
-				$.ajax({
-					type: "POST",
-					url: "/Exercise/GuessIntervalSaveScore",
-					data: { correctCount: correctCount, errorCount: errorCount },
-					error: function () {
-						console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
-					}
-				});
+				if (currentScore > bestScore) {
+					bestScore = currentScore;
+					bestScoreEl.innerText = bestScore;  // Atualiza o elemento HTML
+
+					$.ajax({
+						type: "POST",
+						url: "/Exercise/GuessIntervalSaveScore",
+						data: { correctCount: correctCount, errorCount: errorCount },
+						error: function () {
+							console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
+						}
+					});
+				}
 			}
 
 			document.getElementById('validateGuess').addEventListener('click', () => {
-				if (guessedInterval) {
+				if (guessedInterval && randomDistance) {
 					checkGuess();
 				} else {
 					Swal.fire({
