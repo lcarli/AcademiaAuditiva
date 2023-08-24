@@ -91,7 +91,9 @@
 			const errorSpan = document.getElementById('errorCount');
 
 			function getRandomQualityChord() {
-				allChords = AcademiaAuditiva.getAllQualityChordsWithinOctave(4);
+				allChords = (octaveRange === "single")
+					? AcademiaAuditiva.getAllChords(4)
+					: AcademiaAuditiva.getAllNotes();
 
 				const chordType = document.getElementById('chordType').value;
 

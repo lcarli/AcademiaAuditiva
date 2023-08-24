@@ -101,7 +101,10 @@
 			let chordType = "major";
 
 			function getRandomChord() {
-				allChords = AcademiaAuditiva.getAllChordsWithinOctave(4);
+				allChords = (octaveRange === "single")
+					? AcademiaAuditiva.getAllChords(4)
+					: AcademiaAuditiva.getAllNotes();
+
 				const filteredChords = allChords.filter(chord => {
 					if (chordType === "major") {
 						return chord.type === "major";
