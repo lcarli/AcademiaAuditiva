@@ -43,6 +43,10 @@
         const majorSeventh = 11;
         const minorSeventh = 10;
         const diminishedSeventh = 9;
+        const diminishedMinorThirds = [3, 3, 3];
+        const diminishedMajorThirds = [3, 3, 4];
+        const ninth = 14;
+
 
         function getChordNotes(rootNote, intervals, seventh = null) {
             let currentIndex = allNotes.indexOf(rootNote);
@@ -79,6 +83,10 @@
                     allChords.push({ type: "major7", notes: getChordNotes(note, majorThirds, majorSeventh) });
                     allChords.push({ type: "minor7", notes: getChordNotes(note, minorThirds, minorSeventh) });
                     allChords.push({ type: "diminished7", notes: getChordNotes(note, diminishedThirds, diminishedSeventh) });
+                    allChords.push({ type: "ninth", notes: getChordNotes(note, majorThirds.concat(ninth)) });
+                    allChords.push({ type: "diminishedMinor", notes: getChordNotes(note, diminishedMinorThirds) });
+                    allChords.push({ type: "diminishedMajor", notes: getChordNotes(note, diminishedMajorThirds) });
+
                 }
             }
             else {
@@ -89,6 +97,10 @@
                     allChords.push({ type: "major7", notes: getChordNotes(note, majorThirds, majorSeventh) });
                     allChords.push({ type: "minor7", notes: getChordNotes(note, minorThirds, minorSeventh) });
                     allChords.push({ type: "diminished7", notes: getChordNotes(note, diminishedThirds, diminishedSeventh) });
+                    allChords.push({ type: "ninth", notes: getChordNotes(note, majorThirds.concat(ninth)) });
+                    allChords.push({ type: "diminishedMinor", notes: getChordNotes(note, diminishedMinorThirds) });
+                    allChords.push({ type: "diminishedMajor", notes: getChordNotes(note, diminishedMajorThirds) });
+
                 }
             }
         }
@@ -99,8 +111,8 @@
         const allChords = this.getAllChords();
         const allNotes = this.getAllNotes();
 
-        const majorHarmonicField = ["0-major", "2-minor", "4-minor", "5-major", "7-major", "9-minor", "11-diminished"];
-        const minorHarmonicField = ["0-minor", "2-diminished", "4-major", "5-minor", "7-minor", "9-major", "11-major"];
+        const majorHarmonicField = ["0-major", "2-minor", "4-minor", "5-major", "7-major", "9-minor", "11-diminishedMinor"];
+        const minorHarmonicField = ["0-minor", "2-diminishedMinor", "4-major", "5-minor", "7-minor", "9-major", "11-major"];
 
         function getHarmonicNotes(rootNote, harmonicField) {
             let currentIndex = allNotes.indexOf(rootNote);
