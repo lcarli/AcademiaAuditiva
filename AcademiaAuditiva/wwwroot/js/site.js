@@ -144,7 +144,76 @@
             returnChords.push({ type: "minor", notes: getHarmonicNotes(note, 'minor') });
         }
         return returnChords.filter(chord => chord.notes.length >= 3); // Filtramos acordes incompletos
-    }
+    },
+
+    getAllScales: function (octave = null) {
+        const allNotes = this.getAllNotes();
+
+        // Definindo os intervalos para cada tipo de escala:
+        const majorScale = [2, 2, 1, 2, 2, 2, 1];
+        const minorScale = [2, 1, 2, 2, 1, 2, 2];
+        const majorPentatonic = [2, 2, 3, 2, 3];
+        const minorPentatonic = [3, 2, 2, 3, 2];
+
+        // Modos gregos:
+        const ionian = majorScale;
+        const dorian = [2, 1, 2, 2, 2, 1, 2];
+        const phrygian = [1, 2, 2, 2, 1, 2, 2];
+        const lydian = [2, 2, 2, 1, 2, 2, 1];
+        const mixolydian = [2, 2, 1, 2, 2, 1, 2];
+        const aeolian = minorScale;
+        const locrian = [1, 2, 2, 1, 2, 2, 2];
+
+        function getScaleNotes(rootNote, intervals) {
+            let currentIndex = allNotes.indexOf(rootNote);
+            const scale = [rootNote];
+
+            for (const interval of intervals) {
+                currentIndex += interval;
+                if (currentIndex < allNotes.length) {
+                    scale.push(allNotes[currentIndex]);
+                } else {
+                    return [];
+                }
+            }
+
+            return scale;
+        }
+
+        const allScales = [];
+        for (const note of allNotes) {
+            if (octave != null) {
+                if (note.endsWith(octave.toString())) {
+                    allScales.push({ type: "major", notes: getScaleNotes(note, majorScale) });
+                    allScales.push({ type: "minor", notes: getScaleNotes(note, minorScale) });
+                    allScales.push({ type: "majorPentatonic", notes: getScaleNotes(note, majorPentatonic) });
+                    allScales.push({ type: "minorPentatonic", notes: getScaleNotes(note, minorPentatonic) });
+                    allScales.push({ type: "ionian", notes: getScaleNotes(note, ionian) });
+                    allScales.push({ type: "dorian", notes: getScaleNotes(note, dorian) });
+                    allScales.push({ type: "phrygian", notes: getScaleNotes(note, phrygian) });
+                    allScales.push({ type: "lydian", notes: getScaleNotes(note, lydian) });
+                    allScales.push({ type: "mixolydian", notes: getScaleNotes(note, mixolydian) });
+                    allScales.push({ type: "aeolian", notes: getScaleNotes(note, aeolian) });
+                    allScales.push({ type: "locrian", notes: getScaleNotes(note, locrian) });
+                }
+            }
+            else {
+                allScales.push({ type: "major", notes: getScaleNotes(note, majorScale) });
+                allScales.push({ type: "minor", notes: getScaleNotes(note, minorScale) });
+                allScales.push({ type: "majorPentatonic", notes: getScaleNotes(note, majorPentatonic) });
+                allScales.push({ type: "minorPentatonic", notes: getScaleNotes(note, minorPentatonic) });
+                allScales.push({ type: "ionian", notes: getScaleNotes(note, ionian) });
+                allScales.push({ type: "dorian", notes: getScaleNotes(note, dorian) });
+                allScales.push({ type: "phrygian", notes: getScaleNotes(note, phrygian) });
+                allScales.push({ type: "lydian", notes: getScaleNotes(note, lydian) });
+                allScales.push({ type: "mixolydian", notes: getScaleNotes(note, mixolydian) });
+                allScales.push({ type: "aeolian", notes: getScaleNotes(note, aeolian) });
+                allScales.push({ type: "locrian", notes: getScaleNotes(note, locrian) });
+            }
+        }
+        return allScales.filter(scale => scale.notes.length >= 5); // Filtramos escalas incompletas (pelo menos 5 notas)
+    },
+
 
 };
 

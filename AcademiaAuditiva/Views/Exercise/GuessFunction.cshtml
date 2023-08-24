@@ -7,31 +7,33 @@
 		<div class="col-md-8">
 			<h2 class="text-center mb-4">@ViewBag.Title</h2>
 
-			<!-- Tom e Qualidade -->
-			<div class="mb-4">
-				<label for="key" class="form-label">Selecionar Tom</label>
-				<select id="key" class="form-select">
-					<option value="C4">C</option>
-					<option value="C#4">C#</option>
-					<option value="D4">D</option>
-					<option value="D#4">D#</option>
-					<option value="E4">E</option>
-					<option value="F4">F</option>
-					<option value="F#4">F#</option>
-					<option value="G4">G</option>
-					<option value="G#4">G#</option>
-					<option value="A4">A</option>
-					<option value="A#4">A#</option>
-					<option value="E4">E</option>
-				</select>
-			</div>
+			<div class="mb-4 text-center d-flex justify-content-center">
+				<!-- Tom e Qualidade -->
+				<div class="mb-4 me-4">
+					<label for="key" class="form-label">Selecionar Tom</label>
+					<select id="key" class="form-select">
+						<option value="C4">C</option>
+						<option value="C#4">C#</option>
+						<option value="D4">D</option>
+						<option value="D#4">D#</option>
+						<option value="E4">E</option>
+						<option value="F4">F</option>
+						<option value="F#4">F#</option>
+						<option value="G4">G</option>
+						<option value="G#4">G#</option>
+						<option value="A4">A</option>
+						<option value="A#4">A#</option>
+						<option value="E4">E</option>
+					</select>
+				</div>
 
-			<div class="mb-4">
-				<label for="quality" class="form-label">Qualidade</label>
-				<select id="quality" class="form-select">
-					<option value="major">Maior</option>
-					<option value="minor">Menor</option>
-				</select>
+				<div class="mb-4">
+					<label for="quality" class="form-label">Qualidade</label>
+					<select id="quality" class="form-select">
+						<option value="major">Maior</option>
+						<option value="minor">Menor</option>
+					</select>
+				</div>
 			</div>
 
 			<div class="mb-4 text-center">
@@ -124,7 +126,7 @@
 			document.getElementById('playFunction').addEventListener('click', () => {
 				const functionObj = getRandomFunction();
 				randomFunctionNotes = functionObj.notes;
-				randomFunction = functionObj.position + '-' + functionObj.type ;
+				randomFunction = functionObj.position + '-' + functionObj.type;
 
 				// Tocando a nota selecionada
 				AcademiaAuditiva.sampler.triggerAttackRelease(randomFunctionNotes, "1");

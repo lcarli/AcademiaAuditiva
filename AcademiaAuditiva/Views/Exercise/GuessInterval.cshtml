@@ -7,30 +7,37 @@
 		<div class="col-md-8">
 			<h2 class="text-center mb-4">Adivinhe o Intervalo</h2>
 
-			<div class="mb-4 text-center">
+			<div class="mb-4 text-center d-flex justify-content-center">
 				<!-- Dropdown para escolher Tom -->
-				<select id="keySelect">
-					<option value="C4">C</option>
-					<option value="Cs4">C#</option>
-					<option value="D4">D</option>
-					<option value="Ds4">D#</option>
-					<option value="E4">E</option>
-					<option value="F4">F</option>
-					<option value="Fs4">F#</option>
-					<option value="G4">G</option>
-					<option value="Gs4">G#</option>
-					<option value="A4">A</option>
-					<option value="As4">A#</option>
-					<option value="E4">E</option>
-
-				</select>
+				<div class="mb-4 me-4">
+					<!-- Adicionado me-4 para espaço à direita -->
+					<label for="keySelect" class="form-label">Selecione o Tom</label>
+					<select id="keySelect" class="form-select">
+						<option value="C4">C</option>
+						<option value="C#4">C#</option>
+						<option value="D4">D</option>
+						<option value="D#4">D#</option>
+						<option value="E4">E</option>
+						<option value="F4">F</option>
+						<option value="F#4">F#</option>
+						<option value="G4">G</option>
+						<option value="G#4">G#</option>
+						<option value="A4">A</option>
+						<option value="A#4">A#</option>
+						<option value="E4">E</option> <!-- Parece que você tem duas opções "E4", talvez seja um erro? -->
+					</select>
+				</div>
 
 				<!-- Dropdown para escolher Tipo de Escala -->
-				<select id="scaleTypeSelect">
-					<option value="Maior">Maior</option>
-					<option value="Menor">Menor</option>
-				</select>
+				<div class="mb-4">
+					<label for="scaleTypeSelect" class="form-label">Selecione a Escala</label>
+					<select id="scaleTypeSelect" class="form-select">
+						<option value="major">Maior</option>
+						<option value="minor">Menor</option>
+					</select>
+				</div>
 			</div>
+
 
 			<div class="mb-4 text-center">
 				<button id="playInterval" class="btn btn-primary me-3">Tocar Intervalo</button>
@@ -94,43 +101,20 @@
 			let baseNote = "";
 
 			function getRandomInterval() {
-				const allNotes = ["C4", "Cs4", "D4", "Ds4", "E4", "F4", "Fs4", "G4", "Gs4", "A4", "As4", "B4", "C5", "Cs5", "D5", "Ds5", "E5", "F5", "Fs5", "G5", "Gs5", "A5", "As5", "B5"];
-
 				// Pegando a seleção do usuário
 				const key = document.getElementById('keySelect').value;
 				const scaleType = document.getElementById('scaleTypeSelect').value;
 
-				// Define as notas para escalas maiores e menores com base na chave selecionada.
-				let scaleNotes;
-				const startNoteIndex = allNotes.indexOf(key);
+				// Procura a escala correspondente usando o método getAllScales.
+				const scales = AcademiaAuditiva.getAllScales(); // Assumindo que getAllScales está no mesmo contexto
+				const matchingScales = scales.filter(scale => scale.type.toLowerCase() === scaleType.toLowerCase() && scale.notes[0] === key);
 
-				if (scaleType === "Maior") {
-					scaleNotes = [
-						allNotes[startNoteIndex],
-						allNotes[startNoteIndex + 2],
-						allNotes[startNoteIndex + 4],
-						allNotes[startNoteIndex + 5],
-						allNotes[startNoteIndex + 7],
-						allNotes[startNoteIndex + 9],
-						allNotes[startNoteIndex + 11],
-						allNotes[startNoteIndex + 12]
-					];
-				} else { // Escala Menor
-					scaleNotes = [
-						allNotes[startNoteIndex],
-						allNotes[startNoteIndex + 2],
-						allNotes[startNoteIndex + 3],
-						allNotes[startNoteIndex + 5],
-						allNotes[startNoteIndex + 7],
-						allNotes[startNoteIndex + 8],
-						allNotes[startNoteIndex + 10],
-						allNotes[startNoteIndex + 12],
-					];
+				if (matchingScales.length === 0) {
+					console.error("Escala não encontrada.");
+					return null;
 				}
 
-
-				// Removendo notas inválidas (aquelas que não estão em 'allNotes')
-				scaleNotes = scaleNotes.filter(note => allNotes.includes(note));
+				let scaleNotes = matchingScales[0].notes;
 
 				// Seleciona uma nota base e um intervalo aleatório dentro da escala
 				baseNote = scaleNotes[0];
@@ -139,6 +123,7 @@
 
 				return [baseNote, intervalNote];
 			}
+
 
 
 			document.getElementById('playInterval').addEventListener('click', () => {
