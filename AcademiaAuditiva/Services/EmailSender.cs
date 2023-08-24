@@ -1,6 +1,7 @@
 ﻿using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using MimeKit;
+using System.Net.Mail;
 using System.Threading.Tasks;
 
 namespace AcademiaAuditiva.Services
@@ -21,12 +22,25 @@ namespace AcademiaAuditiva.Services
 
             message.Body = bodyBuilder.ToMessageBody();
 
-            using var client = new SmtpClient();
-            client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-            await client.ConnectAsync("smtp.gmail.com", 587, false);
-            await client.AuthenticateAsync("academiaauditiva@gmail.com", "dqnszabfutbuouev");
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
-        }
+			using (var client = new MailKit.Net.Smtp.SmtpClient())
+			{
+				try
+				{
+					client.Connect("smtp.gmail.com", 465, true);
+					client.AuthenticationMechanisms.Remove("XOAUTH2");
+					client.Authenticate("academiaauditiva@gmail.com", "dqnszabfutbuouev");
+					await client.SendAsync(message);
+				}
+				catch (Exception ex)
+				{
+					throw;
+				}
+				finally
+				{
+					client.Disconnect(true);
+					client.Dispose();
+				}
+			}
+		}
     }
 }
