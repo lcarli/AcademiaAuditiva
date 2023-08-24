@@ -1,29 +1,69 @@
-﻿@{
-    ViewBag.Title = "Exercícios";
+﻿@using AcademiaAuditiva.Extensions
+@model IEnumerable<AcademiaAuditiva.Models.Exercise>
+
+@{
+	ViewBag.Title = "Exercícios";
 }
 
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <h2 class="mb-5">Exercícios Disponíveis</h2>
+	<div class="row justify-content-center">
+		<div class="col-md-10 text-center">
+			<h2 class="mb-5">Exercícios Disponíveis</h2>
+		</div>
+	</div>
 
-            <ul class="list-group">
-                <li class="list-group-item">
-                    <a href="@Url.Action("GuessNote", "Exercise")" class="exercise-link">Adivinhe a Nota</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="@Url.Action("GuessChords", "Exercise")" class="exercise-link">Adivinhe o Acorde</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="@Url.Action("GuessInterval", "Exercise")" class="exercise-link">Adivinhe o Intervalo</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="@Url.Action("GuessQuality", "Exercise")" class="exercise-link">Adivinhe a Qualidade (Maior, Menor, Diminuto)</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="@Url.Action("GuessFunction", "Exercise")" class="exercise-link">Adivinhe a Função do Acorde</a>
-                </li>
-            </ul>
-        </div>
-    </div>
+	<ul class="nav nav-tabs" id="exerciseTabs" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button class="nav-link active" id="difficulty-tab" data-bs-toggle="tab" data-bs-target="#byDifficulty" type="button" role="tab" aria-controls="byDifficulty" aria-selected="true">Por Dificuldade</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="type-tab" data-bs-toggle="tab" data-bs-target="#byType" type="button" role="tab" aria-controls="byType" aria-selected="false">Por Tipo</button>
+		</li>
+	</ul>
+
+	<div class="tab-content" id="exerciseTabsContent">
+		<!-- Aba Por Dificuldade -->
+		<div class="tab-pane fade show active" id="byDifficulty" role="tabpanel" aria-labelledby="difficulty-tab">
+			<div class="row mt-4">
+				@foreach (var level in Enum.GetValues(typeof(DifficultyLevel)))
+				{
+					<div class="col-md-4 text-center mb-5">
+						<h4>@level</h4>
+						<ul class="list-group">
+							@foreach (var exercise in Model.Where(e => e.Difficulty == (DifficultyLevel)level))
+							{
+								<li class="list-group-item">
+									<a href="@Url.Action(exercise.Name, "Exercise")" class="exercise-link">@exercise.Name</a>
+								</li>
+							}
+						</ul>
+					</div>
+				}
+			</div>
+		</div>
+
+		<!-- Aba Por Tipo -->
+		<div class="tab-pane fade" id="byType" role="tabpanel" aria-labelledby="type-tab">
+			<div class="row mt-4">
+				@foreach (var type in Enum.GetValues(typeof(ExerciseType)))
+				{
+					<div class="col-md-4 text-center mb-5">
+						<h4>@type</h4>
+						<ul class="list-group">
+							@foreach (var exercise in Model.Where(e => e.Type == (ExerciseType)type))
+							{
+								<li class="list-group-item">
+									<a href="@Url.Action(exercise.Name, "Exercise")" class="exercise-link">@exercise.Name</a>
+								</li>
+							}
+						</ul>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
 </div>
+
+
+@section Scripts {
+}

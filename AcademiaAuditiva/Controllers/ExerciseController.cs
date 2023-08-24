@@ -19,7 +19,8 @@ namespace AcademiaAuditiva.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var exercises = _context.Exercises.ToList();
+            return View(exercises);
         }
 
 
