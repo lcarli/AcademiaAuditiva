@@ -3,6 +3,7 @@ using AcademiaAuditiva.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +26,8 @@ builder.Services.AddAuthentication()
     {
         facebookOptions.AppId = "324439820147408";
         facebookOptions.AppSecret = "fd7f51f6405d1d8920eaed61041c7a53";
-    });
+		facebookOptions.AccessDeniedPath = "/AccessDeniedPathInfo";
+	});
 
 
 
