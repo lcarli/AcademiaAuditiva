@@ -245,6 +245,146 @@
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.map"
     },
     {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\theme-rtl.css",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\theme-rtl.css"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\theme-rtl.css.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\theme-rtl.css.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\theme-rtl.min.css",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\theme-rtl.min.css"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\theme-rtl.min.css.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\theme-rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\theme.css",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\theme.css"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\theme.css.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\theme.css.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\theme.min.css",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\theme.min.css"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\theme.min.css.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\theme.min.css.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\user-rtl.css",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\user-rtl.css"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\user-rtl.css.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\user-rtl.css.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\user-rtl.min.css",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\user-rtl.min.css"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\user-rtl.min.css.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\user-rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\user.css",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\user.css"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\user.css.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\user.css.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\user.min.css",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\user.min.css"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\css\\user.min.css.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\css\\user.min.css.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\js\\config.js",
+      "PackagePath": "staticwebassets\\theme\\assets\\js\\config.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\js\\config.js.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\js\\config.js.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\js\\ecommerce-dashboard.js",
+      "PackagePath": "staticwebassets\\theme\\assets\\js\\ecommerce-dashboard.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\js\\ecommerce-dashboard.js.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\js\\ecommerce-dashboard.js.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\js\\phoenix.js",
+      "PackagePath": "staticwebassets\\theme\\assets\\js\\phoenix.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\assets\\js\\phoenix.js.map",
+      "PackagePath": "staticwebassets\\theme\\assets\\js\\phoenix.js.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\anchorjs\\anchor.min.js",
+      "PackagePath": "staticwebassets\\theme\\vendors\\anchorjs\\anchor.min.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\dayjs\\dayjs.min.js",
+      "PackagePath": "staticwebassets\\theme\\vendors\\dayjs\\dayjs.min.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\echarts\\echarts.min.js",
+      "PackagePath": "staticwebassets\\theme\\vendors\\echarts\\echarts.min.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\feather-icons\\feather.min.js",
+      "PackagePath": "staticwebassets\\theme\\vendors\\feather-icons\\feather.min.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\feather-icons\\feather.min.js.map",
+      "PackagePath": "staticwebassets\\theme\\vendors\\feather-icons\\feather.min.js.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\fontawesome\\all.min.js",
+      "PackagePath": "staticwebassets\\theme\\vendors\\fontawesome\\all.min.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\imagesloaded\\imagesloaded.pkgd.min.js",
+      "PackagePath": "staticwebassets\\theme\\vendors\\imagesloaded\\imagesloaded.pkgd.min.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\is\\is.min.js",
+      "PackagePath": "staticwebassets\\theme\\vendors\\is\\is.min.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\list.js\\list.min.js",
+      "PackagePath": "staticwebassets\\theme\\vendors\\list.js\\list.min.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\list.js\\list.min.js.map",
+      "PackagePath": "staticwebassets\\theme\\vendors\\list.js\\list.min.js.map"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\lodash\\lodash.min.js",
+      "PackagePath": "staticwebassets\\theme\\vendors\\lodash\\lodash.min.js"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\simplebar\\simplebar.min.css",
+      "PackagePath": "staticwebassets\\theme\\vendors\\simplebar\\simplebar.min.css"
+    },
+    {
+      "Id": "C:\\repos\\AcademiaAuditiva\\AcademiaAuditiva\\wwwroot\\theme\\vendors\\simplebar\\simplebar.min.js",
+      "PackagePath": "staticwebassets\\theme\\vendors\\simplebar\\simplebar.min.js"
+    },
+    {
       "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.AcademiaAuditiva.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },
