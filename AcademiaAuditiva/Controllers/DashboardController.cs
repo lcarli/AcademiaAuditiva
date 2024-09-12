@@ -36,6 +36,8 @@ namespace AcademiaAuditiva.Controllers
         {
             string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+
+    	    //Comments
             var bestScores = GetBestScoresForUser(currentUserId);
 
             var result = bestScores.Select(score => new

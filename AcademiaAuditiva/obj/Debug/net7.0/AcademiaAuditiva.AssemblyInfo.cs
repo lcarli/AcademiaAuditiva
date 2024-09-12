@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AcademiaAuditiva")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+beeec6b34607f00731437c7a8587f1471c9b849e")]
 [assembly: System.Reflection.AssemblyProductAttribute("AcademiaAuditiva")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AcademiaAuditiva")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

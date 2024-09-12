@@ -1,13 +1,15 @@
 ﻿const AcademiaAuditiva = {
     sampler: null,
     init: function () {
+
         this.sampler = new Tone.Sampler(this._generateNoteUrls(), {
             release: 1,
             baseUrl: "https://stacademiaauditiva.blob.core.windows.net/piano-audio/",
         }).toDestination();
 
+
         Tone.loaded().then(() => {
-            // Qualquer lógica de inicialização adicional pode ser colocada aqui
+            //qualquer modificacao aqui
         });
     },
     _generateNoteUrls: function () {
@@ -218,6 +220,19 @@
 };
 
 // Inicializa o objeto quando o DOM estiver pronto
+
+// Função para carregar o script Tone.js dinamicamente
+function loadToneJs(callback) {
+    const script = document.createElement("script");
+    script.src = "http://unpkg.com/tone";
+    script.onload = callback;
+    document.body.appendChild(script);
+}
+
+// Inicializa o objeto quando o DOM estiver pronto
 document.addEventListener("DOMContentLoaded", function () {
-    AcademiaAuditiva.init();
+    loadToneJs(() => {
+        AcademiaAuditiva.init();
+    });
 });
+
