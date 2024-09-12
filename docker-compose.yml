@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: 'Y'
+      SA_PASSWORD: 'Sup3r5tr0ngPAssw0rd'
+    ports:
+      - 1433:1433
