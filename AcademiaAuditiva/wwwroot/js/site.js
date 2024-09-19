@@ -220,19 +220,7 @@
 };
 
 // Inicializa o objeto quando o DOM estiver pronto
-
-// Função para carregar o script Tone.js dinamicamente
-function loadToneJs(callback) {
-    const script = document.createElement("script");
-    script.src = "http://unpkg.com/tone";
-    script.onload = callback;
-    document.body.appendChild(script);
-}
-
-// Inicializa o objeto quando o DOM estiver pronto
 document.addEventListener("DOMContentLoaded", function () {
-    loadToneJs(() => {
-        AcademiaAuditiva.init();
-    });
+    AcademiaAuditiva.init();
 });
 
