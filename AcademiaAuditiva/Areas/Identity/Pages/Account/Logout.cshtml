@@ -1,7 +1,7 @@
 ﻿@page
 @model LogoutModel
 @{
-    ViewData["Title"] = "Sair";
+    ViewData["Title"] = Localizer["Logout.Header"];
 }
 
 <header>
@@ -10,12 +10,12 @@
         if (User.Identity?.IsAuthenticated ?? false)
         {
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark">Clique aqui para sair</button>
+                <button type="submit" class="nav-link btn btn-link text-dark">@Localizer["Logout.Confirmation"]</button>
             </form>
         }
         else
         {
-            <p>Você saiu com sucesso da aplicação.</p>
+            <p>@Localizer["Logout.Text"]</p>
         }
     }
 </header>

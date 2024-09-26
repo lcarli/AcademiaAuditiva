@@ -169,7 +169,7 @@
     <value>Login</value>
   </data>
   <data name="Login.Register" xml:space="preserve">
-    <value>Register</value>
+    <value>Signin</value>
   </data>
   <data name="Home.Title" xml:space="preserve">
     <value>Welcome to Academia Auditiva</value>
@@ -194,5 +194,35 @@
   </data>
   <data name="Exercice.Header" xml:space="preserve">
     <value>Exercises</value>
+  </data>
+  <data name="Login.Title" xml:space="preserve">
+    <value>Use a local account to sign in.</value>
+  </data>
+  <data name="Login.Remember" xml:space="preserve">
+    <value>Forgot your password?</value>
+  </data>
+  <data name="Login.RegisterText" xml:space="preserve">
+    <value>Register as a new user</value>
+  </data>
+  <data name="Login.ResendEmail" xml:space="preserve">
+    <value>Resend email confirmation</value>
+  </data>
+  <data name="Login.ExternalLogin" xml:space="preserve">
+    <value>Use another service to sign in.</value>
+  </data>
+  <data name="Login.ExternalLoginText" xml:space="preserve">
+    <value>Sign in using your account</value>
+  </data>
+  <data name="Login.RememberMe" xml:space="preserve">
+    <value>Remember me</value>
+  </data>
+  <data name="Logout.Header" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="Logout.Text" xml:space="preserve">
+    <value>You have successfully logged out of the application.</value>
+  </data>
+  <data name="Logout.Confirmation" xml:space="preserve">
+    <value>Click here to log out</value>
   </data>
 </root>

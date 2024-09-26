@@ -195,4 +195,34 @@
   <data name="Exercice.Header" xml:space="preserve">
     <value>Exercícios</value>
   </data>
+  <data name="Login.Title" xml:space="preserve">
+    <value>Use uma conta local para entrar.</value>
+  </data>
+  <data name="Login.Remember" xml:space="preserve">
+    <value>Esqueceu sua senha?</value>
+  </data>
+  <data name="Login.RegisterText" xml:space="preserve">
+    <value>Registrar como novo usuário</value>
+  </data>
+  <data name="Login.ResendEmail" xml:space="preserve">
+    <value>Reenviar confirmação de email</value>
+  </data>
+  <data name="Login.ExternalLogin" xml:space="preserve">
+    <value>Use outro serviço para entrar.</value>
+  </data>
+  <data name="Login.ExternalLoginText" xml:space="preserve">
+    <value>Entre usando sua conta</value>
+  </data>
+  <data name="Login.RememberMe" xml:space="preserve">
+    <value>Lembrar de mim</value>
+  </data>
+  <data name="Logout.Header" xml:space="preserve">
+    <value>Sair</value>
+  </data>
+  <data name="Logout.Text" xml:space="preserve">
+    <value>Você saiu com sucesso da aplicação.</value>
+  </data>
+  <data name="Logout.Confirmation" xml:space="preserve">
+    <value>Clique aqui para sair</value>
+  </data>
 </root>
