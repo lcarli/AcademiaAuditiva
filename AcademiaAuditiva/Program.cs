@@ -2,8 +2,11 @@ using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +18,27 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddControllersWithViews();
+
+builder.Services.AddLocalization();
+
+
+builder.Services.AddMvc()
+    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+    .AddDataAnnotationsLocalization();
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+        new CultureInfo("fr-CA"),
+        new CultureInfo("en-US"),
+        new CultureInfo("pt-BR")
+    };
+
+    options.DefaultRequestCulture = new RequestCulture(culture: "en-US", uiCulture: "en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 
 //Inject EmailSender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
@@ -26,9 +49,8 @@ builder.Services.AddAuthentication()
     {
         facebookOptions.AppId = "324439820147408";
         facebookOptions.AppSecret = "fd7f51f6405d1d8920eaed61041c7a53";
-		facebookOptions.AccessDeniedPath = "/AccessDeniedPathInfo";
-	});
-
+        facebookOptions.AccessDeniedPath = "/AccessDeniedPathInfo";
+    });
 
 
 var app = builder.Build();

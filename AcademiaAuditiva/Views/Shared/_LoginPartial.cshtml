@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Localization
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject IViewLocalizer Localizer
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -34,7 +36,7 @@ else
             <a class="nav-link" asp-page="/Account/Register" asp-area="Identity">Registrar</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" asp-page="/Account/Login" asp-area="Identity">Entrar</a>
+            <a class="nav-link" asp-page="/Account/Login" asp-area="Identity">@Localizer["Login.Login"]</a>
         </li>
     </ul>
 }
