@@ -2,22 +2,22 @@
 @model IEnumerable<AcademiaAuditiva.Models.Exercise>
 
 @{
-	ViewBag.Title = "Exercícios";
+	ViewBag.Title = Localizer["Exercice.Header"];
 }
 
 <div class="container mt-5">
 	<div class="row justify-content-center">
 		<div class="col-md-10 text-center">
-			<h2 class="mb-5">Exercícios Disponíveis</h2>
+			<h2 class="mb-5">@Localizer["Exercise.Title"]</h2>
 		</div>
 	</div>
 
 	<ul class="nav nav-tabs" id="exerciseTabs" role="tablist">
 		<li class="nav-item" role="presentation">
-			<button class="nav-link active" id="difficulty-tab" data-bs-toggle="tab" data-bs-target="#byDifficulty" type="button" role="tab" aria-controls="byDifficulty" aria-selected="true">Por Dificuldade</button>
+			<button class="nav-link active" id="difficulty-tab" data-bs-toggle="tab" data-bs-target="#byDifficulty" type="button" role="tab" aria-controls="byDifficulty" aria-selected="true">@Localizer["Exercise.Tab1.Level"]</button>
 		</li>
 		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="type-tab" data-bs-toggle="tab" data-bs-target="#byType" type="button" role="tab" aria-controls="byType" aria-selected="false">Por Tipo</button>
+			<button class="nav-link" id="type-tab" data-bs-toggle="tab" data-bs-target="#byType" type="button" role="tab" aria-controls="byType" aria-selected="false">@Localizer["Exercise.Tab2.Type"]</button>
 		</li>
 	</ul>
 

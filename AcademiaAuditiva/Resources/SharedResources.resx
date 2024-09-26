@@ -124,10 +124,10 @@
     <value>Games</value>
   </data>
   <data name="Dashboard.Progress" xml:space="preserve">
-    <value>Progress</value>
+    <value>Exercise Progress</value>
   </data>
   <data name="Dashboard.Overall" xml:space="preserve">
-    <value>Overall</value>
+    <value>Overall Performance</value>
   </data>
   <data name="Dashboard.Timeline" xml:space="preserve">
     <value>Exercise Timeline</value>
@@ -136,7 +136,7 @@
     <value>Dashboard</value>
   </data>
   <data name="Dashboard.Subtitle" xml:space="preserve">
-    <value>Progress and evolution</value>
+    <value>Track your progress and evolution.</value>
   </data>
   <data name="Header.Dashboard" xml:space="preserve">
     <value>Dashboard</value>
@@ -170,5 +170,29 @@
   </data>
   <data name="Login.Register" xml:space="preserve">
     <value>Register</value>
+  </data>
+  <data name="Home.Title" xml:space="preserve">
+    <value>Welcome to Academia Auditiva</value>
+  </data>
+  <data name="Home.Subtitle" xml:space="preserve">
+    <value>Improve your listening skills and expand your horizons.</value>
+  </data>
+  <data name="Home.Header" xml:space="preserve">
+    <value>What is the Academia Auditiva</value>
+  </data>
+  <data name="Home.Text1" xml:space="preserve">
+    <value>The Academia Auditiva is a platform dedicated to helping individuals improve their listening skills. Through a variety of exercises and methodologies, we strive to provide the best auditory learning experience for our members.</value>
+  </data>
+  <data name="Home.Footer" xml:space="preserve">
+    <value>Ready to start?</value>
+  </data>
+  <data name="Home.FooterText" xml:space="preserve">
+    <value>Join the auditory journey and discover a new world of possibilities.</value>
+  </data>
+  <data name="Dashboard.Header" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Exercice.Header" xml:space="preserve">
+    <value>Exercises</value>
   </data>
 </root>

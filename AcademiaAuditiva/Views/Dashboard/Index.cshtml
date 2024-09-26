@@ -1,23 +1,24 @@
 ﻿@{
-	ViewBag.Title = "Dashboard";
+	ViewBag.Title = Localizer["Dashboard.Header"];
 }
+
 
 <div class="container mt-5">
 	<div class="row">
 		<div class="col-md-12 text-center">
-			<h2>Dashboard de Evolução</h2>
-			<p class="text-muted">Acompanhe seu progresso e evolução.</p>
+			<h2>@Localizer["Dashboard.Title"]</h2>
+			<p class="text-muted">@Localizer["Dashboard.Subtitle"]</p>
 		</div>
 	</div>
 
 	<!-- Seção de Gráficos -->
 	<div class="row mt-5">
 		<div class="col-md-6">
-			<h4>Progresso nos Exercícios</h4>
+			<h4>@Localizer["Dashboard.Progress"]</h4>
 			<canvas id="progressChart"></canvas>
 		</div>
 		<div class="col-md-6">
-			<h4>Desempenho Geral</h4>
+			<h4>@Localizer["Dashboard.Overall"]</h4>
 			<canvas id="performanceChart"></canvas>
 		</div>
 	</div>
@@ -25,7 +26,7 @@
 	<!-- Seção de Linha do Tempo -->
 	<div class="row mt-5">
 		<div class="col-md-12">
-			<h4>Linha do Tempo dos Exercícios</h4>
+			<h4>@Localizer["Dashboard.Timeline"]</h4>
 			<ul class="timeline">
 				<!-- Aqui, você pode renderizar os eventos da linha do tempo com base nos dados -->
 			</ul>

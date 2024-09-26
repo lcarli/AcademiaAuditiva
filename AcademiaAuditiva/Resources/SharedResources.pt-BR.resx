@@ -139,7 +139,7 @@
     <value>Acompanhe seu progresso e evolução.</value>
   </data>
   <data name="Header.Dashboard" xml:space="preserve">
-    <value>Dashboard</value>
+    <value>Painel</value>
   </data>
   <data name="Login.Hello" xml:space="preserve">
     <value>Olá</value>
@@ -170,5 +170,29 @@
   </data>
   <data name="Login.Register" xml:space="preserve">
     <value>Registrar</value>
+  </data>
+  <data name="Home.Title" xml:space="preserve">
+    <value>Bem-vindo à Academia Auditiva</value>
+  </data>
+  <data name="Home.Subtitle" xml:space="preserve">
+    <value>Aprimore suas habilidades auditivas e expanda seus horizontes.</value>
+  </data>
+  <data name="Home.Header" xml:space="preserve">
+    <value>O que é a Academia Auditiva?</value>
+  </data>
+  <data name="Home.Text1" xml:space="preserve">
+    <value>A Academia Auditiva é uma plataforma dedicada a ajudar indivíduos a aprimorar suas habilidades auditivas. Através de uma variedade de exercícios e metodologias, buscamos oferecer a melhor experiência de aprendizado auditivo para nossos membros.</value>
+  </data>
+  <data name="Home.Footer" xml:space="preserve">
+    <value>Pronto para começar?</value>
+  </data>
+  <data name="Home.FooterText" xml:space="preserve">
+    <value>Entre na jornada auditiva e descubra um novo mundo de possibilidades.</value>
+  </data>
+  <data name="Dashboard.Header" xml:space="preserve">
+    <value>Painel</value>
+  </data>
+  <data name="Exercice.Header" xml:space="preserve">
+    <value>Exercícios</value>
   </data>
 </root>

@@ -124,22 +124,22 @@
     <value>Jeux</value>
   </data>
   <data name="Dashboard.Progress" xml:space="preserve">
-    <value>Progression</value>
+    <value>Progrès dans les Exercices</value>
   </data>
   <data name="Dashboard.Overall" xml:space="preserve">
-    <value>Evaluation Globale</value>
+    <value>Performance Générale</value>
   </data>
   <data name="Dashboard.Timeline" xml:space="preserve">
-    <value>Ligne du temps des exercices</value>
+    <value>Chronologie des Exercices</value>
   </data>
   <data name="Dashboard.Title" xml:space="preserve">
-    <value>Panneau d'Evolution</value>
+    <value>Tableau de bord d'Évolution</value>
   </data>
   <data name="Dashboard.Subtitle" xml:space="preserve">
-    <value>Suivi de progression et evolution</value>
+    <value> Suivez votre progression et votre évolution.</value>
   </data>
   <data name="Header.Dashboard" xml:space="preserve">
-    <value>Panneau</value>
+    <value>Tableau de Bord</value>
   </data>
   <data name="Login.Hello" xml:space="preserve">
     <value>Bonjour</value>
@@ -151,10 +151,10 @@
     <value>Exercices Disponibles</value>
   </data>
   <data name="Exercise.Tab1.Level" xml:space="preserve">
-    <value>Pour Niveau</value>
+    <value>Par difficulté</value>
   </data>
   <data name="Exercise.Tab2.Type" xml:space="preserve">
-    <value>Pour Type</value>
+    <value>Par Type</value>
   </data>
   <data name="Exercise.Beginner" xml:space="preserve">
     <value>Débutant</value>
@@ -170,5 +170,29 @@
   </data>
   <data name="Login.Register" xml:space="preserve">
     <value>S'Inscrire</value>
+  </data>
+  <data name="Home.Title" xml:space="preserve">
+    <value>Bienvenue à Academia Auditiva</value>
+  </data>
+  <data name="Home.Subtitle" xml:space="preserve">
+    <value>Améliorez vos compétences d'écoute et élargissez vos horizons.</value>
+  </data>
+  <data name="Home.Header" xml:space="preserve">
+    <value>Qu'est-ce que l'Academia Auditiva?</value>
+  </data>
+  <data name="Home.Text1" xml:space="preserve">
+    <value> L'Academia Auditiva est une plateforme dédiée à aider les individus à améliorer leurs compétences d'écoute. Grâce à une variété d'exercices et de méthodologies, nous nous efforçons d'offrir la meilleure expérience d'apprentissage auditif à nos membres.</value>
+  </data>
+  <data name="Home.Footer" xml:space="preserve">
+    <value>Êtes-vous prêt à commencer?</value>
+  </data>
+  <data name="Home.FooterText" xml:space="preserve">
+    <value>Entrez dans le voyage auditif et découvrez un nouveau monde de possibilités.</value>
+  </data>
+  <data name="Dashboard.Header" xml:space="preserve">
+    <value>Tableau de Bord</value>
+  </data>
+  <data name="Exercice.Header" xml:space="preserve">
+    <value>Exercices</value>
   </data>
 </root>
