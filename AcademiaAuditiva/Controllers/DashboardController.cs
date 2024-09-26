@@ -1,6 +1,7 @@
 ﻿using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -22,7 +23,19 @@ namespace AcademiaAuditiva.Controllers
             return View();
         }
 
-        public List<Score> GetBestScoresForUser(string userId)
+        [AllowAnonymous]
+        public IActionResult SetLanguage(string culture, string returnUrl)
+		{
+			Response.Cookies.Append(
+				CookieRequestCultureProvider.DefaultCookieName,
+				CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+				new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
+			);
+
+			return LocalRedirect(returnUrl);
+		}
+
+		public List<Score> GetBestScoresForUser(string userId)
         {
             return _context.Scores
                 .Include(s => s.Exercise)

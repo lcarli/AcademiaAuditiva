@@ -115,3 +115,34 @@ section.text-center {
         color: #0056b3; /* Uma cor mais escura para o hover */
         text-decoration: none; /* Remover o sublinhado padrão do hover */
     }
+
+
+/* Dropdown Language */
+.dl-language {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+    background: transparent;
+}
+
+    .dl-language option {
+        color: black;
+    }
+
+
+    .dl-language img.flag-icon {
+        margin-right: 8px;
+    }
+
+.dropdown-menu a {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+}
+
+    .dropdown-menu a img.flag-icon {
+        margin-right: 8px;
+    }
