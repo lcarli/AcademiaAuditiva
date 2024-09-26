@@ -145,7 +145,7 @@
     <value>Olá</value>
   </data>
   <data name="Login.Logout" xml:space="preserve">
-    <value>Logout</value>
+    <value>Sair</value>
   </data>
   <data name="Exercise.Title" xml:space="preserve">
     <value>Exercícios Disponíveis</value>
@@ -166,6 +166,9 @@
     <value>Avançado</value>
   </data>
   <data name="Login.Login" xml:space="preserve">
-    <value>Login</value>
+    <value>Entrar</value>
+  </data>
+  <data name="Login.Register" xml:space="preserve">
+    <value>Registrar</value>
   </data>
 </root>

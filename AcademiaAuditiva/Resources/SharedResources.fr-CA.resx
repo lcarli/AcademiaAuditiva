@@ -168,4 +168,7 @@
   <data name="Login.Login" xml:space="preserve">
     <value>Connexion</value>
   </data>
+  <data name="Login.Register" xml:space="preserve">
+    <value>S'Inscrire</value>
+  </data>
 </root>

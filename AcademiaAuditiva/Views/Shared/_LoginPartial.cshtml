@@ -1,29 +1,29 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.Mvc.Localization
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
-@inject IViewLocalizer Localizer
+
+
 
 @if (SignInManager.IsSignedIn(User))
 {
     <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+            <a class="nav-link" asp-controller="Dashboard" asp-action="Index">@Localizer["Header.Dashboard"]</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" asp-controller="Exercise" asp-action="Index">Exercícios</a>
+            <a class="nav-link" asp-controller="Exercise" asp-action="Index">@Localizer["Header.Exercise"]</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Games</a>
+            <a class="nav-link" asp-controller="Dashboard" asp-action="Index">@Localizer["Header.Games"]</a>
         </li>
     </ul>
     <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link" asp-page="/Account/Manage/Index" asp-area="Identity">Olá, @User.Identity.Name!</a>
+            <a class="nav-link" asp-page="/Account/Manage/Index" asp-area="Identity">@Localizer["Login.Hello"], @User.Identity.Name!</a>
         </li>
         <li class="nav-item">
             <form method="post" asp-page="/Account/Logout" asp-area="Identity">
-                <button type="submit" class="nav-link btn btn-link text-white">Sair</button>
+                <button type="submit" class="nav-link btn btn-link text-white">@Localizer["Login.Logout"]</button>
             </form>
         </li>
     </ul>
@@ -33,7 +33,7 @@ else
     <ul></ul>
     <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-            <a class="nav-link" asp-page="/Account/Register" asp-area="Identity">Registrar</a>
+            <a class="nav-link" asp-page="/Account/Register" asp-area="Identity">@Localizer["Login.Register"]</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" asp-page="/Account/Login" asp-area="Identity">@Localizer["Login.Login"]</a>

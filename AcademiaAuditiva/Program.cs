@@ -52,8 +52,17 @@ builder.Services.AddAuthentication()
         facebookOptions.AccessDeniedPath = "/AccessDeniedPathInfo";
     });
 
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+//Localization
+var supportedCultures = new[] { "fr-CA", "en-US", "pt-BR" };
+var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
