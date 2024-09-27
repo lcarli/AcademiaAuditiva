@@ -225,4 +225,66 @@
   <data name="Logout.Confirmation" xml:space="preserve">
     <value>Clique aqui para sair</value>
   </data>
+  <data name="Register.Header" xml:space="preserve">
+    <value>Registrar</value>
+  </data>
+  <data name="Register.Title" xml:space="preserve">
+    <value>Crie uma nova conta.</value>
+  </data>
+  <data name="Register.Password" xml:space="preserve">
+    <value>Senha</value>
+  </data>
+  <data name="Register.PasswordConfirmation" xml:space="preserve">
+    <value>Confirme a Senha</value>
+  </data>
+  <data name="Register.Text" xml:space="preserve">
+    <value>Use outro serviço para se registrar.</value>
+  </data>
+  <data name="ResendEmailConfirmation.Header" xml:space="preserve">
+    <value>Reenviar email de confirmação</value>
+  </data>
+  <data name="ResendEmailConfirmation.Text" xml:space="preserve">
+    <value>Reenviar</value>
+  </data>
+  <data name="Confirmation.Text" xml:space="preserve">
+    <value>Por favor, verifique seu e-mail para confirmar sua conta.</value>
+  </data>
+  <data name="Confirmation.Header" xml:space="preserve">
+    <value>Confirmação de Registro</value>
+  </data>
+  <data name="ForgotPassword.Header" xml:space="preserve">
+    <value>Esqueceu sua senha?</value>
+  </data>
+  <data name="ForgotPassword.Text" xml:space="preserve">
+    <value>Resetar Password</value>
+  </data>
+  <data name="ForgotConfirmation.Header" xml:space="preserve">
+    <value>Confirmação de esquecimento de senha</value>
+  </data>
+  <data name="ForgotConfirmation.Text" xml:space="preserve">
+    <value>Por favor, verifique seu e-mail para redefinir sua senha.</value>
+  </data>
+  <data name="AccessDenied.Header" xml:space="preserve">
+    <value>Accesso Negado</value>
+  </data>
+  <data name="AccessDenied.Text" xml:space="preserve">
+    <value>Você não tem acesso a este recurso.</value>
+  </data>
+  <data name="EmailConfirmation.Header" xml:space="preserve">
+    <value>Confirmação de email</value>
+  </data>
+  <data name="EmailConfirmationChange.Header" xml:space="preserve">
+    <value>Confirmação de mudança de email</value>
+  </data>
+  <data name="ExternalLogin.Title" xml:space="preserve">
+    <value>Associe sua conta</value>
+  </data>
+  <data name="ExternalLogin.Text" xml:space="preserve">
+    <value>Você autenticou com sucesso usando &lt;strong&gt;@Model.ProviderDisplayName&lt;/strong&gt;.
+Por favor, insira um endereço de email para este site abaixo e clique no botão Registrar para finalizar
+o acesso.</value>
+  </data>
+  <data name="Lockout.Text" xml:space="preserve">
+    <value>Esta conta foi bloqueada, por favor tente novamente mais tarde.</value>
+  </data>
 </root>

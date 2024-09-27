@@ -1,7 +1,7 @@
 ﻿@page
 @model ResendEmailConfirmationModel
 @{
-    ViewData["Title"] = "Reenviar email de confirmação";
+    ViewData["Title"] = Localizer["ResendEmailConfirmation.Header"];
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -16,7 +16,7 @@
                 <label asp-for="Input.Email" class="form-label"></label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Reenviar</button>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["ResendEmailConfirmation.Text"]</button>
         </form>
     </div>
 </div>

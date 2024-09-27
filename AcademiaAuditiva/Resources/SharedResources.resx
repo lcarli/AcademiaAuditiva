@@ -225,4 +225,65 @@
   <data name="Logout.Confirmation" xml:space="preserve">
     <value>Click here to log out</value>
   </data>
+  <data name="Register.Header" xml:space="preserve">
+    <value>Sign Up</value>
+  </data>
+  <data name="Register.Title" xml:space="preserve">
+    <value>Create a new account.</value>
+  </data>
+  <data name="Register.Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Register.PasswordConfirmation" xml:space="preserve">
+    <value>Confirm Password</value>
+  </data>
+  <data name="Register.Text" xml:space="preserve">
+    <value>Use another service to register.</value>
+  </data>
+  <data name="ResendEmailConfirmation.Header" xml:space="preserve">
+    <value>Resend confirmation email</value>
+  </data>
+  <data name="ResendEmailConfirmation.Text" xml:space="preserve">
+    <value>Resend</value>
+  </data>
+  <data name="Confirmation.Text" xml:space="preserve">
+    <value>Please check your email to confirm your account.</value>
+  </data>
+  <data name="Confirmation.Header" xml:space="preserve">
+    <value>Registration Confirmation</value>
+  </data>
+  <data name="ForgotPassword.Header" xml:space="preserve">
+    <value>Forgot your password?</value>
+  </data>
+  <data name="ForgotPassword.Text" xml:space="preserve">
+    <value>Reset Password</value>
+  </data>
+  <data name="ForgotConfirmation.Header" xml:space="preserve">
+    <value>Password reset confirmation</value>
+  </data>
+  <data name="ForgotConfirmation.Text" xml:space="preserve">
+    <value>Please check your email to reset your password.</value>
+  </data>
+  <data name="AccessDenied.Header" xml:space="preserve">
+    <value> Access Denied</value>
+  </data>
+  <data name="AccessDenied.Text" xml:space="preserve">
+    <value>You do not have access to this resource.</value>
+  </data>
+  <data name="EmailConfirmation.Header" xml:space="preserve">
+    <value>Email Confirmation</value>
+  </data>
+  <data name="EmailConfirmationChange.Header" xml:space="preserve">
+    <value>Email change confirmation</value>
+  </data>
+  <data name="ExternalLogin.Title" xml:space="preserve">
+    <value>Link your account</value>
+  </data>
+  <data name="ExternalLogin.Text" xml:space="preserve">
+    <value>You have successfully authenticated using &lt;strong&gt;@Model.ProviderDisplayName&lt;/strong&gt;.
+Please enter an email address for this site below and click the Register button to complete access.</value>
+  </data>
+  <data name="Lockout.Text" xml:space="preserve">
+    <value>This account has been locked, please try again later.</value>
+  </data>
 </root>
