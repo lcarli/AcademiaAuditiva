@@ -42,12 +42,25 @@
         const majorThirds = [4, 3];
         const minorThirds = [3, 4];
         const diminishedThirds = [3, 3];
-        const majorSeventh = 11;
-        const minorSeventh = 10;
-        const diminishedSeventh = 9;
+        const majorSeventh = 4;
+        const minorSeventh = 3;
+        const diminishedSeventh = 2;
         const diminishedMinorThirds = [3, 3, 3];
         const diminishedMajorThirds = [3, 3, 4];
-        const ninth = 14;
+        const ninth = 7;
+
+        //TO DO
+        //const augmentedThirds = [4, 4];
+        //const sus2Intervals = [2, 5];
+        //const sus4Intervals = [5, 2];
+        //const majorSixthIntervals = [4, 3, 2];
+        //const minorSixthIntervals = [3, 4, 2];
+        //const halfDiminishedThirds = [3, 3];
+        //const dominantSeventh = 3; // Sétima menor para acordes dominantes
+        //const add9Intervals = [4, 3, 7];
+        //const add11Intervals = [4, 3, 10];
+        //const add13Intervals = [4, 3, 14];
+
 
 
         function getChordNotes(rootNote, intervals, seventh = null) {

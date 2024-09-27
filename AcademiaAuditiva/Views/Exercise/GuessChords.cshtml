@@ -13,6 +13,7 @@
 					<label for="octaveRange" class="form-label">Selecionar Oitava</label>
 					<select id="octaveRange" class="form-select">
 						<option value="single">Uma Oitava (4ª Oitava)</option>
+						<option value="single3">Uma Oitava (3ª Oitava)</option>
 						<option value="full">Piano Completo</option>
 					</select>
 				</div>
@@ -37,18 +38,18 @@
 
 			<!-- Notas -->
 			<div class="d-grid gap-2 d-md-flex justify-content-md-center">
-				<button class="btn btn-outline-dark guessNote" data-note="C4">C</button>
-				<button class="btn btn-outline-dark guessNote" data-note="C#4">C#</button>
-				<button class="btn btn-outline-dark guessNote" data-note="D4">D</button>
-				<button class="btn btn-outline-dark guessNote" data-note="D#4">D#</button>
-				<button class="btn btn-outline-dark guessNote" data-note="E4">E</button>
-				<button class="btn btn-outline-dark guessNote" data-note="F4">F</button>
-				<button class="btn btn-outline-dark guessNote" data-note="F#4">F#</button>
-				<button class="btn btn-outline-dark guessNote" data-note="G4">G</button>
-				<button class="btn btn-outline-dark guessNote" data-note="G#4">G#</button>
-				<button class="btn btn-outline-dark guessNote" data-note="A4">A</button>
-				<button class="btn btn-outline-dark guessNote" data-note="A#4">A#</button>
-				<button class="btn btn-outline-dark guessNote" data-note="B4">B</button>
+				<button class="btn btn-outline-dark guessNote" data-note="C">C</button>
+				<button class="btn btn-outline-dark guessNote" data-note="C#">C#</button>
+				<button class="btn btn-outline-dark guessNote" data-note="D">D</button>
+				<button class="btn btn-outline-dark guessNote" data-note="D#">D#</button>
+				<button class="btn btn-outline-dark guessNote" data-note="E">E</button>
+				<button class="btn btn-outline-dark guessNote" data-note="F">F</button>
+				<button class="btn btn-outline-dark guessNote" data-note="F#">F#</button>
+				<button class="btn btn-outline-dark guessNote" data-note="G">G</button>
+				<button class="btn btn-outline-dark guessNote" data-note="G#">G#</button>
+				<button class="btn btn-outline-dark guessNote" data-note="A">A</button>
+				<button class="btn btn-outline-dark guessNote" data-note="A#">A#</button>
+				<button class="btn btn-outline-dark guessNote" data-note="B">B</button>
 			</div>
 
 			<!-- Qualidade do Acorde -->
@@ -101,9 +102,13 @@
 			let octaveRange = "single";
 			let chordType = "major";
 
+			
+
 			function getRandomChord() {
 				allChords = (octaveRange === "single")
 					? AcademiaAuditiva.getAllChords(4)
+					: (octaveRange === "single3")
+					? AcademiaAuditiva.getAllChords(3)
 					: AcademiaAuditiva.getAllNotes();
 
 				const filteredChords = allChords.filter(chord => {
@@ -185,6 +190,9 @@
 				const correctCountEl = document.getElementById('correctCount');
 				const errorCountEl = document.getElementById('errorCount');
 				const bestScoreEl = document.getElementById('bestScore');
+
+
+				randomChord = randomChord.replace(/\d+/g, '');
 
 				if (`${guessedNote}-${guessedQuality}` === randomChord) {
 					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
