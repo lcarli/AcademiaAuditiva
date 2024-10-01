@@ -146,3 +146,7 @@ section.text-center {
     .dropdown-menu a img.flag-icon {
         margin-right: 8px;
     }
+
+.hidden {
+    display: none !important;
+}

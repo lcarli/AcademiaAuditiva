@@ -1,20 +1,20 @@
 ﻿@{
-	ViewBag.Title = "Adivinhe o Acorde";
+	ViewBag.Title = Localizer["Exercise.Chords.Title"];
 }
 
 <div class="container mt-5">
 	<div class="row justify-content-center exercise-content" style="display:none">
 		<div class="col-md-8">
-			<h2 class="text-center mb-4">Adivinhe o Acorde</h2>
+			<h2 class="text-center mb-4">@Localizer["Exercise.Chords.Title"]</h2>
 
 			<div class="mb-4 text-center d-flex justify-content-center">
 				<!-- Oitava e Tipo de Acorde -->
 				<div class="mb-4 me-4">
-					<label for="octaveRange" class="form-label">Selecionar Oitava</label>
+					<label for="octaveRange" class="form-label">@Localizer["Exercise.SelectOctave"]</label>
 					<select id="octaveRange" class="form-select">
-						<option value="single">Uma Oitava (4ª Oitava)</option>
-						<option value="single3">Uma Oitava (3ª Oitava)</option>
-						<option value="full">Piano Completo</option>
+						<option value="single">@Localizer["Exercise.Octave4"]</option>
+						<option value="single3">@Localizer["Exercise.Octave3"]</option>
+						<option value="full">@Localizer["Exercise.Full"]</option>
 					</select>
 				</div>
 
@@ -30,8 +30,8 @@
 			</div>
 
 			<div class="mb-4 text-center">
-				<button id="playChord" class="btn btn-primary me-3">Ouvir Acorde</button>
-				<button id="replayChord" class="btn btn-secondary">Reouvir Acorde</button>
+				<button id="playChord" class="btn btn-primary me-3">@Localizer["Exercise.ListenChord"]</button>
+				<button id="replayChord" class="btn btn-secondary">@Localizer["Exercise.RelistenChord"]</button>
 			</div>
 
 			<h4 class="text-center mb-3">Qual acorde foi tocado?</h4>
@@ -53,14 +53,14 @@
 			</div>
 
 			<!-- Qualidade do Acorde -->
-			<div class="d-grid gap-2 d-md-flex justify-content-md-center mt-3">
-				<button class="btn btn-outline-dark guessQuality" data-quality="major">Maior</button>
-				<button class="btn btn-outline-dark guessQuality" data-quality="minor">Menor</button>
-				<button class="btn btn-outline-dark guessQuality" data-quality="7">7ª</button>
-				<button class="btn btn-outline-dark guessQuality" data-quality="9">9ª</button>
+			<div class="d-grid gap-2 d-md-flex justify-content-md-center mt-3" id="guessQualityContainer">
+				<button class="btn btn-outline-dark guessQuality" data-quality="major">@Localizer["Exercise.Major"]</button>
+				<button class="btn btn-outline-dark guessQuality" data-quality="minor">@Localizer["Exercise.Minor"]</button>
+				<button class="btn btn-outline-dark guessQuality" data-quality="7">@Localizer["Exercise.7"]</button>
+				<button class="btn btn-outline-dark guessQuality" data-quality="9">@Localizer["Exercise.9"]</button>
 			</div>
 			<div class="d-grid gap-2 d-md-flex justify-content-md-center mt-3">
-				<button id="validateGuess" class="btn btn-warning">Validar</button>
+				<button id="validateGuess" class="btn btn-warning">@Localizer["Exercise.ValidationButton"]</button>
 			</div>
 		</div>
 		<div class="scoreboard text-center my-4">
@@ -102,7 +102,9 @@
 			let octaveRange = "single";
 			let chordType = "major";
 
-			
+			// Inicialmente ocultar o guessQualityContainer
+			const guessQualityContainer = document.getElementById('guessQualityContainer');
+			guessQualityContainer.classList.add('hidden');
 
 			function getRandomChord() {
 				allChords = (octaveRange === "single")
@@ -193,6 +195,14 @@
 
 
 				randomChord = randomChord.replace(/\d+/g, '');
+				if (chordType === "major") {
+					guessedQuality = chordType
+				} else if (chordType === "minor") {
+					guessedQuality = chordType
+				} else {
+					//Do Nothing cause guessedQuality === guessedQuality
+				}
+				
 
 				if (`${guessedNote}-${guessedQuality}` === randomChord) {
 					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
@@ -239,14 +249,35 @@
 			}
 
 			document.getElementById('validateGuess').addEventListener('click', () => {
-				if (guessedNote && guessedQuality && randomChord) {
-					checkGuess();
+				if (chordType === "major" || chordType === "minor" ) {
+					if (guessedNote && randomChord) {
+						checkGuess();
+					} else {
+						Swal.fire({
+							icon: 'warning',
+							title: 'Incompleto!',
+							text: 'Por favor, selecione uma nota.'
+						});
+					}
 				} else {
-					Swal.fire({
-						icon: 'warning',
-						title: 'Incompleto!',
-						text: 'Por favor, selecione uma nota e uma qualidade de acorde.'
-					});
+					if (guessedNote && guessedQuality && randomChord) {
+						checkGuess();
+					} else {
+						Swal.fire({
+							icon: 'warning',
+							title: 'Incompleto!',
+							text: 'Por favor, selecione uma nota e uma qualidade de acorde.'
+						});
+					}
+				}
+			});
+
+			document.getElementById('chordType').addEventListener('change', (e) => {
+				chordType = e.target.value;
+				if (chordType === 'both' || chordType === 'all') {
+					guessQualityContainer.classList.remove('hidden');
+				} else {
+					guessQualityContainer.classList.add('hidden');
 				}
 			});
 
