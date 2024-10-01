@@ -19,12 +19,12 @@
 				</div>
 
 				<div class="mb-4">
-					<label for="chordType" class="form-label">Tipo de Acorde</label>
+					<label for="chordType" class="form-label">@Localizer["Exercise.TypeChord"]</label>
 					<select id="chordType" class="form-select">
-						<option value="major">Maiores</option>
-						<option value="minor">Menores</option>
-						<option value="both">Maiores e Menores</option>
-						<option value="all">Todos</option>
+						<option value="major">@Localizer["Exercise.TypeChordMajeur"]</option>
+						<option value="minor">@Localizer["Exercise.TypeChordMineur"]</option>
+						<option value="both">@Localizer["Exercise.TypeChordMajeurMineur"]</option>
+						<option value="all">@Localizer["Exercise.TypeChordAll"]</option>
 					</select>
 				</div>
 			</div>
@@ -34,7 +34,7 @@
 				<button id="replayChord" class="btn btn-secondary">@Localizer["Exercise.RelistenChord"]</button>
 			</div>
 
-			<h4 class="text-center mb-3">Qual acorde foi tocado?</h4>
+			<h4 class="text-center mb-3">@Localizer["Exercise.ChordsText"]</h4>
 
 			<!-- Notas -->
 			<div class="d-grid gap-2 d-md-flex justify-content-md-center">
@@ -65,15 +65,15 @@
 		</div>
 		<div class="scoreboard text-center my-4">
 			<div class="d-inline-block mx-3">
-				<h5>Acertos</h5>
+				<h5>@Localizer["Exercise.CorrectAnswers"]</h5>
 				<span id="correctCount">0</span>
 			</div>
 			<div class="d-inline-block mx-3">
-				<h5>Erros</h5>
+				<h5>@Localizer["Exercise.ErrorAnswers"]</h5>
 				<span id="errorCount">0</span>
 			</div>
 			<div class="d-inline-block mx-3">
-				<h5>Melhor Pontuação</h5>
+				<h5>@Localizer["Exercise.BestScore"]</h5>
 				<span id="bestScore">@ViewBag.BestScore</span>
 			</div>
 		</div>
@@ -86,10 +86,10 @@
 		$(document).ready(function () {
 			AcademiaAuditiva.init();
 			Swal.fire({
-				title: 'Adivinhe o Acorde',
-				text: 'Ouça o acorde e tente adivinhar qual é. Voce precisa selecionar o tom e a qualidade do acorde',
+				title: "@Localizer["Exercise.GuessChordsTitle"]",
+				text: "@Localizer["Exercise.GuessChordsText"]",
 				icon: 'info',
-				confirmButtonText: 'Começar',
+				confirmButtonText: "@Localizer["Exercise.StartButton"]",
 				allowOutsideClick: false
 			}).then((result) => {
 				if (result.isConfirmed) {

@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,79 +26,79 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string"/>
-              <xsd:attribute name="type" type="xsd:string"/>
-              <xsd:attribute name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string"/>
-              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -119,274 +119,245 @@
   </resheader>
   <data name="Header.Exercise" xml:space="preserve">
     <value>Exercise</value>
-    <comment/>
   </data>
   <data name="Header.Games" xml:space="preserve">
     <value>Games</value>
-    <comment/>
   </data>
   <data name="Dashboard.Progress" xml:space="preserve">
     <value>Exercise Progress</value>
-    <comment/>
   </data>
   <data name="Dashboard.Overall" xml:space="preserve">
     <value>Overall Performance</value>
-    <comment/>
   </data>
   <data name="Dashboard.Timeline" xml:space="preserve">
     <value>Exercise Timeline</value>
-    <comment/>
   </data>
   <data name="Dashboard.Title" xml:space="preserve">
     <value>Dashboard</value>
-    <comment/>
   </data>
   <data name="Dashboard.Subtitle" xml:space="preserve">
     <value>Track your progress and evolution.</value>
-    <comment/>
   </data>
   <data name="Header.Dashboard" xml:space="preserve">
     <value>Dashboard</value>
-    <comment/>
   </data>
   <data name="Login.Hello" xml:space="preserve">
     <value>Hello</value>
-    <comment/>
   </data>
   <data name="Login.Logout" xml:space="preserve">
     <value>Logout</value>
-    <comment/>
   </data>
   <data name="Exercise.Title" xml:space="preserve">
     <value>Available Exercices</value>
-    <comment/>
   </data>
   <data name="Exercise.Tab1.Level" xml:space="preserve">
     <value>By Level</value>
-    <comment/>
   </data>
   <data name="Exercise.Tab2.Type" xml:space="preserve">
     <value>By Type</value>
-    <comment/>
   </data>
   <data name="Exercise.Beginner" xml:space="preserve">
     <value>Beginner</value>
-    <comment/>
   </data>
   <data name="Exercise.Intermediate" xml:space="preserve">
     <value>Intermediate</value>
-    <comment/>
   </data>
   <data name="Exercise.Advanced" xml:space="preserve">
     <value>Advanced</value>
-    <comment/>
   </data>
   <data name="Login.Login" xml:space="preserve">
     <value>Login</value>
-    <comment/>
   </data>
   <data name="Login.Register" xml:space="preserve">
     <value>Signin</value>
-    <comment/>
   </data>
   <data name="Home.Title" xml:space="preserve">
     <value>Welcome to Academia Auditiva</value>
-    <comment/>
   </data>
   <data name="Home.Subtitle" xml:space="preserve">
     <value>Improve your listening skills and expand your horizons.</value>
-    <comment/>
   </data>
   <data name="Home.Header" xml:space="preserve">
     <value>What is the Academia Auditiva</value>
-    <comment/>
   </data>
   <data name="Home.Text1" xml:space="preserve">
     <value>The Academia Auditiva is a platform dedicated to helping individuals improve their listening skills. Through a variety of exercises and methodologies, we strive to provide the best auditory learning experience for our members.</value>
-    <comment/>
   </data>
   <data name="Home.Footer" xml:space="preserve">
     <value>Ready to start?</value>
-    <comment/>
   </data>
   <data name="Home.FooterText" xml:space="preserve">
     <value>Join the auditory journey and discover a new world of possibilities.</value>
-    <comment/>
   </data>
   <data name="Dashboard.Header" xml:space="preserve">
     <value>Dashboard</value>
-    <comment/>
   </data>
   <data name="Exercise.Header" xml:space="preserve">
     <value>Exercises</value>
-    <comment/>
   </data>
   <data name="Login.Title" xml:space="preserve">
     <value>Use a local account to sign in.</value>
-    <comment/>
   </data>
   <data name="Login.Remember" xml:space="preserve">
     <value>Forgot your password?</value>
-    <comment/>
   </data>
   <data name="Login.RegisterText" xml:space="preserve">
     <value>Register as a new user</value>
-    <comment/>
   </data>
   <data name="Login.ResendEmail" xml:space="preserve">
     <value>Resend email confirmation</value>
-    <comment/>
   </data>
   <data name="Login.ExternalLogin" xml:space="preserve">
     <value>Use another service to sign in.</value>
-    <comment/>
   </data>
   <data name="Login.ExternalLoginText" xml:space="preserve">
     <value>Sign in using your account</value>
-    <comment/>
   </data>
   <data name="Login.RememberMe" xml:space="preserve">
     <value>Remember me</value>
-    <comment/>
   </data>
   <data name="Logout.Header" xml:space="preserve">
     <value>Logout</value>
-    <comment/>
   </data>
   <data name="Logout.Text" xml:space="preserve">
     <value>You have successfully logged out of the application.</value>
-    <comment/>
   </data>
   <data name="Logout.Confirmation" xml:space="preserve">
     <value>Click here to log out</value>
-    <comment/>
   </data>
   <data name="Register.Header" xml:space="preserve">
     <value>Sign Up</value>
-    <comment/>
   </data>
   <data name="Register.Title" xml:space="preserve">
     <value>Create a new account.</value>
-    <comment/>
   </data>
   <data name="Register.Password" xml:space="preserve">
     <value>Password</value>
-    <comment/>
   </data>
   <data name="Register.PasswordConfirmation" xml:space="preserve">
     <value>Confirm Password</value>
-    <comment/>
   </data>
   <data name="Register.Text" xml:space="preserve">
     <value>Use another service to register.</value>
-    <comment/>
   </data>
   <data name="ResendEmailConfirmation.Header" xml:space="preserve">
     <value>Resend confirmation email</value>
-    <comment/>
   </data>
   <data name="ResendEmailConfirmation.Text" xml:space="preserve">
     <value>Resend</value>
-    <comment/>
   </data>
   <data name="Confirmation.Text" xml:space="preserve">
     <value>Please check your email to confirm your account.</value>
-    <comment/>
   </data>
   <data name="Confirmation.Header" xml:space="preserve">
     <value>Registration Confirmation</value>
-    <comment/>
   </data>
   <data name="ForgotPassword.Header" xml:space="preserve">
     <value>Forgot your password?</value>
-    <comment/>
   </data>
   <data name="ForgotPassword.Text" xml:space="preserve">
     <value>Reset Password</value>
-    <comment/>
   </data>
   <data name="ForgotConfirmation.Header" xml:space="preserve">
     <value>Password reset confirmation</value>
-    <comment/>
   </data>
   <data name="ForgotConfirmation.Text" xml:space="preserve">
     <value>Please check your email to reset your password.</value>
-    <comment/>
   </data>
   <data name="AccessDenied.Header" xml:space="preserve">
     <value> Access Denied</value>
-    <comment/>
   </data>
   <data name="AccessDenied.Text" xml:space="preserve">
     <value>You do not have access to this resource.</value>
-    <comment/>
   </data>
   <data name="EmailConfirmation.Header" xml:space="preserve">
     <value>Email Confirmation</value>
-    <comment/>
   </data>
   <data name="EmailConfirmationChange.Header" xml:space="preserve">
     <value>Email change confirmation</value>
-    <comment/>
   </data>
   <data name="ExternalLogin.Title" xml:space="preserve">
     <value>Link your account</value>
-    <comment/>
   </data>
   <data name="ExternalLogin.Text" xml:space="preserve">
     <value>You have successfully authenticated using &lt;strong&gt;@Model.ProviderDisplayName&lt;/strong&gt;.Please enter an email address for this site below and click the Register button to complete access.</value>
-    <comment/>
   </data>
   <data name="Lockout.Text" xml:space="preserve">
     <value>This account has been locked, please try again later.</value>
-    <comment/>
   </data>
   <data name="Exercise.Chords.Title" xml:space="preserve">
     <value>Guess the Chord</value>
-    <comment/>
   </data>
   <data name="Exercice.SelectOctave" xml:space="preserve">
     <value>Select Octave</value>
-    <comment/>
   </data>
-  <data name="Exercise.Octave" xml:space="preserve">
+  <data name="Exercise.Octave4" xml:space="preserve">
     <value>One Octave (4th Octave)</value>
-    <comment/>
   </data>
   <data name="Exercise.Octave3" xml:space="preserve">
     <value>One Octave (3rd Octave)</value>
-    <comment/>
   </data>
   <data name="Exercise.Full" xml:space="preserve">
     <value>Full Piano</value>
-    <comment/>
   </data>
   <data name="Exercise.ListenChord" xml:space="preserve">
     <value>Listen to Chord</value>
-    <comment/>
   </data>
   <data name="Exercise.RelistenChord" xml:space="preserve">
     <value>Replay Chord</value>
-    <comment/>
   </data>
   <data name="Exercise.Major" xml:space="preserve">
     <value>Major</value>
-    <comment/>
   </data>
   <data name="Exercise.Minor" xml:space="preserve">
     <value>Minor</value>
-    <comment/>
   </data>
   <data name="Exercise.7" xml:space="preserve">
     <value>7</value>
-    <comment/>
   </data>
   <data name="Exercise.9" xml:space="preserve">
     <value>9</value>
-    <comment/>
   </data>
   <data name="Exercise.ValidationButton" xml:space="preserve">
     <value>Validate</value>
-    <comment/>
+  </data>
+  <data name="Exercise.CorrectAnswers" xml:space="preserve">
+    <value>Correct</value>
+  </data>
+  <data name="Exercise.ErrorAnswers" xml:space="preserve">
+    <value>Wrong</value>
+  </data>
+  <data name="Exercise.BestScore" xml:space="preserve">
+    <value>Best Score</value>
+  </data>
+  <data name="Exercise.GuessChordsTitle" xml:space="preserve">
+    <value>Guess the Chord</value>
+  </data>
+  <data name="Exercise.GuessChordsText" xml:space="preserve">
+    <value>Listen to the chord and try to guess what it is. You need to select the key and the quality of the chord.</value>
+  </data>
+  <data name="Exercise.StartButton" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Exercise.SelectOctave" xml:space="preserve">
+    <value>Select Octave</value>
+  </data>
+  <data name="Exercise.ChordsText" xml:space="preserve">
+    <value>Which chord was played?</value>
+  </data>
+  <data name="Exercise.TypeChord" xml:space="preserve">
+    <value>Chord Type</value>
+  </data>
+  <data name="Exercise.TypeChordMajeurMineur" xml:space="preserve">
+    <value>Majors and Minors</value>
+  </data>
+  <data name="Exercise.TypeChordMajeur" xml:space="preserve">
+    <value>Majors</value>
+  </data>
+  <data name="Exercise.TypeChordMineur" xml:space="preserve">
+    <value>Minors</value>
+  </data>
+  <data name="Exercise.TypeChordAll" xml:space="preserve">
+    <value>All</value>
   </data>
 </root>
