@@ -143,7 +143,7 @@
 					const chordNotes = allChords.find(chord => chord.type === quality && chord.notes[0] === note).notes;
 					AcademiaAuditiva.sampler.triggerAttackRelease(chordNotes, "1");
 				} else {
-					alert('Primeiro clique em "Ouvir Acorde"');
+					alert('@Localizer["Exercise.GuessChordError1"]');
 				}
 			});
 
@@ -208,16 +208,16 @@
 					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
 					Swal.fire({
 						icon: 'success',
-						title: 'Correto!',
-						text: 'Você acertou o acorde!'
+						title: '@Localizer["Exercise.CorrectMessage"]',
+						text: '@Localizer["Exercise.CorrectMessageText"]'
 					});
 				} else {
 					errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
 					const [correctNote, correctQuality] = randomChord.split('-');
 					Swal.fire({
 						icon: 'error',
-						title: 'Errado!',
-						text: `Você errou! O acorde correto era ${correctNote.replace('s', '#')} ${correctQuality}.`,
+						title: '@Localizer["Exercise.WrongMessage"]',
+						text: '@Localizer["Exercise.WrongMessageText"]',
 					});
 				}
 

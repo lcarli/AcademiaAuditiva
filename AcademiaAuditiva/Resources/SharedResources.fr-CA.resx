@@ -357,7 +357,22 @@
   <data name="Exercise.TypeChordMineur" xml:space="preserve">
     <value>Mineurs</value>
   </data>
-  <data name="Exercise.TypeChordTout" xml:space="preserve">
+  <data name="Exercise.TypeChordAll" xml:space="preserve">
     <value>Tout</value>
+  </data>
+  <data name="Exercise.GuessChordError1" xml:space="preserve">
+    <value>Tout d'abord, cliquez sur "Écouter l'Accord"</value>
+  </data>
+  <data name="Exercise.CorrectMessage" xml:space="preserve">
+    <value>Bonne Réponse!</value>
+  </data>
+  <data name="Exercise.WrongMessage" xml:space="preserve">
+    <value>Mauvaise Réponse!</value>
+  </data>
+  <data name="Exercise.CorrectMessageText" xml:space="preserve">
+    <value>Vous avez deviné l'accord correctement !</value>
+  </data>
+  <data name="Exercise.WrongMessageText" xml:space="preserve">
+    <value>Vous avez échoué ! L'accord correct était ${correctNote.replace('s', '#')} ${correctQuality}.</value>
   </data>
 </root>
