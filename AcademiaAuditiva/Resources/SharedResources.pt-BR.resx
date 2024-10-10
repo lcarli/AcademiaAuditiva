@@ -481,4 +481,36 @@
     <value>Advinhe a Função</value>
     <comment>.</comment>
   </data>
+  <data name="Beginner" xml:space="preserve">
+    <value>Iniciante</value>
+    <comment>.</comment>
+  </data>
+  <data name="Intermediate" xml:space="preserve">
+    <value>Intermediário</value>
+    <comment>.</comment>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Avançado</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.RelistenNote" xml:space="preserve">
+    <value>Re-escutar a nota</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.Note.Title" xml:space="preserve">
+    <value>Advinhe a nota</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.ListenNote" xml:space="preserve">
+    <value>Escute a nota</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.NoteText" xml:space="preserve">
+    <value>Qual foi a nota tocada?</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessNoteText" xml:space="preserve">
+    <value>Ouça a nota e tente adivinhar qual é.</value>
+    <comment>.</comment>
+  </data>
 </root>

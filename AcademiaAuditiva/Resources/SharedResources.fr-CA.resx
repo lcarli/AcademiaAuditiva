@@ -481,4 +481,36 @@
     <value>Devinez la Note</value>
     <comment>.</comment>
   </data>
+  <data name="Beginner" xml:space="preserve">
+    <value>Débutant</value>
+    <comment>.</comment>
+  </data>
+  <data name="Intermediate" xml:space="preserve">
+    <value>Intermediaire</value>
+    <comment>.</comment>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Avancé</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.RelistenNote" xml:space="preserve">
+    <value>Reécouter la note</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.Note.Title" xml:space="preserve">
+    <value>Devinez la note</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.ListenNote" xml:space="preserve">
+    <value>Écoutez la note</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.NoteText" xml:space="preserve">
+    <value>Quelle note a été joué?</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessNoteText" xml:space="preserve">
+    <value>Écoutez la note et essayez de deviner laquelle c’est.</value>
+    <comment>.</comment>
+  </data>
 </root>

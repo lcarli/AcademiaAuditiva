@@ -481,4 +481,36 @@
     <value>Guess Function</value>
     <comment>.</comment>
   </data>
+  <data name="Beginner" xml:space="preserve">
+    <value>Beginner</value>
+    <comment>.</comment>
+  </data>
+  <data name="Intermediate" xml:space="preserve">
+    <value>Intermediate</value>
+    <comment>.</comment>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Advanced</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.ListenNote" xml:space="preserve">
+    <value>Listen the note</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.RelistenNote" xml:space="preserve">
+    <value>Re-listen the note</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.Note.Title" xml:space="preserve">
+    <value>Guess the note</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.NoteText" xml:space="preserve">
+    <value>Which note was played?</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessNoteText" xml:space="preserve">
+    <value>Listen to the note and try to guess what it is.</value>
+    <comment>.</comment>
+  </data>
 </root>
