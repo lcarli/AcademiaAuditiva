@@ -498,7 +498,7 @@
     <comment>.</comment>
   </data>
   <data name="Exercise.RelistenNote" xml:space="preserve">
-    <value>Re-listen the note</value>
+    <value>Replay the note</value>
     <comment>.</comment>
   </data>
   <data name="Exercise.Note.Title" xml:space="preserve">
