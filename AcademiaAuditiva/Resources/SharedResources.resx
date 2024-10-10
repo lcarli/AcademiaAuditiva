@@ -517,4 +517,24 @@
     <value>You got it wrong! The correct note was ${randomNote.replace(‘s’, ‘#’)}.</value>
     <comment>.</comment>
   </data>
+  <data name="Exercise.Function.Title" xml:space="preserve">
+    <value>Guess the Harmonic Function</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.SelectTom" xml:space="preserve">
+    <value>Select key</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.Quality" xml:space="preserve">
+    <value>Quality</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.Function.Text" xml:space="preserve">
+    <value>What is the harmonic function?</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.WrongFunctionMessageText" xml:space="preserve">
+    <value>You got it wrong! The correct function was ${randomFunction}.</value>
+    <comment>.</comment>
+  </data>
 </root>

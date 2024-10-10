@@ -1,5 +1,5 @@
 ﻿@{
-	ViewBag.Title = "Adivinhe a Função Harmônica";
+	ViewBag.Title = Localizer["Exercise.Function.Title"];
 }
 
 <div class="container mt-5">
@@ -10,7 +10,7 @@
 			<div class="mb-4 text-center d-flex justify-content-center">
 				<!-- Tom e Qualidade -->
 				<div class="mb-4 me-4">
-					<label for="key" class="form-label">Selecionar Tom</label>
+					<label for="key" class="form-label">@Localizer["Exercise.SelectTom"]</label>
 					<select id="key" class="form-select">
 						<option value="C4">C</option>
 						<option value="C#4">C#</option>
@@ -28,20 +28,20 @@
 				</div>
 
 				<div class="mb-4">
-					<label for="quality" class="form-label">Qualidade</label>
+					<label for="quality" class="form-label">@Localizer["Exercise.Quality"]</label>
 					<select id="quality" class="form-select">
-						<option value="major">Maior</option>
-						<option value="minor">Menor</option>
+						<option value="major">@Localizer["Exercise.Major"]</option>
+						<option value="minor">@Localizer["Exercise.Minor"]</option>
 					</select>
 				</div>
 			</div>
 
 			<div class="mb-4 text-center">
-				<button id="playFunction" class="btn btn-primary">Ouvir Função</button>
-				<button id="replayFunction" class="btn btn-primary">Ouvir Novamente</button>
+				<button id="playFunction" class="btn btn-primary">@Localizer["Exercise.ListenChord"]</button>
+				<button id="replayFunction" class="btn btn-primary">@Localizer["Exercise.RelistenChord"]</button>
 			</div>
 
-			<h4 class="text-center mb-3">Qual a função harmônica?</h4>
+			<h4 class="text-center mb-3">@Localizer["Exercise.Function.Text"]</h4>
 
 			<div class="d-grid gap-2 d-md-flex justify-content-md-center">
 				<button class="btn btn-outline-dark guessFunction major-function" data-function="1-major">I</button>
@@ -62,21 +62,21 @@
 			</div>
 
 			<div class="d-grid gap-2 d-md-flex justify-content-md-center mt-3">
-				<button id="validateGuess" class="btn btn-warning">Validar</button>
+				<button id="validateGuess" class="btn btn-warning">@Localizer["Exercise.ValidationButton"]</button>
 			</div>
 		</div>
 
 		<div class="scoreboard text-center my-4">
 			<div class="d-inline-block mx-3">
-				<h5>Acertos</h5>
+				<h5>@Localizer["Exercise.CorrectAnswers"]</h5>
 				<span id="correctCount">0</span>
 			</div>
 			<div class="d-inline-block mx-3">
-				<h5>Erros</h5>
+				<h5>@Localizer["Exercise.ErrorAnswers"]</h5>
 				<span id="errorCount">0</span>
 			</div>
 			<div class="d-inline-block mx-3">
-				<h5>Melhor Pontuação</h5>
+				<h5>@Localizer["Exercise.BestScore"]</h5>
 				<span id="bestScore">@ViewBag.BestScore</span>
 			</div>
 		</div>
@@ -92,7 +92,7 @@
 				title: 'Adivinhe a Função',
 				text: 'Ouça a nota e tente adivinhar sua função no contexto do tom e qualidade selecionados.',
 				icon: 'info',
-				confirmButtonText: 'Começar',
+				confirmButtonText: "@Localizer["Exercise.StartButton"]",
 				allowOutsideClick: false
 			}).then((result) => {
 				if (result.isConfirmed) {
@@ -195,15 +195,15 @@
 					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
 					Swal.fire({
 						icon: 'success',
-						title: 'Correto!',
-						text: 'Você acertou a função!'
+						title: '@Localizer["Exercise.CorrectMessage"]',
+						text: '@Localizer["Exercise.CorrectMessageText"]'
 					});
 				} else {
 					errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
 					Swal.fire({
 						icon: 'error',
-						title: 'Errado!',
-						text: `Você errou! A função correta era ${randomFunction}.`,
+						title: '@Localizer["Exercise.WrongMessage"]',
+						text: '@Localizer["Exercise.WrongFunctionMessageText"]',
 					});
 				}
 
