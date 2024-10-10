@@ -454,7 +454,7 @@
     <comment/>
   </data>
   <data name="Exercise.CorrectMessageText" xml:space="preserve">
-    <value>You got the chord right!</value>
+    <value>You got right!</value>
     <comment/>
   </data>
   <data name="Exercise.WrongMessageText" xml:space="preserve">
@@ -511,6 +511,10 @@
   </data>
   <data name="Exercise.GuessNoteText" xml:space="preserve">
     <value>Listen to the note and try to guess what it is.</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.WrongNoteMessageText" xml:space="preserve">
+    <value>You got it wrong! The correct note was ${randomNote.replace(‘s’, ‘#’)}.</value>
     <comment>.</comment>
   </data>
 </root>

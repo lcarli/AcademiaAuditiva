@@ -513,4 +513,8 @@
     <value>Écoutez la note et essayez de deviner laquelle c’est.</value>
     <comment>.</comment>
   </data>
+  <data name="Exercise.WrongNoteMessageText" xml:space="preserve">
+    <value>Vous avez échoué ! La note correcte était ${randomNote.replace(‘s’, ‘#’)}.</value>
+    <comment>.</comment>
+  </data>
 </root>

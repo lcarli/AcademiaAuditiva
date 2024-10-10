@@ -1,4 +1,5 @@
 {
     "appService.preDeployTask": "publish-release",
-    "appService.deploySubpath": "AcademiaAuditiva/bin/Release/net8.0/publish"
+    "appService.deploySubpath": "AcademiaAuditiva/bin/Release/net8.0/publish",
+    "appService.defaultWebAppToDeploy": "/subscriptions/582a2b24-0ca4-46f0-aff4-3347bd8b0de9/resourceGroups/AcademiaAuditiva/providers/Microsoft.Web/sites/academiaauditiva/slots/dev"
 }

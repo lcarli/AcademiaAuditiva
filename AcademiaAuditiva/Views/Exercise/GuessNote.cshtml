@@ -124,14 +124,14 @@
 					Swal.fire({
 						icon: 'success',
 						title: '@Localizer["Exercise.CorrectMessage"]',
-						text: 'Você acertou a nota!'
+						text: '@Localizer["Exercise.CorrectMessageText"]'
 					});
 				} else {
 					errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
 					Swal.fire({
 						icon: 'error',
 						title: '@Localizer["Exercise.WrongMessage"]',
-						text: `Você errou! A nota correta era ${randomNote.replace('s', '#')}.`,
+						text: '@Localizer["Exercise.WrongNoteMessageText"]',
 					});
 				}
 
