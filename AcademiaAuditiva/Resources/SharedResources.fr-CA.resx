@@ -597,4 +597,10 @@
   <data name="ExerciseCategory.Melody"><value>Mélodie</value></data>
   <data name="ExerciseCategory.Games"><value>Jeux</value></data>
   <data name="Dashboard.CategoryAccuracyTitle"><value>Précision par catégorie</value></data>
+  <data name="Exercise.Interval.Title"><value>Devinez l’intervalle</value></data>
+  <data name="Exercise.Interval.Description"><value>Écoutez l’intervalle et essayez de deviner lequel c’est.</value></data>
+  <data name="Exercise.NoteNotSelectedTitle"><value>Note non sélectionnée</value></data>
+  <data name="Exercise.NoteNotSelectedText"><value>Veuillez d'abord cliquer sur « Écouter l’intervalle ».</value></data>
+  <data name="Exercise.SelectIntervalText"><value>Veuillez sélectionner un intervalle.</value></data>
+  <data name="Exercise.WrongIntervalMessageText"><value>Mauvaise réponse ! L’intervalle correct était</value></data>
 </root>

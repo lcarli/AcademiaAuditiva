@@ -626,5 +626,10 @@
   <data name="Dashboard.CategoryAccuracyTitle">
     <value>Acertos por Categoria</value>
   </data>
-
+  <data name="Exercise.Interval.Title"><value>Adivinhe o Intervalo</value></data>
+  <data name="Exercise.Interval.Description"><value>Ouça o intervalo e tente adivinhar qual é.</value></data>
+  <data name="Exercise.NoteNotSelectedTitle"><value>Nota não selecionada</value></data>
+  <data name="Exercise.NoteNotSelectedText"><value>Por favor, clique em "Ouvir Intervalo" primeiro.</value></data>
+  <data name="Exercise.SelectIntervalText"><value>Por favor, selecione um intervalo.</value></data>
+  <data name="Exercise.WrongIntervalMessageText"><value>Você errou! O intervalo correto era</value></data>
 </root>
