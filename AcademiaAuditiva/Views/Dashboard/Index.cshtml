@@ -1,86 +1,110 @@
 ﻿@{
-	ViewBag.Title = Localizer["Dashboard.Header"];
+    ViewBag.Title = "Dashboard";
 }
 
-
 <div class="container mt-5">
-	<div class="row">
-		<div class="col-md-12 text-center">
-			<h2>@Localizer["Dashboard.Title"]</h2>
-			<p class="text-muted">@Localizer["Dashboard.Subtitle"]</p>
-		</div>
-	</div>
+    <h2 class="text-center mb-4">@Localizer["Dashboard.Title"]</h2>
 
-	<!-- Seção de Gráficos -->
-	<div class="row mt-5">
-		<div class="col-md-6">
-			<h4>@Localizer["Dashboard.Progress"]</h4>
-			<canvas id="progressChart"></canvas>
-		</div>
-		<div class="col-md-6">
-			<h4>@Localizer["Dashboard.Overall"]</h4>
-			<canvas id="performanceChart"></canvas>
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">@Localizer["Dashboard.TotalExercises"]</h5>
+                    <h3 id="totalExercises">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">@Localizer["Dashboard.BestScore"]</h5>
+                    <h3 id="bestScore">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">@Localizer["Dashboard.TotalTime"]</h5>
+                    <h3 id="totalTime">0 min</h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<!-- Seção de Linha do Tempo -->
-	<div class="row mt-5">
-		<div class="col-md-12">
-			<h4>@Localizer["Dashboard.Timeline"]</h4>
-			<ul class="timeline">
-				<!-- Aqui, você pode renderizar os eventos da linha do tempo com base nos dados -->
-			</ul>
-		</div>
-	</div>
+    <h4 class="text-center mt-5 mb-3">@Localizer["Dashboard.ProgressByExercise"]</h4>
+    <canvas id="exerciseProgressChart" height="100"></canvas>
+
+    <h4 class="text-center mt-5 mb-3">@Localizer["Dashboard.StrengthsAndWeaknesses"]</h4>
+    <canvas id="accuracyRadarChart" height="100"></canvas>
+
+    <div class="text-center mt-5">
+        <a class="btn btn-outline-primary" href="/Exercise/Review">@Localizer["Dashboard.ReviewButton"]</a>
+    </div>
 </div>
 
 @section Scripts {
-	<!-- Incluir a biblioteca Chart.js -->
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/tone@latest"></script>
-	<script>
-		$(document).ready(function () {
-			fetch("/Dashboard/GetUserProgress")
-				.then(response => response.json())
-				.then(data => {
-					var progressData = {
-						labels: data.map(item => "Exercício " + item.exerciseName), // Ajuste conforme necessário
-						datasets: [{
-							label: 'Best Score',
-							data: data.map(item => item.bestScore),
-							backgroundColor: 'rgba(75, 192, 192, 0.2)',
-							borderColor: 'rgba(75, 192, 192, 1)',
-							borderWidth: 1
-						}]
-					};
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Simulando dados (substituir por dados reais vindos do controller via ViewBag ou API)
+            const exerciseProgress = {
+                labels: ["Notas", "Intervalos", "Funções", "Acordes", "Qualidades", "Escalas"],
+                data: [70, 85, 60, 90, 75, 65]
+            };
 
-					new Chart(document.getElementById('progressChart'), {
-						type: 'bar',
-						data: progressData
-					});
-				})
-				.catch(error => {
-					console.error("Erro ao buscar dados de progresso:", error);
-				});
+            const radarAccuracy = {
+                labels: ["Notas", "Acordes", "Escalas", "Intervalos", "Funções", "Qualidade"],
+                data: [90, 80, 70, 85, 60, 75]
+            };
 
+            // Gráfico de barras
+            new Chart(document.getElementById('exerciseProgressChart'), {
+                type: 'bar',
+                data: {
+                    labels: exerciseProgress.labels,
+                    datasets: [{
+                        label: '@Localizer["Dashboard.CorrectAnswers"]',
+                        data: exerciseProgress.data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
 
-			var performanceData = {
-				labels: ["Janeiro", "Fevereiro", "Março"],
-				datasets: [{
-					label: 'Desempenho',
-					data: [80, 85, 90],
-					backgroundColor: 'rgba(255, 99, 132, 0.2)',
-					borderColor: 'rgba(255, 99, 132, 1)',
-					borderWidth: 1
-				}]
-			};
+            // Radar de acertos
+            new Chart(document.getElementById('accuracyRadarChart'), {
+                type: 'radar',
+                data: {
+                    labels: radarAccuracy.labels,
+                    datasets: [{
+                        label: '@Localizer["Dashboard.Accuracy"]',
+                        data: radarAccuracy.data,
+                        fill: true,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
 
-
-			new Chart(document.getElementById('performanceChart'), {
-				type: 'line',
-				data: performanceData
-			});
-		});
-	</script>
+            // Exibir dados simulados nos cards
+            document.getElementById('totalExercises').innerText = 120;
+            document.getElementById('bestScore').innerText = 34;
+            document.getElementById('totalTime').innerText = "75 min";
+        });
+    </script>
 }
-
