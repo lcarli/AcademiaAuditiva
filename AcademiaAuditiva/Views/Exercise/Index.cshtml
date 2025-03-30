@@ -28,7 +28,8 @@
 				@foreach (var level in Enum.GetValues(typeof(DifficultyLevel)))
 				{
 					<div class="col-md-4 text-center mb-5">
-						<h4>@level</h4>
+						@{var localizerLevel = "Exercise." + level;}
+						<h4>@Localizer[localizerLevel]</h4>
 						<ul class="list-group">
 							@foreach (var exercise in Model.Where(e => e.Difficulty == (DifficultyLevel)level))
 							{
@@ -48,7 +49,8 @@
 				@foreach (var type in Enum.GetValues(typeof(ExerciseType)))
 				{
 					<div class="col-md-4 text-center mb-5">
-						<h4>@type</h4>
+						@{var localizerType = "ExerciseType." + type;}
+						<h4>@Localizer[localizerType]</h4>
 						<ul class="list-group">
 							@foreach (var exercise in Model.Where(e => e.Type == (ExerciseType)type))
 							{

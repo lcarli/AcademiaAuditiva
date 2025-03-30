@@ -585,22 +585,88 @@
     <value>Total Time</value>
     <comment/>
   </data>
-  <data name="ExerciseType.NoteRecognition"><value>Notes</value></data>
-  <data name="ExerciseType.IntervalRecognition"><value>Intervals</value></data>
-  <data name="ExerciseType.ChordRecognition"><value>Chords</value></data>
-  <data name="ExerciseType.FunctionRecognition"><value>Function</value></data>
-  <data name="ExerciseType.ScaleRecognition"><value>Scales</value></data>
-  <data name="ExerciseCategory.Harmony"><value>Harmony</value></data>
-  <data name="ExerciseCategory.EarTraining"><value>Ear Training</value></data>
-  <data name="ExerciseCategory.Rhythm"><value>Rhythm</value></data>
-  <data name="ExerciseCategory.Scales"><value>Scales</value></data>
-  <data name="ExerciseCategory.Melody"><value>Melody</value></data>
-  <data name="ExerciseCategory.Games"><value>Games</value></data>
-  <data name="Dashboard.CategoryAccuracyTitle"><value>Accuracy by Category</value></data>
-  <data name="Exercise.Interval.Title"><value>Guess the Interval</value></data>
-  <data name="Exercise.Interval.Description"><value>Listen to the interval and try to guess which one it is.</value></data>
-  <data name="Exercise.NoteNotSelectedTitle"><value>Note not selected</value></data>
-  <data name="Exercise.NoteNotSelectedText"><value>Please click "Play Interval" first.</value></data>
-  <data name="Exercise.SelectIntervalText"><value>Please select an interval.</value></data>
-  <data name="Exercise.WrongIntervalMessageText"><value>You got it wrong! The correct interval was</value></data>
+  <data name="ExerciseType.NoteRecognition" xml:space="preserve">
+    <value>Notes</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.IntervalRecognition" xml:space="preserve">
+    <value>Intervals</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.ChordRecognition" xml:space="preserve">
+    <value>Chords</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.FunctionRecognition" xml:space="preserve">
+    <value>Function</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.ScaleRecognition" xml:space="preserve">
+    <value>Scales</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Harmony" xml:space="preserve">
+    <value>Harmony</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.EarTraining" xml:space="preserve">
+    <value>Ear Training</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Rhythm" xml:space="preserve">
+    <value>Rhythm</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Scales" xml:space="preserve">
+    <value>Scales</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Melody" xml:space="preserve">
+    <value>Melody</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Games" xml:space="preserve">
+    <value>Games</value>
+    <comment/>
+  </data>
+  <data name="Exercise.Interval.Title" xml:space="preserve">
+    <value>Guess the Interval</value>
+    <comment/>
+  </data>
+  <data name="Exercise.Interval.Description" xml:space="preserve">
+    <value>Listen to the interval and try to guess which one it is.</value>
+    <comment/>
+  </data>
+  <data name="Exercise.NoteNotSelectedTitle" xml:space="preserve">
+    <value>Note not selected</value>
+    <comment/>
+  </data>
+  <data name="Exercise.NoteNotSelectedText" xml:space="preserve">
+    <value>Please click "Play Interval" first.</value>
+    <comment/>
+  </data>
+  <data name="Exercise.SelectIntervalText" xml:space="preserve">
+    <value>Please select an interval.</value>
+    <comment/>
+  </data>
+  <data name="Exercise.WrongIntervalMessageText" xml:space="preserve">
+    <value>You got it wrong! The correct interval was</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.MelodyReproduction" xml:space="preserve">
+    <value>Melody Reproduction</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.RhythmPatterns" xml:space="preserve">
+    <value>Rhythm Patterns</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.HarmonicField" xml:space="preserve">
+    <value>Harmonic Field</value>
+    <comment/>
+  </data>
+  <data name="GuessFullInterval" xml:space="preserve">
+    <value>Guess Full Interval</value>
+    <comment/>
+  </data>
 </root>

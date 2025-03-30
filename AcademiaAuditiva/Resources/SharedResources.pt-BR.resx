@@ -585,51 +585,88 @@
     <value>Tempo Total</value>
     <comment/>
   </data>
-  <data name="ExerciseType.NoteRecognition">
+  <data name="ExerciseType.NoteRecognition" xml:space="preserve">
     <value>Notas</value>
     <comment/>
   </data>
-  <data name="ExerciseType.IntervalRecognition">
+  <data name="ExerciseType.IntervalRecognition" xml:space="preserve">
     <value>Intervalos</value>
     <comment/>
   </data>
-  <data name="ExerciseType.ChordRecognition">
+  <data name="ExerciseType.ChordRecognition" xml:space="preserve">
     <value>Acordes</value>
     <comment/>
   </data>
-  <data name="ExerciseType.FunctionRecognition">
+  <data name="ExerciseType.FunctionRecognition" xml:space="preserve">
     <value>Função</value>
     <comment/>
   </data>
-  <data name="ExerciseType.ScaleRecognition">
+  <data name="ExerciseType.ScaleRecognition" xml:space="preserve">
     <value>Escalas</value>
     <comment/>
   </data>
-  <data name="ExerciseCategory.Harmony">
+  <data name="ExerciseCategory.Harmony" xml:space="preserve">
     <value>Harmonia</value>
+    <comment/>
   </data>
-  <data name="ExerciseCategory.EarTraining">
+  <data name="ExerciseCategory.EarTraining" xml:space="preserve">
     <value>Percepção</value>
+    <comment/>
   </data>
-  <data name="ExerciseCategory.Rhythm">
+  <data name="ExerciseCategory.Rhythm" xml:space="preserve">
     <value>Ritmo</value>
+    <comment/>
   </data>
-  <data name="ExerciseCategory.Scales">
+  <data name="ExerciseCategory.Scales" xml:space="preserve">
     <value>Escalas</value>
+    <comment/>
   </data>
-  <data name="ExerciseCategory.Melody">
+  <data name="ExerciseCategory.Melody" xml:space="preserve">
     <value>Melodia</value>
+    <comment/>
   </data>
-  <data name="ExerciseCategory.Games">
+  <data name="ExerciseCategory.Games" xml:space="preserve">
     <value>Jogos</value>
+    <comment/>
   </data>
-  <data name="Dashboard.CategoryAccuracyTitle">
-    <value>Acertos por Categoria</value>
+  <data name="Exercise.Interval.Title" xml:space="preserve">
+    <value>Adivinhe o Intervalo</value>
+    <comment/>
   </data>
-  <data name="Exercise.Interval.Title"><value>Adivinhe o Intervalo</value></data>
-  <data name="Exercise.Interval.Description"><value>Ouça o intervalo e tente adivinhar qual é.</value></data>
-  <data name="Exercise.NoteNotSelectedTitle"><value>Nota não selecionada</value></data>
-  <data name="Exercise.NoteNotSelectedText"><value>Por favor, clique em "Ouvir Intervalo" primeiro.</value></data>
-  <data name="Exercise.SelectIntervalText"><value>Por favor, selecione um intervalo.</value></data>
-  <data name="Exercise.WrongIntervalMessageText"><value>Você errou! O intervalo correto era</value></data>
+  <data name="Exercise.Interval.Description" xml:space="preserve">
+    <value>Ouça o intervalo e tente adivinhar qual é.</value>
+    <comment/>
+  </data>
+  <data name="Exercise.NoteNotSelectedTitle" xml:space="preserve">
+    <value>Nota não selecionada</value>
+    <comment/>
+  </data>
+  <data name="Exercise.NoteNotSelectedText" xml:space="preserve">
+    <value>Por favor, clique em "Ouvir Intervalo" primeiro.</value>
+    <comment/>
+  </data>
+  <data name="Exercise.SelectIntervalText" xml:space="preserve">
+    <value>Por favor, selecione um intervalo.</value>
+    <comment/>
+  </data>
+  <data name="Exercise.WrongIntervalMessageText" xml:space="preserve">
+    <value>Você errou! O intervalo correto era</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.MelodyReproduction" xml:space="preserve">
+    <value>Reprodução de Melodia</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.RhythmPatterns" xml:space="preserve">
+    <value>Padrões Rítmicos</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.HarmonicField" xml:space="preserve">
+    <value>Campo Harmônico</value>
+    <comment/>
+  </data>
+  <data name="GuessFullInterval" xml:space="preserve">
+    <value>Advinhe o Intervalo Complexo</value>
+    <comment/>
+  </data>
 </root>
