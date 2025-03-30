@@ -45,9 +45,17 @@ const AudioEngine = (() => {
         Tone.Transport.start();
     }
 
+    function playChord(notes, duration = 1) {
+        if (!sampler || !notes || notes.length === 0) return;
+        notes.forEach(note => {
+            sampler.triggerAttackRelease(note, duration);
+        });
+    }    
+
     return {
         initSampler,
         playNote,
-        playSequence
+        playSequence,
+        playChord
     };
 })();

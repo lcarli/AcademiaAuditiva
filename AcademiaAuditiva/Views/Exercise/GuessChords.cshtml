@@ -82,205 +82,170 @@
 </div>
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			AcademiaAuditiva.init();
-			Swal.fire({
-				title: "@Localizer["Exercise.GuessChordsTitle"]",
-				text: "@Localizer["Exercise.GuessChordsText"]",
-				icon: 'info',
-				confirmButtonText: "@Localizer["Exercise.StartButton"]",
-				allowOutsideClick: false
-			}).then((result) => {
-				if (result.isConfirmed) {
-					$('.exercise-content').show(); // Mostrando o conteúdo do exercício
-				}
-			});
+    <script>
+        $(document).ready(function () {
+            AcademiaAuditiva.init();
 
-			let randomChord = "";
-			let allChords = "";
-			let octaveRange = "single";
-			let chordType = "major";
+            Swal.fire({
+                title: "@Localizer["Exercise.GuessChordsTitle"]",
+                text: "@Localizer["Exercise.GuessChordsText"]",
+                icon: 'info',
+                confirmButtonText: "@Localizer["Exercise.StartButton"]",
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('.exercise-content').show();
+                }
+            });
 
-			// Inicialmente ocultar o guessQualityContainer
-			const guessQualityContainer = document.getElementById('guessQualityContainer');
-			guessQualityContainer.classList.add('hidden');
+            let randomChord = "";
+            let allChords = "";
+            let octaveRange = "single";
+            let chordType = "major";
 
-			function getRandomChord() {
-				allChords = (octaveRange === "single")
-					? AcademiaAuditiva.getAllChords(4)
-					: (octaveRange === "single3")
-					? AcademiaAuditiva.getAllChords(3)
-					: AcademiaAuditiva.getAllNotes();
+            const guessQualityContainer = document.getElementById('guessQualityContainer');
+            guessQualityContainer.classList.add('hidden');
 
-				const filteredChords = allChords.filter(chord => {
-					if (chordType === "major") {
-						return chord.type === "major";
-					} else if (chordType === "minor") {
-						return chord.type === "minor";
-					} else if (chordType === "both") {
-						return ["major", "minor"].includes(chord.type);
-					} else {
-						return true;
-					}
-				});
+            function getRandomChord() {
+                allChords = (octaveRange === "single")
+                    ? TheoryUtils.getAllChords({ rootNotes: TheoryUtils.getAllNotes([4]), qualities: ['major', 'minor', '7', '9'] })
+                    : (octaveRange === "single3")
+                    ? TheoryUtils.getAllChords({ rootNotes: TheoryUtils.getAllNotes([3]), qualities: ['major', 'minor', '7', '9'] })
+                    : TheoryUtils.getAllChords({ rootNotes: TheoryUtils.getAllNotes([2,3,4,5]), qualities: ['major', 'minor', '7', '9'] });
 
-				const randomChordObj = filteredChords[Math.floor(Math.random() * filteredChords.length)];
-				return { notes: randomChordObj.notes, type: randomChordObj.type };
-			}
+                const filteredChords = allChords.filter(chord => {
+                    if (chordType === "major") return chord.type === "major";
+                    if (chordType === "minor") return chord.type === "minor";
+                    if (chordType === "both") return ["major", "minor"].includes(chord.type);
+                    return true;
+                });
 
-			document.getElementById('playChord').addEventListener('click', () => {
-				const chordObj = getRandomChord();
-				randomChord = `${chordObj.notes[0]}-${chordObj.type}`; // Para verificação posterior
+                const randomChordObj = filteredChords[Math.floor(Math.random() * filteredChords.length)];
+                return { notes: randomChordObj.notes, type: randomChordObj.type };
+            }
 
-				// Tocando o acorde inteiro
-				AcademiaAuditiva.sampler.triggerAttackRelease(chordObj.notes, "1");
-			});
+            document.getElementById('playChord').addEventListener('click', () => {
+                const chordObj = getRandomChord();
+                randomChord = `${chordObj.notes[0]}-${chordObj.type}`;
+                AcademiaAuditiva.audio.playChord(chordObj.notes, 1);
+            });
 
-			document.getElementById('replayChord').addEventListener('click', () => {
-				if (randomChord) {
-					const [note, quality] = randomChord.split('-');
-					const chordNotes = allChords.find(chord => chord.type === quality && chord.notes[0] === note).notes;
-					AcademiaAuditiva.sampler.triggerAttackRelease(chordNotes, "1");
-				} else {
-					alert('@Localizer["Exercise.GuessChordError1"]');
-				}
-			});
+            document.getElementById('replayChord').addEventListener('click', () => {
+                if (randomChord) {
+                    const [note, quality] = randomChord.split('-');
+                    const chordNotes = allChords.find(chord => chord.type === quality && chord.notes[0] === note).notes;
+                    AcademiaAuditiva.audio.playChord(chordNotes, 1);
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                        text: '@Localizer["Exercise.GuessChordError1"]'
+                    });
+                }
+            });
 
-			document.getElementById('octaveRange').addEventListener('change', (e) => {
-				octaveRange = e.target.value;
-			});
+            document.getElementById('octaveRange').addEventListener('change', (e) => {
+                octaveRange = e.target.value;
+            });
 
-			document.getElementById('chordType').addEventListener('change', (e) => {
-				chordType = e.target.value;
-			});
+            document.getElementById('chordType').addEventListener('change', (e) => {
+                chordType = e.target.value;
+                if (chordType === 'both' || chordType === 'all') {
+                    guessQualityContainer.classList.remove('hidden');
+                } else {
+                    guessQualityContainer.classList.add('hidden');
+                }
+            });
 
-			const noteButtons = document.querySelectorAll('.guessNote');
-			const qualityButtons = document.querySelectorAll('.guessQuality');
-			let guessedNote = '';
-			let guessedQuality = '';
+            const noteButtons = document.querySelectorAll('.guessNote');
+            const qualityButtons = document.querySelectorAll('.guessQuality');
+            let guessedNote = '';
+            let guessedQuality = '';
 
-			noteButtons.forEach(button => {
-				button.addEventListener('click', (e) => {
-					// Remover a classe 'selected' de todos os botões de nota
-					noteButtons.forEach(btn => btn.classList.remove('selected'));
+            noteButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    noteButtons.forEach(btn => btn.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    guessedNote = e.target.getAttribute('data-note');
+                });
+            });
 
-					// Adicionar a classe 'selected' ao botão clicado
-					e.target.classList.add('selected');
+            qualityButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    qualityButtons.forEach(btn => btn.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    guessedQuality = e.target.getAttribute('data-quality');
+                });
+            });
 
-					guessedNote = e.target.getAttribute('data-note');
+            function checkGuess() {
+                const correctCountEl = document.getElementById('correctCount');
+                const errorCountEl = document.getElementById('errorCount');
+                const bestScoreEl = document.getElementById('bestScore');
 
-					e.stopImmediatePropagation();
-				});
-			});
+                randomChord = randomChord.replace(/\d+/g, '');
 
-			qualityButtons.forEach(button => {
-				button.addEventListener('click', (e) => {
-					// Remover a classe 'selected' de todos os botões de qualidade
-					qualityButtons.forEach(btn => btn.classList.remove('selected'));
+                if (chordType === "major" || chordType === "minor") {
+                    guessedQuality = chordType;
+                }
 
-					// Adicionar a classe 'selected' ao botão clicado
-					e.target.classList.add('selected');
+                if (`${guessedNote}-${guessedQuality}` === randomChord) {
+                    correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playSuccessSound(
+                        '@Localizer["Exercise.CorrectMessage"]',
+                        '@Localizer["Exercise.CorrectMessageText"]'
+                    );
+                } else {
+                    errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playErrorSound(
+                        '@Localizer["Exercise.WrongMessage"]',
+                        '@Localizer["Exercise.WrongMessageText"]',
+                        randomChord.replace('-', '').replace('major', '').replace('minor', 'm')
+                    );
+                }
 
-					guessedQuality = e.target.getAttribute('data-quality');
+                randomChord = "";
+                qualityButtons.forEach(btn => btn.classList.remove('selected'));
+                noteButtons.forEach(btn => btn.classList.remove('selected'));
 
-					e.stopImmediatePropagation();
-				});
-			});;
+                const correctCount = parseInt(correctCountEl.innerText);
+                const errorCount = parseInt(errorCountEl.innerText);
+                let bestScore = parseInt(bestScoreEl.innerText);
+                const currentScore = correctCount - errorCount;
 
-			function checkGuess() {
-				const correctCountEl = document.getElementById('correctCount');
-				const errorCountEl = document.getElementById('errorCount');
-				const bestScoreEl = document.getElementById('bestScore');
+                if (currentScore > bestScore) {
+                    bestScore = currentScore;
+                    bestScoreEl.innerText = bestScore;
+                    $.post("/Exercise/GuessChordsSaveScore", {
+                        correctCount: correctCount,
+                        errorCount: errorCount
+                    });
+                }
+            }
 
-
-				randomChord = randomChord.replace(/\d+/g, '');
-				if (chordType === "major") {
-					guessedQuality = chordType
-				} else if (chordType === "minor") {
-					guessedQuality = chordType
-				} else {
-					//Do Nothing cause guessedQuality === guessedQuality
-				}
-				
-
-				if (`${guessedNote}-${guessedQuality}` === randomChord) {
-					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'success',
-						title: '@Localizer["Exercise.CorrectMessage"]',
-						text: '@Localizer["Exercise.CorrectMessageText"]'
-					});
-				} else {
-					errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-					const [correctNote, correctQuality] = randomChord.split('-');
-					Swal.fire({
-						icon: 'error',
-						title: '@Localizer["Exercise.WrongMessage"]',
-						text: '@Localizer["Exercise.WrongMessageText"]',
-					});
-				}
-
-				//Clean
-				randomChord = "";
-				qualityButtons.forEach(btn => btn.classList.remove('selected'));
-				noteButtons.forEach(btn => btn.classList.remove('selected'));
-
-				// After showing the result, save the score on the server:
-				const correctCount = parseInt(correctCountEl.innerText);
-				const errorCount = parseInt(errorCountEl.innerText);
-				let bestScore = parseInt(bestScoreEl.innerText);
-				const currentScore = correctCount - errorCount;
-
-
-				if (currentScore > bestScore) {
-					bestScore = currentScore;
-					bestScoreEl.innerText = bestScore;  // Atualiza o elemento HTML
-
-					$.ajax({
-						type: "POST",
-						url: "/Exercise/GuessChordsSaveScore",
-						data: { correctCount: correctCount, errorCount: errorCount },
-						error: function () {
-							console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
-						}
-					});
-				}
-			}
-
-			document.getElementById('validateGuess').addEventListener('click', () => {
-				if (chordType === "major" || chordType === "minor" ) {
-					if (guessedNote && randomChord) {
-						checkGuess();
-					} else {
-						Swal.fire({
-							icon: 'warning',
-							title: 'Incompleto!',
-							text: 'Por favor, selecione uma nota.'
-						});
-					}
-				} else {
-					if (guessedNote && guessedQuality && randomChord) {
-						checkGuess();
-					} else {
-						Swal.fire({
-							icon: 'warning',
-							title: 'Incompleto!',
-							text: 'Por favor, selecione uma nota e uma qualidade de acorde.'
-						});
-					}
-				}
-			});
-
-			document.getElementById('chordType').addEventListener('change', (e) => {
-				chordType = e.target.value;
-				if (chordType === 'both' || chordType === 'all') {
-					guessQualityContainer.classList.remove('hidden');
-				} else {
-					guessQualityContainer.classList.add('hidden');
-				}
-			});
-
-		});
-	</script>
+            document.getElementById('validateGuess').addEventListener('click', () => {
+                if (chordType === "major" || chordType === "minor") {
+                    if (guessedNote && randomChord) {
+                        checkGuess();
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '@Localizer["Exercise.IncompleteTitle"]',
+                            text: '@Localizer["Exercise.SelectNoteText"]'
+                        });
+                    }
+                } else {
+                    if (guessedNote && guessedQuality && randomChord) {
+                        checkGuess();
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '@Localizer["Exercise.IncompleteTitle"]',
+                            text: '@Localizer["Exercise.SelectChordText"]'
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 }

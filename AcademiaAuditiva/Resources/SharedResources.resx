@@ -458,7 +458,7 @@
     <comment/>
   </data>
   <data name="Exercise.WrongMessageText" xml:space="preserve">
-    <value>You got it wrong! The correct chord was ${correctNote.replace('s', '#')} ${correctQuality}.</value>
+    <value>You got it wrong! The correct chord was</value>
     <comment/>
   </data>
   <data name="GuessNote" xml:space="preserve">
@@ -514,7 +514,7 @@
     <comment>.</comment>
   </data>
   <data name="Exercise.WrongNoteMessageText" xml:space="preserve">
-    <value>You got it wrong! The correct note was ${randomNote.replace(‘s’, ‘#’)}.</value>
+    <value>You got it wrong! The correct note was</value>
     <comment>.</comment>
   </data>
   <data name="Exercise.Function.Title" xml:space="preserve">

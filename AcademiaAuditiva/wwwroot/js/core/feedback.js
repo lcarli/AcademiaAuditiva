@@ -1,20 +1,23 @@
 
 const Feedback = (() => {
-    function playSuccessSound() {
-        console.log("Success!");
+    function playSuccessSound(title, message) {
+        Swal.fire({
+            icon: 'success',
+            title: title,
+            text: message
+        });
     }
 
-    function playErrorSound() {
-        console.log("Error!");
-    }
-
-    function showCorrectAnswer(answer) {
-        alert("Resposta correta: " + answer);
+    function playErrorSound(title, message, answer) {
+        Swal.fire({
+            icon: 'error',
+            title: title,
+            text: message + " " + answer.replace('s', '#'),
+        });
     }
 
     return {
         playSuccessSound,
-        playErrorSound,
-        showCorrectAnswer
+        playErrorSound
     };
 })();
