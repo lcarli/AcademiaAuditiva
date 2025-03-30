@@ -1,179 +1,139 @@
 
-# Mapa do Projeto — Academia Auditiva
+# Exercícios e Filtros Aplicáveis — Módulo Musical
 
-## Sumário
-- [Categorias de Exercícios Musicais](#categorias-de-exercícios-musicais)
-- [Exercícios por Nível](#exercícios-por-nível)
-- [Jogos e Gamificação](#jogos-e-gamificação)
-- [Dashboard e Indicadores de Progresso](#dashboard-e-indicadores-de-progresso)
-- [Badges e Conquistas](#badges-e-conquistas)
-- [Módulo Futuro: Frequências e Mixagem](#módulo-futuro-frequências-e-mixagem)
+Este documento detalha os filtros possíveis para cada exercício do módulo de música na plataforma Academia Auditiva.
 
 ---
 
-## Categorias de Exercícios Musicais
+## Tabela de Filtros
 
-### 1. Percepção de Notas
-- Adivinhe a Nota (nota isolada)
-- Cante a Nota (reprodução vocal da nota ou tom)
-- Note Missing (uma nota da sequência está ausente — qual é?)
-- Note Modified (uma nota foi alterada — qual? ou em quantos graus?)
-
-### 2. Reconhecimento de Intervalos
-- Adivinhe o Intervalo (número apenas)
-- Intervalo Completo (2M, 3m, 5J…)
-- Reproduza o Intervalo (com voz ou instrumento)
-- A nota modificada foi maior ou menor que a original?
-
-### 3. Acordes e Qualidades
-- Adivinhe o Acorde (tipo geral)
-- Adivinhe a Qualidade (maior, menor, diminuto…)
-- Progressão Harmônica (identificar I-IV-V, II-V-I etc.)
-
-### 4. Funções Harmônicas
-- Adivinhe a Função (Tônica, Subdominante, Dominante)
-- Grau Inicial e Final (em melodias curtas)
-
-### 5. Dictado e Repertório Melódico
-- Dictado Melódico (transcrição ou seleção de notas)
-- Cante a Melodia (baseado em graus)
-- Melodia Alterada:
-  - Duas melodias: iguais ou diferentes?
-  - Qual nota mudou?
-  - A nova nota é maior ou menor?
-
-### 6. Ritmo e Pulsação (futuros)
-- Dictado Rítmico
-- Reconhecimento de Pulsação (binário, ternário)
-- Síncopa ou não?
+- **Tons Disponíveis**: C, C#, D, D#, E, F, F#, G, G#, A, A#, B
+- **Escalas**: maior, menor, pentatônica, modos gregos
+- **Intervalos**: 2ª, 3ª, 4ª, 5ª, 6ª, 7ª, 8ª
+- **Qualidade dos Acordes**: maior, menor, diminuto, aumentado, sus2, sus4, 7, 9, etc.
+- **Modo de Reprodução**: harmônico (conjunto), melódico (sequência), aleatório
+- **Oitava ou faixa**: C3–C4, C4–C5, teclado todo
 
 ---
 
-## Exercícios por Nível
+## Exercícios e Filtros
 
-### Beginner
-- Adivinhe a Nota
-- Adivinhe o Intervalo (número)
-- Igual ou Diferente (melodias simples)
-- A nova nota é maior ou menor?
-
-### Intermediate
-- Intervalo Completo
-- Adivinhe a Qualidade
-- Adivinhe a Função
-- Dictado Melódico Simples
-- Note Missing / Note Modified
-
-### Advanced
-- Dictado Rítmico
-- Dictado Melódico com cromatismo
-- Progressões Harmônicas Avançadas
-- Reproduza com Voz (melodia ou acorde)
-- Identificar grau da nota alterada
+### 1. Adivinhe a Nota
+- **Filtros aplicáveis**:
+  - Oitava (ex: C4–C5, ou teclado inteiro)
+  - Escala (maior, menor, personalizada)
+  - Tom base
 
 ---
 
-## Jogos e Gamificação
-
-### O que são
-Jogos são **mini testes interativos** com tempo ou tentativas limitadas, percorrendo exercícios variados de diferentes categorias.
-
-### Tipos de Jogos
-
-#### 1. Desafio do Dia
-- 5 a 10 perguntas sorteadas de diversas áreas
-- Pontuação extra por sequência de acertos
-- Compartilhável nas redes
-
-#### 2. Teste de Nível
-- Avaliação inicial para sugerir exercícios
-- Indica os pontos fortes e fracos
-
-#### 3. Modo Missão
-- Ex: “Conquiste o Grau da Tônica” ou “Derrote o Tritono”
-- Narrativa simples com progresso e recompensas
-
-#### 4. Jogo do Erro Zero
-- Série de desafios com eliminação a cada erro
-
-#### 5. Boss Battle
-- Enfrente um “chefão musical” com progressões complexas, acordes tensos e ditados difíceis
+### 2. Adivinhe o Intervalo (simples)
+- **Filtros aplicáveis**:
+  - Oitava da nota base
+  - Intervalos permitidos (ex: só 2ª e 3ª)
+  - Modo de reprodução (melódico/harmônico)
 
 ---
 
-## Dashboard e Indicadores de Progresso
-
-### Objetivos
-- Mostrar evolução do aluno de forma **pedagógica**
-- Apontar **pontos fortes e áreas a melhorar**
-
-### Gráficos sugeridos
-
-#### 1. Radar de Competências
-- Eixos: Intervalos, Acordes, Melodia, Ritmo, Função
-- Mostra equilíbrio das habilidades
-
-#### 2. Linha do Tempo de Aprendizado
-- Pontuações dos últimos 7 dias/30 dias
-- Mostra consistência de treino
-
-#### 3. Acertos por Categoria
-- Gráfico de barras com % de acerto em cada tipo de exercício
-
-#### 4. Melhoria por Exercício
-- Evolução no tempo de cada exercício individual
-
-#### 5. Dificuldade Percebida
-- Exercícios com maior índice de erro
+### 3. Intervalo Completo
+- **Filtros aplicáveis**:
+  - Tipos de intervalo (menor, maior, justa, etc.)
+  - Oitava base
+  - Direção (ascendente/descendente)
 
 ---
 
-## Badges e Conquistas
-
-### Por participação
-- **Primeira Nota**: completar o primeiro exercício
-- **5 Dias Seguidos**: acessar por 5 dias consecutivos
-- **Explorador Auditivo**: tentar 5 categorias diferentes
-
-### Por desempenho
-- **Orelha Absoluta**: 10 acertos seguidos em Adivinhe a Nota
-- **Caçador de Intervalos**: pontuação máxima em Intervalo Completo
-- **Mestre Harmônico**: acertar 5 progressões avançadas
-
-### Por desafio
-- **Sobrevivente**: completar o Jogo do Erro Zero
-- **Conquistador**: vencer um Boss Battle
-- **Herói Auditivo**: completar todas as missões
+### 4. Adivinhe o Acorde
+- **Filtros aplicáveis**:
+  - Qualidades dos acordes (maior, menor, dim, aug, etc.)
+  - Oitava ou faixa
+  - Tipo de acorde (tríade, tétrade, add)
 
 ---
 
-## Módulo Futuro: Frequências e Mixagem
-
-### 1. Identificação de Faixas de Frequência
-- Adivinhe: Grave, Médio ou Agudo
-- Escute um ruído original, depois escute o mesmo ruído com frequência alterada
-
-### 2. Equalização Auditiva
-- Ouvir um áudio original e o mesmo com EQ aplicada
-- Identificar qual frequência foi cortada ou realçada
-
-### 3. Estéreo e Panorama
-- Onde está o som? (esquerda, centro, direita)
-- Identificar mixagem mono vs estéreo
-
-### 4. Dinâmica
-- O áudio está comprimido, limitado ou aberto?
-- Comparar antes/depois com dinâmica alterada
-
-### 5. Mini Mix Interativo
-- Ajustar um EQ visualmente e ouvir o resultado
-- Escolher a melhor mix entre duas opções
+### 5. Adivinhe a Qualidade
+- **Filtros aplicáveis**:
+  - Tom base
+  - Modo de reprodução
+  - Tipos de qualidade (maior, menor, diminuto...)
 
 ---
 
-## Extras Futuramente
-- Rankings por exercício e jogo
-- Sistema de XP e Nível
-- Feedback por voz (TTS)
-- Exercícios com envio de áudio (voz/instrumento)
-- Área do professor com painel de alunos
+### 6. Adivinhe a Função Harmônica
+- **Filtros aplicáveis**:
+  - Tom base
+  - Campo harmônico maior ou menor
+  - Grau alvo (I, IV, V…)
+
+---
+
+### 7. Grau Inicial e Final
+- **Filtros aplicáveis**:
+  - Tom da melodia
+  - Comprimento da melodia (ex: 5 a 10 notas)
+  - Escala (maior/menor/modo)
+
+---
+
+### 8. Dictado Melódico
+- **Filtros aplicáveis**:
+  - Tom base
+  - Escala usada
+  - Comprimento da melodia
+  - Presença de cromatismos
+
+---
+
+### 9. Dictado Rítmico
+- **Filtros aplicáveis**:
+  - Compasso (2/4, 3/4, 6/8…)
+  - Figuras rítmicas incluídas
+  - Duração da célula
+
+---
+
+### 10. Reproduza o Intervalo
+- **Filtros aplicáveis**:
+  - Intervalos sorteáveis
+  - Direção do intervalo
+  - Tom base
+
+---
+
+### 11. Note Missing / Note Modified
+- **Filtros aplicáveis**:
+  - Número de notas da melodia
+  - Escala usada
+  - Tom base
+  - Tipo de alteração (nota faltante, nota errada, etc.)
+
+---
+
+### 12. Igual ou Diferente
+- **Filtros aplicáveis**:
+  - Tipo de material (notas, acordes, melodias)
+  - Escala
+  - Probabilidade de mudança
+
+---
+
+### 13. Adivinhe a Escala
+- **Filtros aplicáveis**:
+  - Tipos de escala (maior, menor, modos gregos)
+  - Tom base
+  - Número de notas a serem tocadas
+
+---
+
+### 14. Adivinhe o Modo Grego
+- **Filtros aplicáveis**:
+  - Modos possíveis (jónico, dórico, frígio, etc.)
+  - Tom base
+  - Duração da amostra
+
+---
+
+## Observações
+
+- Filtros devem ser opcionais e salvos por sessão de usuário
+- As combinações de filtros podem alterar a dificuldade automaticamente
+- Jogos podem desabilitar ou randomizar filtros
