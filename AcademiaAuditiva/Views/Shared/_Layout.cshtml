@@ -48,7 +48,13 @@
 	<!-- ToneJS -->
 	<script src="~/js/tone.js"></script>
 	<!-- Custom -->
-	<script src="~/js/site.js?v=7"></script>
+	@* <script src="~/js/site.js?v=7"></script> *@
+	<script src="/js/core/audio-engine.js"></script>
+    <script src="/js/core/theory-utils.js"></script>
+    <script src="/js/core/exercise-generator.js"></script>
+    <script src="/js/core/feedback.js"></script>
+    <script src="/js/games/game-engine.js"></script>
+    <script src="/js/main/academia-auditiva.js"></script>
 	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -59,119 +59,107 @@
 
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			AcademiaAuditiva.init();
-			Swal.fire({
-				title: "@Localizer["Exercise.Note.Title"]",
-				text: "@Localizer["Exercise.GuessNoteText"]",
-				icon: 'info',
-				confirmButtonText: "@Localizer["Exercise.StartButton"]",
-				allowOutsideClick: false
-			}).then((result) => {
-				if (result.isConfirmed) {
-					$('.exercise-content').show(); // Mostrando o conteúdo do exercício
-				}
-			});
+    <script>
+        $(document).ready(function () {
+            AcademiaAuditiva.init();
 
+            Swal.fire({
+                title: "@Localizer["Exercise.Note.Title"]",
+                text: "@Localizer["Exercise.GuessNoteText"]",
+                icon: 'info',
+                confirmButtonText: "@Localizer["Exercise.StartButton"]",
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('.exercise-content').show();
+                }
+            });
 
-			let randomNote = "";
-			let octaveRange = "single";
-			let userGuessedNote = "";
+            let randomNote = "";
+            let octaveRange = "single";
+            let userGuessedNote = "";
 
-			function getRandomNote() {
-				const notes = (octaveRange === "single")
-					? AcademiaAuditiva.getAllNotes().filter(note => note.includes("4"))
-					: AcademiaAuditiva.getAllNotes();
+            function getRandomNote() {
+                const notes = (octaveRange === "single")
+                    ? TheoryUtils.getAllNotes([4])
+                    : TheoryUtils.getAllNotes([2,3,4,5,6]);
+                return notes[Math.floor(Math.random() * notes.length)];
+            }
 
-				return notes[Math.floor(Math.random() * notes.length)];
-			}
+            Tone.loaded().then(() => {
+                document.getElementById('playNote').addEventListener('click', () => {
+                    randomNote = getRandomNote();
+                    AcademiaAuditiva.audio.playNote(randomNote);
+                });
 
-			Tone.loaded().then(() => {
-				document.getElementById('playNote').addEventListener('click', () => {
-					randomNote = getRandomNote();
-					AcademiaAuditiva.sampler.triggerAttackRelease(randomNote, "1");
-				});
+                document.getElementById('replayNote').addEventListener('click', () => {
+                    if (randomNote) {
+                        AcademiaAuditiva.audio.playNote(randomNote);
+                    } else {
+                        alert('Primeiro clique em "Ouvir Nota"');
+                    }
+                });
 
-				document.getElementById('replayNote').addEventListener('click', () => {
-					if (randomNote) {
-						AcademiaAuditiva.sampler.triggerAttackRelease(randomNote, "1");
-					} else {
-						alert('Primeiro clique em "Ouvir Nota"');
-					}
-				});
+                document.getElementById('octaveRange').addEventListener('change', (e) => {
+                    octaveRange = e.target.value;
+                });
+            });
 
-				document.getElementById('octaveRange').addEventListener('change', (e) => {
-					octaveRange = e.target.value;
-				});
-			});
+            const guessButtons = document.querySelectorAll('.guessNote');
+            guessButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    userGuessedNote = e.target.getAttribute('data-note');
+                    guessButtons.forEach(btn => btn.classList.remove('selected-note'));
+                    button.classList.add('selected-note');
+                });
+            });
 
-			const guessButtons = document.querySelectorAll('.guessNote');
-			guessButtons.forEach(button => {
-				button.addEventListener('click', (e) => {
-					userGuessedNote = e.target.getAttribute('data-note');
-					guessButtons.forEach(btn => btn.classList.remove('selected-note')); // Remover de todos os botões
-					button.classList.add('selected-note'); // Adicionar ao botão clicado
-				});
-			});
+            function checkGuess() {
+                const correctCountEl = document.getElementById('correctCount');
+                const errorCountEl = document.getElementById('errorCount');
 
-			function checkGuess() {
-				const correctCountEl = document.getElementById('correctCount');
-				const errorCountEl = document.getElementById('errorCount');
+                if (userGuessedNote === randomNote) {
+                    correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playSuccessSound();
+                } else {
+                    errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playErrorSound();
+                    AcademiaAuditiva.feedback.showCorrectAnswer(randomNote);
+                }
 
-				if (userGuessedNote === randomNote) {
-					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'success',
-						title: '@Localizer["Exercise.CorrectMessage"]',
-						text: '@Localizer["Exercise.CorrectMessageText"]'
-					});
-				} else {
-					errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'error',
-						title: '@Localizer["Exercise.WrongMessage"]',
-						text: '@Localizer["Exercise.WrongNoteMessageText"]',
-					});
-				}
+                // Reset
+                randomNote = "";
+                userGuessedNote = "";
 
-				//Clean
-				randomNote = "";
-				userGuessedNote = ""; // Limpar a nota adivinhada pelo usuários
+                // Save score if better
+                const correctCount = parseInt(correctCountEl.innerText);
+                const errorCount = parseInt(errorCountEl.innerText);
+                let bestScore = parseInt(document.getElementById('bestScore').innerText);
+                const currentScore = correctCount - errorCount;
 
-				// Após mostrar o resultado, vamos salvar a pontuação no servidor:
-				const correctCount = parseInt(correctCountEl.innerText);
-				const errorCount = parseInt(errorCountEl.innerText);
-				let bestScore = parseInt(document.getElementById('bestScore').innerText); // Ajuste para buscar o elemento
-				const currentScore = correctCount - errorCount;
+                if (currentScore > bestScore) {
+                    bestScore = currentScore;
+                    document.getElementById('bestScore').innerText = bestScore;
 
-				if (currentScore > bestScore) {
-					bestScore = currentScore;
-					document.getElementById('bestScore').innerText = bestScore; // Ajuste para atualizar o elemento
+                    $.post("/Exercise/GuessNoteSaveScore", {
+                        correctCount: correctCount,
+                        errorCount: errorCount
+                    });
+                }
+            }
 
-					$.ajax({
-						type: "POST",
-						url: "/Exercise/GuessNoteSaveScore",
-						data: { correctCount: correctCount, errorCount: errorCount },
-						error: function () {
-							console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
-						}
-					});
-				}
-			}
-
-			// Evento para o botão "Validar"
-			document.getElementById('validateGuess').addEventListener('click', () => {
-				if (userGuessedNote && randomNote) {
-					checkGuess();
-				} else {
-					Swal.fire({
-						icon: 'warning',
-						title: 'Incompleto!',
-						text: 'Por favor, selecione uma nota.'
-					});
-				}
-			});
-		});
-	</script>
+            document.getElementById('validateGuess').addEventListener('click', () => {
+                if (userGuessedNote && randomNote) {
+                    checkGuess();
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Incompleto!',
+                        text: 'Por favor, selecione uma nota.'
+                    });
+                }
+            });
+        });
+    </script>
 }
+
