@@ -7,144 +7,144 @@ using System.Security.Claims;
 
 namespace AcademiaAuditiva.Controllers
 {
-    [Authorize]
-    public class ExerciseController : Controller
-    {
-        private readonly ApplicationDbContext _context;
+	[Authorize]
+	public class ExerciseController : Controller
+	{
+		private readonly ApplicationDbContext _context;
 
-        public ExerciseController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+		public ExerciseController(ApplicationDbContext context)
+		{
+			_context = context;
+		}
 
-        public IActionResult Index()
-        {
-            var exercises = _context.Exercises.ToList();
-            return View(exercises);
-        }
-
-
-        #region GuessNote
-        public IActionResult GuessNote()
-        {
-            int bestScore = _context.Scores
-                           .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-                           .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
-                           .FirstOrDefault()?.CorrectCount -
-                           _context.Scores
-                           .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-                           .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
-                           .FirstOrDefault()?.ErrorCount ?? 0;
-
-            ViewBag.BestScore = bestScore;
-            return View();
-        }
+		public IActionResult Index()
+		{
+			var exercises = _context.Exercises.ToList();
+			return View(exercises);
+		}
 
 
-        [HttpPost]
-        public IActionResult GuessNoteSaveScore(int correctCount, int errorCount)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+		#region GuessNote
+		public IActionResult GuessNote()
+		{
+			int bestScore = _context.Scores
+						   .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+						   .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
+						   .FirstOrDefault()?.CorrectCount -
+						   _context.Scores
+						   .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+						   .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
+						   .FirstOrDefault()?.ErrorCount ?? 0;
 
-            // Verifique se o usuário está logado
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Json(new { success = false, message = "Usuário não está logado." });
-            }
+			ViewBag.BestScore = bestScore;
+			return View();
+		}
 
-            // Obtenha o ExerciseId para "GuessNote"
-            var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessNote");
-            if (exercise == null)
-            {
-                return Json(new { success = false, message = "Exercício GuessNote não encontrado." });
-            }
 
-            // Calcula o score atual
-            int currentScore = correctCount - errorCount;
+		[HttpPost]
+		public IActionResult GuessNoteSaveScore(int correctCount, int errorCount)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Obter a melhor pontuação anterior do usuário para o exercício GuessNote
-            int bestScore = _context.Scores
-                           .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
-                           .OrderByDescending(s => s.BestScore)
-                           .FirstOrDefault()?.BestScore ?? 0;
+			// Verifique se o usuário está logado
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Json(new { success = false, message = "Usuário não está logado." });
+			}
 
-            // Verifique se o score atual é melhor que o bestScore
-            if (currentScore > bestScore)
-            {
-                _context.Scores.Add(new Score
-                {
-                    UserId = userId,
-                    ExerciseId = exercise.ExerciseId,
-                    CorrectCount = correctCount,
-                    ErrorCount = errorCount,
-                    BestScore = currentScore
-                });
-                _context.SaveChanges();
+			// Obtenha o ExerciseId para "GuessNote"
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessNote");
+			if (exercise == null)
+			{
+				return Json(new { success = false, message = "Exercício GuessNote não encontrado." });
+			}
 
-                return Json(new { success = true, message = "Nova melhor pontuação registrada!" });
-            }
+			// Calcula o score atual
+			int currentScore = correctCount - errorCount;
 
-            return Json(new { success = true, message = "Pontuação não superou a anterior. Não foi registrada." });
-        }
-        #endregion
+			// Obter a melhor pontuação anterior do usuário para o exercício GuessNote
+			int bestScore = _context.Scores
+						   .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
+						   .OrderByDescending(s => s.BestScore)
+						   .FirstOrDefault()?.BestScore ?? 0;
 
-        #region GuessChord
-        public IActionResult GuessChords()
-        {
-            int bestScore = _context.Scores
-                           .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessChords")
-                           .OrderByDescending(s => s.BestScore)
-                           .FirstOrDefault()?.BestScore ?? 0;
+			// Verifique se o score atual é melhor que o bestScore
+			if (currentScore > bestScore)
+			{
+				_context.Scores.Add(new Score
+				{
+					UserId = userId,
+					ExerciseId = exercise.ExerciseId,
+					CorrectCount = correctCount,
+					ErrorCount = errorCount,
+					BestScore = currentScore
+				});
+				_context.SaveChanges();
 
-            ViewBag.BestScore = bestScore;
-            return View();
-        }
+				return Json(new { success = true, message = "Nova melhor pontuação registrada!" });
+			}
 
-        [HttpPost]
-        public IActionResult GuessChordsSaveScore(int correctCount, int errorCount)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			return Json(new { success = true, message = "Pontuação não superou a anterior. Não foi registrada." });
+		}
+		#endregion
 
-            // Verifique se o usuário está logado
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Json(new { success = false, message = "Usuário não está logado." });
-            }
+		#region GuessChord
+		public IActionResult GuessChords()
+		{
+			int bestScore = _context.Scores
+						   .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessChords")
+						   .OrderByDescending(s => s.BestScore)
+						   .FirstOrDefault()?.BestScore ?? 0;
 
-            // Obtenha o ExerciseId para "GuessChords"
-            var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessChords");
-            if (exercise == null)
-            {
-                return Json(new { success = false, message = "Exercício GuessChords não encontrado." });
-            }
+			ViewBag.BestScore = bestScore;
+			return View();
+		}
 
-            int currentScore = correctCount - errorCount;
+		[HttpPost]
+		public IActionResult GuessChordsSaveScore(int correctCount, int errorCount)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Pegue o best score atual para o usuário neste exercício
-            var userBestScoreRecord = _context.Scores
-                                              .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
-                                              .OrderByDescending(s => s.BestScore)
-                                              .FirstOrDefault();
+			// Verifique se o usuário está logado
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Json(new { success = false, message = "Usuário não está logado." });
+			}
 
-            int userBestScore = userBestScoreRecord != null ? userBestScoreRecord.CorrectCount - userBestScoreRecord.ErrorCount : int.MinValue;
+			// Obtenha o ExerciseId para "GuessChords"
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessChords");
+			if (exercise == null)
+			{
+				return Json(new { success = false, message = "Exercício GuessChords não encontrado." });
+			}
 
-            // Salve apenas se o score atual for melhor que o melhor score do usuário para esse exercício
-            if (currentScore > userBestScore)
-            {
-                _context.Scores.Add(new Score
-                {
-                    UserId = userId,
-                    ExerciseId = exercise.ExerciseId,
-                    CorrectCount = correctCount,
-                    ErrorCount = errorCount,
-                    BestScore = currentScore
-                });
-                _context.SaveChanges();
-                return Json(new { success = true, message = "Novo recorde!" });
-            }
+			int currentScore = correctCount - errorCount;
 
-            return Json(new { success = false, message = "Não superou o recorde anterior." });
-        }
+			// Pegue o best score atual para o usuário neste exercício
+			var userBestScoreRecord = _context.Scores
+											  .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
+											  .OrderByDescending(s => s.BestScore)
+											  .FirstOrDefault();
+
+			int userBestScore = userBestScoreRecord != null ? userBestScoreRecord.CorrectCount - userBestScoreRecord.ErrorCount : int.MinValue;
+
+			// Salve apenas se o score atual for melhor que o melhor score do usuário para esse exercício
+			if (currentScore > userBestScore)
+			{
+				_context.Scores.Add(new Score
+				{
+					UserId = userId,
+					ExerciseId = exercise.ExerciseId,
+					CorrectCount = correctCount,
+					ErrorCount = errorCount,
+					BestScore = currentScore
+				});
+				_context.SaveChanges();
+				return Json(new { success = true, message = "Novo recorde!" });
+			}
+
+			return Json(new { success = false, message = "Não superou o recorde anterior." });
+		}
 		#endregion
 
 		#region GuessInterval
@@ -322,6 +322,60 @@ namespace AcademiaAuditiva.Controllers
 
 			return Json(new { success = false, message = "Não superou o recorde anterior." });
 		}
+		#endregion
+
+		#region GuessFullInterval
+
+		public IActionResult GuessFullInterval()
+		{
+			int bestScore = _context.Scores
+				.Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessFullInterval")
+				.OrderByDescending(s => s.BestScore)
+				.FirstOrDefault()?.BestScore ?? 0;
+
+			ViewBag.BestScore = bestScore;
+			return View();
+		}
+
+		[HttpPost]
+		public IActionResult GuessFullIntervalSaveScore(int correctCount, int errorCount)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Json(new { success = false, message = "Usuário não está logado." });
+			}
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFullInterval");
+			if (exercise == null)
+			{
+				return Json(new { success = false, message = "Exercício GuessFullInterval não encontrado." });
+			}
+
+			int currentScore = correctCount - errorCount;
+
+			var userBestScore = _context.Scores
+				.Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
+				.OrderByDescending(s => s.BestScore)
+				.FirstOrDefault()?.BestScore ?? int.MinValue;
+
+			if (currentScore > userBestScore)
+			{
+				_context.Scores.Add(new Score
+				{
+					UserId = userId,
+					ExerciseId = exercise.ExerciseId,
+					CorrectCount = correctCount,
+					ErrorCount = errorCount,
+					BestScore = currentScore
+				});
+				_context.SaveChanges();
+				return Json(new { success = true, message = "Novo recorde!" });
+			}
+
+			return Json(new { success = false, message = "Não superou o recorde anterior." });
+		}
+
 		#endregion
 
 	}

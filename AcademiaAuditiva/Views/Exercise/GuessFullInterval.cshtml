@@ -1,0 +1,151 @@
+@inject IViewLocalizer Localizer
+@{
+    ViewBag.Title = Localizer["GuessFullInterval.Title"];
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center exercise-content" style="display:none">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4">@Localizer["GuessFullInterval.Title"]</h2>
+
+            <div class="text-center mb-4">
+                <button id="playInterval" class="btn btn-primary">@Localizer["GuessFullInterval.PlayButton"]</button>
+            </div>
+
+            <div class="form-group text-center">
+                <label for="intervalSelect" class="form-label">@Localizer["GuessFullInterval.SelectLabel"]</label>
+                <select id="intervalSelect" class="form-select w-50 mx-auto">
+                    <option value="">@Localizer["GuessFullInterval.SelectPlaceholder"]</option>
+                    <option value="MinorSecond">@Localizer["GuessFullInterval.MinorSecond"]</option>
+                    <option value="MajorSecond">@Localizer["GuessFullInterval.MajorSecond"]</option>
+                    <option value="MinorThird">@Localizer["GuessFullInterval.MinorThird"]</option>
+                    <option value="MajorThird">@Localizer["GuessFullInterval.MajorThird"]</option>
+                    <option value="PerfectFourth">@Localizer["GuessFullInterval.PerfectFourth"]</option>
+                    <option value="Tritone">@Localizer["GuessFullInterval.Tritone"]</option>
+                    <option value="PerfectFifth">@Localizer["GuessFullInterval.PerfectFifth"]</option>
+                    <option value="MinorSixth">@Localizer["GuessFullInterval.MinorSixth"]</option>
+                    <option value="MajorSixth">@Localizer["GuessFullInterval.MajorSixth"]</option>
+                    <option value="MinorSeventh">@Localizer["GuessFullInterval.MinorSeventh"]</option>
+                    <option value="MajorSeventh">@Localizer["GuessFullInterval.MajorSeventh"]</option>
+                    <option value="PerfectOctave">@Localizer["GuessFullInterval.PerfectOctave"]</option>
+                </select>
+            </div>
+
+            <div class="text-center mt-3">
+                <button id="validateGuess" class="btn btn-success">@Localizer["GuessFullInterval.SubmitButton"]</button>
+            </div>
+
+            <div class="scoreboard text-center my-4">
+                <div class="d-inline-block mx-3">
+                    <h5>@Localizer["Score.Correct"]</h5>
+                    <span id="correctCount">0</span>
+                </div>
+                <div class="d-inline-block mx-3">
+                    <h5>@Localizer["Score.Errors"]</h5>
+                    <span id="errorCount">0</span>
+                </div>
+                <div class="d-inline-block mx-3">
+                    <h5>@Localizer["Score.Best"]</h5>
+                    <span id="bestScore">@ViewBag.BestScore</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const intervals = {
+            "MinorSecond": 1,
+            "MajorSecond": 2,
+            "MinorThird": 3,
+            "MajorThird": 4,
+            "PerfectFourth": 5,
+            "Tritone": 6,
+            "PerfectFifth": 7,
+            "MinorSixth": 8,
+            "MajorSixth": 9,
+            "MinorSeventh": 10,
+            "MajorSeventh": 11,
+            "PerfectOctave": 12
+        };
+
+        let correctAnswer = "";
+
+        $(document).ready(function () {
+            AcademiaAuditiva.init();
+
+            Swal.fire({
+                title: '@Localizer["GuessFullInterval.ModalTitle"]',
+                text: '@Localizer["GuessFullInterval.ModalText"]',
+                icon: 'info',
+                confirmButtonText: '@Localizer["GuessFullInterval.StartButton"]',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('.exercise-content').show();
+                }
+            });
+
+            $('#playInterval').on('click', function () {
+                const baseNote = Tone.Frequency("C4").toMidi() + Math.floor(Math.random() * 12);
+                const keys = Object.keys(intervals);
+                correctAnswer = keys[Math.floor(Math.random() * keys.length)];
+                const semitones = intervals[correctAnswer];
+                const intervalNote = baseNote + semitones;
+
+                Tone.start().then(() => {
+                    AcademiaAuditiva.sampler.triggerAttackRelease(Tone.Frequency(baseNote, "midi").toNote(), "0.5");
+                    setTimeout(() => {
+                        AcademiaAuditiva.sampler.triggerAttackRelease(Tone.Frequency(intervalNote, "midi").toNote(), "0.5");
+                    }, 700);
+                });
+            });
+
+            $('#validateGuess').on('click', function () {
+                const selected = $('#intervalSelect').val();
+                const correctEl = $('#correctCount');
+                const errorEl = $('#errorCount');
+                const bestEl = $('#bestScore');
+
+                if (!selected) {
+                    Swal.fire('@Localizer["GuessFullInterval.WarningTitle"]', '@Localizer["GuessFullInterval.WarningText"]', 'warning');
+                    return;
+                }
+
+                let correctCount = parseInt(correctEl.text());
+                let errorCount = parseInt(errorEl.text());
+                let bestScore = parseInt(bestEl.text());
+                let currentScore;
+
+                if (selected === correctAnswer) {
+                    correctCount++;
+                    correctEl.text(correctCount);
+                    Swal.fire('✅', '@Localizer["GuessFullInterval.Correct"]', 'success');
+                } else {
+                    errorCount++;
+                    errorEl.text(errorCount);
+                    Swal.fire('❌', '@Localizer["GuessFullInterval.Incorrect"]', 'error');
+                }
+
+                currentScore = correctCount - errorCount;
+
+                if (currentScore > bestScore) {
+                    bestEl.text(currentScore);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Exercise/GuessFullIntervalSaveScore",
+                        data: { correctCount: correctCount, errorCount: errorCount },
+                        error: function () {
+                            console.error("Erro ao salvar pontuação.");
+                        }
+                    });
+                }
+
+                correctAnswer = "";
+                $('#intervalSelect').val("");
+            });
+        });
+    </script>
+}

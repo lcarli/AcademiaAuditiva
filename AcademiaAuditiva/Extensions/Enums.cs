@@ -31,4 +31,21 @@
         Eleventh,
         // ... outros intervalos que você desejar
     }
+
+    public enum FullIntervalType
+    {
+        MinorSecond,
+        MajorSecond,
+        MinorThird,
+        MajorThird,
+        PerfectFourth,
+        Tritone,
+        PerfectFifth,
+        MinorSixth,
+        MajorSixth,
+        MinorSeventh,
+        MajorSeventh,
+        PerfectOctave
+    }
+
 }
