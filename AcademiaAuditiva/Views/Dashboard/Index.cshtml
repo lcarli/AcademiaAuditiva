@@ -79,8 +79,29 @@
             fetch('/Dashboard/GetUserProgress')
                 .then(res => res.json())
                 .then(data => {
-                    const labels = Object.keys(data.radar);
-                    const values = Object.values(data.radar);
+                    const radar = data.radar;
+
+                    // Ordem pedagógica (você pode ajustar conforme preferir)
+                    const orderedTypes = [
+                        "NoteRecognition",
+                        "IntervalRecognition",
+                        "ChordRecognition",
+                        "FunctionRecognition",
+                        "ScaleRecognition"
+                    ];
+
+                    const labels = orderedTypes.map(type => {
+                        switch (type) {
+                            case "NoteRecognition": return '@Localizer["ExerciseType.NoteRecognition"]';
+                            case "IntervalRecognition": return '@Localizer["ExerciseType.IntervalRecognition"]';
+                            case "ChordRecognition": return '@Localizer["ExerciseType.ChordRecognition"]';
+                            case "FunctionRecognition": return '@Localizer["ExerciseType.FunctionRecognition"]';
+                            case "ScaleRecognition": return '@Localizer["ExerciseType.ScaleRecognition"]';
+                            default: return type;
+                        }
+                    });
+
+                    const values = orderedTypes.map(type => radar[type] || 0);
 
                     new Chart(document.getElementById("competencyRadarChart"), {
                         type: 'radar',
@@ -104,6 +125,9 @@
                             }
                         }
                     });
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar dados do radar:", error);
                 });
 
 

@@ -585,4 +585,14 @@
     <value>Tempo Total</value>
     <comment/>
   </data>
+  <data name="ExerciseType.NoteRecognition"><value>Notas</value>
+    <comment/></data>
+  <data name="ExerciseType.IntervalRecognition"><value>Intervalos</value>
+    <comment/></data>
+  <data name="ExerciseType.ChordRecognition"><value>Acordes</value>
+    <comment/></data>
+  <data name="ExerciseType.FunctionRecognition"><value>Função</value>
+    <comment/></data>
+  <data name="ExerciseType.ScaleRecognition"><value>Escalas</value>
+    <comment/></data>
 </root>
