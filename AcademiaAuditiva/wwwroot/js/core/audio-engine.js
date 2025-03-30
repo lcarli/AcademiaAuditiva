@@ -54,6 +54,7 @@ const AudioEngine = (() => {
 
     return {
         initSampler,
+        generateNoteUrls,
         playNote,
         playSequence,
         playChord
