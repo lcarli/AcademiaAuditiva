@@ -80,6 +80,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $('.exercise-content').show();
+                    exerciseStartTime = Date.now();
                 }
             });
 
@@ -172,7 +173,8 @@
 
                     $.post("/Exercise/GuessQualityChordsSaveScore", {
                         correctCount: correctCount,
-                        errorCount: errorCount
+                        errorCount: errorCount,
+                        timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
                     });
                 }
             }

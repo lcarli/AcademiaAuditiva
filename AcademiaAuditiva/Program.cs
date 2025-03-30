@@ -1,4 +1,5 @@
 using AcademiaAuditiva.Data;
+using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -87,5 +88,14 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+//seed
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+
+    SeedData.SeedExercises(context);
+}
 
 app.Run();

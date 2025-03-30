@@ -98,6 +98,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $('.exercise-content').show();
+                    exerciseStartTime = Date.now();
                 }
             });
 
@@ -235,7 +236,8 @@
                     bestScoreEl.innerText = bestScore;
                     $.post("/Exercise/GuessChordsSaveScore", {
                         correctCount: correctCount,
-                        errorCount: errorCount
+                        errorCount: errorCount,
+                        timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
                     });
                 }
             }

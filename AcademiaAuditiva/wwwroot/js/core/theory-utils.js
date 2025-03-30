@@ -1,7 +1,7 @@
 
 const TheoryUtils = (() => {
     function getAllNotes(octaves = [3, 4, 5]) {
-        const allNotes = Object.keys(AudioEngine.getNoteUrls());
+        const allNotes = Object.keys(AudioEngine.generateNoteUrls());
         if (!octaves) return allNotes;
         return allNotes.filter(note => octaves.includes(parseInt(note.slice(-1))));
     }

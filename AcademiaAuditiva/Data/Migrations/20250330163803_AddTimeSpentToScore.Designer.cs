@@ -4,6 +4,7 @@ using AcademiaAuditiva.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AcademiaAuditiva.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250330163803_AddTimeSpentToScore")]
+    partial class AddTimeSpentToScore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,18 +33,12 @@ namespace AcademiaAuditiva.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExerciseId"));
 
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Difficulty")
                         .HasColumnType("int");
-
-                    b.Property<string>("FiltersJson")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -213,7 +210,7 @@ namespace AcademiaAuditiva.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "8df19a87-f300-4bd5-a4fb-e87346b63b80",
+                            Id = "ae1f9507-e9fe-4b7c-b328-963389843d57",
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "37f979fc-85e9-42c0-bc5c-3321d0b9cad6",
                             Email = "lucas.decarli.ca@gmail.com",
@@ -221,7 +218,7 @@ namespace AcademiaAuditiva.Data.Migrations
                             LockoutEnabled = true,
                             NormalizedEmail = "LUCAS.DECARLI.CA@GMAIL.COM",
                             NormalizedUserName = "LUCAS.DECARLI.CA@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKlAZFRdLhmicWL7eUtBvbzphnBqePjqIb+AMcXgh9j39j2wqccbqgP7U5PzutqUaA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAECirHT76omZaA1zfmbO/v6OPsNdSXiFcX6lIOpugUjHZUa2pzcXx1An4YQQkV7mvJw==",
                             PhoneNumber = "+15817456586",
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "UTUTEH5FUQ6C2MUTMB3CCICNLIBN6CAO",

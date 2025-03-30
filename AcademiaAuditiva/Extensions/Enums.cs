@@ -2,12 +2,27 @@
 {
     public enum ExerciseType
     {
+        NoteRecognition,
         ChordRecognition,
+        IntervalRecognition,
+        FunctionRecognition,
         MelodyReproduction,
         RhythmPatterns,
-        ListeningGames,
-        HarmonicField
+        HarmonicField,
+        ScaleRecognition
     }
+
+    public enum ExerciseCategory
+    {
+        Harmony,
+        Melody,
+        Rhythm,
+        EarTraining,
+        Scales,
+        Games,
+        Misc
+    }
+
 
     public enum DifficultyLevel
     {

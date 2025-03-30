@@ -5,106 +5,162 @@
 <div class="container mt-5">
     <h2 class="text-center mb-4">@Localizer["Dashboard.Title"]</h2>
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body text-center">
-                    <h5 class="card-title">@Localizer["Dashboard.TotalExercises"]</h5>
-                    <h3 id="totalExercises">0</h3>
+    <div class="row text-center mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h6>@Localizer["Dashboard.TotalExercises"]</h6>
+                    <h3 id="totalExercises">@ViewBag.TotalExercises</h3>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body text-center">
-                    <h5 class="card-title">@Localizer["Dashboard.BestScore"]</h5>
-                    <h3 id="bestScore">0</h3>
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h6>@Localizer["Dashboard.BestScore"]</h6>
+                    <h3 id="bestScore">@ViewBag.BestScore</h3>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body text-center">
-                    <h5 class="card-title">@Localizer["Dashboard.TotalTime"]</h5>
-                    <h3 id="totalTime">0 min</h3>
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h6>@Localizer["Dashboard.TotalTime"]</h6>
+                    <h3 id="totalTime">@ViewBag.TotalTime min</h3>
                 </div>
             </div>
         </div>
     </div>
 
-    <h4 class="text-center mt-5 mb-3">@Localizer["Dashboard.ProgressByExercise"]</h4>
-    <canvas id="exerciseProgressChart" height="100"></canvas>
+    <!-- Radar + Acertos por Categoria lado a lado -->
+    <div class="row">
+        <div class="col-12 col-md-6 mb-4">
+            <h5 class="text-center">@Localizer["Dashboard.RadarTitle"]</h5>
+            <canvas id="competencyRadarChart" height="200"></canvas>
+        </div>
+        <div class="col-12 col-md-6 mb-4">
+            <h5 class="text-center">@Localizer["Dashboard.CategoryAccuracyTitle"]</h5>
+            <canvas id="accuracyBarChart" height="200"></canvas>
+        </div>
+    </div>
 
-    <h4 class="text-center mt-5 mb-3">@Localizer["Dashboard.StrengthsAndWeaknesses"]</h4>
-    <canvas id="accuracyRadarChart" height="100"></canvas>
+    <!-- Linha do Tempo -->
+    <div class="mb-5">
+        <h5 class="text-center">@Localizer["Dashboard.TimelineTitle"]</h5>
+        <canvas id="learningTimelineChart" height="100"></canvas>
+    </div>
 
-    <div class="text-center mt-5">
-        <a class="btn btn-outline-primary" href="/Exercise/Review">@Localizer["Dashboard.ReviewButton"]</a>
+    <!-- Evolução por Exercício + Dificuldade -->
+    <div class="row">
+        <div class="col-12 col-md-6 mb-4">
+            <h5 class="text-center">@Localizer["Dashboard.ExerciseImprovementTitle"]</h5>
+            <canvas id="improvementLineChart" height="200"></canvas>
+        </div>
+        <div class="col-12 col-md-6 mb-4">
+            <h5 class="text-center">@Localizer["Dashboard.DifficultyTitle"]</h5>
+            <canvas id="difficultyBarChart" height="200"></canvas>
+        </div>
     </div>
 </div>
+
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Simulando dados (substituir por dados reais vindos do controller via ViewBag ou API)
-            const exerciseProgress = {
-                labels: ["Notas", "Intervalos", "Funções", "Acordes", "Qualidades", "Escalas"],
-                data: [70, 85, 60, 90, 75, 65]
-            };
+        document.addEventListener("DOMContentLoaded", () => {
+            // Dados simulados (substituir por ViewBag, API etc.)
+            const labels = ["Notas", "Intervalos", "Acordes", "Escalas", "Função"];
+            const radarData = [80, 65, 90, 70, 60];
+            const accuracyData = [78, 55, 92, 63, 70];
+            const timelineData = [3, 5, 4, 2, 6, 5, 7]; // últimos 7 dias
+            const improvementData = [40, 55, 68, 75, 82]; // evolução
+            const difficultyData = [22, 34, 18, 40, 29];
 
-            const radarAccuracy = {
-                labels: ["Notas", "Acordes", "Escalas", "Intervalos", "Funções", "Qualidade"],
-                data: [90, 80, 70, 85, 60, 75]
-            };
+            fetch('/Dashboard/GetUserProgress')
+                .then(res => res.json())
+                .then(data => {
+                    const labels = Object.keys(data.radar);
+                    const values = Object.values(data.radar);
 
-            // Gráfico de barras
-            new Chart(document.getElementById('exerciseProgressChart'), {
+                    new Chart(document.getElementById("competencyRadarChart"), {
+                        type: 'radar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: '@Localizer["Dashboard.SkillRadarLabel"]',
+                                data: values,
+                                fill: true,
+                                backgroundColor: 'rgba(75,192,192,0.2)',
+                                borderColor: 'rgba(75,192,192,1)',
+                                pointBackgroundColor: 'rgba(75,192,192,1)'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                r: {
+                                    suggestedMin: 0,
+                                    suggestedMax: 100
+                                }
+                            }
+                        }
+                    });
+                });
+
+
+            new Chart("accuracyBarChart", {
                 type: 'bar',
                 data: {
-                    labels: exerciseProgress.labels,
-                    datasets: [{
-                        label: '@Localizer["Dashboard.CorrectAnswers"]',
-                        data: exerciseProgress.data,
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: { beginAtZero: true, max: 100 }
-                    }
-                }
-            });
-
-            // Radar de acertos
-            new Chart(document.getElementById('accuracyRadarChart'), {
-                type: 'radar',
-                data: {
-                    labels: radarAccuracy.labels,
+                    labels,
                     datasets: [{
                         label: '@Localizer["Dashboard.Accuracy"]',
-                        data: radarAccuracy.data,
-                        fill: true,
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)'
+                        data: accuracyData,
+                        backgroundColor: 'rgba(54,162,235,0.7)'
                     }]
                 },
-                options: {
-                    responsive: true,
-                    scales: {
-                        r: {
-                            suggestedMin: 0,
-                            suggestedMax: 100
-                        }
-                    }
+                options: { scales: { y: { max: 100, beginAtZero: true } } }
+            });
+
+            new Chart("learningTimelineChart", {
+                type: 'line',
+                data: {
+                    labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
+                    datasets: [{
+                        label: '@Localizer["Dashboard.TimelineLabel"]',
+                        data: timelineData,
+                        borderColor: 'rgba(255,99,132,1)',
+                        tension: 0.3,
+                        fill: false
+                    }]
                 }
             });
 
-            // Exibir dados simulados nos cards
-            document.getElementById('totalExercises').innerText = 120;
-            document.getElementById('bestScore').innerText = 34;
-            document.getElementById('totalTime').innerText = "75 min";
+            new Chart("improvementLineChart", {
+                type: 'line',
+                data: {
+                    labels: ["Notas", "Acordes", "Escalas", "Intervalos", "Função"],
+                    datasets: [{
+                        label: '@Localizer["Dashboard.ImprovementLabel"]',
+                        data: improvementData,
+                        borderColor: 'rgba(153,102,255,1)',
+                        tension: 0.3,
+                        fill: false
+                    }]
+                }
+            });
+
+            new Chart("difficultyBarChart", {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: '@Localizer["Dashboard.DifficultyLabel"]',
+                        data: difficultyData,
+                        backgroundColor: 'rgba(255,159,64,0.7)'
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+
         });
     </script>
 }

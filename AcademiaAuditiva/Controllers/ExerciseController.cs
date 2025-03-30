@@ -42,7 +42,7 @@ namespace AcademiaAuditiva.Controllers
 
 
 		[HttpPost]
-		public IActionResult GuessNoteSaveScore(int correctCount, int errorCount)
+		public IActionResult GuessNoteSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -77,7 +77,8 @@ namespace AcademiaAuditiva.Controllers
 					ExerciseId = exercise.ExerciseId,
 					CorrectCount = correctCount,
 					ErrorCount = errorCount,
-					BestScore = currentScore
+					BestScore = currentScore,
+					TimeSpentSeconds = timeSpentSeconds
 				});
 				_context.SaveChanges();
 
@@ -101,7 +102,7 @@ namespace AcademiaAuditiva.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult GuessChordsSaveScore(int correctCount, int errorCount)
+		public IActionResult GuessChordsSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -137,7 +138,8 @@ namespace AcademiaAuditiva.Controllers
 					ExerciseId = exercise.ExerciseId,
 					CorrectCount = correctCount,
 					ErrorCount = errorCount,
-					BestScore = currentScore
+					BestScore = currentScore,
+					TimeSpentSeconds = timeSpentSeconds
 				});
 				_context.SaveChanges();
 				return Json(new { success = true, message = "Novo recorde!" });
@@ -160,7 +162,7 @@ namespace AcademiaAuditiva.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult GuessIntervalSaveScore(int correctCount, int errorCount)
+		public IActionResult GuessIntervalSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -196,7 +198,8 @@ namespace AcademiaAuditiva.Controllers
 					ExerciseId = exercise.ExerciseId,
 					CorrectCount = correctCount,
 					ErrorCount = errorCount,
-					BestScore = currentScore
+					BestScore = currentScore,
+					TimeSpentSeconds = timeSpentSeconds
 				});
 				_context.SaveChanges();
 				return Json(new { success = true, message = "Novo recorde!" });
@@ -220,7 +223,7 @@ namespace AcademiaAuditiva.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult GuessQualityChordsSaveScore(int correctCount, int errorCount)
+		public IActionResult GuessQualityChordsSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -256,7 +259,8 @@ namespace AcademiaAuditiva.Controllers
 					ExerciseId = exercise.ExerciseId,
 					CorrectCount = correctCount,
 					ErrorCount = errorCount,
-					BestScore = currentScore
+					BestScore = currentScore,
+					TimeSpentSeconds = timeSpentSeconds
 				});
 				_context.SaveChanges();
 				return Json(new { success = true, message = "Novo recorde!" });
@@ -280,7 +284,7 @@ namespace AcademiaAuditiva.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult GuessFunctionSaveScore(int correctCount, int errorCount)
+		public IActionResult GuessFunctionSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -314,7 +318,8 @@ namespace AcademiaAuditiva.Controllers
 					ExerciseId = exercise.ExerciseId,
 					CorrectCount = correctCount,
 					ErrorCount = errorCount,
-					BestScore = currentScore
+					BestScore = currentScore,
+					TimeSpentSeconds = timeSpentSeconds
 				});
 				_context.SaveChanges();
 				return Json(new { success = true, message = "Novo recorde!" });
@@ -338,7 +343,7 @@ namespace AcademiaAuditiva.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult GuessFullIntervalSaveScore(int correctCount, int errorCount)
+		public IActionResult GuessFullIntervalSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (string.IsNullOrEmpty(userId))
@@ -367,7 +372,8 @@ namespace AcademiaAuditiva.Controllers
 					ExerciseId = exercise.ExerciseId,
 					CorrectCount = correctCount,
 					ErrorCount = errorCount,
-					BestScore = currentScore
+					BestScore = currentScore,
+					TimeSpentSeconds = timeSpentSeconds
 				});
 				_context.SaveChanges();
 				return Json(new { success = true, message = "Novo recorde!" });

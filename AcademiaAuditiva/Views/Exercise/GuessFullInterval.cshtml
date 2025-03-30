@@ -84,6 +84,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $('.exercise-content').show();
+                    exerciseStartTime = Date.now();
                 }
             });
 
@@ -136,7 +137,8 @@
                     $.ajax({
                         type: "POST",
                         url: "/Exercise/GuessFullIntervalSaveScore",
-                        data: { correctCount: correctCount, errorCount: errorCount },
+                        data: { correctCount: correctCount, errorCount: errorCount,
+                        timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000) },
                         error: function () {
                             console.error("Erro ao salvar pontuação.");
                         }
