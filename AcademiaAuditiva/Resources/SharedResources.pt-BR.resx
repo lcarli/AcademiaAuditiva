@@ -585,14 +585,46 @@
     <value>Tempo Total</value>
     <comment/>
   </data>
-  <data name="ExerciseType.NoteRecognition"><value>Notas</value>
-    <comment/></data>
-  <data name="ExerciseType.IntervalRecognition"><value>Intervalos</value>
-    <comment/></data>
-  <data name="ExerciseType.ChordRecognition"><value>Acordes</value>
-    <comment/></data>
-  <data name="ExerciseType.FunctionRecognition"><value>Função</value>
-    <comment/></data>
-  <data name="ExerciseType.ScaleRecognition"><value>Escalas</value>
-    <comment/></data>
+  <data name="ExerciseType.NoteRecognition">
+    <value>Notas</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.IntervalRecognition">
+    <value>Intervalos</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.ChordRecognition">
+    <value>Acordes</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.FunctionRecognition">
+    <value>Função</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.ScaleRecognition">
+    <value>Escalas</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Harmony">
+    <value>Harmonia</value>
+  </data>
+  <data name="ExerciseCategory.EarTraining">
+    <value>Percepção</value>
+  </data>
+  <data name="ExerciseCategory.Rhythm">
+    <value>Ritmo</value>
+  </data>
+  <data name="ExerciseCategory.Scales">
+    <value>Escalas</value>
+  </data>
+  <data name="ExerciseCategory.Melody">
+    <value>Melodia</value>
+  </data>
+  <data name="ExerciseCategory.Games">
+    <value>Jogos</value>
+  </data>
+  <data name="Dashboard.CategoryAccuracyTitle">
+    <value>Acertos por Categoria</value>
+  </data>
+
 </root>

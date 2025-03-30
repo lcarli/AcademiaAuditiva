@@ -590,4 +590,11 @@
   <data name="ExerciseType.ChordRecognition"><value>Accords</value></data>
   <data name="ExerciseType.FunctionRecognition"><value>Fonction</value></data>
   <data name="ExerciseType.ScaleRecognition"><value>Gammes</value></data>
+  <data name="ExerciseCategory.Harmony"><value>Harmonie</value></data>
+  <data name="ExerciseCategory.EarTraining"><value>Entraînement de l'oreille</value></data>
+  <data name="ExerciseCategory.Rhythm"><value>Rythme</value></data>
+  <data name="ExerciseCategory.Scales"><value>Gammes</value></data>
+  <data name="ExerciseCategory.Melody"><value>Mélodie</value></data>
+  <data name="ExerciseCategory.Games"><value>Jeux</value></data>
+  <data name="Dashboard.CategoryAccuracyTitle"><value>Précision par catégorie</value></data>
 </root>
