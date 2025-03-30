@@ -1,11 +1,9 @@
-@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
 @{
     ViewData["Title"] = Localizer["Exercise.FullInterval.Title"];
     var intervals = new[] {
-"minor2", "major2", "minor3", "major3", "perfect4", "augmented4",
-"perfect5", "minor6", "major6", "minor7", "major7", "perfect8"
-};
+    "minor2", "major2", "minor3", "major3", "perfect4", "augmented4",
+    "perfect5", "minor6", "major6", "minor7", "major7", "perfect8"
+    };
 }
 
 <h2 class="text-center">@Localizer["Exercise.FullInterval.Title"]</h2>
