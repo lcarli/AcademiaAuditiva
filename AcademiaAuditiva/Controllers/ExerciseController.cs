@@ -46,46 +46,30 @@ namespace AcademiaAuditiva.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			// Verifique se o usuário está logado
 			if (string.IsNullOrEmpty(userId))
-			{
 				return Json(new { success = false, message = "Usuário não está logado." });
-			}
 
-			// Obtenha o ExerciseId para "GuessNote"
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessNote");
 			if (exercise == null)
-			{
 				return Json(new { success = false, message = "Exercício GuessNote não encontrado." });
-			}
 
-			// Calcula o score atual
 			int currentScore = correctCount - errorCount;
 
-			// Obter a melhor pontuação anterior do usuário para o exercício GuessNote
-			int bestScore = _context.Scores
-						   .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
-						   .OrderByDescending(s => s.BestScore)
-						   .FirstOrDefault()?.BestScore ?? 0;
-
-			// Verifique se o score atual é melhor que o bestScore
-			if (currentScore > bestScore)
+			var newScore = new Score
 			{
-				_context.Scores.Add(new Score
-				{
-					UserId = userId,
-					ExerciseId = exercise.ExerciseId,
-					CorrectCount = correctCount,
-					ErrorCount = errorCount,
-					BestScore = currentScore,
-					TimeSpentSeconds = timeSpentSeconds
-				});
-				_context.SaveChanges();
+				UserId = userId,
+				ExerciseId = exercise.ExerciseId,
+				CorrectCount = correctCount,
+				ErrorCount = errorCount,
+				BestScore = currentScore,
+				TimeSpentSeconds = timeSpentSeconds,
+				Timestamp = DateTime.UtcNow
+			};
 
-				return Json(new { success = true, message = "Nova melhor pontuação registrada!" });
-			}
+			_context.Scores.Add(newScore);
+			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Pontuação não superou a anterior. Não foi registrada." });
+			return Json(new { success = true, message = "Sessão registrada com sucesso!" });
 		}
 		#endregion
 
@@ -106,47 +90,32 @@ namespace AcademiaAuditiva.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			// Verifique se o usuário está logado
 			if (string.IsNullOrEmpty(userId))
-			{
 				return Json(new { success = false, message = "Usuário não está logado." });
-			}
 
-			// Obtenha o ExerciseId para "GuessChords"
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessChords");
 			if (exercise == null)
-			{
 				return Json(new { success = false, message = "Exercício GuessChords não encontrado." });
-			}
 
 			int currentScore = correctCount - errorCount;
 
-			// Pegue o best score atual para o usuário neste exercício
-			var userBestScoreRecord = _context.Scores
-											  .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
-											  .OrderByDescending(s => s.BestScore)
-											  .FirstOrDefault();
-
-			int userBestScore = userBestScoreRecord != null ? userBestScoreRecord.CorrectCount - userBestScoreRecord.ErrorCount : int.MinValue;
-
-			// Salve apenas se o score atual for melhor que o melhor score do usuário para esse exercício
-			if (currentScore > userBestScore)
+			var newScore = new Score
 			{
-				_context.Scores.Add(new Score
-				{
-					UserId = userId,
-					ExerciseId = exercise.ExerciseId,
-					CorrectCount = correctCount,
-					ErrorCount = errorCount,
-					BestScore = currentScore,
-					TimeSpentSeconds = timeSpentSeconds
-				});
-				_context.SaveChanges();
-				return Json(new { success = true, message = "Novo recorde!" });
-			}
+				UserId = userId,
+				ExerciseId = exercise.ExerciseId,
+				CorrectCount = correctCount,
+				ErrorCount = errorCount,
+				BestScore = currentScore,
+				TimeSpentSeconds = timeSpentSeconds,
+				Timestamp = DateTime.UtcNow
+			};
 
-			return Json(new { success = false, message = "Não superou o recorde anterior." });
+			_context.Scores.Add(newScore);
+			_context.SaveChanges();
+
+			return Json(new { success = true, message = "Sessão de acordes registrada com sucesso!" });
 		}
+
 		#endregion
 
 		#region GuessInterval
@@ -166,47 +135,32 @@ namespace AcademiaAuditiva.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			// Verifique se o usuário está logado
 			if (string.IsNullOrEmpty(userId))
-			{
 				return Json(new { success = false, message = "Usuário não está logado." });
-			}
 
-			// Obtenha o ExerciseId para "GuessInterval"
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessInterval");
 			if (exercise == null)
-			{
 				return Json(new { success = false, message = "Exercício GuessInterval não encontrado." });
-			}
 
 			int currentScore = correctCount - errorCount;
 
-			// Pegue o best score atual para o usuário neste exercício
-			var userBestScoreRecord = _context.Scores
-											  .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
-											  .OrderByDescending(s => s.BestScore)
-											  .FirstOrDefault();
-
-			int userBestScore = userBestScoreRecord != null ? userBestScoreRecord.CorrectCount - userBestScoreRecord.ErrorCount : int.MinValue;
-
-			// Salve apenas se o score atual for melhor que o melhor score do usuário para esse exercício
-			if (currentScore > userBestScore)
+			var newScore = new Score
 			{
-				_context.Scores.Add(new Score
-				{
-					UserId = userId,
-					ExerciseId = exercise.ExerciseId,
-					CorrectCount = correctCount,
-					ErrorCount = errorCount,
-					BestScore = currentScore,
-					TimeSpentSeconds = timeSpentSeconds
-				});
-				_context.SaveChanges();
-				return Json(new { success = true, message = "Novo recorde!" });
-			}
+				UserId = userId,
+				ExerciseId = exercise.ExerciseId,
+				CorrectCount = correctCount,
+				ErrorCount = errorCount,
+				BestScore = currentScore,
+				TimeSpentSeconds = timeSpentSeconds,
+				Timestamp = DateTime.UtcNow
+			};
 
-			return Json(new { success = false, message = "Não superou o recorde anterior." });
+			_context.Scores.Add(newScore);
+			_context.SaveChanges();
+
+			return Json(new { success = true, message = "Sessão de intervalos registrada com sucesso!" });
 		}
+
 		#endregion
 
 		#region GuessQuality
@@ -223,50 +177,34 @@ namespace AcademiaAuditiva.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult GuessQualityChordsSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
+		public IActionResult GuessQualitySaveScore(int correctCount, int errorCount, int timeSpentSeconds)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			// Verifique se o usuário está logado
 			if (string.IsNullOrEmpty(userId))
-			{
 				return Json(new { success = false, message = "Usuário não está logado." });
-			}
 
-			// Obtenha o ExerciseId para "GuessQuality"
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessQuality");
 			if (exercise == null)
-			{
 				return Json(new { success = false, message = "Exercício GuessQuality não encontrado." });
-			}
 
 			int currentScore = correctCount - errorCount;
 
-			// Pegue o best score atual para o usuário neste exercício
-			var userBestScoreRecord = _context.Scores
-											  .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
-											  .OrderByDescending(s => s.BestScore)
-											  .FirstOrDefault();
-
-			int userBestScore = userBestScoreRecord != null ? userBestScoreRecord.CorrectCount - userBestScoreRecord.ErrorCount : int.MinValue;
-
-			// Salve apenas se o score atual for melhor que o melhor score do usuário para esse exercício
-			if (currentScore > userBestScore)
+			var newScore = new Score
 			{
-				_context.Scores.Add(new Score
-				{
-					UserId = userId,
-					ExerciseId = exercise.ExerciseId,
-					CorrectCount = correctCount,
-					ErrorCount = errorCount,
-					BestScore = currentScore,
-					TimeSpentSeconds = timeSpentSeconds
-				});
-				_context.SaveChanges();
-				return Json(new { success = true, message = "Novo recorde!" });
-			}
+				UserId = userId,
+				ExerciseId = exercise.ExerciseId,
+				CorrectCount = correctCount,
+				ErrorCount = errorCount,
+				BestScore = currentScore,
+				TimeSpentSeconds = timeSpentSeconds,
+				Timestamp = DateTime.UtcNow
+			};
 
-			return Json(new { success = false, message = "Não superou o recorde anterior." });
+			_context.Scores.Add(newScore);
+			_context.SaveChanges();
+
+			return Json(new { success = true, message = "Sessão de qualidade de acordes registrada com sucesso!" });
 		}
 
 		#endregion
@@ -288,45 +226,32 @@ namespace AcademiaAuditiva.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			// Verifique se o usuário está logado
 			if (string.IsNullOrEmpty(userId))
-			{
 				return Json(new { success = false, message = "Usuário não está logado." });
-			}
 
-			// Obtenha o ExerciseId para "GuessFunction"
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFunction");
 			if (exercise == null)
-			{
 				return Json(new { success = false, message = "Exercício GuessFunction não encontrado." });
-			}
 
 			int currentScore = correctCount - errorCount;
 
-			var userBestScoreRecord = _context.Scores
-											  .Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
-											  .OrderByDescending(s => s.BestScore)
-											  .FirstOrDefault();
-
-			int userBestScore = userBestScoreRecord != null ? userBestScoreRecord.CorrectCount - userBestScoreRecord.ErrorCount : int.MinValue;
-
-			if (currentScore > userBestScore)
+			var newScore = new Score
 			{
-				_context.Scores.Add(new Score
-				{
-					UserId = userId,
-					ExerciseId = exercise.ExerciseId,
-					CorrectCount = correctCount,
-					ErrorCount = errorCount,
-					BestScore = currentScore,
-					TimeSpentSeconds = timeSpentSeconds
-				});
-				_context.SaveChanges();
-				return Json(new { success = true, message = "Novo recorde!" });
-			}
+				UserId = userId,
+				ExerciseId = exercise.ExerciseId,
+				CorrectCount = correctCount,
+				ErrorCount = errorCount,
+				BestScore = currentScore,
+				TimeSpentSeconds = timeSpentSeconds,
+				Timestamp = DateTime.UtcNow
+			};
 
-			return Json(new { success = false, message = "Não superou o recorde anterior." });
+			_context.Scores.Add(newScore);
+			_context.SaveChanges();
+
+			return Json(new { success = true, message = "Sessão de função harmônica registrada com sucesso!" });
 		}
+
 		#endregion
 
 		#region GuessFullInterval
@@ -346,40 +271,31 @@ namespace AcademiaAuditiva.Controllers
 		public IActionResult GuessFullIntervalSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 			if (string.IsNullOrEmpty(userId))
-			{
 				return Json(new { success = false, message = "Usuário não está logado." });
-			}
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFullInterval");
 			if (exercise == null)
-			{
 				return Json(new { success = false, message = "Exercício GuessFullInterval não encontrado." });
-			}
 
 			int currentScore = correctCount - errorCount;
 
-			var userBestScore = _context.Scores
-				.Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
-				.OrderByDescending(s => s.BestScore)
-				.FirstOrDefault()?.BestScore ?? int.MinValue;
-
-			if (currentScore > userBestScore)
+			var newScore = new Score
 			{
-				_context.Scores.Add(new Score
-				{
-					UserId = userId,
-					ExerciseId = exercise.ExerciseId,
-					CorrectCount = correctCount,
-					ErrorCount = errorCount,
-					BestScore = currentScore,
-					TimeSpentSeconds = timeSpentSeconds
-				});
-				_context.SaveChanges();
-				return Json(new { success = true, message = "Novo recorde!" });
-			}
+				UserId = userId,
+				ExerciseId = exercise.ExerciseId,
+				CorrectCount = correctCount,
+				ErrorCount = errorCount,
+				BestScore = currentScore,
+				TimeSpentSeconds = timeSpentSeconds,
+				Timestamp = DateTime.UtcNow
+			};
 
-			return Json(new { success = false, message = "Não superou o recorde anterior." });
+			_context.Scores.Add(newScore);
+			_context.SaveChanges();
+
+			return Json(new { success = true, message = "Sessão de intervalos completos registrada com sucesso!" });
 		}
 
 		#endregion

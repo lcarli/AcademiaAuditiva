@@ -1,219 +1,215 @@
 ﻿@{
-	ViewBag.Title = "Adivinhe o Intervalo";
+    ViewBag.Title = "Adivinhe o Intervalo";
 }
 
 <div class="container mt-5">
-	<div class="row justify-content-center exercise-content">
-		<div class="col-md-8">
-			<h2 class="text-center mb-4">Adivinhe o Intervalo</h2>
+ <div class="row justify-content-center exercise-content">
+  <div class="col-md-8">
+   <h2 class="text-center mb-4">Adivinhe o Intervalo</h2>
 
-			<div class="mb-4 text-center d-flex justify-content-center">
-				<!-- Dropdown para escolher Tom -->
-				<div class="mb-4 me-4">
-					<!-- Adicionado me-4 para espaço à direita -->
-					<label for="keySelect" class="form-label">Selecione o Tom</label>
-					<select id="keySelect" class="form-select">
-						<option value="C4">C</option>
-						<option value="C#4">C#</option>
-						<option value="D4">D</option>
-						<option value="D#4">D#</option>
-						<option value="E4">E</option>
-						<option value="F4">F</option>
-						<option value="F#4">F#</option>
-						<option value="G4">G</option>
-						<option value="G#4">G#</option>
-						<option value="A4">A</option>
-						<option value="A#4">A#</option>
-						<option value="E4">E</option> <!-- Parece que você tem duas opções "E4", talvez seja um erro? -->
-					</select>
-				</div>
+   <div class="mb-4 text-center d-flex justify-content-center">
+    <!-- Dropdown para escolher Tom -->
+    <div class="mb-4 me-4">
+     <!-- Adicionado me-4 para espaço à direita -->
+     <label for="keySelect" class="form-label">Selecione o Tom</label>
+     <select id="keySelect" class="form-select">
+      <option value="C4">C</option>
+      <option value="C#4">C#</option>
+      <option value="D4">D</option>
+      <option value="D#4">D#</option>
+      <option value="E4">E</option>
+      <option value="F4">F</option>
+      <option value="F#4">F#</option>
+      <option value="G4">G</option>
+      <option value="G#4">G#</option>
+      <option value="A4">A</option>
+      <option value="A#4">A#</option>
+      <option value="E4">E</option> <!-- Parece que você tem duas opções "E4", talvez seja um erro? -->
+     </select>
+    </div>
 
-				<!-- Dropdown para escolher Tipo de Escala -->
-				<div class="mb-4">
-					<label for="scaleTypeSelect" class="form-label">Selecione a Escala</label>
-					<select id="scaleTypeSelect" class="form-select">
-						<option value="major">Maior</option>
-						<option value="minor">Menor</option>
-					</select>
-				</div>
-			</div>
+    <!-- Dropdown para escolher Tipo de Escala -->
+    <div class="mb-4">
+     <label for="scaleTypeSelect" class="form-label">Selecione a Escala</label>
+     <select id="scaleTypeSelect" class="form-select">
+      <option value="major">Maior</option>
+      <option value="minor">Menor</option>
+     </select>
+    </div>
+   </div>
 
 
-			<div class="mb-4 text-center">
-				<button id="playInterval" class="btn btn-primary me-3">Tocar Intervalo</button>
-				<button id="listenNote1" class="btn btn-outline-primary me-3">Ouvir Nota 1</button>
-				<button id="listenNote2" class="btn btn-outline-primary me-3">Ouvir Nota 2</button>
-				<button id="replayInterval" class="btn btn-secondary">Ouvir Intervalo</button>
-			</div>
+   <div class="mb-4 text-center">
+    <button id="playInterval" class="btn btn-primary me-3">Tocar Intervalo</button>
+    <button id="listenNote1" class="btn btn-outline-primary me-3">Ouvir Nota 1</button>
+    <button id="listenNote2" class="btn btn-outline-primary me-3">Ouvir Nota 2</button>
+    <button id="replayInterval" class="btn btn-secondary">Ouvir Intervalo</button>
+   </div>
 
-			<h4 class="text-center mb-3">Qual foi o intervalo tocado?</h4>
+   <h4 class="text-center mb-3">Qual foi o intervalo tocado?</h4>
 
-			<div class="d-grid gap-2 d-md-flex justify-content-md-center">
-				<button class="btn btn-outline-dark guessInterval" data-interval="2">2ª</button>
-				<button class="btn btn-outline-dark guessInterval" data-interval="3">3ª</button>
-				<button class="btn btn-outline-dark guessInterval" data-interval="4">4ª</button>
-				<button class="btn btn-outline-dark guessInterval" data-interval="5">5ª</button>
-				<button class="btn btn-outline-dark guessInterval" data-interval="6">6ª</button>
-				<button class="btn btn-outline-dark guessInterval" data-interval="7">7ª</button>
-				<button class="btn btn-outline-dark guessInterval" data-interval="8">8ª</button>
-			</div>
+   <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+    <button class="btn btn-outline-dark guessInterval" data-interval="2">2ª</button>
+    <button class="btn btn-outline-dark guessInterval" data-interval="3">3ª</button>
+    <button class="btn btn-outline-dark guessInterval" data-interval="4">4ª</button>
+    <button class="btn btn-outline-dark guessInterval" data-interval="5">5ª</button>
+    <button class="btn btn-outline-dark guessInterval" data-interval="6">6ª</button>
+    <button class="btn btn-outline-dark guessInterval" data-interval="7">7ª</button>
+    <button class="btn btn-outline-dark guessInterval" data-interval="8">8ª</button>
+   </div>
 
-			<div class="d-grid gap-2 d-md-flex justify-content-md-center mt-3">
-				<button id="validateGuess" class="btn btn-warning">Validar</button>
-			</div>
-		</div>
-		<div class="scoreboard text-center my-4">
-			<div class="d-inline-block mx-3">
-				<h5>Acertos</h5>
-				<span id="correctCount">0</span>
-			</div>
-			<div class="d-inline-block mx-3">
-				<h5>Erros</h5>
-				<span id="errorCount">0</span>
-			</div>
-			<div class="d-inline-block mx-3">
-				<h5>Melhor Pontuação</h5>
-				<span id="bestScore">@ViewBag.BestScore</span>
-			</div>
-		</div>
-	</div>
+   <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-3">
+    <button id="validateGuess" class="btn btn-warning">Validar</button>
+   </div>
+  </div>
+  <div class="scoreboard text-center my-4">
+   <div class="d-inline-block mx-3">
+    <h5>Acertos</h5>
+    <span id="correctCount">0</span>
+   </div>
+   <div class="d-inline-block mx-3">
+    <h5>Erros</h5>
+    <span id="errorCount">0</span>
+   </div>
+   <div class="d-inline-block mx-3">
+    <h5>Melhor Pontuação</h5>
+    <span id="bestScore">@ViewBag.BestScore</span>
+   </div>
+  </div>
+ </div>
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function () {
-            AcademiaAuditiva.init();
+        <script>
+            $(document).ready(function () {
+                AcademiaAuditiva.init();
 
-            Swal.fire({
-                title: "@Localizer["Exercise.Interval.Title"]",
-                text: "@Localizer["Exercise.Interval.Description"]",
-                icon: 'info',
-                confirmButtonText: "@Localizer["Exercise.StartButton"]",
-                allowOutsideClick: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $('.exercise-content').show();
-                    exerciseStartTime = Date.now();
-                }
-            });
-
-            let randomInterval = "";
-            let randomDistance = "";
-            let baseNote = "";
-
-            function getRandomInterval() {
-                const key = document.getElementById('keySelect').value;
-                const scaleType = document.getElementById('scaleTypeSelect').value;
-
-                const matchingScales = TheoryUtils.getAllScales({
-                    rootNotes: [key],
-                    types: [scaleType]
+                Swal.fire({
+                    title: "@Localizer["Exercise.Interval.Title"]",
+                    text: "@Localizer["Exercise.Interval.Description"]",
+                    icon: 'info',
+                    confirmButtonText: "@Localizer["Exercise.StartButton"]",
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('.exercise-content').show();
+                        exerciseStartTime = Date.now();
+                    }
                 });
 
-                if (matchingScales.length === 0) {
-                    console.error("Escala não encontrada.");
-                    return null;
+                let randomInterval = "";
+                let randomDistance = "";
+                let baseNote = "";
+
+                function getRandomInterval() {
+                    const key = document.getElementById('keySelect').value;
+                    const scaleType = document.getElementById('scaleTypeSelect').value;
+
+                    const matchingScales = TheoryUtils.getAllScales({
+                        rootNotes: [key],
+                        types: [scaleType]
+                    });
+
+                    if (matchingScales.length === 0) {
+                        console.error("Escala não encontrada.");
+                        return null;
+                    }
+
+                    const scaleNotes = matchingScales[0].notes;
+                    baseNote = scaleNotes[0];
+                    randomDistance = Math.floor(Math.random() * (scaleNotes.length - 1)) + 1;
+                    const intervalNote = scaleNotes[(scaleNotes.indexOf(baseNote) + randomDistance) % scaleNotes.length];
+
+                    return [baseNote, intervalNote];
                 }
 
-                const scaleNotes = matchingScales[0].notes;
-                baseNote = scaleNotes[0];
-                randomDistance = Math.floor(Math.random() * (scaleNotes.length - 1)) + 1;
-                const intervalNote = scaleNotes[(scaleNotes.indexOf(baseNote) + randomDistance) % scaleNotes.length];
+                document.getElementById('playInterval').addEventListener('click', () => {
+                    const [base, interval] = getRandomInterval();
+                    randomInterval = interval;
 
-                return [baseNote, intervalNote];
-            }
-
-            document.getElementById('playInterval').addEventListener('click', () => {
-                const [base, interval] = getRandomInterval();
-                randomInterval = interval;
-
-                AudioEngine.playNote(base, 1);
-                setTimeout(() => {
-                    AudioEngine.playNote(interval, 1);
-                }, 1000);
-            });
-
-            document.getElementById('replayInterval').addEventListener('click', () => {
-                if (randomInterval) {
-                    AudioEngine.playNote(baseNote, 1);
+                    AudioEngine.playNote(base, 1);
                     setTimeout(() => {
-                        AudioEngine.playNote(randomInterval, 1);
+                        AudioEngine.playNote(interval, 1);
                     }, 1000);
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
-                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
-                    });
-                }
-            });
-
-            document.getElementById('listenNote1').addEventListener('click', () => {
-                if (baseNote) {
-                    AudioEngine.playNote(baseNote, 1);
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
-                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
-                    });
-                }
-            });
-
-            document.getElementById('listenNote2').addEventListener('click', () => {
-                if (randomInterval) {
-                    AudioEngine.playNote(randomInterval, 1);
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
-                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
-                    });
-                }
-            });
-
-            const intervalButtons = document.querySelectorAll('.guessInterval');
-            let guessedInterval = '';
-
-            intervalButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    intervalButtons.forEach(btn => btn.classList.remove('selected'));
-                    e.target.classList.add('selected');
-                    guessedInterval = parseInt(e.target.getAttribute('data-interval'), 10);
                 });
-            });
 
-            function checkGuess() {
-                const correctCountEl = document.getElementById('correctCount');
-                const errorCountEl = document.getElementById('errorCount');
-                const bestScoreEl = document.getElementById('bestScore');
+                document.getElementById('replayInterval').addEventListener('click', () => {
+                    if (randomInterval) {
+                        AudioEngine.playNote(baseNote, 1);
+                        setTimeout(() => {
+                            AudioEngine.playNote(randomInterval, 1);
+                        }, 1000);
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                            text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                        });
+                    }
+                });
 
-                if (guessedInterval === (randomDistance + 1)) {
-                    correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-                    AcademiaAuditiva.feedback.playSuccessSound(
-                        '@Localizer["Exercise.CorrectMessage"]',
-                        '@Localizer["Exercise.CorrectMessageText"]'
-                    );
-                } else {
-                    errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-                    AcademiaAuditiva.feedback.playErrorSound(
-                        '@Localizer["Exercise.WrongMessage"]',
-                        '@Localizer["Exercise.WrongIntervalMessageText"]',
-                        `${randomDistance + 1}ª`
-                    );
-                }
+                document.getElementById('listenNote1').addEventListener('click', () => {
+                    if (baseNote) {
+                        AudioEngine.playNote(baseNote, 1);
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                            text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                        });
+                    }
+                });
 
-                randomDistance = '';
-                intervalButtons.forEach(btn => btn.classList.remove('selected'));
+                document.getElementById('listenNote2').addEventListener('click', () => {
+                    if (randomInterval) {
+                        AudioEngine.playNote(randomInterval, 1);
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                            text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                        });
+                    }
+                });
 
-                const correctCount = parseInt(correctCountEl.innerText);
-                const errorCount = parseInt(errorCountEl.innerText);
-                let bestScore = parseInt(bestScoreEl.innerText);
-                const currentScore = correctCount - errorCount;
+                const intervalButtons = document.querySelectorAll('.guessInterval');
+                let guessedInterval = '';
 
-                if (currentScore > bestScore) {
-                    bestScore = currentScore;
-                    bestScoreEl.innerText = bestScore;
+                intervalButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        intervalButtons.forEach(btn => btn.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        guessedInterval = parseInt(e.target.getAttribute('data-interval'), 10);
+                    });
+                });
+
+                function checkGuess() {
+                    const correctCountEl = document.getElementById('correctCount');
+                    const errorCountEl = document.getElementById('errorCount');
+                    const bestScoreEl = document.getElementById('bestScore');
+
+                    if (guessedInterval === (randomDistance + 1)) {
+                        correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+                        AcademiaAuditiva.feedback.playSuccessSound(
+                            '@Localizer["Exercise.CorrectMessage"]',
+                            '@Localizer["Exercise.CorrectMessageText"]'
+                        );
+                    } else {
+                        errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+                        AcademiaAuditiva.feedback.playErrorSound(
+                            '@Localizer["Exercise.WrongMessage"]',
+                            '@Localizer["Exercise.WrongIntervalMessageText"]',
+                            `${randomDistance + 1}ª`
+                        );
+                    }
+
+                    randomDistance = '';
+                    intervalButtons.forEach(btn => btn.classList.remove('selected'));
+
+                    const correctCount = parseInt(correctCountEl.innerText);
+                    const errorCount = parseInt(errorCountEl.innerText);
+                    let bestScore = parseInt(bestScoreEl.innerText);
+                    const currentScore = correctCount - errorCount;
 
                     $.post("/Exercise/GuessIntervalSaveScore", {
                         correctCount: correctCount,
@@ -221,19 +217,18 @@
                         timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
                     });
                 }
-            }
 
-            document.getElementById('validateGuess').addEventListener('click', () => {
-                if (guessedInterval && randomDistance !== "") {
-                    checkGuess();
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: '@Localizer["Exercise.IncompleteTitle"]',
-                        text: '@Localizer["Exercise.SelectIntervalText"]'
-                    });
-                }
+                document.getElementById('validateGuess').addEventListener('click', () => {
+                    if (guessedInterval && randomDistance !== "") {
+                        checkGuess();
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '@Localizer["Exercise.IncompleteTitle"]',
+                            text: '@Localizer["Exercise.SelectIntervalText"]'
+                        });
+                    }
+                });
             });
-        });
-    </script>
+        </script>
 }
