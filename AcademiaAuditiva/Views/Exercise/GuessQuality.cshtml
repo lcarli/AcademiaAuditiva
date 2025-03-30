@@ -67,141 +67,136 @@
 
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			AcademiaAuditiva.init();
-			Swal.fire({
-				title: 'Adivinhe a Qualidade do Acorde',
-				text: 'Ouça o acorde e tente adivinhar se ele é maior, menor, com sétima ou diminuto.',
-				icon: 'info',
-				confirmButtonText: 'Começar',
-				allowOutsideClick: false
-			}).then((result) => {
-				if (result.isConfirmed) {
-					$('.exercise-content').show(); // Mostrando o conteúdo do exercício
-				}
-			});
+    <script>
+        $(document).ready(function () {
+            AcademiaAuditiva.init();
 
-			let correctCount = 0;
-			let errorCount = 0;
-			let chordFunction;
-			let allChords;
-			let randomChord;
-			let octaveRange = "single";
+            Swal.fire({
+                title: "@Localizer["Exercise.Quality.Title"]",
+                text: "@Localizer["Exercise.Quality.Description"]",
+                icon: 'info',
+                confirmButtonText: "@Localizer["Exercise.StartButton"]",
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('.exercise-content').show();
+                }
+            });
 
-			const correctSpan = document.getElementById('correctCount');
-			const errorSpan = document.getElementById('errorCount');
+            let chordFunction = '';
+            let guessedFunction = '';
+            let randomChord = '';
+            let allChords = [];
+            let octaveRange = "single";
 
-			document.getElementById('octaveRange').addEventListener('change', (e) => {
-				octaveRange = e.target.value;
-			});
+            document.getElementById('octaveRange').addEventListener('change', (e) => {
+                octaveRange = e.target.value;
+            });
 
-			function getRandomQualityChord() {
-				allChords = (octaveRange === "single")
-					? AcademiaAuditiva.getAllChords(4)
-					: AcademiaAuditiva.getAllChords();
+            function getRandomQualityChord() {
+                const rootNotes = (octaveRange === "single")
+                    ? TheoryUtils.getAllNotes([4])
+                    : TheoryUtils.getAllNotes([2, 3, 4, 5]);
 
-				const chordType = document.getElementById('chordType').value;
+                const allQualities = ["major", "minor", "diminished", "major7", "minor7", "diminished7"];
+                const chordType = document.getElementById('chordType').value;
 
-				const filteredChords = allChords.filter(chord => {
-					if (chordType === "major") {
-						return ["major", "major7"].includes(chord.type);
-					} else if (chordType === "minor") {
-						return ["minor", "minor7", "diminished", "diminished7"].includes(chord.type);
-					} else { // Caso "all"
-						return ["major", "minor", "diminished", "major7", "minor7", "diminished7"].includes(chord.type);
-					}
-				});
+                const allowedQualities = (chordType === "major")
+                    ? ["major", "major7"]
+                    : (chordType === "minor")
+                    ? ["minor", "minor7", "diminished", "diminished7"]
+                    : allQualities;
 
-				const randomChordObj = filteredChords[Math.floor(Math.random() * filteredChords.length)];
-				return { notes: randomChordObj.notes, type: randomChordObj.type };
-			}
+                allChords = TheoryUtils.getAllChords({
+                    rootNotes: rootNotes,
+                    qualities: allowedQualities
+                });
 
-			document.getElementById('playChord').addEventListener('click', () => {
-				const chordObj = getRandomQualityChord();
-				randomChord = `${chordObj.notes[0]}-${chordObj.type}`; // Para verificação posterior
-				chordFunction = chordObj.type;
-				// Tocando o acorde inteiro
-				AcademiaAuditiva.sampler.triggerAttackRelease(chordObj.notes, "1");
-			});
+                const randomChordObj = allChords[Math.floor(Math.random() * allChords.length)];
+                return { notes: randomChordObj.notes, type: randomChordObj.type };
+            }
 
-			document.getElementById('replayChord').addEventListener('click', () => {
-				if (randomChord) {
-					const [note, quality] = randomChord.split('-');
-					const chordNotes = allChords.find(chord => chord.type === quality && chord.notes[0] === note).notes;
-					AcademiaAuditiva.sampler.triggerAttackRelease(chordNotes, "1");
-				} else {
-					alert('Primeiro clique em "Ouvir Acorde"');
-				}
-			});
+            document.getElementById('playChord').addEventListener('click', () => {
+                const chordObj = getRandomQualityChord();
+                randomChord = `${chordObj.notes[0]}-${chordObj.type}`;
+                chordFunction = chordObj.type;
+                AudioEngine.playChord(chordObj.notes, 1);
+            });
 
-			function checkGuess() {
-				const correctCountEl = document.getElementById('correctCount');
-				const errorCountEl = document.getElementById('errorCount');
-				const bestScoreEl = document.getElementById('bestScore');
+            document.getElementById('replayChord').addEventListener('click', () => {
+                if (randomChord) {
+                    const [note, quality] = randomChord.split('-');
+                    const chordNotes = allChords.find(chord => chord.type === quality && chord.notes[0] === note)?.notes;
+                    if (chordNotes) AudioEngine.playChord(chordNotes, 1);
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                    });
+                }
+            });
 
-				if (guessedFunction === chordFunction) {
-					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'success',
-						title: 'Correto!',
-						text: 'Você acertou a qualidade do acorde!'
-					});
-				} else {
-					errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'error',
-						title: 'Errado!',
-						text: `Você errou! A qualidade correta era ${chordFunction}.`,
-					});
-				}
+            function checkGuess() {
+                const correctCountEl = document.getElementById('correctCount');
+                const errorCountEl = document.getElementById('errorCount');
+                const bestScoreEl = document.getElementById('bestScore');
 
-				//clean
-				chordFunction = '';
-				guessedFunction = '';
+                if (guessedFunction === chordFunction) {
+                    correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playSuccessSound(
+                        '@Localizer["Exercise.CorrectMessage"]',
+                        '@Localizer["Exercise.CorrectMessageText"]'
+                    );
+                } else {
+                    errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playErrorSound(
+                        '@Localizer["Exercise.WrongMessage"]',
+                        '@Localizer["Exercise.WrongQualityMessageText"]',
+                        chordFunction
+                    );
+                }
 
-				// After showing the result, save the score on the server:
-				const correctCount = parseInt(correctCountEl.innerText);
-				const errorCount = parseInt(errorCountEl.innerText);
-				let bestScore = parseInt(bestScoreEl.innerText);
-				const currentScore = correctCount - errorCount;
+                // Reset
+                chordFunction = '';
+                guessedFunction = '';
 
-				if (currentScore > bestScore) {
-					bestScore = currentScore;
-					bestScoreEl.innerText = bestScore;  // Atualiza o elemento HTML
+                const correctCount = parseInt(correctCountEl.innerText);
+                const errorCount = parseInt(errorCountEl.innerText);
+                let bestScore = parseInt(bestScoreEl.innerText);
+                const currentScore = correctCount - errorCount;
 
-					$.ajax({
-						type: "POST",
-						url: "/Exercise/GuessQualityChordsSaveScore",
-						data: { correctCount: correctCount, errorCount: errorCount },
-						error: function () {
-							console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
-						}
-					});
-				}
-			}
+                if (currentScore > bestScore) {
+                    bestScore = currentScore;
+                    bestScoreEl.innerText = bestScore;
 
-			const guessButtons = document.querySelectorAll('.guessFunction');
-			for (let button of guessButtons) {
-				button.addEventListener('click', function (event) {
-					guessedFunction = event.target.getAttribute('data-function');  // Update guessedFunction
-				});
-			}
+                    $.post("/Exercise/GuessQualityChordsSaveScore", {
+                        correctCount: correctCount,
+                        errorCount: errorCount
+                    });
+                }
+            }
 
-			document.getElementById('validateGuess').addEventListener('click', () => {
-				if (guessedFunction && chordFunction) {
-					checkGuess();
-				} else {
-					Swal.fire({
-						icon: 'warning',
-						title: 'Incompleto!',
-						text: 'Por favor, selecione uma função do acorde.'
-					});
-				}
-			});
+            const guessButtons = document.querySelectorAll('.guessFunction');
+            guessButtons.forEach(button => {
+                button.addEventListener('click', function (event) {
+                    guessButtons.forEach(btn => btn.classList.remove('selected'));
+                    event.target.classList.add('selected');
+                    guessedFunction = event.target.getAttribute('data-function');
+                });
+            });
 
-
-		});
-
-	</script>
+            document.getElementById('validateGuess').addEventListener('click', () => {
+                if (guessedFunction && chordFunction) {
+                    checkGuess();
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.IncompleteTitle"]',
+                        text: '@Localizer["Exercise.SelectQualityText"]'
+                    });
+                }
+            });
+        });
+    </script>
 }

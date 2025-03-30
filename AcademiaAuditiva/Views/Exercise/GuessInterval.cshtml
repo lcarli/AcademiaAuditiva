@@ -80,158 +80,158 @@
 </div>
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			AcademiaAuditiva.init();
-			Swal.fire({
-				title: 'Adivinhe o Intervalo',
-				text: 'Ouça o intervalo e tente adivinhar qual é. Você precisa selecionar o intervalo entre as duas notas tocadas.',
-				icon: 'info',
-				confirmButtonText: 'Começar',
-				allowOutsideClick: false
-			}).then((result) => {
-				if (result.isConfirmed) {
-					$('.exercise-content').show();
-				}
-			});
+    <script>
+        $(document).ready(function () {
+            AcademiaAuditiva.init();
 
-			let randomInterval = "";
-			let randomDistance = "";
-			let baseNote = "";
+            Swal.fire({
+                title: "@Localizer["Exercise.Interval.Title"]",
+                text: "@Localizer["Exercise.Interval.Description"]",
+                icon: 'info',
+                confirmButtonText: "@Localizer["Exercise.StartButton"]",
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('.exercise-content').show();
+                }
+            });
 
-			function getRandomInterval() {
-				// Pegando a seleção do usuário
-				const key = document.getElementById('keySelect').value;
-				const scaleType = document.getElementById('scaleTypeSelect').value;
+            let randomInterval = "";
+            let randomDistance = "";
+            let baseNote = "";
 
-				// Procura a escala correspondente usando o método getAllScales.
-				const scales = AcademiaAuditiva.getAllScales(); // Assumindo que getAllScales está no mesmo contexto
-				const matchingScales = scales.filter(scale => scale.type.toLowerCase() === scaleType.toLowerCase() && scale.notes[0] === key);
+            function getRandomInterval() {
+                const key = document.getElementById('keySelect').value;
+                const scaleType = document.getElementById('scaleTypeSelect').value;
 
-				if (matchingScales.length === 0) {
-					console.error("Escala não encontrada.");
-					return null;
-				}
+                const matchingScales = TheoryUtils.getAllScales({
+                    rootNotes: [key],
+                    types: [scaleType]
+                });
 
-				let scaleNotes = matchingScales[0].notes;
+                if (matchingScales.length === 0) {
+                    console.error("Escala não encontrada.");
+                    return null;
+                }
 
-				// Seleciona uma nota base e um intervalo aleatório dentro da escala
-				baseNote = scaleNotes[0];
-				randomDistance = Math.floor(Math.random() * (scaleNotes.length - 1)) + 1; // De 1 até o tamanho da escala - 1
-				const intervalNote = scaleNotes[(scaleNotes.indexOf(baseNote) + randomDistance) % scaleNotes.length];
+                const scaleNotes = matchingScales[0].notes;
+                baseNote = scaleNotes[0];
+                randomDistance = Math.floor(Math.random() * (scaleNotes.length - 1)) + 1;
+                const intervalNote = scaleNotes[(scaleNotes.indexOf(baseNote) + randomDistance) % scaleNotes.length];
 
-				return [baseNote, intervalNote];
-			}
+                return [baseNote, intervalNote];
+            }
 
+            document.getElementById('playInterval').addEventListener('click', () => {
+                const [base, interval] = getRandomInterval();
+                randomInterval = interval;
 
+                AudioEngine.playNote(base, 1);
+                setTimeout(() => {
+                    AudioEngine.playNote(interval, 1);
+                }, 1000);
+            });
 
-			document.getElementById('playInterval').addEventListener('click', () => {
-				const [base, interval] = getRandomInterval();
-				randomInterval = interval;
-				AcademiaAuditiva.sampler.triggerAttackRelease(base, "1");
-				setTimeout(() => {
-					AcademiaAuditiva.sampler.triggerAttackRelease(interval, "1");
-				}, 1000); // Reproduz a segunda nota após 1 segundo.
-			});
+            document.getElementById('replayInterval').addEventListener('click', () => {
+                if (randomInterval) {
+                    AudioEngine.playNote(baseNote, 1);
+                    setTimeout(() => {
+                        AudioEngine.playNote(randomInterval, 1);
+                    }, 1000);
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                    });
+                }
+            });
 
-			document.getElementById('replayInterval').addEventListener('click', () => {
-				if (randomInterval) {
-					AcademiaAuditiva.sampler.triggerAttackRelease(baseNote, "1");
-					setTimeout(() => {
-						AcademiaAuditiva.sampler.triggerAttackRelease(randomInterval, "1");
-					}, 1000); // Reproduz a segunda nota após 1 segundo.
-				} else {
-					alert('Primeiro clique em "Ouvir Intervalo"');
-				}
-			});
+            document.getElementById('listenNote1').addEventListener('click', () => {
+                if (baseNote) {
+                    AudioEngine.playNote(baseNote, 1);
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                    });
+                }
+            });
 
-			// Adicionar ações para ouvir nota 1 e nota 2 individualmente
-			document.getElementById('listenNote1').addEventListener('click', () => {
-				if (baseNote) {
-					AcademiaAuditiva.sampler.triggerAttackRelease(baseNote, "1");
-				} else {
-					alert('Primeiro clique em "Ouvir Intervalo"');
-				}
-			});
+            document.getElementById('listenNote2').addEventListener('click', () => {
+                if (randomInterval) {
+                    AudioEngine.playNote(randomInterval, 1);
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                    });
+                }
+            });
 
-			document.getElementById('listenNote2').addEventListener('click', () => {
-				if (randomInterval) {
-					AcademiaAuditiva.sampler.triggerAttackRelease(randomInterval, "1");
-				} else {
-					alert('Primeiro clique em "Ouvir Intervalo"');
-				}
-			});
+            const intervalButtons = document.querySelectorAll('.guessInterval');
+            let guessedInterval = '';
 
-			const intervalButtons = document.querySelectorAll('.guessInterval');
-			let guessedInterval = '';
+            intervalButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    intervalButtons.forEach(btn => btn.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    guessedInterval = parseInt(e.target.getAttribute('data-interval'), 10);
+                });
+            });
 
-			intervalButtons.forEach(button => {
-				button.addEventListener('click', (e) => {
-					intervalButtons.forEach(btn => btn.classList.remove('selected'));
-					e.target.classList.add('selected');
-					guessedInterval = parseInt(e.target.getAttribute('data-interval'), 10);
-					e.stopImmediatePropagation();
-				});
-			});
+            function checkGuess() {
+                const correctCountEl = document.getElementById('correctCount');
+                const errorCountEl = document.getElementById('errorCount');
+                const bestScoreEl = document.getElementById('bestScore');
 
-			function checkGuess() {
-				const correctCountEl = document.getElementById('correctCount');
-				const errorCountEl = document.getElementById('errorCount');
-				const bestScoreEl = document.getElementById('bestScore');
+                if (guessedInterval === (randomDistance + 1)) {
+                    correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playSuccessSound(
+                        '@Localizer["Exercise.CorrectMessage"]',
+                        '@Localizer["Exercise.CorrectMessageText"]'
+                    );
+                } else {
+                    errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playErrorSound(
+                        '@Localizer["Exercise.WrongMessage"]',
+                        '@Localizer["Exercise.WrongIntervalMessageText"]',
+                        `${randomDistance + 1}ª`
+                    );
+                }
 
-				if (guessedInterval === (randomDistance + 1)) {
-					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'success',
-						title: 'Correto!',
-						text: 'Você acertou o intervalo!'
-					});
-				} else {
-					errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'error',
-						title: 'Errado!',
-						text: `Você errou! O intervalo correto era ${randomDistance}ª.`
-					});
-				}
+                randomDistance = '';
+                intervalButtons.forEach(btn => btn.classList.remove('selected'));
 
-				//Clean
-				randomDistance = '';
-				intervalButtons.forEach(btn => btn.classList.remove('selected'));
+                const correctCount = parseInt(correctCountEl.innerText);
+                const errorCount = parseInt(errorCountEl.innerText);
+                let bestScore = parseInt(bestScoreEl.innerText);
+                const currentScore = correctCount - errorCount;
 
+                if (currentScore > bestScore) {
+                    bestScore = currentScore;
+                    bestScoreEl.innerText = bestScore;
 
-				const correctCount = parseInt(correctCountEl.innerText);
-				const errorCount = parseInt(errorCountEl.innerText);
-				let bestScore = parseInt(bestScoreEl.innerText);
-				const currentScore = correctCount - errorCount;
+                    $.post("/Exercise/GuessIntervalSaveScore", {
+                        correctCount: correctCount,
+                        errorCount: errorCount
+                    });
+                }
+            }
 
-				if (currentScore > bestScore) {
-					bestScore = currentScore;
-					bestScoreEl.innerText = bestScore;  // Atualiza o elemento HTML
-
-					$.ajax({
-						type: "POST",
-						url: "/Exercise/GuessIntervalSaveScore",
-						data: { correctCount: correctCount, errorCount: errorCount },
-						error: function () {
-							console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
-						}
-					});
-				}
-			}
-
-			document.getElementById('validateGuess').addEventListener('click', () => {
-				if (guessedInterval && randomDistance) {
-					checkGuess();
-				} else {
-					Swal.fire({
-						icon: 'warning',
-						title: 'Incompleto!',
-						text: 'Por favor, selecione um intervalo.'
-					});
-				}
-			});
-
-		});
-	</script>
+            document.getElementById('validateGuess').addEventListener('click', () => {
+                if (guessedInterval && randomDistance !== "") {
+                    checkGuess();
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.IncompleteTitle"]',
+                        text: '@Localizer["Exercise.SelectIntervalText"]'
+                    });
+                }
+            });
+        });
+    </script>
 }

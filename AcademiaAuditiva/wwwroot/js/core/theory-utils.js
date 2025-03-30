@@ -119,9 +119,45 @@ const TheoryUtils = (() => {
         return result;
     }
 
+    function getRandomFunction() {
+        const scaleDegrees = {
+            major: ["major", "minor", "minor", "major", "major", "minor", "diminished"],
+            minor: ["minor", "diminished", "major", "minor", "minor", "major", "major"]
+        };
+    
+        const rootScale = TheoryUtils.getAllScales({
+            rootNotes: [selectedKey],
+            types: [selectedQuality]
+        })[0];
+    
+        const scaleNotes = rootScale.notes;
+    
+        const chords = TheoryUtils.getAllChords({
+            rootNotes: scaleNotes,
+            qualities: scaleDegrees[selectedQuality]
+        });
+    
+        // Reforçando a correspondência correta com os graus
+        const harmonicField = chords.slice(0, 7).map((chord, index) => ({
+            position: index + 1,
+            type: chord.type,
+            notes: chord.notes
+        }));
+    
+        const randomIndex = Math.floor(Math.random() * harmonicField.length);
+        const randomChord = harmonicField[randomIndex];
+    
+        return {
+            type: randomChord.type,
+            position: randomChord.position,
+            notes: randomChord.notes
+        };
+    }
+
     return {
         getAllNotes,
         getAllChords,
-        getAllScales
+        getAllScales,
+        getRandomFunction
     };
 })();

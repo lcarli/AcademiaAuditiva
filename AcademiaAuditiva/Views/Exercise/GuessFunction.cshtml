@@ -85,169 +85,128 @@
 </div>
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			AcademiaAuditiva.init();
-			Swal.fire({
-				title: 'Adivinhe a Função',
-				text: 'Ouça a nota e tente adivinhar sua função no contexto do tom e qualidade selecionados.',
-				icon: 'info',
-				confirmButtonText: "@Localizer["Exercise.StartButton"]",
-				allowOutsideClick: false
-			}).then((result) => {
-				if (result.isConfirmed) {
-					$('.exercise-content').show();
-				}
-			});
+    <script>
+        $(document).ready(function () {
+            AcademiaAuditiva.init();
 
-			let randomFunction = "";
-			let randomFunctionNotes = "";
-			let selectedKey = "C4";
-			let selectedQuality = "major";
+            Swal.fire({
+                title: "@Localizer["Exercise.Function.Title"]",
+                text: "@Localizer["Exercise.Function.Description"]",
+                icon: 'info',
+                confirmButtonText: "@Localizer["Exercise.StartButton"]",
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('.exercise-content').show();
+                }
+            });
 
-			function getRandomFunction() {
-				// Obter todos os campos harmônicos
-				const harmonicFields = AcademiaAuditiva.getHarmonicField();
-				// Encontrar o campo harmônico com base no tom e qualidade selecionados
-				const currentHarmonicField = harmonicFields.find(field => field.type === selectedQuality && field.notes[0][0].notes[0] === selectedKey);
+            let randomFunction = "";
+            let randomFunctionNotes = "";
+            let selectedKey = "C4";
+            let selectedQuality = "major";
 
-				// Selecionar aleatoriamente um dos acordes desse campo harmônico
-				const randomIndex = Math.floor(Math.random() * currentHarmonicField.notes.length);
-				const randomChord = currentHarmonicField.notes[randomIndex];
+            document.getElementById('playFunction').addEventListener('click', () => {
+                const functionObj = TheoryUtils.getRandomFunction();
+                randomFunctionNotes = functionObj.notes;
+                randomFunction = functionObj.position + '-' + functionObj.type;
 
-				return {
-					type: randomChord[0].type,      // major, minor, diminished, etc.
-					position: randomIndex + 1,      // 1 para o primeiro acorde, 2 para o segundo, etc.
-					notes: randomChord[0].notes     // notas do acorde
-				};
-			}
+                AcademiaAuditiva.audio.playChord(randomFunctionNotes, 1);
+            });
 
-			document.getElementById('playFunction').addEventListener('click', () => {
-				const functionObj = getRandomFunction();
-				randomFunctionNotes = functionObj.notes;
-				randomFunction = functionObj.position + '-' + functionObj.type;
+            document.getElementById('replayFunction').addEventListener('click', () => {
+                if (randomFunctionNotes) {
+                    AcademiaAuditiva.audio.playChord(randomFunctionNotes, 1);
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                    });
+                }
+            });
 
-				// Tocando a nota selecionada
-				AcademiaAuditiva.sampler.triggerAttackRelease(randomFunctionNotes, "1");
-			});
+            const functionButtons = document.querySelectorAll('.guessFunction');
+            let guessedFunction = '';
 
-			document.getElementById('replayFunction').addEventListener('click', () => {
-				if (randomFunctionNotes) {
-					AcademiaAuditiva.sampler.triggerAttackRelease(randomFunctionNotes, "1");
-				} else {
-					alert('Primeiro clique em "Ouvir Função"');
-				}
-			});
+            functionButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    functionButtons.forEach(btn => btn.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    guessedFunction = e.target.getAttribute('data-function');
+                    e.stopImmediatePropagation();
+                });
+            });
 
-			const functionButtons = document.querySelectorAll('.guessFunction');
-			let guessedFunction = '';
+            function updateFunctionButtons() {
+                if (selectedQuality === "major") {
+                    document.querySelectorAll(".major-function").forEach(btn => btn.style.display = "inline-block");
+                    document.querySelectorAll(".minor-function").forEach(btn => btn.style.display = "none");
+                } else {
+                    document.querySelectorAll(".major-function").forEach(btn => btn.style.display = "none");
+                    document.querySelectorAll(".minor-function").forEach(btn => btn.style.display = "inline-block");
+                }
+            }
 
-			functionButtons.forEach(button => {
-				button.addEventListener('click', (e) => {
-					// Remover a classe 'selected' de todos os botões de função
-					functionButtons.forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('quality').addEventListener('change', function () {
+                selectedQuality = this.value;
+                updateFunctionButtons();
+            });
 
-					// Adicionar a classe 'selected' ao botão clicado
-					e.target.classList.add('selected');
+            document.getElementById('key').addEventListener('change', function (event) {
+                selectedKey = event.target.value;
+            });
 
-					guessedFunction = e.target.getAttribute('data-function');
-					e.stopImmediatePropagation();
-				});
-			});
+            function checkGuess() {
+                const correctCountEl = document.getElementById('correctCount');
+                const errorCountEl = document.getElementById('errorCount');
+                const bestScoreEl = document.getElementById('bestScore');
 
-			function updateFunctionButtons() {
-				if (selectedQuality === "major") {
-					// Mostrar botões para maior e esconder botões para menor
-					document.querySelectorAll(".major-function").forEach(function (btn) {
-						btn.style.display = "inline-block";
-					});
-					document.querySelectorAll(".minor-function").forEach(function (btn) {
-						btn.style.display = "none";
-					});
-				} else if (selectedQuality === "minor") {
-					// Mostrar botões para menor e esconder botões para maior
-					document.querySelectorAll(".major-function").forEach(function (btn) {
-						btn.style.display = "none";
-					});
-					document.querySelectorAll(".minor-function").forEach(function (btn) {
-						btn.style.display = "inline-block";
-					});
-				}
-			}
+                if (guessedFunction === randomFunction) {
+                    correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playSuccessSound(
+                        '@Localizer["Exercise.CorrectMessage"]',
+                        '@Localizer["Exercise.CorrectMessageText"]'
+                    );
+                } else {
+                    errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playErrorSound(
+                        '@Localizer["Exercise.WrongMessage"]',
+                        '@Localizer["Exercise.WrongFunctionMessageText"]',
+                        randomFunction
+                    );
+                }
 
-			document.getElementById('quality').addEventListener('change', function () {
-				selectedQuality = this.value;
-				updateFunctionButtons();
-			});
+                randomFunction = "";
+                functionButtons.forEach(btn => btn.classList.remove('selected'));
 
-			document.getElementById('key').addEventListener('change', function (event) {
-				selectedKey = event.target.value;
-			});
+                const correctCount = parseInt(correctCountEl.innerText);
+                const errorCount = parseInt(errorCountEl.innerText);
+                let bestScore = parseInt(bestScoreEl.innerText);
+                const currentScore = correctCount - errorCount;
 
+                if (currentScore > bestScore) {
+                    bestScore = currentScore;
+                    bestScoreEl.innerText = bestScore;
 
+                    $.post("/Exercise/GuessFunctionSaveScore", {
+                        correctCount: correctCount,
+                        errorCount: errorCount
+                    });
+                }
+            }
 
-			function checkGuess() {
-				const correctCountEl = document.getElementById('correctCount');
-				const errorCountEl = document.getElementById('errorCount');
-				const bestScoreEl = document.getElementById('bestScore');
-
-				if (guessedFunction === randomFunction) {
-					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'success',
-						title: "@Localizer["Exercise.CorrectMessage"]",
-						text: "@Localizer["Exercise.CorrectMessageText"]"
-					});
-				} else {
-					errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'error',
-						title: "@Localizer["Exercise.WrongMessage"]",
-						text: "@Localizer["Exercise.WrongFunctionMessageText"]",
-					});
-				}
-
-				//Clean
-				randomFunction = "";
-				functionButtons.forEach(btn => btn.classList.remove('selected'));
-
-
-				const correctCount = parseInt(correctCountEl.innerText);
-				const errorCount = parseInt(errorCountEl.innerText);
-				let bestScore = parseInt(bestScoreEl.innerText);
-				const currentScore = correctCount - errorCount;
-
-				// Atualize o bestScore e salve no servidor, se necessário:
-				if (currentScore > bestScore) {
-					bestScore = currentScore;
-					bestScoreEl.innerText = bestScore;  // Atualiza o elemento HTML
-
-					$.ajax({
-						type: "POST",
-						url: "/Exercise/GuessFunctionSaveScore",
-						data: { correctCount: correctCount, errorCount: errorCount },
-						success: function () {
-							console.log('Novo bestScore salvo com sucesso no servidor.');
-						},
-						error: function () {
-							console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
-						}
-					});
-				}
-			}
-
-			document.getElementById('validateGuess').addEventListener('click', () => {
-				if (guessedFunction && randomFunction) {
-					checkGuess();
-				} else {
-					Swal.fire({
-						icon: 'warning',
-						title: 'Incompleto!',
-						text: 'Por favor, selecione uma função.'
-					});
-				}
-			});
-
-		});
-	</script>
+            document.getElementById('validateGuess').addEventListener('click', () => {
+                if (guessedFunction && randomFunction) {
+                    checkGuess();
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.IncompleteTitle"]',
+                        text: '@Localizer["Exercise.SelectFunctionText"]'
+                    });
+                }
+            });
+        });
+    </script>
 }

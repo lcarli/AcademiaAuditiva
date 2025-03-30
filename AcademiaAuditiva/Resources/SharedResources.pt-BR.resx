@@ -534,7 +534,7 @@
     <comment>.</comment>
   </data>
   <data name="Exercise.WrongFunctionMessageText" xml:space="preserve">
-    <value>Você errou! A função correta era ${randomFunction}.</value>
+    <value>Você errou! A função correta era</value>
     <comment>.</comment>
   </data>
 </root>
