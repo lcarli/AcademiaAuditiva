@@ -668,5 +668,9 @@
   <data name="GuessFullInterval" xml:space="preserve">
     <value>Guess Full Interval</value>
     <comment/>
-  </data>
+  </data
+  <data name="Exercise.FullInterval.Title"><value>Guess the Full Interval</value></data>
+  <data name="Exercise.FullInterval.Description"><value>Listen to two notes and identify the exact interval between them (e.g., minor third, perfect fifth).</value></data>
+  <data name="Exercise.PlayInterval"><value>Play Interval</value></data>
+  <data name="Exercise.ReplayInterval"><value>Replay Interval</value></data>
 </root>

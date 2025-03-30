@@ -669,4 +669,8 @@
     <value>Advinhe o Intervalo Complexo</value>
     <comment/>
   </data>
+  <data name="Exercise.FullInterval.Title"><value>Adivinhe o Intervalo Completo</value></data>
+  <data name="Exercise.FullInterval.Description"><value>Ouça duas notas e identifique o tipo exato de intervalo entre elas (ex: terça menor, quinta justa).</value></data>
+  <data name="Exercise.PlayInterval"><value>Ouvir Intervalo</value></data>
+  <data name="Exercise.ReplayInterval"><value>Repetir Intervalo</value></data>
 </root>
