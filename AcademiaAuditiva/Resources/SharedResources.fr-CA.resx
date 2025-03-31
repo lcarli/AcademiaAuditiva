@@ -673,4 +673,11 @@
   <data name="Exercise.FullInterval.Description"><value>Écoutez deux notes et identifiez l’intervalle exact entre elles (ex. : tierce mineure, quinte juste).</value></data>
   <data name="Exercise.PlayInterval"><value>Écouter l’intervalle</value></data>
   <data name="Exercise.ReplayInterval"><value>Répéter l’intervalle</value></data>
+  <data name="Exercise.MissingNote.Title"><value>Devinez la mélodie</value></data>
+  <data name="Exercise.MissingNote.Description"><value>Écoutez deux mélodies et indiquez si elles sont identiques ou différentes.</value></data>
+  <data name="Exercise.PlayMelodies"><value>Écouter les mélodies</value></data>
+  <data name="Exercise.PlayMelody1"><value>Mélodie 1</value></data>
+  <data name="Exercise.PlayMelody2"><value>Mélodie 2</value></data>
+  <data name="Exercise.Answer.Same"><value>Identiques</value></data>
+  <data name="Exercise.Answer.Different"><value>Différentes</value></data>
 </root>

@@ -52,11 +52,29 @@ const AudioEngine = (() => {
         });
     }    
 
+    function playMelodyWithRhythm(melody) {
+        if (!sampler || !melody || melody.length === 0) return;
+    
+        let time = 0;
+        for (let item of melody) {
+            if (item.type === "note") {
+                Tone.Transport.scheduleOnce(() => {
+                    playNote(item.note, item.duration);
+                }, `+${time}`);
+            }
+            time += item.duration;
+        }
+    
+        Tone.Transport.start();
+    }
+    
+
     return {
         initSampler,
         generateNoteUrls,
         playNote,
         playSequence,
-        playChord
+        playChord,
+        playMelodyWithRhythm
     };
 })();

@@ -69,7 +69,18 @@ public static class SeedData
                 FiltersJson = JsonConvert.SerializeObject(new {
                     FullIntervals = Enum.GetNames(typeof(FullIntervalType))
                 })
+            },
+            new Exercise {
+                Name = "GuessMissingNote",
+                Description = "Ouça duas melodias e diga se são iguais ou diferentes.",
+                Type = ExerciseType.MelodyReproduction,
+                Category = ExerciseCategory.Melody,
+                Difficulty = DifficultyLevel.Beginner,
+                FiltersJson = JsonConvert.SerializeObject(new {
+                    MelodyLengths = new[] { 4, 5, 6, 7, 8, 9, 10 }
+                })
             }
+
         };
 
         foreach (var ex in exercises)

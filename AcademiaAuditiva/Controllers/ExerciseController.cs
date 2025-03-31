@@ -300,5 +300,52 @@ namespace AcademiaAuditiva.Controllers
 
 		#endregion
 
+		#region GuessMissingNote
+		public IActionResult GuessMissingNote()
+		{
+			int bestScore = _context.Scores
+				.Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessMissingNote")
+				.OrderByDescending(s => s.BestScore)
+				.FirstOrDefault()?.BestScore ?? 0;
+
+			ViewBag.BestScore = bestScore;
+			return View();
+		}
+
+		[HttpPost]
+		public IActionResult GuessMissingNoteSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Json(new { success = false, message = "Usuário não está logado." });
+			}
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessMissingNote");
+			if (exercise == null)
+			{
+				return Json(new { success = false, message = "Exercício GuessMissingNote não encontrado." });
+			}
+
+			int currentScore = correctCount - errorCount;
+
+			var newScore = new Score
+			{
+				UserId = userId,
+				ExerciseId = exercise.ExerciseId,
+				CorrectCount = correctCount,
+				ErrorCount = errorCount,
+				BestScore = currentScore,
+				TimeSpentSeconds = timeSpentSeconds,
+				Timestamp = DateTime.UtcNow
+			};
+
+			_context.Scores.Add(newScore);
+			_context.SaveChanges();
+
+			return Json(new { success = true, message = "Sessão de Missing Note registrada com sucesso!" });
+		}
+
+		#endregion
 	}
 }

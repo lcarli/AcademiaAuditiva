@@ -8,7 +8,7 @@ const TheoryUtils = (() => {
 
     function getAllChords(filters = { rootNotes: [], qualities: [] }) {
         const allNotes = TheoryUtils.getAllNotes([2, 3, 4, 5]);
-    
+
         const INTERVALS = {
             major: [4, 3],
             minor: [3, 4],
@@ -30,34 +30,34 @@ const TheoryUtils = (() => {
             diminishedMinor: [3, 3, 3],
             diminishedMajor: [3, 3, 4]
         };
-    
+
         function getChordNotes(root, intervals, seventh = null) {
             let index = allNotes.indexOf(root);
             if (index === -1) return [];
-    
+
             const chord = [root];
             for (const step of intervals) {
                 index += step;
                 if (index >= allNotes.length) return [];
                 chord.push(allNotes[index]);
             }
-    
+
             if (seventh !== null) {
                 index += seventh;
                 if (index >= allNotes.length) return [];
                 chord.push(allNotes[index]);
             }
-    
+
             return chord;
         }
-    
+
         const result = [];
-    
+
         filters.rootNotes.forEach(root => {
             filters.qualities.forEach(type => {
                 const def = INTERVALS[type];
                 if (!def) return;
-    
+
                 if (Array.isArray(def)) {
                     const notes = getChordNotes(root, def);
                     if (notes.length >= 3) result.push({ root, type, notes });
@@ -67,7 +67,7 @@ const TheoryUtils = (() => {
                 }
             });
         });
-    
+
         return result;
     }
 
@@ -124,29 +124,29 @@ const TheoryUtils = (() => {
             major: ["major", "minor", "minor", "major", "major", "minor", "diminished"],
             minor: ["minor", "diminished", "major", "minor", "minor", "major", "major"]
         };
-    
+
         const rootScale = TheoryUtils.getAllScales({
             rootNotes: [selectedKey],
             types: [selectedQuality]
         })[0];
-    
+
         const scaleNotes = rootScale.notes;
-    
+
         const chords = TheoryUtils.getAllChords({
             rootNotes: scaleNotes,
             qualities: scaleDegrees[selectedQuality]
         });
-    
+
         // Reforçando a correspondência correta com os graus
         const harmonicField = chords.slice(0, 7).map((chord, index) => ({
             position: index + 1,
             type: chord.type,
             notes: chord.notes
         }));
-    
+
         const randomIndex = Math.floor(Math.random() * harmonicField.length);
         const randomChord = harmonicField[randomIndex];
-    
+
         return {
             type: randomChord.type,
             position: randomChord.position,
@@ -154,10 +154,48 @@ const TheoryUtils = (() => {
         };
     }
 
+    function generateMelodyWithRhythm({
+        measures = 2,
+        timeSignature = "4/4",
+        octaves = [3, 4, 5],
+        includeRests = true
+    } = {}) {
+        const durations = [
+            { name: "whole", value: 4 },
+            { name: "half", value: 2 },
+            { name: "quarter", value: 1 },
+            { name: "eighth", value: 0.5 },
+            { name: "sixteenth", value: 0.25 }
+        ];
+
+        const totalBeats = parseInt(timeSignature.split('/')[0]) * measures;
+        const allNotes = TheoryUtils.getAllNotes(octaves);
+        const melody = [];
+
+        let accumulated = 0;
+        while (accumulated < totalBeats) {
+            const remaining = totalBeats - accumulated;
+            const validDurations = durations.filter(d => d.value <= remaining);
+            const chosen = validDurations[Math.floor(Math.random() * validDurations.length)];
+
+            const isRest = includeRests && Math.random() < 0.25; // 25% chance de ser pausa
+            const note = isRest
+                ? "rest"
+                : allNotes[Math.floor(Math.random() * allNotes.length)];
+
+            melody.push({ note, duration: chosen.value, type: isRest ? "rest" : "note" });
+            accumulated += chosen.value;
+        }
+
+        return melody;
+    }
+
+
     return {
         getAllNotes,
         getAllChords,
         getAllScales,
-        getRandomFunction
+        getRandomFunction,
+        generateMelodyWithRhythm
     };
 })();

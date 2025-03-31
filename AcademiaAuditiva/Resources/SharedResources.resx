@@ -673,4 +673,11 @@
   <data name="Exercise.FullInterval.Description"><value>Listen to two notes and identify the exact interval between them (e.g., minor third, perfect fifth).</value></data>
   <data name="Exercise.PlayInterval"><value>Play Interval</value></data>
   <data name="Exercise.ReplayInterval"><value>Replay Interval</value></data>
+  <data name="Exercise.MissingNote.Title"><value>Guess the Melody</value></data>
+  <data name="Exercise.MissingNote.Description"><value>Listen to two melodies and say whether they are the same or different.</value></data>
+  <data name="Exercise.PlayMelodies"><value>Play Melodies</value></data>
+  <data name="Exercise.PlayMelody1"><value>Melody 1</value></data>
+  <data name="Exercise.PlayMelody2"><value>Melody 2</value></data>
+  <data name="Exercise.Answer.Same"><value>Same</value></data>
+  <data name="Exercise.Answer.Different"><value>Different</value></data>
 </root>

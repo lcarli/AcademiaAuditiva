@@ -673,4 +673,11 @@
   <data name="Exercise.FullInterval.Description"><value>Ouça duas notas e identifique o tipo exato de intervalo entre elas (ex: terça menor, quinta justa).</value></data>
   <data name="Exercise.PlayInterval"><value>Ouvir Intervalo</value></data>
   <data name="Exercise.ReplayInterval"><value>Repetir Intervalo</value></data>
+  <data name="Exercise.MissingNote.Title"><value>Adivinhe a Melodia</value></data>
+  <data name="Exercise.MissingNote.Description"><value>Ouça duas melodias e diga se são iguais ou diferentes.</value></data>
+  <data name="Exercise.PlayMelodies"><value>Ouvir Melodias</value></data>
+  <data name="Exercise.PlayMelody1"><value>Melodia 1</value></data>
+  <data name="Exercise.PlayMelody2"><value>Melodia 2</value></data>
+  <data name="Exercise.Answer.Same"><value>Iguais</value></data>
+  <data name="Exercise.Answer.Different"><value>Diferentes</value></data>
 </root>
