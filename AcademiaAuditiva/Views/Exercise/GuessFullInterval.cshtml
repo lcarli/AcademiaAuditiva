@@ -1,150 +1,176 @@
-@inject IViewLocalizer Localizer
 @{
-    ViewBag.Title = Localizer["GuessFullInterval.Title"];
+    ViewData["Title"] = Localizer["Exercise.FullInterval.Title"];
+    var intervals = new[] {
+    "minor2", "major2", "minor3", "major3", "perfect4", "augmented4",
+    "perfect5", "minor6", "major6", "minor7", "major7", "perfect8"
+    };
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center exercise-content" style="display:none">
-        <div class="col-md-8">
-            <h2 class="text-center mb-4">@Localizer["GuessFullInterval.Title"]</h2>
+<h2 class="text-center">@Localizer["Exercise.FullInterval.Title"]</h2>
+<p class="text-center">@Localizer["Exercise.FullInterval.Description"]</p>
 
-            <div class="text-center mb-4">
-                <button id="playInterval" class="btn btn-primary">@Localizer["GuessFullInterval.PlayButton"]</button>
-            </div>
+<div class="exercise-content" style="display:none;">
+    <div class="row justify-content-center mb-3">
+        <div class="col-md-4">
+            <label for="octaveRange">@Localizer["Exercise.SelectOctave"]</label>
+            <select class="form-control" id="octaveRange">
+                <option value="single">C4-C5</option>
+                <option value="multi">C3-C5</option>
+            </select>
+        </div>
+    </div>
 
-            <div class="form-group text-center">
-                <label for="intervalSelect" class="form-label">@Localizer["GuessFullInterval.SelectLabel"]</label>
-                <select id="intervalSelect" class="form-select w-50 mx-auto">
-                    <option value="">@Localizer["GuessFullInterval.SelectPlaceholder"]</option>
-                    <option value="MinorSecond">@Localizer["GuessFullInterval.MinorSecond"]</option>
-                    <option value="MajorSecond">@Localizer["GuessFullInterval.MajorSecond"]</option>
-                    <option value="MinorThird">@Localizer["GuessFullInterval.MinorThird"]</option>
-                    <option value="MajorThird">@Localizer["GuessFullInterval.MajorThird"]</option>
-                    <option value="PerfectFourth">@Localizer["GuessFullInterval.PerfectFourth"]</option>
-                    <option value="Tritone">@Localizer["GuessFullInterval.Tritone"]</option>
-                    <option value="PerfectFifth">@Localizer["GuessFullInterval.PerfectFifth"]</option>
-                    <option value="MinorSixth">@Localizer["GuessFullInterval.MinorSixth"]</option>
-                    <option value="MajorSixth">@Localizer["GuessFullInterval.MajorSixth"]</option>
-                    <option value="MinorSeventh">@Localizer["GuessFullInterval.MinorSeventh"]</option>
-                    <option value="MajorSeventh">@Localizer["GuessFullInterval.MajorSeventh"]</option>
-                    <option value="PerfectOctave">@Localizer["GuessFullInterval.PerfectOctave"]</option>
-                </select>
-            </div>
+    <div class="text-center mb-3">
+        <button id="playInterval" class="btn btn-primary m-1">@Localizer["Exercise.PlayInterval"]</button>
+        <button id="replayInterval" class="btn btn-secondary m-1">@Localizer["Exercise.ReplayInterval"]</button>
+    </div>
 
-            <div class="text-center mt-3">
-                <button id="validateGuess" class="btn btn-success">@Localizer["GuessFullInterval.SubmitButton"]</button>
-            </div>
+    <div class="text-center mb-3 d-flex flex-wrap justify-content-center gap-2">
+        @foreach (var interval in intervals)
+        {
+            <button class="btn btn-outline-dark guessInterval m-1" data-interval="@interval">
+                @interval.Replace("minor", "m").Replace("major", "M").Replace("perfect", "P").Replace("augmented", "A")
+            </button>
+        }
+    </div>
 
-            <div class="scoreboard text-center my-4">
-                <div class="d-inline-block mx-3">
-                    <h5>@Localizer["Score.Correct"]</h5>
-                    <span id="correctCount">0</span>
-                </div>
-                <div class="d-inline-block mx-3">
-                    <h5>@Localizer["Score.Errors"]</h5>
-                    <span id="errorCount">0</span>
-                </div>
-                <div class="d-inline-block mx-3">
-                    <h5>@Localizer["Score.Best"]</h5>
-                    <span id="bestScore">@ViewBag.BestScore</span>
-                </div>
-            </div>
+    <div class="text-center mb-3">
+        <button id="validateGuess" class="btn btn-success">@Localizer["Exercise.ValidationButton"]</button>
+    </div>
+
+    <div class="scoreboard text-center my-4">
+        <div class="d-inline-block mx-3">
+            <h5>@Localizer["Exercise.CorrectAnswers"]</h5>
+            <span id="correctCount">0</span>
+        </div>
+        <div class="d-inline-block mx-3">
+            <h5>@Localizer["Exercise.ErrorAnswers"]</h5>
+            <span id="errorCount">0</span>
+        </div>
+        <div class="d-inline-block mx-3">
+            <h5>@Localizer["Exercise.BestScore"]</h5>
+            <span id="bestScore">@ViewBag.BestScore</span>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        const intervals = {
-            "MinorSecond": 1,
-            "MajorSecond": 2,
-            "MinorThird": 3,
-            "MajorThird": 4,
-            "PerfectFourth": 5,
-            "Tritone": 6,
-            "PerfectFifth": 7,
-            "MinorSixth": 8,
-            "MajorSixth": 9,
-            "MinorSeventh": 10,
-            "MajorSeventh": 11,
-            "PerfectOctave": 12
-        };
+        let randomInterval = "";
+        let rootNote = "";
+        let userGuess = "";
+        let octaveRange = "single";
+        let exerciseStartTime = Date.now();
 
-        let correctAnswer = "";
+        const fullIntervals = {
+            minor2: 1,
+            major2: 2,
+            minor3: 3,
+            major3: 4,
+            perfect4: 5,
+            augmented4: 6,
+            perfect5: 7,
+            minor6: 8,
+            major6: 9,
+            minor7: 10,
+            major7: 11,
+            perfect8: 12
+        };
 
         $(document).ready(function () {
             AcademiaAuditiva.init();
 
             Swal.fire({
-                title: '@Localizer["GuessFullInterval.ModalTitle"]',
-                text: '@Localizer["GuessFullInterval.ModalText"]',
+                title: '@Localizer["Exercise.FullInterval.Title"]',
+                text: '@Localizer["Exercise.FullInterval.Description"]',
                 icon: 'info',
-                confirmButtonText: '@Localizer["GuessFullInterval.StartButton"]',
+                confirmButtonText: '@Localizer["Exercise.StartButton"]',
                 allowOutsideClick: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $('.exercise-content').show();
+            }).then(() => $('.exercise-content').show());
+
+            Tone.loaded().then(() => {
+                $('#playInterval').on('click', playNewInterval);
+                $('#replayInterval').on('click', replayInterval);
+                $('#octaveRange').on('change', e => octaveRange = e.target.value);
+            });
+
+            function getRandomNote() {
+                const octaves = (octaveRange === "single") ? [4] : [3, 4, 5];
+                const allNotes = TheoryUtils.getAllNotes(octaves);
+                return allNotes[Math.floor(Math.random() * allNotes.length)];
+            }
+
+            function playNewInterval() {
+                const intervalNames = Object.keys(fullIntervals);
+                randomInterval = intervalNames[Math.floor(Math.random() * intervalNames.length)];
+                const semitones = fullIntervals[randomInterval];
+
+                const octaves = (octaveRange === "single") ? [4] : [3, 4, 5];
+                const allNotes = TheoryUtils.getAllNotes(octaves);
+                rootNote = allNotes[Math.floor(Math.random() * (allNotes.length - semitones))];
+
+                const rootIndex = allNotes.indexOf(rootNote);
+                const secondNote = allNotes[rootIndex + semitones];
+
+                if (rootNote && secondNote) {
+                    AcademiaAuditiva.audio.playSequence([rootNote, secondNote], 0.4);
                 }
-            });
+            }
 
-            $('#playInterval').on('click', function () {
-                const baseNote = Tone.Frequency("C4").toMidi() + Math.floor(Math.random() * 12);
-                const keys = Object.keys(intervals);
-                correctAnswer = keys[Math.floor(Math.random() * keys.length)];
-                const semitones = intervals[correctAnswer];
-                const intervalNote = baseNote + semitones;
-
-                Tone.start().then(() => {
-                    AcademiaAuditiva.sampler.triggerAttackRelease(Tone.Frequency(baseNote, "midi").toNote(), "0.5");
-                    setTimeout(() => {
-                        AcademiaAuditiva.sampler.triggerAttackRelease(Tone.Frequency(intervalNote, "midi").toNote(), "0.5");
-                    }, 700);
-                });
-            });
-
-            $('#validateGuess').on('click', function () {
-                const selected = $('#intervalSelect').val();
-                const correctEl = $('#correctCount');
-                const errorEl = $('#errorCount');
-                const bestEl = $('#bestScore');
-
-                if (!selected) {
-                    Swal.fire('@Localizer["GuessFullInterval.WarningTitle"]', '@Localizer["GuessFullInterval.WarningText"]', 'warning');
+            function replayInterval() {
+                if (!randomInterval || !rootNote) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                    });
                     return;
                 }
 
-                let correctCount = parseInt(correctEl.text());
-                let errorCount = parseInt(errorEl.text());
-                let bestScore = parseInt(bestEl.text());
-                let currentScore;
+                const semitones = fullIntervals[randomInterval];
+                const allNotes = TheoryUtils.getAllNotes([2, 3, 4, 5, 6]);
+                const rootIndex = allNotes.indexOf(rootNote);
+                const secondNote = allNotes[rootIndex + semitones];
+                AcademiaAuditiva.audio.playSequence([rootNote, secondNote], 0.4);
+            }
 
-                if (selected === correctAnswer) {
-                    correctCount++;
-                    correctEl.text(correctCount);
-                    Swal.fire('✅', '@Localizer["GuessFullInterval.Correct"]', 'success');
-                } else {
-                    errorCount++;
-                    errorEl.text(errorCount);
-                    Swal.fire('❌', '@Localizer["GuessFullInterval.Incorrect"]', 'error');
-                }
+            $('.guessInterval').on('click', function () {
+                $('.guessInterval').removeClass('selected-note');
+                $(this).addClass('selected-note');
+                userGuess = $(this).data('interval');
+            });
 
-                currentScore = correctCount - errorCount;
-
-                if (currentScore > bestScore) {
-                    bestEl.text(currentScore);
-
-                    $.ajax({
-                        type: "POST",
-                        url: "/Exercise/GuessFullIntervalSaveScore",
-                        data: { correctCount: correctCount, errorCount: errorCount },
-                        error: function () {
-                            console.error("Erro ao salvar pontuação.");
-                        }
+            $('#validateGuess').on('click', () => {
+                if (!userGuess || !randomInterval) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.IncompleteTitle"]',
+                        text: '@Localizer["Exercise.SelectIntervalText"]'
                     });
+                    return;
                 }
 
-                correctAnswer = "";
-                $('#intervalSelect').val("");
+                const correctEl = $('#correctCount');
+                const errorEl = $('#errorCount');
+
+                if (userGuess === randomInterval) {
+                    correctEl.text(parseInt(correctEl.text()) + 1);
+                    AcademiaAuditiva.feedback.playSuccessSound('@Localizer["Exercise.CorrectMessage"]', '@Localizer["Exercise.CorrectMessageText"]');
+                } else {
+                    errorEl.text(parseInt(errorEl.text()) + 1);
+                    AcademiaAuditiva.feedback.playErrorSound('@Localizer["Exercise.WrongMessage"]', '@Localizer["Exercise.WrongIntervalMessageText"]', randomInterval);
+                }
+
+                // Salvar sessão
+                $.post("/Exercise/GuessFullIntervalSaveScore", {
+                    correctCount: parseInt(correctEl.text()),
+                    errorCount: parseInt(errorEl.text()),
+                    timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
+                });
+
+                // Reset
+                userGuess = "";
+                randomInterval = "";
             });
         });
     </script>

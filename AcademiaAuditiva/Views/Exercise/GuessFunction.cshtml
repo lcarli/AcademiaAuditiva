@@ -1,253 +1,217 @@
 ﻿@{
-	ViewBag.Title = Localizer["Exercise.Function.Title"];
+    ViewBag.Title = Localizer["Exercise.Function.Title"];
 }
 
 <div class="container mt-5">
-	<div class="row justify-content-center exercise-content">
-		<div class="col-md-8">
-			<h2 class="text-center mb-4">@ViewBag.Title</h2>
+    <div class="row justify-content-center exercise-content">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4">@ViewBag.Title</h2>
 
-			<div class="mb-4 text-center d-flex justify-content-center">
-				<!-- Tom e Qualidade -->
-				<div class="mb-4 me-4">
-					<label for="key" class="form-label">@Localizer["Exercise.SelectTom"]</label>
-					<select id="key" class="form-select">
-						<option value="C4">C</option>
-						<option value="C#4">C#</option>
-						<option value="D4">D</option>
-						<option value="D#4">D#</option>
-						<option value="E4">E</option>
-						<option value="F4">F</option>
-						<option value="F#4">F#</option>
-						<option value="G4">G</option>
-						<option value="G#4">G#</option>
-						<option value="A4">A</option>
-						<option value="A#4">A#</option>
-						<option value="E4">E</option>
-					</select>
-				</div>
+            <div class="mb-4 text-center d-flex justify-content-center">
+                <!-- Tom e Qualidade -->
+                <div class="mb-4 me-4">
+                    <label for="key" class="form-label">@Localizer["Exercise.SelectTom"]</label>
+                    <select id="key" class="form-select">
+                        <option value="C4">C</option>
+                        <option value="C#4">C#</option>
+                        <option value="D4">D</option>
+                        <option value="D#4">D#</option>
+                        <option value="E4">E</option>
+                        <option value="F4">F</option>
+                        <option value="F#4">F#</option>
+                        <option value="G4">G</option>
+                        <option value="G#4">G#</option>
+                        <option value="A4">A</option>
+                        <option value="A#4">A#</option>
+                        <option value="E4">E</option>
+                    </select>
+                </div>
 
-				<div class="mb-4">
-					<label for="quality" class="form-label">@Localizer["Exercise.Quality"]</label>
-					<select id="quality" class="form-select">
-						<option value="major">@Localizer["Exercise.Major"]</option>
-						<option value="minor">@Localizer["Exercise.Minor"]</option>
-					</select>
-				</div>
-			</div>
+                <div class="mb-4">
+                    <label for="quality" class="form-label">@Localizer["Exercise.Quality"]</label>
+                    <select id="quality" class="form-select">
+                        <option value="major">@Localizer["Exercise.Major"]</option>
+                        <option value="minor">@Localizer["Exercise.Minor"]</option>
+                    </select>
+                </div>
+            </div>
 
-			<div class="mb-4 text-center">
-				<button id="playFunction" class="btn btn-primary">@Localizer["Exercise.ListenChord"]</button>
-				<button id="replayFunction" class="btn btn-primary">@Localizer["Exercise.RelistenChord"]</button>
-			</div>
+            <div class="mb-4 text-center">
+                <button id="playFunction" class="btn btn-primary">@Localizer["Exercise.ListenChord"]</button>
+                <button id="replayFunction" class="btn btn-primary">@Localizer["Exercise.RelistenChord"]</button>
+            </div>
 
-			<h4 class="text-center mb-3">@Localizer["Exercise.Function.Text"]</h4>
+            <h4 class="text-center mb-3">@Localizer["Exercise.Function.Text"]</h4>
 
-			<div class="d-grid gap-2 d-md-flex justify-content-md-center">
-				<button class="btn btn-outline-dark guessFunction major-function" data-function="1-major">I</button>
-				<button class="btn btn-outline-dark guessFunction major-function" data-function="2-minor">ii</button>
-				<button class="btn btn-outline-dark guessFunction major-function" data-function="3-minor">iii</button>
-				<button class="btn btn-outline-dark guessFunction major-function" data-function="4-major">IV</button>
-				<button class="btn btn-outline-dark guessFunction major-function" data-function="5-major">V</button>
-				<button class="btn btn-outline-dark guessFunction major-function" data-function="6-minor">vi</button>
-				<button class="btn btn-outline-dark guessFunction major-function" data-function="7-diminished">VII(b5)</button>
-				<!--minor-->
-				<button class="btn btn-outline-dark guessFunction minor-function" style="display:none" data-function="1-minor">i</button>
-				<button class="btn btn-outline-dark guessFunction minor-function" style="display:none" data-function="2-diminished">ii(b5)</button>
-				<button class="btn btn-outline-dark guessFunction minor-function" style="display:none" data-function="3-major">III</button>
-				<button class="btn btn-outline-dark guessFunction minor-function" style="display:none" data-function="4-minor">iv</button>
-				<button class="btn btn-outline-dark guessFunction minor-function" style="display:none" data-function="5-minor">v</button>
-				<button class="btn btn-outline-dark guessFunction minor-function" style="display:none" data-function="6-major">VI</button>
-				<button class="btn btn-outline-dark guessFunction minor-function" style="display:none" data-function="7-major">VII</button>
-			</div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button class="btn btn-outline-dark guessFunction major-function" data-function="1-major">I</button>
+                <button class="btn btn-outline-dark guessFunction major-function" data-function="2-minor">ii</button>
+                <button class="btn btn-outline-dark guessFunction major-function" data-function="3-minor">iii</button>
+                <button class="btn btn-outline-dark guessFunction major-function" data-function="4-major">IV</button>
+                <button class="btn btn-outline-dark guessFunction major-function" data-function="5-major">V</button>
+                <button class="btn btn-outline-dark guessFunction major-function" data-function="6-minor">vi</button>
+                <button class="btn btn-outline-dark guessFunction major-function"
+                    data-function="7-diminished">VII(b5)</button>
+                <!--minor-->
+                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
+                    data-function="1-minor">i</button>
+                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
+                    data-function="2-diminished">ii(b5)</button>
+                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
+                    data-function="3-major">III</button>
+                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
+                    data-function="4-minor">iv</button>
+                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
+                    data-function="5-minor">v</button>
+                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
+                    data-function="6-major">VI</button>
+                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
+                    data-function="7-major">VII</button>
+            </div>
 
-			<div class="d-grid gap-2 d-md-flex justify-content-md-center mt-3">
-				<button id="validateGuess" class="btn btn-warning">@Localizer["Exercise.ValidationButton"]</button>
-			</div>
-		</div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-3">
+                <button id="validateGuess" class="btn btn-warning">@Localizer["Exercise.ValidationButton"]</button>
+            </div>
+        </div>
 
-		<div class="scoreboard text-center my-4">
-			<div class="d-inline-block mx-3">
-				<h5>@Localizer["Exercise.CorrectAnswers"]</h5>
-				<span id="correctCount">0</span>
-			</div>
-			<div class="d-inline-block mx-3">
-				<h5>@Localizer["Exercise.ErrorAnswers"]</h5>
-				<span id="errorCount">0</span>
-			</div>
-			<div class="d-inline-block mx-3">
-				<h5>@Localizer["Exercise.BestScore"]</h5>
-				<span id="bestScore">@ViewBag.BestScore</span>
-			</div>
-		</div>
+        <div class="scoreboard text-center my-4">
+            <div class="d-inline-block mx-3">
+                <h5>@Localizer["Exercise.CorrectAnswers"]</h5>
+                <span id="correctCount">0</span>
+            </div>
+            <div class="d-inline-block mx-3">
+                <h5>@Localizer["Exercise.ErrorAnswers"]</h5>
+                <span id="errorCount">0</span>
+            </div>
+            <div class="d-inline-block mx-3">
+                <h5>@Localizer["Exercise.BestScore"]</h5>
+                <span id="bestScore">@ViewBag.BestScore</span>
+            </div>
+        </div>
 
-	</div>
+    </div>
 </div>
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			AcademiaAuditiva.init();
-			Swal.fire({
-				title: 'Adivinhe a Função',
-				text: 'Ouça a nota e tente adivinhar sua função no contexto do tom e qualidade selecionados.',
-				icon: 'info',
-				confirmButtonText: "@Localizer["Exercise.StartButton"]",
-				allowOutsideClick: false
-			}).then((result) => {
-				if (result.isConfirmed) {
-					$('.exercise-content').show();
-				}
-			});
+    <script>
+        $(document).ready(function () {
+            AcademiaAuditiva.init();
 
-			let randomFunction = "";
-			let randomFunctionNotes = "";
-			let selectedKey = "C4";
-			let selectedQuality = "major";
+            Swal.fire({
+                title: "@Localizer["Exercise.Function.Title"]",
+                text: "@Localizer["Exercise.Function.Description"]",
+                icon: 'info',
+                confirmButtonText: "@Localizer["Exercise.StartButton"]",
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('.exercise-content').show();
+                    exerciseStartTime = Date.now();
+                }
+            });
 
-			function getRandomFunction() {
-				// Obter todos os campos harmônicos
-				const harmonicFields = AcademiaAuditiva.getHarmonicField();
-				// Encontrar o campo harmônico com base no tom e qualidade selecionados
-				const currentHarmonicField = harmonicFields.find(field => field.type === selectedQuality && field.notes[0][0].notes[0] === selectedKey);
+            let randomFunction = "";
+            let randomFunctionNotes = "";
+            let selectedKey = "C4";
+            let selectedQuality = "major";
 
-				// Selecionar aleatoriamente um dos acordes desse campo harmônico
-				const randomIndex = Math.floor(Math.random() * currentHarmonicField.notes.length);
-				const randomChord = currentHarmonicField.notes[randomIndex];
+            document.getElementById('playFunction').addEventListener('click', () => {
+                const functionObj = TheoryUtils.getRandomFunction();
+                randomFunctionNotes = functionObj.notes;
+                randomFunction = functionObj.position + '-' + functionObj.type;
 
-				return {
-					type: randomChord[0].type,      // major, minor, diminished, etc.
-					position: randomIndex + 1,      // 1 para o primeiro acorde, 2 para o segundo, etc.
-					notes: randomChord[0].notes     // notas do acorde
-				};
-			}
+                AcademiaAuditiva.audio.playChord(randomFunctionNotes, 1);
+            });
 
-			document.getElementById('playFunction').addEventListener('click', () => {
-				const functionObj = getRandomFunction();
-				randomFunctionNotes = functionObj.notes;
-				randomFunction = functionObj.position + '-' + functionObj.type;
+            document.getElementById('replayFunction').addEventListener('click', () => {
+                if (randomFunctionNotes) {
+                    AcademiaAuditiva.audio.playChord(randomFunctionNotes, 1);
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                    });
+                }
+            });
 
-				// Tocando a nota selecionada
-				AcademiaAuditiva.sampler.triggerAttackRelease(randomFunctionNotes, "1");
-			});
+            const functionButtons = document.querySelectorAll('.guessFunction');
+            let guessedFunction = '';
 
-			document.getElementById('replayFunction').addEventListener('click', () => {
-				if (randomFunctionNotes) {
-					AcademiaAuditiva.sampler.triggerAttackRelease(randomFunctionNotes, "1");
-				} else {
-					alert('Primeiro clique em "Ouvir Função"');
-				}
-			});
+            functionButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    functionButtons.forEach(btn => btn.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    guessedFunction = e.target.getAttribute('data-function');
+                    e.stopImmediatePropagation();
+                });
+            });
 
-			const functionButtons = document.querySelectorAll('.guessFunction');
-			let guessedFunction = '';
+            function updateFunctionButtons() {
+                if (selectedQuality === "major") {
+                    document.querySelectorAll(".major-function").forEach(btn => btn.style.display = "inline-block");
+                    document.querySelectorAll(".minor-function").forEach(btn => btn.style.display = "none");
+                } else {
+                    document.querySelectorAll(".major-function").forEach(btn => btn.style.display = "none");
+                    document.querySelectorAll(".minor-function").forEach(btn => btn.style.display = "inline-block");
+                }
+            }
 
-			functionButtons.forEach(button => {
-				button.addEventListener('click', (e) => {
-					// Remover a classe 'selected' de todos os botões de função
-					functionButtons.forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('quality').addEventListener('change', function () {
+                selectedQuality = this.value;
+                updateFunctionButtons();
+            });
 
-					// Adicionar a classe 'selected' ao botão clicado
-					e.target.classList.add('selected');
+            document.getElementById('key').addEventListener('change', function (event) {
+                selectedKey = event.target.value;
+            });
 
-					guessedFunction = e.target.getAttribute('data-function');
-					e.stopImmediatePropagation();
-				});
-			});
+            function checkGuess() {
+                const correctCountEl = document.getElementById('correctCount');
+                const errorCountEl = document.getElementById('errorCount');
+                const bestScoreEl = document.getElementById('bestScore');
 
-			function updateFunctionButtons() {
-				if (selectedQuality === "major") {
-					// Mostrar botões para maior e esconder botões para menor
-					document.querySelectorAll(".major-function").forEach(function (btn) {
-						btn.style.display = "inline-block";
-					});
-					document.querySelectorAll(".minor-function").forEach(function (btn) {
-						btn.style.display = "none";
-					});
-				} else if (selectedQuality === "minor") {
-					// Mostrar botões para menor e esconder botões para maior
-					document.querySelectorAll(".major-function").forEach(function (btn) {
-						btn.style.display = "none";
-					});
-					document.querySelectorAll(".minor-function").forEach(function (btn) {
-						btn.style.display = "inline-block";
-					});
-				}
-			}
+                if (guessedFunction === randomFunction) {
+                    correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playSuccessSound(
+                        '@Localizer["Exercise.CorrectMessage"]',
+                        '@Localizer["Exercise.CorrectMessageText"]'
+                    );
+                } else {
+                    errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playErrorSound(
+                        '@Localizer["Exercise.WrongMessage"]',
+                        '@Localizer["Exercise.WrongFunctionMessageText"]',
+                        randomFunction
+                    );
+                }
 
-			document.getElementById('quality').addEventListener('change', function () {
-				selectedQuality = this.value;
-				updateFunctionButtons();
-			});
+                randomFunction = "";
+                functionButtons.forEach(btn => btn.classList.remove('selected'));
 
-			document.getElementById('key').addEventListener('change', function (event) {
-				selectedKey = event.target.value;
-			});
+                const correctCount = parseInt(correctCountEl.innerText);
+                const errorCount = parseInt(errorCountEl.innerText);
+                let bestScore = parseInt(bestScoreEl.innerText);
+                const currentScore = correctCount - errorCount;
 
+                $.post("/Exercise/GuessFunctionSaveScore", {
+                    correctCount: correctCount,
+                    errorCount: errorCount,
+                    timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
+                });
+            }
 
-
-			function checkGuess() {
-				const correctCountEl = document.getElementById('correctCount');
-				const errorCountEl = document.getElementById('errorCount');
-				const bestScoreEl = document.getElementById('bestScore');
-
-				if (guessedFunction === randomFunction) {
-					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'success',
-						title: "@Localizer["Exercise.CorrectMessage"]",
-						text: "@Localizer["Exercise.CorrectMessageText"]"
-					});
-				} else {
-					errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'error',
-						title: "@Localizer["Exercise.WrongMessage"]",
-						text: "@Localizer["Exercise.WrongFunctionMessageText"]",
-					});
-				}
-
-				//Clean
-				randomFunction = "";
-				functionButtons.forEach(btn => btn.classList.remove('selected'));
-
-
-				const correctCount = parseInt(correctCountEl.innerText);
-				const errorCount = parseInt(errorCountEl.innerText);
-				let bestScore = parseInt(bestScoreEl.innerText);
-				const currentScore = correctCount - errorCount;
-
-				// Atualize o bestScore e salve no servidor, se necessário:
-				if (currentScore > bestScore) {
-					bestScore = currentScore;
-					bestScoreEl.innerText = bestScore;  // Atualiza o elemento HTML
-
-					$.ajax({
-						type: "POST",
-						url: "/Exercise/GuessFunctionSaveScore",
-						data: { correctCount: correctCount, errorCount: errorCount },
-						success: function () {
-							console.log('Novo bestScore salvo com sucesso no servidor.');
-						},
-						error: function () {
-							console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
-						}
-					});
-				}
-			}
-
-			document.getElementById('validateGuess').addEventListener('click', () => {
-				if (guessedFunction && randomFunction) {
-					checkGuess();
-				} else {
-					Swal.fire({
-						icon: 'warning',
-						title: 'Incompleto!',
-						text: 'Por favor, selecione uma função.'
-					});
-				}
-			});
-
-		});
-	</script>
+            document.getElementById('validateGuess').addEventListener('click', () => {
+                if (guessedFunction && randomFunction) {
+                    checkGuess();
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.IncompleteTitle"]',
+                        text: '@Localizer["Exercise.SelectFunctionText"]'
+                    });
+                }
+            });
+        });
+    </script>
 }

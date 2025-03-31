@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -458,7 +458,7 @@
     <comment/>
   </data>
   <data name="Exercise.WrongMessageText" xml:space="preserve">
-    <value>You got it wrong! The correct chord was ${correctNote.replace('s', '#')} ${correctQuality}.</value>
+    <value>You got it wrong! The correct chord was</value>
     <comment/>
   </data>
   <data name="GuessNote" xml:space="preserve">
@@ -514,7 +514,7 @@
     <comment>.</comment>
   </data>
   <data name="Exercise.WrongNoteMessageText" xml:space="preserve">
-    <value>You got it wrong! The correct note was ${randomNote.replace(‘s’, ‘#’)}.</value>
+    <value>You got it wrong! The correct note was</value>
     <comment>.</comment>
   </data>
   <data name="Exercise.Function.Title" xml:space="preserve">
@@ -534,7 +534,150 @@
     <comment>.</comment>
   </data>
   <data name="Exercise.WrongFunctionMessageText" xml:space="preserve">
-    <value>You got it wrong! The correct function was ${randomFunction}.</value>
+    <value>You got it wrong! The correct function was</value>
     <comment>.</comment>
   </data>
+  <data name="Dashboard.RadarTitle" xml:space="preserve">
+    <value>Skill Radar</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.CategoryAccuracyTitle" xml:space="preserve">
+    <value>Accuracy by Category</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.TimelineTitle" xml:space="preserve">
+    <value>Learning Timeline</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.ExerciseImprovementTitle" xml:space="preserve">
+    <value>Improvement by Exercise</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.DifficultyTitle" xml:space="preserve">
+    <value>Perceived Difficulty</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.SkillRadarLabel" xml:space="preserve">
+    <value>Skills</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.TimelineLabel" xml:space="preserve">
+    <value>Daily Activity</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.ImprovementLabel" xml:space="preserve">
+    <value>Progress</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.DifficultyLabel" xml:space="preserve">
+    <value>Errors (%)</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.TotalExercises" xml:space="preserve">
+    <value>Total Exercices</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.BestScore" xml:space="preserve">
+    <value>Best Score</value>
+    <comment/>
+  </data>
+  <data name="Dashboard.TotalTime" xml:space="preserve">
+    <value>Total Time</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.NoteRecognition" xml:space="preserve">
+    <value>Notes</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.IntervalRecognition" xml:space="preserve">
+    <value>Intervals</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.ChordRecognition" xml:space="preserve">
+    <value>Chords</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.FunctionRecognition" xml:space="preserve">
+    <value>Function</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.ScaleRecognition" xml:space="preserve">
+    <value>Scales</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Harmony" xml:space="preserve">
+    <value>Harmony</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.EarTraining" xml:space="preserve">
+    <value>Ear Training</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Rhythm" xml:space="preserve">
+    <value>Rhythm</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Scales" xml:space="preserve">
+    <value>Scales</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Melody" xml:space="preserve">
+    <value>Melody</value>
+    <comment/>
+  </data>
+  <data name="ExerciseCategory.Games" xml:space="preserve">
+    <value>Games</value>
+    <comment/>
+  </data>
+  <data name="Exercise.Interval.Title" xml:space="preserve">
+    <value>Guess the Interval</value>
+    <comment/>
+  </data>
+  <data name="Exercise.Interval.Description" xml:space="preserve">
+    <value>Listen to the interval and try to guess which one it is.</value>
+    <comment/>
+  </data>
+  <data name="Exercise.NoteNotSelectedTitle" xml:space="preserve">
+    <value>Note not selected</value>
+    <comment/>
+  </data>
+  <data name="Exercise.NoteNotSelectedText" xml:space="preserve">
+    <value>Please click "Play Interval" first.</value>
+    <comment/>
+  </data>
+  <data name="Exercise.SelectIntervalText" xml:space="preserve">
+    <value>Please select an interval.</value>
+    <comment/>
+  </data>
+  <data name="Exercise.WrongIntervalMessageText" xml:space="preserve">
+    <value>You got it wrong! The correct interval was</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.MelodyReproduction" xml:space="preserve">
+    <value>Melody Reproduction</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.RhythmPatterns" xml:space="preserve">
+    <value>Rhythm Patterns</value>
+    <comment/>
+  </data>
+  <data name="ExerciseType.HarmonicField" xml:space="preserve">
+    <value>Harmonic Field</value>
+    <comment/>
+  </data>
+  <data name="GuessFullInterval" xml:space="preserve">
+    <value>Guess Full Interval</value>
+    <comment/>
+  </data>
+  <data name="Exercise.FullInterval.Title"><value>Guess the Full Interval</value></data>
+  <data name="Exercise.FullInterval.Description"><value>Listen to two notes and identify the exact interval between them (e.g., minor third, perfect fifth).</value></data>
+  <data name="Exercise.PlayInterval"><value>Play Interval</value></data>
+  <data name="Exercise.ReplayInterval"><value>Replay Interval</value></data>
+  <data name="Exercise.MissingNote.Title"><value>Guess the Melody</value></data>
+  <data name="Exercise.MissingNote.Description"><value>Listen to two melodies and say whether they are the same or different.</value></data>
+  <data name="Exercise.PlayMelodies"><value>Play Melodies</value></data>
+  <data name="Exercise.PlayMelody1"><value>Melody 1</value></data>
+  <data name="Exercise.PlayMelody2"><value>Melody 2</value></data>
+  <data name="Exercise.Answer.Same"><value>Same</value></data>
+  <data name="Exercise.Answer.Different"><value>Different</value></data>
 </root>

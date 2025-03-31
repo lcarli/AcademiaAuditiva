@@ -2,176 +2,164 @@
 }
 
 <div class="container mt-5">
-	<div class="row justify-content-center exercise-content">
-		<div class="col-md-8">
-			<h2 class="text-center mb-4">@Localizer["Exercise.Note.Title"]</h2>
+    <div class="row justify-content-center exercise-content">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4">@Localizer["Exercise.Note.Title"]</h2>
 
-			<div class="mb-4">
-				<label for="octaveRange" class="form-label">@Localizer["Exercise.TypeChord"]</label>
-				<select id="octaveRange" class="form-select">
-					<option value="single">@Localizer["Exercise.Octave4"]</option>
-					<option value="full">@Localizer["Exercise.Full"]</option>
-				</select>
-			</div>
+            <div class="mb-4">
+                <label for="octaveRange" class="form-label">@Localizer["Exercise.TypeChord"]</label>
+                <select id="octaveRange" class="form-select">
+                    <option value="single">@Localizer["Exercise.Octave4"]</option>
+                    <option value="full">@Localizer["Exercise.Full"]</option>
+                </select>
+            </div>
 
-			<div class="mb-4 text-center">
-				<button id="playNote" class="btn btn-primary me-3">@Localizer["Exercise.ListenNote"]</button>
-				<button id="replayNote" class="btn btn-secondary">@Localizer["Exercise.RelistenNote"]</button>
-			</div>
+            <div class="mb-4 text-center">
+                <button id="playNote" class="btn btn-primary me-3">@Localizer["Exercise.ListenNote"]</button>
+                <button id="replayNote" class="btn btn-secondary">@Localizer["Exercise.RelistenNote"]</button>
+            </div>
 
-			<h4 class="text-center mb-3">@Localizer["Exercise.NoteText"]</h4>
-			<div class="d-grid gap-2 d-md-flex justify-content-md-center">
-				<button class="btn btn-outline-dark guessNote" data-note="C4">C</button>
-				<button class="btn btn-outline-dark guessNote" data-note="Cs4">C#</button>
-				<button class="btn btn-outline-dark guessNote" data-note="D4">D</button>
-				<button class="btn btn-outline-dark guessNote" data-note="Ds4">D#</button>
-				<button class="btn btn-outline-dark guessNote" data-note="E4">E</button>
-				<button class="btn btn-outline-dark guessNote" data-note="F4">F</button>
-				<button class="btn btn-outline-dark guessNote" data-note="Fs4">F#</button>
-				<button class="btn btn-outline-dark guessNote" data-note="G4">G</button>
-				<button class="btn btn-outline-dark guessNote" data-note="Gs4">G#</button>
-				<button class="btn btn-outline-dark guessNote" data-note="A4">A</button>
-				<button class="btn btn-outline-dark guessNote" data-note="As4">A#</button>
-				<button class="btn btn-outline-dark guessNote" data-note="B4">B</button>
-			</div>
-			<div class="mb-4 text-center">
-				<button id="validateGuess" class="btn btn-success mt-3">@Localizer["Exercise.ValidationButton"]</button>
-			</div>
-		</div>
-		<div class="scoreboard text-center my-4">
-			<div class="d-inline-block mx-3">
-				<h5>@Localizer["Exercise.CorrectAnswers"]</h5>
-				<span id="correctCount">0</span>
-			</div>
-			<div class="d-inline-block mx-3">
-				<h5>@Localizer["Exercise.ErrorAnswers"]</h5>
-				<span id="errorCount">0</span>
-			</div>
-			<div class="d-inline-block mx-3">
-				<h5>@Localizer["Exercise.BestScore"]</h5>
-				<span id="bestScore">@ViewBag.BestScore</span>
-			</div>
-		</div>
-	</div>
+            <h4 class="text-center mb-3">@Localizer["Exercise.NoteText"]</h4>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button class="btn btn-outline-dark guessNote" data-note="C4">C</button>
+                <button class="btn btn-outline-dark guessNote" data-note="Cs4">C#</button>
+                <button class="btn btn-outline-dark guessNote" data-note="D4">D</button>
+                <button class="btn btn-outline-dark guessNote" data-note="Ds4">D#</button>
+                <button class="btn btn-outline-dark guessNote" data-note="E4">E</button>
+                <button class="btn btn-outline-dark guessNote" data-note="F4">F</button>
+                <button class="btn btn-outline-dark guessNote" data-note="Fs4">F#</button>
+                <button class="btn btn-outline-dark guessNote" data-note="G4">G</button>
+                <button class="btn btn-outline-dark guessNote" data-note="Gs4">G#</button>
+                <button class="btn btn-outline-dark guessNote" data-note="A4">A</button>
+                <button class="btn btn-outline-dark guessNote" data-note="As4">A#</button>
+                <button class="btn btn-outline-dark guessNote" data-note="B4">B</button>
+            </div>
+            <div class="mb-4 text-center">
+                <button id="validateGuess" class="btn btn-success mt-3">@Localizer["Exercise.ValidationButton"]</button>
+            </div>
+        </div>
+        <div class="scoreboard text-center my-4">
+            <div class="d-inline-block mx-3">
+                <h5>@Localizer["Exercise.CorrectAnswers"]</h5>
+                <span id="correctCount">0</span>
+            </div>
+            <div class="d-inline-block mx-3">
+                <h5>@Localizer["Exercise.ErrorAnswers"]</h5>
+                <span id="errorCount">0</span>
+            </div>
+            <div class="d-inline-block mx-3">
+                <h5>@Localizer["Exercise.BestScore"]</h5>
+                <span id="bestScore">@ViewBag.BestScore</span>
+            </div>
+        </div>
+    </div>
 </div>
 
 
 
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			AcademiaAuditiva.init();
-			Swal.fire({
-				title: "@Localizer["Exercise.Note.Title"]",
-				text: "@Localizer["Exercise.GuessNoteText"]",
-				icon: 'info',
-				confirmButtonText: "@Localizer["Exercise.StartButton"]",
-				allowOutsideClick: false
-			}).then((result) => {
-				if (result.isConfirmed) {
-					$('.exercise-content').show(); // Mostrando o conteúdo do exercício
-				}
-			});
+    <script>
+        $(document).ready(function () {
+            AcademiaAuditiva.init();
+
+            Swal.fire({
+                title: "@Localizer["Exercise.Note.Title"]",
+                text: "@Localizer["Exercise.GuessNoteText"]",
+                icon: 'info',
+                confirmButtonText: "@Localizer["Exercise.StartButton"]",
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('.exercise-content').show();
+                    exerciseStartTime = Date.now();
+                }
+            });
+
+            let randomNote = "";
+            let octaveRange = "single";
+            let userGuessedNote = "";
+
+            function getRandomNote() {
+                const notes = (octaveRange === "single")
+                    ? TheoryUtils.getAllNotes([4])
+                    : TheoryUtils.getAllNotes([2, 3, 4, 5, 6]);
+                return notes[Math.floor(Math.random() * notes.length)];
+            }
+
+            Tone.loaded().then(() => {
+                document.getElementById('playNote').addEventListener('click', () => {
+                    randomNote = getRandomNote();
+                    AcademiaAuditiva.audio.playNote(randomNote, 1);
+                });
+
+                document.getElementById('replayNote').addEventListener('click', () => {
+                    if (randomNote) {
+                        AcademiaAuditiva.audio.playNote(randomNote, 1);
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                            text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                        });
+                    }
+                });
 
 
-			let randomNote = "";
-			let octaveRange = "single";
-			let userGuessedNote = "";
+                document.getElementById('octaveRange').addEventListener('change', (e) => {
+                    octaveRange = e.target.value;
+                });
+            });
 
-			function getRandomNote() {
-				const notes = (octaveRange === "single")
-					? AcademiaAuditiva.getAllNotes().filter(note => note.includes("4"))
-					: AcademiaAuditiva.getAllNotes();
+            const guessButtons = document.querySelectorAll('.guessNote');
+            guessButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    userGuessedNote = e.target.getAttribute('data-note');
+                    guessButtons.forEach(btn => btn.classList.remove('selected-note'));
+                    button.classList.add('selected-note');
+                });
+            });
 
-				return notes[Math.floor(Math.random() * notes.length)];
-			}
+            function checkGuess() {
+                const correctCountEl = document.getElementById('correctCount');
+                const errorCountEl = document.getElementById('errorCount');
 
-			Tone.loaded().then(() => {
-				document.getElementById('playNote').addEventListener('click', () => {
-					randomNote = getRandomNote();
-					AcademiaAuditiva.sampler.triggerAttackRelease(randomNote, "1");
-				});
+                if (userGuessedNote === randomNote) {
+                    correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playSuccessSound('@Localizer["Exercise.CorrectMessage"]', '@Localizer["Exercise.CorrectMessageText"]');
+                } else {
+                    errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+                    AcademiaAuditiva.feedback.playErrorSound('@Localizer["Exercise.WrongMessage"]', '@Localizer["Exercise.WrongNoteMessageText"]', randomNote);
+                }
 
-				document.getElementById('replayNote').addEventListener('click', () => {
-					if (randomNote) {
-						AcademiaAuditiva.sampler.triggerAttackRelease(randomNote, "1");
-					} else {
-						alert('Primeiro clique em "Ouvir Nota"');
-					}
-				});
+                // Reset
+                randomNote = "";
+                userGuessedNote = "";
 
-				document.getElementById('octaveRange').addEventListener('change', (e) => {
-					octaveRange = e.target.value;
-				});
-			});
+                // Save score if better
+                const correctCount = parseInt(correctCountEl.innerText);
+                const errorCount = parseInt(errorCountEl.innerText);
+                let bestScore = parseInt(document.getElementById('bestScore').innerText);
+                const currentScore = correctCount - errorCount;
 
-			const guessButtons = document.querySelectorAll('.guessNote');
-			guessButtons.forEach(button => {
-				button.addEventListener('click', (e) => {
-					userGuessedNote = e.target.getAttribute('data-note');
-					guessButtons.forEach(btn => btn.classList.remove('selected-note')); // Remover de todos os botões
-					button.classList.add('selected-note'); // Adicionar ao botão clicado
-				});
-			});
+                $.post("/Exercise/GuessNoteSaveScore", {
+                    correctCount: correctCount,
+                    errorCount: errorCount,
+                    timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
+                });
+            }
 
-			function checkGuess() {
-				const correctCountEl = document.getElementById('correctCount');
-				const errorCountEl = document.getElementById('errorCount');
-
-				if (userGuessedNote === randomNote) {
-					correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'success',
-						title: '@Localizer["Exercise.CorrectMessage"]',
-						text: '@Localizer["Exercise.CorrectMessageText"]'
-					});
-				} else {
-					errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-					Swal.fire({
-						icon: 'error',
-						title: '@Localizer["Exercise.WrongMessage"]',
-						text: '@Localizer["Exercise.WrongNoteMessageText"]',
-					});
-				}
-
-				//Clean
-				randomNote = "";
-				userGuessedNote = ""; // Limpar a nota adivinhada pelo usuários
-
-				// Após mostrar o resultado, vamos salvar a pontuação no servidor:
-				const correctCount = parseInt(correctCountEl.innerText);
-				const errorCount = parseInt(errorCountEl.innerText);
-				let bestScore = parseInt(document.getElementById('bestScore').innerText); // Ajuste para buscar o elemento
-				const currentScore = correctCount - errorCount;
-
-				if (currentScore > bestScore) {
-					bestScore = currentScore;
-					document.getElementById('bestScore').innerText = bestScore; // Ajuste para atualizar o elemento
-
-					$.ajax({
-						type: "POST",
-						url: "/Exercise/GuessNoteSaveScore",
-						data: { correctCount: correctCount, errorCount: errorCount },
-						error: function () {
-							console.error('Erro ao comunicar com o servidor. A pontuação não foi salva.');
-						}
-					});
-				}
-			}
-
-			// Evento para o botão "Validar"
-			document.getElementById('validateGuess').addEventListener('click', () => {
-				if (userGuessedNote && randomNote) {
-					checkGuess();
-				} else {
-					Swal.fire({
-						icon: 'warning',
-						title: 'Incompleto!',
-						text: 'Por favor, selecione uma nota.'
-					});
-				}
-			});
-		});
-	</script>
+            document.getElementById('validateGuess').addEventListener('click', () => {
+                if (userGuessedNote && randomNote) {
+                    checkGuess();
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.IncompleteTitle"]',
+                        text: '@Localizer["Exercise.SelectNoteText"]'
+                    });
+                }
+            });
+        });
+    </script>
 }

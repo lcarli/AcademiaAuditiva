@@ -1,86 +1,215 @@
 ﻿@{
-	ViewBag.Title = Localizer["Dashboard.Header"];
+    ViewBag.Title = "Dashboard";
 }
-
 
 <div class="container mt-5">
-	<div class="row">
-		<div class="col-md-12 text-center">
-			<h2>@Localizer["Dashboard.Title"]</h2>
-			<p class="text-muted">@Localizer["Dashboard.Subtitle"]</p>
-		</div>
-	</div>
+    <h2 class="text-center mb-4">@Localizer["Dashboard.Title"]</h2>
 
-	<!-- Seção de Gráficos -->
-	<div class="row mt-5">
-		<div class="col-md-6">
-			<h4>@Localizer["Dashboard.Progress"]</h4>
-			<canvas id="progressChart"></canvas>
-		</div>
-		<div class="col-md-6">
-			<h4>@Localizer["Dashboard.Overall"]</h4>
-			<canvas id="performanceChart"></canvas>
-		</div>
-	</div>
+    <div class="row text-center mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h6>@Localizer["Dashboard.TotalExercises"]</h6>
+                    <h3 id="totalExercises">@ViewBag.TotalExercises</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h6>@Localizer["Dashboard.BestScore"]</h6>
+                    <h3 id="bestScore">@ViewBag.BestScore</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h6>@Localizer["Dashboard.TotalTime"]</h6>
+                    <h3 id="totalTime">@ViewBag.TotalTime min</h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<!-- Seção de Linha do Tempo -->
-	<div class="row mt-5">
-		<div class="col-md-12">
-			<h4>@Localizer["Dashboard.Timeline"]</h4>
-			<ul class="timeline">
-				<!-- Aqui, você pode renderizar os eventos da linha do tempo com base nos dados -->
-			</ul>
-		</div>
-	</div>
+    <!-- Radar + Acertos por Categoria lado a lado -->
+    <div class="row">
+        <div class="col-12 col-md-6 mb-4">
+            <h5 class="text-center">@Localizer["Dashboard.RadarTitle"]</h5>
+            <canvas id="competencyRadarChart" height="200"></canvas>
+        </div>
+        <div class="col-12 col-md-6 mb-4">
+            <h5 class="text-center">@Localizer["Dashboard.CategoryAccuracyTitle"]</h5>
+            <canvas id="categoryAccuracyChart" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Linha do Tempo -->
+    <div class="mb-5">
+        <h5 class="text-center">@Localizer["Dashboard.TimelineTitle"]</h5>
+        <canvas id="learningTimelineChart" height="100"></canvas>
+    </div>
+
+    <!-- Evolução por Exercício + Dificuldade -->
+    <div class="row">
+        <div class="col-12 col-md-6 mb-4">
+            <h5 class="text-center">@Localizer["Dashboard.ExerciseImprovementTitle"]</h5>
+            <canvas id="improvementLineChart" height="200"></canvas>
+        </div>
+        <div class="col-12 col-md-6 mb-4">
+            <h5 class="text-center">@Localizer["Dashboard.DifficultyTitle"]</h5>
+            <canvas id="difficultyBarChart" height="200"></canvas>
+        </div>
+    </div>
 </div>
 
+
 @section Scripts {
-	<!-- Incluir a biblioteca Chart.js -->
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/tone@latest"></script>
-	<script>
-		$(document).ready(function () {
-			fetch("/Dashboard/GetUserProgress")
-				.then(response => response.json())
-				.then(data => {
-					var progressData = {
-						labels: data.map(item => "Exercício " + item.exerciseName), // Ajuste conforme necessário
-						datasets: [{
-							label: 'Best Score',
-							data: data.map(item => item.bestScore),
-							backgroundColor: 'rgba(75, 192, 192, 0.2)',
-							borderColor: 'rgba(75, 192, 192, 1)',
-							borderWidth: 1
-						}]
-					};
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch('/Dashboard/GetUserProgress')
+                .then(res => res.json())
+                .then(data => {
+                    // === Radar por tipo de exercício ===
+                    const radar = data.radar;
 
-					new Chart(document.getElementById('progressChart'), {
-						type: 'bar',
-						data: progressData
-					});
-				})
-				.catch(error => {
-					console.error("Erro ao buscar dados de progresso:", error);
-				});
+                    const orderedTypes = [
+                        "NoteRecognition",
+                        "IntervalRecognition",
+                        "ChordRecognition",
+                        "FunctionRecognition",
+                        "ScaleRecognition"
+                    ];
 
+                    const radarLabels = orderedTypes.map(type => {
+                        switch (type) {
+                            case "NoteRecognition": return '@Localizer["ExerciseType.NoteRecognition"]';
+                            case "IntervalRecognition": return '@Localizer["ExerciseType.IntervalRecognition"]';
+                            case "ChordRecognition": return '@Localizer["ExerciseType.ChordRecognition"]';
+                            case "FunctionRecognition": return '@Localizer["ExerciseType.FunctionRecognition"]';
+                            case "ScaleRecognition": return '@Localizer["ExerciseType.ScaleRecognition"]';
+                            default: return type;
+                        }
+                    });
 
-			var performanceData = {
-				labels: ["Janeiro", "Fevereiro", "Março"],
-				datasets: [{
-					label: 'Desempenho',
-					data: [80, 85, 90],
-					backgroundColor: 'rgba(255, 99, 132, 0.2)',
-					borderColor: 'rgba(255, 99, 132, 1)',
-					borderWidth: 1
-				}]
-			};
+                    const radarValues = orderedTypes.map(type => radar[type] || 0);
 
+                    new Chart(document.getElementById("competencyRadarChart"), {
+                        type: 'radar',
+                        data: {
+                            labels: radarLabels,
+                            datasets: [{
+                                label: '@Localizer["Dashboard.SkillRadarLabel"]',
+                                data: radarValues,
+                                fill: true,
+                                backgroundColor: 'rgba(75,192,192,0.2)',
+                                borderColor: 'rgba(75,192,192,1)',
+                                pointBackgroundColor: 'rgba(75,192,192,1)'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                r: {
+                                    suggestedMin: 0,
+                                    suggestedMax: 100
+                                }
+                            }
+                        }
+                    });
 
-			new Chart(document.getElementById('performanceChart'), {
-				type: 'line',
-				data: performanceData
-			});
-		});
-	</script>
+                    // === Acertos por Categoria ===
+                    const categories = Object.keys(data.byCategory);
+                    const accuracyValues = Object.values(data.byCategory);
+
+                    const categoryLabels = categories.map(c => {
+                        switch (c) {
+                            case "Harmony": return '@Localizer["ExerciseCategory.Harmony"]';
+                            case "EarTraining": return '@Localizer["ExerciseCategory.EarTraining"]';
+                            case "Rhythm": return '@Localizer["ExerciseCategory.Rhythm"]';
+                            case "Scales": return '@Localizer["ExerciseCategory.Scales"]';
+                            case "Melody": return '@Localizer["ExerciseCategory.Melody"]';
+                            case "Games": return '@Localizer["ExerciseCategory.Games"]';
+                            default: return c;
+                        }
+                    });
+
+                    new Chart(document.getElementById("categoryAccuracyChart"), {
+                        type: 'bar',
+                        data: {
+                            labels: categoryLabels,
+                            datasets: [{
+                                label: '@Localizer["Dashboard.CategoryAccuracyTitle"]',
+                                data: accuracyValues,
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    title: {
+                                        display: true,
+                                        text: '@Localizer["Dashboard.SkillRadarLabel"] + " (%)"'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar dados do Dashboard:", error);
+                });
+
+            // === Os outros gráficos ainda simulados ===
+            const timelineData = [3, 5, 4, 2, 6, 5, 7];
+            const improvementData = [40, 55, 68, 75, 82];
+            const difficultyData = [22, 34, 18, 40, 29];
+
+            new Chart("learningTimelineChart", {
+                type: 'line',
+                data: {
+                    labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
+                    datasets: [{
+                        label: '@Localizer["Dashboard.TimelineLabel"]',
+                        data: timelineData,
+                        borderColor: 'rgba(255,99,132,1)',
+                        tension: 0.3,
+                        fill: false
+                    }]
+                }
+            });
+
+            new Chart("improvementLineChart", {
+                type: 'line',
+                data: {
+                    labels: ["Notas", "Acordes", "Escalas", "Intervalos", "Função"],
+                    datasets: [{
+                        label: '@Localizer["Dashboard.ImprovementLabel"]',
+                        data: improvementData,
+                        borderColor: 'rgba(153,102,255,1)',
+                        tension: 0.3,
+                        fill: false
+                    }]
+                }
+            });
+
+            new Chart("difficultyBarChart", {
+                type: 'bar',
+                data: {
+                    labels: ["Notas", "Acordes", "Escalas", "Intervalos", "Função"],
+                    datasets: [{
+                        label: '@Localizer["Dashboard.DifficultyLabel"]',
+                        data: difficultyData,
+                        backgroundColor: 'rgba(255,159,64,0.7)'
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+        });
+    </script>
 }
-

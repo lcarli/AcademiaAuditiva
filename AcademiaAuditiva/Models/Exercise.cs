@@ -6,10 +6,11 @@ namespace AcademiaAuditiva.Models
     {
         public int ExerciseId { get; set; }
         public string Name { get; set; }
-        public ExerciseType Type { get; set; } // Usando o enum para o tipo
+        public ExerciseType Type { get; set; }
         public string Description { get; set; }
-        public DifficultyLevel Difficulty { get; set; } // Usando o enum para dificuldade
-
+        public DifficultyLevel Difficulty { get; set; }
+        public ExerciseCategory Category { get; set; }
+        public string? FiltersJson { get; set; }
     }
 
 }
