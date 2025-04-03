@@ -1,0 +1,6 @@
+@if (!string.IsNullOrEmpty(Model.FeedbackMessage))
+{
+    <div class="alert alert-@Model.FeedbackType.ToLower() mt-3" role="alert">
+        @Localizer[Model.FeedbackMessage]
+    </div>
+}

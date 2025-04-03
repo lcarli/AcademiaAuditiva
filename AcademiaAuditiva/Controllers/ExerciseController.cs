@@ -1,6 +1,7 @@
 ﻿using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -27,18 +28,41 @@ namespace AcademiaAuditiva.Controllers
 		#region GuessNote
 		public IActionResult GuessNote()
 		{
-			int bestScore = _context.Scores
-						   .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-						   .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
-						   .FirstOrDefault()?.CorrectCount -
-						   _context.Scores
-						   .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-						   .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
-						   .FirstOrDefault()?.ErrorCount ?? 0;
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var bestScore = _context.Scores
+							   .Where(s => s.UserId == userId)
+							   .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
+							   .Select(s => s.CorrectCount - s.ErrorCount)
+							   .FirstOrDefault();
 
 			ViewBag.BestScore = bestScore;
-			return View();
+
+			var model = new ExerciseViewModel
+			{
+				Title = "Adivinhe a Nota",
+				Instruction = "Ouça e adivinhe a nota correta",
+				AnswerOptions = new List<string>
+				{
+					"C4", "Cs4", "D4", "Ds4", "E4", "F4",
+					"Fs4", "G4", "Gs4", "A4", "As4", "B4"
+				},
+				Score = 0,
+				Attempts = 0,
+				TimeSpent = "00:00:00",
+				FeedbackMessage = null,
+				FeedbackType = null,
+				Filters = new ExerciseFiltersViewModel
+				{
+					Difficulty = "Easy",
+					Range = "C4-C5",
+					Instrument = "Piano"
+				}
+			};
+
+			return View(model);
 		}
+
 
 
 		[HttpPost]
