@@ -1,64 +1,100 @@
 ﻿@{
     ViewBag.Title = "Dashboard";
 }
-
 <div class="container mt-5">
-    <h2 class="text-center mb-4">@Localizer["Dashboard.Title"]</h2>
+    <div class="mb-4 text-center">
+        <h2 class="fw-bold">@Localizer["Dashboard.WelcomeMessage"] @User.Identity.Name!</h2>
+        <p class="text-muted">@Localizer["Dashboard.LastActivity"] Adivinhe a Nota - ontem</p>
+        <button class="btn btn-primary rounded-pill px-4">@Localizer["Dashboard.ContinueButton"]</button>
+    </div>
 
+    <!-- Linha com 3 cards principais -->
     <div class="row text-center mb-4">
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm mb-3">
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <h6>@Localizer["Dashboard.TotalExercises"]</h6>
-                    <h3 id="totalExercises">@ViewBag.TotalExercises</h3>
+                    <h6 class="text-uppercase text-muted">@Localizer["Dashboard.TotalExercises"]</h6>
+                    <h3 class="fw-bold" id="totalExercises">@ViewBag.TotalExercises</h3>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm mb-3">
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <h6>@Localizer["Dashboard.BestScore"]</h6>
-                    <h3 id="bestScore">@ViewBag.BestScore</h3>
+                    <h6 class="text-uppercase text-muted">@Localizer["Dashboard.BestScore"]</h6>
+                    <h3 class="fw-bold" id="bestScore">@ViewBag.BestScore</h3>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm mb-3">
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <h6>@Localizer["Dashboard.TotalTime"]</h6>
-                    <h3 id="totalTime">@ViewBag.TotalTime min</h3>
+                    <h6 class="text-uppercase text-muted">@Localizer["Dashboard.TotalTime"]</h6>
+                    <h3 class="fw-bold" id="totalTime">@ViewBag.TotalTime min</h3>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Radar + Acertos por Categoria lado a lado -->
+    <!-- Radar + Categoria -->
     <div class="row">
-        <div class="col-12 col-md-6 mb-4">
-            <h5 class="text-center">@Localizer["Dashboard.RadarTitle"]</h5>
-            <canvas id="competencyRadarChart" height="200"></canvas>
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="text-center mb-3">@Localizer["Dashboard.RadarTitle"]</h5>
+                    <canvas id="competencyRadarChart" height="200"></canvas>
+                </div>
+            </div>
         </div>
-        <div class="col-12 col-md-6 mb-4">
-            <h5 class="text-center">@Localizer["Dashboard.CategoryAccuracyTitle"]</h5>
-            <canvas id="categoryAccuracyChart" height="200"></canvas>
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="text-center mb-3">@Localizer["Dashboard.CategoryAccuracyTitle"]</h5>
+                    <canvas id="categoryAccuracyChart" height="200"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Linha do Tempo -->
-    <div class="mb-5">
-        <h5 class="text-center">@Localizer["Dashboard.TimelineTitle"]</h5>
-        <canvas id="learningTimelineChart" height="100"></canvas>
+    <!-- Linha do tempo -->
+    <div class="mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="text-center mb-3">@Localizer["Dashboard.TimelineTitle"]</h5>
+                <canvas id="learningTimelineChart" height="100"></canvas>
+            </div>
+        </div>
     </div>
 
-    <!-- Evolução por Exercício + Dificuldade -->
+    <!-- Evolução + Dificuldade -->
     <div class="row">
-        <div class="col-12 col-md-6 mb-4">
-            <h5 class="text-center">@Localizer["Dashboard.ExerciseImprovementTitle"]</h5>
-            <canvas id="improvementLineChart" height="200"></canvas>
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="text-center mb-3">@Localizer["Dashboard.ExerciseImprovementTitle"]</h5>
+                    <canvas id="improvementLineChart" height="200"></canvas>
+                </div>
+            </div>
         </div>
-        <div class="col-12 col-md-6 mb-4">
-            <h5 class="text-center">@Localizer["Dashboard.DifficultyTitle"]</h5>
-            <canvas id="difficultyBarChart" height="200"></canvas>
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="text-center mb-3">@Localizer["Dashboard.DifficultyTitle"]</h5>
+                    <canvas id="difficultyBarChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acessos Rápidos -->
+    <div class="text-center mt-5">
+        <h5 class="mb-3">@Localizer["Dashboard.QuickAccess"]</h5>
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+            <a href="/Exercises" class="btn btn-outline-secondary rounded-pill px-4">@Localizer["Dashboard.Menu.Exercises"]</a>
+            <a href="/Games" class="btn btn-outline-secondary rounded-pill px-4">@Localizer["Dashboard.Menu.Games"]</a>
+            <a href="/Ranking" class="btn btn-outline-secondary rounded-pill px-4">@Localizer["Dashboard.Menu.Ranking"]</a>
+            <a href="/Account/Settings" class="btn btn-outline-secondary rounded-pill px-4">@Localizer["Dashboard.Menu.Settings"]</a>
+            <a href="/Help" class="btn btn-outline-secondary rounded-pill px-4">@Localizer["Dashboard.Menu.Help"]</a>
         </div>
     </div>
 </div>

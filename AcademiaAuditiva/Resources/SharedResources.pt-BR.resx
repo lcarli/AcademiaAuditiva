@@ -680,4 +680,13 @@
   <data name="Exercise.PlayMelody2"><value>Melodia 2</value></data>
   <data name="Exercise.Answer.Same"><value>Iguais</value></data>
   <data name="Exercise.Answer.Different"><value>Diferentes</value></data>
+  <data name="Dashboard.WelcomeMessage" xml:space="preserve"><value>Olá, </value></data>
+  <data name="Dashboard.LastActivity" xml:space="preserve"><value>Última atividade: </value></data>
+  <data name="Dashboard.ContinueButton" xml:space="preserve"><value>Continuar de onde parei</value></data>
+  <data name="Dashboard.QuickAccess" xml:space="preserve"><value>Acessos Rápidos</value></data>
+  <data name="Dashboard.Menu.Exercises" xml:space="preserve"><value>Exercícios</value></data>
+  <data name="Dashboard.Menu.Games" xml:space="preserve"><value>Jogos</value></data>
+  <data name="Dashboard.Menu.Ranking" xml:space="preserve"><value>Ranking</value></data>
+  <data name="Dashboard.Menu.Settings" xml:space="preserve"><value>Configurações</value></data>
+  <data name="Dashboard.Menu.Help" xml:space="preserve"><value>Ajuda</value></data>
 </root>

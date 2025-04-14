@@ -1,6 +1,11 @@
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+
 @if (!string.IsNullOrEmpty(Model.FeedbackMessage))
 {
-    <div class="alert alert-@Model.FeedbackType.ToLower() mt-3" role="alert">
-        @Localizer[Model.FeedbackMessage]
+    var cssClass = Model.FeedbackType == "success" ? "feedback-success" :
+                   Model.FeedbackType == "danger" ? "feedback-error" : "alert alert-info";
+
+    <div class="@cssClass">
+        <strong>@Model.FeedbackMessage</strong>
     </div>
 }

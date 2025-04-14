@@ -1,142 +1,213 @@
 ﻿@model AcademiaAuditiva.ViewModels.ExerciseViewModel
 
+<div class="container mt-4">
+    <!-- TOPO DA TELA DO EXERCÍCIO -->
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <h3 class="fw-bold">@Model.Title ?? @Localizer["Exercise.Note.Title"]</h3>
 
-<!-- Filtros -->
-@await Html.PartialAsync("_ExerciseFilters", Model.Filters)
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-muted small">
+                <i class="bi bi-star-fill text-warning me-1"></i>
+                @Localizer["Score"]: <strong>@Model.Score</strong>
+            </span>
 
-<!-- Corpo do exercício -->
-<div class="row">
-    <div class="col-lg-9">
-        <div class="text-center mb-4">
-            <button class="btn btn-primary me-2" id="playNote">@Localizer["Play"]</button>
-            <button class="btn btn-secondary" id="replayNote">@Localizer["Replay"]</button>
-        </div>
-
-        <h4 class="text-center">@Localizer["Which note did you hear?"]</h4>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-center flex-wrap">
-            @foreach (var note in Model.AnswerOptions)
-            {
-                <button class="btn btn-outline-dark guessNote" data-note="@note">@note.Replace("s", "#")</button>
-            }
-        </div>
-
-        <div class="text-center mt-3">
-            <button class="btn btn-success" id="validateGuess">@Localizer["Validate"]</button>
+            <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                <i class="bi bi-filter"></i> @Localizer["Filters"]
+            </button>
         </div>
     </div>
 
-    <!-- Status lateral -->
-    <div class="col-lg-3">
-        @await Html.PartialAsync("_ExerciseSidebar", Model)
+    <div class="row">
+        <!-- INSTRUÇÕES - ESQUERDA -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm p-3">
+                <h5 class="mb-3 text-warning">
+                    <i class="bi bi-lightbulb-fill"></i> @Localizer["HowToComplete"]
+                </h5>
+                <p class="mb-2">@Localizer["GuessNote.HelpText"]</p>
+
+                <div class="bg-light rounded p-2">
+                    <strong>@Localizer["Tips"]:</strong>
+                    <ul class="mb-0">
+                        <li>@Localizer["GuessNote.Tip1"]</li>
+                        <li>@Localizer["GuessNote.Tip2"]</li>
+                        <li>@Localizer["GuessNote.Tip3"]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXERCÍCIO - DIREITA -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm p-4">
+                <h4 class="text-center mb-3">@Localizer["Exercise.NoteText"]</h4>
+
+                <!-- WAVEFORM -->
+                <div id="waveform" class="mb-4 text-center"
+                    style="height: 100px; background: #f2f2f2; border-radius: 8px;"></div>
+
+                <!-- BOTÕES DE ÁUDIO -->
+                <div class="d-flex justify-content-center gap-3 mb-4">
+                    <button class="btn btn-lg btn-primary rounded-circle" id="playNote">
+                        <i class="bi bi-play-fill"></i>
+                    </button>
+                    <button class="btn btn-lg btn-outline-secondary rounded-circle" id="replayNote">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                </div>
+
+                <!-- RESPOSTAS -->
+                <div class="d-flex flex-wrap justify-content-center gap-3 answer-buttons mb-3">
+                    @foreach (var note in Model.AnswerOptions)
+                    {
+                        <button class="btn btn-outline-dark guessNote" data-note="@note">@note.Replace("s", "#")</button>
+                    }
+                </div>
+
+                <div class="text-center">
+                    <button class="btn btn-success" id="validateGuess">@Localizer["Exercise.ValidationButton"]</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Feedback -->
-@await Html.PartialAsync("_Feedback", Model)
-
-
 @section Scripts {
     <script>
-        $(document).ready(function () {
+        document.addEventListener("DOMContentLoaded", () => {
             AcademiaAuditiva.init();
 
-            Swal.fire({
-                title: "@Localizer["Exercise.Note.Title"]",
-                text: "@Localizer["Exercise.GuessNoteText"]",
-                icon: 'info',
-                confirmButtonText: "@Localizer["Exercise.StartButton"]",
-                allowOutsideClick: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $('.exercise-content').show();
-                    exerciseStartTime = Date.now();
-                }
-            });
-
             let randomNote = "";
-            let octaveRange = "single";
             let userGuessedNote = "";
-
-            function getRandomNote() {
-                const notes = (octaveRange === "single")
-                    ? TheoryUtils.getAllNotes([4])
-                    : TheoryUtils.getAllNotes([2, 3, 4, 5, 6]);
-                return notes[Math.floor(Math.random() * notes.length)];
-            }
-
-            Tone.loaded().then(() => {
-                document.getElementById('playNote').addEventListener('click', () => {
-                    randomNote = getRandomNote();
-                    AcademiaAuditiva.audio.playNote(randomNote, 1);
-                });
-
-                document.getElementById('replayNote').addEventListener('click', () => {
-                    if (randomNote) {
-                        AcademiaAuditiva.audio.playNote(randomNote, 1);
-                    } else {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
-                            text: '@Localizer["Exercise.NoteNotSelectedText"]'
-                        });
-                    }
-                });
-
-
-                document.getElementById('octaveRange').addEventListener('change', (e) => {
-                    octaveRange = e.target.value;
-                });
-            });
+            let exerciseStartTime = Date.now();
 
             const guessButtons = document.querySelectorAll('.guessNote');
             guessButtons.forEach(button => {
                 button.addEventListener('click', (e) => {
                     userGuessedNote = e.target.getAttribute('data-note');
-                    guessButtons.forEach(btn => btn.classList.remove('selected-note'));
-                    button.classList.add('selected-note');
+                    guessButtons.forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
                 });
             });
 
-            function checkGuess() {
-                const correctCountEl = document.getElementById('correctCount');
-                const errorCountEl = document.getElementById('errorCount');
-
-                if (userGuessedNote === randomNote) {
-                    correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-                    AcademiaAuditiva.feedback.playSuccessSound('@Localizer["Exercise.CorrectMessage"]', '@Localizer["Exercise.CorrectMessageText"]');
-                } else {
-                    errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-                    AcademiaAuditiva.feedback.playErrorSound('@Localizer["Exercise.WrongMessage"]', '@Localizer["Exercise.WrongNoteMessageText"]', randomNote);
-                }
-
-                // Reset
-                randomNote = "";
-                userGuessedNote = "";
-
-                // Save score if better
-                const correctCount = parseInt(correctCountEl.innerText);
-                const errorCount = parseInt(errorCountEl.innerText);
-                let bestScore = parseInt(document.getElementById('bestScore').innerText);
-                const currentScore = correctCount - errorCount;
-
-                $.post("/Exercise/GuessNoteSaveScore", {
-                    correctCount: correctCount,
-                    errorCount: errorCount,
-                    timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
-                });
+            function getRandomNote() {
+                const notes = TheoryUtils.getAllNotes([4]);
+                return notes[Math.floor(Math.random() * notes.length)];
             }
 
-            document.getElementById('validateGuess').addEventListener('click', () => {
-                if (userGuessedNote && randomNote) {
-                    checkGuess();
+            document.getElementById('playNote').addEventListener('click', () => {
+                randomNote = getRandomNote();
+                AcademiaAuditiva.audio.playNote(randomNote, 1);
+            });
+
+            document.getElementById('replayNote').addEventListener('click', () => {
+                if (randomNote) {
+                    AcademiaAuditiva.audio.playNote(randomNote, 1);
                 } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
+                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
+                    });
+                }
+            });
+
+            document.getElementById('validateGuess').addEventListener('click', () => {
+                if (!userGuessedNote || !randomNote) {
                     Swal.fire({
                         icon: 'warning',
                         title: '@Localizer["Exercise.IncompleteTitle"]',
                         text: '@Localizer["Exercise.SelectNoteText"]'
                     });
+                    return;
                 }
+
+                if (userGuessedNote === randomNote) {
+                    AcademiaAuditiva.feedback.playSuccessSound(
+                        '@Localizer["Exercise.CorrectMessage"]',
+                        '@Localizer["Exercise.CorrectMessageText"]'
+                    );
+                } else {
+                    AcademiaAuditiva.feedback.playErrorSound(
+                        '@Localizer["Exercise.WrongMessage"]',
+                        '@Localizer["Exercise.WrongNoteMessageText"]',
+                        randomNote
+                    );
+                }
+
+                $.post("/Exercise/GuessNoteSaveScore", {
+                    correctCount: document.getElementById('correctCount').innerText,
+                    errorCount: document.getElementById('errorCount').innerText,
+                    timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
+                });
+
+                userGuessedNote = "";
+                randomNote = "";
             });
+
+            //WAVEFORM
+            setupWaveform();
         });
+
+        let waveformCanvas;
+        let analyser;
+        let audioContext = Tone.context;
+
+        function setupWaveform() {
+            const container = document.getElementById("waveform");
+            waveformCanvas = document.createElement("canvas");
+            waveformCanvas.width = container.clientWidth;
+            waveformCanvas.height = container.clientHeight;
+            container.appendChild(waveformCanvas);
+
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+
+            // Conecta a saída principal à análise
+            Tone.Destination.connect(analyser);
+
+            animateWaveform();
+        }
+
+        function animateWaveform() {
+            if (!waveformCanvas || !analyser) return;
+
+            const ctx = waveformCanvas.getContext("2d");
+            const bufferLength = analyser.fftSize;
+            const dataArray = new Uint8Array(bufferLength);
+
+            function draw() {
+                requestAnimationFrame(draw);
+                analyser.getByteTimeDomainData(dataArray);
+
+                ctx.fillStyle = "#f2f2f2";
+                ctx.fillRect(0, 0, waveformCanvas.width, waveformCanvas.height);
+
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#007BFF";
+                ctx.beginPath();
+
+                const sliceWidth = waveformCanvas.width * 1.0 / bufferLength;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const v = dataArray[i] / 128.0;
+                    const y = v * waveformCanvas.height / 2;
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+
+                    x += sliceWidth;
+                }
+
+                ctx.lineTo(waveformCanvas.width, waveformCanvas.height / 2);
+                ctx.stroke();
+            }
+
+            draw();
+        }
     </script>
 }
