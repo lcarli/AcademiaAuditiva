@@ -1,0 +1,18 @@
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+
+<div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+    <h3 class="fw-bold">@Localizer[Model.Title]</h3>
+
+    <div class="d-flex align-items-center gap-3">
+        <span class="text-muted small">
+            <i class="bi bi-star-fill text-warning me-1"></i>
+            @Localizer["Score"]:
+            <strong><span id="correctCount">@Model.Score</span></strong> /
+            <span id="errorCount">@Model.Attempts</span>
+        </span>
+
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filtersModal">
+            <i class="bi bi-filter"></i> @Localizer["Filters"]
+        </button>
+    </div>
+</div>

@@ -12,8 +12,8 @@ namespace AcademiaAuditiva.ViewModels
         public string CorrectAnswer { get; set; }
 
         // Feedback
-        public string FeedbackMessage { get; set; } // Ex: "Acertou!" ou "Errou, a nota era C"
-        public string FeedbackType { get; set; } // success, danger, info (para Bootstrap)
+        public string FeedbackMessage { get; set; }
+        public string FeedbackType { get; set; }
 
         // Progresso
         public int Score { get; set; }
@@ -25,5 +25,9 @@ namespace AcademiaAuditiva.ViewModels
 
         // Auxiliar para idiomas
         public string CurrentLanguage { get; set; }
+
+        //Instrucoes
+        public string Instructions { get; set; }
+        public List<string> Tips { get; set; } = new();
     }
 }

@@ -1,0 +1,10 @@
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+
+<div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+    @foreach (var option in Model.AnswerOptions)
+    {
+        <button class="btn btn-outline-dark guessNote px-4 py-2" data-note="@option">
+            @option.Replace("s", "#")
+        </button>
+    }
+</div>

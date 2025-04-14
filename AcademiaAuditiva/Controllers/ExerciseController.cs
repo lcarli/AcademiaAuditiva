@@ -1,4 +1,4 @@
-﻿using AcademiaAuditiva.Data;
+using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.ViewModels;
@@ -38,26 +38,16 @@ namespace AcademiaAuditiva.Controllers
 
 			ViewBag.BestScore = bestScore;
 
-			var model = new ExerciseViewModel
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessNote");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel();
+
+			model.AnswerOptions = new List<string>
 			{
-				Title = "Adivinhe a Nota",
-				Instruction = "Ouça e adivinhe a nota correta",
-				AnswerOptions = new List<string>
-				{
-					"C4", "Cs4", "D4", "Ds4", "E4", "F4",
-					"Fs4", "G4", "Gs4", "A4", "As4", "B4"
-				},
-				Score = 0,
-				Attempts = 0,
-				TimeSpent = "00:00:00",
-				FeedbackMessage = null,
-				FeedbackType = null,
-				Filters = new ExerciseFiltersViewModel
-				{
-					Difficulty = "Easy",
-					Range = "C4-C5",
-					Instrument = "Piano"
-				}
+				"C4", "Cs4", "D4", "Ds4", "E4", "F4",
+				"Fs4", "G4", "Gs4", "A4", "As4", "B4"
 			};
 
 			return View(model);

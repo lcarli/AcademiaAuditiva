@@ -1,0 +1,24 @@
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+
+<div class="card shadow-sm p-3">
+    @if (!string.IsNullOrEmpty(Model.Instructions))
+    {
+        <h5 class="mb-3 text-warning">
+            <i class="bi bi-lightbulb-fill"></i> @Localizer["Instructions"]
+        </h5>
+        <p class="mb-2">@Model.Instructions</p>
+    }
+
+    @if (Model.Tips != null && Model.Tips.Any())
+    {
+        <div class="bg-light rounded p-2 mt-3">
+            <strong>@Localizer["Tips"]:</strong>
+            <ul class="mb-0">
+                @foreach (var tip in Model.Tips)
+                {
+                    <li>@tip</li>
+                }
+            </ul>
+        </div>
+    }
+</div>

@@ -67,7 +67,69 @@ const AudioEngine = (() => {
     
         Tone.Transport.start();
     }
-    
+
+    // === WAVEFORM VISUAL ===
+    let waveformCanvas;
+    let analyser;
+    let audioContext = Tone.context;
+
+    function setupWaveform(targetId = "waveform") {
+        const container = document.getElementById(targetId);
+        if (!container) return;
+
+        waveformCanvas = document.createElement("canvas");
+        waveformCanvas.width = container.clientWidth;
+        waveformCanvas.height = container.clientHeight;
+        container.appendChild(waveformCanvas);
+
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+
+        Tone.Destination.connect(analyser);
+        animateWaveform();
+    }
+
+    function animateWaveform() {
+        if (!waveformCanvas || !analyser) return;
+
+        const ctx = waveformCanvas.getContext("2d");
+        const bufferLength = analyser.fftSize;
+        const dataArray = new Uint8Array(bufferLength);
+
+        function draw() {
+            requestAnimationFrame(draw);
+            analyser.getByteTimeDomainData(dataArray);
+
+            ctx.fillStyle = "#f2f2f2";
+            ctx.fillRect(0, 0, waveformCanvas.width, waveformCanvas.height);
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#007BFF";
+            ctx.beginPath();
+
+            const sliceWidth = waveformCanvas.width / bufferLength;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = v * waveformCanvas.height / 2;
+
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+
+                x += sliceWidth;
+            }
+
+            ctx.lineTo(waveformCanvas.width, waveformCanvas.height / 2);
+            ctx.stroke();
+        }
+
+        draw();
+    }
+
 
     return {
         initSampler,
@@ -75,6 +137,7 @@ const AudioEngine = (() => {
         playNote,
         playSequence,
         playChord,
-        playMelodyWithRhythm
+        playMelodyWithRhythm,
+        setupWaveform
     };
 })();
