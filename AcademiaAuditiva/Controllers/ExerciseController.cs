@@ -1,9 +1,11 @@
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace AcademiaAuditiva.Controllers
@@ -12,10 +14,12 @@ namespace AcademiaAuditiva.Controllers
 	public class ExerciseController : Controller
 	{
 		private readonly ApplicationDbContext _context;
+		private readonly IStringLocalizer<SharedResources> _localizer;
 
-		public ExerciseController(ApplicationDbContext context)
+		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer)
 		{
 			_context = context;
+			_localizer = localizer;
 		}
 
 		public IActionResult Index()
@@ -53,8 +57,6 @@ namespace AcademiaAuditiva.Controllers
 			return View(model);
 		}
 
-
-
 		[HttpPost]
 		public IActionResult GuessNoteSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
 		{
@@ -90,14 +92,51 @@ namespace AcademiaAuditiva.Controllers
 		#region GuessChord
 		public IActionResult GuessChords()
 		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 			int bestScore = _context.Scores
-						   .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessChords")
-						   .OrderByDescending(s => s.BestScore)
-						   .FirstOrDefault()?.BestScore ?? 0;
+				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessChords")
+				.OrderByDescending(s => s.BestScore)
+				.Select(s => s.BestScore)
+				.FirstOrDefault();
 
 			ViewBag.BestScore = bestScore;
-			return View();
+
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessChords");
+			if (exercise == null)
+				return NotFound();
+
+
+			var model = exercise.ToViewModel();
+
+			model.Filters = new ExerciseFiltersViewModel
+			{
+				Instrument = "Piano",
+				Range = "C4-C5",
+				CustomFiltersHtml = $@"
+					<div class='mb-3'>
+						<label for='chordType' class='form-label'>{_localizer["Exercise.TypeChord"]}</label>
+						<select id='chordType' name='chordType' class='form-select'>
+							<option value='major'>{_localizer["Exercise.TypeChordMajeur"]}</option>
+							<option value='minor'>{_localizer["Exercise.TypeChordMineur"]}</option>
+							<option value='both'>{_localizer["Exercise.TypeChordMajeurMineur"]}</option>
+							<option value='all'>{_localizer["Exercise.TypeChordAll"]}</option>
+						</select>
+					</div>"
+			};
+
+
+
+			model.AnswerOptions = new List<string>
+			{
+				"C", "C#", "D", "D#", "E", "F",
+				"F#", "G", "G#", "A", "A#", "B"
+			};
+
+			return View(model);
 		}
+
 
 		[HttpPost]
 		public IActionResult GuessChordsSaveScore(int correctCount, int errorCount, int timeSpentSeconds)

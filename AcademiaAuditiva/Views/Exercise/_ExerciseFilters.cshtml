@@ -1,29 +1,36 @@
 @model AcademiaAuditiva.ViewModels.ExerciseFiltersViewModel
 
 <div class="card mb-3">
-    <div class="card-header">@Localizer["Filters"]</div>
-    <div class="card-body">
-        <form>
-            <div class="row">
-                <div class="col-md-4">
-                    <label>@Localizer["Difficulty"]</label>
-                    <select class="form-select" asp-for="Difficulty">
-                        <option>Easy</option><option>Medium</option><option>Hard</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label>@Localizer["Instrument"]</label>
-                    <select class="form-select" asp-for="Instrument">
-                        <option>Piano</option><option>Guitar</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label>@Localizer["Range"]</label>
-                    <select class="form-select" asp-for="Range">
-                        <option>C3 - C4</option><option>C4 - C5</option>
-                    </select>
-                </div>
+    <form>
+        <div class="row">
+            <!-- Instrumento -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label">@Localizer["Instrument"]</label>
+                <select class="form-select" asp-for="Instrument">
+                    <option value="Piano">🎹 Piano</option>
+                    <option disabled>🎸 Violão (Coming soon)</option>
+                    <option disabled>🎻 Violino (Coming soon)</option>
+                </select>
             </div>
-        </form>
-    </div>
+
+            <!-- Alcance / Oitava -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label">@Localizer["Range"]</label>
+                <select class="form-select" asp-for="Range">
+                    <option value="C3-C4">C3 - C4</option>
+                    <option value="C4-C5">C4 - C5</option>
+                    <option value="C2-C5">C2 - C5</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Filtros específicos por exercício -->
+        @if (!string.IsNullOrWhiteSpace(Model.CustomFiltersHtml))
+        {
+            <hr class="my-3" />
+            <div class="mt-2">
+                @Html.Raw(Model.CustomFiltersHtml)
+            </div>
+        }
+    </form>
 </div>
