@@ -190,12 +190,26 @@ const TheoryUtils = (() => {
         return melody;
     }
 
+    function getScaleNotes(rootNote, type) {
+        const scales = TheoryUtils.getAllScales({
+            rootNotes: [rootNote],
+            types: [type]
+        });
+    
+        if (scales.length > 0) {
+            return scales[0].notes;
+        }
+    
+        return [];
+    }    
+
 
     return {
         getAllNotes,
         getAllChords,
         getAllScales,
         getRandomFunction,
-        generateMelodyWithRhythm
+        generateMelodyWithRhythm,
+        getScaleNotes
     };
 })();

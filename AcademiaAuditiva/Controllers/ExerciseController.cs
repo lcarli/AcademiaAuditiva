@@ -174,13 +174,62 @@ namespace AcademiaAuditiva.Controllers
 		#region GuessInterval
 		public IActionResult GuessInterval()
 		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 			int bestScore = _context.Scores
-						   .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessInterval")
-						   .OrderByDescending(s => s.BestScore)
-						   .FirstOrDefault()?.BestScore ?? 0;
+				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessInterval")
+				.OrderByDescending(s => s.BestScore)
+				.Select(s => s.BestScore)
+				.FirstOrDefault();
 
 			ViewBag.BestScore = bestScore;
-			return View();
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessInterval");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel();
+
+			model.Title = _localizer["Exercise.Interval.Title"];
+			model.AnswerOptions = new List<string> {
+				"2m", "2M", "3m", "3M", "4J", "5J", "6m", "6M", "7m", "7M", "8J"
+			};
+
+			model.Filters = new ExerciseFiltersViewModel
+			{
+				Instrument = "Piano",
+				Range = "C3-C5",
+				CustomFiltersHtml = @"
+					<div class='row'>
+						<div class='col-md-6 mb-3'>
+							<label for='keySelect' class='form-label'>Selecione o Tom</label>
+							<select id='keySelect' class='form-select'>
+								<option value='C4'>C</option>
+								<option value='C#4'>C#</option>
+								<option value='D4'>D</option>
+								<option value='D#4'>D#</option>
+								<option value='E4'>E</option>
+								<option value='F4'>F</option>
+								<option value='F#4'>F#</option>
+								<option value='G4'>G</option>
+								<option value='G#4'>G#</option>
+								<option value='A4'>A</option>
+								<option value='A#4'>A#</option>
+								<option value='B4'>B</option>
+							</select>
+						</div>
+						<div class='col-md-6 mb-3'>
+							<label for='scaleTypeSelect' class='form-label'>Selecione a Escala</label>
+							<select id='scaleTypeSelect' class='form-select'>
+								<option value='major'>Maior</option>
+								<option value='minor'>Menor</option>
+							</select>
+						</div>
+					</div>
+				"
+			};
+
+			return View(model);
 		}
 
 		[HttpPost]
