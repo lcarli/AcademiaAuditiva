@@ -6,66 +6,76 @@
 }
 
 <div class="container mt-5">
-	<div class="row justify-content-center">
-		<div class="col-md-10 text-center">
-			<h2 class="mb-5">@Localizer["Exercise.Title"]</h2>
-		</div>
-	</div>
+	<h2 class="text-center mb-4">@Localizer["Exercise.Title"]</h2>
 
-	<ul class="nav nav-tabs" id="exerciseTabs" role="tablist">
+	<ul class="nav nav-tabs justify-content-center" id="exerciseTabs" role="tablist">
 		<li class="nav-item" role="presentation">
-			<button class="nav-link active" id="difficulty-tab" data-bs-toggle="tab" data-bs-target="#byDifficulty" type="button" role="tab" aria-controls="byDifficulty" aria-selected="true">@Localizer["Exercise.Tab1.Level"]</button>
+			<button class="nav-link active" id="difficulty-tab" data-bs-toggle="tab" data-bs-target="#byDifficulty" type="button" role="tab">@Localizer["Exercise.Tab1.Level"]</button>
 		</li>
 		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="type-tab" data-bs-toggle="tab" data-bs-target="#byType" type="button" role="tab" aria-controls="byType" aria-selected="false">@Localizer["Exercise.Tab2.Type"]</button>
+			<button class="nav-link" id="type-tab" data-bs-toggle="tab" data-bs-target="#byType" type="button" role="tab">@Localizer["Exercise.Tab2.Type"]</button>
 		</li>
 	</ul>
 
-	<div class="tab-content" id="exerciseTabsContent">
-		<!-- Aba Por Dificuldade -->
-		<div class="tab-pane fade show active" id="byDifficulty" role="tabpanel" aria-labelledby="difficulty-tab">
-			<div class="row mt-4">
-				@foreach (var level in Enum.GetValues(typeof(DifficultyLevel)))
-				{
-					<div class="col-md-4 text-center mb-5">
-						@{var localizerLevel = "Exercise." + level;}
-						<h4>@Localizer[localizerLevel]</h4>
-						<ul class="list-group">
-							@foreach (var exercise in Model.Where(e => e.Difficulty == (DifficultyLevel)level))
-							{
-								<li class="list-group-item">
-									<a href="@Url.Action(exercise.Name, "Exercise")" class="exercise-link">@Localizer[exercise.Name]</a>
-								</li>
-							}
-						</ul>
+	<div class="tab-content mt-4" id="exerciseTabsContent">
+		<!-- Aba por Dificuldade -->
+		<div class="tab-pane fade show active" id="byDifficulty" role="tabpanel">
+			@foreach (var level in Enum.GetValues(typeof(DifficultyLevel)))
+			{
+				var levelName = "Exercise." + level;
+				<div class="mb-4">
+					<h4 class="text-primary mb-3">@Localizer[levelName]</h4>
+					<div class="row g-4">
+						@foreach (var exercise in Model.Where(e => e.Difficulty == (DifficultyLevel)level))
+						{
+							<div class="col-md-4">
+								<div class="card shadow-sm h-100 border-0">
+									<div class="card-body">
+										<h5 class="card-title">@Localizer[exercise.Name]</h5>
+										<p class="card-subtitle mb-2 text-muted">
+											🎯 @Localizer["ExerciseType." + exercise.Type] <br />
+										</p>
+										<p class="card-text small text-muted">
+											@exercise.Description
+										</p>
+										<a href="@Url.Action(exercise.Name, "Exercise")" class="btn btn-sm btn-primary">@Localizer["Exercise.Start"]</a>
+									</div>
+								</div>
+							</div>
+						}
 					</div>
-				}
-			</div>
+				</div>
+			}
 		</div>
 
-		<!-- Aba Por Tipo -->
-		<div class="tab-pane fade" id="byType" role="tabpanel" aria-labelledby="type-tab">
-			<div class="row mt-4">
-				@foreach (var type in Enum.GetValues(typeof(ExerciseType)))
-				{
-					<div class="col-md-4 text-center mb-5">
-						@{var localizerType = "ExerciseType." + type;}
-						<h4>@Localizer[localizerType]</h4>
-						<ul class="list-group">
-							@foreach (var exercise in Model.Where(e => e.Type == (ExerciseType)type))
-							{
-								<li class="list-group-item">
-									<a href="@Url.Action(exercise.Name, "Exercise")" class="exercise-link">@Localizer[exercise.Name]</a>
-								</li>
-							}
-						</ul>
+		<!-- Aba por Tipo -->
+		<div class="tab-pane fade" id="byType" role="tabpanel">
+			@foreach (var type in Enum.GetValues(typeof(ExerciseType)))
+			{
+				var typeName = "ExerciseType." + type;
+				<div class="mb-4">
+					<h4 class="text-primary mb-3">@Localizer[typeName]</h4>
+					<div class="row g-4">
+						@foreach (var exercise in Model.Where(e => e.Type == (ExerciseType)type))
+						{
+							<div class="col-md-4">
+								<div class="card shadow-sm h-100 border-0">
+									<div class="card-body">
+										<h5 class="card-title">@Localizer[exercise.Name]</h5>
+										<p class="card-subtitle mb-2 text-muted">
+											🧩 @Localizer["Exercise." + exercise.Difficulty]
+										</p>
+										<p class="card-text small text-muted">
+											@exercise.Description
+										</p>
+										<a href="@Url.Action(exercise.Name, "Exercise")" class="btn btn-sm btn-primary">@Localizer["Exercise.Start"]</a>
+									</div>
+								</div>
+							</div>
+						}
 					</div>
-				}
-			</div>
+				</div>
+			}
 		</div>
 	</div>
 </div>
-
-
-@section Scripts {
-}

@@ -689,4 +689,5 @@
   <data name="Dashboard.Menu.Ranking" xml:space="preserve"><value>Classement</value></data>
   <data name="Dashboard.Menu.Settings" xml:space="preserve"><value>Paramètres</value></data>
   <data name="Dashboard.Menu.Help" xml:space="preserve"><value>Aide</value></data>
+  <data name="Exercise.Start" xml:space="preserve"><value>Lancer l'Exercise</value></data>
 </root>
