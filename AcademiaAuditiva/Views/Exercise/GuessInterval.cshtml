@@ -20,28 +20,31 @@
 
                 <!-- BOTÕES DE ÁUDIO -->
                 <div class="d-flex justify-content-center gap-3 mb-4">
+                    <button class="btn btn-primary" id="playInterval" title="@Localizer["PlayInterval"]">
+                        <i class="bi bi-soundwave"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" id="replayInterval" title="@Localizer["Replay"]">
+                        <i class="bi bi-repeat"></i>
+                    </button>
                     <button class="btn btn-outline-primary" id="playNote1" title="Nota 1">
                         <i class="bi bi-1-circle"></i>
                     </button>
                     <button class="btn btn-outline-primary" id="playNote2" title="Nota 2">
                         <i class="bi bi-2-circle"></i>
                     </button>
-                    <button class="btn btn-primary" id="playInterval" title="Intervalo">
-                        <i class="bi bi-soundwave"></i>
-                    </button>
                 </div>
 
-                <!-- BOTÕES DE RESPOSTA: INTERVALOS -->
+                <!-- RESPOSTAS -->
                 <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-                    @foreach (var grau in new[] { "2ª", "3ª", "4ª", "5ª", "6ª", "7ª", "8ª" })
+                    @foreach (var interval in Model.AnswerOptions)
                     {
-                        <button class="btn btn-outline-dark guessInterval" data-interval="@grau">@grau</button>
+                        <button class="btn btn-outline-dark guessInterval" data-interval="@interval">@interval</button>
                     }
                 </div>
 
-                <!-- BOTÃO VALIDAR -->
+                <!-- VALIDAR -->
                 <div class="text-center">
-                    <button id="validateGuess" class="btn btn-success">@Localizer["Exercise.ValidationButton"]</button>
+                    <button class="btn btn-success" id="validateGuess">@Localizer["Exercise.ValidationButton"]</button>
                 </div>
             </div>
         </div>
@@ -51,13 +54,14 @@
 <!-- MODAL DE FILTROS -->
 @await Html.PartialAsync("_ExerciseFiltersModal", Model)
 
-<!-- LOCALIZER SUPPORT -->
-<div id="localizer" data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
-    data-incomplete-text="@Localizer["Exercise.SelectIntervalText"]"
-    data-correct-message="@Localizer["Exercise.CorrectMessage"]"
-    data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
-    data-wrong-message="@Localizer["Exercise.WrongMessage"]"
-    data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]">
+<!-- LOCALIZER -->
+<div id="localizer"
+     data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+     data-incomplete-text="@Localizer["Exercise.SelectIntervalText"]"
+     data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+     data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
+     data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+     data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]">
 </div>
 
 @section Scripts {

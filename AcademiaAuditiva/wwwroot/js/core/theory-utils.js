@@ -203,6 +203,111 @@ const TheoryUtils = (() => {
         return [];
     }    
 
+    function getChordFromFunction(key, scaleType, functionCode) {
+        const degreeMap = {
+            "1": 0,
+            "2": 1,
+            "3": 2,
+            "4": 3,
+            "5": 4,
+            "6": 5,
+            "7": 6
+        };
+    
+        const [degreeStr, quality] = functionCode.split("-");
+        const degreeIndex = degreeMap[degreeStr];
+    
+        if (degreeIndex === undefined) return [];
+    
+        const scaleNotes = TheoryUtils.getScaleNotes(key, scaleType);
+        const rootNote = scaleNotes[degreeIndex];
+    
+        return TheoryUtils.getChordNotes(rootNote, quality);
+    }    
+
+    function getChordNotes(root, quality) {
+        const INTERVALS = {
+            major: [4, 3],
+            minor: [3, 4],
+            diminished: [3, 3],
+            augmented: [4, 4],
+            sus2: [2, 5],
+            sus4: [5, 2],
+            add9: [4, 3, 7],
+            add11: [4, 3, 10],
+            add13: [4, 3, 14],
+            major6: [4, 3, 2],
+            minor6: [3, 4, 2],
+            major7: { base: [4, 3], seventh: 4 },
+            minor7: { base: [3, 4], seventh: 3 },
+            dominant7: { base: [4, 3], seventh: 3 },
+            halfDiminished: { base: [3, 3], seventh: 3 },
+            diminished7: { base: [3, 3], seventh: 2 },
+            ninth: [4, 3, 7],
+            diminishedMinor: [3, 3, 3],
+            diminishedMajor: [3, 3, 4]
+        };
+    
+        const allNotes = TheoryUtils.getAllNotes([2, 3, 4, 5]);
+        const def = INTERVALS[quality];
+        if (!def) return [];
+    
+        let index = allNotes.indexOf(root);
+        if (index === -1) return [];
+    
+        const chord = [root];
+    
+        if (Array.isArray(def)) {
+            for (const step of def) {
+                index += step;
+                if (index >= allNotes.length) return [];
+                chord.push(allNotes[index]);
+            }
+        } else {
+            for (const step of def.base) {
+                index += step;
+                if (index >= allNotes.length) return [];
+                chord.push(allNotes[index]);
+            }
+            index += def.seventh;
+            if (index < allNotes.length) {
+                chord.push(allNotes[index]);
+            }
+        }
+    
+        return chord;
+    }    
+
+    function noteToMidi(note) {
+        const noteMap = {
+            "C": 0, "C#": 1, "Db": 1,
+            "D": 2, "D#": 3, "Eb": 3,
+            "E": 4, "Fb": 4,
+            "F": 5, "F#": 6, "Gb": 6,
+            "G": 7, "G#": 8, "Ab": 8,
+            "A": 9, "A#": 10, "Bb": 10,
+            "B": 11, "Cb": 11
+        };
+    
+        const match = note.match(/^([A-Ga-g][#b]?)(\d)$/);
+        if (!match) return null;
+    
+        const pitch = match[1].toUpperCase();
+        const octave = parseInt(match[2]);
+    
+        const semitone = noteMap[pitch];
+        if (semitone === undefined) return null;
+    
+        return (octave + 1) * 12 + semitone;
+    }
+    
+    function midiToNote(midi) {
+        const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const note = NOTES[midi % 12];
+        const octave = Math.floor(midi / 12) - 1;
+        return note + octave;
+    }
+    
 
     return {
         getAllNotes,
@@ -210,6 +315,10 @@ const TheoryUtils = (() => {
         getAllScales,
         getRandomFunction,
         generateMelodyWithRhythm,
-        getScaleNotes
+        getScaleNotes,
+        getChordFromFunction,
+        getChordNotes,
+        noteToMidi,
+        midiToNote
     };
 })();

@@ -7,9 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	let currentDegree = "";
 	let note1 = null;
 	let note2 = null;
+	let selectedGuess = "";
+	let exerciseStartTime = Date.now();
 
 	const guessButtons = document.querySelectorAll(".guessInterval");
-	let selectedGuess = "";
 
 	// Captura clique nas respostas
 	guessButtons.forEach(button => {
@@ -20,25 +21,25 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	});
 
+	// Gera um novo grau aleatório (2ª, 3ª, ...)
 	function getRandomDegree() {
 		const degrees = ["2ª", "3ª", "4ª", "5ª", "6ª", "7ª", "8ª"];
 		return degrees[Math.floor(Math.random() * degrees.length)];
 	}
 
-	function getScaleNotes(tonic, type) {
-		// Garante uso do módulo existente
-		return TheoryUtils.getScaleNotes(tonic, type); // retorna array com as notas da escala
-	}
-
+	// Prepara o intervalo com base nos filtros
 	function prepareInterval() {
-		const tonic = document.getElementById("keySelect")?.value || "C4";
+		const tonic = document.getElementById("keySelect")?.value || "C";
 		const scaleType = document.getElementById("scaleTypeSelect")?.value || "major";
 
 		currentDegree = getRandomDegree();
-		const scaleNotes = getScaleNotes(tonic, scaleType);
 
+		const scaleNotes = TheoryUtils.getScaleNotes(tonic, scaleType);
+
+		// Extrai o número (ex: "2ª" → 2)
 		const degreeNumber = parseInt(currentDegree);
-		if (degreeNumber < 2 || degreeNumber > scaleNotes.length) {
+
+		if (!degreeNumber || degreeNumber > scaleNotes.length) {
 			console.warn("Intervalo inválido: " + currentDegree);
 			return;
 		}
@@ -47,20 +48,32 @@ document.addEventListener("DOMContentLoaded", () => {
 		note2 = scaleNotes[degreeNumber - 1];
 	}
 
-	// Botões
+	// Botões de áudio
 	document.getElementById("playNote1").addEventListener("click", () => {
 		if (!note1) prepareInterval();
-		AudioEngine.playNote(note1, 1);
+		if (note1) AudioEngine.playNote(note1, 1);
 	});
 
 	document.getElementById("playNote2").addEventListener("click", () => {
 		if (!note2) prepareInterval();
-		AudioEngine.playNote(note2, 1);
+		if (note2) AudioEngine.playNote(note2, 1);
 	});
 
 	document.getElementById("playInterval").addEventListener("click", () => {
 		prepareInterval();
-		AudioEngine.playChord([note1, note2], 1);
+		if (note1 && note2) AudioEngine.playSequence([note1, note2], 0.6);
+	});
+
+	document.getElementById("replayInterval").addEventListener("click", () => {
+		if (!note1 || !note2) {
+			Swal.fire({
+				icon: "warning",
+				title: loc.incompleteTitle,
+				text: loc.incompleteText
+			});
+			return;
+		}
+		AudioEngine.playSequence([note1, note2], 0.4);
 	});
 
 	// Validação
@@ -92,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
 		});
 
+		// Reset
 		selectedGuess = "";
 		currentDegree = "";
 		note1 = null;

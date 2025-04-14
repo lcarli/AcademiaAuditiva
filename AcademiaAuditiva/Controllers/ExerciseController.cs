@@ -190,9 +190,8 @@ namespace AcademiaAuditiva.Controllers
 
 			var model = exercise.ToViewModel();
 
-			model.Title = _localizer["Exercise.Interval.Title"];
 			model.AnswerOptions = new List<string> {
-				"2m", "2M", "3m", "3M", "4J", "5J", "6m", "6M", "7m", "7M", "8J"
+				"2", "3", "4", "5", "6", "7", "8"
 			};
 
 			model.Filters = new ExerciseFiltersViewModel
@@ -269,13 +268,41 @@ namespace AcademiaAuditiva.Controllers
 
 		public IActionResult GuessQuality()
 		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 			int bestScore = _context.Scores
-						   .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessQuality")
-						   .OrderByDescending(s => s.BestScore)
-						   .FirstOrDefault()?.BestScore ?? 0;
+				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessQuality")
+				.OrderByDescending(s => s.BestScore)
+				.Select(s => s.BestScore)
+				.FirstOrDefault();
 
 			ViewBag.BestScore = bestScore;
-			return View();
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessQuality");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel();
+
+			model.AnswerOptions = new List<string> { "major", "minor", "diminished", "augmented" };
+
+			model.Filters = new ExerciseFiltersViewModel
+			{
+				Instrument = "Piano",
+				Range = "C3-C5",
+				CustomFiltersHtml = $@"
+					<div class='mb-3'>
+						<label for='chordGroup' class='form-label'>Qualidade dos Acordes</label>
+						<select id='chordGroup' name='chordGroup' class='form-select'>
+							<option value='major'>Apenas Maiores</option>
+							<option value='minor'>Apenas Menores</option>
+							<option value='all'>Todos</option>
+						</select>
+					</div>"
+			};
+
+
+			return View(model);
 		}
 
 		[HttpPost]
@@ -314,13 +341,63 @@ namespace AcademiaAuditiva.Controllers
 		#region GuessFunction
 		public IActionResult GuessFunction()
 		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 			int bestScore = _context.Scores
-						   .Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessFunction")
-						   .OrderByDescending(s => s.BestScore)
-						   .FirstOrDefault()?.BestScore ?? 0;
+				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessFunction")
+				.OrderByDescending(s => s.BestScore)
+				.Select(s => s.BestScore)
+				.FirstOrDefault();
 
 			ViewBag.BestScore = bestScore;
-			return View();
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFunction");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel();
+
+			model.Title = _localizer["Exercise.Function.Title"];
+			model.AnswerOptions = new List<string>
+			{
+				"1-major", "2-minor", "3-minor", "4-major", "5-major", "6-minor", "7-diminished", // maior
+				"1-minor", "2-diminished", "3-major", "4-minor", "5-minor", "6-major", "7-major"  // menor
+			};
+
+			model.Filters = new ExerciseFiltersViewModel
+			{
+				Instrument = "Piano",
+				Range = "C3-C5",
+				CustomFiltersHtml = @"
+			<div class='row'>
+				<div class='col-md-6 mb-3'>
+					<label for='keySelect' class='form-label'>Selecione o Tom</label>
+					<select id='keySelect' class='form-select'>
+						<option value='C'>C</option>
+						<option value='C#'>C#</option>
+						<option value='D'>D</option>
+						<option value='D#'>D#</option>
+						<option value='E'>E</option>
+						<option value='F'>F</option>
+						<option value='F#'>F#</option>
+						<option value='G'>G</option>
+						<option value='G#'>G#</option>
+						<option value='A'>A</option>
+						<option value='A#'>A#</option>
+						<option value='B'>B</option>
+					</select>
+				</div>
+				<div class='col-md-6 mb-3'>
+					<label for='scaleTypeSelect' class='form-label'>Qualidade da Tonalidade</label>
+					<select id='scaleTypeSelect' class='form-select'>
+						<option value='major'>Maior</option>
+						<option value='minor'>Menor</option>
+					</select>
+				</div>
+			</div>"
+			};
+
+			return View(model);
 		}
 
 		[HttpPost]
@@ -360,13 +437,58 @@ namespace AcademiaAuditiva.Controllers
 
 		public IActionResult GuessFullInterval()
 		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 			int bestScore = _context.Scores
-				.Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessFullInterval")
+				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessFullInterval")
 				.OrderByDescending(s => s.BestScore)
-				.FirstOrDefault()?.BestScore ?? 0;
+				.Select(s => s.BestScore)
+				.FirstOrDefault();
 
 			ViewBag.BestScore = bestScore;
-			return View();
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFullInterval");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel();
+
+			model.Title = _localizer["Exercise.FullInterval.Title"];
+			model.AnswerOptions = new List<string>
+	{
+		"2m", "2M", "3m", "3M", "4J", "4A", "5J",
+		"6m", "6M", "7m", "7M", "8J"
+	};
+
+			model.Filters = new ExerciseFiltersViewModel
+			{
+				Instrument = "Piano",
+				Range = "C3-C5",
+				CustomFiltersHtml = @"
+			<div class='row'>
+				<div class='col-md-6 mb-3'>
+					<label for='keySelect' class='form-label'>Selecione o Tom</label>
+					<select id='keySelect' class='form-select'>
+						<option value='C'>C</option>
+						<option value='D'>D</option>
+						<option value='E'>E</option>
+						<option value='F'>F</option>
+						<option value='G'>G</option>
+						<option value='A'>A</option>
+						<option value='B'>B</option>
+					</select>
+				</div>
+				<div class='col-md-6 mb-3'>
+					<label for='intervalDirection' class='form-label'>Direção</label>
+					<select id='intervalDirection' class='form-select'>
+						<option value='asc'>Ascendente</option>
+						<option value='desc'>Descendente</option>
+					</select>
+				</div>
+			</div>"
+			};
+
+			return View(model);
 		}
 
 		[HttpPost]
@@ -405,13 +527,50 @@ namespace AcademiaAuditiva.Controllers
 		#region GuessMissingNote
 		public IActionResult GuessMissingNote()
 		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 			int bestScore = _context.Scores
-				.Where(s => s.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier) && s.Exercise.Name == "GuessMissingNote")
+				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessMissingNote")
 				.OrderByDescending(s => s.BestScore)
-				.FirstOrDefault()?.BestScore ?? 0;
+				.Select(s => s.BestScore)
+				.FirstOrDefault();
 
 			ViewBag.BestScore = bestScore;
-			return View();
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessMissingNote");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel();
+
+			model.Title = _localizer["Exercise.MissingNote.Title"];
+			model.Instructions = _localizer["Exercise.MissingNote.Instructions"];
+			model.Tips = new List<string>
+			{
+				_localizer["Exercise.MissingNote.Tip1"],
+				_localizer["Exercise.MissingNote.Tip2"]
+			};
+
+			model.AnswerOptions = new List<string> { "same", "different" };
+
+			model.Filters = new ExerciseFiltersViewModel
+			{
+				Instrument = "Piano",
+				Range = "C4-C5",
+				CustomFiltersHtml = @"
+			<div class='mb-3'>
+				<label for='melodyLength' class='form-label'>Comprimento da Melodia</label>
+				<select id='melodyLength' class='form-select'>
+					<option value='4'>4</option>
+					<option value='5'>5</option>
+					<option value='6'>6</option>
+					<option value='7'>7</option>
+					<option value='8'>8</option>
+				</select>
+			</div>"
+			};
+
+			return View(model);
 		}
 
 		[HttpPost]
