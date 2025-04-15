@@ -17,30 +17,9 @@
 
                 <div id="waveform" class="mb-4 text-center" style="height: 100px;"></div>
 
-                <!-- Botões de áudio -->
-                <div class="d-flex justify-content-center gap-3 mb-4">
-                    <button class="btn btn-primary" id="playInterval" title="Ouvir novo intervalo">
-                        <i class="bi bi-soundwave"></i>
-                    </button>
-                    <button class="btn btn-outline-secondary" id="replayInterval" title="Reouvir">
-                        <i class="bi bi-repeat"></i>
-                    </button>
-                    <button class="btn btn-outline-primary" id="playNote1" title="Nota 1">
-                        <i class="bi bi-1-circle"></i>
-                    </button>
-                    <button class="btn btn-outline-primary" id="playNote2" title="Nota 2">
-                        <i class="bi bi-2-circle"></i>
-                    </button>
-                </div>
+                @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
 
-
-                <!-- Respostas -->
-                <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-                    @foreach (var interval in Model.AnswerOptions)
-                    {
-                        <button class="btn btn-outline-dark guessInterval" data-interval="@interval">@interval</button>
-                    }
-                </div>
+				@await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons)
 
                 <!-- Validar -->
                 <div class="text-center">

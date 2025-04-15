@@ -17,18 +17,9 @@
 
                 <div id="waveform" class="mb-4 text-center"></div>
 
-                <!-- BOTÕES DE ÁUDIO -->
-                <div class="d-flex justify-content-center gap-3 mb-4">
-                    <button class="btn btn-lg btn-primary rounded-circle" id="playNote" title="@Localizer["Play"]">
-                        <i class="bi bi-play-fill"></i>
-                    </button>
-                    <button class="btn btn-lg btn-outline-secondary rounded-circle" id="replayNote"
-                        title="@Localizer["Replay"]">
-                        <i class="bi bi-arrow-repeat"></i>
-                    </button>
-                </div>
+                @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
 
-                @await Html.PartialAsync("_ExerciseAnswerButtons", Model)
+				@await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons)
 
                 <div class="text-center mt-3">
                     <button class="btn btn-success" id="validateGuess">@Localizer["Exercise.ValidationButton"]</button>

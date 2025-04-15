@@ -1,6 +1,7 @@
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.ViewModels;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace AcademiaAuditiva.Extensions
 {
@@ -12,16 +13,17 @@ namespace AcademiaAuditiva.Extensions
             {
                 Title = exercise.Description,
                 Instructions = exercise.Instructions,
-                Tips = string.IsNullOrEmpty(exercise.TipsJson)
-                    ? new List<string>()
-                    : JsonConvert.DeserializeObject<List<string>>(exercise.TipsJson),
+                Tips = exercise.Tips,
                 Score = 0,
                 Attempts = 0,
                 TimeSpent = "00:00:00",
                 FeedbackMessage = null,
                 FeedbackType = null,
-                Filters = JsonConvert.DeserializeObject<ExerciseFiltersViewModel>(exercise.FiltersJson) ?? new ExerciseFiltersViewModel(),
-                AnswerOptions = new List<string>()
+                Filters = string.IsNullOrEmpty(exercise.FiltersJson)
+                    ? new ExerciseFiltersViewModel()
+                    : JsonConvert.DeserializeObject<ExerciseFiltersViewModel>(exercise.FiltersJson),
+                AudioButtons = exercise.AudioButtons,
+                AnswerButtons = exercise.AnswerButtons
             };
         }
     }

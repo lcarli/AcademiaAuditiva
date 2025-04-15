@@ -1,10 +1,17 @@
-@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+@model Dictionary<string, string>
 
-<div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-    @foreach (var option in Model.AnswerOptions)
+<div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
+    @if (Model != null && Model.Count > 0)
     {
-        <button class="btn btn-outline-dark guessNote px-4 py-2" data-note="@option">
-            @option.Replace("s", "#")
-        </button>
+        foreach (var kvp in Model)
+        {
+            <button class="btn btn-outline-dark guessNote px-4 py-2" value="@kvp.Value">
+                @kvp.Key
+            </button>
+        }
+    }
+    else
+    {
+        <span>Nenhuma opção de resposta disponível.</span>
     }
 </div>

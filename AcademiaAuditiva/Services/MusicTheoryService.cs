@@ -1,0 +1,448 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace AcademiaAuditiva.Services
+{
+    /// <summary>
+    /// Serviço responsável por toda a lógica de teoria musical.
+    /// Aqui você vai encapsular notas, escalas, acordes, melodias etc.
+    /// </summary>
+    public static class MusicTheoryService
+    {
+        #region Constantes e Dicionários
+        /// <summary>
+        /// Representa todas as notas em uma oitava cromática, usando sustenidos por padrão.
+        /// </summary>
+        private static readonly List<string> ChromaticScaleBase = new()
+        {
+            "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+        };
+
+        /// <summary>
+        /// Dicionário contendo as definições de intervalos (em semitons) para cada tipo de acorde.
+        /// Para acordes com sétima, armazenamos o intervalo adicional na propriedade SeventhInterval.
+        /// </summary>
+        private static readonly Dictionary<string, (List<int> BaseIntervals, int? SeventhInterval)> ChordIntervals
+            = new Dictionary<string, (List<int> BaseIntervals, int? SeventhInterval)>
+        {
+            { "major",           (new List<int>{ 4, 3 }, null) },
+            { "minor",           (new List<int>{ 3, 4 }, null) },
+            { "diminished",      (new List<int>{ 3, 3 }, null) },
+            { "augmented",       (new List<int>{ 4, 4 }, null) },
+            { "sus2",            (new List<int>{ 2, 5 }, null) },
+            { "sus4",            (new List<int>{ 5, 2 }, null) },
+            { "add9",            (new List<int>{ 4, 3, 7 }, null) },
+            { "add11",           (new List<int>{ 4, 3, 10 }, null) },
+            { "add13",           (new List<int>{ 4, 3, 14 }, null) },
+            { "major6",          (new List<int>{ 4, 3, 2 }, null) },
+            { "minor6",          (new List<int>{ 3, 4, 2 }, null) },
+            { "major7",          (new List<int>{ 4, 3 }, 4) },
+            { "minor7",          (new List<int>{ 3, 4 }, 3) },
+            { "dominant7",       (new List<int>{ 4, 3 }, 3) },
+            { "halfDiminished",  (new List<int>{ 3, 3 }, 3) },
+            { "diminished7",     (new List<int>{ 3, 3 }, 2) },
+            { "ninth",           (new List<int>{ 4, 3, 7 }, null) },
+            { "diminishedMinor", (new List<int>{ 3, 3, 3 }, null) },
+            { "diminishedMajor", (new List<int>{ 3, 3, 4 }, null) }
+        };
+
+        /// <summary>
+        /// Dicionário contendo intervalos (em semitons) para diferentes tipos de escalas.
+        /// </summary>
+        private static readonly Dictionary<string, List<int>> ScaleIntervals
+            = new Dictionary<string, List<int>>
+        {
+            { "major",           new List<int> { 2, 2, 1, 2, 2, 2, 1 } },
+            { "minor",           new List<int> { 2, 1, 2, 2, 1, 2, 2 } },
+            { "majorPentatonic", new List<int> { 2, 2, 3, 2, 3 } },
+            { "minorPentatonic", new List<int> { 3, 2, 2, 3, 2 } },
+            { "ionian",          new List<int> { 2, 2, 1, 2, 2, 2, 1 } },
+            { "dorian",          new List<int> { 2, 1, 2, 2, 2, 1, 2 } },
+            { "phrygian",        new List<int> { 1, 2, 2, 2, 1, 2, 2 } },
+            { "lydian",          new List<int> { 2, 2, 2, 1, 2, 2, 1 } },
+            { "mixolydian",      new List<int> { 2, 2, 1, 2, 2, 1, 2 } },
+            { "aeolian",         new List<int> { 2, 1, 2, 2, 1, 2, 2 } },
+            { "locrian",         new List<int> { 1, 2, 2, 1, 2, 2, 2 } }
+        };
+        #endregion
+
+
+        #region Métodos Principais
+
+        /// <summary>
+        /// Retorna todas as notas dentro de certas oitavas. Por exemplo, se <paramref name="octaves"/>
+        /// for [3,4,5], retorna C3, C#3, ..., B5.
+        /// </summary>
+        public static List<string> GetAllNotes(List<int> octaves = null)
+        {
+            // Por default, se não for passada nenhuma oitava, use [3,4,5].
+            if (octaves == null || octaves.Count == 0)
+                octaves = new List<int> { 3, 4, 5 };
+
+            var allNotes = new List<string>();
+
+            foreach (var octave in octaves)
+            {
+                foreach (var noteName in ChromaticScaleBase)
+                {
+                    // Ex: "C" + 3 => "C3"
+                    allNotes.Add(noteName + octave);
+                }
+            }
+
+            return allNotes;
+        }
+
+        /// <summary>
+        /// Retorna todos os acordes com base nos filtros de notas raíz e tipos de acorde.
+        /// </summary>
+        /// <param name="rootNotes">Lista de notas raíz. (Ex: ["C3", "D3"])</param>
+        /// <param name="qualities">Lista de qualidades de acorde. (Ex: ["major", "minor"])</param>
+        public static List<(string Root, string Type, List<string> Notes)> GetAllChords(
+            List<string> rootNotes,
+            List<string> qualities
+        )
+        {
+            var result = new List<(string Root, string Type, List<string> Notes)>();
+
+            if (rootNotes == null || rootNotes.Count == 0)
+                return result;
+
+            if (qualities == null || qualities.Count == 0)
+                return result;
+
+            // Para cada nota raíz e cada tipo, tentamos montar o acorde.
+            foreach (var root in rootNotes)
+            {
+                foreach (var type in qualities)
+                {
+                    var chord = GetChordNotes(root, type);
+                    if (chord.Count >= 3)
+                    {
+                        result.Add((root, type, chord));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Retorna todos os conjuntos de notas de escalas com base em notas raíz e tipos de escala.
+        /// </summary>
+        public static List<(string Root, string Type, List<string> Notes)> GetAllScales(
+            List<string> rootNotes,
+            List<string> types
+        )
+        {
+            var result = new List<(string Root, string Type, List<string> Notes)>();
+
+            if (rootNotes == null || rootNotes.Count == 0)
+                return result;
+
+            if (types == null || types.Count == 0)
+                return result;
+
+            // Obtemos todas as notas disponíveis para evitar index out of range (C2...B5, por ex.).
+            var allNotes = GetAllNotes(new List<int> { 2, 3, 4, 5 });
+
+            foreach (var root in rootNotes)
+            {
+                foreach (var type in types)
+                {
+                    var scale = GetScaleNotes(root, type, allNotes);
+                    if (scale.Count >= 5) // Exemplo: escala maior deve ter pelo menos 7 notas
+                    {
+                        result.Add((root, type, scale));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gera uma melodia aleatória dentro de um certo número de compassos, com time signature e oitavas desejadas.
+        /// </summary>
+        /// <remarks>
+        /// Inclui pausas (rests) aleatoriamente com 25% de chance.
+        /// Durações possíveis: whole (4), half (2), quarter (1), eighth (0.5), sixteenth (0.25).
+        /// </remarks>
+        public static List<(string Note, double Duration, bool IsRest)> GenerateMelodyWithRhythm(
+            int measures = 2,
+            string timeSignature = "4/4",
+            List<int> octaves = null,
+            bool includeRests = true
+        )
+        {
+            if (octaves == null || octaves.Count == 0)
+                octaves = new List<int> { 3, 4, 5 };
+
+            // Durations em "unidades" de tempo. Com timeSignature "4/4", cada compasso = 4 beats.
+            var durations = new List<(string Name, double Value)>
+            {
+                ("whole", 4),
+                ("half", 2),
+                ("quarter", 1),
+                ("eighth", 0.5),
+                ("sixteenth", 0.25)
+            };
+
+            // Quantidade total de "beats" que a melodia deve ter, ex: 2 compassos de 4 => 8 beats.
+            var totalBeats = 0.0;
+            var timeSplit = timeSignature.Split('/');
+            if (timeSplit.Length == 2)
+            {
+                if (int.TryParse(timeSplit[0], out var beatsPerMeasure))
+                {
+                    totalBeats = beatsPerMeasure * measures;
+                }
+            }
+
+            var allNotes = GetAllNotes(octaves);
+            var melody = new List<(string Note, double Duration, bool IsRest)>();
+
+            var random = new Random();
+            double accumulated = 0;
+
+            while (accumulated < totalBeats)
+            {
+                var remaining = totalBeats - accumulated;
+                // Pega apenas as durações <= remaining
+                var validDurations = durations.Where(d => d.Value <= remaining).ToList();
+
+                if (validDurations.Count == 0)
+                    break;
+
+                var chosen = validDurations[random.Next(validDurations.Count)];
+
+                bool isRest = includeRests && random.NextDouble() < 0.25; // 25% chance
+                string note = isRest
+                    ? "rest"
+                    : allNotes[random.Next(allNotes.Count)];
+
+                melody.Add((note, chosen.Value, isRest));
+                accumulated += chosen.Value;
+            }
+
+            return melody;
+        }
+        #endregion
+
+        // ----------------------------------------
+
+        #region Métodos Auxiliares
+
+        /// <summary>
+        /// Retorna a lista de notas da escala baseada em <paramref name="rootNote"/> e <paramref name="scaleType"/>.
+        /// O parâmetro <paramref name="allNotes"/> é usado para evitar problemas de index caso queiramos
+        /// limitar as notas a certas oitavas.
+        /// </summary>
+        public static List<string> GetScaleNotes(string rootNote, string scaleType, List<string> allNotes = null)
+        {
+            if (string.IsNullOrWhiteSpace(rootNote) || string.IsNullOrWhiteSpace(scaleType))
+                return new List<string>();
+
+            if (!ScaleIntervals.ContainsKey(scaleType))
+                return new List<string>();
+
+            // Se não for fornecida uma lista de notas, usamos por padrão [2..5].
+            if (allNotes == null || allNotes.Count == 0)
+            {
+                allNotes = GetAllNotes(new List<int> { 2, 3, 4, 5 });
+            }
+
+            var intervals = ScaleIntervals[scaleType];
+            var rootIndex = allNotes.IndexOf(rootNote);
+            if (rootIndex < 0)
+                return new List<string>();
+
+            var scaleNotes = new List<string> { rootNote };
+            var currentIndex = rootIndex;
+
+            // Percorre cada intervalo e pula semitons na lista de notas.
+            foreach (var step in intervals)
+            {
+                currentIndex += step;
+                if (currentIndex >= 0 && currentIndex < allNotes.Count)
+                {
+                    scaleNotes.Add(allNotes[currentIndex]);
+                }
+                else
+                {
+                    // Se estourar o range de allNotes, retornamos o que conseguimos montar.
+                    // Em alguns casos pode ser útil "loopar" (usando módulo), mas aqui estamos limitando ao range.
+                    break;
+                }
+            }
+
+            return scaleNotes;
+        }
+
+        /// <summary>
+        /// Retorna as notas de um acorde a partir da nota raíz (<paramref name="root"/>) e da qualidade (<paramref name="quality"/>).
+        /// </summary>
+        public static List<string> GetChordNotes(string root, string quality)
+        {
+            var result = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(root) || string.IsNullOrWhiteSpace(quality))
+                return result;
+
+            if (!ChordIntervals.ContainsKey(quality))
+                return result;
+
+            var (baseIntervals, seventhInterval) = ChordIntervals[quality];
+
+            // Obtemos todas as notas [2..5] por padrão para que existam várias oitavas disponíveis.
+            var allNotes = GetAllNotes(new List<int> { 2, 3, 4, 5 });
+            var index = allNotes.IndexOf(root);
+            if (index < 0)
+                return result;
+
+            // Monta o acorde
+            result.Add(root);
+            foreach (var step in baseIntervals)
+            {
+                index += step;
+                if (index >= allNotes.Count)
+                    return new List<string>(); // se estourar, retornamos vazio
+
+                result.Add(allNotes[index]);
+            }
+
+            // Se existir sétima
+            if (seventhInterval.HasValue)
+            {
+                index += seventhInterval.Value;
+                if (index < allNotes.Count)
+                {
+                    result.Add(allNotes[index]);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Converte o nome da nota (ex: "C#4") para o número MIDI correspondente.
+        /// </summary>
+        public static int? NoteToMidi(string note)
+        {
+            if (string.IsNullOrWhiteSpace(note))
+                return null;
+
+            // Mapeamento das notas para semitons a partir do C.
+            var noteMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "C", 0 }, { "C#", 1 }, { "Db", 1 },
+                { "D", 2 }, { "D#", 3 }, { "Eb", 3 },
+                { "E", 4 }, { "Fb", 4 },
+                { "F", 5 }, { "F#", 6 }, { "Gb", 6 },
+                { "G", 7 }, { "G#", 8 }, { "Ab", 8 },
+                { "A", 9 }, { "A#", 10 }, { "Bb", 10 },
+                { "B", 11 }, { "Cb", 11 }
+            };
+
+            // Exemplo de nota: "C#4" => pitch = "C#", octave = 4
+            // Regex simples: duas partes - pitch (C#) + octave (4)
+            // Você também pode dividir usando manipulação de string comum
+            var pitchPart = "";
+            var octavePart = "";
+            for (int i = 0; i < note.Length; i++)
+            {
+                // Encontramos o primeiro dígito e assumimos que dali em diante é a oitava
+                if (char.IsDigit(note[i]))
+                {
+                    pitchPart = note.Substring(0, i);
+                    octavePart = note.Substring(i);
+                    break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(pitchPart) || string.IsNullOrEmpty(octavePart))
+                return null;
+
+            if (!noteMap.ContainsKey(pitchPart))
+                return null;
+
+            if (!int.TryParse(octavePart, out int octave))
+                return null;
+
+            var semitone = noteMap[pitchPart];
+            // Fórmula: (octave + 1) * 12 + semitone
+            // Ex: A4 => 69
+            return (octave + 1) * 12 + semitone;
+        }
+
+        /// <summary>
+        /// Converte um número MIDI para o nome da nota, usando sustenidos.
+        /// Exemplo: 60 => C4
+        /// </summary>
+        public static string MidiToNote(int midiNumber)
+        {
+            var noteIndex = midiNumber % 12; // posição dentro da oitava
+            var octave = (midiNumber / 12) - 1; // C0 = 12?
+
+            // ChromaticScaleBase[noteIndex] retorna C, C#, D etc.
+            if (noteIndex < 0 || noteIndex >= ChromaticScaleBase.Count)
+                return null;
+
+            var pitch = ChromaticScaleBase[noteIndex];
+            return pitch + octave;
+        }
+
+        /// <summary>
+        /// Exemplo de método que retorna um acorde funcional (grau) a partir de uma escala.
+        /// Ex: Em uma tonalidade C major, o grau I é "C major", grau V é "G major" etc.
+        /// </summary>
+        /// <param name="key">Nota raiz da tonalidade (ex: "C3")</param>
+        /// <param name="scaleType">Tipo de escala (ex: "major")</param>
+        /// <param name="functionCode">Código do grau + tipo do acorde, ex: "1-major", "5-dominant7" etc.</param>
+        public static List<string> GetChordFromFunction(string key, string scaleType, string functionCode)
+        {
+            if (string.IsNullOrWhiteSpace(key)
+                || string.IsNullOrWhiteSpace(scaleType)
+                || string.IsNullOrWhiteSpace(functionCode))
+            {
+                return new List<string>();
+            }
+
+            // Mapeia "1" -> índice 0, "2" -> índice 1, etc.
+            var degreeMap = new Dictionary<string, int>
+            {
+                { "1", 0 },
+                { "2", 1 },
+                { "3", 2 },
+                { "4", 3 },
+                { "5", 4 },
+                { "6", 5 },
+                { "7", 6 }
+            };
+
+            // functionCode pode ser algo como "1-major" ou "5-dominant7"
+            var parts = functionCode.Split('-');
+            if (parts.Length < 2) return new List<string>();
+
+            var degreeStr = parts[0];      // "1", "5"...
+            var chordType = parts[1];      // "major", "dominant7"...
+            if (!degreeMap.ContainsKey(degreeStr))
+                return new List<string>();
+
+            var degreeIndex = degreeMap[degreeStr];
+
+            // Obter as notas da escala
+            var scaleNotes = GetScaleNotes(key, scaleType);
+            if (degreeIndex < 0 || degreeIndex >= scaleNotes.Count)
+                return new List<string>();
+
+            // Nota raiz do acorde
+            var rootNote = scaleNotes[degreeIndex];
+
+            // Montar o acorde a partir desse root + chordType
+            return GetChordNotes(rootNote, chordType);
+        }
+        #endregion
+    }
+}

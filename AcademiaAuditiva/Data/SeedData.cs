@@ -23,6 +23,26 @@ public static class SeedData
                     "Ouça mais de uma vez se necessário.",
                     "Tente cantar a nota para comparar com seu registro mental.",
                     "Compare com notas que você conhece bem como Dó ou Lá."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                {
+                    { "C", "C" },
+                    { "C#", "C#" },
+                    { "D", "D" },
+                    { "D#", "D#" },
+                    { "E", "E" },
+                    { "F", "F" },
+                    { "F#", "F#" },
+                    { "G", "G" },
+                    { "G#", "G#" },
+                    { "A", "A" },
+                    { "A#", "A#" },
+                    { "B", "B" }
                 })
             },
             new Exercise {
@@ -40,6 +60,26 @@ public static class SeedData
                     "Preste atenção na sensação sonora: maior tende a soar feliz, menor mais triste.",
                     "Compare com acordes de referência se necessário.",
                     "Tente cantar as notas para perceber se há intervalos maiores ou menores."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                {
+                    { "C", "C" },
+                    { "C#", "C#" },
+                    { "D", "D" },
+                    { "D#", "D#" },
+                    { "E", "E" },
+                    { "F", "F" },
+                    { "F#", "F#" },
+                    { "G", "G" },
+                    { "G#", "G#" },
+                    { "A", "A" },
+                    { "A#", "A#" },
+                    { "B", "B" }
                 })
             },
             new Exercise {
@@ -56,6 +96,23 @@ public static class SeedData
                     "Associe intervalos a músicas conhecidas (ex: terça maior = 'Parabéns pra você').",
                     "Ouça repetidamente e cante as notas.",
                     "Perceba se o som é próximo (segunda) ou espaçado (quinta, oitava...)."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay",
+                    "Nota1",
+                    "Nota2" 
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                {
+                    { "2", "2" },
+                    { "3", "3" },
+                    { "4", "4" },
+                    { "5", "5" },
+                    { "6", "6" },
+                    { "7", "7" },
+                    { "8", "8" }
                 })
             },
             new Exercise {
@@ -72,6 +129,18 @@ public static class SeedData
                     "Tente memorizar a sonoridade típica de cada qualidade.",
                     "Acordes diminutos soam mais tensos ou instáveis.",
                     "Compare com acordes simples que você já conhece."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                {
+                    { "Maior", "major" },
+                    { "Menor", "minor" },
+                    { "Diminuto", "diminished" },
+                    { "Aumentado", "augmented" }
                 })
             },
             new Exercise {
@@ -88,6 +157,28 @@ public static class SeedData
                     "Lembre que acordes tônicos tendem a soar resolvidos.",
                     "Dominantes soam como tensão que pede resolução.",
                     "Estude o campo harmônico em diferentes tonalidades."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                {
+                    { "I", "1-major" },
+                    { "ii", "2-minor" },
+                    { "iii", "3-minor" },
+                    { "IV", "4-major" },
+                    { "V", "5-major" },
+                    { "vi", "6-minor" },
+                    { "VII°", "7-diminished" },
+                    { "i", "1-minor" },
+                    { "II°", "2-diminished" },
+                    { "III", "3-major" },
+                    { "iv", "4-minor" },
+                    { "v", "5-minor" },
+                    { "VI", "6-major" },
+                    { "VII", "7-major" }
                 })
             },
            new Exercise {
@@ -104,6 +195,28 @@ public static class SeedData
                     "Treine com intervalos simples antes de ir para os compostos.",
                     "Associe sons familiares a cada tipo de intervalo.",
                     "Intervalos justos (como quarta e quinta) têm sonoridade estável."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay",
+                    "Nota1",
+                    "Nota2" 
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                {
+                    { "2m", "2m" },
+                    { "2M", "2M" },
+                    { "3m", "3m" },
+                    { "3M", "3M" },
+                    { "4J", "4J" },
+                    { "5d", "5d" },
+                    { "5J", "5J" },
+                    { "6m", "6m" },
+                    { "6M", "6M" },
+                    { "7m", "7m" },
+                    { "7M", "7M" },
+                    { "8J", "8J" }
                 })
             },
             new Exercise {
@@ -120,6 +233,18 @@ public static class SeedData
                     "Preste atenção nas notas centrais da melodia.",
                     "Se não tiver certeza, ouça mais de uma vez.",
                     "Cantar ou batucar a melodia pode ajudar na memorização."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay",
+                    "Melody1",
+                    "Melody2"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                {
+                    { "Iguais", "same" },
+                    { "Diferentes", "diff" }
                 })
             }
         };
@@ -140,6 +265,8 @@ public static class SeedData
                 existing.FiltersJson = ex.FiltersJson;
                 existing.Instructions = ex.Instructions;
                 existing.TipsJson = ex.TipsJson;
+                existing.AudioButtonsJson = ex.AudioButtonsJson;
+                existing.AnswerButtonsJson = ex.AnswerButtonsJson;
                 context.Exercises.Update(existing);
             }
         }

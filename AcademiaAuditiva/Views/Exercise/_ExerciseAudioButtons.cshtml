@@ -1,0 +1,53 @@
+@model List<string>
+
+<div class="d-flex justify-content-center gap-3 mb-4">
+    @if (Model != null && Model.Count > 0)
+    {
+        foreach (var buttonName in Model)
+        {
+
+            var cssButtonClass = "btn btn-outline-primary";
+            var iconClass = "bi bi-soundwave";
+            var titleText = buttonName;
+
+            switch (buttonName.ToLower())
+            {
+                case "play":
+                case "playinterval":
+                    cssButtonClass = "btn btn-primary";
+                    iconClass = "bi bi-soundwave";
+                    titleText = "Play Interval";
+                    break;
+
+                case "replay":
+                case "replayinterval":
+                    cssButtonClass = "btn btn-outline-secondary";
+                    iconClass = "bi bi-repeat";
+                    titleText = "Replay Interval";
+                    break;
+
+                case "nota1":
+                case "playnote1":
+                    cssButtonClass = "btn btn-outline-primary";
+                    iconClass = "bi bi-1-circle";
+                    titleText = "Nota 1";
+                    break;
+
+                case "nota2":
+                case "playnote2":
+                    cssButtonClass = "btn btn-outline-primary";
+                    iconClass = "bi bi-2-circle";
+                    titleText = "Nota 2";
+                    break;
+            }
+
+            <button class="@cssButtonClass" id="@buttonName" title="@titleText">
+                <i class="@iconClass"></i>
+            </button>
+        }
+    }
+    else
+    {
+        <span>Nenhum botão de áudio disponível.</span>
+    }
+</div>

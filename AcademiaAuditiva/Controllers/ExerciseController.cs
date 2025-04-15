@@ -48,12 +48,6 @@ namespace AcademiaAuditiva.Controllers
 
 			var model = exercise.ToViewModel();
 
-			model.AnswerOptions = new List<string>
-			{
-				"C4", "Cs4", "D4", "Ds4", "E4", "F4",
-				"Fs4", "G4", "Gs4", "A4", "As4", "B4"
-			};
-
 			return View(model);
 		}
 
@@ -126,14 +120,6 @@ namespace AcademiaAuditiva.Controllers
 					</div>"
 			};
 
-
-
-			model.AnswerOptions = new List<string>
-			{
-				"C", "C#", "D", "D#", "E", "F",
-				"F#", "G", "G#", "A", "A#", "B"
-			};
-
 			return View(model);
 		}
 
@@ -189,10 +175,6 @@ namespace AcademiaAuditiva.Controllers
 				return NotFound();
 
 			var model = exercise.ToViewModel();
-
-			model.AnswerOptions = new List<string> {
-				"2", "3", "4", "5", "6", "7", "8"
-			};
 
 			model.Filters = new ExerciseFiltersViewModel
 			{
@@ -284,8 +266,6 @@ namespace AcademiaAuditiva.Controllers
 
 			var model = exercise.ToViewModel();
 
-			model.AnswerOptions = new List<string> { "major", "minor", "diminished", "augmented" };
-
 			model.Filters = new ExerciseFiltersViewModel
 			{
 				Instrument = "Piano",
@@ -356,13 +336,6 @@ namespace AcademiaAuditiva.Controllers
 				return NotFound();
 
 			var model = exercise.ToViewModel();
-
-			model.Title = _localizer["Exercise.Function.Title"];
-			model.AnswerOptions = new List<string>
-			{
-				"1-major", "2-minor", "3-minor", "4-major", "5-major", "6-minor", "7-diminished", // maior
-				"1-minor", "2-diminished", "3-major", "4-minor", "5-minor", "6-major", "7-major"  // menor
-			};
 
 			model.Filters = new ExerciseFiltersViewModel
 			{
@@ -452,13 +425,6 @@ namespace AcademiaAuditiva.Controllers
 				return NotFound();
 
 			var model = exercise.ToViewModel();
-
-			model.Title = _localizer["Exercise.FullInterval.Title"];
-			model.AnswerOptions = new List<string>
-	{
-		"2m", "2M", "3m", "3M", "4J", "4A", "5J",
-		"6m", "6M", "7m", "7M", "8J"
-	};
 
 			model.Filters = new ExerciseFiltersViewModel
 			{
@@ -550,8 +516,6 @@ namespace AcademiaAuditiva.Controllers
 				_localizer["Exercise.MissingNote.Tip1"],
 				_localizer["Exercise.MissingNote.Tip2"]
 			};
-
-			model.AnswerOptions = new List<string> { "same", "different" };
 
 			model.Filters = new ExerciseFiltersViewModel
 			{
