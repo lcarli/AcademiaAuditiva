@@ -2,11 +2,13 @@ using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
+using AcademiaAuditiva.Services;
 using AcademiaAuditiva.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace AcademiaAuditiva.Controllers
 {
@@ -27,6 +29,21 @@ namespace AcademiaAuditiva.Controllers
 			var exercises = _context.Exercises.ToList();
 			return View(exercises);
 		}
+
+		#region GenerateNotes
+		[HttpGet]
+		public IActionResult RequestPlay(int exerciseId)
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.ExerciseId == exerciseId);
+			if (exercise == null)
+				return NotFound("Exercise not found.");
+
+			var generatedNote = MusicTheoryService.GenerateNoteForExercise(exercise);
+
+			return Json(new { note = generatedNote });
+		}
+
+		#endregion
 
 
 		#region GuessNote
@@ -51,19 +68,46 @@ namespace AcademiaAuditiva.Controllers
 			return View(model);
 		}
 
+
 		[HttpPost]
-		public IActionResult GuessNoteSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
+		public IActionResult ValidateGuessNote([FromBody] ValidateGuessNoteDto dto)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
 			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = "User not logged in.", isCorrect = false });
 
-			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessNote");
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.ExerciseId == dto.Id);
 			if (exercise == null)
-				return Json(new { success = false, message = "Exercício GuessNote não encontrado." });
+				return NotFound("Exercício não encontrado.");
+
+			var actualWithoutOctave = Regex.Replace(dto.ActualNote, @"\d", ""); 
+			bool isCorrect = string.Equals(dto.UserGuess, actualWithoutOctave, StringComparison.OrdinalIgnoreCase);
+
+			var existingScore = _context.Scores
+				.Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
+				.OrderByDescending(s => s.Timestamp)
+				.FirstOrDefault();
+
+			int correctCount = 0;
+			int errorCount = 0;
+			int bestScore = 0;
+
+			if (existingScore != null)
+			{
+				correctCount = existingScore.CorrectCount;
+				errorCount = existingScore.ErrorCount;
+				bestScore = existingScore.BestScore;
+			}
+
+			if (isCorrect) correctCount++;
+			else errorCount++;
 
 			int currentScore = correctCount - errorCount;
+			if (currentScore > bestScore)
+			{
+				bestScore = currentScore;
+			}
 
 			var newScore = new Score
 			{
@@ -71,16 +115,25 @@ namespace AcademiaAuditiva.Controllers
 				ExerciseId = exercise.ExerciseId,
 				CorrectCount = correctCount,
 				ErrorCount = errorCount,
-				BestScore = currentScore,
-				TimeSpentSeconds = timeSpentSeconds,
+				BestScore = bestScore,
+				TimeSpentSeconds = dto.TimeSpentSeconds,
 				Timestamp = DateTime.UtcNow
 			};
 
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão registrada com sucesso!" });
+			return Json(new
+			{
+				success = true,
+				isCorrect,
+				newCorrectCount = correctCount,
+				newErrorCount = errorCount,
+				bestScore,
+				message = "Validated and score saved successfully!"
+			});
 		}
+
 		#endregion
 
 		#region GuessChord

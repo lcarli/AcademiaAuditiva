@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AcademiaAuditiva.Models;
 
 namespace AcademiaAuditiva.Services
 {
@@ -230,7 +231,6 @@ namespace AcademiaAuditiva.Services
         }
         #endregion
 
-        // ----------------------------------------
 
         #region Métodos Auxiliares
 
@@ -444,5 +444,31 @@ namespace AcademiaAuditiva.Services
             return GetChordNotes(rootNote, chordType);
         }
         #endregion
+    
+        #region Métodos de geração de som por exercicio
+        public static string GenerateNoteForExercise(Exercise exercise)
+        {
+            var random = new Random();
+            switch (exercise.Name)
+            {
+                case "GuessNote":
+                    var octaves = new List<int> { 3, 4, 5 };
+                    var allNotes = GetAllNotes(octaves);
+                    return allNotes[random.Next(allNotes.Count)];
+                case "GuessChord":
+                    var rootNotes = new List<string> { "C3", "D3", "E3", "F3", "G3", "A3", "B3" };
+                    var qualities = new List<string> { "major", "minor", "diminished", "augmented" };
+                    var chords = GetAllChords(rootNotes, qualities);
+                    if (chords.Count > 0)
+                    {
+                        var randomChord = chords[random.Next(chords.Count)];
+                        return $"{randomChord.Root} {randomChord.Type}";
+                    }
+                    return null;
+            }
+            return null;
+        }
+        #endregion
+    
     }
 }

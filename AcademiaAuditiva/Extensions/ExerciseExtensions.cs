@@ -11,6 +11,7 @@ namespace AcademiaAuditiva.Extensions
         {
             return new ExerciseViewModel
             {
+                ExerciseId = exercise.ExerciseId,
                 Title = exercise.Description,
                 Instructions = exercise.Instructions,
                 Tips = exercise.Tips,
