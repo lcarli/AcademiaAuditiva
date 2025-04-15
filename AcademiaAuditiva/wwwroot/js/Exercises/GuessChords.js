@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let randomRoot = "";
     let randomQuality = "";
     let userRoot = "";
-    let userQuality = chordType;
+    let userQuality = "major";
     const exerciseStartTime = Date.now();
 
     const rootButtons = document.querySelectorAll(".guessNote");

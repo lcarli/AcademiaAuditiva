@@ -64,7 +64,7 @@ namespace AcademiaAuditiva.Controllers
 				case "GuessNote":
 					isCorrect = MusicTheoryService.NotesAreEquivalent(dto.UserGuess, dto.ActualAnswer);
 					break;
-				case "GuessChord":
+				case "GuessChords":
 					isCorrect = MusicTheoryService.AnswersAreEquivalent(dto.UserGuess, dto.ActualAnswer);
 					break;
 				default:
