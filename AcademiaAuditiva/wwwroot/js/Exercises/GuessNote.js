@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
+    //Iniciate Audio
     AcademiaAuditiva.init();
     AudioEngine.setupWaveform();
 
+    //Iniciate Variables
     const exerciseIdInput = document.getElementById("exerciseId");
     const exerciseId = exerciseIdInput ? exerciseIdInput.value : null;
 
@@ -9,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let userGuessedNote = "";
     const exerciseStartTime = Date.now();
 
+    //Iniciate Click Events
     const guessButtons = document.querySelectorAll(".guessNote");
     guessButtons.forEach(button => {
         button.addEventListener("click", () => {
@@ -21,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const rangeSelect = document.querySelector('[name="Range"]');
     const selectedRange = rangeSelect ? rangeSelect.value : "C3-C5";
 
-
+    //Inciate Play and Replay Events
     const playButton = document.getElementById("Play");
     if (playButton) {
         playButton.addEventListener("click", () => {
@@ -59,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    //Inciate Validate Event
     const validateBtn = document.getElementById("validateGuess");
     if (validateBtn) {
         validateBtn.addEventListener("click", () => {
