@@ -6,7 +6,7 @@
 
 <div class="container mt-4">
 	@await Html.PartialAsync("_ExerciseHeader", Model)
-
+	<input type="hidden" id="exerciseId" value="@Model.ExerciseId"/>
 	<div class="row">
 		<div class="col-lg-4">
 			@await Html.PartialAsync("_ExerciseInstructions", Model)

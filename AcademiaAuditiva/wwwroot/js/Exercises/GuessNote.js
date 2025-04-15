@@ -18,16 +18,29 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    const rangeSelect = document.querySelector('[name="Range"]');
+    const selectedRange = rangeSelect ? rangeSelect.value : "C3-C5";
+
+
     const playButton = document.getElementById("Play");
     if (playButton) {
         playButton.addEventListener("click", () => {
             if (!exerciseId) return;
-            fetch(`/Exercise/RequestPlay?exerciseId=${exerciseId}`)
-                .then(resp => resp.json())
-                .then(data => {
-                    randomNote = data.note;
-                    AudioEngine.playNote(randomNote, 1);
-                });
+            fetch("/Exercise/RequestPlay", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    exerciseId: exerciseId,
+                    filters: {
+                        range: selectedRange
+                    }
+                })
+            })
+            .then(resp => resp.json())
+            .then(data => {
+                randomNote = data.note;
+                AudioEngine.playNote(randomNote, 1);
+            });
         });
     }
 
@@ -57,13 +70,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 return;
             }
-            fetch("/Exercise/ValidateGuessNote", {
+            fetch("/Exercise/ValidateExercise", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    id: exerciseId,
+                    ExerciseId: exerciseId,
                     userGuess: userGuessedNote,
-                    actualNote: randomNote,
+                    ActualAnswer: randomNote,
                     timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
                 })
             })
@@ -80,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (errorCountEl) {
                         errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
                     }
-                    Swal.fire("Wrong!", `The correct note was ${randomNote}.`, "error");
+                    Swal.fire("Wrong!", `The correct note was ${randomNote.replace(/\d/g, "").toUpperCase()}.`, "error");
                 }
                 userGuessedNote = "";
                 randomNote = "";

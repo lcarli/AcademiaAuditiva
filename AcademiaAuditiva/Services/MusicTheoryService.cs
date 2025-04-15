@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using AcademiaAuditiva.Models;
 
 namespace AcademiaAuditiva.Services
@@ -218,7 +219,7 @@ namespace AcademiaAuditiva.Services
 
                 var chosen = validDurations[random.Next(validDurations.Count)];
 
-                bool isRest = includeRests && random.NextDouble() < 0.25; // 25% chance
+                bool isRest = includeRests && random.NextDouble() < 0.25;
                 string note = isRest
                     ? "rest"
                     : allNotes[random.Next(allNotes.Count)];
@@ -247,7 +248,6 @@ namespace AcademiaAuditiva.Services
             if (!ScaleIntervals.ContainsKey(scaleType))
                 return new List<string>();
 
-            // Se não for fornecida uma lista de notas, usamos por padrão [2..5].
             if (allNotes == null || allNotes.Count == 0)
             {
                 allNotes = GetAllNotes(new List<int> { 2, 3, 4, 5 });
@@ -295,24 +295,23 @@ namespace AcademiaAuditiva.Services
 
             var (baseIntervals, seventhInterval) = ChordIntervals[quality];
 
-            // Obtemos todas as notas [2..5] por padrão para que existam várias oitavas disponíveis.
+
             var allNotes = GetAllNotes(new List<int> { 2, 3, 4, 5 });
             var index = allNotes.IndexOf(root);
             if (index < 0)
                 return result;
 
-            // Monta o acorde
+
             result.Add(root);
             foreach (var step in baseIntervals)
             {
                 index += step;
                 if (index >= allNotes.Count)
-                    return new List<string>(); // se estourar, retornamos vazio
+                    return new List<string>();
 
                 result.Add(allNotes[index]);
             }
 
-            // Se existir sétima
             if (seventhInterval.HasValue)
             {
                 index += seventhInterval.Value;
@@ -345,14 +344,10 @@ namespace AcademiaAuditiva.Services
                 { "B", 11 }, { "Cb", 11 }
             };
 
-            // Exemplo de nota: "C#4" => pitch = "C#", octave = 4
-            // Regex simples: duas partes - pitch (C#) + octave (4)
-            // Você também pode dividir usando manipulação de string comum
             var pitchPart = "";
             var octavePart = "";
             for (int i = 0; i < note.Length; i++)
             {
-                // Encontramos o primeiro dígito e assumimos que dali em diante é a oitava
                 if (char.IsDigit(note[i]))
                 {
                     pitchPart = note.Substring(0, i);
@@ -382,10 +377,9 @@ namespace AcademiaAuditiva.Services
         /// </summary>
         public static string MidiToNote(int midiNumber)
         {
-            var noteIndex = midiNumber % 12; // posição dentro da oitava
-            var octave = (midiNumber / 12) - 1; // C0 = 12?
+            var noteIndex = midiNumber % 12;
+            var octave = (midiNumber / 12) - 1;
 
-            // ChromaticScaleBase[noteIndex] retorna C, C#, D etc.
             if (noteIndex < 0 || noteIndex >= ChromaticScaleBase.Count)
                 return null;
 
@@ -409,7 +403,6 @@ namespace AcademiaAuditiva.Services
                 return new List<string>();
             }
 
-            // Mapeia "1" -> índice 0, "2" -> índice 1, etc.
             var degreeMap = new Dictionary<string, int>
             {
                 { "1", 0 },
@@ -421,54 +414,136 @@ namespace AcademiaAuditiva.Services
                 { "7", 6 }
             };
 
-            // functionCode pode ser algo como "1-major" ou "5-dominant7"
             var parts = functionCode.Split('-');
             if (parts.Length < 2) return new List<string>();
 
-            var degreeStr = parts[0];      // "1", "5"...
-            var chordType = parts[1];      // "major", "dominant7"...
+            var degreeStr = parts[0];
+            var chordType = parts[1];
             if (!degreeMap.ContainsKey(degreeStr))
                 return new List<string>();
 
             var degreeIndex = degreeMap[degreeStr];
 
-            // Obter as notas da escala
             var scaleNotes = GetScaleNotes(key, scaleType);
             if (degreeIndex < 0 || degreeIndex >= scaleNotes.Count)
                 return new List<string>();
 
-            // Nota raiz do acorde
             var rootNote = scaleNotes[degreeIndex];
 
-            // Montar o acorde a partir desse root + chordType
             return GetChordNotes(rootNote, chordType);
         }
+
+        public static bool NotesAreEquivalent(string note1, string note2)
+        {
+            var enharmonicMap = new Dictionary<string, string>
+            {
+                { "C#", "Db" }, { "Db", "C#" },
+                { "D#", "Eb" }, { "Eb", "D#" },
+                { "F#", "Gb" }, { "Gb", "F#" },
+                { "G#", "Ab" }, { "Ab", "G#" },
+                { "A#", "Bb" }, { "Bb", "A#" }
+            };
+
+            note1 = Regex.Replace(note1 ?? "", @"\d", "").ToUpper();
+            note2 = Regex.Replace(note2 ?? "", @"\d", "").ToUpper();
+
+            if (note1 == note2) return true;
+            if (enharmonicMap.TryGetValue(note1, out var mapped) && mapped == note2) return true;
+
+            return false;
+        }
+
+        public static bool AnswersAreEquivalent(string userAnswer, string correctAnswer)
+        {
+            if (string.IsNullOrWhiteSpace(userAnswer) || string.IsNullOrWhiteSpace(correctAnswer))
+                return false;
+
+            var userParts = userAnswer.Split('|');
+            var correctParts = correctAnswer.Split('|');
+
+            if (userParts.Length != correctParts.Length)
+                return false;
+
+            switch (userParts.Length)
+            {
+                case 1:
+                    return NotesAreEquivalent(userParts[0], correctParts[0]);
+
+                case 2:
+                    return NotesAreEquivalent(userParts[0], correctParts[0]) &&
+                           string.Equals(userParts[1], correctParts[1], StringComparison.OrdinalIgnoreCase);
+
+                case 3:
+                    return NotesAreEquivalent(userParts[0], correctParts[0]) &&
+                           string.Equals(userParts[1], correctParts[1], StringComparison.OrdinalIgnoreCase) &&
+                           string.Equals(userParts[2], correctParts[2], StringComparison.OrdinalIgnoreCase);
+
+                default:
+                    return string.Equals(userAnswer, correctAnswer, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
         #endregion
-    
+
+
         #region Métodos de geração de som por exercicio
-        public static string GenerateNoteForExercise(Exercise exercise)
+        public static object GenerateNoteForExercise(Exercise exercise, Dictionary<string, string> filters)
         {
             var random = new Random();
+
             switch (exercise.Name)
             {
                 case "GuessNote":
-                    var octaves = new List<int> { 3, 4, 5 };
-                    var allNotes = GetAllNotes(octaves);
-                    return allNotes[random.Next(allNotes.Count)];
-                case "GuessChord":
-                    var rootNotes = new List<string> { "C3", "D3", "E3", "F3", "G3", "A3", "B3" };
-                    var qualities = new List<string> { "major", "minor", "diminished", "augmented" };
-                    var chords = GetAllChords(rootNotes, qualities);
-                    if (chords.Count > 0)
+                    if (!filters.TryGetValue("range", out var noteRange))
+                        noteRange = "C3-C5";
+
+                    var octaveList = new List<int>();
+                    if (noteRange.Contains('-'))
                     {
-                        var randomChord = chords[random.Next(chords.Count)];
-                        return $"{randomChord.Root} {randomChord.Type}";
+                        var parts = noteRange.Split('-');
+                        var startOctave = int.Parse(parts[0].Substring(1));
+                        var endOctave = int.Parse(parts[1].Substring(1));
+                        octaveList = Enumerable.Range(startOctave, endOctave - startOctave + 1).ToList();
                     }
-                    return null;
+                    else
+                    {
+                        octaveList = new List<int> { 4 };
+                    }
+
+                    var allNotes = GetAllNotes(octaveList);
+                    var selectedNote = allNotes[random.Next(allNotes.Count)];
+                    return new { note = selectedNote };
+
+                case "GuessChords":
+                    if (!filters.TryGetValue("range", out var chordRange))
+                        chordRange = "C3-C5";
+
+                    var chordOctaves = new List<int>();
+                    if (chordRange.Contains('-'))
+                    {
+                        var parts = chordRange.Split('-');
+                        var startOctave = int.Parse(parts[0].Substring(1));
+                        var endOctave = int.Parse(parts[1].Substring(1)); 
+                        chordOctaves = Enumerable.Range(startOctave, endOctave - startOctave + 1).ToList();
+                    }
+                    else
+                    {
+                        chordOctaves = new List<int> { 4 };
+                    }
+
+                    var rootNotes = GetAllNotes(chordOctaves);
+                    var type = filters.TryGetValue("chordType", out var t) ? t : "major";
+
+                    var root = rootNotes[random.Next(rootNotes.Count)];
+                    var chordNotes = GetChordNotes(root, type);
+
+                    return new { root = Regex.Replace(root, @"\d", ""), quality = type, notes = chordNotes };
+
+                default:
+                    return new { message = "Exercício sem gerador de nota implementado." };
             }
-            return null;
         }
         #endregion
-    
+
     }
 }

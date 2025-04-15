@@ -38,15 +38,15 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	}
 
-if (chordGroupSelect) {
-	chordGroup = chordGroupSelect.value;
-	updateVisibleButtons();
-
-	chordGroupSelect.addEventListener("change", (e) => {
-		chordGroup = e.target.value;
+	if (chordGroupSelect) {
+		chordGroup = chordGroupSelect.value;
 		updateVisibleButtons();
-	});
-}
+
+		chordGroupSelect.addEventListener("change", (e) => {
+			chordGroup = e.target.value;
+			updateVisibleButtons();
+		});
+	}
 
 
 	// Gera lista de acordes possíveis com base no filtro
