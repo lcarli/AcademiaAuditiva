@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const rangeSelect = document.querySelector('[name="Range"]');
     const selectedRange = rangeSelect ? rangeSelect.value : "C3-C5";
     const chordTypeSelect = document.getElementById("chordType");
-    const chordType = chordTypeSelect ? chordTypeSelect.value : "major";
+    let chordType = chordTypeSelect ? chordTypeSelect.value : "major";
 
     let randomRoot = "";
     let randomQuality = "";
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     exerciseId: exerciseId,
                     filters: {
-					    chordType: userQuality
+					    chordType: chordType
                     }
                 })
             })
@@ -121,11 +121,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             
                 userRoot = "";
-                userQuality = "";
                 randomRoot = "";
                 randomQuality = "";
                 rootButtons.forEach(b => b.classList.remove("selected"));
                 qualityButtons.forEach(b => b.classList.remove("selected"));
+                if (chordType != "major" && chordType != "minor") { userQuality = "";}
             });            
         });
     }
@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
         chordTypeSelect.addEventListener("change", () => {
             const selectedType = chordTypeSelect.value;
 
-            userQuality = "";
+            chordType = "";
             qualityButtons.forEach(btn => {
                 btn.classList.remove("selected");
             });
@@ -145,12 +145,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     qualityButtons.forEach(btn => {
                         btn.style.display = "none";
                     });
+                    chordType = selectedType;
                     userQuality = selectedType;
                     break;
                 case "minor":
                     qualityButtons.forEach(btn => {
                         btn.style.display = "none";
                     });
+                    chordType = selectedType;
                     userQuality = selectedType;
                     break;
 
@@ -159,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         const val = btn.value;
                         btn.style.display = (val === "major" || val === "minor") ? "inline-block" : "none";
                     });
+                    chordType = selectedType;
                     break;
 
                 case "all":
