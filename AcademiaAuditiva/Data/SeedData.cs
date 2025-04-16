@@ -100,8 +100,8 @@ public static class SeedData
                         {
                             { "Major", "major" },
                             { "Minor", "minor" },
-                            { "Maj & Min", "both" },
-                            { "All", "all" }
+                            { "Diminished", "diminished" },
+                            { "Augmented", "augmented" }
                         }
                     }
                 })

@@ -523,7 +523,7 @@ namespace AcademiaAuditiva.Services
                     {
                         var parts = chordRange.Split('-');
                         var startOctave = int.Parse(parts[0].Substring(1));
-                        var endOctave = int.Parse(parts[1].Substring(1)); 
+                        var endOctave = int.Parse(parts[1].Substring(1));
                         chordOctaves = Enumerable.Range(startOctave, endOctave - startOctave + 1).ToList();
                     }
                     else
@@ -532,12 +532,37 @@ namespace AcademiaAuditiva.Services
                     }
 
                     var rootNotes = GetAllNotes(chordOctaves);
-                    var type = filters.TryGetValue("chordType", out var t) ? t : "major";
+                    var selectedRoot = rootNotes[random.Next(rootNotes.Count)];
 
-                    var root = rootNotes[random.Next(rootNotes.Count)];
-                    var chordNotes = GetChordNotes(root, type);
+                    var typeFilter = filters.TryGetValue("chordType", out var rawType) ? rawType : "major";
+                    List<string> allowedTypes;
 
-                    return new { root = Regex.Replace(root, @"\d", ""), quality = type, notes = chordNotes };
+                    switch (typeFilter)
+                    {
+                        case "major":
+                            allowedTypes = new List<string> { "major" };
+                            break;
+                        case "minor":
+                            allowedTypes = new List<string> { "minor" };
+                            break;
+                        case "both":
+                            allowedTypes = new List<string> { "major", "minor" };
+                            break;
+                        case "all":
+                        default:
+                            allowedTypes = new List<string> { "major", "minor", "diminished", "augmented" };
+                            break;
+                    }
+
+                    var selectedQuality = allowedTypes[random.Next(allowedTypes.Count)];
+                    var chordNotes = GetChordNotes(selectedRoot, selectedQuality);
+
+                    return new
+                    {
+                        root = Regex.Replace(selectedRoot, @"\d", ""),
+                        quality = selectedQuality,
+                        notes = chordNotes
+                    };
 
                 default:
                     return new { message = "Exercício sem gerador de nota implementado." };
