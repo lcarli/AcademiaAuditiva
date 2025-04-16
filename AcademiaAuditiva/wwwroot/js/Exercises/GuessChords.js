@@ -100,7 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     ExerciseId: exerciseId,
                     UserGuess: userRoot + "|" + userQuality,
-                    ActualAnswer: randomRoot + "|" + randomQuality,
                     TimeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
                 })
             })

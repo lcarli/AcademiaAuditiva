@@ -7,6 +7,7 @@ using AcademiaAuditiva.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
@@ -52,6 +53,13 @@ namespace AcademiaAuditiva.Controllers
 
 			var result = MusicTheoryService.GenerateNoteForExercise(exercise, filters);
 
+			var sessionData = new ExerciseSessionData
+			{
+				ExpectedAnswer = JsonConvert.SerializeObject(result)
+			};
+
+			HttpContext.Session.SetString($"ExerciseAnswer_{request.ExerciseId}", JsonConvert.SerializeObject(sessionData));
+
 			return Json(result);
 		}
 
@@ -67,15 +75,28 @@ namespace AcademiaAuditiva.Controllers
 			if (exercise == null)
 				return NotFound("Exercício não encontrado.");
 
+			var sessionKey = $"ExerciseAnswer_{dto.ExerciseId}";
+			var json = HttpContext.Session.GetString(sessionKey);
+
+			if (string.IsNullOrEmpty(json))
+				return Json(new { success = false, message = "Sessão expirada ou resposta não encontrada.", isCorrect = false });
+
+			var sessionData = JsonConvert.DeserializeObject<ExerciseSessionData>(json);
+			var expectedAnswer = sessionData.ExpectedAnswer;
+
 			bool isCorrect = false;
 
 			switch (exercise.Name)
 			{
 				case "GuessNote":
-					isCorrect = MusicTheoryService.NotesAreEquivalent(dto.UserGuess, dto.ActualAnswer);
+					var expected = JsonConvert.DeserializeObject<Dictionary<string, string>>(sessionData.ExpectedAnswer);
+					var expectedNote = expected["note"];
+        			isCorrect = MusicTheoryService.NotesAreEquivalent(dto.UserGuess, expectedNote);
 					break;
 				case "GuessChords":
-					isCorrect = MusicTheoryService.AnswersAreEquivalent(dto.UserGuess, dto.ActualAnswer);
+					var expectedChord = JsonConvert.DeserializeObject<Dictionary<string, string>>(sessionData.ExpectedAnswer);
+					var actual = expectedChord["root"] + "|" + expectedChord["quality"];
+					isCorrect = MusicTheoryService.AnswersAreEquivalent(dto.UserGuess, actual);
 					break;
 				default:
 					break;
@@ -116,7 +137,7 @@ namespace AcademiaAuditiva.Controllers
 				newCorrectCount = correctCount,
 				newErrorCount = errorCount,
 				bestScore,
-				answer = dto.ActualAnswer,
+				answer = expectedAnswer,
 				message = isCorrect ? "Resposta correta!" : "Resposta incorreta."
 			});
 		}
