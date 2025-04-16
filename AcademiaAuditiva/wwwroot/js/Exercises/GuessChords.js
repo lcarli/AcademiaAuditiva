@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
             qualityButtons.forEach(b => b.classList.remove("selected"));
             btn.classList.add("selected");
         });
+        btn.style.display = "none";
     });
 
 
@@ -50,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     exerciseId: exerciseId,
                     filters: {
                         range: selectedRange,
-					    chordType: chordType
+					    chordType: userQuality
                     }
                 })
             })
@@ -112,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (correctCountEl) {
                         correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
                     }
-                    Swal.fire("Correct!", "You got the chrod right!", "success");
+                    Swal.fire("Correct!", "You got the chord right!", "success");
                 } else {
                     if (errorCountEl) {
                         errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
@@ -127,6 +128,47 @@ document.addEventListener("DOMContentLoaded", () => {
                 rootButtons.forEach(b => b.classList.remove("selected"));
                 qualityButtons.forEach(b => b.classList.remove("selected"));
             });            
+        });
+    }
+
+    //Inciate Filter Events
+    if (chordTypeSelect) {
+        chordTypeSelect.addEventListener("change", () => {
+            const selectedType = chordTypeSelect.value;
+
+            userQuality = "";
+            qualityButtons.forEach(btn => {
+                btn.classList.remove("selected");
+            });
+
+            switch (selectedType) {
+                case "major":
+                    qualityButtons.forEach(btn => {
+                        btn.style.display = "none";
+                    });
+                    userQuality = selectedType;
+                    break;
+                case "minor":
+                    qualityButtons.forEach(btn => {
+                        btn.style.display = "none";
+                    });
+                    userQuality = selectedType;
+                    break;
+
+                case "both":
+                    qualityButtons.forEach(btn => {
+                        const val = btn.value;
+                        btn.style.display = (val === "major" || val === "minor") ? "inline-block" : "none";
+                    });
+                    break;
+
+                case "all":
+                default:
+                    qualityButtons.forEach(btn => {
+                        btn.style.display = "inline-block";
+                    });
+                    break;
+            }
         });
     }
 });
