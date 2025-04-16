@@ -32,7 +32,6 @@ namespace AcademiaAuditiva.Controllers
 
 		#region General Play and Validate
 		
-		[HttpGet]
 		[HttpPost]
 		public IActionResult RequestPlay([FromBody] PlayRequestDto request)
 		{
@@ -40,7 +39,18 @@ namespace AcademiaAuditiva.Controllers
 			if (exercise == null)
 				return NotFound("Exercise not found.");
 
-			var result = MusicTheoryService.GenerateNoteForExercise(exercise, request.Filters ?? new Dictionary<string, string>());
+			var filters = request.Filters ?? new Dictionary<string, string>();
+
+			var instrument = Request.Cookies["instrument"] ?? "Piano";
+			var noteRange = Request.Cookies["noteRange"] ?? "C4-C4";
+
+			if (!filters.ContainsKey("instrument"))
+				filters["instrument"] = instrument;
+
+			if (!filters.ContainsKey("noteRange"))
+				filters["noteRange"] = noteRange;
+
+			var result = MusicTheoryService.GenerateNoteForExercise(exercise, filters);
 
 			return Json(result);
 		}

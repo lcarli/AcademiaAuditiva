@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     exerciseId: exerciseId,
                     filters: {
-                        range: selectedRange,
 					    chordType: userQuality
                     }
                 })

@@ -21,9 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    const rangeSelect = document.querySelector('[name="Range"]');
-    const selectedRange = rangeSelect ? rangeSelect.value : "C3-C5";
-
     //Inciate Play and Replay Events
     const playButton = document.getElementById("Play");
     if (playButton) {
@@ -34,9 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     exerciseId: exerciseId,
-                    filters: {
-                        range: selectedRange
-                    }
                 })
             })
             .then(resp => resp.json())

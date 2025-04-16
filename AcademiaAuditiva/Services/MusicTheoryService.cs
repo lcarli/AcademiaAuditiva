@@ -490,13 +490,12 @@ namespace AcademiaAuditiva.Services
         public static object GenerateNoteForExercise(Exercise exercise, Dictionary<string, string> filters)
         {
             var random = new Random();
+            if (!filters.TryGetValue("noteRange", out var noteRange))
+                noteRange = "C4-C4";
 
             switch (exercise.Name)
             {
                 case "GuessNote":
-                    if (!filters.TryGetValue("range", out var noteRange))
-                        noteRange = "C3-C5";
-
                     var octaveList = new List<int>();
                     if (noteRange.Contains('-'))
                     {
@@ -515,13 +514,10 @@ namespace AcademiaAuditiva.Services
                     return new { note = selectedNote };
 
                 case "GuessChords":
-                    if (!filters.TryGetValue("range", out var chordRange))
-                        chordRange = "C3-C5";
-
                     var chordOctaves = new List<int>();
-                    if (chordRange.Contains('-'))
+                    if (noteRange.Contains('-'))
                     {
-                        var parts = chordRange.Split('-');
+                        var parts = noteRange.Split('-');
                         var startOctave = int.Parse(parts[0].Substring(1));
                         var endOctave = int.Parse(parts[1].Substring(1));
                         chordOctaves = Enumerable.Range(startOctave, endOctave - startOctave + 1).ToList();
