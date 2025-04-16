@@ -15,9 +15,6 @@ public static class SeedData
                 Type = ExerciseType.NoteRecognition,
                 Category = ExerciseCategory.EarTraining,
                 Difficulty = DifficultyLevel.Beginner,
-                FiltersJson = JsonConvert.SerializeObject(new {
-                    Octaves = new[] { 3, 4, 5 }
-                }),
                 Instructions = "Ouça a nota tocada e selecione a nota correspondente entre as opções disponíveis.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Ouça mais de uma vez se necessário.",
@@ -55,9 +52,20 @@ public static class SeedData
                 Type = ExerciseType.ChordRecognition,
                 Category = ExerciseCategory.Harmony,
                 Difficulty = DifficultyLevel.Beginner,
-                FiltersJson = JsonConvert.SerializeObject(new {
-                    ChordTypes = new[] { "Major", "Minor", "Diminished" },
-                    Octaves = new[] { 3, 4 }
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Tipo de Acorde",
+                        Name = "chordType",
+                        Options = new List<FilterOption>
+                        {
+                            new("major", "Major"),
+                            new("minor", "Minor"),
+                            new("both", "Major and Minor"),
+                            new("all", "All")
+                        }
+                    }
                 }),
                 Instructions = "Ouça o acorde tocado e selecione o tipo de acorde correspondente.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
@@ -104,8 +112,38 @@ public static class SeedData
                 Type = ExerciseType.IntervalRecognition,
                 Category = ExerciseCategory.EarTraining,
                 Difficulty = DifficultyLevel.Beginner,
-                FiltersJson = JsonConvert.SerializeObject(new {
-                    Octaves = new[] { 3, 4, 5 }
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Interval.Key",
+                        Name = "keySelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("C4", "C"),
+                            new("C#4", "C#"),
+                            new("D4", "D"),
+                            new("D#4", "D#"),
+                            new("E4", "E"),
+                            new("F4", "F"),
+                            new("F#4", "F#"),
+                            new("G4", "G"),
+                            new("G#4", "G#"),
+                            new("A4", "A"),
+                            new("A#4", "A#"),
+                            new("B4", "B")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Interval.Scale",
+                        Name = "scaleTypeSelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("major", "Exercise.Scale.Major"),
+                            new("minor", "Exercise.Scale.Minor")
+                        }
+                    }
                 }),
                 Instructions = "Ouça as duas notas e identifique a distância entre elas (intervalo).",
                 TipsJson = JsonConvert.SerializeObject(new[] {
@@ -141,8 +179,19 @@ public static class SeedData
                 Type = ExerciseType.ChordRecognition,
                 Category = ExerciseCategory.Harmony,
                 Difficulty = DifficultyLevel.Intermediate,
-                FiltersJson = JsonConvert.SerializeObject(new {
-                    Qualities = new[] { "Major", "Minor", "Diminished" }
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Quality.ChordGroup",
+                        Name = "chordGroup",
+                        Options = new List<FilterOption>
+                        {
+                            new("major", "Exercise.Quality.OnlyMajor"),
+                            new("minor", "Exercise.Quality.OnlyMinor"),
+                            new("all", "Exercise.Quality.All")
+                        }
+                    }
                 }),
                 Instructions = "Ouça o acorde e determine se ele é maior, menor ou diminuto.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
@@ -173,8 +222,38 @@ public static class SeedData
                 Type = ExerciseType.FunctionRecognition,
                 Category = ExerciseCategory.Harmony,
                 Difficulty = DifficultyLevel.Intermediate,
-                FiltersJson = JsonConvert.SerializeObject(new {
-                    Tones = new[] { "C", "D", "E", "F", "G", "A", "B" }
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Function.Key",
+                        Name = "keySelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("C", "C"),
+                            new("C#", "C#"),
+                            new("D", "D"),
+                            new("D#", "D#"),
+                            new("E", "E"),
+                            new("F", "F"),
+                            new("F#", "F#"),
+                            new("G", "G"),
+                            new("G#", "G#"),
+                            new("A", "A"),
+                            new("A#", "A#"),
+                            new("B", "B")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Function.ScaleType",
+                        Name = "scaleTypeSelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("major", "Exercise.Scale.Major"),
+                            new("minor", "Exercise.Scale.Minor")
+                        }
+                    }
                 }),
                 Instructions = "Ouça o acorde dentro de um contexto e identifique sua função (tônica, dominante, subdominante).",
                 TipsJson = JsonConvert.SerializeObject(new[] {
@@ -215,8 +294,33 @@ public static class SeedData
                 Type = ExerciseType.IntervalRecognition,
                 Category = ExerciseCategory.EarTraining,
                 Difficulty = DifficultyLevel.Advanced,
-                FiltersJson = JsonConvert.SerializeObject(new {
-                    FullIntervals = Enum.GetNames(typeof(FullIntervalType))
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.FullInterval.Key",
+                        Name = "keySelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("C", "C"),
+                            new("D", "D"),
+                            new("E", "E"),
+                            new("F", "F"),
+                            new("G", "G"),
+                            new("A", "A"),
+                            new("B", "B")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.FullInterval.Direction",
+                        Name = "intervalDirection",
+                        Options = new List<FilterOption>
+                        {
+                            new("asc", "Exercise.Direction.Asc"),
+                            new("desc", "Exercise.Direction.Desc")
+                        }
+                    }
                 }),
                 Instructions = "Ouça o intervalo e identifique não apenas a distância, mas também a sua qualidade (maior, menor, justo, etc).",
                 TipsJson = JsonConvert.SerializeObject(new[] {
@@ -257,8 +361,21 @@ public static class SeedData
                 Type = ExerciseType.MelodyReproduction,
                 Category = ExerciseCategory.Melody,
                 Difficulty = DifficultyLevel.Beginner,
-                FiltersJson = JsonConvert.SerializeObject(new {
-                    MelodyLengths = new[] { 4, 5, 6, 7, 8, 9, 10 }
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.MissingNote.MelodyLength",
+                        Name = "melodyLength",
+                        Options = new List<FilterOption>
+                        {
+                            new("4", "4"),
+                            new("5", "5"),
+                            new("6", "6"),
+                            new("7", "7"),
+                            new("8", "8")
+                        }
+                    }
                 }),
                 Instructions = "Ouça duas melodias e diga se são iguais ou se houve alguma alteração entre elas.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
