@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const exerciseStartTime = Date.now();
 
     //Iniciate Click Events
-    const rootButtons = document.querySelectorAll(".guessNote");
+    const rootButtons = document.querySelectorAll(".guessAnswer");
     rootButtons.forEach(btn => {
         btn.addEventListener("click", () => {
             userRoot = btn.value;

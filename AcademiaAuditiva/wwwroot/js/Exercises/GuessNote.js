@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const exerciseStartTime = Date.now();
 
     //Iniciate Click Events
-    const guessButtons = document.querySelectorAll(".guessNote");
+    const guessButtons = document.querySelectorAll(".guessAnswer");
     guessButtons.forEach(button => {
         button.addEventListener("click", () => {
             userGuessedNote = button.value;

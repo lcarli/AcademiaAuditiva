@@ -7,7 +7,7 @@ namespace AcademiaAuditiva.ViewModels
 		public int ExerciseId { get; set; }
 		public string Title { get; set; }
         public string Instruction { get; set; }
-        public Dictionary<string, string> AnswerButtons { get; set; } = new();
+        public Dictionary<string, Dictionary<string, string>> AnswerButtons { get; set; } = new();
         public string SelectedAnswer { get; set; }
         public string CorrectAnswer { get; set; }
         public string FeedbackMessage { get; set; }

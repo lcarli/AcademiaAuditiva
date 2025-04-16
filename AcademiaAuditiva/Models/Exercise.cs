@@ -37,11 +37,11 @@ namespace AcademiaAuditiva.Models
         }
 
         [NotMapped]
-        public Dictionary<string, string> AnswerButtons
+        public Dictionary<string, Dictionary<string, string>> AnswerButtons
         {
             get => string.IsNullOrEmpty(AnswerButtonsJson)
-                ? new Dictionary<string, string>()
-                : JsonConvert.DeserializeObject<Dictionary<string, string>>(AnswerButtonsJson);
+                ? new Dictionary<string, Dictionary<string, string>>()
+                : JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(AnswerButtonsJson);
             set => AnswerButtonsJson = JsonConvert.SerializeObject(value);
         }
     }

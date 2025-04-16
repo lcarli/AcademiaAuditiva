@@ -29,20 +29,24 @@ public static class SeedData
                     "Play",
                     "Replay"
                 }),
-                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
                 {
-                    { "C", "C" },
-                    { "C#", "C#" },
-                    { "D", "D" },
-                    { "D#", "D#" },
-                    { "E", "E" },
-                    { "F", "F" },
-                    { "F#", "F#" },
-                    { "G", "G" },
-                    { "G#", "G#" },
-                    { "A", "A" },
-                    { "A#", "A#" },
-                    { "B", "B" }
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "C", "C" },
+                            { "C#", "C#" },
+                            { "D", "D" },
+                            { "D#", "D#" },
+                            { "E", "E" },
+                            { "F", "F" },
+                            { "F#", "F#" },
+                            { "G", "G" },
+                            { "G#", "G#" },
+                            { "A", "A" },
+                            { "A#", "A#" },
+                            { "B", "B" }
+                        }
+                    }
                 })
             },
             new Exercise {
@@ -66,20 +70,32 @@ public static class SeedData
                     "Play",
                     "Replay"
                 }),
-                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
                 {
-                    { "C", "C" },
-                    { "C#", "C#" },
-                    { "D", "D" },
-                    { "D#", "D#" },
-                    { "E", "E" },
-                    { "F", "F" },
-                    { "F#", "F#" },
-                    { "G", "G" },
-                    { "G#", "G#" },
-                    { "A", "A" },
-                    { "A#", "A#" },
-                    { "B", "B" }
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "C", "C" },
+                            { "C#", "C#" },
+                            { "D", "D" },
+                            { "D#", "D#" },
+                            { "E", "E" },
+                            { "F", "F" },
+                            { "F#", "F#" },
+                            { "G", "G" },
+                            { "G#", "G#" },
+                            { "A", "A" },
+                            { "A#", "A#" },
+                            { "B", "B" }
+                        }
+                    },
+                    { "guessQuality", new Dictionary<string, string>
+                        {
+                            { "Major", "major" },
+                            { "Minor", "minor" },
+                            { "Maj & Min", "both" },
+                            { "All", "all" }
+                        }
+                    }
                 })
             },
             new Exercise {
@@ -102,17 +118,21 @@ public static class SeedData
                     "Play",
                     "Replay",
                     "Nota1",
-                    "Nota2" 
+                    "Nota2"
                 }),
-                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
                 {
-                    { "2", "2" },
-                    { "3", "3" },
-                    { "4", "4" },
-                    { "5", "5" },
-                    { "6", "6" },
-                    { "7", "7" },
-                    { "8", "8" }
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "2", "2" },
+                            { "3", "3" },
+                            { "4", "4" },
+                            { "5", "5" },
+                            { "6", "6" },
+                            { "7", "7" },
+                            { "8", "8" }
+                        }
+                    }
                 })
             },
             new Exercise {
@@ -135,12 +155,16 @@ public static class SeedData
                     "Play",
                     "Replay"
                 }),
-                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
                 {
-                    { "Maior", "major" },
-                    { "Menor", "minor" },
-                    { "Diminuto", "diminished" },
-                    { "Aumentado", "augmented" }
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Maior", "major" },
+                            { "Menor", "minor" },
+                            { "Diminuto", "diminished" },
+                            { "Aumentado", "augmented" }
+                        }
+                    }
                 })
             },
             new Exercise {
@@ -163,22 +187,26 @@ public static class SeedData
                     "Play",
                     "Replay"
                 }),
-                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
                 {
-                    { "I", "1-major" },
-                    { "ii", "2-minor" },
-                    { "iii", "3-minor" },
-                    { "IV", "4-major" },
-                    { "V", "5-major" },
-                    { "vi", "6-minor" },
-                    { "VII°", "7-diminished" },
-                    { "i", "1-minor" },
-                    { "II°", "2-diminished" },
-                    { "III", "3-major" },
-                    { "iv", "4-minor" },
-                    { "v", "5-minor" },
-                    { "VI", "6-major" },
-                    { "VII", "7-major" }
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "I", "1-major" },
+                            { "ii", "2-minor" },
+                            { "iii", "3-minor" },
+                            { "IV", "4-major" },
+                            { "V", "5-major" },
+                            { "vi", "6-minor" },
+                            { "VII°", "7-diminished" },
+                            { "i", "1-minor" },
+                            { "II°", "2-diminished" },
+                            { "III", "3-major" },
+                            { "iv", "4-minor" },
+                            { "v", "5-minor" },
+                            { "VI", "6-major" },
+                            { "VII", "7-major" }
+                        }
+                    }
                 })
             },
            new Exercise {
@@ -201,22 +229,26 @@ public static class SeedData
                     "Play",
                     "Replay",
                     "Nota1",
-                    "Nota2" 
+                    "Nota2"
                 }),
-                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
                 {
-                    { "2m", "2m" },
-                    { "2M", "2M" },
-                    { "3m", "3m" },
-                    { "3M", "3M" },
-                    { "4J", "4J" },
-                    { "5d", "5d" },
-                    { "5J", "5J" },
-                    { "6m", "6m" },
-                    { "6M", "6M" },
-                    { "7m", "7m" },
-                    { "7M", "7M" },
-                    { "8J", "8J" }
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "2m", "2m" },
+                            { "2M", "2M" },
+                            { "3m", "3m" },
+                            { "3M", "3M" },
+                            { "4J", "4J" },
+                            { "5d", "5d" },
+                            { "5J", "5J" },
+                            { "6m", "6m" },
+                            { "6M", "6M" },
+                            { "7m", "7m" },
+                            { "7M", "7M" },
+                            { "8J", "8J" }
+                        }
+                    }
                 })
             },
             new Exercise {
@@ -241,10 +273,14 @@ public static class SeedData
                     "Melody1",
                     "Melody2"
                 }),
-                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, string>
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
                 {
-                    { "Iguais", "same" },
-                    { "Diferentes", "diff" }
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Iguais", "same" },
+                            { "Diferentes", "diff" }
+                        }
+                    }
                 })
             }
         };

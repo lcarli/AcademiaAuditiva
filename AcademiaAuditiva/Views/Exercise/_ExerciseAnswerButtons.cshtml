@@ -1,17 +1,24 @@
-@model Dictionary<string, string>
+@model Dictionary<string, Dictionary<string, string>>
 
-<div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
-    @if (Model != null && Model.Count > 0)
-    {
-        foreach (var kvp in Model)
-        {
-            <button class="btn btn-outline-dark guessNote px-4 py-2" value="@kvp.Value">
-                @kvp.Key
-            </button>
-        }
-    }
-    else
-    {
-        <span>Nenhuma opção de resposta disponível.</span>
-    }
-</div>
+@{
+	if (Model != null && Model.Count > 0)
+	{
+		foreach (var group in Model)
+		{
+			<div class="mb-3">
+				<div class="d-flex justify-content-center flex-wrap gap-3">
+					@foreach (var kvp in group.Value)
+					{
+						<button class="btn btn-outline-dark @group.Key px-4 py-2" value="@kvp.Value">
+							@kvp.Key
+						</button>
+					}
+				</div>
+			</div>
+		}
+	}
+	else
+	{
+		<div><span>Nenhuma opção de resposta disponível.</span></div>
+	}
+}
