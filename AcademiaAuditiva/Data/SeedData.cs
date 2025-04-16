@@ -56,14 +56,14 @@ public static class SeedData
                 {
                     new FilterOptionGroup
                     {
-                        Label = "Tipo de Acorde",
+                        Label = "Exercise.TypeChord",
                         Name = "chordType",
                         Options = new List<FilterOption>
                         {
-                            new("major", "Major"),
-                            new("minor", "Minor"),
-                            new("both", "Major and Minor"),
-                            new("all", "All")
+                            new("major", "Exercise.TypeChordMajeur"),
+                            new("minor", "Exercise.TypeChordMineur"),
+                            new("both", "Exercise.TypeChordMajeurMineur"),
+                            new("all", "Exercise.TypeChordAll")
                         }
                     }
                 }),
@@ -116,7 +116,7 @@ public static class SeedData
                 {
                     new FilterOptionGroup
                     {
-                        Label = "Exercise.Interval.Key",
+                        Label = "Exercise.Key",
                         Name = "keySelect",
                         Options = new List<FilterOption>
                         {
@@ -136,12 +136,12 @@ public static class SeedData
                     },
                     new FilterOptionGroup
                     {
-                        Label = "Exercise.Interval.Scale",
+                        Label = "Exercise.Scale",
                         Name = "scaleTypeSelect",
                         Options = new List<FilterOption>
                         {
-                            new("major", "Exercise.Scale.Major"),
-                            new("minor", "Exercise.Scale.Minor")
+                            new("major", "Exercise.Major"),
+                            new("minor", "Exercise.Minor")
                         }
                     }
                 }),
@@ -187,9 +187,9 @@ public static class SeedData
                         Name = "chordGroup",
                         Options = new List<FilterOption>
                         {
-                            new("major", "Exercise.Quality.OnlyMajor"),
-                            new("minor", "Exercise.Quality.OnlyMinor"),
-                            new("all", "Exercise.Quality.All")
+                            new("major", "Exercise.Major"),
+                            new("minor", "Exercise.Minor"),
+                            new("all", "Exercise.All")
                         }
                     }
                 }),
@@ -226,7 +226,7 @@ public static class SeedData
                 {
                     new FilterOptionGroup
                     {
-                        Label = "Exercise.Function.Key",
+                        Label = "Exercise.Key",
                         Name = "keySelect",
                         Options = new List<FilterOption>
                         {
@@ -246,12 +246,12 @@ public static class SeedData
                     },
                     new FilterOptionGroup
                     {
-                        Label = "Exercise.Function.ScaleType",
+                        Label = "Exercise.Scale",
                         Name = "scaleTypeSelect",
                         Options = new List<FilterOption>
                         {
-                            new("major", "Exercise.Scale.Major"),
-                            new("minor", "Exercise.Scale.Minor")
+                            new("major", "Exercise.Major"),
+                            new("minor", "Exercise.Minor")
                         }
                     }
                 }),
@@ -298,7 +298,7 @@ public static class SeedData
                 {
                     new FilterOptionGroup
                     {
-                        Label = "Exercise.FullInterval.Key",
+                        Label = "Exercise.Key",
                         Name = "keySelect",
                         Options = new List<FilterOption>
                         {
@@ -313,7 +313,7 @@ public static class SeedData
                     },
                     new FilterOptionGroup
                     {
-                        Label = "Exercise.FullInterval.Direction",
+                        Label = "Exercise.Direction",
                         Name = "intervalDirection",
                         Options = new List<FilterOption>
                         {
@@ -365,7 +365,7 @@ public static class SeedData
                 {
                     new FilterOptionGroup
                     {
-                        Label = "Exercise.MissingNote.MelodyLength",
+                        Label = "Exercise.MelodyLength",
                         Name = "melodyLength",
                         Options = new List<FilterOption>
                         {

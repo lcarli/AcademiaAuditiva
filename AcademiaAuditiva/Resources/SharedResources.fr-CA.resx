@@ -690,4 +690,14 @@
   <data name="Dashboard.Menu.Settings" xml:space="preserve"><value>Paramètres</value></data>
   <data name="Dashboard.Menu.Help" xml:space="preserve"><value>Aide</value></data>
   <data name="Exercise.Start" xml:space="preserve"><value>Lancer l'Exercise</value></data>
+  <data name="Exercise.Scale" xml:space="preserve"><value>Sélectionnez la gamme</value></data>
+  <data name="Exercise.Major" xml:space="preserve"><value>Majeure</value></data>
+  <data name="Exercise.Minor" xml:space="preserve"><value>Mineure</value></data>
+  <data name="Exercise.All" xml:space="preserve"><value>Toutes</value></data>
+  <data name="Exercise.Key" xml:space="preserve"><value>Sélectionnez la tonalité</value></data>
+  <data name="Exercise.Direction" xml:space="preserve"><value>Direction</value></data>
+  <data name="Exercise.Direction.Asc" xml:space="preserve"><value>Ascendante</value></data>
+  <data name="Exercise.Direction.Desc" xml:space="preserve"><value>Descendante</value></data>
+  <data name="Exercise.MelodyLength" xml:space="preserve"><value>Longueur de la mélodie</value></data>
+  <data name="Exercise.Quality.ChordGroup" xml:space="preserve"><value>Type d’accords</value></data>
 </root>
