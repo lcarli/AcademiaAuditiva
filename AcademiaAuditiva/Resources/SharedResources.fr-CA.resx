@@ -701,4 +701,5 @@
   <data name="Exercise.MelodyLength" xml:space="preserve"><value>Longueur de la mélodie</value></data>
   <data name="Exercise.Quality.ChordGroup" xml:space="preserve"><value>Type d’accords</value></data>
   <data name="GuessMissingNote" xml:space="preserve"><value>Comparez 2 mélodies</value></data>
+  <data name="Exercise.IntervalText" xml:space="preserve"><value>Quel était l'intervalle joué?</value></data>
 </root>

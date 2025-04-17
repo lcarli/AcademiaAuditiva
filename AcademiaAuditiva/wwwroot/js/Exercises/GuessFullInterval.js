@@ -1,133 +1,141 @@
 document.addEventListener("DOMContentLoaded", () => {
-	AcademiaAuditiva.init();
-	AudioEngine.setupWaveform();
+  //Iniciate Audio
+  AcademiaAuditiva.init();
+  AudioEngine.setupWaveform();
 
-	const loc = document.getElementById("localizer").dataset;
+  const loc = document.getElementById("localizer").dataset;
+  //Iniciate Variables
+  let selectedGuess = "";
+  let note1 = "";
+  let note2 = "";
+  let exerciseStartTime = Date.now();
 
-	let selectedGuess = "";
-	let currentInterval = "";
-	let note1 = "";
-	let note2 = "";
+  const exerciseId = document.getElementById("exerciseId")?.value;
 
-	let key = "C";
-	let direction = "asc";
+  const keySelect = document.getElementById("keySelect");
+  const directionSelect = document.getElementById("intervalDirection");
 
-	// Filtros
-	const keySelect = document.getElementById("keySelect");
-	const directionSelect = document.getElementById("intervalDirection");
+  //Iniciate Click Events
+  const guessButtons = document.querySelectorAll(".guessAnswer");
+  guessButtons.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      guessButtons.forEach((btn) => btn.classList.remove("selected"));
+      e.target.classList.add("selected");
+      selectedGuess = e.target.value;
+    });
+  });
 
-	if (keySelect) {
-		key = keySelect.value;
-		keySelect.addEventListener("change", (e) => {
-			key = e.target.value;
-		});
-	}
+  //Inciate Play and Replay Events
+  const playBtn = document.getElementById("Play");
+  if (playBtn) {
+    playBtn.addEventListener("click", () => {
+      const key = keySelect?.value || "C";
+      const direction = directionSelect?.value || "asc";
 
-	if (directionSelect) {
-		direction = directionSelect.value;
-		directionSelect.addEventListener("change", (e) => {
-			direction = e.target.value;
-		});
-	}
+      fetch("/Exercise/RequestPlay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exerciseId: exerciseId,
+          filters: {
+            keySelect: key,
+            intervalDirection: direction,
+          },
+        }),
+      })
+        .then((resp) => resp.json())
+        .then((data) => {
+          note1 = data.note1;
+          note2 = data.note2;
 
-	// Seleção de resposta
-	const guessButtons = document.querySelectorAll(".guessInterval");
-	guessButtons.forEach(button => {
-		button.addEventListener("click", (e) => {
-			guessButtons.forEach(btn => btn.classList.remove("selected"));
-			e.target.classList.add("selected");
-			selectedGuess = e.target.dataset.interval;
-		});
-	});
+          if (note1 && note2) {
+            AudioEngine.playSequence([note1, note2], 0.6);
+          }
+        })
+        .catch((err) => {
+          console.error("Erro ao gerar intervalo completo:", err);
+        });
+    });
+  }
 
-	function getRandomInterval() {
-		const intervals = ["2m", "2M", "3m", "3M", "4J", "4A", "5J", "6m", "6M", "7m", "7M", "8J"];
-		return intervals[Math.floor(Math.random() * intervals.length)];
-	}
+  const replayBtn = document.getElementById("Replay");
+  if (replayBtn) {
+    replayBtn.addEventListener("click", () => {
+      if (!note1 || !note2) {
+        Swal.fire({
+          icon: "warning",
+          title: loc.incompleteTitle,
+          text: loc.incompleteText,
+        });
+        return;
+      }
+      AudioEngine.playSequence([note1, note2], 0.4);
+    });
+  }
 
-	function getIntervalNotes(root, interval, dir) {
-		const scale = TheoryUtils.getScaleNotes(root, "major");
-		const midiRoot = TheoryUtils.noteToMidi(root);
-		const semitoneMap = {
-			"2m": 1, "2M": 2,
-			"3m": 3, "3M": 4,
-			"4J": 5, "4A": 6,
-			"5J": 7,
-			"6m": 8, "6M": 9,
-			"7m": 10, "7M": 11,
-			"8J": 12
-		};
-		const semitones = semitoneMap[interval] || 0;
+  const n1Btn = document.getElementById("Note1");
+  if (n1Btn) {
+    n1Btn.addEventListener("click", () => {
+      if (note1) AudioEngine.playNote(note1, 1);
+    });
+  }
 
-		const note1Midi = midiRoot;
-		const note2Midi = dir === "asc" ? note1Midi + semitones : note1Midi - semitones;
+  const n2Btn = document.getElementById("Note2");
+  if (n2Btn) {
+    n2Btn.addEventListener("click", () => {
+      if (note2) AudioEngine.playNote(note2, 1);
+    });
+  }
 
-		return [
-			TheoryUtils.midiToNote(note1Midi),
-			TheoryUtils.midiToNote(note2Midi)
-		];
-	}
+  //Inciate Validate Event
+  const validateBtn = document.getElementById("validateGuess");
+  if (validateBtn) {
+    validateBtn.addEventListener("click", () => {
+      const correctCountEl = document.getElementById("correctCount");
+      const errorCountEl = document.getElementById("errorCount");
 
-	// Botões de áudio
-	document.getElementById("playInterval").addEventListener("click", () => {
-		currentInterval = getRandomInterval();
-		const notes = getIntervalNotes(key + "4", currentInterval, direction); // ex: C4 + 3m desc
-		[note1, note2] = notes;
-		AudioEngine.playSequence([note1, note2], 0.6);
-	});
+      if (!selectedGuess) {
+        Swal.fire({
+          icon: "warning",
+          title: loc.incompleteTitle,
+          text: loc.incompleteText,
+        });
+        return;
+      }
 
-	document.getElementById("replayInterval").addEventListener("click", () => {
-		if (!note1 || !note2) {
-			Swal.fire({
-				icon: "warning",
-				title: loc.incompleteTitle,
-				text: loc.incompleteText
-			});
-			return;
-		}
-		AudioEngine.playSequence([note1, note2], 0.4);
-	});
+      fetch("/Exercise/ValidateExercise", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exerciseId: exerciseId,
+          userGuess: selectedGuess,
+          timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
+        }),
+      })
+        .then((resp) => resp.json())
+        .then((data) => {
+			const correctCountEl = document.getElementById("correctCount");
+			const errorCountEl = document.getElementById("errorCount");
+			if (data.isCorrect) {
+			  if (correctCountEl) {
+				correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+			  }
+			  Swal.fire("Correct!", "You got it right!", "success");
+			} else {
+			  if (errorCountEl) {
+				errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+			  }
+			  Swal.fire(
+				"Wrong!", `The correct answer was ${data.answer}.`, "error"
+			  );
+			}
 
-	document.getElementById("playNote1").addEventListener("click", () => {
-		if (note1) AudioEngine.playNote(note1, 1);
-	});
-
-	document.getElementById("playNote2").addEventListener("click", () => {
-		if (note2) AudioEngine.playNote(note2, 1);
-	});
-
-	// Validação
-	document.getElementById("validateGuess").addEventListener("click", () => {
-		const correctCountEl = document.getElementById("correctCount");
-		const errorCountEl = document.getElementById("errorCount");
-
-		if (!selectedGuess || !currentInterval) {
-			Swal.fire({
-				icon: "warning",
-				title: loc.incompleteTitle,
-				text: loc.incompleteText
-			});
-			return;
-		}
-
-		if (selectedGuess === currentInterval) {
-			correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-			AcademiaAuditiva.feedback.playSuccessSound(loc.correctMessage, loc.correctMessageText);
-		} else {
-			errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-			AcademiaAuditiva.feedback.playErrorSound(loc.wrongMessage, loc.wrongMessageText, currentInterval);
-		}
-
-		$.post("/Exercise/GuessFullIntervalSaveScore", {
-			correctCount: correctCountEl.innerText,
-			errorCount: errorCountEl.innerText,
-			timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
-		});
-
-		selectedGuess = "";
-		currentInterval = "";
-		note1 = "";
-		note2 = "";
-		guessButtons.forEach(btn => btn.classList.remove("selected"));
-	});
+          // Reset
+          selectedGuess = "";
+          note1 = "";
+          note2 = "";
+          guessButtons.forEach((btn) => btn.classList.remove("selected"));
+        });
+    });
+  }
 });

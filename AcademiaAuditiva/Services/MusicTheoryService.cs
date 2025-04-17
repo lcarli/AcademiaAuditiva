@@ -610,7 +610,37 @@ namespace AcademiaAuditiva.Services
                         melody2,
                         answer = shouldRemove ? "diff" : "same"
                     };
+                case "GuessFullInterval":
+                    var tonicNote = filters.TryGetValue("keySelect", out var root) ? root + "4" : "C4";
+                    var direction = filters.TryGetValue("intervalDirection", out var dir) ? dir : "asc";
 
+                    var intervalOptions = new Dictionary<string, int>
+                    {
+                        { "2m", 1 }, { "2M", 2 },
+                        { "3m", 3 }, { "3M", 4 },
+                        { "4J", 5 }, { "4A", 6 },
+                        { "5J", 7 },
+                        { "6m", 8 }, { "6M", 9 },
+                        { "7m", 10 }, { "7M", 11 },
+                        { "8J", 12 }
+                    };
+
+                    var intervalList = intervalOptions.Keys.ToList();
+                    var chosenInterval = intervalList[random.Next(intervalList.Count)];
+                    var semitones = intervalOptions[chosenInterval];
+
+                    var tonicMidi = NoteToMidi(tonicNote) ?? 60;
+                    var secondNoteMidi = direction == "asc" ? tonicMidi + semitones : tonicMidi - semitones;
+
+                    var noteA = MidiToNote(tonicMidi);
+                    var noteB = MidiToNote(secondNoteMidi);
+
+                    return new
+                    {
+                        note1 = noteA,
+                        note2 = noteB,
+                        answer = chosenInterval
+                    };
                 default:
                     return new { message = "Exercício sem gerador de nota implementado." };
             }
