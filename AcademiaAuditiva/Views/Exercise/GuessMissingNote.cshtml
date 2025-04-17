@@ -1,131 +1,44 @@
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
 @{
-    ViewData["Title"] = Localizer["Exercise.MissingNote.Title"];
+    ViewData["FiltersPartial"] = "_ExerciseFilters";
 }
 
-<h2 class="text-center">@Localizer["Exercise.MissingNote.Title"]</h2>
-<p class="text-center">@Localizer["Exercise.MissingNote.Description"]</p>
-
-<div class="exercise-content" style="display:none;">
-    </br>
-    </br>
-    </br>
-
-    <div class="text-center mb-3">
-        <button id="playMelodies" class="btn btn-primary m-1">@Localizer["Exercise.PlayMelodies"]</button>
-        <button id="playFirst" class="btn btn-secondary m-1">@Localizer["Exercise.PlayMelody1"]</button>
-        <button id="playSecond" class="btn btn-secondary m-1">@Localizer["Exercise.PlayMelody2"]</button>
-    </div>
-
-    <div class="text-center mb-3">
-        <button class="btn btn-outline-success m-1 guessBtn" data-guess="same">@Localizer["Exercise.Answer.Same"]</button>
-        <button class="btn btn-outline-danger m-1 guessBtn" data-guess="different">@Localizer["Exercise.Answer.Different"]</button>
-    </div>
-
-     <div class="scoreboard text-center my-4">
-        <div class="d-inline-block mx-3">
-            <h5>@Localizer["Exercise.CorrectAnswers"]</h5>
-            <span id="correctCount">0</span>
+<div class="container mt-4">
+    @await Html.PartialAsync("_ExerciseHeader", Model)
+    <input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+    <div class="row">
+        <div class="col-lg-4">
+            @await Html.PartialAsync("_ExerciseInstructions", Model)
         </div>
-        <div class="d-inline-block mx-3">
-            <h5>@Localizer["Exercise.ErrorAnswers"]</h5>
-            <span id="errorCount">0</span>
-        </div>
-        <div class="d-inline-block mx-3">
-            <h5>@Localizer["Exercise.BestScore"]</h5>
-            <span id="bestScore">@ViewBag.BestScore</span>
+        <div class="col-lg-8">
+            <div class="card shadow-sm p-4">
+                <h4 class="text-center mb-3">@Localizer["Exercise.MissingNote.Text"]</h4>
+
+                <!-- WAVEFORM -->
+                <div id="waveform" class="mb-4 text-center" style="height: 100px;"></div>
+
+                @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
+
+				@await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons)
+
+                <div class="text-center">
+                    <button id="validateGuess" class="btn btn-success">@Localizer["Exercise.ValidationButton"]</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+@await Html.PartialAsync("_ExerciseFiltersModal", Model)
+
+<div id="localizer" data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+    data-incomplete-text="@Localizer["Exercise.SelectNoteText"]"
+    data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+    data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
+    data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+    data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]">
+</div>
+
 @section Scripts {
-    <script>
-        let melody1 = [], melody2 = [];
-        let userAnswer = "";
-        let exerciseStartTime = Date.now();
-
-        function maybeRemoveNote(original) {
-            const shouldRemove = Math.random() < 0.5;
-            if (!shouldRemove) return [...original];
-
-            const copy = [...original];
-            const indexToRemove = Math.floor(Math.random() * copy.length);
-            copy.splice(indexToRemove, 1);
-            return copy;
-        }
-
-        function generateMelody() {
-            return TheoryUtils.generateMelodyWithRhythm({
-                measures: 2,
-                timeSignature: "4/4",
-                octaves: [3, 4]
-            });
-        }
-
-        $(document).ready(function () {
-            AcademiaAuditiva.init();
-
-            Swal.fire({
-                title: '@Localizer["Exercise.MissingNote.Title"]',
-                text: '@Localizer["Exercise.MissingNote.Description"]',
-                icon: 'info',
-                confirmButtonText: '@Localizer["Exercise.StartButton"]',
-                allowOutsideClick: false
-            }).then(() => $('.exercise-content').show());
-
-            $('#playMelodies').on('click', () => {
-                melody1 = generateMelody();
-                melody2 = maybeRemoveNote(melody1);
-
-                AcademiaAuditiva.audio.playMelodyWithRhythm(melody1);
-                const totalTime = melody1.reduce((sum, n) => sum + n.duration, 0);
-
-                setTimeout(() => {
-                    AcademiaAuditiva.audio.playMelodyWithRhythm(melody2);
-                }, (totalTime + 1) * 1000);
-            });
-
-            $('#playFirst').on('click', () => {
-                if (melody1.length > 0) {
-                    AcademiaAuditiva.audio.playMelodyWithRhythm(melody1);
-                }
-            });
-
-            $('#playSecond').on('click', () => {
-                if (melody2.length > 0) {
-                    AcademiaAuditiva.audio.playMelodyWithRhythm(melody2);
-                }
-            });
-
-            $('.guessBtn').on('click', function () {
-                const guess = $(this).data('guess');
-                const correct = isSameMelody(melody1, melody2);
-                const correctEl = $('#correctCount');
-                const errorEl = $('#errorCount');
-
-                if ((guess === 'same' && correct) || (guess === 'different' && !correct)) {
-                    correctEl.text(parseInt(correctEl.text()) + 1);
-                    AcademiaAuditiva.feedback.playSuccessSound('@Localizer["Exercise.CorrectMessage"]', '@Localizer["Exercise.CorrectMessageText"]');
-                } else {
-                    errorEl.text(parseInt(errorEl.text()) + 1);
-                    AcademiaAuditiva.feedback.playErrorSound('@Localizer["Exercise.WrongMessage"]', '@Localizer["Exercise.WrongAnswerText"]', '');
-                }
-
-                $.post("/Exercise/GuessMissingNoteSaveScore", {
-                    correctCount: parseInt(correctEl.text()),
-                    errorCount: parseInt(errorEl.text()),
-                    timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
-                });
-            });
-
-            function isSameMelody(m1, m2) {
-                if (m1.length !== m2.length) return false;
-                for (let i = 0; i < m1.length; i++) {
-                    if (m1[i].note !== m2[i].note || m1[i].duration !== m2[i].duration) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        });
-    </script>
+    <script src="~/js/Exercises/GuessMissingNote.js"></script>
 }

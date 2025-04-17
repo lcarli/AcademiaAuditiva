@@ -4,6 +4,7 @@ using AcademiaAuditiva.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AcademiaAuditiva.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250414154739_AddInstructionsAndTipsToExercise")]
+    partial class AddInstructionsAndTipsToExercise
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,12 +32,6 @@ namespace AcademiaAuditiva.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExerciseId"));
-
-                    b.Property<string>("AnswerButtonsJson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AudioButtonsJson")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Category")
                         .HasColumnType("int");
@@ -228,7 +225,7 @@ namespace AcademiaAuditiva.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5217d5e9-d774-4adb-8b3f-c8f7355de0a7",
+                            Id = "392fc301-1f60-456a-8659-59544f044f43",
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "37f979fc-85e9-42c0-bc5c-3321d0b9cad6",
                             Email = "lucas.decarli.ca@gmail.com",
@@ -236,7 +233,7 @@ namespace AcademiaAuditiva.Data.Migrations
                             LockoutEnabled = true,
                             NormalizedEmail = "LUCAS.DECARLI.CA@GMAIL.COM",
                             NormalizedUserName = "LUCAS.DECARLI.CA@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDJ3LGyHgnwNJhhAAHe1MbDvKSvIU8FvAhkeXw/Oc61+U41cwFTBKZvQYLJLxr+ffg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBAC/eEiyictKRSr+IIGQGJrrhqUd28fl0VPsZ+0UgqF1iP5a2dDjmDgRx9B84lMFw==",
                             PhoneNumber = "+15817456586",
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "UTUTEH5FUQ6C2MUTMB3CCICNLIBN6CAO",

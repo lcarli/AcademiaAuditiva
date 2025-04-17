@@ -1,4 +1,6 @@
-﻿using AcademiaAuditiva.Extensions;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using AcademiaAuditiva.Extensions;
+using Newtonsoft.Json;
 
 namespace AcademiaAuditiva.Models
 {
@@ -11,6 +13,37 @@ namespace AcademiaAuditiva.Models
         public DifficultyLevel Difficulty { get; set; }
         public ExerciseCategory Category { get; set; }
         public string? FiltersJson { get; set; }
+        public string? Instructions { get; set; }
+        public string? TipsJson { get; set; }
+        public string? AudioButtonsJson { get; set; }
+        public string? AnswerButtonsJson { get; set; }
+
+        [NotMapped]
+        public List<string> Tips
+        {
+            get => string.IsNullOrEmpty(TipsJson) 
+                ? new List<string>() 
+                : JsonConvert.DeserializeObject<List<string>>(TipsJson);
+            set => TipsJson = JsonConvert.SerializeObject(value);
+        }
+
+        [NotMapped]
+        public List<string> AudioButtons
+        {
+            get => string.IsNullOrEmpty(AudioButtonsJson)
+                ? new List<string>()
+                : JsonConvert.DeserializeObject<List<string>>(AudioButtonsJson);
+            set => AudioButtonsJson = JsonConvert.SerializeObject(value);
+        }
+
+        [NotMapped]
+        public Dictionary<string, Dictionary<string, string>> AnswerButtons
+        {
+            get => string.IsNullOrEmpty(AnswerButtonsJson)
+                ? new Dictionary<string, Dictionary<string, string>>()
+                : JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(AnswerButtonsJson);
+            set => AnswerButtonsJson = JsonConvert.SerializeObject(value);
+        }
     }
 
 }

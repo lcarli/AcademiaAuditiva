@@ -8,6 +8,7 @@ body {
     font-family: Arial, sans-serif;
     background-color: #ffffff;
     margin-bottom: 60px;
+    /* margin-top: 72px; ajuste para header fixo */
 }
 
 @media (min-width: 768px) {
@@ -20,9 +21,13 @@ body {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+a:focus {
+    outline: 2px solid #007BFF;
+    outline-offset: 2px;
+}
 
 .navbar {
-    border-bottom: 3px solid #007BFF; /* Adicionando uma borda azul para destacar */
+    border-bottom: 3px solid #007BFF;
 }
 
 .navbar-dark .navbar-nav .nav-link {
@@ -33,7 +38,6 @@ body {
     color: #007BFF !important;
 }
 
-/* RodapÈ */
 .footer {
     position: absolute;
     bottom: 0;
@@ -47,12 +51,10 @@ body {
     }
 }
 
-/* Estilo para a seÁ„o de descriÁ„o */
-section.container {
+section.container, section.text-center {
     padding: 60px 0;
 }
 
-/* Estilo para a imagem */
 img.img-fluid {
     max-width: 100%;
     height: auto;
@@ -60,9 +62,10 @@ img.img-fluid {
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilo para o call-to-action */
-section.text-center {
-    padding: 60px 0;
+.btn {
+    border-radius: 50px;
+    font-weight: 500;
+    padding: 10px 24px;
 }
 
 .btn-primary {
@@ -75,49 +78,42 @@ section.text-center {
     border-color: #007BFF;
 }
 
-    .btn-primary:hover, .btn-outline-primary:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-    }
-
-/* Scoreboard */
-.scoreboard {
-    border: 2px solid #007BFF; /* Cor de borda baseada na cor principal do Bootstrap */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
-    padding: 20px 0; /* EspaÁamento superior e inferior */
-    border-radius: 5px; /* Borda arredondada */
-    background-color: #f8f9fa; /* Fundo levemente cinza baseado nas cores padr„o do Bootstrap */
+.btn-primary:hover, .btn-outline-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
 }
 
-    .scoreboard h5 {
-        margin-bottom: 10px; /* Um pouco de espaÁo entre o tÌtulo e o n˙mero */
-    }
+.scoreboard {
+    border: 2px solid #007BFF;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px 0;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
 
+.scoreboard h5 {
+    margin-bottom: 10px;
+}
 
-/* Buttons */
 .btn.selected, .guessNote.selected, .guessQuality.selected {
     border-color: blue !important;
     background-color: rgba(0, 0, 255, 0.1) !important;
 }
 
-
-/* Exercices Links */
 .exercise-link {
     display: block;
     padding: 15px 0;
     font-size: 1.2em;
     transition: background-color 0.2s, color 0.2s;
-    color: #007BFF; /* Cor padr„o do Bootstrap para links */
+    color: #007BFF;
 }
 
-    .exercise-link:hover, .exercise-link:focus {
-        background-color: #f8f9fa; /* Cor leve de fundo para hover/focus */
-        color: #0056b3; /* Uma cor mais escura para o hover */
-        text-decoration: none; /* Remover o sublinhado padr„o do hover */
-    }
+.exercise-link:hover, .exercise-link:focus {
+    background-color: #f8f9fa;
+    color: #0056b3;
+    text-decoration: none;
+}
 
-
-/* Dropdown Language */
 .dl-language {
     position: relative;
     display: flex;
@@ -128,14 +124,13 @@ section.text-center {
     background: transparent;
 }
 
-    .dl-language option {
-        color: black;
-    }
+.dl-language option {
+    color: black;
+}
 
-
-    .dl-language img.flag-icon {
-        margin-right: 8px;
-    }
+.dl-language img.flag-icon {
+    margin-right: 8px;
+}
 
 .dropdown-menu a {
     display: flex;
@@ -143,10 +138,197 @@ section.text-center {
     padding: 8px 16px;
 }
 
-    .dropdown-menu a img.flag-icon {
-        margin-right: 8px;
-    }
+.dropdown-menu a img.flag-icon {
+    margin-right: 8px;
+}
 
 .hidden {
     display: none !important;
+}
+
+/* Estilo para cards modernos */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    transition: 0.2s ease-in-out;
+}
+
+.card-title {
+    font-weight: bold;
+}
+
+
+/* Estilo base para gr√°ficos */
+canvas {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+/* Bot√µes de acesso r√°pido no dashboard */
+.quick-access-btn {
+    font-size: 1rem;
+    border-radius: 30px;
+    padding: 10px 24px;
+    transition: all 0.2s ease;
+    color: #007BFF;
+    border: 2px solid #007BFF;
+    background-color: #fff;
+}
+
+.quick-access-btn:hover {
+    background-color: #007BFF;
+    color: #fff;
+}
+
+/* Modo claro/escuro (opcional futuro) */
+body.light-mode {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+/* Anima√ß√µes nos bot√µes de resposta */
+.guessNote, .guessQuality {
+    transition: all 0.15s ease;
+}
+
+.guessNote:hover, .guessQuality:hover {
+    background-color: rgba(0, 0, 255, 0.05);
+    cursor: pointer;
+}
+
+
+/* NOVA AREA DE CSS */
+/* Layout da tela de exerc√≠cio */
+.exercise-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.exercise-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.exercise-instruction {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+/* Bot√µes de √°udio (play/pause/replay) */
+.audio-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.audio-controls .btn {
+    width: 60px;
+    height: 60px;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Container dos bot√µes de resposta */
+.answer-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.answer-buttons .btn {
+    min-width: 70px;
+    font-size: 1rem;
+    padding: 10px 18px;
+}
+
+/* Waveform */
+#waveform {
+    width: 100%;
+    height: 100px;
+    background-color: #f2f2f2;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Feedback visual */
+.feedback-success {
+    border-left: 5px solid #28a745;
+    background-color: #eaf8ef;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 1.5rem;
+}
+
+.feedback-error {
+    border-left: 5px solid #dc3545;
+    background-color: #fdeaea;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 1.5rem;
+}
+
+/* √Årea de ajuda */
+#helpAccordion {
+    margin-top: 2rem;
+}
+
+/* Sidebar badges */
+.badge-group .badge {
+    margin-right: 0.4rem;
+    margin-bottom: 0.4rem;
+}
+
+.answer-buttons .btn {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    min-width: 150px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+
+.answer-buttons .btn:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+}
+
+.btn.rounded-circle {
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flag-icon {
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    object-fit: cover;
 }

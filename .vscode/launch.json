@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/AcademiaAuditiva/bin/Debug/net7.0/AcademiaAuditiva.dll",
+            "program": "${workspaceFolder}/AcademiaAuditiva/bin/Debug/net8.0/AcademiaAuditiva.dll",
             "args": [],
             "cwd": "${workspaceFolder}/AcademiaAuditiva",
             "stopAtEntry": false,

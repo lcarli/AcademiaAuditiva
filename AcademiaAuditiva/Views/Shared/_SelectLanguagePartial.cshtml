@@ -3,37 +3,41 @@
 @using Microsoft.AspNetCore.Localization
 @using Microsoft.AspNetCore.Mvc.Localization
 @using Microsoft.Extensions.Options
-
-@inject IViewLocalizer Localizer
 @inject IOptions<RequestLocalizationOptions> LocOptions
+
 @{
-#pragma warning disable CS8604
 #pragma warning disable CS8602
-	var requestCulture = Context.Features.Get<IRequestCultureFeature>();
-	var cultureItems = LocOptions.Value.SupportedUICultures
-		.Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName })
-		.ToList();
-	var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
-}
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture.RequestCulture.UICulture.Name;
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
 
-<form id="selectLanguage" asp-controller="Dashboard" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post" role="form">
-	<div class="dropdown">
-		<a class="dropdown-toggle dl-language" data-bs-toggle="dropdown" aria-expanded="false" href="#"><img class="flag-icon" src="~/images/@(requestCulture.RequestCulture.UICulture.Name)-icon.webp" alt="@requestCulture.RequestCulture.UICulture.Name" width="30" height="17"> &nbsp @(requestCulture.RequestCulture.UICulture.Name)<i class="bi bi-chevron-down"></i></a>
-		<ul class="dropdown-menu">
-			@foreach (var cultureItem in cultureItems)
-			{
-				var _currentValue = cultureItem.Value;
-				string countryCode = _currentValue.Substring(_currentValue.LastIndexOf('-') + 1);
-				<li>
-					<a href="#" onclick="event.preventDefault(); document.getElementById('culture').value='@_currentValue'; document.getElementById('selectLanguage').submit();"><img class="flag-icon" src="~/images/@(countryCode)-icon.webp" alt="@cultureItem.Text" width="24" height="24"/>  &nbsp  @_currentValue</a>
-				</li>
-			}
-		</ul>
-	</div>
-	<input type="hidden" id="culture" name="culture" value="@requestCulture.RequestCulture.UICulture.Name" />
-</form>
+    var cultureItems = LocOptions.Value.SupportedUICultures
+        .Select(c => new SelectListItem { Value = c.Name, Text = c.NativeName })
+        .ToList();
 
-@{
-#pragma warning restore CS8604
+    var currentFlag = currentCulture.Substring(currentCulture.LastIndexOf('-') + 1);
 #pragma warning restore CS8602
 }
+
+<form id="selectLanguage" asp-controller="Dashboard" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post">
+    <div class="dropdown dropup">
+        <button class="btn btn-link dropdown-toggle p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="~/images/@(currentFlag)-icon.webp" alt="@currentCulture" width="30" height="20" class="flag-icon" />
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            @foreach (var item in cultureItems)
+            {
+                var code = item.Value;
+                var flag = code.Substring(code.LastIndexOf('-') + 1);
+                <li>
+                    <a class="dropdown-item d-flex align-items-center gap-2" href="#"
+                       onclick="event.preventDefault(); document.getElementById('culture').value='@code'; document.getElementById('selectLanguage').submit();">
+                        <img src="~/images/@(flag)-icon.webp" alt="@item.Text" width="24" height="16" class="flag-icon" />
+                        @item.Text
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+    <input type="hidden" id="culture" name="culture" value="@currentCulture" />
+</form>

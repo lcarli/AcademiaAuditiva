@@ -680,4 +680,27 @@
   <data name="Exercise.PlayMelody2"><value>Mélodie 2</value></data>
   <data name="Exercise.Answer.Same"><value>Identiques</value></data>
   <data name="Exercise.Answer.Different"><value>Différentes</value></data>
+  <data name="Dashboard.WelcomeMessage" xml:space="preserve"><value>Bienvenue, </value></data>
+  <data name="Dashboard.LastActivity" xml:space="preserve"><value>Dernière activité : </value></data>
+  <data name="Dashboard.ContinueButton" xml:space="preserve"><value>Continuer là où j’ai arrêté</value></data>
+  <data name="Dashboard.QuickAccess" xml:space="preserve"><value>Accès rapide</value></data>
+  <data name="Dashboard.Menu.Exercises" xml:space="preserve"><value>Exercices</value></data>
+  <data name="Dashboard.Menu.Games" xml:space="preserve"><value>Jeux</value></data>
+  <data name="Dashboard.Menu.Ranking" xml:space="preserve"><value>Classement</value></data>
+  <data name="Dashboard.Menu.Settings" xml:space="preserve"><value>Paramètres</value></data>
+  <data name="Dashboard.Menu.Help" xml:space="preserve"><value>Aide</value></data>
+  <data name="Exercise.Start" xml:space="preserve"><value>Lancer l'Exercise</value></data>
+  <data name="Exercise.Scale" xml:space="preserve"><value>Sélectionnez la gamme</value></data>
+  <data name="Exercise.Major" xml:space="preserve"><value>Majeure</value></data>
+  <data name="Exercise.Minor" xml:space="preserve"><value>Mineure</value></data>
+  <data name="Exercise.All" xml:space="preserve"><value>Toutes</value></data>
+  <data name="Exercise.Key" xml:space="preserve"><value>Sélectionnez la tonalité</value></data>
+  <data name="Exercise.Direction" xml:space="preserve"><value>Direction</value></data>
+  <data name="Exercise.Direction.Asc" xml:space="preserve"><value>Ascendante</value></data>
+  <data name="Exercise.Direction.Desc" xml:space="preserve"><value>Descendante</value></data>
+  <data name="Exercise.Direction.Both" xml:space="preserve"><value>Les deux</value></data>
+  <data name="Exercise.MelodyLength" xml:space="preserve"><value>Longueur de la mélodie</value></data>
+  <data name="Exercise.Quality.ChordGroup" xml:space="preserve"><value>Type d’accords</value></data>
+  <data name="GuessMissingNote" xml:space="preserve"><value>Comparez 2 mélodies</value></data>
+  <data name="Exercise.IntervalText" xml:space="preserve"><value>Quel était l'intervalle joué?</value></data>
 </root>

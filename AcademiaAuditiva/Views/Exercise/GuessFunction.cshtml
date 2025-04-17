@@ -1,217 +1,45 @@
-﻿@{
-    ViewBag.Title = Localizer["Exercise.Function.Title"];
+﻿@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+@{
+	ViewBag.Title = Localizer["Exercise.Function.Title"];
+	ViewData["FiltersPartial"] = "_ExerciseFilters";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center exercise-content">
-        <div class="col-md-8">
-            <h2 class="text-center mb-4">@ViewBag.Title</h2>
+<div class="container mt-4">
+	@await Html.PartialAsync("_ExerciseHeader", Model)
+    <input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+	<div class="row">
+		<div class="col-lg-4">
+			@await Html.PartialAsync("_ExerciseInstructions", Model)
+		</div>
+		<div class="col-lg-8">
+			<div class="card shadow-sm p-4">
+				<h4 class="text-center mb-3">@Localizer["Exercise.FunctionText"]</h4>
 
-            <div class="mb-4 text-center d-flex justify-content-center">
-                <!-- Tom e Qualidade -->
-                <div class="mb-4 me-4">
-                    <label for="key" class="form-label">@Localizer["Exercise.SelectTom"]</label>
-                    <select id="key" class="form-select">
-                        <option value="C4">C</option>
-                        <option value="C#4">C#</option>
-                        <option value="D4">D</option>
-                        <option value="D#4">D#</option>
-                        <option value="E4">E</option>
-                        <option value="F4">F</option>
-                        <option value="F#4">F#</option>
-                        <option value="G4">G</option>
-                        <option value="G#4">G#</option>
-                        <option value="A4">A</option>
-                        <option value="A#4">A#</option>
-                        <option value="E4">E</option>
-                    </select>
-                </div>
+				<div id="waveform" class="mb-4 text-center" style="height: 100px;"></div>
 
-                <div class="mb-4">
-                    <label for="quality" class="form-label">@Localizer["Exercise.Quality"]</label>
-                    <select id="quality" class="form-select">
-                        <option value="major">@Localizer["Exercise.Major"]</option>
-                        <option value="minor">@Localizer["Exercise.Minor"]</option>
-                    </select>
-                </div>
-            </div>
+				@await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
 
-            <div class="mb-4 text-center">
-                <button id="playFunction" class="btn btn-primary">@Localizer["Exercise.ListenChord"]</button>
-                <button id="replayFunction" class="btn btn-primary">@Localizer["Exercise.RelistenChord"]</button>
-            </div>
+				@await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons)
 
-            <h4 class="text-center mb-3">@Localizer["Exercise.Function.Text"]</h4>
+				<div class="text-center">
+					<button id="validateGuess" class="btn btn-success">@Localizer["Exercise.ValidationButton"]</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
-            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                <button class="btn btn-outline-dark guessFunction major-function" data-function="1-major">I</button>
-                <button class="btn btn-outline-dark guessFunction major-function" data-function="2-minor">ii</button>
-                <button class="btn btn-outline-dark guessFunction major-function" data-function="3-minor">iii</button>
-                <button class="btn btn-outline-dark guessFunction major-function" data-function="4-major">IV</button>
-                <button class="btn btn-outline-dark guessFunction major-function" data-function="5-major">V</button>
-                <button class="btn btn-outline-dark guessFunction major-function" data-function="6-minor">vi</button>
-                <button class="btn btn-outline-dark guessFunction major-function"
-                    data-function="7-diminished">VII(b5)</button>
-                <!--minor-->
-                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
-                    data-function="1-minor">i</button>
-                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
-                    data-function="2-diminished">ii(b5)</button>
-                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
-                    data-function="3-major">III</button>
-                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
-                    data-function="4-minor">iv</button>
-                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
-                    data-function="5-minor">v</button>
-                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
-                    data-function="6-major">VI</button>
-                <button class="btn btn-outline-dark guessFunction minor-function" style="display:none"
-                    data-function="7-major">VII</button>
-            </div>
+@await Html.PartialAsync("_ExerciseFiltersModal", Model)
 
-            <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-3">
-                <button id="validateGuess" class="btn btn-warning">@Localizer["Exercise.ValidationButton"]</button>
-            </div>
-        </div>
-
-        <div class="scoreboard text-center my-4">
-            <div class="d-inline-block mx-3">
-                <h5>@Localizer["Exercise.CorrectAnswers"]</h5>
-                <span id="correctCount">0</span>
-            </div>
-            <div class="d-inline-block mx-3">
-                <h5>@Localizer["Exercise.ErrorAnswers"]</h5>
-                <span id="errorCount">0</span>
-            </div>
-            <div class="d-inline-block mx-3">
-                <h5>@Localizer["Exercise.BestScore"]</h5>
-                <span id="bestScore">@ViewBag.BestScore</span>
-            </div>
-        </div>
-
-    </div>
+<div id="localizer"
+	data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+	data-incomplete-text="@Localizer["Exercise.SelectFunctionText"]"
+	data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+	data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
+	data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+	data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]">
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function () {
-            AcademiaAuditiva.init();
-
-            Swal.fire({
-                title: "@Localizer["Exercise.Function.Title"]",
-                text: "@Localizer["Exercise.Function.Description"]",
-                icon: 'info',
-                confirmButtonText: "@Localizer["Exercise.StartButton"]",
-                allowOutsideClick: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $('.exercise-content').show();
-                    exerciseStartTime = Date.now();
-                }
-            });
-
-            let randomFunction = "";
-            let randomFunctionNotes = "";
-            let selectedKey = "C4";
-            let selectedQuality = "major";
-
-            document.getElementById('playFunction').addEventListener('click', () => {
-                const functionObj = TheoryUtils.getRandomFunction();
-                randomFunctionNotes = functionObj.notes;
-                randomFunction = functionObj.position + '-' + functionObj.type;
-
-                AcademiaAuditiva.audio.playChord(randomFunctionNotes, 1);
-            });
-
-            document.getElementById('replayFunction').addEventListener('click', () => {
-                if (randomFunctionNotes) {
-                    AcademiaAuditiva.audio.playChord(randomFunctionNotes, 1);
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: '@Localizer["Exercise.NoteNotSelectedTitle"]',
-                        text: '@Localizer["Exercise.NoteNotSelectedText"]'
-                    });
-                }
-            });
-
-            const functionButtons = document.querySelectorAll('.guessFunction');
-            let guessedFunction = '';
-
-            functionButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    functionButtons.forEach(btn => btn.classList.remove('selected'));
-                    e.target.classList.add('selected');
-                    guessedFunction = e.target.getAttribute('data-function');
-                    e.stopImmediatePropagation();
-                });
-            });
-
-            function updateFunctionButtons() {
-                if (selectedQuality === "major") {
-                    document.querySelectorAll(".major-function").forEach(btn => btn.style.display = "inline-block");
-                    document.querySelectorAll(".minor-function").forEach(btn => btn.style.display = "none");
-                } else {
-                    document.querySelectorAll(".major-function").forEach(btn => btn.style.display = "none");
-                    document.querySelectorAll(".minor-function").forEach(btn => btn.style.display = "inline-block");
-                }
-            }
-
-            document.getElementById('quality').addEventListener('change', function () {
-                selectedQuality = this.value;
-                updateFunctionButtons();
-            });
-
-            document.getElementById('key').addEventListener('change', function (event) {
-                selectedKey = event.target.value;
-            });
-
-            function checkGuess() {
-                const correctCountEl = document.getElementById('correctCount');
-                const errorCountEl = document.getElementById('errorCount');
-                const bestScoreEl = document.getElementById('bestScore');
-
-                if (guessedFunction === randomFunction) {
-                    correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-                    AcademiaAuditiva.feedback.playSuccessSound(
-                        '@Localizer["Exercise.CorrectMessage"]',
-                        '@Localizer["Exercise.CorrectMessageText"]'
-                    );
-                } else {
-                    errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-                    AcademiaAuditiva.feedback.playErrorSound(
-                        '@Localizer["Exercise.WrongMessage"]',
-                        '@Localizer["Exercise.WrongFunctionMessageText"]',
-                        randomFunction
-                    );
-                }
-
-                randomFunction = "";
-                functionButtons.forEach(btn => btn.classList.remove('selected'));
-
-                const correctCount = parseInt(correctCountEl.innerText);
-                const errorCount = parseInt(errorCountEl.innerText);
-                let bestScore = parseInt(bestScoreEl.innerText);
-                const currentScore = correctCount - errorCount;
-
-                $.post("/Exercise/GuessFunctionSaveScore", {
-                    correctCount: correctCount,
-                    errorCount: errorCount,
-                    timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
-                });
-            }
-
-            document.getElementById('validateGuess').addEventListener('click', () => {
-                if (guessedFunction && randomFunction) {
-                    checkGuess();
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: '@Localizer["Exercise.IncompleteTitle"]',
-                        text: '@Localizer["Exercise.SelectFunctionText"]'
-                    });
-                }
-            });
-        });
-    </script>
+	<script src="~/js/Exercises/GuessFunction.js"></script>
 }
