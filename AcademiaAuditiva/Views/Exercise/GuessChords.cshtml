@@ -22,14 +22,6 @@
 
 				@await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons)
 
-				<!-- RESPOSTA: QUALIDADE DO ACORDE -->
-				<div class="d-flex flex-wrap justify-content-center gap-2 mb-4 hidden" id="guessQualityContainer">
-					<button class="btn btn-outline-dark guessQuality" data-quality="major">@Localizer["Exercise.Major"]</button>
-					<button class="btn btn-outline-dark guessQuality" data-quality="minor">@Localizer["Exercise.Minor"]</button>
-					<button class="btn btn-outline-dark guessQuality" data-quality="7">@Localizer["Exercise.7"]</button>
-					<button class="btn btn-outline-dark guessQuality" data-quality="9">@Localizer["Exercise.9"]</button>
-				</div>
-
 				<!-- BOTÃO VALIDAR -->
 				<div class="text-center">
 					<button id="validateGuess" class="btn btn-success">@Localizer["Exercise.ValidationButton"]</button>

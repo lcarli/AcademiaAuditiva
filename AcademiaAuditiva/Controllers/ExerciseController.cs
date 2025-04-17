@@ -117,6 +117,11 @@ namespace AcademiaAuditiva.Controllers
 					var expectedFull = currentAnswer = (string)objFull["answer"];
 					isCorrect = string.Equals(dto.UserGuess, expectedFull, StringComparison.OrdinalIgnoreCase);
 					break;
+				case "GuessFunction":
+					var objFunc = JObject.Parse(sessionData.ExpectedAnswer);
+					var expectedFunc = currentAnswer = (string)objFunc["answer"];
+					isCorrect = string.Equals(dto.UserGuess, expectedFunc, StringComparison.OrdinalIgnoreCase);
+					break;
 				default:
 					break;
 			}

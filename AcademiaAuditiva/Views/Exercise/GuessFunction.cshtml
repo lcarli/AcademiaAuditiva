@@ -15,36 +15,12 @@
 			<div class="card shadow-sm p-4">
 				<h4 class="text-center mb-3">@Localizer["Exercise.FunctionText"]</h4>
 
-				<!-- WAVEFORM -->
 				<div id="waveform" class="mb-4 text-center" style="height: 100px;"></div>
 
 				@await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
 
-				@* @await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons) *@
+				@await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons)
 
-				<!-- RESPOSTAS: MAIOR -->
-				<div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
-					<button class="btn btn-outline-dark guessFunction major-function" data-function="1-major">I</button>
-					<button class="btn btn-outline-dark guessFunction major-function" data-function="2-minor">ii</button>
-					<button class="btn btn-outline-dark guessFunction major-function" data-function="3-minor">iii</button>
-					<button class="btn btn-outline-dark guessFunction major-function" data-function="4-major">IV</button>
-					<button class="btn btn-outline-dark guessFunction major-function" data-function="5-major">V</button>
-					<button class="btn btn-outline-dark guessFunction major-function" data-function="6-minor">vi</button>
-					<button class="btn btn-outline-dark guessFunction major-function" data-function="7-diminished">VII(b5)</button>
-				</div>
-
-				<!-- RESPOSTAS: MENOR -->
-				<div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-					<button class="btn btn-outline-dark guessFunction minor-function" data-function="1-minor" style="display:none">i</button>
-					<button class="btn btn-outline-dark guessFunction minor-function" data-function="2-diminished" style="display:none">ii(b5)</button>
-					<button class="btn btn-outline-dark guessFunction minor-function" data-function="3-major" style="display:none">III</button>
-					<button class="btn btn-outline-dark guessFunction minor-function" data-function="4-minor" style="display:none">iv</button>
-					<button class="btn btn-outline-dark guessFunction minor-function" data-function="5-minor" style="display:none">v</button>
-					<button class="btn btn-outline-dark guessFunction minor-function" data-function="6-major" style="display:none">VI</button>
-					<button class="btn btn-outline-dark guessFunction minor-function" data-function="7-major" style="display:none">VII</button>
-				</div>
-
-				<!-- VALIDAR -->
 				<div class="text-center">
 					<button id="validateGuess" class="btn btn-success">@Localizer["Exercise.ValidationButton"]</button>
 				</div>

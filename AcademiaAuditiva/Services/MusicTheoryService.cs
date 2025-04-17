@@ -643,6 +643,23 @@ namespace AcademiaAuditiva.Services
                         note2 = noteB,
                         answer = chosenInterval
                     };
+                case "GuessFunction":
+                    var keyRoot = filters.TryGetValue("keySelect", out var k) ? k : "C";
+                    var scaleFunc = filters.TryGetValue("scaleTypeSelect", out var s) ? s : "major";
+
+                    var majorFunctions = new List<string> { "1-major", "2-minor", "3-minor", "4-major", "5-major", "6-minor", "7-diminished" };
+                    var minorFunctions = new List<string> { "1-minor", "2-diminished", "3-major", "4-minor", "5-minor", "6-major", "7-major" };
+
+                    var functionList = scaleFunc == "minor" ? minorFunctions : majorFunctions;
+                    var selectedFunction = functionList[random.Next(functionList.Count)];
+
+                    var chordFunc = GetChordFromFunction(keyRoot + "3", scaleFunc, selectedFunction);
+
+                    return new
+                    {
+                        notes = chordFunc,
+                        answer = selectedFunction
+                    };
                 default:
                     return new { message = "Exercício sem gerador de nota implementado." };
             }

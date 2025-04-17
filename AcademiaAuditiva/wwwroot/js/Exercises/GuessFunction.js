@@ -1,111 +1,144 @@
 document.addEventListener("DOMContentLoaded", () => {
-	AcademiaAuditiva.init();
-	AudioEngine.setupWaveform();
+  //Iniciate Audio
+  AcademiaAuditiva.init();
+  AudioEngine.setupWaveform();
 
-	const loc = document.getElementById("localizer").dataset;
+  const loc = document.getElementById("localizer").dataset;
+  //Iniciate Variables
+  let selectedGuess = "";
+  let chordNotes = [];
+  let exerciseStartTime = Date.now();
 
-	let selectedGuess = "";
-	let currentFunction = "";
-	let chordNotes = [];
-	let key = "C";
-	let scaleType = "major";
+  const exerciseId = document.getElementById("exerciseId")?.value;
+  const keySelect = document.getElementById("keySelect");
+  const scaleTypeSelect = document.getElementById("scaleTypeSelect");
 
-	// DOM
-	const keySelect = document.getElementById("keySelect");
-	const scaleTypeSelect = document.getElementById("scaleTypeSelect");
-	const guessButtons = document.querySelectorAll(".guessFunction");
+  //Iniciate Click Events
+  const guessButtons = document.querySelectorAll(".guessAnswer");
+  guessButtons.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      guessButtons.forEach((btn) => btn.classList.remove("selected"));
+      e.target.classList.add("selected");
+      selectedGuess = e.target.value;
+    });
+  });
 
-	// Atualizar escala/tom
-	if (keySelect) {
-		key = keySelect.value;
-		keySelect.addEventListener("change", (e) => {
-			key = e.target.value;
-		});
-	}
-	if (scaleTypeSelect) {
-		scaleType = scaleTypeSelect.value;
-		scaleTypeSelect.addEventListener("change", (e) => {
-			scaleType = e.target.value;
-			toggleFunctionButtons(scaleType);
-		});
-	}
+  //Inciate Play and Replay Events
+  const playBtn = document.getElementById("Play");
+  if (playBtn) {
+    playBtn.addEventListener("click", () => {
+      const key = keySelect?.value || "C";
+      const scaleType = scaleTypeSelect?.value || "major";
 
-	// Alterna exibição dos botões
-	function toggleFunctionButtons(type) {
-		const majors = document.querySelectorAll(".major-function");
-		const minors = document.querySelectorAll(".minor-function");
+      toggleFunctionButtons(scaleType);
 
-		majors.forEach(btn => btn.style.display = type === "major" ? "inline-block" : "none");
-		minors.forEach(btn => btn.style.display = type === "minor" ? "inline-block" : "none");
-	}
+      fetch("/Exercise/RequestPlay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exerciseId: exerciseId,
+          filters: {
+            keySelect: key,
+            scaleTypeSelect: scaleType,
+          },
+        }),
+      })
+        .then((resp) => resp.json())
+        .then((data) => {
+          chordNotes = data.notes;
+          AudioEngine.playChord(chordNotes, 1);
+        });
+    });
+  }
 
-	toggleFunctionButtons(scaleType); // inicial
+  const replayBtn = document.getElementById("Replay");
+  if (replayBtn) {
+    replayBtn.addEventListener("click", () => {
+      if (!chordNotes || chordNotes.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: loc.incompleteTitle,
+          text: loc.incompleteText,
+        });
+        return;
+      }
+      AudioEngine.playChord(chordNotes, 1);
+    });
+  }
 
-	// Clique em resposta
-	guessButtons.forEach(button => {
-		button.addEventListener("click", (e) => {
-			guessButtons.forEach(btn => btn.classList.remove("selected"));
-			e.target.classList.add("selected");
-			selectedGuess = e.target.dataset.function;
-		});
-	});
+  //Inciate Validate Event
+  const validateBtn = document.getElementById("validateGuess");
+  if (validateBtn) {
+    validateBtn.addEventListener("click", () => {
+      if (!selectedGuess) {
+        Swal.fire({
+          icon: "warning",
+          title: loc.incompleteTitle,
+          text: loc.incompleteText,
+        });
+        return;
+      }
 
-	// Tocar acorde (gerar aleatoriamente a função)
-	document.getElementById("playChord").addEventListener("click", () => {
-		const availableFunctions = scaleType === "major"
-			? ["1-major", "2-minor", "3-minor", "4-major", "5-major", "6-minor", "7-diminished"]
-			: ["1-minor", "2-diminished", "3-major", "4-minor", "5-minor", "6-major", "7-major"];
+      fetch("/Exercise/ValidateExercise", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exerciseId: exerciseId,
+          userGuess: selectedGuess,
+          timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
+        }),
+      })
+        .then((resp) => resp.json())
+        .then((data) => {
+          const correctCountEl = document.getElementById("correctCount");
+          const errorCountEl = document.getElementById("errorCount");
+          if (data.isCorrect) {
+            if (correctCountEl) {
+              correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
+            }
+            Swal.fire("Correct!", "You got it right!", "success");
+          } else {
+            if (errorCountEl) {
+              errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+            }
+            Swal.fire(
+              "Wrong!",
+              `The correct answer was ${data.answer.replace("|", " ")}.`,
+              "error"
+            );
+          }
 
-		currentFunction = availableFunctions[Math.floor(Math.random() * availableFunctions.length)];
+          // Reset
+          selectedGuess = "";
+          chordNotes = [];
+          guessButtons.forEach((btn) => btn.classList.remove("selected"));
+        });
+    });
+  }
 
-		chordNotes = TheoryUtils.getChordFromFunction(key, scaleType, currentFunction);
-		AudioEngine.playChord(chordNotes, 1);
-	});
+  //Inciate Filter Events
+  function toggleFunctionButtons(scaleType) {
+    const majorFunctions = ["I", "ii", "iii", "IV", "V", "vi", "VII°"];
+    const minorFunctions = ["i", "II°", "III", "iv", "v", "VI", "VII"];
 
-	// Repetir
-	document.getElementById("replayChord").addEventListener("click", () => {
-		if (!chordNotes || chordNotes.length === 0) {
-			Swal.fire({
-				icon: "warning",
-				title: loc.incompleteTitle,
-				text: loc.incompleteText
-			});
-			return;
-		}
-		AudioEngine.playChord(chordNotes, 1);
-	});
+    const guessButtons = document.querySelectorAll(".guessAnswer");
 
-	// Validar resposta
-	document.getElementById("validateGuess").addEventListener("click", () => {
-		const correctCountEl = document.getElementById("correctCount");
-		const errorCountEl = document.getElementById("errorCount");
+    guessButtons.forEach((btn) => {
+      const label = btn.innerText.trim();
+      if (scaleType === "major") {
+        btn.style.display = majorFunctions.includes(label)
+          ? "inline-block"
+          : "none";
+      } else if (scaleType === "minor") {
+        btn.style.display = minorFunctions.includes(label)
+          ? "inline-block"
+          : "none";
+      }
+    });
+  }
 
-		if (!selectedGuess || !currentFunction) {
-			Swal.fire({
-				icon: "warning",
-				title: loc.incompleteTitle,
-				text: loc.incompleteText
-			});
-			return;
-		}
-
-		if (selectedGuess === currentFunction) {
-			correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-			AcademiaAuditiva.feedback.playSuccessSound(loc.correctMessage, loc.correctMessageText);
-		} else {
-			errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-			AcademiaAuditiva.feedback.playErrorSound(loc.wrongMessage, loc.wrongMessageText, currentFunction);
-		}
-
-		$.post("/Exercise/GuessFunctionSaveScore", {
-			correctCount: correctCountEl.innerText,
-			errorCount: errorCountEl.innerText,
-			timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
-		});
-
-		selectedGuess = "";
-		currentFunction = "";
-		chordNotes = [];
-		guessButtons.forEach(btn => btn.classList.remove("selected"));
-	});
+  scaleTypeSelect?.addEventListener("change", () => {
+    toggleFunctionButtons(scaleTypeSelect.value);
+  });
+  toggleFunctionButtons(scaleTypeSelect?.value || "major");
 });
