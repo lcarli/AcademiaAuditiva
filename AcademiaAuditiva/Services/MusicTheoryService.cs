@@ -559,6 +559,30 @@ namespace AcademiaAuditiva.Services
                         quality = selectedQuality,
                         notes = chordNotes
                     };
+                
+                case "GuessInterval":
+                    var tonic = filters.TryGetValue("keySelect", out var key) ? key : "C4";
+                    var scale = filters.TryGetValue("scaleTypeSelect", out var scaleType) ? scaleType : "major";
+
+                    var scaleNotes = GetScaleNotes(tonic, scale);
+                    if (scaleNotes.Count < 2)
+                        return new { error = "Escala muito curta para gerar intervalo." };
+
+                    var degreeOptions = new[] { 2, 3, 4, 5, 6, 7, 8 };
+                    var degree = degreeOptions[random.Next(degreeOptions.Length)];
+
+                    if (degree > scaleNotes.Count)
+                        degree = scaleNotes.Count;
+
+                    var note1 = scaleNotes[0];
+                    var note2 = scaleNotes[degree - 1];
+
+                    return new
+                    {
+                        note1,
+                        note2,
+                        answer = degree.ToString()
+                    };
 
                 default:
                     return new { message = "Exercício sem gerador de nota implementado." };

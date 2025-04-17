@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (errorCountEl) {
                         errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
                     }
-                    Swal.fire("Wrong!", `The correct chord was ${randomRoot.replace(/\d/g, "").toUpperCase() + " " + randomQuality}.`, "error");
+                    Swal.fire("Wrong!", `The correct answer was ${data.answer.replace("|", " " )}.`, "error");
                 }
             
                 userRoot = "";

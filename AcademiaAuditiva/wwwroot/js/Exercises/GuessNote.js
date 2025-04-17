@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (errorCountEl) {
                         errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
                     }
-                    Swal.fire("Wrong!", `The correct note was ${randomNote.replace(/\d/g, "").toUpperCase()}.`, "error");
+                    Swal.fire("Wrong!", `The correct note was ${data.answer.replace(/\d/g, "").toUpperCase()}.`, "error");
                 }
                 userGuessedNote = "";
                 randomNote = "";

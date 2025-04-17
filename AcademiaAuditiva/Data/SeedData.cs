@@ -155,8 +155,8 @@ public static class SeedData
                 {
                     "Play",
                     "Replay",
-                    "Nota1",
-                    "Nota2"
+                    "Note1",
+                    "Note2"
                 }),
                 AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
                 {
