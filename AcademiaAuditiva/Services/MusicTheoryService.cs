@@ -660,6 +660,27 @@ namespace AcademiaAuditiva.Services
                         notes = chordFunc,
                         answer = selectedFunction
                     };
+                case "GuessQuality":
+                    var qualityGroup = filters.TryGetValue("chordGroup", out var group) ? group : "all";
+
+                    List<string> allowedQualities = qualityGroup switch
+                    {
+                        "major" => new List<string> { "major", "major7" },
+                        "minor" => new List<string> { "minor", "minor7" },
+                        _ => new List<string> { "major", "major7", "minor", "minor7", "diminished", "diminished7", "augmented" }
+                    };
+
+                    var rootNotesQ = GetAllNotes(new List<int> { 3, 4 });
+                    var allChordsQ = GetAllChords(rootNotesQ, allowedQualities);
+                    var chordQ = allChordsQ[random.Next(allChordsQ.Count)];
+
+                    return new
+                    {
+                        root = Regex.Replace(chordQ.Root, @"\\d", ""),
+                        type = chordQ.Type,
+                        notes = chordQ.Notes,
+                        answer = chordQ.Type
+                    };
                 default:
                     return new { message = "Exercício sem gerador de nota implementado." };
             }

@@ -208,10 +208,13 @@ public static class SeedData
                 {
                     { "guessAnswer", new Dictionary<string, string>
                         {
-                            { "Maior", "major" },
-                            { "Menor", "minor" },
-                            { "Diminuto", "diminished" },
-                            { "Aumentado", "augmented" }
+                            { "M", "major" },
+                            { "M7", "major7" },
+                            { "m", "minor" },
+                            { "m7", "minor7" },
+                            { "dim", "diminished" },
+                            { "dim7", "diminished7" },
+                            { "aug", "augmented" }
                         }
                     }
                 })
