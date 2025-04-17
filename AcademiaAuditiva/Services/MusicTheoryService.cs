@@ -613,6 +613,8 @@ namespace AcademiaAuditiva.Services
                 case "GuessFullInterval":
                     var tonicNote = filters.TryGetValue("keySelect", out var root) ? root + "4" : "C4";
                     var direction = filters.TryGetValue("intervalDirection", out var dir) ? dir : "asc";
+                    if (direction == "both")
+                        direction = random.NextDouble() < 0.5 ? "asc" : "desc";
 
                     var intervalOptions = new Dictionary<string, int>
                     {

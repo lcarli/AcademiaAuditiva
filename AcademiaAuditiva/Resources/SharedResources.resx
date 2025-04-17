@@ -698,6 +698,7 @@
   <data name="Exercise.Direction" xml:space="preserve"><value>Direction</value></data>
   <data name="Exercise.Direction.Asc" xml:space="preserve"><value>Ascending</value></data>
   <data name="Exercise.Direction.Desc" xml:space="preserve"><value>Descending</value></data>
+  <data name="Exercise.Direction.Both" xml:space="preserve"><value>Both</value></data>
   <data name="Exercise.MelodyLength" xml:space="preserve"><value>Melody Length</value></data>
   <data name="Exercise.Quality.ChordGroup" xml:space="preserve"><value>Chord Type</value></data>
   <data name="GuessMissingNote" xml:space="preserve"><value>Compare 2 melodies</value></data>

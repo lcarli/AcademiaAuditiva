@@ -318,7 +318,8 @@ public static class SeedData
                         Options = new List<FilterOption>
                         {
                             new("asc", "Exercise.Direction.Asc"),
-                            new("desc", "Exercise.Direction.Desc")
+                            new("desc", "Exercise.Direction.Desc"),
+                            new("both", "Exercise.Direction.Both")
                         }
                     }
                 }),
