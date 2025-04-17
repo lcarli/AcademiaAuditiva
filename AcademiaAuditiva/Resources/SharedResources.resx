@@ -691,8 +691,6 @@
   <data name="Dashboard.Menu.Help" xml:space="preserve"><value>Help</value></data>
   <data name="Exercise.Start" xml:space="preserve"><value>Start Exercise</value></data>
   <data name="Exercise.Scale" xml:space="preserve"><value>Select the Scale</value></data>
-  <data name="Exercise.Major" xml:space="preserve"><value>Major</value></data>
-  <data name="Exercise.Minor" xml:space="preserve"><value>Minor</value></data>
   <data name="Exercise.All" xml:space="preserve"><value>All</value></data>
   <data name="Exercise.Key" xml:space="preserve"><value>Select the Key</value></data>
   <data name="Exercise.Direction" xml:space="preserve"><value>Direction</value></data>
@@ -703,4 +701,7 @@
   <data name="Exercise.Quality.ChordGroup" xml:space="preserve"><value>Chord Type</value></data>
   <data name="GuessMissingNote" xml:space="preserve"><value>Compare 2 melodies</value></data>
   <data name="Exercise.IntervalText" xml:space="preserve"><value>What was the interval played?</value></data>
+  <data name="Exercise.QualityText" xml:space="preserve"><value>What is the chord quality?</value></data>
+  <data name="Exercise.MissingNoteText" xml:space="preserve"><value>Are the melodies the same?</value></data>
+  <data name="Exercise.FunctionText" xml:space="preserve"><value>What is the function of the chord?</value></data>
 </root>

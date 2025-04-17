@@ -33,7 +33,7 @@ namespace AcademiaAuditiva.Extensions
             return new ExerciseViewModel
             {
                 ExerciseId = exercise.ExerciseId,
-                Title = exercise.Description,
+                Title = exercise.Name,
                 Instructions = exercise.Instructions,
                 Tips = exercise.Tips,
                 Score = 0,
