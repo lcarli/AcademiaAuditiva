@@ -1,6 +1,5 @@
 @model AcademiaAuditiva.ViewModels.ExerciseViewModel
 @{
-    ViewBag.Title = Localizer["Exercise.MissingNote.Title"];
     ViewData["FiltersPartial"] = "_ExerciseFilters";
 }
 
@@ -20,15 +19,7 @@
 
                 @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
 
-				@* @await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons) *@
-
-                <!-- RESPOSTAS -->
-                <div class="d-flex justify-content-center gap-4 mb-4">
-                    <button class="btn btn-outline-success guessAnswer"
-                        data-answer="same">@Localizer["Exercise.Same"]</button>
-                    <button class="btn btn-outline-danger guessAnswer"
-                        data-answer="different">@Localizer["Exercise.Different"]</button>
-                </div>
+				@await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons)
 
                 <div class="text-center">
                     <button id="validateGuess" class="btn btn-success">@Localizer["Exercise.ValidationButton"]</button>

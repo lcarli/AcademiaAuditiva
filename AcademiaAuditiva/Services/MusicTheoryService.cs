@@ -583,6 +583,33 @@ namespace AcademiaAuditiva.Services
                         note2,
                         answer = degree.ToString()
                     };
+                case "GuessMissingNote":
+                    var melodyLength = filters.TryGetValue("melodyLength", out var rawLen) && int.TryParse(rawLen, out var len) ? len : 5;
+                    var octavesMelody = new List<int> { 3, 4 };
+                    var melodyRaw = GenerateMelodyWithRhythm(measures: 2, timeSignature: "4/4", octaves: octavesMelody, includeRests: true);
+
+                    var melody1 = melodyRaw.Select(m => new
+                    {
+                        type = m.IsRest ? "rest" : "note",
+                        note = m.Note,
+                        duration = m.Duration
+                    }).ToList();
+
+                    // Gera uma cópia com uma nota substituída por rest
+                    var melody2 = melody1.Select(x => new { x.type, x.note, x.duration }).ToList();
+                    var randomIndex = random.Next(melody2.Count);
+                    var shouldRemove = random.NextDouble() < 0.5;
+                    if (!shouldRemove)
+                        melody2 = melody1;
+                    else
+                        melody2[randomIndex] = new { type = "rest", note = "rest", duration = melody2[randomIndex].duration };
+
+                    return new
+                    {
+                        melody1,
+                        melody2,
+                        answer = shouldRemove ? "diff" : "same"
+                    };
 
                 default:
                     return new { message = "Exercício sem gerador de nota implementado." };

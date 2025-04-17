@@ -107,6 +107,11 @@ namespace AcademiaAuditiva.Controllers
 					var expectedInterval = currentAnswer =  (string)objInterval["answer"];
 					isCorrect = string.Equals(dto.UserGuess, expectedInterval, StringComparison.OrdinalIgnoreCase);
 					break;
+				case "GuessMissingNote":
+					var objMelody = JObject.Parse(sessionData.ExpectedAnswer);
+					var expectedComparison = currentAnswer = (string)objMelody["answer"];
+					isCorrect = string.Equals(dto.UserGuess, expectedComparison, StringComparison.OrdinalIgnoreCase);
+					break;
 				default:
 					break;
 			}
