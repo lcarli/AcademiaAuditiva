@@ -700,4 +700,5 @@
   <data name="Exercise.Direction.Desc" xml:space="preserve"><value>Descendente</value></data>
   <data name="Exercise.MelodyLength" xml:space="preserve"><value>Tamanho da Melodia</value></data>
   <data name="Exercise.Quality.ChordGroup" xml:space="preserve"><value>Tipo de Acordes</value></data>
+  <data name="GuessMissingNote" xml:space="preserve"><value>Compare 2 melodias</value></data>
 </root>
