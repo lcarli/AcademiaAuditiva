@@ -449,14 +449,6 @@ namespace AcademiaAuditiva.Controllers
 
 			var model = exercise.ToViewModel(_localizer);
 
-			model.Title = _localizer["Exercise.MissingNote.Title"];
-			model.Instructions = _localizer["Exercise.MissingNote.Instructions"];
-			model.Tips = new List<string>
-			{
-				_localizer["Exercise.MissingNote.Tip1"],
-				_localizer["Exercise.MissingNote.Tip2"]
-			};
-
 			return View(model);
 		}
 
