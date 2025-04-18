@@ -30,9 +30,13 @@ namespace AcademiaAuditiva.Controllers
 			_analyticsService = analyticsService;
 		}
 
-		public IActionResult Index()
+		public async Task<IActionResult> Index()
 		{
 			var exercises = _context.Exercises.ToList();
+			var difficulties = await _context.DifficultyLevels.OrderBy(d => d.Id).ToListAsync();
+			ViewBag.DifficultyLevels = difficulties;
+			var exerciseTypes = await _context.ExerciseTypes.OrderBy(t => t.Id).ToListAsync();
+			ViewBag.ExerciseTypes = exerciseTypes;
 			return View(exercises);
 		}
 

@@ -20,20 +20,20 @@
 	<div class="tab-content mt-4" id="exerciseTabsContent">
 		<!-- Aba por Dificuldade -->
 		<div class="tab-pane fade show active" id="byDifficulty" role="tabpanel">
-			@foreach (var level in Enum.GetValues(typeof(DifficultyLevel)))
+			@foreach (var level in (List<DifficultyLevel>)ViewBag.DifficultyLevels)
 			{
-				var levelName = "Exercise." + level;
+				var levelName = "Exercise." + level.Name;
 				<div class="mb-4">
 					<h4 class="text-primary mb-3">@Localizer[levelName]</h4>
 					<div class="row g-4">
-						@foreach (var exercise in Model.Where(e => e.Difficulty == (DifficultyLevel)level))
+						@foreach (var exercise in Model.Where(e => e.DifficultyLevel == level))
 						{
 							<div class="col-md-4">
 								<div class="card shadow-sm h-100 border-0">
 									<div class="card-body">
 										<h5 class="card-title">@Localizer[exercise.Name]</h5>
 										<p class="card-subtitle mb-2 text-muted">
-											🎯 @Localizer["ExerciseType." + exercise.Type] <br />
+											🎯 @Localizer["ExerciseType." + exercise.ExerciseType.Name] <br />
 										</p>
 										<p class="card-text small text-muted">
 											@exercise.Description
@@ -50,20 +50,20 @@
 
 		<!-- Aba por Tipo -->
 		<div class="tab-pane fade" id="byType" role="tabpanel">
-			@foreach (var type in Enum.GetValues(typeof(ExerciseType)))
+			@foreach (var type in (List<ExerciseType>)ViewBag.ExerciseTypes)
 			{
-				var typeName = "ExerciseType." + type;
+				var typeName = "ExerciseType." + type.Name;
 				<div class="mb-4">
 					<h4 class="text-primary mb-3">@Localizer[typeName]</h4>
 					<div class="row g-4">
-						@foreach (var exercise in Model.Where(e => e.Type == (ExerciseType)type))
+						@foreach (var exercise in Model.Where(e => e.ExerciseType == type))
 						{
 							<div class="col-md-4">
 								<div class="card shadow-sm h-100 border-0">
 									<div class="card-body">
 										<h5 class="card-title">@Localizer[exercise.Name]</h5>
 										<p class="card-subtitle mb-2 text-muted">
-											🧩 @Localizer["Exercise." + exercise.Difficulty]
+											🧩 @Localizer["Exercise." + exercise.DifficultyLevel.Name]
 										</p>
 										<p class="card-text small text-muted">
 											@exercise.Description
