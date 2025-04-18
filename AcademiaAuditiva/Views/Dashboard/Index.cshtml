@@ -92,11 +92,23 @@
     </div>
 </div>
 
+<div id="localizer"
+     data-chart-progress="@Localizer["Dashboard.ChartProgress"]"
+     data-chart-accuracy-by-skill="@Localizer["Dashboard.ChartAccuracyBySkill"]"
+     data-chart-accuracy-by-category="@Localizer["Dashboard.ChartAccuracyByCategory"]"
+     data-chart-accuracy-by-difficulty="@Localizer["Dashboard.ChartAccuracyByDifficulty"]"
+     data-diff-Beginner="@Localizer["Exercise.Beginner"]"
+     data-diff-Intermediate="@Localizer["Exercise.Intermediate"]"
+     data-diff-Advanced="@Localizer["Exercise.Advanced"]"></div>
+</div>
+
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            const loc = document.getElementById("localizer")?.dataset;
+
             // Timeline
             fetch("/Dashboard/GetUserTimeline")
                 .then(res => res.json())
@@ -110,7 +122,7 @@
                         data: {
                             labels: labels,
                             datasets: [{
-                                label: 'Progresso',
+                                label: loc.chartProgress,
                                 data: scores,
                                 fill: false,
                                 borderColor: 'rgb(75, 192, 192)',
@@ -139,7 +151,7 @@
                         data: {
                             labels: labels,
                             datasets: [{
-                                label: 'Precisão por Tipo Técnico',
+                                label: loc.chartAccuracyBySkill,
                                 data: values,
                                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                                 borderColor: 'rgba(54, 162, 235, 1)',
@@ -149,10 +161,7 @@
                         options: {
                             responsive: true,
                             scales: {
-                                r: {
-                                    min: 0,
-                                    max: 100
-                                }
+                                r: { min: 0, max: 100 }
                             }
                         }
                     });
@@ -166,7 +175,7 @@
                         data: {
                             labels: catLabels,
                             datasets: [{
-                                label: 'Precisão por Categoria Pedagógica',
+                                label: loc.chartAccuracyByCategory,
                                 data: catValues,
                                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                                 borderColor: 'rgba(255, 99, 132, 1)',
@@ -176,10 +185,7 @@
                         options: {
                             responsive: true,
                             scales: {
-                                r: {
-                                    min: 0,
-                                    max: 100
-                                }
+                                r: { min: 0, max: 100 }
                             }
                         }
                     });
@@ -209,15 +215,21 @@
                 .then(res => res.json())
                 .then(data => {
                     const ctx = document.getElementById("difficultyChart");
-                    const labels = data.map(d => d.difficulty);
                     const values = data.map(d => d.accuracy);
+
+                    const labelMap = {
+                        beginner: loc.diffBeginner,
+                        intermediate: loc.diffIntermediate,
+                        advanced: loc.diffAdvanced
+                    };
+                    const labels = data.map(d => labelMap[d.difficulty.toLowerCase()] ?? d.difficulty);
 
                     new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: labels,
                             datasets: [{
-                                label: 'Precisão por Dificuldade',
+                                label: loc.chartAccuracyByDifficulty,
                                 data: values,
                                 backgroundColor: 'rgba(153, 102, 255, 0.6)',
                                 borderColor: 'rgba(153, 102, 255, 1)',

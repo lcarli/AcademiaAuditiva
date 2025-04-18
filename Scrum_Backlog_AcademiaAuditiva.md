@@ -20,8 +20,6 @@
 
 | Prioridade | Tarefa                                                                 | Épico                                 | Tipo         |
 |------------|------------------------------------------------------------------------|---------------------------------------|--------------|
-| 🔴 Alta     | Revisar arquitetura JavaScript (unificar controle, filtros, waveform) | Refatoração e Organização             | Tech task    |
-| 🔴 Alta     | Finalizar implementação do `GuessInterval` com backend seguro         | Novos Exercícios                      | Feature      |
 | 🔴 Alta     | Criar estrutura para `GuessRhythm` e `GuessProgression`               | Novos Exercícios                      | Feature      |
 | 🔴 Alta     | Atualizar e padronizar os `.resx` com `@Localizer` para todas as Views| Internacionalização                   | Tech task    |
 | 🟠 Média    | Implementar badges SVG por conquista com regras                       | Gamificação                           | Feature      |
@@ -32,18 +30,6 @@
 | 🟡 Baixa    | Desenvolver página teórica para conceitos como intervalos, escalas... | Base Teórica                          | Content      |
 | 🟡 Baixa    | Adicionar versão mobile otimizada para as views                       | Implantação e Performance             | Enhancement  |
 | 🟡 Baixa    | Criar módulo de “Jogo” com desafios sequenciais                       | Gamificação                           | Feature      |
-
----
-
-## ✅ Exemplo de Sprint 1 (Recomendada)
-
-| Dia      | Tarefa                                                                 |
-|----------|------------------------------------------------------------------------|
-| Segunda  | Refatorar `GuessNote`, `GuessChord` e `GuessInterval` para layout novo |
-| Terça    | Unificar waveform, filtros e resposta usando JS modular                |
-| Quarta   | Atualizar `.resx` e aplicar Localizer a todas views                    |
-| Quinta   | Criar e testar `GuessInterval` com backend e validação por grau        |
-| Sexta    | Criar página com logs pedagógicos e painel inicial                     |
 
 ---
 

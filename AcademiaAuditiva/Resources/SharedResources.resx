@@ -717,4 +717,8 @@
   <data name="Dashboard.Recommendations" xml:space="preserve"><value>My Recommendations</value></data>
   <data name="Dashboard.TechnicalSkills" xml:space="preserve"><value>Technical Skills</value></data>
   <data name="Dashboard.PedagogicalCategories" xml:space="preserve"><value>Pedagogical Categories</value></data>
+  <data name="Dashboard.ChartProgress" xml:space="preserve"><value>Progress</value></data>
+  <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve"><value>Accuracy by Technical Type</value></data>
+  <data name="Dashboard.ChartAccuracyByCategory" xml:space="preserve"><value>Accuracy by Category</value></data>
+  <data name="Dashboard.ChartAccuracyByDifficulty" xml:space="preserve"><value>Accuracy by Difficulty</value></data>
 </root>
