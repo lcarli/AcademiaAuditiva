@@ -1,100 +1,93 @@
 ﻿@{
     ViewBag.Title = "Dashboard";
 }
-<div class="container mt-5">
-    <div class="mb-4 text-center">
-        <h2 class="fw-bold">@Localizer["Dashboard.WelcomeMessage"] @User.Identity.Name!</h2>
-        <p class="text-muted">@Localizer["Dashboard.LastActivity"] Adivinhe a Nota - ontem</p>
-        <button class="btn btn-primary rounded-pill px-4">@Localizer["Dashboard.ContinueButton"]</button>
-    </div>
 
-    <!-- Linha com 3 cards principais -->
-    <div class="row text-center mb-4">
-        <div class="col-md-4 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted">@Localizer["Dashboard.TotalExercises"]</h6>
-                    <h3 class="fw-bold" id="totalExercises">@ViewBag.TotalExercises</h3>
-                </div>
+<div class="container mt-4">
+    <h2 class="fw-bold">@Localizer["Dashboard.WelcomeMessage"] @User.Identity.Name!</h2>
+
+    <!-- KPIs -->
+    <div class="row row-cols-1 row-cols-md-3 g-4 my-3">
+        <div class="col">
+            <div class="card text-bg-light h-100 text-center p-3">
+                <h6 class="text-uppercase">@Localizer["Dashboard.TotalExercises"]</h6>
+                <h3 class="fw-bold">@ViewBag.TotalExercises</h3>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted">@Localizer["Dashboard.BestScore"]</h6>
-                    <h3 class="fw-bold" id="bestScore">@ViewBag.BestScore</h3>
-                </div>
+        <div class="col">
+            <div class="card text-bg-light h-100 text-center p-3">
+                <h6 class="text-uppercase">@Localizer["Dashboard.BestScore"]</h6>
+                <h3 class="fw-bold">@ViewBag.BestScore</h3>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted">@Localizer["Dashboard.TotalTime"]</h6>
-                    <h3 class="fw-bold" id="totalTime">@ViewBag.TotalTime min</h3>
-                </div>
+        <div class="col">
+            <div class="card text-bg-light h-100 text-center p-3">
+                <h6 class="text-uppercase">@Localizer["Dashboard.TotalTime"]</h6>
+                <h3 class="fw-bold">@ViewBag.TotalTime min</h3>
             </div>
         </div>
     </div>
 
-    <!-- Radar + Categoria -->
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="text-center mb-3">@Localizer["Dashboard.RadarTitle"]</h5>
-                    <canvas id="competencyRadarChart" height="200"></canvas>
-                </div>
+    <!-- Gráficos principais -->
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div class="col">
+            <div class="card p-3 h-100">
+                <h5 class="mb-2">@Localizer["Dashboard.LearningTimeline"]</h5>
+                <canvas id="learningTimelineChart" height="120"></canvas>
             </div>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="text-center mb-3">@Localizer["Dashboard.CategoryAccuracyTitle"]</h5>
-                    <canvas id="categoryAccuracyChart" height="200"></canvas>
-                </div>
+        <div class="col">
+            <div class="card p-3 h-100">
+                <h5 class="mb-2">@Localizer["Dashboard.ByDifficulty"]</h5>
+                <canvas id="difficultyChart" height="120"></canvas>
             </div>
         </div>
-    </div>
-
-    <!-- Linha do tempo -->
-    <div class="mb-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h5 class="text-center mb-3">@Localizer["Dashboard.TimelineTitle"]</h5>
-                <canvas id="learningTimelineChart" height="100"></canvas>
+        <div class="col">
+            <div class="card p-3 h-100">
+                <h5 class="mb-2">@Localizer["Dashboard.TechnicalSkills"]</h5>
+                <canvas id="radarTechnicalChart" height="180"></canvas>
             </div>
         </div>
-    </div>
-
-    <!-- Evolução + Dificuldade -->
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="text-center mb-3">@Localizer["Dashboard.ExerciseImprovementTitle"]</h5>
-                    <canvas id="improvementLineChart" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="text-center mb-3">@Localizer["Dashboard.DifficultyTitle"]</h5>
-                    <canvas id="difficultyBarChart" height="200"></canvas>
-                </div>
+        <div class="col">
+            <div class="card p-3 h-100">
+                <h5 class="mb-2">@Localizer["Dashboard.PedagogicalCategories"]</h5>
+                <canvas id="radarCategoryChart" height="180"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Acessos Rápidos -->
-    <div class="text-center mt-5">
-        <h5 class="mb-3">@Localizer["Dashboard.QuickAccess"]</h5>
-        <div class="d-flex justify-content-center flex-wrap gap-3">
-            <a href="/Exercises" class="btn btn-outline-secondary rounded-pill px-4">@Localizer["Dashboard.Menu.Exercises"]</a>
-            <a href="/Games" class="btn btn-outline-secondary rounded-pill px-4">@Localizer["Dashboard.Menu.Games"]</a>
-            <a href="/Ranking" class="btn btn-outline-secondary rounded-pill px-4">@Localizer["Dashboard.Menu.Ranking"]</a>
-            <a href="/Account/Settings" class="btn btn-outline-secondary rounded-pill px-4">@Localizer["Dashboard.Menu.Settings"]</a>
-            <a href="/Help" class="btn btn-outline-secondary rounded-pill px-4">@Localizer["Dashboard.Menu.Help"]</a>
+    <!-- Histórico de sessões -->
+    <div class="card mt-5 p-3">
+        <h5>@Localizer["Dashboard.RecentSessions"]</h5>
+        <div class="table-responsive mt-2">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>@Localizer["Dashboard.Exercise"]</th>
+                        <th>@Localizer["Dashboard.Date"]</th>
+                        <th>@Localizer["Dashboard.Correct"]</th>
+                        <th>@Localizer["Dashboard.Errors"]</th>
+                        <th>@Localizer["Dashboard.TimeSpent"]</th>
+                        <th>@Localizer["Dashboard.Score"]</th>
+                    </tr>
+                </thead>
+                <tbody id="scoreHistoryTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Dificuldades & Recomendações -->
+    <div class="row row-cols-1 row-cols-md-2 g-4 mt-4">
+        <div class="col">
+            <div class="card p-3 h-100">
+                <h5>@Localizer["Dashboard.MostMissedItems"]</h5>
+                <ul class="list-group mt-2" id="mostMissedList"></ul>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card p-3 h-100">
+                <h5>@Localizer["Dashboard.Recommendations"]</h5>
+                <div id="recommendationsList" class="list-group mt-2"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -104,148 +97,167 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            fetch('/Dashboard/GetUserProgress')
+            // Timeline
+            fetch("/Dashboard/GetUserTimeline")
                 .then(res => res.json())
                 .then(data => {
-                    // === Radar por tipo de exercício ===
-                    const radar = data.radar;
+                    const ctx = document.getElementById("learningTimelineChart");
+                    const labels = data.map(d => d.date);
+                    const scores = data.map(d => d.score);
 
-                    const orderedTypes = [
-                        "NoteRecognition",
-                        "IntervalRecognition",
-                        "ChordRecognition",
-                        "FunctionRecognition",
-                        "ScaleRecognition"
-                    ];
-
-                    const radarLabels = orderedTypes.map(type => {
-                        switch (type) {
-                            case "NoteRecognition": return '@Localizer["ExerciseType.NoteRecognition"]';
-                            case "IntervalRecognition": return '@Localizer["ExerciseType.IntervalRecognition"]';
-                            case "ChordRecognition": return '@Localizer["ExerciseType.ChordRecognition"]';
-                            case "FunctionRecognition": return '@Localizer["ExerciseType.FunctionRecognition"]';
-                            case "ScaleRecognition": return '@Localizer["ExerciseType.ScaleRecognition"]';
-                            default: return type;
-                        }
-                    });
-
-                    const radarValues = orderedTypes.map(type => radar[type] || 0);
-
-                    new Chart(document.getElementById("competencyRadarChart"), {
-                        type: 'radar',
+                    new Chart(ctx, {
+                        type: 'line',
                         data: {
-                            labels: radarLabels,
+                            labels: labels,
                             datasets: [{
-                                label: '@Localizer["Dashboard.SkillRadarLabel"]',
-                                data: radarValues,
-                                fill: true,
-                                backgroundColor: 'rgba(75,192,192,0.2)',
-                                borderColor: 'rgba(75,192,192,1)',
-                                pointBackgroundColor: 'rgba(75,192,192,1)'
+                                label: 'Progresso',
+                                data: scores,
+                                fill: false,
+                                borderColor: 'rgb(75, 192, 192)',
+                                tension: 0.2
                             }]
                         },
                         options: {
+                            responsive: true,
                             scales: {
-                                r: {
-                                    suggestedMin: 0,
-                                    suggestedMax: 100
-                                }
+                                y: { beginAtZero: true }
                             }
                         }
                     });
+                });
 
-                    // === Acertos por Categoria ===
-                    const categories = Object.keys(data.byCategory);
-                    const accuracyValues = Object.values(data.byCategory);
+            // Radar técnico
+            fetch("/Dashboard/GetUserProgress")
+                .then(res => res.json())
+                .then(data => {
+                    const radarCtx = document.getElementById("radarTechnicalChart");
+                    const labels = Object.keys(data.radar);
+                    const values = Object.values(data.radar);
 
-                    const categoryLabels = categories.map(c => {
-                        switch (c) {
-                            case "Harmony": return '@Localizer["ExerciseCategory.Harmony"]';
-                            case "EarTraining": return '@Localizer["ExerciseCategory.EarTraining"]';
-                            case "Rhythm": return '@Localizer["ExerciseCategory.Rhythm"]';
-                            case "Scales": return '@Localizer["ExerciseCategory.Scales"]';
-                            case "Melody": return '@Localizer["ExerciseCategory.Melody"]';
-                            case "Games": return '@Localizer["ExerciseCategory.Games"]';
-                            default: return c;
-                        }
-                    });
-
-                    new Chart(document.getElementById("categoryAccuracyChart"), {
-                        type: 'bar',
+                    new Chart(radarCtx, {
+                        type: 'radar',
                         data: {
-                            labels: categoryLabels,
+                            labels: labels,
                             datasets: [{
-                                label: '@Localizer["Dashboard.CategoryAccuracyTitle"]',
-                                data: accuracyValues,
-                                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                                label: 'Precisão por Tipo Técnico',
+                                data: values,
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
                                 borderColor: 'rgba(54, 162, 235, 1)',
                                 borderWidth: 1
                             }]
                         },
                         options: {
-                            indexAxis: 'y',
+                            responsive: true,
                             scales: {
-                                x: {
-                                    beginAtZero: true,
-                                    max: 100,
-                                    title: {
-                                        display: true,
-                                        text: '@Localizer["Dashboard.SkillRadarLabel"] + " (%)"'
-                                    }
+                                r: {
+                                    min: 0,
+                                    max: 100
                                 }
                             }
                         }
                     });
-                })
-                .catch(error => {
-                    console.error("Erro ao carregar dados do Dashboard:", error);
+
+                    const radarCat = document.getElementById("radarCategoryChart");
+                    const catLabels = Object.keys(data.byCategory);
+                    const catValues = Object.values(data.byCategory);
+
+                    new Chart(radarCat, {
+                        type: 'radar',
+                        data: {
+                            labels: catLabels,
+                            datasets: [{
+                                label: 'Precisão por Categoria Pedagógica',
+                                data: catValues,
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                r: {
+                                    min: 0,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
                 });
 
-            // === Os outros gráficos ainda simulados ===
-            const timelineData = [3, 5, 4, 2, 6, 5, 7];
-            const improvementData = [40, 55, 68, 75, 82];
-            const difficultyData = [22, 34, 18, 40, 29];
+            // Histórico
+            fetch("/Dashboard/GetScoreHistory")
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById("scoreHistoryTable");
+                    data.forEach(row => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                                <td>${row.exercise}</td>
+                                <td>${row.date}</td>
+                                <td>${row.correct}</td>
+                                <td>${row.error}</td>
+                                <td>${row.timeSpent}</td>
+                                <td>${row.score}</td>
+                            `;
+                        tbody.appendChild(tr);
+                    });
+                });
 
-            new Chart("learningTimelineChart", {
-                type: 'line',
-                data: {
-                    labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
-                    datasets: [{
-                        label: '@Localizer["Dashboard.TimelineLabel"]',
-                        data: timelineData,
-                        borderColor: 'rgba(255,99,132,1)',
-                        tension: 0.3,
-                        fill: false
-                    }]
-                }
-            });
+            // Dificuldade
+            fetch("/Dashboard/GetPerformanceByDifficulty")
+                .then(res => res.json())
+                .then(data => {
+                    const ctx = document.getElementById("difficultyChart");
+                    const labels = data.map(d => d.difficulty);
+                    const values = data.map(d => d.accuracy);
 
-            new Chart("improvementLineChart", {
-                type: 'line',
-                data: {
-                    labels: ["Notas", "Acordes", "Escalas", "Intervalos", "Função"],
-                    datasets: [{
-                        label: '@Localizer["Dashboard.ImprovementLabel"]',
-                        data: improvementData,
-                        borderColor: 'rgba(153,102,255,1)',
-                        tension: 0.3,
-                        fill: false
-                    }]
-                }
-            });
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Precisão por Dificuldade',
+                                data: values,
+                                backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: { beginAtZero: true, max: 100 }
+                            }
+                        }
+                    });
+                });
 
-            new Chart("difficultyBarChart", {
-                type: 'bar',
-                data: {
-                    labels: ["Notas", "Acordes", "Escalas", "Intervalos", "Função"],
-                    datasets: [{
-                        label: '@Localizer["Dashboard.DifficultyLabel"]',
-                        data: difficultyData,
-                        backgroundColor: 'rgba(255,159,64,0.7)'
-                    }]
-                },
-                options: { scales: { y: { beginAtZero: true } } }
-            });
+            // Maiores dificuldades
+            fetch("/Dashboard/GetMostMissedItems")
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("mostMissedList");
+                    data.forEach(item => {
+                        const li = document.createElement("li");
+                        li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+                        li.innerHTML = `${item.item} <span class="badge bg-danger">${item.errors}</span>`;
+                        list.appendChild(li);
+                    });
+                });
+
+            // Recomendações
+            fetch("/Dashboard/GetRecommendations")
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("recommendationsList");
+                    data.forEach(msg => {
+                        const div = document.createElement("div");
+                        div.classList.add("list-group-item");
+                        div.innerText = msg;
+                        list.appendChild(div);
+                    });
+                });
         });
     </script>
 }

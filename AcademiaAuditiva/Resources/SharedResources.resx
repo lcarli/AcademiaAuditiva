@@ -704,4 +704,17 @@
   <data name="Exercise.QualityText" xml:space="preserve"><value>What is the chord quality?</value></data>
   <data name="Exercise.MissingNoteText" xml:space="preserve"><value>Are the melodies the same?</value></data>
   <data name="Exercise.FunctionText" xml:space="preserve"><value>What is the function of the chord?</value></data>
+  <data name="Dashboard.LearningTimeline" xml:space="preserve"><value>Learning Timeline</value></data>
+  <data name="Dashboard.ByDifficulty" xml:space="preserve"><value>Performance by Difficulty</value></data>
+  <data name="Dashboard.RecentSessions" xml:space="preserve"><value>Recent Sessions</value></data>
+  <data name="Dashboard.Exercise" xml:space="preserve"><value>Exercise</value></data>
+  <data name="Dashboard.Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Dashboard.Correct" xml:space="preserve"><value>Correct</value></data>
+  <data name="Dashboard.Errors" xml:space="preserve"><value>Errors</value></data>
+  <data name="Dashboard.TimeSpent" xml:space="preserve"><value>Time</value></data>
+  <data name="Dashboard.Score" xml:space="preserve"><value>Score</value></data>
+  <data name="Dashboard.MostMissedItems" xml:space="preserve"><value>Most Missed Items</value></data>
+  <data name="Dashboard.Recommendations" xml:space="preserve"><value>My Recommendations</value></data>
+  <data name="Dashboard.TechnicalSkills" xml:space="preserve"><value>Technical Skills</value></data>
+  <data name="Dashboard.PedagogicalCategories" xml:space="preserve"><value>Pedagogical Categories</value></data>
 </root>

@@ -704,4 +704,17 @@
   <data name="Exercise.QualityText" xml:space="preserve"><value>Quelle est la qualité de l'accord?</value></data>
   <data name="Exercise.MissingNoteText" xml:space="preserve"><value>Les mélodies sont-elles identiques?</value></data>
   <data name="Exercise.FunctionText" xml:space="preserve"><value>Quelle est la fonction de l'accord?</value></data>
+  <data name="Dashboard.LearningTimeline" xml:space="preserve"><value>Chronologie d'apprentissage</value></data>
+  <data name="Dashboard.ByDifficulty" xml:space="preserve"><value>Performance par difficulté</value></data>
+  <data name="Dashboard.RecentSessions" xml:space="preserve"><value>Sessions Récentes</value></data>
+  <data name="Dashboard.Exercise" xml:space="preserve"><value>Exercice</value></data>
+  <data name="Dashboard.Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Dashboard.Correct" xml:space="preserve"><value>Réussites</value></data>
+  <data name="Dashboard.Errors" xml:space="preserve"><value>Erreurs</value></data>
+  <data name="Dashboard.TimeSpent" xml:space="preserve"><value>Temps</value></data>
+  <data name="Dashboard.Score" xml:space="preserve"><value>Score</value></data>
+  <data name="Dashboard.MostMissedItems" xml:space="preserve"><value>Éléments les plus échoués</value></data>
+  <data name="Dashboard.Recommendations" xml:space="preserve"><value>Mes recommandations</value></data>
+  <data name="Dashboard.TechnicalSkills" xml:space="preserve"><value>Compétences techniques</value></data>
+  <data name="Dashboard.PedagogicalCategories" xml:space="preserve"><value>Catégories pédagogiques</value></data>
 </root>
