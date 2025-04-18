@@ -4,6 +4,7 @@ using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.ViewModels;
+using AcademiaAuditiva.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -11,6 +12,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace AcademiaAuditiva.Controllers
 {
@@ -19,11 +21,13 @@ namespace AcademiaAuditiva.Controllers
 	{
 		private readonly ApplicationDbContext _context;
 		private readonly IStringLocalizer<SharedResources> _localizer;
+		private readonly IAnalyticsService _analyticsService;
 
-		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer)
+		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, IAnalyticsService analyticsService)
 		{
 			_context = context;
 			_localizer = localizer;
+			_analyticsService = analyticsService;
 		}
 
 		public IActionResult Index()
@@ -66,13 +70,13 @@ namespace AcademiaAuditiva.Controllers
 
 
 		[HttpPost]
-		public IActionResult ValidateExercise([FromBody] ValidateExerciseDto dto)
+		public async Task<IActionResult> ValidateExercise([FromBody] ValidateExerciseDto dto)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (string.IsNullOrEmpty(userId))
 				return Json(new { success = false, message = "User not logged in.", isCorrect = false });
 
-			var exercise = _context.Exercises.FirstOrDefault(e => e.ExerciseId == dto.ExerciseId);
+			var exercise = await _context.Exercises.FirstOrDefaultAsync(e => e.ExerciseId == dto.ExerciseId);
 			if (exercise == null)
 				return NotFound("Exercício não encontrado.");
 
@@ -131,10 +135,10 @@ namespace AcademiaAuditiva.Controllers
 					break;
 			}
 
-			var existingScore = _context.Scores
+			var existingScore = await _context.Scores
 				.Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
 				.OrderByDescending(s => s.Timestamp)
-				.FirstOrDefault();
+				.FirstOrDefaultAsync();
 
 			int correctCount = existingScore?.CorrectCount ?? 0;
 			int errorCount = existingScore?.ErrorCount ?? 0;
@@ -157,8 +161,22 @@ namespace AcademiaAuditiva.Controllers
 				TimeSpentSeconds = dto.TimeSpentSeconds,
 				Timestamp = DateTime.UtcNow
 			});
-			_context.SaveChanges();
+			await _context.SaveChangesAsync();
 			
+			await _analyticsService.SaveAttemptAsync(new ExerciseAttemptLog
+			{
+				UserId = userId,
+				Exercise = exercise.Name,
+				Timestamp = DateTime.UtcNow,
+				QuestionId = currentAnswer,
+				Attempt = new AttemptDetails
+				{
+					UserAnswer = dto.UserGuess,
+					ExpectedAnswer = currentAnswer,
+					IsCorrect = isCorrect,
+					TimeSpentSeconds = dto.TimeSpentSeconds,
+				}
+			});
 
 			return Json(new
 			{

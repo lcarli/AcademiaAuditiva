@@ -1,6 +1,7 @@
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Localization;
@@ -8,6 +9,9 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using Azure.Identity;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Security.KeyVault.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +48,9 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 //Inject EmailSender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+//Inject AnalyticsService
+builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>();
+
 //Add facebook login as external
 builder.Services.AddAuthentication()
     .AddFacebook(facebookOptions =>
@@ -61,6 +68,24 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+
+var keyVaultUrl = "https://akv-academiaauditiva-prd.vault.azure.net/";
+var isRunningInAzure = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
+
+if (isRunningInAzure)
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(keyVaultUrl),
+        new DefaultAzureCredential());
+}
+else
+{
+    builder.Configuration.AddAzureKeyVault(
+        new SecretClient(new Uri(keyVaultUrl), new AzureCliCredential()),
+        new AzureKeyVaultConfigurationOptions());
+}
+
 
 
 var app = builder.Build();
