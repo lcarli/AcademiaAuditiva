@@ -13,6 +13,8 @@ using Azure.Identity;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Security.KeyVault.Secrets;
 
+Environment.SetEnvironmentVariable("AZURE_LOG_LEVEL", "verbose");
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
