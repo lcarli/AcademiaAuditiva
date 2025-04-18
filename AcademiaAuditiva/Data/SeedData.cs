@@ -7,14 +7,93 @@ public static class SeedData
 {
     public static void SeedExercises(ApplicationDbContext context)
     {
+        // Seed para ExerciseType
+        if (!context.ExerciseTypes.Any())
+        {
+            context.ExerciseTypes.AddRange(
+                new ExerciseType { Name = "NoteRecognition", DisplayName = "Reconhecimento de Notas" },
+                new ExerciseType { Name = "ChordRecognition", DisplayName = "Reconhecimento de Acordes" },
+                new ExerciseType { Name = "IntervalRecognition", DisplayName = "Reconhecimento de Intervalos" },
+                new ExerciseType { Name = "FunctionRecognition", DisplayName = "Reconhecimento de Funções Harmônicas" },
+                new ExerciseType { Name = "MelodyReproduction", DisplayName = "Reprodução de Melodias" },
+                new ExerciseType { Name = "RhythmPatterns", DisplayName = "Padrões Rítmos" },
+                new ExerciseType { Name = "HarmonicField", DisplayName = "Campo Harmônico" },
+                new ExerciseType { Name = "ScaleRecognition", DisplayName = "Reconhecimento de Escalas" }
+            );
+        }
+
+        // Seed para ExerciseCategory
+        if (!context.ExerciseCategories.Any())
+        {
+            context.ExerciseCategories.AddRange(
+                new ExerciseCategory { Name = "Harmony", DisplayName = "Harmonia" },
+                new ExerciseCategory { Name = "Melody", DisplayName = "Melodia" },
+                new ExerciseCategory { Name = "Rhythm", DisplayName = "Ritmo" },
+                new ExerciseCategory { Name = "EarTraining", DisplayName = "Treinamento Auditivo" },
+                new ExerciseCategory { Name = "Scales", DisplayName = "Escalas" },
+                new ExerciseCategory { Name = "Games", DisplayName = "Jogos" },
+                new ExerciseCategory { Name = "Misc", DisplayName = "Diversos" }
+            );
+        }
+
+        // Seed para DifficultyLevel
+        if (!context.DifficultyLevels.Any())
+        {
+            context.DifficultyLevels.AddRange(
+                new DifficultyLevel { Name = "Beginner", DisplayName = "Iniciante" },
+                new DifficultyLevel { Name = "Intermediate", DisplayName = "Intermediário" },
+                new DifficultyLevel { Name = "Advanced", DisplayName = "Avançado" }
+            );
+        }
+
+        // Seed para Badges
+        if (!context.Badges.Any())
+        {
+            context.Badges.AddRange(
+                // Categoria
+                new Badge { BadgeKey = "master_chords", Title = "Mestre dos Acordes", Description = "90% em 3 exercícios de acordes" },
+                new Badge { BadgeKey = "sharp_listener", Title = "Ouvinte Afiado", Description = "90% em 3 de percepção" },
+                new Badge { BadgeKey = "rhythm_maestro", Title = "Maestro do Ritmo", Description = "100% em 2 de ritmo" },
+                new Badge { BadgeKey = "melody_explorer", Title = "Explorador Melódico", Description = "80% em todos os exercícios de melodia" },
+                new Badge { BadgeKey = "scale_climber", Title = "Escalador de Tons", Description = "Usou todos os tipos de escalas" },
+
+                // Esforço
+                new Badge { BadgeKey = "3_days", Title = "3 Dias Seguidos", Description = "Praticou 3 dias consecutivos" },
+                new Badge { BadgeKey = "5_days", Title = "5 Dias Seguidos", Description = "Praticou 5 dias consecutivos" },
+                new Badge { BadgeKey = "marathon_20min", Title = "Maratona 20min", Description = "20 minutos sem parar" },
+                new Badge { BadgeKey = "faithful_practitioner", Title = "Praticante Fiel", Description = "Completou 30 sessões" },
+                new Badge { BadgeKey = "explorer", Title = "Explorador", Description = "Usou todos os filtros uma vez" },
+                new Badge { BadgeKey = "filter_ninja", Title = "Filtro Ninja", Description = "Usou combinações personalizadas em 5 sessões" },
+                new Badge { BadgeKey = "first_session", Title = "Iniciador de Jornada", Description = "Primeira sessão realizada" },
+                new Badge { BadgeKey = "10_sessions_week", Title = "10 Sessões em 1 Semana", Description = "Alta frequência semanal" },
+                new Badge { BadgeKey = "daily_challenge_complete", Title = "Desafio Diário Completo", Description = "Completou todos os exercícios do dia" },
+
+                // Evolução
+                new Badge { BadgeKey = "comeback_kid", Title = "Deu a Volta por Cima", Description = "Começou errando e depois passou de 80%" },
+                new Badge { BadgeKey = "advanced_conqueror", Title = "Conquistador Avançado", Description = "5 exercícios de nível avançado" },
+                new Badge { BadgeKey = "persistent_student", Title = "Aluno Persistente", Description = "Melhorou pontuação em 3 tentativas seguidas" },
+                new Badge { BadgeKey = "total_mastery", Title = "Domínio Total", Description = "100% em um exercício com filtros completos" },
+                new Badge { BadgeKey = "notable_progress", Title = "Evolução Notável", Description = "Melhorou em todas as categorias em 1 mês" },
+                new Badge { BadgeKey = "resilient_ear", Title = "Resiliência Auditiva", Description = "Acertou após 3 erros seguidos" },
+                new Badge { BadgeKey = "interval_tamer", Title = "Domador de Intervalos", Description = "10 sessões de intervalos com +80%" },
+
+                // Diversão
+                new Badge { BadgeKey = "mission_addict", Title = "Viciado em Missões", Description = "Completou 10 desafios mistos" },
+                new Badge { BadgeKey = "speedster", Title = "Speedster", Description = "90% de acerto em um SpeedTest" },
+                new Badge { BadgeKey = "mystery_listener", Title = "Ouvinte Misterioso", Description = "Acertou uma questão impossível (modo aleatório total)" },
+                new Badge { BadgeKey = "impossible_melody", Title = "Melodia Impossível", Description = "Acertou uma melodia alterada com pausa escondida" },
+                new Badge { BadgeKey = "badge_collector", Title = "Colecionador de Badges", Description = "Obteve 15 conquistas" }
+            );
+        }
+
         var exercises = new List<Exercise>
         {
             new Exercise {
                 Name = "GuessNote",
                 Description = "Adivinhe a Nota tocada",
-                Type = ExerciseType.NoteRecognition,
-                Category = ExerciseCategory.EarTraining,
-                Difficulty = DifficultyLevel.Beginner,
+                ExerciseTypeId = 1,
+                ExerciseCategoryId = 4,
+                DifficultyLevelId = 1,
                 Instructions = "Ouça a nota tocada e selecione a nota correspondente entre as opções disponíveis.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Ouça mais de uma vez se necessário.",
@@ -49,9 +128,9 @@ public static class SeedData
             new Exercise {
                 Name = "GuessChords",
                 Description = "Reconhecimento de acordes",
-                Type = ExerciseType.ChordRecognition,
-                Category = ExerciseCategory.Harmony,
-                Difficulty = DifficultyLevel.Beginner,
+                ExerciseTypeId = 2,
+                ExerciseCategoryId = 1,
+                DifficultyLevelId = 1,
                 FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
                 {
                     new FilterOptionGroup
@@ -109,9 +188,9 @@ public static class SeedData
             new Exercise {
                 Name = "GuessInterval",
                 Description = "Adivinhe o Intervalo tocado",
-                Type = ExerciseType.IntervalRecognition,
-                Category = ExerciseCategory.EarTraining,
-                Difficulty = DifficultyLevel.Beginner,
+                ExerciseTypeId = 3,
+                ExerciseCategoryId = 4,
+                DifficultyLevelId = 1,
                 FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
                 {
                     new FilterOptionGroup
@@ -176,9 +255,9 @@ public static class SeedData
             new Exercise {
                 Name = "GuessQuality",
                 Description = "Adivinhe a qualidade do acorde tocado.",
-                Type = ExerciseType.ChordRecognition,
-                Category = ExerciseCategory.Harmony,
-                Difficulty = DifficultyLevel.Intermediate,
+                ExerciseTypeId = 2,
+                ExerciseCategoryId = 1,
+                DifficultyLevelId = 2,
                 FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
                 {
                     new FilterOptionGroup
@@ -222,9 +301,9 @@ public static class SeedData
             new Exercise {
                 Name = "GuessFunction",
                 Description = "Adivinhe a função do acorde dentro do campo harmônico.",
-                Type = ExerciseType.FunctionRecognition,
-                Category = ExerciseCategory.Harmony,
-                Difficulty = DifficultyLevel.Intermediate,
+                ExerciseTypeId = 4,
+                ExerciseCategoryId = 1,
+                DifficultyLevelId = 2,
                 FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
                 {
                     new FilterOptionGroup
@@ -294,9 +373,9 @@ public static class SeedData
            new Exercise {
                 Name = "GuessFullInterval",
                 Description = "Adivinhe o intervalo completo (maior, menor, justo...)",
-                Type = ExerciseType.IntervalRecognition,
-                Category = ExerciseCategory.EarTraining,
-                Difficulty = DifficultyLevel.Advanced,
+                ExerciseTypeId = 3,
+                ExerciseCategoryId = 4,
+                DifficultyLevelId = 3,
                 FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
                 {
                     new FilterOptionGroup
@@ -362,9 +441,9 @@ public static class SeedData
             new Exercise {
                 Name = "GuessMissingNote",
                 Description = "Ouça duas melodias e diga se são iguais ou diferentes.",
-                Type = ExerciseType.MelodyReproduction,
-                Category = ExerciseCategory.Melody,
-                Difficulty = DifficultyLevel.Beginner,
+                ExerciseTypeId = 5,
+                ExerciseCategoryId = 2,
+                DifficultyLevelId = 1,
                 FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
                 {
                     new FilterOptionGroup
@@ -416,9 +495,9 @@ public static class SeedData
             else
             {
                 existing.Description = ex.Description;
-                existing.Type = ex.Type;
-                existing.Category = ex.Category;
-                existing.Difficulty = ex.Difficulty;
+                existing.ExerciseTypeId = ex.ExerciseTypeId;
+                existing.ExerciseCategoryId = ex.ExerciseCategoryId;
+                existing.DifficultyLevelId = ex.DifficultyLevelId;
                 existing.FiltersJson = ex.FiltersJson;
                 existing.Instructions = ex.Instructions;
                 existing.TipsJson = ex.TipsJson;

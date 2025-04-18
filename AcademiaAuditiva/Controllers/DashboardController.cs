@@ -1,6 +1,7 @@
 ﻿using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,15 +13,20 @@ namespace AcademiaAuditiva.Controllers
     public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public DashboardController(ApplicationDbContext context)
+        public DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = _userManager.GetUserId(User);
+            var user = await _userManager.FindByIdAsync(userId);
+
+            ViewBag.FirstName = user.FirstName;
 
             var userScores = _context.Scores
                 .Where(s => s.UserId == userId)
@@ -77,7 +83,7 @@ namespace AcademiaAuditiva.Controllers
 
             var groupedByType = scores
                 .Where(s => s.Exercise != null)
-                .GroupBy(s => s.Exercise.Type)
+                .GroupBy(s => s.Exercise.ExerciseType)
                 .Select(g => new
                 {
                     Type = g.Key.ToString(),
@@ -89,7 +95,7 @@ namespace AcademiaAuditiva.Controllers
 
             var groupedByCategory = scores
                 .Where(s => s.Exercise != null)
-                .GroupBy(s => s.Exercise.Category)
+                .GroupBy(s => s.Exercise.ExerciseCategory)
                 .Select(g => new
                 {
                     Category = g.Key.ToString(),
@@ -158,7 +164,7 @@ namespace AcademiaAuditiva.Controllers
             var data = _context.Scores
                 .Where(s => s.UserId == userId)
                 .Include(s => s.Exercise)
-                .GroupBy(s => s.Exercise.Difficulty)
+                .GroupBy(s => s.Exercise.DifficultyLevel)
                 .Select(g => new
                 {
                     Difficulty = g.Key.ToString(),

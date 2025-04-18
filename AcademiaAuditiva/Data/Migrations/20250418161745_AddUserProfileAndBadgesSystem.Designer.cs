@@ -4,6 +4,7 @@ using AcademiaAuditiva.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AcademiaAuditiva.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250418161745_AddUserProfileAndBadgesSystem")]
+    partial class AddUserProfileAndBadgesSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,6 +36,7 @@ namespace AcademiaAuditiva.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Icon")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -504,7 +508,7 @@ namespace AcademiaAuditiva.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "789ea4a4-dd57-45fe-9ee3-4363e9d6632c",
+                            Id = "4fc7f651-f679-443a-9a6f-ed0ebf743d62",
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "37f979fc-85e9-42c0-bc5c-3321d0b9cad6",
                             Email = "lucas.decarli.ca@gmail.com",
@@ -512,7 +516,7 @@ namespace AcademiaAuditiva.Data.Migrations
                             LockoutEnabled = true,
                             NormalizedEmail = "LUCAS.DECARLI.CA@GMAIL.COM",
                             NormalizedUserName = "LUCAS.DECARLI.CA@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBc4R8ouLUbWE6zLZ7nX0Wi26BI1YwBREwap3/6QX3lXm8MHoA7UODbZANd6vnoQaw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENmw+JZydY6DWsRY2EqX4Tv3c1A73IE72z/a+AZkEgJZ/Ub1YuHFltQArRWrcBeapw==",
                             PhoneNumber = "+15817456586",
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "UTUTEH5FUQ6C2MUTMB3CCICNLIBN6CAO",
