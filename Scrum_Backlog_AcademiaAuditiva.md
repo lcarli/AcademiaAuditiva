@@ -25,7 +25,6 @@
 | 🟠 Média    | Implementar badges SVG por conquista com regras                       | Gamificação                           | Feature      |
 | 🟠 Média    | Criar sistema de tentativas e erros por usuário                       | Feedback e Progresso                  | Feature      |
 | 🟠 Média    | Adaptar dashboard para visualização pedagógica                        | Dashboard                             | Feature      |
-| 🟠 Média    | Criar novo modelo `UserAttemptLog` para log detalhado em JSON         | Banco de Dados                        | Tech task    |
 | 🟡 Baixa    | Criar repositório com README detalhado, estrutura e instruções        | Documentação Técnica                  | Tech task    |
 | 🟡 Baixa    | Desenvolver página teórica para conceitos como intervalos, escalas... | Base Teórica                          | Content      |
 | 🟡 Baixa    | Adicionar versão mobile otimizada para as views                       | Implantação e Performance             | Enhancement  |

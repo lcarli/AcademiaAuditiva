@@ -73,20 +73,10 @@ builder.Services.AddSession(options =>
 
 
 var keyVaultUrl = "https://akv-academiaauditiva-prd.vault.azure.net/";
-var isRunningInAzure = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
+builder.Configuration.AddAzureKeyVault(
+    new Uri(keyVaultUrl),
+    new DefaultAzureCredential());
 
-if (isRunningInAzure)
-{
-    builder.Configuration.AddAzureKeyVault(
-        new Uri(keyVaultUrl),
-        new DefaultAzureCredential());
-}
-else
-{
-    builder.Configuration.AddAzureKeyVault(
-        new SecretClient(new Uri(keyVaultUrl), new AzureCliCredential()),
-        new AzureKeyVaultConfigurationOptions());
-}
 
 
 
