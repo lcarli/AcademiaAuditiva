@@ -75,7 +75,10 @@ builder.Services.AddSession(options =>
 var keyVaultUrl = "https://akv-academiaauditiva-prd.vault.azure.net/";
 builder.Configuration.AddAzureKeyVault(
     new Uri(keyVaultUrl),
-    new DefaultAzureCredential());
+    new DefaultAzureCredential(new DefaultAzureCredentialOptions
+    {
+        ManagedIdentityClientId = builder.Configuration["ManagedIdentityClientId"]
+    }));
 
 
 
