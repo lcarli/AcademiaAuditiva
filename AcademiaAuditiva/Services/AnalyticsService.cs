@@ -28,4 +28,25 @@ public class AnalyticsService : IAnalyticsService
         using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json));
         await blobClient.UploadAsync(stream, overwrite: true);
     }
+
+    public async Task<List<ExerciseAttemptLog>> GetAttemptsAsync(string userId, string? exercise = null)
+    {
+        var prefix = exercise == null ? userId : $"{userId}/{exercise}";
+        var logs = new List<ExerciseAttemptLog>();
+
+        await foreach (var blobItem in _containerClient.GetBlobsAsync(prefix: prefix))
+        {
+            var blobClient = _containerClient.GetBlobClient(blobItem.Name);
+            var downloadInfo = await blobClient.DownloadAsync();
+            using var streamReader = new StreamReader(downloadInfo.Value.Content);
+            var json = await streamReader.ReadToEndAsync();
+            var log = JsonSerializer.Deserialize<ExerciseAttemptLog>(json);
+            if (log != null)
+            {
+                logs.Add(log);
+            }
+        }
+
+        return logs;
+    }
 }
