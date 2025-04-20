@@ -260,7 +260,7 @@
                     data.forEach(item => {
                         const li = document.createElement("li");
                         li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
-                        li.innerHTML = `${item.item} <span class="badge bg-danger">${item.errors}</span>`;
+                        li.innerHTML = `${item.exercise} <span class="badge bg-danger">${item.errors}</span>`;
                         list.appendChild(li);
                     });
                 });

@@ -53,6 +53,9 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 //Inject AnalyticsService
 builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>();
 
+//Inject UserReportService
+builder.Services.AddScoped<UserReportService>();
+
 //Add facebook login as external
 builder.Services.AddAuthentication()
     .AddFacebook(facebookOptions =>

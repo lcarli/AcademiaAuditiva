@@ -1,6 +1,7 @@
 ﻿using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
+using AcademiaAuditiva.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -17,12 +18,14 @@ namespace AcademiaAuditiva.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IStringLocalizer<SharedResources> _localizer;
+        private readonly UserReportService _userReportService;
 
-        public DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IStringLocalizer<SharedResources> localizer)
+        public DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IStringLocalizer<SharedResources> localizer, UserReportService userReportService)
         {
             _context = context;
             _userManager = userManager;
             _localizer = localizer;
+            _userReportService = userReportService;
         }
 
         public async Task<IActionResult> Index()
@@ -52,7 +55,6 @@ namespace AcademiaAuditiva.Controllers
             return View();
         }
 
-
         [AllowAnonymous]
         public IActionResult SetLanguage(string culture, string returnUrl)
         {
@@ -67,80 +69,22 @@ namespace AcademiaAuditiva.Controllers
 
         public List<Score> GetBestScoresForUser(string userId)
         {
-            return _context.Scores
-                .Include(s => s.Exercise)
-                // Removed invalid ThenInclude for ExerciseCategory
-                .Where(s => s.UserId == userId)
-                .GroupBy(s => s.ExerciseId)
-                .Select(group => group.OrderByDescending(s => s.BestScore).FirstOrDefault())
-                .ToList();
+            return _userReportService.GetBestScoresForUser(userId);
         }
 
         [HttpGet]
         public IActionResult GetUserProgress()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var scores = _context.Scores
-                .Where(s => s.UserId == userId)
-                .Include(s => s.Exercise)
-                    .ThenInclude(e => e.ExerciseType)
-                .Include(s => s.Exercise)
-                    .ThenInclude(e => e.ExerciseCategory)
-                .ToList();
-
-            var groupedByType = scores
-                .Where(s => s.Exercise != null && s.Exercise.ExerciseType != null)
-                .GroupBy(s => s.Exercise.ExerciseType)
-                .Select(g => new
-                {
-                    Type = g.Key.Name,
-                    Accuracy = g.Sum(s => s.CorrectCount) + g.Sum(s => s.ErrorCount) > 0
-                        ? Math.Round((double)g.Sum(s => s.CorrectCount) / (g.Sum(s => s.CorrectCount) + g.Sum(s => s.ErrorCount)) * 100, 2)
-                        : 0
-                })
-                .GroupBy(x => x.Type)
-                .Select(g => g.First())
-                .ToDictionary(x => x.Type, x => x.Accuracy);
-
-            var groupedByCategory = scores
-                .Where(s => s.Exercise != null && s.Exercise.ExerciseType != null)
-                .GroupBy(s => s.Exercise.ExerciseCategory)
-                .Select(g => new
-                {
-                    Category = g.Key.Name,
-                    Accuracy = g.Sum(s => s.CorrectCount) + g.Sum(s => s.ErrorCount) > 0
-                        ? Math.Round((double)g.Sum(s => s.CorrectCount) / (g.Sum(s => s.CorrectCount) + g.Sum(s => s.ErrorCount)) * 100, 2)
-                        : 0
-                })
-                .GroupBy(x => x.Category)
-                .Select(g => g.First())
-                .ToDictionary(x => x.Category, x => x.Accuracy);
-
-            return Json(new
-            {
-                radar = groupedByType,
-                byCategory = groupedByCategory
-            });
+            var result = _userReportService.GetUserProgress(userId);
+            return Json(result);
         }
 
         [HttpGet]
         public IActionResult GetUserTimeline()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var data = _context.Scores
-                .Where(s => s.UserId == userId)
-                .OrderBy(s => s.Timestamp)
-                .GroupBy(s => s.Timestamp.Date)
-                .Select(g => new
-                {
-                    Date = g.Key.ToString("yyyy-MM-dd"),
-                    Total = g.Count(),
-                    Score = g.Sum(s => s.CorrectCount - s.ErrorCount)
-                })
-                .ToList();
-
+            var data = _userReportService.GetUserTimeline(userId);
             return Json(data);
         }
 
@@ -148,23 +92,7 @@ namespace AcademiaAuditiva.Controllers
         public IActionResult GetScoreHistory()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var history = _context.Scores
-                .Where(s => s.UserId == userId)
-                .Include(s => s.Exercise)
-                .OrderByDescending(s => s.Timestamp)
-                .Take(20)
-                .Select(s => new
-                {
-                    Exercise = s.Exercise.Name,
-                    Date = s.Timestamp.ToString("yyyy-MM-dd"),
-                    Correct = s.CorrectCount,
-                    Error = s.ErrorCount,
-                    TimeSpent = s.TimeSpentSeconds / 60,
-                    Score = s.CorrectCount - s.ErrorCount
-                })
-                .ToList();
-
+            var history = _userReportService.GetScoreHistory(userId);
             return Json(history);
         }
 
@@ -172,42 +100,15 @@ namespace AcademiaAuditiva.Controllers
         public IActionResult GetPerformanceByDifficulty()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var data = _context.Scores
-                .Where(s => s.UserId == userId)
-                .Include(s => s.Exercise)
-                .ThenInclude(e => e.DifficultyLevel)
-                .GroupBy(s => s.Exercise.DifficultyLevel)
-                .Select(g => new
-                {
-                    Difficulty = g.Key.Name,
-                    Accuracy = g.Sum(s => s.CorrectCount + s.ErrorCount) > 0
-                        ? Math.Round((double)g.Sum(s => s.CorrectCount) / (g.Sum(s => s.CorrectCount + s.ErrorCount)) * 100, 2)
-                        : 0
-                })
-                .ToList();
-
-            return Json(data);
+            var performance = _userReportService.GetPerformanceByDifficulty(userId);
+            return Json(performance);
         }
 
         [HttpGet]
         public IActionResult GetMostMissedItems()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var errors = _context.Scores
-                .Where(s => s.UserId == userId && s.ErrorCount > 0)
-                .Include(s => s.Exercise)
-                .GroupBy(s => s.Exercise.Description)
-                .Select(g => new
-                {
-                    Item = g.Key,
-                    Errors = g.Sum(s => s.ErrorCount)
-                })
-                .OrderByDescending(x => x.Errors)
-                .Take(10)
-                .ToList();
-
+            var errors = _userReportService.GetMostMissedItems(userId);
             return Json(errors);
         }
 
@@ -215,41 +116,7 @@ namespace AcademiaAuditiva.Controllers
         public IActionResult GetRecommendations()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var scores = _context.Scores
-                .Where(s => s.UserId == userId)
-                .Include(s => s.Exercise)
-                .OrderByDescending(s => s.Timestamp)
-                .ToList();
-
-            var recs = new List<string>();
-
-            if (scores.Count >= 5)
-            {
-                var last = scores.Take(5);
-                var acc = last.Sum(s => s.CorrectCount) + last.Sum(s => s.ErrorCount);
-
-                if (acc > 0)
-                {
-                    var accuracy = (double)last.Sum(s => s.CorrectCount) / acc;
-                    if (accuracy < 0.6)
-                        recs.Add("Você tem cometido muitos erros recentemente. Refaça exercícios anteriores.");
-                    else if (accuracy > 0.85)
-                        recs.Add("Parabéns! Sua média de acertos está excelente! Que tal subir a dificuldade?");
-                }
-            }
-
-            var mostMissed = _context.Scores
-                .Where(s => s.UserId == userId && s.ErrorCount > 0)
-                .Include(s => s.Exercise)
-                .ToList()
-                .GroupBy(s => s.Exercise.Description)
-                .OrderByDescending(g => g.Sum(s => s.ErrorCount))
-                .FirstOrDefault();
-
-            if (mostMissed != null)
-                recs.Add($"Considere revisar o exercício: {mostMissed.Key}");
-
+            var recs = _userReportService.GetRecommendations(userId);
             return Json(recs);
         }
 
