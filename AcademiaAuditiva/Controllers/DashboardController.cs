@@ -172,10 +172,11 @@ namespace AcademiaAuditiva.Controllers
             var data = _context.Scores
                 .Where(s => s.UserId == userId)
                 .Include(s => s.Exercise)
+                .ThenInclude(e => e.DifficultyLevel)
                 .GroupBy(s => s.Exercise.DifficultyLevel)
                 .Select(g => new
                 {
-                    Difficulty = g.Key.ToString(),
+                    Difficulty = g.Key.Name,
                     Accuracy = g.Sum(s => s.CorrectCount + s.ErrorCount) > 0
                         ? Math.Round((double)g.Sum(s => s.CorrectCount) / (g.Sum(s => s.CorrectCount + s.ErrorCount)) * 100, 2)
                         : 0
