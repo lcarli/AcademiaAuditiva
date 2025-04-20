@@ -65,6 +65,7 @@ namespace AcademiaAuditiva.Controllers
         {
             return _context.Scores
                 .Include(s => s.Exercise)
+                // Removed invalid ThenInclude for ExerciseCategory
                 .Where(s => s.UserId == userId)
                 .GroupBy(s => s.ExerciseId)
                 .Select(group => group.OrderByDescending(s => s.BestScore).FirstOrDefault())
@@ -79,30 +80,37 @@ namespace AcademiaAuditiva.Controllers
             var scores = _context.Scores
                 .Where(s => s.UserId == userId)
                 .Include(s => s.Exercise)
+                    .ThenInclude(e => e.ExerciseType)
+                .Include(s => s.Exercise)
+                    .ThenInclude(e => e.ExerciseCategory)
                 .ToList();
 
             var groupedByType = scores
-                .Where(s => s.Exercise != null)
+                .Where(s => s.Exercise != null && s.Exercise.ExerciseType != null)
                 .GroupBy(s => s.Exercise.ExerciseType)
                 .Select(g => new
                 {
-                    Type = g.Key.ToString(),
+                    Type = g.Key.Name,
                     Accuracy = g.Sum(s => s.CorrectCount) + g.Sum(s => s.ErrorCount) > 0
                         ? Math.Round((double)g.Sum(s => s.CorrectCount) / (g.Sum(s => s.CorrectCount) + g.Sum(s => s.ErrorCount)) * 100, 2)
                         : 0
                 })
+                .GroupBy(x => x.Type)
+                .Select(g => g.First())
                 .ToDictionary(x => x.Type, x => x.Accuracy);
 
             var groupedByCategory = scores
-                .Where(s => s.Exercise != null)
+                .Where(s => s.Exercise != null && s.Exercise.ExerciseType != null)
                 .GroupBy(s => s.Exercise.ExerciseCategory)
                 .Select(g => new
                 {
-                    Category = g.Key.ToString(),
+                    Category = g.Key.Name,
                     Accuracy = g.Sum(s => s.CorrectCount) + g.Sum(s => s.ErrorCount) > 0
                         ? Math.Round((double)g.Sum(s => s.CorrectCount) / (g.Sum(s => s.CorrectCount) + g.Sum(s => s.ErrorCount)) * 100, 2)
                         : 0
                 })
+                .GroupBy(x => x.Category)
+                .Select(g => g.First())
                 .ToDictionary(x => x.Category, x => x.Accuracy);
 
             return Json(new
