@@ -8,11 +8,13 @@ public class UserReportService
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly AnalyticsService _analyticsService;
 
-    public UserReportService(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public UserReportService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, AnalyticsService analyticsService)
     {
         _context = context;
         _userManager = userManager;
+        _analyticsService = analyticsService;
     }
 
     public List<Score> GetBestScoresForUser(string userId)
@@ -74,6 +76,9 @@ public class UserReportService
         };
     }
 
+    /// <summary>
+    /// Retorna um histórico diário com total de tentativas e pontuação líquida.
+    /// </summary>
     public object GetUserTimeline(string userId)
     {
         var data = _context.Scores
@@ -92,6 +97,9 @@ public class UserReportService
         return data;
     }
 
+    /// <summary>
+    /// Retorna os últimos 20 exercícios com nome, data, acertos, erros, tempo e pontuação.
+    /// </summary>
     public IEnumerable<object> GetScoreHistory(string userId)
     {
         var scores = _context.Scores
@@ -534,5 +542,305 @@ public class UserReportService
             .Select(s => s.Timestamp.Date)
             .Distinct()
             .Count();
+    }
+
+    public async Task<IEnumerable<object>> GetMostFrequentWrongAnswers(string userId)
+    {
+        var logs = await _analyticsService.GetAttemptsAsync(userId);
+
+        return logs
+            .Where(a => a.Attempt != null && a.Attempt.UserAnswer != null && !a.Attempt.IsCorrect)
+            .GroupBy(a => a.Attempt.UserAnswer?.ToString())
+            .Select(g => new
+            {
+                WrongAnswer = g.Key,
+                Count = g.Count()
+            })
+            .OrderByDescending(x => x.Count)
+            .Take(10)
+            .ToList();
+    }
+
+    public async Task<IEnumerable<object>> GetMostMissedExpectedAnswers(string userId)
+    {
+        var logs = await _analyticsService.GetAttemptsAsync(userId);
+
+        return logs
+            .Where(a => a.Attempt != null && a.Attempt.ExpectedAnswer != null && !a.Attempt.IsCorrect)
+            .GroupBy(a => a.Attempt.ExpectedAnswer?.ToString())
+            .Select(g => new
+            {
+                ExpectedAnswer = g.Key,
+                Count = g.Count()
+            })
+            .OrderByDescending(x => x.Count)
+            .Take(10)
+            .ToList();
+    }
+
+    public IEnumerable<object> GetRecurringErrorsPerExercise(string userId)
+    {
+        var scores = _context.Scores
+            .Where(s => s.UserId == userId)
+            .OrderBy(s => s.Timestamp)
+            .ToList();
+
+        var result = new List<object>();
+        var grouped = scores.GroupBy(s => s.Exercise.Name);
+
+        foreach (var group in grouped)
+        {
+            int maxConsecutiveErrors = 0;
+            int currentStreak = 0;
+            foreach (var score in group)
+            {
+                if (score.ErrorCount > 0)
+                    currentStreak++;
+                else
+                    currentStreak = 0;
+
+                if (currentStreak > maxConsecutiveErrors)
+                    maxConsecutiveErrors = currentStreak;
+            }
+
+            if (maxConsecutiveErrors > 1)
+            {
+                result.Add(new { Exercise = group.Key, ConsecutiveErrors = maxConsecutiveErrors });
+            }
+        }
+
+        return result;
+    }
+
+    public double GetAverageAttemptsUntilCorrect(string userId)
+    {
+        var scores = _context.Scores
+            .Where(s => s.UserId == userId)
+            .OrderBy(s => s.Timestamp)
+            .ToList();
+
+        var groups = scores.GroupBy(s => s.Exercise.Name);
+        var attemptsList = new List<int>();
+
+        foreach (var group in groups)
+        {
+            int attempts = 0;
+            foreach (var score in group)
+            {
+                attempts++;
+                if (score.CorrectCount > 0)
+                {
+                    attemptsList.Add(attempts);
+                    break;
+                }
+            }
+        }
+
+        return attemptsList.Any() ? attemptsList.Average() : 0;
+    }
+
+    public List<int> GetPracticeGaps(string userId)
+    {
+        var practiceDays = _context.Scores
+            .Where(s => s.UserId == userId)
+            .Select(s => s.Timestamp.Date)
+            .Distinct()
+            .OrderBy(d => d)
+            .ToList();
+
+        var gaps = new List<int>();
+        for (int i = 1; i < practiceDays.Count; i++)
+        {
+            gaps.Add((practiceDays[i] - practiceDays[i - 1]).Days);
+        }
+        return gaps;
+    }
+
+    public IDictionary<string, double> GetEngagementTrend(string userId)
+    {
+        var trend = _context.Scores
+            .Where(s => s.UserId == userId)
+            .GroupBy(s => new {
+                s.Timestamp.Year,
+                Week = System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(
+                    s.Timestamp, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday)
+            })
+            .Select(g => new {
+                WeekLabel = $"{g.Key.Year}-W{g.Key.Week}",
+                Attempts = g.Count()
+            })
+            .ToDictionary(x => x.WeekLabel, x => (double)x.Attempts);
+        return trend;
+    }
+
+    public List<string> GetRepetitionPatterns(string userId)
+    {
+        var scores = _context.Scores
+            .Where(s => s.UserId == userId)
+            .OrderBy(s => s.Timestamp)
+            .ToList();
+ 
+        var patterns = new List<string>();
+        if (!scores.Any())
+            return patterns;
+ 
+        string currentExercise = scores[0].Exercise?.Name;
+        int count = 1;
+ 
+        for (int i = 1; i < scores.Count; i++)
+        {
+            var exerciseName = scores[i].Exercise?.Name;
+            if (exerciseName == currentExercise)
+            {
+                count++;
+            }
+            else
+            {
+                if (count > 1)
+                {
+                    patterns.Add($"{currentExercise} x {count}");
+                }
+                currentExercise = exerciseName;
+                count = 1;
+            }
+        }
+        if (count > 1)
+        {
+            patterns.Add($"{currentExercise} x {count}");
+        }
+        return patterns;
+    }
+    
+    public IEnumerable<object> GetDifficultyChangeOverTime(string userId)
+    {
+        var data = _context.Scores
+            .Where(s => s.UserId == userId && s.Exercise != null && s.Exercise.DifficultyLevel != null)
+            .GroupBy(s => s.Timestamp.Date)
+            .Select(g => new {
+                Date = g.Key.ToString("yyyy-MM-dd"),
+                AverageDifficulty = g.Average(s => s.Exercise.DifficultyLevel.Id)  // Possivelmente criar uma propriedade com o valor numerico do nível de dificuldade
+            })
+            .OrderBy(x => x.Date)
+            .ToList();
+        return data;
+    }
+    
+    public IDictionary<string, int> GetNewExercisesPerWeek(string userId)
+    {
+        var firstAttempts = _context.Scores
+            .Where(s => s.UserId == userId && s.Exercise != null)
+            .GroupBy(s => s.Exercise.ExerciseId)
+            .Select(g => g.OrderBy(s => s.Timestamp).FirstOrDefault())
+            .Where(s => s != null)
+            .ToList();
+
+        var result = firstAttempts
+            .GroupBy(s => new {
+                s.Timestamp.Year,
+                Week = System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(
+                    s.Timestamp, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday)
+            })
+            .Select(g => new {
+                WeekLabel = $"{g.Key.Year}-W{g.Key.Week}",
+                Count = g.Count()
+            })
+            .ToDictionary(x => x.WeekLabel, x => x.Count);
+
+        return result;
+    }
+    
+    public object GetFirstAndLastExerciseAttempted(string userId)
+    {
+        var firstAttempt = _context.Scores
+            .Where(s => s.UserId == userId && s.Exercise != null)
+            .OrderBy(s => s.Timestamp)
+            .Select(s => s.Exercise.Name)
+            .FirstOrDefault();
+ 
+        var lastAttempt = _context.Scores
+            .Where(s => s.UserId == userId && s.Exercise != null)
+            .OrderByDescending(s => s.Timestamp)
+            .Select(s => s.Exercise.Name)
+            .FirstOrDefault();
+ 
+        return new { FirstExercise = firstAttempt, LastExercise = lastAttempt };
+    }
+    
+    public string GetExerciseToReview(string userId)
+    {
+        var exerciseErrorRates = _context.Scores
+            .Where(s => s.UserId == userId && s.Exercise != null)
+            .GroupBy(s => s.Exercise.Name)
+            .Select(g => new
+            {
+                Exercise = g.Key,
+                ErrorRate = g.Sum(s => s.CorrectCount + s.ErrorCount) > 0
+                    ? (double)g.Sum(s => s.ErrorCount) / (g.Sum(s => s.CorrectCount + s.ErrorCount)) * 100
+                    : 0
+            });
+        var max = exerciseErrorRates.OrderByDescending(x => x.ErrorRate).FirstOrDefault();
+        return max?.Exercise;
+    }
+    
+    public string GetNextRecommendedExercise(string userId)
+    {
+        var singleAttemptExercises = _context.Scores
+            .Where(s => s.UserId == userId && s.Exercise != null)
+            .GroupBy(s => new { s.ExerciseId, s.Exercise.Name })
+            .Where(g => g.Count() == 1)
+            .Select(g => new {
+                Exercise = g.Key.Name,
+                LastAttempt = g.Max(s => s.Timestamp),
+                ErrorCount = g.Sum(s => s.ErrorCount)
+            })
+            .OrderByDescending(x => x.LastAttempt)
+            .ThenByDescending(x => x.ErrorCount)
+            .FirstOrDefault();
+        return singleAttemptExercises?.Exercise;
+    }
+    
+    public string SuggestDifficultyIncrease(string userId)
+    {
+        double overallAccuracy = GetOverallAccuracy(userId);
+        if (overallAccuracy >= 90)
+        {
+            return "Sua acurácia está alta. Considere aumentar a dificuldade.";
+        }
+        return "Continue praticando no seu nível atual.";
+    }
+    
+    public List<string> GetExercisesAboveAverage(string userId)
+    {
+        var scores = _context.Scores.Where(s => s.UserId == userId && s.Exercise != null).ToList();
+        int totalCorrect = scores.Sum(s => s.CorrectCount);
+        int totalAttempts = scores.Sum(s => s.CorrectCount + s.ErrorCount);
+        double overallAccuracy = totalAttempts > 0 ? (double)totalCorrect / totalAttempts * 100 : 0;
+
+        var exerciseAccuracies = scores
+            .GroupBy(s => s.Exercise.Name)
+            .Select(g => new {
+                Exercise = g.Key,
+                Accuracy = g.Sum(s => s.CorrectCount + s.ErrorCount) > 0
+                    ? (double)g.Sum(s => s.CorrectCount) / (g.Sum(s => s.CorrectCount + s.ErrorCount)) * 100
+                    : 0
+            })
+            .Where(x => x.Accuracy > overallAccuracy)
+            .Select(x => x.Exercise)
+            .ToList();
+        return exerciseAccuracies;
+    }
+    
+    public string GetBestPerformanceDay(string userId)
+    {
+        var bestDay = _context.Scores
+            .Where(s => s.UserId == userId)
+            .GroupBy(s => s.Timestamp.Date)
+            .Select(g => new {
+                Date = g.Key,
+                NetScore = g.Sum(s => s.CorrectCount - s.ErrorCount)
+            })
+            .OrderByDescending(x => x.NetScore)
+            .FirstOrDefault();
+        return bestDay?.Date.ToString("yyyy-MM-dd");
     }
 }
