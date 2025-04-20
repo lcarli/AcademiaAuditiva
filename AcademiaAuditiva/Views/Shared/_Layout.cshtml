@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -21,13 +24,40 @@
 <body>
 	<header>
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-			<a class="navbar-brand" href="/">Academia Auditiva</a>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-				aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse d-flex justify-content-between" id="navbarNav">
-				@Html.Partial("_LoginPartial")
+			<div class="container-fluid">
+				<a class="navbar-brand" href="/">Academia Auditiva</a>
+
+				@if (SignInManager.IsSignedIn(User))
+				{
+					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+						aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+				}
+
+				<div class="collapse navbar-collapse" id="mainNavbar">
+					@if (SignInManager.IsSignedIn(User))
+					{
+						<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+							<li class="nav-item">
+								<a class="nav-link" asp-controller="Dashboard"
+									asp-action="Index">@Localizer["Header.Dashboard"]</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" asp-controller="Exercise"
+									asp-action="Index">@Localizer["Header.Exercise"]</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" asp-controller="Dashboard"
+									asp-action="Index">@Localizer["Header.Games"]</a>
+							</li>
+						</ul>
+					}
+
+					<div class="d-flex ms-auto">
+						@await Html.PartialAsync("_LoginPartial")
+					</div>
+				</div>
 			</div>
 		</nav>
 	</header>
