@@ -1,10 +1,12 @@
 ﻿using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace AcademiaAuditiva.Controllers
@@ -14,11 +16,13 @@ namespace AcademiaAuditiva.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IStringLocalizer<SharedResources> _localizer;
 
-        public DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IStringLocalizer<SharedResources> localizer)
         {
             _context = context;
             _userManager = userManager;
+            _localizer = localizer;
         }
 
         public async Task<IActionResult> Index()
@@ -247,6 +251,22 @@ namespace AcademiaAuditiva.Controllers
                 recs.Add($"Considere revisar o exercício: {mostMissed.Key}");
 
             return Json(recs);
+        }
+
+        [HttpGet]
+        public IActionResult GetExerciseTranslations()
+        {
+            var exerciseNames = _context.Exercises
+                .Select(e => e.Name)
+                .Distinct()
+                .ToList();
+
+            var translations = exerciseNames.ToDictionary(
+                name => name,
+                name => _localizer[$"{name}"].Value
+            );
+
+            return Json(translations);
         }
     }
 }

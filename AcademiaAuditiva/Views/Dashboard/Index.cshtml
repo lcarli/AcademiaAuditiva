@@ -106,10 +106,17 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        let exerciseTranslations = {};
         document.addEventListener("DOMContentLoaded", () => {
             const loc = document.getElementById("localizer")?.dataset;
 
             // Timeline
+            fetch("/Dashboard/GetExerciseTranslations")
+                .then(res => res.json())
+                .then(data => {
+                    exerciseTranslations = data;
+                });
+
             fetch("/Dashboard/GetUserTimeline")
                 .then(res => res.json())
                 .then(data => {
@@ -199,7 +206,7 @@
                     data.forEach(row => {
                         const tr = document.createElement("tr");
                         tr.innerHTML = `
-                                <td>${row.exercise}</td>
+                                <td>${exerciseTranslations[row.exercise] || row.exercise}</td>
                                 <td>${row.date}</td>
                                 <td>${row.correct}</td>
                                 <td>${row.error}</td>
