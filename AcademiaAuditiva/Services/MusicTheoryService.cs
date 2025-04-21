@@ -172,17 +172,17 @@ namespace AcademiaAuditiva.Services
         /// Durações possíveis: whole (4), half (2), quarter (1), eighth (0.5), sixteenth (0.25).
         /// </remarks>
         public static List<(string Note, double Duration, bool IsRest)> GenerateAdvancedMelodyWithRhythm(
-    int measures = 2,
-    string timeSignature = "4/4",
-    List<int> octaves = null,
-    bool includeRests = true)
+            int measures = 2,
+            string timeSignature = "4/4",
+            List<int> octaves = null,
+            bool includeRests = true)
         {
             if (octaves == null || octaves.Count == 0)
                 octaves = new List<int> { 2, 3, 4, 5, 6 };
 
             var allNotes = GetAllNotes(octaves);
             var random = new Random();
-            if(allNotes.Count == 0)
+            if (allNotes.Count == 0)
             {
                 allNotes.Add(ChromaticScaleBase[random.Next(ChromaticScaleBase.Count)] + random.Next(2, 7));
             }
@@ -193,14 +193,14 @@ namespace AcademiaAuditiva.Services
 
             // Durações possíveis com pesos: semínima, colcheia, semicolcheia, triolet, etc.
             var rhythmOptions = new List<(string Name, double Duration, double Weight)>
-    {
-        ("whole", 4.0, 0.5),
-        ("half", 2.0, 1.0),
-        ("quarter", 1.0, 2.0),
-        ("eighth", 0.5, 2.5),
-        ("sixteenth", 0.25, 2.5),
-        ("triplet", 1.0 / 3.0, 3.0),
-    };
+            {
+                ("whole", 4.0, 0.5),
+                ("half", 2.0, 1.0),
+                ("quarter", 1.0, 2.0),
+                ("eighth", 0.5, 2.5),
+                ("sixteenth", 0.25, 2.5),
+                ("triplet", 1.0 / 3.0, 3.0),
+            };
 
             double accumulated = 0;
             while (accumulated < totalBeats)
@@ -208,7 +208,7 @@ namespace AcademiaAuditiva.Services
                 // Filtrar opções que cabem no tempo restante
                 var remaining = totalBeats - accumulated;
                 var validDurations = rhythmOptions.Where(r => r.Duration <= remaining).ToList();
-                if(validDurations.Count == 0)
+                if (validDurations.Count == 0)
                     break;
 
                 // Seleção com peso
@@ -228,11 +228,12 @@ namespace AcademiaAuditiva.Services
 
                 bool isRest = includeRests && random.NextDouble() < 0.25;
                 string note;
-                if(isRest)
+                if (isRest)
                     note = "rest";
-                else {
+                else
+                {
                     note = allNotes[random.Next(allNotes.Count)];
-                    if(!System.Text.RegularExpressions.Regex.IsMatch(note, @"\d"))
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(note, @"\d"))
                         note = note + random.Next(2, 7);
                 }
 
