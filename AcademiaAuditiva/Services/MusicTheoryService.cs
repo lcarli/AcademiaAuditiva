@@ -178,11 +178,15 @@ namespace AcademiaAuditiva.Services
     bool includeRests = true)
         {
             if (octaves == null || octaves.Count == 0)
-                octaves = new List<int> { 3, 4, 5 };
+                octaves = new List<int> { 2, 3, 4, 5, 6 };
 
             var allNotes = GetAllNotes(octaves);
-            var melody = new List<(string Note, double Duration, bool IsRest)>();
             var random = new Random();
+            if(allNotes.Count == 0)
+            {
+                allNotes.Add(ChromaticScaleBase[random.Next(ChromaticScaleBase.Count)] + random.Next(2, 7));
+            }
+            var melody = new List<(string Note, double Duration, bool IsRest)>();
 
             var beatsPerMeasure = int.Parse(timeSignature.Split('/')[0]);
             var totalBeats = beatsPerMeasure * measures;
@@ -204,6 +208,8 @@ namespace AcademiaAuditiva.Services
                 // Filtrar opções que cabem no tempo restante
                 var remaining = totalBeats - accumulated;
                 var validDurations = rhythmOptions.Where(r => r.Duration <= remaining).ToList();
+                if(validDurations.Count == 0)
+                    break;
 
                 // Seleção com peso
                 var totalWeight = validDurations.Sum(r => r.Weight);
@@ -221,7 +227,14 @@ namespace AcademiaAuditiva.Services
                 }
 
                 bool isRest = includeRests && random.NextDouble() < 0.25;
-                string note = isRest ? "rest" : allNotes[random.Next(allNotes.Count)];
+                string note;
+                if(isRest)
+                    note = "rest";
+                else {
+                    note = allNotes[random.Next(allNotes.Count)];
+                    if(!System.Text.RegularExpressions.Regex.IsMatch(note, @"\d"))
+                        note = note + random.Next(2, 7);
+                }
 
                 melody.Add((note, selected.Duration, isRest));
                 accumulated += selected.Duration;
@@ -664,8 +677,7 @@ namespace AcademiaAuditiva.Services
 
                     List<string> allowedQualities = qualityGroup switch
                     {
-                        "major" => new List<string> { "major", "major7" },
-                        "minor" => new List<string> { "minor", "minor7" },
+                        "both" => new List<string> { "major", "minor" },
                         _ => new List<string> { "major", "major7", "minor", "minor7", "diminished", "diminished7", "augmented" }
                     };
 

@@ -1,4 +1,5 @@
 using AcademiaAuditiva.Data;
+using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -8,9 +9,9 @@ public class UserReportService
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly AnalyticsService _analyticsService;
+    private readonly IAnalyticsService _analyticsService;
 
-    public UserReportService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, AnalyticsService analyticsService)
+    public UserReportService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IAnalyticsService analyticsService)
     {
         _context = context;
         _userManager = userManager;
