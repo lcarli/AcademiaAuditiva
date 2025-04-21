@@ -201,14 +201,6 @@ namespace AcademiaAuditiva.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			var bestScore = _context.Scores
-							   .Where(s => s.UserId == userId)
-							   .OrderByDescending(s => s.CorrectCount - s.ErrorCount)
-							   .Select(s => s.CorrectCount - s.ErrorCount)
-							   .FirstOrDefault();
-
-			ViewBag.BestScore = bestScore;
-
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessNote");
 			if (exercise == null)
 				return NotFound();
@@ -225,19 +217,9 @@ namespace AcademiaAuditiva.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			int bestScore = _context.Scores
-				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessChords")
-				.OrderByDescending(s => s.BestScore)
-				.Select(s => s.BestScore)
-				.FirstOrDefault();
-
-			ViewBag.BestScore = bestScore;
-
-
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessChords");
 			if (exercise == null)
 				return NotFound();
-
 
 			var model = exercise.ToViewModel(_localizer);
 
@@ -249,14 +231,6 @@ namespace AcademiaAuditiva.Controllers
 		public IActionResult GuessInterval()
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-			int bestScore = _context.Scores
-				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessInterval")
-				.OrderByDescending(s => s.BestScore)
-				.Select(s => s.BestScore)
-				.FirstOrDefault();
-
-			ViewBag.BestScore = bestScore;
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessInterval");
 			if (exercise == null)
@@ -306,14 +280,6 @@ namespace AcademiaAuditiva.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			int bestScore = _context.Scores
-				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessQuality")
-				.OrderByDescending(s => s.BestScore)
-				.Select(s => s.BestScore)
-				.FirstOrDefault();
-
-			ViewBag.BestScore = bestScore;
-
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessQuality");
 			if (exercise == null)
 				return NotFound();
@@ -360,15 +326,7 @@ namespace AcademiaAuditiva.Controllers
 		public IActionResult GuessFunction()
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-			int bestScore = _context.Scores
-				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessFunction")
-				.OrderByDescending(s => s.BestScore)
-				.Select(s => s.BestScore)
-				.FirstOrDefault();
-
-			ViewBag.BestScore = bestScore;
-
+			
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFunction");
 			if (exercise == null)
 				return NotFound();
@@ -417,14 +375,6 @@ namespace AcademiaAuditiva.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			int bestScore = _context.Scores
-				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessFullInterval")
-				.OrderByDescending(s => s.BestScore)
-				.Select(s => s.BestScore)
-				.FirstOrDefault();
-
-			ViewBag.BestScore = bestScore;
-
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFullInterval");
 			if (exercise == null)
 				return NotFound();
@@ -471,14 +421,6 @@ namespace AcademiaAuditiva.Controllers
 		public IActionResult GuessMissingNote()
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-			int bestScore = _context.Scores
-				.Where(s => s.UserId == userId && s.Exercise.Name == "GuessMissingNote")
-				.OrderByDescending(s => s.BestScore)
-				.Select(s => s.BestScore)
-				.FirstOrDefault();
-
-			ViewBag.BestScore = bestScore;
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessMissingNote");
 			if (exercise == null)
