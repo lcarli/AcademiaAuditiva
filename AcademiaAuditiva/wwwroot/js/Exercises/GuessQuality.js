@@ -107,11 +107,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
 	function updateVisibleButtons() {
-		const allowed = chordGroup === "major"
-			? ["major", "major7"]
-			: chordGroup === "minor"
-				? ["minor", "minor7"]
-				: ["major", "major7", "minor", "minor7", "diminished", "diminished7", "augmented"];
+		const allowed = chordGroup === "both"
+			? ["major", "minor"]
+			: ["major", "major7", "minor", "minor7", "diminished", "diminished7", "augmented"];
 	
 		guessButtons.forEach(btn => {
 			const value = btn.value;

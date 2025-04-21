@@ -266,8 +266,7 @@ public static class SeedData
                         Name = "chordGroup",
                         Options = new List<FilterOption>
                         {
-                            new("major", "Exercise.Major"),
-                            new("minor", "Exercise.Minor"),
+                            new("both", "Exercise.TypeChordMajeurMineur"),
                             new("all", "Exercise.All")
                         }
                     }
