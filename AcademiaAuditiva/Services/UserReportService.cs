@@ -473,6 +473,7 @@ public class UserReportService
     {
         return _context.Scores
             .Where(s => s.UserId == userId)
+            .ToList()
             .GroupBy(s => s.Timestamp.DayOfWeek.ToString())
             .Select(g => new { Day = g.Key, Count = g.Count() })
             .ToDictionary(x => x.Day, x => x.Count);
@@ -652,19 +653,19 @@ public class UserReportService
 
     public IDictionary<string, double> GetEngagementTrend(string userId)
     {
-        var trend = _context.Scores
-            .Where(s => s.UserId == userId)
-            .GroupBy(s => new {
-                s.Timestamp.Year,
-                Week = System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(
-                    s.Timestamp, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday)
-            })
-            .Select(g => new {
-                WeekLabel = $"{g.Key.Year}-W{g.Key.Week}",
-                Attempts = g.Count()
-            })
-            .ToDictionary(x => x.WeekLabel, x => (double)x.Attempts);
-        return trend;
+    return _context.Scores
+        .Where(s => s.UserId == userId)
+        .ToList()
+        .GroupBy(s => new {
+            s.Timestamp.Year,
+            Week = System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(
+                s.Timestamp, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday)
+        })
+        .Select(g => new {
+            WeekLabel = $"{g.Key.Year}-W{g.Key.Week}",
+            Attempts = g.Count()
+        })
+        .ToDictionary(x => x.WeekLabel, x => (double)x.Attempts);
     }
 
     public List<string> GetRepetitionPatterns(string userId)
@@ -709,10 +710,12 @@ public class UserReportService
     {
         var data = _context.Scores
             .Where(s => s.UserId == userId && s.Exercise != null && s.Exercise.DifficultyLevel != null)
+            .ToList()
             .GroupBy(s => s.Timestamp.Date)
+            .Where(g => g.Any(s => s.Exercise?.DifficultyLevel != null))
             .Select(g => new {
                 Date = g.Key.ToString("yyyy-MM-dd"),
-                AverageDifficulty = g.Average(s => s.Exercise.DifficultyLevel.Id)  // Possivelmente criar uma propriedade com o valor numerico do nível de dificuldade
+                AverageDifficulty = g.Where(s => s.Exercise?.DifficultyLevel != null).Average(s => (double)s.Exercise.DifficultyLevel.Id)
             })
             .OrderBy(x => x.Date)
             .ToList();
@@ -723,9 +726,9 @@ public class UserReportService
     {
         var firstAttempts = _context.Scores
             .Where(s => s.UserId == userId && s.Exercise != null)
+            .ToList()
             .GroupBy(s => s.Exercise.ExerciseId)
-            .Select(g => g.OrderBy(s => s.Timestamp).FirstOrDefault())
-            .Where(s => s != null)
+            .Select(g => g.OrderBy(s => s.Timestamp).First())
             .ToList();
 
         var result = firstAttempts
@@ -836,5 +839,43 @@ public class UserReportService
             .OrderByDescending(x => x.NetScore)
             .FirstOrDefault();
         return bestDay?.Date.ToString("yyyy-MM-dd");
+    }
+
+    public async Task GenerateDiagnosticsReportAsync(string userId)
+    {
+        var report = new System.Text.StringBuilder();
+        var methods = this.GetType().GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+        foreach (var method in methods)
+        {
+            var parameters = method.GetParameters();
+            if (parameters.Length == 1 && parameters[0].ParameterType == typeof(string))
+            {
+                object result = method.Invoke(this, new object[] { userId });
+                if (result is Task task)
+                {
+                    await task.ConfigureAwait(false);
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    if (resultProperty != null)
+                    {
+                        result = resultProperty.GetValue(task);
+                    }
+                    else
+                    {
+                        result = null;
+                    }
+                }
+                string serializedResult;
+                try
+                {
+                    serializedResult = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+                }
+                catch
+                {
+                    serializedResult = result?.ToString() ?? "null";
+                }
+                report.AppendLine($"{method.Name}: {serializedResult}");
+            }
+        }
+        System.IO.File.WriteAllText("UserDiagnosticsReport.txt", report.ToString());
     }
 }
