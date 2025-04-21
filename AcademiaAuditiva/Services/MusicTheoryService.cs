@@ -171,61 +171,60 @@ namespace AcademiaAuditiva.Services
         /// Inclui pausas (rests) aleatoriamente com 25% de chance.
         /// Durações possíveis: whole (4), half (2), quarter (1), eighth (0.5), sixteenth (0.25).
         /// </remarks>
-        public static List<(string Note, double Duration, bool IsRest)> GenerateMelodyWithRhythm(
-            int measures = 2,
-            string timeSignature = "4/4",
-            List<int> octaves = null,
-            bool includeRests = true
-        )
+        public static List<(string Note, double Duration, bool IsRest)> GenerateAdvancedMelodyWithRhythm(
+    int measures = 2,
+    string timeSignature = "4/4",
+    List<int> octaves = null,
+    bool includeRests = true)
         {
             if (octaves == null || octaves.Count == 0)
                 octaves = new List<int> { 3, 4, 5 };
 
-            // Durations em "unidades" de tempo. Com timeSignature "4/4", cada compasso = 4 beats.
-            var durations = new List<(string Name, double Value)>
-            {
-                ("whole", 4),
-                ("half", 2),
-                ("quarter", 1),
-                ("eighth", 0.5),
-                ("sixteenth", 0.25)
-            };
-
-            // Quantidade total de "beats" que a melodia deve ter, ex: 2 compassos de 4 => 8 beats.
-            var totalBeats = 0.0;
-            var timeSplit = timeSignature.Split('/');
-            if (timeSplit.Length == 2)
-            {
-                if (int.TryParse(timeSplit[0], out var beatsPerMeasure))
-                {
-                    totalBeats = beatsPerMeasure * measures;
-                }
-            }
-
             var allNotes = GetAllNotes(octaves);
             var melody = new List<(string Note, double Duration, bool IsRest)>();
-
             var random = new Random();
-            double accumulated = 0;
 
+            var beatsPerMeasure = int.Parse(timeSignature.Split('/')[0]);
+            var totalBeats = beatsPerMeasure * measures;
+
+            // Durações possíveis com pesos: semínima, colcheia, semicolcheia, triolet, etc.
+            var rhythmOptions = new List<(string Name, double Duration, double Weight)>
+    {
+        ("whole", 4.0, 0.5),
+        ("half", 2.0, 1.0),
+        ("quarter", 1.0, 2.0),
+        ("eighth", 0.5, 2.5),
+        ("sixteenth", 0.25, 2.5),
+        ("triplet", 1.0 / 3.0, 3.0),
+    };
+
+            double accumulated = 0;
             while (accumulated < totalBeats)
             {
+                // Filtrar opções que cabem no tempo restante
                 var remaining = totalBeats - accumulated;
-                // Pega apenas as durações <= remaining
-                var validDurations = durations.Where(d => d.Value <= remaining).ToList();
+                var validDurations = rhythmOptions.Where(r => r.Duration <= remaining).ToList();
 
-                if (validDurations.Count == 0)
-                    break;
-
-                var chosen = validDurations[random.Next(validDurations.Count)];
+                // Seleção com peso
+                var totalWeight = validDurations.Sum(r => r.Weight);
+                var choice = random.NextDouble() * totalWeight;
+                double current = 0;
+                (string Name, double Duration, double Weight) selected = validDurations[0];
+                foreach (var r in validDurations)
+                {
+                    current += r.Weight;
+                    if (choice <= current)
+                    {
+                        selected = r;
+                        break;
+                    }
+                }
 
                 bool isRest = includeRests && random.NextDouble() < 0.25;
-                string note = isRest
-                    ? "rest"
-                    : allNotes[random.Next(allNotes.Count)];
+                string note = isRest ? "rest" : allNotes[random.Next(allNotes.Count)];
 
-                melody.Add((note, chosen.Value, isRest));
-                accumulated += chosen.Value;
+                melody.Add((note, selected.Duration, isRest));
+                accumulated += selected.Duration;
             }
 
             return melody;
@@ -559,7 +558,7 @@ namespace AcademiaAuditiva.Services
                         quality = selectedQuality,
                         notes = chordNotes
                     };
-                
+
                 case "GuessInterval":
                     var tonic = filters.TryGetValue("keySelect", out var key) ? key : "C4";
                     var scale = filters.TryGetValue("scaleTypeSelect", out var scaleType) ? scaleType : "major";
@@ -586,7 +585,7 @@ namespace AcademiaAuditiva.Services
                 case "GuessMissingNote":
                     var melodyLength = filters.TryGetValue("melodyLength", out var rawLen) && int.TryParse(rawLen, out var len) ? len : 5;
                     var octavesMelody = new List<int> { 3, 4 };
-                    var melodyRaw = GenerateMelodyWithRhythm(measures: 2, timeSignature: "4/4", octaves: octavesMelody, includeRests: true);
+                    var melodyRaw = GenerateAdvancedMelodyWithRhythm(measures: 2, timeSignature: "4/4", octaves: octavesMelody, includeRests: true);
 
                     var melody1 = melodyRaw.Select(m => new
                     {

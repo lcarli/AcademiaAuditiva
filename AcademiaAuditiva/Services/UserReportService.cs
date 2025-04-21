@@ -76,9 +76,6 @@ public class UserReportService
         };
     }
 
-    /// <summary>
-    /// Retorna um histórico diário com total de tentativas e pontuação líquida.
-    /// </summary>
     public object GetUserTimeline(string userId)
     {
         var data = _context.Scores
@@ -97,9 +94,6 @@ public class UserReportService
         return data;
     }
 
-    /// <summary>
-    /// Retorna os últimos 20 exercícios com nome, data, acertos, erros, tempo e pontuação.
-    /// </summary>
     public IEnumerable<object> GetScoreHistory(string userId)
     {
         var scores = _context.Scores
@@ -175,7 +169,6 @@ public class UserReportService
 
         return recommendations;
     }
-
 
     public object GetPerformanceByDifficulty(string userId)
     {
