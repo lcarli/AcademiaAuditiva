@@ -41,7 +41,7 @@ namespace AcademiaAuditiva.Controllers
 		}
 
 		#region General Play and Validate
-		
+
 		[HttpPost]
 		public IActionResult RequestPlay([FromBody] PlayRequestDto request)
 		{
@@ -107,12 +107,12 @@ namespace AcademiaAuditiva.Controllers
 					var objChord = JObject.Parse(sessionData.ExpectedAnswer);
 					var expectedRoot = (string)objChord["root"];
 					var expectedQuality = (string)objChord["quality"];
-					var actualChord = currentAnswer =  $"{expectedRoot}|{expectedQuality}";
+					var actualChord = currentAnswer = $"{expectedRoot}|{expectedQuality}";
 					isCorrect = MusicTheoryService.AnswersAreEquivalent(dto.UserGuess, actualChord);
 					break;
 				case "GuessInterval":
 					var objInterval = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedInterval = currentAnswer =  (string)objInterval["answer"];
+					var expectedInterval = currentAnswer = (string)objInterval["answer"];
 					isCorrect = string.Equals(dto.UserGuess, expectedInterval, StringComparison.OrdinalIgnoreCase);
 					break;
 				case "GuessMissingNote":
@@ -166,7 +166,7 @@ namespace AcademiaAuditiva.Controllers
 				Timestamp = DateTime.UtcNow
 			});
 			await _context.SaveChangesAsync();
-			
+
 			await _analyticsService.SaveAttemptAsync(new ExerciseAttemptLog
 			{
 				UserId = userId,
@@ -326,7 +326,7 @@ namespace AcademiaAuditiva.Controllers
 		public IActionResult GuessFunction()
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			
+
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFunction");
 			if (exercise == null)
 				return NotFound();
@@ -466,5 +466,12 @@ namespace AcademiaAuditiva.Controllers
 		}
 
 		#endregion
+
+		[HttpGet]
+		public IActionResult DictationMelody()
+		{
+			return View();
+		}
+
 	}
 }

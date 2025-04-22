@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Ditado Melódico";
+}
+<div class="container mt-4">
+    <h2>Ditado Melódico</h2>
+    <div class="mb-2">
+        <label for="timeSignature">Compasso:</label>
+        <select id="timeSignature" class="form-select w-auto d-inline" onchange="changeTimeSignature(this.value)">
+            <option>4/4</option>
+            <option>3/4</option>
+            <option>6/8</option>
+        </select>
+    </div>
+
+    <div id="staff-container" class="border p-3 mb-3" style="height:200px;"></div>
+
+    <div class="toolbar d-flex flex-wrap gap-2 mb-3">
+        <strong>Notas:</strong>
+        <button class="btn btn-outline-primary" onclick="addNote('C4', 'q')">C (q)</button>
+        <button class="btn btn-outline-primary" onclick="addNote('D4', '8')">D (8)</button>
+        <button class="btn btn-outline-primary" onclick="addNote('E4', 'h')">E (h)</button>
+        <strong>Pausas:</strong>
+        <button class="btn btn-outline-warning" onclick="addRest('q')">Pausa (q)</button>
+        <button class="btn btn-outline-warning" onclick="addRest('8')">Pausa (8)</button>
+        <button class="btn btn-outline-warning" onclick="addRest('h')">Pausa (h)</button>
+        <button class="btn btn-secondary" onclick="clearStaff()">Limpar</button>
+        <button class="btn btn-success" onclick="submitMelody()">Enviar</button>
+    </div>
+
+    <div id="result" class="mt-3"></div>
+</div>
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vexflow/4.2.5/vexflow-min.js" integrity="sha512-6TxXkXvDGlTfA/gxa+Odoa/so4d4/bjB6c5lgyZq8OVWqUVoDm2dC2PSI4g8Shlc2RZ6FnS1jh792Fo3HRINnw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/js/Exercises/DictationMelody.js"></script>
+}
