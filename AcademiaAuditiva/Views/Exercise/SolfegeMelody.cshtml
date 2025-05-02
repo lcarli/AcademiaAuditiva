@@ -1,0 +1,52 @@
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+
+@{
+    ViewBag.Title = Localizer["Exercise.SolfegeMelody.Title"];
+    ViewData["FiltersPartial"] = "_ExerciseFilters";
+}
+
+<div class="container mt-4">
+    @await Html.PartialAsync("_ExerciseHeader", Model)
+    <input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+
+    <div class="row">
+        <div class="col-lg-4">
+            @await Html.PartialAsync("_ExerciseInstructions", Model)
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow-sm p-4">
+                <h4 class="text-center mb-3">@Localizer["Exercise.SolfegeMelodyText"]</h4>
+
+                <!-- SHEET MUSIC -->
+                <div id="output-sheet" class="mb-5 text-center" style="height: 100px;"></div>
+
+                <!-- Botões de Áudio -->
+                @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
+
+                <!-- Botões de Resposta -->
+                @await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons)
+
+                <!-- Botão de Validação -->
+                <div class="text-center mt-3">
+                    <button class="btn btn-success" id="validateGuess">@Localizer["Exercise.ValidationButton"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Filtros -->
+@await Html.PartialAsync("_ExerciseFiltersModal", Model)
+
+<!-- Localizer JS Support -->
+<div id="localizer"
+    data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+    data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+    data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
+    data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+    data-wrong-message-text="@Localizer["Exercise.WrongNoteMessageText"]">
+</div>
+
+@section Scripts {
+    <script src="~/js/Exercises/SolfegeMelody.js"></script>
+}

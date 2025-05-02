@@ -481,6 +481,32 @@ public static class SeedData
                         }
                     }
                 })
+            },
+            new Exercise {
+                Name = "SolfegeMelody",
+                Description = "Leia a melodia e cante-a.",
+                ExerciseTypeId = 5,
+                ExerciseCategoryId = 2,
+                DifficultyLevelId = 1,
+                Instructions = "Leia a melodia exibida e tente cantá-la corretamente.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Observe atentamente as alturas das notas na partitura.",
+                    "Cante devagar para garantir precisão.",
+                    "Se necessário, pratique com escalas antes de tentar."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Generate",
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Correto", "correct" },
+                            { "Errado", "incorrect" }
+                        }
+                    }
+                })
             }
         };
 

@@ -198,8 +198,7 @@ namespace AcademiaAuditiva.Services
                 ("half", 2.0, 1.0),
                 ("quarter", 1.0, 2.0),
                 ("eighth", 0.5, 2.5),
-                ("sixteenth", 0.25, 2.5),
-                ("triplet", 1.0 / 3.0, 3.0),
+                ("sixteenth", 0.25, 2.5)
             };
 
             double accumulated = 0;
@@ -241,6 +240,118 @@ namespace AcademiaAuditiva.Services
                 accumulated += selected.Duration;
             }
 
+            return melody;
+        }
+
+        /// <summary>
+        /// Gera uma melodia vocal dentro de um certo número de compassos, com time signature, tessitura vocal e nível de dificuldade.
+        /// </summary>
+        /// <remarks>
+        /// Inclui pausas (rests) aleatoriamente com 25% de chance.
+        /// Durações possíveis variam com o nível de dificuldade:
+        /// - Fácil: whole (4), half (2), quarter (1)
+        /// - Intermediário: + eighth (0.5)
+        /// - Avançado: + sixteenth (0.25)
+        /// </remarks>
+        public static List<(string Note, double Duration, bool IsRest)> GenerateVocalMelody(
+            int measures = 2,
+            string timeSignature = "4/4",
+            string voiceType = "soprano", // baritone, soprano, mezzosoprano, tenor
+            string difficulty = "easy", // easy, intermediate, advanced
+            bool includeRests = true)
+        {
+            // Define as oitavas permitidas com base no tipo de voz
+            var octaves = voiceType.ToLower() switch
+            {
+                "baritone" => new List<int> { 2, 3 },
+                "tenor" => new List<int> { 3, 4 },
+                "mezzosoprano" => new List<int> { 4, 5 },
+                "soprano" => new List<int> { 5, 6 },
+                _ => new List<int> { 3, 4 } // Default para tenor
+            };
+        
+            // Define as durações possíveis com base no nível de dificuldade
+            var rhythmOptions = difficulty.ToLower() switch
+            {
+                "easy" => new List<(string Name, double Duration, double Weight)>
+                {
+                    ("whole", 4.0, 0.5),
+                    ("half", 2.0, 1.0),
+                    ("quarter", 1.0, 2.0)
+                },
+                "intermediate" => new List<(string Name, double Duration, double Weight)>
+                {
+                    ("whole", 4.0, 0.5),
+                    ("half", 2.0, 1.0),
+                    ("quarter", 1.0, 2.0),
+                    ("eighth", 0.5, 2.5)
+                },
+                "advanced" => new List<(string Name, double Duration, double Weight)>
+                {
+                    ("whole", 4.0, 0.5),
+                    ("half", 2.0, 1.0),
+                    ("quarter", 1.0, 2.0),
+                    ("eighth", 0.5, 2.5),
+                    ("sixteenth", 0.25, 2.5)
+                },
+                _ => new List<(string Name, double Duration, double Weight)>
+                {
+                    ("whole", 4.0, 0.5),
+                    ("half", 2.0, 1.0),
+                    ("quarter", 1.0, 2.0)
+                }
+            };
+        
+            var allNotes = GetAllNotes(octaves);
+            var random = new Random();
+            if (allNotes.Count == 0)
+            {
+                allNotes.Add(ChromaticScaleBase[random.Next(ChromaticScaleBase.Count)] + random.Next(2, 7));
+            }
+        
+            var melody = new List<(string Note, double Duration, bool IsRest)>();
+            var beatsPerMeasure = int.Parse(timeSignature.Split('/')[0]);
+            var totalBeats = beatsPerMeasure * measures;
+        
+            double accumulated = 0;
+            while (accumulated < totalBeats)
+            {
+                // Filtrar opções que cabem no tempo restante
+                var remaining = totalBeats - accumulated;
+                var validDurations = rhythmOptions.Where(r => r.Duration <= remaining).ToList();
+                if (validDurations.Count == 0)
+                    break;
+        
+                // Seleção com peso
+                var totalWeight = validDurations.Sum(r => r.Weight);
+                var choice = random.NextDouble() * totalWeight;
+                double current = 0;
+                (string Name, double Duration, double Weight) selected = validDurations[0];
+                foreach (var r in validDurations)
+                {
+                    current += r.Weight;
+                    if (choice <= current)
+                    {
+                        selected = r;
+                        break;
+                    }
+                }
+        
+                bool isRest = includeRests && random.NextDouble() < 0.25;
+                string note;
+                if (isRest)
+                    note = "rest";
+                else
+                {
+                    note = allNotes[random.Next(allNotes.Count)];
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(note, @"\d"))
+                        note = note + random.Next(2, 7);
+                }
+        
+                melody.Add((note, selected.Duration, isRest));
+                accumulated += selected.Duration;
+            }
+        
             return melody;
         }
         #endregion
@@ -692,6 +803,21 @@ namespace AcademiaAuditiva.Services
                         type = chordQ.Type,
                         notes = chordQ.Notes,
                         answer = chordQ.Type
+                    };
+                case "SolfegeMelody":
+                    var octavesSolfege = new List<int> { 4, 5 };
+                    var melodyRawSolfege = GenerateVocalMelody(measures: 1, timeSignature: "4/4", voiceType: "mezzosoprano", difficulty: "easy", includeRests: true);
+                
+                    var melodySolfege = melodyRawSolfege.Select(m => new
+                    {
+                        type = m.IsRest ? "rest" : "note",
+                        note = m.Note,
+                        duration = m.Duration
+                    }).ToList();
+                
+                    return new
+                    {
+                        melody = melodySolfege
                     };
                 default:
                     return new { message = "Exercício sem gerador de nota implementado." };

@@ -466,5 +466,21 @@ namespace AcademiaAuditiva.Controllers
 		}
 
 		#endregion
+
+		#region SolfegeMelody
+		public IActionResult SolfegeMelody()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "SolfegeMelody");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+
+		#endregion
 	}
 }
