@@ -154,6 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function sendAudioToBackend(audioBlob) {
     try {
       const note = await analyzeAudio(audioBlob);
+      alert(`Nota identificada: ${note}`);
 
       if (note) {
         // Enviar apenas a nota identificada
@@ -203,5 +204,62 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${noteNames[noteIndex]}${octave}`;
   }
 
+  async function analyzeAudio(audioBlob) {
 
+    const audioContext = new AudioContext();
+    const arrayBuffer = await audioBlob.arrayBuffer();
+    const decodedAudio = await audioContext.decodeAudioData(arrayBuffer);
+    const channelData = decodedAudio.getChannelData(0);
+
+    const { EssentiaWASM } = await import('../dist/essentia-wasm.es.js');
+    const essentia = new Essentia(EssentiaWASM);
+
+
+
+    const inputSignalVector = essentia.arrayToVector(channelData);
+    let outputRG = essentia.ReplayGain(inputSignalVector, 44100);
+
+
+    let outputPyYin = essentia.PitchYinProbabilistic(inputSignalVector,
+      4096, // frameSize
+      256, // hopSize
+      0.01, // lowRMSThreshold
+      'zero', // outputUnvoiced,
+      false, // preciseTime
+      44100); //sampleRate
+
+    let pitches = essentia.vectorToArray(outputPyYin.pitch);
+    let voicedProbabilities = essentia.vectorToArray(outputPyYin.voicedProbabilities);
+
+
+    const voicedThreshold = 0.6;
+    
+    const minLength = Math.min(pitches.length, voicedProbabilities.length);
+    const filtered = [];
+    
+    for (let i = 0; i < minLength; i++) {
+      const pitch = pitches[i];
+      const prob = voicedProbabilities[i];
+    
+      if (prob >= 0.6 && pitch > 0) {
+        filtered.push({ pitch, prob });
+      }
+    }
+
+    if (filtered.length === 0) return null;
+
+    const avgPitch =
+      filtered.reduce((sum, p) => sum + p.pitch, 0) / filtered.length;
+
+    const noteName = frequencyToNoteName(avgPitch);
+
+
+    // CAUTION: only use the `shutdown` and `delete` methods below if you've finished your analysis and don't plan on re-using Essentia again in your program lifecycle.
+
+    // call internal essentia::shutdown C++ method
+    //essentia.shutdown();
+    // delete EssentiaJS instance, free JS memory
+    //essentia.delete();
+    return noteName; 
+  }
 });
