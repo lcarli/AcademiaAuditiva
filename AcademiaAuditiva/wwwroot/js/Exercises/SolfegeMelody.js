@@ -18,33 +18,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to render the melody on the sheet
   function renderMelody(notes) {
     context.clear();
-    stave.setContext(context).draw();
 
-    // Adiciona a indicação de compasso 4/4
-    stave.addTimeSignature("4/4").draw();
+    // Recria a pauta (stave) do zero para evitar duplicações de clave e compasso
+    const newStave = new VF.Stave(10, 40, 480);
+    newStave.addClef("treble").addTimeSignature("4/4").setContext(context).draw();
+
+    const durationMap = {
+      4.0: "w", // whole note
+      2.0: "h", // half note
+      1.0: "q", // quarter note
+      0.5: "8", // eighth note
+      0.25: "16", // sixteenth note
+    };
 
     const vexNotes = notes.map((note) => {
-      const durationMap = {
-        4.0: "w", // whole note
-        2.0: "h", // half note
-        1.0: "q", // quarter note
-        0.5: "8", // eighth note
-        0.25: "16", // sixteenth note
-      };
-
       if (note.type === "rest") {
-        // Create a rest
         return new VF.StaveNote({
           clef: "treble",
-          keys: ["b/4"], // Default key for rests
-          duration: durationMap[note.duration] + "r", // Add "r" for rest
+          keys: ["b/4"],
+          duration: durationMap[note.duration] + "r",
         });
       } else {
-        // Create a note
         return new VF.StaveNote({
           clef: "treble",
-          keys: [note.note.toLowerCase().replace(/(\d)/, "/$1")], // Convert "C4" to "c/4"
-          duration: durationMap[note.duration] || "q", // Default to quarter note if duration is missing
+          keys: [note.note.toLowerCase().replace(/(\d)/, "/$1")],
+          duration: durationMap[note.duration] || "q",
         });
       }
     });
@@ -52,10 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const voice = new VF.Voice({ num_beats: 4, beat_value: 4 });
     voice.addTickables(vexNotes);
 
-    const formatter = new VF.Formatter()
-      .joinVoices([voice])
-      .format([voice], 400);
-    voice.draw(context, stave);
+    new VF.Formatter().joinVoices([voice]).format([voice], 400);
+    voice.draw(context, newStave);
   }
 
   // Play button functionality
