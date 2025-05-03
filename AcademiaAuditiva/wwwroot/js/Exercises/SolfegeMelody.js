@@ -101,13 +101,11 @@ document.addEventListener("DOMContentLoaded", () => {
           mediaRecorder.onstop = () => {
             const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
             recordedAudioUrl = URL.createObjectURL(audioBlob);
-            sendAudioToBackend(audioBlob);
           };
 
           mediaRecorder.start();
           isRecording = true;
           recordBtn.innerHTML = `<i class="bi bi-stop-circle"></i> Parar Gravação`;
-          alert("Gravação iniciada. Clique novamente para parar.");
         } catch (err) {
           console.error("Error accessing microphone:", err);
         }
@@ -117,7 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
           mediaRecorder.stop();
           isRecording = false;
           recordBtn.innerHTML = `<i class="bi bi-mic"></i> Gravar Áudio`;
-          alert("Gravação finalizada.");
         }
       }
     });
@@ -154,23 +151,57 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Send recorded audio to the backend
-  function sendAudioToBackend(audioBlob) {
-    const formData = new FormData();
-    formData.append("exerciseId", exerciseId);
-    formData.append("audio", audioBlob);
+  async function sendAudioToBackend(audioBlob) {
+    try {
+      const note = await analyzeAudio(audioBlob);
 
-    fetch(`/Exercise/SubmitAudio`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.isCorrect) {
-          Swal.fire("Correct!", loc.correctMessageText, "success");
-        } else {
-          Swal.fire("Wrong!", loc.wrongMessageText, "error");
-        }
-      })
-      .catch((err) => console.error("Error submitting audio:", err));
+      if (note) {
+        // Enviar apenas a nota identificada
+        fetch(`/Exercise/SubmitNote`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ exerciseId, note }),
+        });
+      } else {
+        // Fallback: enviar o áudio completo
+        const formData = new FormData();
+        formData.append("exerciseId", exerciseId);
+        formData.append("audio", audioBlob);
+
+        fetch(`/Exercise/SubmitAudio`, {
+          method: "POST",
+          body: formData,
+        });
+      }
+    } catch (err) {
+      console.error("Error analyzing or submitting audio:", err);
+    }
   }
+
+  function frequencyToNoteName(frequency) {
+    const noteNames = [
+      "C",
+      "C#",
+      "D",
+      "D#",
+      "E",
+      "F",
+      "F#",
+      "G",
+      "G#",
+      "A",
+      "A#",
+      "B",
+    ];
+    const A4 = 440; // Frequência do A4
+    const semitoneRatio = Math.pow(2, 1 / 12);
+
+    const noteNumber = Math.round(12 * Math.log2(frequency / A4)) + 69;
+    const octave = Math.floor(noteNumber / 12) - 1;
+    const noteIndex = ((noteNumber % 12) + 12) % 12;
+
+    return `${noteNames[noteIndex]}${octave}`;
+  }
+
+
 });
