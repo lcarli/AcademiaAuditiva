@@ -1,46 +1,158 @@
 ﻿@{
-    ViewData["Title"] = "Academia Auditiva";
+    ViewData["Title"] = "Academia Auditiva - Musical Ear Training Platform";
 }
 
-<section class="text-center py-5 bg-light">
+<!-- Hero Section -->
+<section class="hero-section py-5">
     <div class="container">
-        <h1 class="display-4 mb-4">🎧 Academia Auditiva</h1>
-        <p class="lead">Desenvolva seu ouvido musical com exercícios interativos, divertidos e progressivos.</p>
-        <a href="/Identity/Account/Login" class="btn btn-primary btn-lg mt-4">Comece agora</a>
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6 text-center text-lg-start">
+                <h1 class="display-3 fw-bold mb-4">
+                    <span class="text-gradient">🎧 Academia Auditiva</span>
+                </h1>
+                <p class="lead fs-4 mb-4 text-muted">
+                    Desenvolva seu ouvido musical com exercícios interativos, divertidos e progressivos.
+                    Junte-se a milhares de músicos aprimorando suas habilidades auditivas.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+                    <a href="/Identity/Account/Login" class="btn btn-primary btn-lg">
+                        <i class="bi bi-play-fill me-2"></i>Comece agora
+                    </a>
+                    <a href="#features" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-info-circle me-2"></i>Saiba mais
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center mt-5 mt-lg-0">
+                <div class="musical-visualization">
+                    <div class="waveform-container">
+                        <div class="waveform-bar" style="height: 40%"></div>
+                        <div class="waveform-bar" style="height: 70%"></div>
+                        <div class="waveform-bar" style="height: 55%"></div>
+                        <div class="waveform-bar" style="height: 80%"></div>
+                        <div class="waveform-bar" style="height: 45%"></div>
+                        <div class="waveform-bar" style="height: 90%"></div>
+                        <div class="waveform-bar" style="height: 35%"></div>
+                        <div class="waveform-bar" style="height: 65%"></div>
+                        <div class="waveform-bar" style="height: 75%"></div>
+                        <div class="waveform-bar" style="height: 50%"></div>
+                    </div>
+                    <div class="music-note-animation">♪</div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
-<section class="container py-5">
-    <div class="row">
-        <div class="col-md-4 text-center">
-            <i class="bi bi-music-note-beamed display-4 text-primary"></i>
-            <h3 class="mt-3">Treinamento Auditivo</h3>
-            <p>Pratique percepção de notas, acordes, intervalos e funções harmônicas.</p>
+<div class="musical-divider"></div>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Recursos Incríveis</h2>
+                <p class="lead text-muted">Tudo que você precisa para desenvolver seu ouvido musical</p>
+            </div>
         </div>
-        <div class="col-md-4 text-center">
-            <i class="bi bi-controller display-4 text-success"></i>
-            <h3 class="mt-3">Gamificação</h3>
-            <p>Ganhe pontos, veja sua evolução e conquiste badges conforme melhora sua precisão auditiva.</p>
-        </div>
-        <div class="col-md-4 text-center">
-            <i class="bi bi-globe2 display-4 text-warning"></i>
-            <h3 class="mt-3">Multilíngue</h3>
-            <p>Escolha entre português, inglês ou francês para sua jornada musical.</p>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-icon mb-3">
+                        <i class="bi bi-music-note-beamed display-4 text-primary"></i>
+                    </div>
+                    <h4 class="card-title">Treinamento Auditivo</h4>
+                    <p class="card-text">
+                        Pratique percepção de notas, acordes, intervalos e funções harmônicas com exercícios 
+                        progressivos e adaptativos ao seu nível.
+                    </p>
+                    <div class="mt-auto">
+                        <span class="badge bg-primary">12+ Exercícios</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-icon mb-3">
+                        <i class="bi bi-controller display-4" style="color: var(--emerald);"></i>
+                    </div>
+                    <h4 class="card-title">Gamificação</h4>
+                    <p class="card-text">
+                        Ganhe pontos, veja sua evolução e conquiste badges conforme melhora sua precisão auditiva. 
+                        Torne o aprendizado divertido e motivador.
+                    </p>
+                    <div class="mt-auto">
+                        <span class="badge" style="background-color: var(--emerald);">Sistema de Conquistas</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-icon mb-3">
+                        <i class="bi bi-globe2 display-4" style="color: var(--accent-gold);"></i>
+                    </div>
+                    <h4 class="card-title">Multilíngue</h4>
+                    <p class="card-text">
+                        Escolha entre português, inglês ou francês para sua jornada musical. 
+                        Interface intuitiva e acessível para músicos do mundo todo.
+                    </p>
+                    <div class="mt-auto">
+                        <span class="badge" style="background-color: var(--accent-gold);">3 Idiomas</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="bg-dark text-white text-center py-5">
+<div class="musical-divider"></div>
+
+<!-- Exercises Preview Section -->
+<section class="py-5" style="background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);">
     <div class="container">
-        <h2 class="mb-4">🎵 Explore os Exercícios</h2>
-        <p>Temos desafios como:</p>
-        <ul class="list-unstyled fs-5">
-            <li>• Adivinhe a nota (GuessNote)</li>
-            <li>• Acordes maiores e menores (GuessChord)</li>
-            <li>• Intervalos melódicos e harmônicos (GuessInterval)</li>
-            <li>• Qualidade dos acordes (GuessQuality)</li>
-            <li>• Função harmônica (GuessFunction)</li>
-        </ul>
-        <a href="/Identity/Account/Register" class="btn btn-outline-light btn-lg mt-3">Criar Conta Gratuita (Por tempo limitado)</a>
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">🎵 Explore os Exercícios</h2>
+                <p class="lead text-muted">Desafios musicais para todos os níveis</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="exercise-preview-card">
+                    <h5><i class="bi bi-music-note me-2"></i>Adivinhe a Nota</h5>
+                    <p class="text-muted">Desenvolva o ouvido absoluto identificando notas individuais</p>
+                </div>
+                <div class="exercise-preview-card">
+                    <h5><i class="bi bi-soundwave me-2"></i>Intervalos Musicais</h5>
+                    <p class="text-muted">Reconheça intervalos melódicos e harmônicos</p>
+                </div>
+                <div class="exercise-preview-card">
+                    <h5><i class="bi bi-layers me-2"></i>Qualidade dos Acordes</h5>
+                    <p class="text-muted">Distinga entre acordes maiores, menores e diminutos</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="exercise-preview-card">
+                    <h5><i class="bi bi-diagram-3 me-2"></i>Função Harmônica</h5>
+                    <p class="text-muted">Compreenda as relações tonais e progressões</p>
+                </div>
+                <div class="exercise-preview-card">
+                    <h5><i class="bi bi-puzzle me-2"></i>Nota Perdida</h5>
+                    <p class="text-muted">Identifique notas ausentes em sequências musicais</p>
+                </div>
+                <div class="exercise-preview-card">
+                    <h5><i class="bi bi-collection me-2"></i>Reconhecimento de Acordes</h5>
+                    <p class="text-muted">Identifique diferentes tipos de acordes e suas inversões</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a href="/Identity/Account/Register" class="btn btn-primary btn-lg">
+                <i class="bi bi-person-plus me-2"></i>Criar Conta Gratuita
+            </a>
+            <p class="text-muted mt-3 mb-0">
+                <small><i class="bi bi-clock me-1"></i>Oferta por tempo limitado</small>
+            </p>
+        </div>
     </div>
 </section>

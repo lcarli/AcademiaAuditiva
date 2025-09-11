@@ -2,12 +2,22 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>@ViewBag.Title - Academia Auditiva</title>
+	<title>@ViewBag.Title - Academia Auditiva 🎵</title>
+	<meta name="description" content="Academia Auditiva - Develop your musical ear with interactive, fun and progressive exercises" />
+	
+	<!-- Preload critical resources -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	
+	<!-- Modern Typography -->
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+	
+	<!-- Core Styles -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css"
 		integrity="sha512-Z/def5z5u2aR89OuzYcxmDJ0Bnd5V1cKqBEbvLOiUNWdg9PQeXVvXLI90SE4QOHGlfLqUnDNVAYyZi8UwUTmWQ=="
 		crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -15,19 +25,36 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 		integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
 		crossorigin="anonymous" referrerpolicy="no-referrer" />
+	
 	<!-- SweetAlert2 CSS -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
-	<!-- Custom -->
+	
+	<!-- Custom Musical Theme -->
 	<link href="~/css/site.css" rel="stylesheet" />
+	
+	<!-- Favicon -->
+	<link rel="icon" href="~/favicon.ico" type="image/x-icon">
 </head>
 
-<body>
-	<header>
-		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-			<div class="container-fluid">
-				<a class="navbar-brand" href="/">Academia Auditiva</a>
+<body class="musical-theme">
+	<!-- Musical Background Elements -->
+	<div class="musical-bg" aria-hidden="true">
+		<div class="note-float note-1">♪</div>
+		<div class="note-float note-2">♫</div>
+		<div class="note-float note-3">♪</div>
+		<div class="note-float note-4">♬</div>
+	</div>
 
-				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+	<header class="main-header">
+		<nav class="navbar navbar-expand-lg navbar-dark">
+			<div class="container-fluid">
+				<a class="navbar-brand musical-brand" href="/">
+					<span class="brand-icon">🎵</span>
+					<span class="brand-text">Academia Auditiva</span>
+					<span class="brand-subtitle">Musical Ear Training</span>
+				</a>
+
+				<button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
 					aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
@@ -37,21 +64,24 @@
 					{
 						<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 							<li class="nav-item">
-								<a class="nav-link" asp-controller="Dashboard"
-									asp-action="Index">@Localizer["Header.Dashboard"]</a>
+								<a class="nav-link modern-nav-link" asp-controller="Dashboard" asp-action="Index">
+									<i class="bi bi-speedometer2 me-2"></i>@Localizer["Header.Dashboard"]
+								</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" asp-controller="Exercise"
-									asp-action="Index">@Localizer["Header.Exercise"]</a>
+								<a class="nav-link modern-nav-link" asp-controller="Exercise" asp-action="Index">
+									<i class="bi bi-music-note-beamed me-2"></i>@Localizer["Header.Exercise"]
+								</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" asp-controller="Dashboard"
-									asp-action="Index">@Localizer["Header.Games"]</a>
+								<a class="nav-link modern-nav-link" asp-controller="Dashboard" asp-action="Index">
+									<i class="bi bi-controller me-2"></i>@Localizer["Header.Games"]
+								</a>
 							</li>
 						</ul>
 					}
 
-					<div class="d-flex ms-auto">
+					<div class="d-flex ms-auto align-items-center">
 						@await Html.PartialAsync("_LoginPartial")
 					</div>
 				</div>
@@ -59,19 +89,37 @@
 		</nav>
 	</header>
 
-	<div class="container mt-4">
-		@RenderBody()
-	</div>
+	<main class="main-content">
+		<div class="container-fluid">
+			@RenderBody()
+		</div>
+	</main>
 
-	<footer class="footer bg-dark text-white text-center py-3">
-		<div class="row">
-			<div class="col-md-9">
-				&copy; @DateTime.Now.Year - Academia Auditiva
-			</div>
-			<div class="col-md-3 text-right">
-				@await Html.PartialAsync("_SelectLanguagePartial")
+	<footer class="modern-footer">
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col-md-6">
+					<div class="footer-brand">
+						<span class="footer-icon">🎵</span>
+						<span class="footer-text">
+							&copy; @DateTime.Now.Year Academia Auditiva
+						</span>
+					</div>
+					<p class="footer-subtitle">Developing musical ears worldwide</p>
+				</div>
+				<div class="col-md-3">
+					<div class="footer-links">
+						<a href="#" class="footer-link">About</a>
+						<a href="#" class="footer-link">Support</a>
+						<a href="#" class="footer-link">Privacy</a>
+					</div>
+				</div>
+				<div class="col-md-3 text-md-end">
+					@await Html.PartialAsync("_SelectLanguagePartial")
+				</div>
 			</div>
 		</div>
+		<div class="footer-wave" aria-hidden="true"></div>
 	</footer>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
