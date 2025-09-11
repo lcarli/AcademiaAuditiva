@@ -721,4 +721,20 @@
   <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve"><value>Accuracy by Technical Type</value></data>
   <data name="Dashboard.ChartAccuracyByCategory" xml:space="preserve"><value>Accuracy by Category</value></data>
   <data name="Dashboard.ChartAccuracyByDifficulty" xml:space="preserve"><value>Accuracy by Difficulty</value></data>
+  <data name="Home.Hero.Subtitle" xml:space="preserve"><value>Develop your musical ear with interactive, fun and progressive exercises.</value></data>
+  <data name="Home.Hero.CTA" xml:space="preserve"><value>Start now</value></data>
+  <data name="Home.Feature1.Title" xml:space="preserve"><value>Ear Training</value></data>
+  <data name="Home.Feature1.Description" xml:space="preserve"><value>Practice perception of notes, chords, intervals and harmonic functions.</value></data>
+  <data name="Home.Feature2.Title" xml:space="preserve"><value>Gamification</value></data>
+  <data name="Home.Feature2.Description" xml:space="preserve"><value>Earn points, see your progress and earn badges as you improve your auditory accuracy.</value></data>
+  <data name="Home.Feature3.Title" xml:space="preserve"><value>Multilingual</value></data>
+  <data name="Home.Feature3.Description" xml:space="preserve"><value>Choose between Portuguese, English or French for your musical journey.</value></data>
+  <data name="Home.Exercises.Title" xml:space="preserve"><value>🎵 Explore the Exercises</value></data>
+  <data name="Home.Exercises.Subtitle" xml:space="preserve"><value>We have challenges like:</value></data>
+  <data name="Home.Exercises.GuessNote" xml:space="preserve"><value>• Guess the note (GuessNote)</value></data>
+  <data name="Home.Exercises.GuessChord" xml:space="preserve"><value>• Major and minor chords (GuessChord)</value></data>
+  <data name="Home.Exercises.GuessInterval" xml:space="preserve"><value>• Melodic and harmonic intervals (GuessInterval)</value></data>
+  <data name="Home.Exercises.GuessQuality" xml:space="preserve"><value>• Chord quality (GuessQuality)</value></data>
+  <data name="Home.Exercises.GuessFunction" xml:space="preserve"><value>• Harmonic function (GuessFunction)</value></data>
+  <data name="Home.Exercises.RegisterCTA" xml:space="preserve"><value>Create Free Account (Limited time)</value></data>
 </root>

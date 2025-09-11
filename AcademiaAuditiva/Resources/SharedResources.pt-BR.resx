@@ -686,7 +686,7 @@
   <data name="Dashboard.QuickAccess" xml:space="preserve"><value>Acessos Rápidos</value></data>
   <data name="Dashboard.Menu.Exercises" xml:space="preserve"><value>Exercícios</value></data>
   <data name="Dashboard.Menu.Games" xml:space="preserve"><value>Jogos</value></data>
-  <data name="Dashboard.Menu.Ranking" xml:space="preserve"><value>Ranking</value></data>
+  <data name="Dashboard.Menu.Ranking" xml:space="preserve"><value>Classificação</value></data>
   <data name="Dashboard.Menu.Settings" xml:space="preserve"><value>Configurações</value></data>
   <data name="Dashboard.Menu.Help" xml:space="preserve"><value>Ajuda</value></data>
   <data name="Exercise.Start" xml:space="preserve"><value>Iniciar Exercício</value></data>
@@ -721,4 +721,20 @@
   <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve"><value>Precisão por Tipo Técnico</value></data>
   <data name="Dashboard.ChartAccuracyByCategory" xml:space="preserve"><value>Precisão por Categoria Pedagógica</value></data>
   <data name="Dashboard.ChartAccuracyByDifficulty" xml:space="preserve"><value>Precisão por Dificuldade</value></data>
+  <data name="Home.Hero.Subtitle" xml:space="preserve"><value>Desenvolva seu ouvido musical com exercícios interativos, divertidos e progressivos.</value></data>
+  <data name="Home.Hero.CTA" xml:space="preserve"><value>Comece agora</value></data>
+  <data name="Home.Feature1.Title" xml:space="preserve"><value>Treinamento Auditivo</value></data>
+  <data name="Home.Feature1.Description" xml:space="preserve"><value>Pratique percepção de notas, acordes, intervalos e funções harmônicas.</value></data>
+  <data name="Home.Feature2.Title" xml:space="preserve"><value>Gamificação</value></data>
+  <data name="Home.Feature2.Description" xml:space="preserve"><value>Ganhe pontos, veja sua evolução e conquiste badges conforme melhora sua precisão auditiva.</value></data>
+  <data name="Home.Feature3.Title" xml:space="preserve"><value>Multilíngue</value></data>
+  <data name="Home.Feature3.Description" xml:space="preserve"><value>Escolha entre português, inglês ou francês para sua jornada musical.</value></data>
+  <data name="Home.Exercises.Title" xml:space="preserve"><value>🎵 Explore os Exercícios</value></data>
+  <data name="Home.Exercises.Subtitle" xml:space="preserve"><value>Temos desafios como:</value></data>
+  <data name="Home.Exercises.GuessNote" xml:space="preserve"><value>• Adivinhe a nota (GuessNote)</value></data>
+  <data name="Home.Exercises.GuessChord" xml:space="preserve"><value>• Acordes maiores e menores (GuessChord)</value></data>
+  <data name="Home.Exercises.GuessInterval" xml:space="preserve"><value>• Intervalos melódicos e harmônicos (GuessInterval)</value></data>
+  <data name="Home.Exercises.GuessQuality" xml:space="preserve"><value>• Qualidade dos acordes (GuessQuality)</value></data>
+  <data name="Home.Exercises.GuessFunction" xml:space="preserve"><value>• Função harmônica (GuessFunction)</value></data>
+  <data name="Home.Exercises.RegisterCTA" xml:space="preserve"><value>Criar Conta Gratuita (Por tempo limitado)</value></data>
 </root>
