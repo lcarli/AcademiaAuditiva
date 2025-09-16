@@ -36,6 +36,7 @@ namespace AcademiaAuditiva.Data
                 AccessFailedCount = 0,
                 PhoneNumber = "+15817456586",
                 PhoneNumberConfirmed = true,
+                Role = UserRole.Admin
             };
 
             var password = new PasswordHasher<ApplicationUser>();

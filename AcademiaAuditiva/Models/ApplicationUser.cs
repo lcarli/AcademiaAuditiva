@@ -11,7 +11,16 @@ public class ApplicationUser : IdentityUser
     [MaxLength(100)]
     public string LastName { get; set; }
 
+    public UserRole Role { get; set; } = UserRole.Student;
+
     // Navegação futura
     public ICollection<BadgesEarned> EarnedBadges { get; set; }
     public ICollection<Subscription> Subscriptions { get; set; }
+}
+
+public enum UserRole
+{
+    Admin,
+    Student,
+    Professor
 }
