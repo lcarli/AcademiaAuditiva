@@ -201,61 +201,63 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function analyzeAudio(audioBlob) {
-
     const audioContext = new AudioContext();
     const arrayBuffer = await audioBlob.arrayBuffer();
     const decodedAudio = await audioContext.decodeAudioData(arrayBuffer);
     const channelData = decodedAudio.getChannelData(0);
-
+  
     const { EssentiaWASM } = await import('../dist/essentia-wasm.es.js');
     const essentia = new Essentia(EssentiaWASM);
-
-
-
+  
     const inputSignalVector = essentia.arrayToVector(channelData);
-    let outputRG = essentia.ReplayGain(inputSignalVector, 44100);
-
-
-    let outputPyYin = essentia.PitchYinProbabilistic(inputSignalVector,
-      4096, // frameSize
-      256, // hopSize
-      0.01, // lowRMSThreshold
-      'zero', // outputUnvoiced,
-      false, // preciseTime
-      44100); //sampleRate
-
-    let pitches = essentia.vectorToArray(outputPyYin.pitch);
-    let voicedProbabilities = essentia.vectorToArray(outputPyYin.voicedProbabilities);
-
-
-    const voicedThreshold = 0.6;
-    
-    const minLength = Math.min(pitches.length, voicedProbabilities.length);
-    const filtered = [];
-    
+  
+    // Executa PitchMelodia
+    const result = essentia.PitchMelodia(
+      inputSignalVector,
+      2048,    // frameSize
+      128,     // hopSize
+      3,       // filterIterations
+      0.9,     // magnitudeThreshold
+      80,      // minFrequency (voz masculina)
+      1000,    // maxFrequency
+      true,    // applyViterbi
+      0.2,     // voicingTolerance
+      0.2,     // voicingThreshold
+      false,   // guessUnvoiced
+      audioContext.sampleRate
+    );
+  
+    const pitches = essentia.vectorToArray(result.pitch);
+    const confidences = essentia.vectorToArray(result.pitchConfidence);
+  
+    const voicedThreshold = 0.85;
+    const minLength = Math.min(pitches.length, confidences.length);
+  
+    const stableNotes = [];
+    let currentGroup = [];
+  
     for (let i = 0; i < minLength; i++) {
       const pitch = pitches[i];
-      const prob = voicedProbabilities[i];
-    
-      if (prob >= 0.6 && pitch > 0) {
-        filtered.push({ pitch, prob });
+      const conf = confidences[i];
+  
+      if (pitch > 0 && conf >= voicedThreshold) {
+        currentGroup.push(pitch);
+      } else {
+        if (currentGroup.length > 0) {
+          const avgPitch = currentGroup.reduce((a, b) => a + b, 0) / currentGroup.length;
+          stableNotes.push(frequencyToNoteName(avgPitch));
+          currentGroup = [];
+        }
       }
     }
-
-    if (filtered.length === 0) return null;
-
-    const avgPitch =
-      filtered.reduce((sum, p) => sum + p.pitch, 0) / filtered.length;
-
-    const noteName = frequencyToNoteName(avgPitch);
-
-
-    // CAUTION: only use the `shutdown` and `delete` methods below if you've finished your analysis and don't plan on re-using Essentia again in your program lifecycle.
-
-    // call internal essentia::shutdown C++ method
-    //essentia.shutdown();
-    // delete EssentiaJS instance, free JS memory
-    //essentia.delete();
-    return noteName; 
+  
+    if (currentGroup.length > 0) {
+      const avgPitch = currentGroup.reduce((a, b) => a + b, 0) / currentGroup.length;
+      stableNotes.push(frequencyToNoteName(avgPitch));
+    }
+  
+    const dedupedNotes = stableNotes.filter((note, i, arr) => i === 0 || note !== arr[i - 1]);
+  
+    return dedupedNotes;
   }
 });
