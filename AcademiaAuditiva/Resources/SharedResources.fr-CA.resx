@@ -721,4 +721,16 @@
   <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve"><value>Précision par type technique</value></data>
   <data name="Dashboard.ChartAccuracyByCategory" xml:space="preserve"><value>Précision par catégorie pédagogique</value></data>
   <data name="Dashboard.ChartAccuracyByDifficulty" xml:space="preserve"><value>Précision par difficulté</value></data>
+  <data name="Exercise.SolfegeMelody.Title" xml:space="preserve">
+    <value>Solfège mélodique</value>
+  </data>
+  <data name="Exercise.SolfegeMelodyText" xml:space="preserve">
+    <value>Chantez la mélodie affichée</value>
+  </data>
+  <data name="Exercise.RecordAudio" xml:space="preserve">
+    <value>Enregistrer l'audio</value>
+  </data>
+  <data name="Exercise.ListenAudio" xml:space="preserve">
+    <value>Écouter l'enregistrement</value>
+  </data>
 </root>
