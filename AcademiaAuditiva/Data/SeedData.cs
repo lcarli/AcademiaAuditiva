@@ -483,6 +483,57 @@ public static class SeedData
                 })
             },
             new Exercise {
+                Name = "IntervalMelodico",
+                Description = "Identifique graus e intervalos de uma melodia",
+                ExerciseTypeId = 3, // IntervalRecognition
+                ExerciseCategoryId = 2, // Melody
+                DifficultyLevelId = 2, // Intermediate
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Key",
+                        Name = "keySelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("C", "C"),
+                            new("D", "D"),
+                            new("E", "E"),
+                            new("F", "F"),
+                            new("G", "G"),
+                            new("A", "A"),
+                            new("B", "B")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Scale",
+                        Name = "scaleTypeSelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("major", "Exercise.ScaleMajor"),
+                            new("minor", "Exercise.ScaleMinor")
+                        }
+                    }
+                }),
+                Instructions = "Escute a melodia e identifique: o primeiro grau, o último grau, o intervalo entre as duas primeiras notas e o intervalo entre as duas últimas notas.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Identifique primeiro a tonalidade da melodia.",
+                    "Preste atenção à primeira e última nota para determinar os graus.",
+                    "Compare os intervalos com intervalos conhecidos.",
+                    "Use as escalas como referência para os graus."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    // No answer buttons needed - uses dropdowns in the view
+                })
+            },
+            new Exercise {
                 Name = "SolfegeMelody",
                 Description = "Leia a melodia e cante-a.",
                 ExerciseTypeId = 5,

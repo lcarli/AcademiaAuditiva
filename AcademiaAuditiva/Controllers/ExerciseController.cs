@@ -135,6 +135,36 @@ namespace AcademiaAuditiva.Controllers
 					var expectedQuality2 = currentAnswer = (string)objQuality["answer"];
 					isCorrect = string.Equals(dto.UserGuess, expectedQuality2, StringComparison.OrdinalIgnoreCase);
 					break;
+				case "IntervalMelodico":
+					var objMelodic = JObject.Parse(sessionData.ExpectedAnswer);
+					var expectedFirstDegree = objMelodic["firstDegree"]?.ToString() ?? "1";
+					var expectedLastDegree = objMelodic["lastDegree"]?.ToString() ?? "1";
+					var expectedStartInterval = objMelodic["startInterval"]?.ToString() ?? "Unísono";
+					var expectedEndInterval = objMelodic["endInterval"]?.ToString() ?? "Unísono";
+					
+					// UserGuess format: "firstDegree|lastDegree|startInterval|endInterval"
+					var answers = dto.UserGuess.Split('|');
+					if (answers.Length == 4)
+					{
+						var userFirstDegree = answers[0];
+						var userLastDegree = answers[1];
+						var userStartInterval = answers[2];
+						var userEndInterval = answers[3];
+						
+						var correct1 = string.Equals(userFirstDegree, expectedFirstDegree, StringComparison.OrdinalIgnoreCase);
+						var correct2 = string.Equals(userLastDegree, expectedLastDegree, StringComparison.OrdinalIgnoreCase);
+						var correct3 = string.Equals(userStartInterval, expectedStartInterval, StringComparison.OrdinalIgnoreCase);
+						var correct4 = string.Equals(userEndInterval, expectedEndInterval, StringComparison.OrdinalIgnoreCase);
+						
+						isCorrect = correct1 && correct2 && correct3 && correct4;
+						currentAnswer = $"{expectedFirstDegree}|{expectedLastDegree}|{expectedStartInterval}|{expectedEndInterval}";
+					}
+					else
+					{
+						isCorrect = false;
+						currentAnswer = $"{expectedFirstDegree}|{expectedLastDegree}|{expectedStartInterval}|{expectedEndInterval}";
+					}
+					break;
 				default:
 					break;
 			}
@@ -218,6 +248,21 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessChords");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
+		#region IntervalMelodico
+		public IActionResult IntervalMelodico()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "IntervalMelodico");
 			if (exercise == null)
 				return NotFound();
 

@@ -819,9 +819,94 @@ namespace AcademiaAuditiva.Services
                     {
                         melody = melodySolfege
                     };
+
+                case "IntervalMelodico":
+                    var keyMel = filters.TryGetValue("keySelect", out var selectedKeyMel) ? selectedKeyMel : "C";
+                    var scaleTypeMel = filters.TryGetValue("scaleTypeSelect", out var selectedScale) ? selectedScale : "major";
+                    
+                    // Gera escala base
+                    var scaleNotesKey = GetScaleNotes(keyMel + "4", scaleTypeMel);
+                    if (scaleNotesKey.Count < 4)
+                        return new { error = "Escala muito curta para gerar melodia." };
+
+                    // Melodia com 4-6 notas, pode começar em diferentes graus (não sempre no I)
+                    var melodyLengthMel = random.Next(4, 7);
+                    var startingDegree = random.Next(1, Math.Min(scaleNotesKey.Count, 6)); // Graus I-V como início
+                    var melodyNotes = new List<string>();
+                    
+                    // Primeira nota baseada no grau inicial
+                    var currentDegree = startingDegree;
+                    melodyNotes.Add(scaleNotesKey[currentDegree - 1]);
+                    
+                    // Gera restante da melodia com movimentos aleatórios
+                    for (int i = 1; i < melodyLengthMel; i++)
+                    {
+                        var movement = random.Next(-2, 3); // Movimento de -2 a +2 graus
+                        currentDegree = Math.Max(1, Math.Min(scaleNotesKey.Count, currentDegree + movement));
+                        melodyNotes.Add(scaleNotesKey[currentDegree - 1]);
+                    }
+
+                    // Calcula os graus relativos à tônica
+                    var firstNote = melodyNotes[0];
+                    var lastNote = melodyNotes[melodyNotes.Count - 1];
+                    var firstDegree = GetDegreeInScale(firstNote, scaleNotesKey);
+                    var lastDegree = GetDegreeInScale(lastNote, scaleNotesKey);
+                    
+                    // Calcula intervalos
+                    var startInterval = GetIntervalBetweenNotes(melodyNotes[0], melodyNotes[1]);
+                    var endInterval = GetIntervalBetweenNotes(melodyNotes[melodyNotes.Count - 2], melodyNotes[melodyNotes.Count - 1]);
+                    
+                    return new
+                    {
+                        melody = melodyNotes,
+                        firstDegree = firstDegree,
+                        lastDegree = lastDegree,
+                        startInterval = startInterval,
+                        endInterval = endInterval,
+                        key = keyMel,
+                        scale = scaleTypeMel
+                    };
                 default:
                     return new { message = "Exercício sem gerador de nota implementado." };
             }
+        }
+
+        // Métodos auxiliares para IntervalMelodico
+        public static int GetDegreeInScale(string note, List<string> scaleNotes)
+        {
+            var noteWithoutOctave = Regex.Replace(note, @"\d", "");
+            for (int i = 0; i < scaleNotes.Count; i++)
+            {
+                var scaleNoteWithoutOctave = Regex.Replace(scaleNotes[i], @"\d", "");
+                if (scaleNoteWithoutOctave == noteWithoutOctave)
+                    return i + 1; // Graus começam em 1
+            }
+            return 1; // Default ao primeiro grau se não encontrar
+        }
+
+        public static string GetIntervalBetweenNotes(string note1, string note2)
+        {
+            var midi1 = NoteToMidi(note1) ?? 60;
+            var midi2 = NoteToMidi(note2) ?? 60;
+            var semitones = Math.Abs(midi2 - midi1);
+            
+            return semitones switch
+            {
+                0 => "Unísono",
+                1 => "2m",
+                2 => "2M",
+                3 => "3m",
+                4 => "3M",
+                5 => "4J",
+                6 => "4A",
+                7 => "5J",
+                8 => "6m",
+                9 => "6M",
+                10 => "7m",
+                11 => "7M",
+                12 => "8J",
+                _ => $"{semitones}sem"
+            };
         }
         #endregion
 

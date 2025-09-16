@@ -105,18 +105,6 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
   <data name="Header.Exercise" xml:space="preserve">
     <value>Exercise</value>
     <comment/>
@@ -732,5 +720,68 @@
   </data>
   <data name="Exercise.ListenAudio" xml:space="preserve">
     <value>Écouter l'enregistrement</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.Title" xml:space="preserve">
+    <value>Intervalles mélodiques</value>
+  </data>
+  <data name="Exercise.IntervalMelodicoText" xml:space="preserve">
+    <value>Écoutez la mélodie et identifiez les degrés et intervalles</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.FirstDegree" xml:space="preserve">
+    <value>Premier degré (première note)</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.LastDegree" xml:space="preserve">
+    <value>Dernier degré (dernière note)</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.StartInterval" xml:space="preserve">
+    <value>Intervalle entre 1ère et 2ème notes</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.EndInterval" xml:space="preserve">
+    <value>Intervalle entre avant-dernière et dernière notes</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.IncompleteText" xml:space="preserve">
+    <value>Veuillez répondre aux quatre questions.</value>
+  </data>
+  <data name="Exercise.SelectOption" xml:space="preserve">
+    <value>Sélectionnez une option...</value>
+  </data>
+  <data name="Exercise.Interval.Unison" xml:space="preserve">
+    <value>Unisson</value>
+  </data>
+  <data name="Exercise.Interval.2m" xml:space="preserve">
+    <value>2nde mineure</value>
+  </data>
+  <data name="Exercise.Interval.2M" xml:space="preserve">
+    <value>2nde majeure</value>
+  </data>
+  <data name="Exercise.Interval.3m" xml:space="preserve">
+    <value>3ce mineure</value>
+  </data>
+  <data name="Exercise.Interval.3M" xml:space="preserve">
+    <value>3ce majeure</value>
+  </data>
+  <data name="Exercise.Interval.4J" xml:space="preserve">
+    <value>4te juste</value>
+  </data>
+  <data name="Exercise.Interval.4A" xml:space="preserve">
+    <value>4te augmentée</value>
+  </data>
+  <data name="Exercise.Interval.5J" xml:space="preserve">
+    <value>5te juste</value>
+  </data>
+  <data name="Exercise.Interval.6m" xml:space="preserve">
+    <value>6te mineure</value>
+  </data>
+  <data name="Exercise.Interval.6M" xml:space="preserve">
+    <value>6te majeure</value>
+  </data>
+  <data name="Exercise.Interval.7m" xml:space="preserve">
+    <value>7ème mineure</value>
+  </data>
+  <data name="Exercise.Interval.7M" xml:space="preserve">
+    <value>7ème majeure</value>
+  </data>
+  <data name="Exercise.Interval.8J" xml:space="preserve">
+    <value>8ve juste</value>
   </data>
 </root>

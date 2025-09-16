@@ -22,18 +22,6 @@
     <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
         <value>[base64 mime encoded serialized .NET Framework object]</value>
     </data>
-      <data name="Exercise.SolfegeMelody.Title" xml:space="preserve">
-        <value>Solfejo de Melodia</value>
-      </data>
-      <data name="Exercise.SolfegeMelodyText" xml:space="preserve">
-        <value>Cante a melodia apresentada</value>
-      </data>
-      <data name="Exercise.RecordAudio" xml:space="preserve">
-        <value>Gravar Áudio</value>
-      </data>
-      <data name="Exercise.ListenAudio" xml:space="preserve">
-        <value>Ouvir Gravação</value>
-      </data>
     <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
@@ -117,18 +105,6 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
   <data name="Header.Exercise" xml:space="preserve">
     <value>Exercício</value>
     <comment/>
@@ -732,7 +708,70 @@
   <data name="Dashboard.ChartProgress" xml:space="preserve"><value>Progresso</value></data>
   <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve"><value>Precisão por Tipo Técnico</value></data>
   <data name="Dashboard.ChartAccuracyByCategory" xml:space="preserve"><value>Precisão por Categoria Pedagógica</value></data>
-  <data name="Dashboard.ChartAccuracyByDifficulty" xml:space="preserve"><value>Precisão por Dificuldade</value></data>
+    <data name="Dashboard.ChartAccuracyByDifficulty" xml:space="preserve"><value>Precisão por Dificuldade</value></data>
+  <data name="Exercise.IntervalMelodico.Title" xml:space="preserve">
+    <value>Intervalos Melódicos</value>
+  </data>
+  <data name="Exercise.IntervalMelodicoText" xml:space="preserve">
+    <value>Escute a melodia e identifique os graus e intervalos</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.FirstDegree" xml:space="preserve">
+    <value>Primeiro grau (primeira nota)</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.LastDegree" xml:space="preserve">
+    <value>Último grau (última nota)</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.StartInterval" xml:space="preserve">
+    <value>Intervalo entre 1ª e 2ª notas</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.EndInterval" xml:space="preserve">
+    <value>Intervalo entre penúltima e última notas</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.IncompleteText" xml:space="preserve">
+    <value>Por favor, responda todas as quatro perguntas.</value>
+  </data>
+  <data name="Exercise.SelectOption" xml:space="preserve">
+    <value>Selecione uma opção...</value>
+  </data>
+  <data name="Exercise.Interval.Unison" xml:space="preserve">
+    <value>Unísono</value>
+  </data>
+  <data name="Exercise.Interval.2m" xml:space="preserve">
+    <value>2ª menor</value>
+  </data>
+  <data name="Exercise.Interval.2M" xml:space="preserve">
+    <value>2ª maior</value>
+  </data>
+  <data name="Exercise.Interval.3m" xml:space="preserve">
+    <value>3ª menor</value>
+  </data>
+  <data name="Exercise.Interval.3M" xml:space="preserve">
+    <value>3ª maior</value>
+  </data>
+  <data name="Exercise.Interval.4J" xml:space="preserve">
+    <value>4ª justa</value>
+  </data>
+  <data name="Exercise.Interval.4A" xml:space="preserve">
+    <value>4ª aumentada</value>
+  </data>
+  <data name="Exercise.Interval.5J" xml:space="preserve">
+    <value>5ª justa</value>
+  </data>
+  <data name="Exercise.Interval.6m" xml:space="preserve">
+    <value>6ª menor</value>
+  </data>
+  <data name="Exercise.Interval.6M" xml:space="preserve">
+    <value>6ª maior</value>
+  </data>
+  <data name="Exercise.Interval.7m" xml:space="preserve">
+    <value>7ª menor</value>
+  </data>
+  <data name="Exercise.Interval.7M" xml:space="preserve">
+    <value>7ª maior</value>
+  </data>
+  <data name="Exercise.Interval.8J" xml:space="preserve">
+    <value>8ª justa</value>
+  </data>
   <data name="Exercise.SolfegeMelody.Title" xml:space="preserve">
     <value>Solfejo de Melodia</value>
   </data>
