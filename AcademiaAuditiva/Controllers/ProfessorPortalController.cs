@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace AcademiaAuditiva.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administrator")]
     public class ProfessorPortalController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -50,7 +50,7 @@ namespace AcademiaAuditiva.Controllers
             return LocalRedirect(returnUrl);
         }
 
-        
+
 
         [HttpGet]
         public IActionResult GetExerciseTranslations()

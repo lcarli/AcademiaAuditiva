@@ -7,7 +7,7 @@ namespace AcademiaAuditiva.Models
         public int ScoreId { get; set; }
 
         public string UserId { get; set; }
-        public IdentityUser User { get; set; }
+        public ApplicationUser User { get; set; }
         public int ExerciseId { get; set; }
         public Exercise Exercise { get; set; }
 

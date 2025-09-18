@@ -48,6 +48,13 @@
 								<a class="nav-link" asp-controller="Dashboard"
 									asp-action="Index">@Localizer["Header.Games"]</a>
 							</li>
+							@if (User.IsInRole("Admin") || User.IsInRole("Professor"))
+							{
+								<li class="nav-item">
+									<a class="nav-link" asp-controller="ProfessorPortal"
+										asp-action="Index">@Localizer["Header.Portal"]</a>
+								</li>
+							}
 						</ul>
 					}
 					<div class="d-flex ms-auto">
