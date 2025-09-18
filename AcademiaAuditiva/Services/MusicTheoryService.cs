@@ -872,16 +872,32 @@ namespace AcademiaAuditiva.Services
         }
 
         // Métodos auxiliares para IntervalMelodico
-        public static int GetDegreeInScale(string note, List<string> scaleNotes)
+        public static string GetDegreeInScale(string note, List<string> scaleNotes)
         {
             var noteWithoutOctave = Regex.Replace(note, @"\d", "");
             for (int i = 0; i < scaleNotes.Count; i++)
             {
                 var scaleNoteWithoutOctave = Regex.Replace(scaleNotes[i], @"\d", "");
                 if (scaleNoteWithoutOctave == noteWithoutOctave)
-                    return i + 1; // Graus começam em 1
+                    return NumberToRomanNumeral(i + 1); // Graus começam em 1
             }
-            return 1; // Default ao primeiro grau se não encontrar
+            return "I"; // Default ao primeiro grau se não encontrar
+        }
+
+        // Converte número em numeral romano (para graus musicais)
+        public static string NumberToRomanNumeral(int number)
+        {
+            return number switch
+            {
+                1 => "I",
+                2 => "II",
+                3 => "III",
+                4 => "IV",
+                5 => "V",
+                6 => "VI",
+                7 => "VII",
+                _ => "I" // Default para grau I se fora do range
+            };
         }
 
         public static string GetIntervalBetweenNotes(string note1, string note2)

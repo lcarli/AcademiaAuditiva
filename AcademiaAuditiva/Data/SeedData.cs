@@ -512,7 +512,8 @@ public static class SeedData
                         Options = new List<FilterOption>
                         {
                             new("major", "Exercise.ScaleMajor"),
-                            new("minor", "Exercise.ScaleMinor")
+                            new("minor", "Exercise.ScaleMinor"),
+                            new ("both", "Exercise.ScaleBoth")
                         }
                     }
                 }),
@@ -530,7 +531,7 @@ public static class SeedData
                 }),
                 AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
                 {
-                    // No answer buttons needed - uses dropdowns in the view
+                    // No answer buttons needed - uses custom dropdowns in the view
                 })
             },
             new Exercise {
