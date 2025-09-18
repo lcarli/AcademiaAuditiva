@@ -829,8 +829,8 @@ namespace AcademiaAuditiva.Services
                     if (scaleNotesKey.Count < 4)
                         return new { error = "Escala muito curta para gerar melodia." };
 
-                    // Melodia com 4-6 notas, pode começar em diferentes graus (não sempre no I)
-                    var melodyLengthMel = random.Next(4, 7);
+                    // Melodia com 8-32 notas, pode começar em diferentes graus (não sempre no I)
+                    var melodyLengthMel = random.Next(8, 32);
                     var startingDegree = random.Next(1, Math.Min(scaleNotesKey.Count, 6)); // Graus I-V como início
                     var melodyNotes = new List<string>();
                     
@@ -841,7 +841,7 @@ namespace AcademiaAuditiva.Services
                     // Gera restante da melodia com movimentos aleatórios
                     for (int i = 1; i < melodyLengthMel; i++)
                     {
-                        var movement = random.Next(-2, 3); // Movimento de -2 a +2 graus
+                        var movement = random.Next(-4, 5); // Movimento de -4 a +4 graus
                         currentDegree = Math.Max(1, Math.Min(scaleNotesKey.Count, currentDegree + movement));
                         melodyNotes.Add(scaleNotesKey[currentDegree - 1]);
                     }

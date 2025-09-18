@@ -17,8 +17,8 @@
             <div class="card shadow-sm p-4">
                 <h4 class="text-center mb-3">@Localizer["Exercise.IntervalMelodicoText"]</h4>
 
-                <!-- SHEET MUSIC -->
-                <div id="output-sheet" class="mb-4 text-center" style="height: 120px;"></div>
+                <!-- WAVEFORM -->
+                <div id="waveform" class="mb-4 text-center" style="height: 120px;"></div>
 
                 <!-- Botões de Áudio -->
                 @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
