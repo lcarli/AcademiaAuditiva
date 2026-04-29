@@ -47,6 +47,38 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.Configure<AdminBootstrapOptions>(builder.Configuration.GetSection("Admin"));
 builder.Services.AddScoped<IdentityBootstrapper>();
 
+// Authorization policies for Admin/Teacher/Student areas.
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AcademiaAuditiva.Models.RoleNames.Admin,
+        policy => policy.RequireRole(AcademiaAuditiva.Models.RoleNames.Admin));
+    options.AddPolicy(AcademiaAuditiva.Models.RoleNames.Teacher,
+        policy => policy.RequireRole(AcademiaAuditiva.Models.RoleNames.Admin,
+                                      AcademiaAuditiva.Models.RoleNames.Teacher));
+    options.AddPolicy(AcademiaAuditiva.Models.RoleNames.Student,
+        policy => policy.RequireRole(AcademiaAuditiva.Models.RoleNames.Admin,
+                                      AcademiaAuditiva.Models.RoleNames.Teacher,
+                                      AcademiaAuditiva.Models.RoleNames.Student));
+});
+
+// Application Insights (no-op locally when ConnectionString is empty).
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+
+// Health checks: liveness ("is the process up?") and readiness ("can it
+// reach SQL?"). The Bicep startup/liveness probes hit /health/live;
+// /health/ready may be used by future external dependency dashboards.
+var hcBuilder = builder.Services.AddHealthChecks();
+if (!string.IsNullOrWhiteSpace(connectionString))
+{
+    hcBuilder.AddSqlServer(
+        connectionString: connectionString,
+        name: "sql",
+        tags: new[] { "ready" });
+}
+
 builder.Services.AddLocalization();
 
 
@@ -141,6 +173,17 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+// Health endpoints. /health/live always returns 200 if the host is up.
+// /health/ready returns 200 only if every check tagged "ready" passes.
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => false
+});
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 //seed
 using (var scope = app.Services.CreateScope())

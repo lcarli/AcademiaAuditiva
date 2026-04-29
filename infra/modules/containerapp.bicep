@@ -109,14 +109,21 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
           probes: [
             {
               type: 'Startup'
-              httpGet: { path: '/', port: targetPort }
+              httpGet: { path: '/health/live', port: targetPort }
               initialDelaySeconds: 5
               periodSeconds: 10
               failureThreshold: 30
             }
             {
               type: 'Liveness'
-              httpGet: { path: '/', port: targetPort }
+              httpGet: { path: '/health/live', port: targetPort }
+              periodSeconds: 30
+              failureThreshold: 3
+            }
+            {
+              type: 'Readiness'
+              httpGet: { path: '/health/ready', port: targetPort }
+              initialDelaySeconds: 10
               periodSeconds: 30
               failureThreshold: 3
             }
