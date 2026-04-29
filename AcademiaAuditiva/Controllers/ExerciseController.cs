@@ -181,7 +181,7 @@ namespace AcademiaAuditiva.Controllers
 			if (isCorrect) correctCount++;
 			else errorCount++;
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 			if (currentScore > bestScore)
 				bestScore = currentScore;
 
@@ -298,7 +298,7 @@ namespace AcademiaAuditiva.Controllers
 			if (exercise == null)
 				return Json(new { success = false, message = "Exercício GuessInterval não encontrado." });
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 
 			var newScore = new Score
 			{
@@ -346,7 +346,7 @@ namespace AcademiaAuditiva.Controllers
 			if (exercise == null)
 				return Json(new { success = false, message = "Exercício GuessQuality não encontrado." });
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 
 			var newScore = new Score
 			{
@@ -393,7 +393,7 @@ namespace AcademiaAuditiva.Controllers
 			if (exercise == null)
 				return Json(new { success = false, message = "Exercício GuessFunction não encontrado." });
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 
 			var newScore = new Score
 			{
@@ -441,7 +441,7 @@ namespace AcademiaAuditiva.Controllers
 			if (exercise == null)
 				return Json(new { success = false, message = "Exercício GuessFullInterval não encontrado." });
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 
 			var newScore = new Score
 			{
@@ -491,7 +491,7 @@ namespace AcademiaAuditiva.Controllers
 				return Json(new { success = false, message = "Exercício GuessMissingNote não encontrado." });
 			}
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 
 			var newScore = new Score
 			{
