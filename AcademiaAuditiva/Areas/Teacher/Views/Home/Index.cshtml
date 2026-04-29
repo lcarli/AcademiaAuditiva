@@ -1,0 +1,34 @@
+@model AcademiaAuditiva.Areas.Teacher.Models.TeacherHomeViewModel
+@{
+    ViewData["Title"] = "Teacher dashboard";
+}
+<h1 class="h3 mb-4">Welcome, teacher.</h1>
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Active classrooms</h6>
+                <p class="display-6 mb-0">@Model.ActiveClassrooms</p>
+                <a asp-area="Teacher" asp-controller="Classrooms" asp-action="Index">Manage →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Routines</h6>
+                <p class="display-6 mb-0">@Model.Routines</p>
+                <span class="text-muted small">Coming soon</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Pending invites</h6>
+                <p class="display-6 mb-0">@Model.PendingInvites</p>
+                <span class="text-muted small">Awaiting acceptance</span>
+            </div>
+        </div>
+    </div>
+</div>

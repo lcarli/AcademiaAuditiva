@@ -1,0 +1,32 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="teacher-shell my-3">
+    <aside class="teacher-sidebar">
+        <h6 class="text-uppercase text-muted small mb-3">Teacher</h6>
+        <nav>
+            <a asp-area="Teacher" asp-controller="Home" asp-action="Index">Dashboard</a>
+            <a asp-area="Teacher" asp-controller="Classrooms" asp-action="Index">Classrooms</a>
+            <a asp-area="Teacher" asp-controller="Routines" asp-action="Index">Routines</a>
+        </nav>
+    </aside>
+    <main>
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success" role="alert">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+        }
+        @RenderBody()
+    </main>
+</div>
+<style>
+    .teacher-shell { display: grid; grid-template-columns: 240px 1fr; gap: 1.5rem; }
+    .teacher-sidebar { background: #f8f9fa; border-radius: .5rem; padding: 1rem; height: fit-content; }
+    .teacher-sidebar a { display: block; padding: .4rem .6rem; border-radius: .25rem; color: inherit; text-decoration: none; }
+    .teacher-sidebar a.active, .teacher-sidebar a:hover { background: #e9ecef; }
+    @@media (max-width: 768px) { .teacher-shell { grid-template-columns: 1fr; } }
+</style>
+@if (IsSectionDefined("Scripts")) { @RenderSection("Scripts", required: false) }
