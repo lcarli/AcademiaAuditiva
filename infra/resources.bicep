@@ -138,6 +138,7 @@ module containerApp 'modules/containerapp.bicep' = {
     appInsightsConnectionString: monitoring.outputs.appInsightsConnectionString
     minReplicas: containerAppMinReplicas
     maxReplicas: containerAppMaxReplicas
+    adminEmail: aadAdminLogin
   }
 }
 

@@ -19,6 +19,9 @@ param targetPort int = 8080
 param cpu string = '0.5'
 param memory string = '1.0Gi'
 
+@description('Bootstrap admin email for the application (Admin__Email).')
+param adminEmail string = ''
+
 // SQL connection string built from outputs. AAD auth via the user-assigned MI.
 // User Id=<MI clientId> is required for Active Directory Default to pick the right identity in a multi-MI host.
 var sqlConnectionString = 'Server=tcp:${sqlServerFqdn},1433;Initial Catalog=${sqlDatabaseName};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=Active Directory Default;User Id=${managedIdentityClientId}'
@@ -48,6 +51,7 @@ var staticEnv = [
   { name: 'AZURE_CLIENT_ID', value: managedIdentityClientId }
   { name: 'ApplicationInsights__ConnectionString', value: appInsightsConnectionString }
   { name: 'SqlConnection__Default', value: sqlConnectionString }
+  { name: 'Admin__Email', value: adminEmail }
 ]
 
 var secretEnv = [for s in kvSecrets: {

@@ -41,7 +41,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.Configure<AdminBootstrapOptions>(builder.Configuration.GetSection("Admin"));
+builder.Services.AddScoped<IdentityBootstrapper>();
 
 builder.Services.AddLocalization();
 
@@ -144,7 +148,14 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<ApplicationDbContext>();
 
+    // Apply pending EF migrations on startup so a fresh DB (e.g. first
+    // deploy in a new tenant) is brought up to schema before seed/bootstrap.
+    context.Database.Migrate();
+
     SeedData.SeedExercises(context);
+
+    var bootstrapper = services.GetRequiredService<IdentityBootstrapper>();
+    await bootstrapper.RunAsync();
 }
 
 app.Run();
