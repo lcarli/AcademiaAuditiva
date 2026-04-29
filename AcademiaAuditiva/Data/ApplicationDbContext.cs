@@ -18,31 +18,10 @@ namespace AcademiaAuditiva.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            ApplicationUser rootUser = new ApplicationUser
-            {
-                UserName = "lucas.decarli.ca@gmail.com",
-                NormalizedUserName = "LUCAS.DECARLI.CA@GMAIL.COM",
-                Email = "lucas.decarli.ca@gmail.com",
-                NormalizedEmail = "LUCAS.DECARLI.CA@GMAIL.COM",
-                EmailConfirmed = true,
-                Id = Guid.NewGuid().ToString(),
-                FirstName = "Lucas",
-                LastName = "De Carli",
-                SecurityStamp = "UTUTEH5FUQ6C2MUTMB3CCICNLIBN6CAO",
-                ConcurrencyStamp = "37f979fc-85e9-42c0-bc5c-3321d0b9cad6",
-                TwoFactorEnabled = false,
-                LockoutEnd = null,
-                LockoutEnabled = true,
-                AccessFailedCount = 0,
-                PhoneNumber = "+15817456586",
-                PhoneNumberConfirmed = true,
-            };
-
-            var password = new PasswordHasher<ApplicationUser>();
-            var hashed = password.HashPassword(rootUser, "Lorenzo*181013");
-            rootUser.PasswordHash = hashed;
-
-            modelBuilder.Entity<ApplicationUser>().HasData(rootUser);
+            // The bootstrap admin user is created at runtime via
+            // BootstrapAdminInitializer (see Program.cs). Seeding it here would
+            // bake a password hash into EF migrations and source control, and
+            // would also tie the migration to a single tenant identity.
         }
 
 
