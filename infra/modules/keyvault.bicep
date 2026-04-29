@@ -12,7 +12,7 @@ param aadAdminObjectId string
 param purgeProtection bool = false
 
 @description('Built-in role: Key Vault Secrets User')
-var kvSecretsUserRoleId = '4633458b-17de-46cb-8b2f-2e01c1e00a91'
+var kvSecretsUserRoleId = '4633458b-17de-408a-b874-0445c86b69e6'
 
 @description('Built-in role: Key Vault Secrets Officer')
 var kvSecretsOfficerRoleId = 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7'
@@ -58,6 +58,31 @@ resource kvAdminOfficer 'Microsoft.Authorization/roleAssignments@2022-04-01' = i
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', kvSecretsOfficerRoleId)
   }
 }
+
+// Placeholder secrets so the Container App can wire references on first deploy.
+// Real values are written later via infra/scripts/seed-keyvault.ps1.
+var placeholderSecretNames = [
+  'ConnectionStrings--DefaultConnection'
+  'Facebook--AppId'
+  'Facebook--AppSecret'
+  'Smtp--Host'
+  'Smtp--Port'
+  'Smtp--User'
+  'Smtp--Password'
+]
+
+@batchSize(1)
+resource placeholders 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = [for n in placeholderSecretNames: {
+  parent: kv
+  name: n
+  properties: {
+    value: 'placeholder-set-via-seed-script'
+    contentType: 'text/plain'
+  }
+  dependsOn: [
+    kvAdminOfficer
+  ]
+}]
 
 output id string = kv.id
 output name string = kv.name
