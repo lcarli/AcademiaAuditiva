@@ -1,0 +1,47 @@
+@model IEnumerable<AcademiaAuditiva.Areas.Teacher.Models.RoutineListItem>
+@{
+    ViewData["Title"] = "Routines";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Routines</h1>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg"></i> New routine</a>
+</div>
+
+@if (TempData["Success"] is string s) { <div class="alert alert-success">@s</div> }
+@if (TempData["Error"] is string e) { <div class="alert alert-danger">@e</div> }
+
+@if (!Model.Any())
+{
+    <div class="card border-0 shadow-sm"><div class="card-body text-muted">
+        No routines yet. Create one to start assigning training plans to your students.
+    </div></div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <table class="table mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th><th>Items</th><th>Assignments</th><th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@r.Id">@r.Name</a>
+                        @if (!string.IsNullOrEmpty(r.Description)) { <div class="small text-muted">@r.Description</div> }
+                    </td>
+                    <td>@r.ItemCount</td>
+                    <td>@r.AssignmentCount</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@r.Id">Edit</a>
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Assign" asp-route-routineId="@r.Id">Assign</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
