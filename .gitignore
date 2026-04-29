@@ -4,6 +4,18 @@
 # Project specific
 node_modules/*
 
+# macOS Finder metadata
+.DS_Store
+**/.DS_Store
+
+# User-specific Visual Studio overrides
+*.csproj.user
+*.user
+
+# Local environment overrides (keep template only; never commit secrets)
+appsettings.Local.json
+appsettings.*.Local.json
+
 # These are needed, however, they're generated so don't need/want to track
 css/app.css.map
 css/app.min.css
