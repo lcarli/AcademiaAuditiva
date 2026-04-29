@@ -65,6 +65,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 
 //Inject EmailSender
+builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 //Inject AnalyticsService
