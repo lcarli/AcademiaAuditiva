@@ -13,9 +13,26 @@ using Azure.Identity;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Security.KeyVault.Secrets;
 
-Environment.SetEnvironmentVariable("AZURE_LOG_LEVEL", "verbose");
-
 var builder = WebApplication.CreateBuilder(args);
+
+// Wire Azure Key Vault BEFORE reading any configuration so KV-backed values
+// (Facebook, SMTP, ConnectionStrings) are available below.
+// In Production the Container App injects KV secrets via env vars
+// (Facebook__AppId, ConnectionStrings__DefaultConnection, ...) using
+// keyVaultUrl secret references, so AddAzureKeyVault is only needed when
+// AzureKeyVault:Url is explicitly configured.
+var keyVaultUrl = builder.Configuration["AzureKeyVault:Url"];
+if (!string.IsNullOrWhiteSpace(keyVaultUrl))
+{
+    var credential = builder.Environment.IsDevelopment()
+        ? new DefaultAzureCredential()
+        : new DefaultAzureCredential(new DefaultAzureCredentialOptions
+        {
+            ManagedIdentityClientId = builder.Configuration["ManagedIdentityClientId"]
+        });
+
+    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), credential);
+}
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -57,14 +74,22 @@ builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<UserReportService>();
 
 
-//Add facebook login as external
-builder.Services.AddAuthentication()
-    .AddFacebook(facebookOptions =>
-    {
-        facebookOptions.AppId = "324439820147408";
-        facebookOptions.AppSecret = "fd7f51f6405d1d8920eaed61041c7a53";
-        facebookOptions.AccessDeniedPath = "/AccessDeniedPathInfo";
-    });
+// Facebook login (external auth). Credentials come from configuration:
+//   Facebook:AppId / Facebook:AppSecret
+// In Azure these are injected from Key Vault as Facebook__AppId / Facebook__AppSecret.
+// Locally use `dotnet user-secrets` or appsettings.Development.Local.json (gitignored).
+var fbAppId = builder.Configuration["Facebook:AppId"];
+var fbAppSecret = builder.Configuration["Facebook:AppSecret"];
+if (!string.IsNullOrWhiteSpace(fbAppId) && !string.IsNullOrWhiteSpace(fbAppSecret))
+{
+    builder.Services.AddAuthentication()
+        .AddFacebook(facebookOptions =>
+        {
+            facebookOptions.AppId = fbAppId;
+            facebookOptions.AppSecret = fbAppSecret;
+            facebookOptions.AccessDeniedPath = "/AccessDeniedPathInfo";
+        });
+}
 
 builder.Services.AddControllersWithViews();
 
@@ -74,19 +99,6 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
-
-var keyVaultUrl = "https://akv-academiaauditiva-prd.vault.azure.net/";
-var credential = builder.Environment.IsDevelopment()
-    ? new DefaultAzureCredential()
-    : new DefaultAzureCredential(new DefaultAzureCredentialOptions
-    {
-        ManagedIdentityClientId = builder.Configuration["ManagedIdentityClientId"]
-    });
-
-builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), credential);
-
-
 
 
 var app = builder.Build();
