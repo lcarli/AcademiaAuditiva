@@ -2,6 +2,20 @@
 @{
     ViewData["Title"] = Model.Name;
 }
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @success
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @err
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 <div class="d-flex justify-content-between align-items-start mb-3">
     <div>
         <h1 class="h3 mb-1">@Model.Name</h1>
@@ -32,9 +46,17 @@
                 {
                     @foreach (var m in Model.Members.OrderBy(x => x.Student!.UserName))
                     {
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>@m.Student?.UserName</span>
-                            <small class="text-muted">joined @m.JoinedAt.ToString("yyyy-MM-dd")</small>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@m.Student?.UserName <small class="text-muted">@m.Student?.Email</small></span>
+                            <span class="d-flex align-items-center gap-2">
+                                <small class="text-muted">joined @m.JoinedAt.ToString("yyyy-MM-dd")</small>
+                                <form asp-controller="Members" asp-action="Remove" method="post"
+                                      onsubmit="return confirm('Remove @m.Student?.UserName from the classroom?');">
+                                    <input type="hidden" name="classroomId" value="@Model.Id" />
+                                    <input type="hidden" name="memberId" value="@m.Id" />
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                                </form>
+                            </span>
                         </li>
                     }
                 }
@@ -56,15 +78,24 @@
                 {
                     @foreach (var i in pending.OrderByDescending(x => x.CreatedAt))
                     {
-                        <li class="list-group-item small">
-                            @i.Email
-                            <div class="text-muted">expires @i.ExpiresAt.ToString("yyyy-MM-dd")</div>
+                        <li class="list-group-item small d-flex justify-content-between align-items-start">
+                            <div>
+                                @i.Email
+                                <div class="text-muted">expires @i.ExpiresAt.ToString("yyyy-MM-dd")</div>
+                            </div>
+                            <form asp-controller="Members" asp-action="CancelInvite" method="post"
+                                  onsubmit="return confirm('Cancel this invite?');">
+                                <input type="hidden" name="classroomId" value="@Model.Id" />
+                                <input type="hidden" name="inviteId" value="@i.Id" />
+                                <button class="btn btn-sm btn-link text-danger p-0" type="submit">cancel</button>
+                            </form>
                         </li>
                     }
                 }
             </ul>
             <div class="card-body">
-                <button class="btn btn-sm btn-outline-primary" disabled title="Coming in next commit">Invite student</button>
+                <a class="btn btn-sm btn-primary"
+                   asp-controller="Members" asp-action="Invite" asp-route-classroomId="@Model.Id">Invite student</a>
             </div>
         </div>
     </div>
