@@ -1,0 +1,78 @@
+@{
+    ViewData["Title"] = "My training";
+    var classrooms = (List<AcademiaAuditiva.Controllers.MyClassroomRow>)ViewBag.Classrooms;
+    var assignments = (List<AcademiaAuditiva.Controllers.MyRoutineAssignmentRow>)ViewBag.Assignments;
+}
+<h1 class="h3 mb-3">My training</h1>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>My classrooms</strong></div>
+            @if (!classrooms.Any())
+            {
+                <div class="card-body text-muted small">
+                    You're not a member of any classroom yet. Ask your teacher for an invitation.
+                </div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var c in classrooms)
+                    {
+                        <li class="list-group-item">
+                            <div><strong>@c.Name</strong></div>
+                            <small class="text-muted">teacher: @c.TeacherDisplay · joined @c.JoinedAt.ToString("yyyy-MM-dd")</small>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>My routines</strong></div>
+            @if (!assignments.Any())
+            {
+                <div class="card-body text-muted small">No routines assigned to you right now.</div>
+            }
+            else
+            {
+                <div class="card-body">
+                    @foreach (var a in assignments)
+                    {
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@a.RoutineName</strong>
+                                    <span class="badge bg-light text-dark ms-2">@a.Source</span>
+                                </div>
+                                <small class="text-muted">
+                                    @if (a.DueAt.HasValue) { <text>due @a.DueAt.Value.ToString("yyyy-MM-dd")</text> }
+                                    else { <text>no deadline</text> }
+                                </small>
+                            </div>
+                            <div class="progress my-2" role="progressbar" aria-valuenow="@a.OverallPercent" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+                                <div class="progress-bar" style="width: @(a.OverallPercent)%;"></div>
+                            </div>
+                            <ul class="list-group list-group-flush small">
+                                @foreach (var i in a.Items)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <a asp-controller="Exercise" asp-action="Index" asp-route-id="@i.ExerciseId">@i.ExerciseName</a>
+                                        <span class="text-muted">@i.Done / @i.Target (@(i.PercentComplete)%)</span>
+                                    </li>
+                                }
+                                @if (!a.Items.Any())
+                                {
+                                    <li class="list-group-item text-muted px-0">No exercises in this routine.</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
