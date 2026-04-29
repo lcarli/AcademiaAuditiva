@@ -1,0 +1,42 @@
+@{
+    ViewData["Title"] = "Admin";
+}
+<h1 class="h3 mb-4">Admin</h1>
+<div class="row g-3">
+    <div class="col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Users</div>
+            <div class="h3 mb-0">@ViewBag.UserCount</div>
+        </div></div>
+    </div>
+    <div class="col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Admins</div>
+            <div class="h3 mb-0">@ViewBag.AdminCount</div>
+        </div></div>
+    </div>
+    <div class="col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Teachers</div>
+            <div class="h3 mb-0">@ViewBag.TeacherCount</div>
+        </div></div>
+    </div>
+    <div class="col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Students</div>
+            <div class="h3 mb-0">@ViewBag.StudentCount</div>
+        </div></div>
+    </div>
+    <div class="col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Classrooms</div>
+            <div class="h3 mb-0">@ViewBag.ClassroomCount</div>
+        </div></div>
+    </div>
+    <div class="col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Routines</div>
+            <div class="h3 mb-0">@ViewBag.RoutineCount</div>
+        </div></div>
+    </div>
+</div>

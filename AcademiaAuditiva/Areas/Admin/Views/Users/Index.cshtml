@@ -1,0 +1,94 @@
+@model AcademiaAuditiva.Areas.Admin.Models.UserListViewModel
+@{
+    ViewData["Title"] = "Users";
+}
+<h1 class="h3 mb-3">Users</h1>
+
+@if (TempData["Success"] is string s) { <div class="alert alert-success">@s</div> }
+@if (TempData["Error"] is string e) { <div class="alert alert-danger">@e</div> }
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-5">
+        <label class="form-label small text-muted">Search (email or username)</label>
+        <input name="q" value="@Model.Query" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label small text-muted">Role</label>
+        <select name="role" class="form-select">
+            <option value="">All</option>
+            <option value="Admin" selected="@(Model.Role == "Admin")">Admin</option>
+            <option value="Teacher" selected="@(Model.Role == "Teacher")">Teacher</option>
+            <option value="Student" selected="@(Model.Role == "Student")">Student</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100">Filter</button>
+    </div>
+    <div class="col-md-2 text-end text-muted small">@Model.Total result(s)</div>
+</form>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>User</th>
+                    <th>Roles</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Rows)
+                {
+                    <tr>
+                        <td>
+                            <div><strong>@r.UserName</strong></div>
+                            <small class="text-muted">@r.Email</small>
+                            @if (!r.EmailConfirmed) { <span class="badge bg-warning text-dark ms-2">unconfirmed</span> }
+                            @if (r.LockoutEndUtc.HasValue && r.LockoutEndUtc.Value > DateTime.UtcNow) { <span class="badge bg-danger ms-2">locked</span> }
+                        </td>
+                        <td>
+                            @if (r.IsAdmin) { <span class="badge bg-danger me-1">Admin</span> }
+                            @if (r.IsTeacher) { <span class="badge bg-primary me-1">Teacher</span> }
+                            @if (r.IsStudent) { <span class="badge bg-secondary me-1">Student</span> }
+                        </td>
+                        <td class="text-end">
+                            @if (!r.IsTeacher)
+                            {
+                                <form asp-action="PromoteTeacher" asp-route-id="@r.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Promote @r.UserName to Teacher?');">
+                                    <button class="btn btn-sm btn-outline-primary">Make Teacher</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="DemoteTeacher" asp-route-id="@r.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Remove Teacher role from @r.UserName?');">
+                                    <button class="btn btn-sm btn-outline-warning">Remove Teacher</button>
+                                </form>
+                            }
+                            @if (!r.IsAdmin)
+                            {
+                                <form asp-action="PromoteAdmin" asp-route-id="@r.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Make @r.UserName an ADMIN? This grants full access.');">
+                                    <button class="btn btn-sm btn-outline-danger">Make Admin</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="DemoteAdmin" asp-route-id="@r.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Remove Admin role from @r.UserName?');">
+                                    <button class="btn btn-sm btn-outline-danger">Remove Admin</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Rows.Any())
+                {
+                    <tr><td colspan="3" class="text-muted text-center py-4">No users match.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

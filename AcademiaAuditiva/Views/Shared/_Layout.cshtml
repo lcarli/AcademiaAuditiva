@@ -54,6 +54,12 @@
 									<a class="nav-link" asp-area="Teacher" asp-controller="Home" asp-action="Index">Teacher</a>
 								</li>
 							}
+							@if (User.IsInRole(AcademiaAuditiva.Models.RoleNames.Admin))
+							{
+								<li class="nav-item">
+									<a class="nav-link text-danger" asp-area="Admin" asp-controller="Home" asp-action="Index">Admin</a>
+								</li>
+							}
 						</ul>
 					}
 
