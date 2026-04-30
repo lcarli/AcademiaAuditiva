@@ -1359,4 +1359,187 @@
   <data name="Identity.Auth.NoProviders" xml:space="preserve">
     <value>Nenhum serviço de autenticação externa está configurado no momento.</value>
   </data>
+  <data name="Teacher.Classrooms.Title" xml:space="preserve">
+    <value>Turmas</value>
+  </data>
+  <data name="Teacher.Classrooms.NewBtn" xml:space="preserve">
+    <value>+ Nova turma</value>
+  </data>
+  <data name="Teacher.Classrooms.IncludeArchived" xml:space="preserve">
+    <value>Incluir arquivadas</value>
+  </data>
+  <data name="Teacher.Classrooms.Empty" xml:space="preserve">
+    <value>Você ainda não tem turmas.</value>
+  </data>
+  <data name="Teacher.Classrooms.CreateFirst" xml:space="preserve">
+    <value>Criar a primeira</value>
+  </data>
+  <data name="Teacher.Classrooms.Col.Name" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="Teacher.Classrooms.Col.Members" xml:space="preserve">
+    <value>Membros</value>
+  </data>
+  <data name="Teacher.Classrooms.Col.PendingInvites" xml:space="preserve">
+    <value>Convites pendentes</value>
+  </data>
+  <data name="Teacher.Classrooms.Col.Created" xml:space="preserve">
+    <value>Criada em</value>
+  </data>
+  <data name="Teacher.Classrooms.Archived" xml:space="preserve">
+    <value>Arquivada</value>
+  </data>
+  <data name="Teacher.Classrooms.Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Teacher.Classrooms.Archive" xml:space="preserve">
+    <value>Arquivar</value>
+  </data>
+  <data name="Teacher.Classrooms.Restore" xml:space="preserve">
+    <value>Restaurar</value>
+  </data>
+  <data name="Teacher.Classrooms.ArchiveConfirm" xml:space="preserve">
+    <value>Arquivar esta turma?</value>
+  </data>
+  <data name="Teacher.Routines.Title" xml:space="preserve">
+    <value>Rotinas</value>
+  </data>
+  <data name="Teacher.Routines.NewBtn" xml:space="preserve">
+    <value>Nova rotina</value>
+  </data>
+  <data name="Teacher.Routines.Empty" xml:space="preserve">
+    <value>Nenhuma rotina ainda. Crie uma para começar a atribuir planos de treino aos seus alunos.</value>
+  </data>
+  <data name="Teacher.Routines.Col.Name" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="Teacher.Routines.Col.Items" xml:space="preserve">
+    <value>Itens</value>
+  </data>
+  <data name="Teacher.Routines.Col.Assignments" xml:space="preserve">
+    <value>Atribuições</value>
+  </data>
+  <data name="Teacher.Routines.Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Teacher.Routines.Assign" xml:space="preserve">
+    <value>Atribuir</value>
+  </data>
+  <data name="Dashboard.SkillsByType" xml:space="preserve">
+    <value>Desempenho por habilidade</value>
+  </data>
+  <data name="Dashboard.AccuracyByCategory" xml:space="preserve">
+    <value>Desempenho por categoria</value>
+  </data>
+  <data name="Exercise.GuessNote.Instructions" xml:space="preserve">
+    <value>Ouça a nota tocada e selecione a nota correspondente entre as opções disponíveis.</value>
+  </data>
+  <data name="Exercise.GuessNote.Tip1" xml:space="preserve">
+    <value>Ouça mais de uma vez se necessário.</value>
+  </data>
+  <data name="Exercise.GuessNote.Tip2" xml:space="preserve">
+    <value>Tente cantar a nota para comparar com seu registro mental.</value>
+  </data>
+  <data name="Exercise.GuessNote.Tip3" xml:space="preserve">
+    <value>Compare com notas que você conhece bem como Dó ou Lá.</value>
+  </data>
+  <data name="Exercise.GuessChords.Instructions" xml:space="preserve">
+    <value>Ouça o acorde tocado e selecione o tipo de acorde correspondente.</value>
+  </data>
+  <data name="Exercise.GuessChords.Tip1" xml:space="preserve">
+    <value>Preste atenção na sensação sonora: maior tende a soar feliz, menor mais triste.</value>
+  </data>
+  <data name="Exercise.GuessChords.Tip2" xml:space="preserve">
+    <value>Compare com acordes de referência se necessário.</value>
+  </data>
+  <data name="Exercise.GuessChords.Tip3" xml:space="preserve">
+    <value>Tente cantar as notas para perceber se há intervalos maiores ou menores.</value>
+  </data>
+  <data name="Exercise.GuessInterval.Instructions" xml:space="preserve">
+    <value>Ouça as duas notas e identifique a distância entre elas (intervalo).</value>
+  </data>
+  <data name="Exercise.GuessInterval.Tip1" xml:space="preserve">
+    <value>Associe intervalos a músicas conhecidas (ex: terça maior = &apos;Parabéns pra você&apos;).</value>
+  </data>
+  <data name="Exercise.GuessInterval.Tip2" xml:space="preserve">
+    <value>Ouça repetidamente e cante as notas.</value>
+  </data>
+  <data name="Exercise.GuessInterval.Tip3" xml:space="preserve">
+    <value>Perceba se o som é próximo (segunda) ou espaçado (quinta, oitava...).</value>
+  </data>
+  <data name="Exercise.GuessQuality.Instructions" xml:space="preserve">
+    <value>Ouça o acorde e determine se ele é maior, menor ou diminuto.</value>
+  </data>
+  <data name="Exercise.GuessQuality.Tip1" xml:space="preserve">
+    <value>Tente memorizar a sonoridade típica de cada qualidade.</value>
+  </data>
+  <data name="Exercise.GuessQuality.Tip2" xml:space="preserve">
+    <value>Acordes diminutos soam mais tensos ou instáveis.</value>
+  </data>
+  <data name="Exercise.GuessQuality.Tip3" xml:space="preserve">
+    <value>Compare com acordes simples que você já conhece.</value>
+  </data>
+  <data name="Exercise.GuessFunction.Instructions" xml:space="preserve">
+    <value>Ouça o acorde dentro de um contexto e identifique sua função (tônica, dominante, subdominante).</value>
+  </data>
+  <data name="Exercise.GuessFunction.Tip1" xml:space="preserve">
+    <value>Ouça a progressão inteira primeiro para fixar a tonalidade.</value>
+  </data>
+  <data name="Exercise.GuessFunction.Tip2" xml:space="preserve">
+    <value>A tônica soa como &quot;casa&quot;; a dominante puxa de volta para ela.</value>
+  </data>
+  <data name="Exercise.GuessFunction.Tip3" xml:space="preserve">
+    <value>Acordes subdominantes parecem um passo suave para fora da tônica.</value>
+  </data>
+  <data name="Exercise.GuessFullInterval.Instructions" xml:space="preserve">
+    <value>Ouça o intervalo e identifique não apenas a distância, mas também a sua qualidade (maior, menor, justo, etc).</value>
+  </data>
+  <data name="Exercise.GuessFullInterval.Tip1" xml:space="preserve">
+    <value>Identifique primeiro o tamanho e depois refine para a qualidade.</value>
+  </data>
+  <data name="Exercise.GuessFullInterval.Tip2" xml:space="preserve">
+    <value>Maior e menor diferem por um semitom.</value>
+  </data>
+  <data name="Exercise.GuessFullInterval.Tip3" xml:space="preserve">
+    <value>Intervalos justos (4ª, 5ª, 8ª) soam especialmente estáveis.</value>
+  </data>
+  <data name="Exercise.GuessMissingNote.Instructions" xml:space="preserve">
+    <value>Ouça duas melodias e diga se são iguais ou se houve alguma alteração entre elas.</value>
+  </data>
+  <data name="Exercise.GuessMissingNote.Tip1" xml:space="preserve">
+    <value>Preste atenção nas notas centrais da melodia.</value>
+  </data>
+  <data name="Exercise.GuessMissingNote.Tip2" xml:space="preserve">
+    <value>Se não tiver certeza, ouça mais de uma vez.</value>
+  </data>
+  <data name="Exercise.GuessMissingNote.Tip3" xml:space="preserve">
+    <value>Cantar ou batucar a melodia pode ajudar na memorização.</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.Instructions" xml:space="preserve">
+    <value>Escute a melodia e identifique: o primeiro grau, o último grau, o intervalo entre as duas primeiras notas e o intervalo entre as duas últimas notas.</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.Tip1" xml:space="preserve">
+    <value>Identifique primeiro a tonalidade da melodia.</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.Tip2" xml:space="preserve">
+    <value>Preste atenção à primeira e última nota para determinar os graus.</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.Tip3" xml:space="preserve">
+    <value>Compare os intervalos com intervalos conhecidos.</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.Tip4" xml:space="preserve">
+    <value>Use as escalas como referência para os graus.</value>
+  </data>
+  <data name="Exercise.SolfegeMelody.Instructions" xml:space="preserve">
+    <value>Leia a melodia exibida e tente cantá-la corretamente.</value>
+  </data>
+  <data name="Exercise.SolfegeMelody.Tip1" xml:space="preserve">
+    <value>Observe atentamente as alturas das notas na partitura.</value>
+  </data>
+  <data name="Exercise.SolfegeMelody.Tip2" xml:space="preserve">
+    <value>Cante devagar para garantir precisão.</value>
+  </data>
+  <data name="Exercise.SolfegeMelody.Tip3" xml:space="preserve">
+    <value>Se necessário, pratique com escalas antes de tentar.</value>
+  </data>
 </root>

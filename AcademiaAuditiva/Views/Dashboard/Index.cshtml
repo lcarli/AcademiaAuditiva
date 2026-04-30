@@ -139,20 +139,63 @@
      data-diff-Intermediate="@Localizer["Exercise.Intermediate"]"
      data-diff-Advanced="@Localizer["Exercise.Advanced"]"></div>
 
+@{
+    var skillNames = new[] { "NoteRecognition", "ChordRecognition", "IntervalRecognition", "FunctionRecognition", "MelodyReproduction", "RhythmPatterns", "HarmonicField", "ScaleRecognition" };
+    var categoryNames = new[] { "Harmony", "Melody", "Rhythm", "EarTraining", "Scales", "Games", "Misc" };
+    var exerciseNames = new[] { "GuessNote", "GuessChords", "GuessInterval", "GuessQuality", "GuessFunction", "GuessFullInterval", "GuessMissingNote", "IntervalMelodico", "SolfegeMelody" };
+}
+<script id="aa-i18n-map" type="application/json">
+{
+    "skills": {
+        @for (var i = 0; i < skillNames.Length; i++)
+        {
+            var name = skillNames[i];
+            <text>"@name": "@Localizer["ExerciseType." + name].Value"@(i < skillNames.Length - 1 ? "," : "")</text>
+        }
+    },
+    "categories": {
+        @for (var i = 0; i < categoryNames.Length; i++)
+        {
+            var name = categoryNames[i];
+            <text>"@name": "@Localizer["ExerciseCategory." + name].Value"@(i < categoryNames.Length - 1 ? "," : "")</text>
+        }
+    },
+    "exercises": {
+        @for (var i = 0; i < exerciseNames.Length; i++)
+        {
+            var name = exerciseNames[i];
+            <text>"@name": "@Localizer[name].Value"@(i < exerciseNames.Length - 1 ? "," : "")</text>
+        }
+    }
+}
+</script>
+
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let exerciseTranslations = {};
+        let aaI18n = { skills: {}, categories: {}, exercises: {} };
+        try {
+            const raw = document.getElementById('aa-i18n-map')?.textContent;
+            if (raw) aaI18n = JSON.parse(raw);
+            exerciseTranslations = aaI18n.exercises || {};
+        } catch (e) { console.warn('aa-i18n-map parse failed', e); }
+        const tSkill = k => aaI18n.skills[k] || k;
+        const tCat = k => aaI18n.categories[k] || k;
+        const tExercise = k => aaI18n.exercises[k] || exerciseTranslations[k] || k;
+
         document.addEventListener("DOMContentLoaded", () => {
             const loc = document.getElementById("localizer")?.dataset;
 
-            // Timeline
+            // Override exerciseTranslations from server endpoint (if it returns more keys),
+            // but keep our pre-translated map as fallback for any missing entries.
             fetch("/Dashboard/GetExerciseTranslations")
                 .then(res => res.json())
                 .then(data => {
-                    exerciseTranslations = data;
-                });
+                    exerciseTranslations = Object.assign({}, aaI18n.exercises || {}, data || {});
+                })
+                .catch(() => {});
 
             fetch("/Dashboard/GetUserTimeline")
                 .then(res => res.json())
@@ -188,7 +231,7 @@
                 .then(res => res.json())
                 .then(data => {
                     const radarCtx = document.getElementById("radarTechnicalChart");
-                    const labels = Object.keys(data.radar);
+                    const labels = Object.keys(data.radar).map(tSkill);
                     const values = Object.values(data.radar);
 
                     new Chart(radarCtx, {
@@ -212,7 +255,7 @@
                     });
 
                     const radarCat = document.getElementById("radarCategoryChart");
-                    const catLabels = Object.keys(data.byCategory);
+                    const catLabels = Object.keys(data.byCategory).map(tCat);
                     const catValues = Object.values(data.byCategory);
 
                     new Chart(radarCat, {
@@ -244,7 +287,7 @@
                     data.forEach(row => {
                         const tr = document.createElement("tr");
                         tr.innerHTML = `
-                                <td>${exerciseTranslations[row.exercise] || row.exercise}</td>
+                                <td>${tExercise(row.exercise)}</td>
                                 <td>${row.date}</td>
                                 <td><span class="text-success fw-semibold">${row.correct}</span></td>
                                 <td><span class="text-danger fw-semibold">${row.error}</span></td>
@@ -298,7 +341,7 @@
                     data.forEach(item => {
                         const li = document.createElement("li");
                         li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center", "border-0", "px-0");
-                        li.innerHTML = `<span>${item.exercise}</span> <span class="badge bg-danger-subtle text-danger-emphasis">${item.errors}</span>`;
+                        li.innerHTML = `<span>${tExercise(item.exercise)}</span> <span class="badge bg-danger-subtle text-danger-emphasis">${item.errors}</span>`;
                         list.appendChild(li);
                     });
                 });
