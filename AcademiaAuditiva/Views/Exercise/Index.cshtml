@@ -1,8 +1,17 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
 @using AcademiaAuditiva.Extensions
 @model IEnumerable<AcademiaAuditiva.Models.Exercise>
 
 @{
     ViewBag.Title = Localizer["Exercise.Header"].Value;
+}
+
+@functions {
+    string LocSubtitle(AcademiaAuditiva.Models.Exercise e)
+    {
+        var loc = S[$"Exercise.{e.Name}.Subtitle"];
+        return loc.ResourceNotFound ? e.Description : loc.Value;
+    }
 }
 
 <header class="text-center mb-4">
@@ -38,7 +47,7 @@
                                 <p class="small text-secondary mb-2">
                                     <i class="bi bi-bullseye me-1" aria-hidden="true"></i>@Localizer["ExerciseType." + exercise.ExerciseType.Name]
                                 </p>
-                                <p class="card-text small text-secondary flex-grow-1">@exercise.Description</p>
+                                <p class="card-text small text-secondary flex-grow-1">@LocSubtitle(exercise)</p>
                                 <a href="@Url.Action(exercise.Name, "Exercise")" class="btn aa-grad-btn btn-sm align-self-start">
                                     <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer["Exercise.Start"]
                                 </a>
@@ -66,7 +75,7 @@
                                 <p class="small text-secondary mb-2">
                                     <i class="bi bi-bar-chart-steps me-1" aria-hidden="true"></i>@Localizer["Exercise." + exercise.DifficultyLevel.Name]
                                 </p>
-                                <p class="card-text small text-secondary flex-grow-1">@exercise.Description</p>
+                                <p class="card-text small text-secondary flex-grow-1">@LocSubtitle(exercise)</p>
                                 <a href="@Url.Action(exercise.Name, "Exercise")" class="btn aa-grad-btn btn-sm align-self-start">
                                     <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer["Exercise.Start"]
                                 </a>

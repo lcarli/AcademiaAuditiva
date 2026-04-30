@@ -1,3 +1,4 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
 @{
     ViewBag.Title = Localizer["Dashboard.Title"].Value;
 }
@@ -143,32 +144,16 @@
     var skillNames = new[] { "NoteRecognition", "ChordRecognition", "IntervalRecognition", "FunctionRecognition", "MelodyReproduction", "RhythmPatterns", "HarmonicField", "ScaleRecognition" };
     var categoryNames = new[] { "Harmony", "Melody", "Rhythm", "EarTraining", "Scales", "Games", "Misc" };
     var exerciseNames = new[] { "GuessNote", "GuessChords", "GuessInterval", "GuessQuality", "GuessFunction", "GuessFullInterval", "GuessMissingNote", "IntervalMelodico", "SolfegeMelody" };
+    var i18nMap = new {
+        skills = skillNames.ToDictionary(n => n, n => S["ExerciseType." + n].Value),
+        categories = categoryNames.ToDictionary(n => n, n => S["ExerciseCategory." + n].Value),
+        exercises = exerciseNames.ToDictionary(n => n, n => S[n].Value)
+    };
+    var i18nJson = System.Text.Json.JsonSerializer.Serialize(i18nMap, new System.Text.Json.JsonSerializerOptions {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    });
 }
-<script id="aa-i18n-map" type="application/json">
-{
-    "skills": {
-        @for (var i = 0; i < skillNames.Length; i++)
-        {
-            var name = skillNames[i];
-            <text>"@name": "@Localizer["ExerciseType." + name].Value"@(i < skillNames.Length - 1 ? "," : "")</text>
-        }
-    },
-    "categories": {
-        @for (var i = 0; i < categoryNames.Length; i++)
-        {
-            var name = categoryNames[i];
-            <text>"@name": "@Localizer["ExerciseCategory." + name].Value"@(i < categoryNames.Length - 1 ? "," : "")</text>
-        }
-    },
-    "exercises": {
-        @for (var i = 0; i < exerciseNames.Length; i++)
-        {
-            var name = exerciseNames[i];
-            <text>"@name": "@Localizer[name].Value"@(i < exerciseNames.Length - 1 ? "," : "")</text>
-        }
-    }
-}
-</script>
+<script id="aa-i18n-map" type="application/json">@Html.Raw(i18nJson)</script>
 
 
 @section Scripts {

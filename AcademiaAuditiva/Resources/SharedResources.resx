@@ -1542,4 +1542,280 @@
   <data name="Exercise.SolfegeMelody.Tip3" xml:space="preserve">
     <value>If needed, practice the scale before attempting.</value>
   </data>
+  <data name="Exercise.GuessQuality.Subtitle" xml:space="preserve">
+    <value>Guess the chord quality.</value>
+  </data>
+  <data name="SolfegeMelody" xml:space="preserve">
+    <value>Solfege Melody</value>
+  </data>
+  <data name="Exercise.GuessChords.Subtitle" xml:space="preserve">
+    <value>Chord recognition</value>
+  </data>
+  <data name="Exercise.GuessNote.Subtitle" xml:space="preserve">
+    <value>Guess the note that was played</value>
+  </data>
+  <data name="Exercise.GuessFullInterval.Subtitle" xml:space="preserve">
+    <value>Guess the full interval (major, minor, perfect...)</value>
+  </data>
+  <data name="Exercise.SolfegeMelody.Subtitle" xml:space="preserve">
+    <value>Read the melody and sing it.</value>
+  </data>
+  <data name="Exercise.GuessFunction.Subtitle" xml:space="preserve">
+    <value>Guess the chord function within the harmonic field.</value>
+  </data>
+  <data name="Exercise.GuessMissingNote.Subtitle" xml:space="preserve">
+    <value>Listen to two melodies and say if they are the same or different.</value>
+  </data>
+  <data name="IntervalMelodico" xml:space="preserve">
+    <value>Melodic Intervals</value>
+  </data>
+  <data name="Exercise.GuessInterval.Subtitle" xml:space="preserve">
+    <value>Guess the played interval</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.Subtitle" xml:space="preserve">
+    <value>Identify degrees and intervals of a melody</value>
+  </data>
+  <data name="Report.KeepCurrentLevel" xml:space="preserve">
+    <value>Keep practicing at your current level.</value>
+  </data>
+  <data name="Report.ReviewExercise" xml:space="preserve">
+    <value>Review the exercise: {0}</value>
+  </data>
+  <data name="Report.IncreaseDifficulty" xml:space="preserve">
+    <value>Your accuracy is high. Consider increasing the difficulty.</value>
+  </data>
+  <data name="Report.KeepPracticing" xml:space="preserve">
+    <value>Keep practicing more exercises to improve your performance.</value>
+  </data>
+  <data name="Teacher.Members.InviteHelp" xml:space="preserve">
+    <value>If the student already has an account, they&apos;ll be added to your classroom on accept. Otherwise they&apos;ll receive a link to finish creating their account.</value>
+  </data>
+  <data name="Teacher.Routines.NoExercisesYet" xml:space="preserve">
+    <value>No exercises yet.</value>
+  </data>
+  <data name="Teacher.Routines.Assign" xml:space="preserve">
+    <value>Assign</value>
+  </data>
+  <data name="Teacher.Routines.MinScore" xml:space="preserve">
+    <value>min score</value>
+  </data>
+  <data name="Teacher.Classrooms.Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Teacher.Routines.RemoveAssignment" xml:space="preserve">
+    <value>remove</value>
+  </data>
+  <data name="Teacher.Classrooms.None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Toast.ClassroomArchived" xml:space="preserve">
+    <value>Classroom archived.</value>
+  </data>
+  <data name="Teacher.Classrooms.RemoveConfirm" xml:space="preserve">
+    <value>Remove {0} from the classroom?</value>
+  </data>
+  <data name="Teacher.Routines.Delete" xml:space="preserve">
+    <value>Delete routine</value>
+  </data>
+  <data name="Teacher.Routines.NotAssignedYet" xml:space="preserve">
+    <value>Not assigned to anyone yet.</value>
+  </data>
+  <data name="Toast.InviteCancelled" xml:space="preserve">
+    <value>Invite cancelled.</value>
+  </data>
+  <data name="Toast.RoutineUpdated" xml:space="preserve">
+    <value>Routine updated.</value>
+  </data>
+  <data name="Toast.ClassroomCreated" xml:space="preserve">
+    <value>Classroom created.</value>
+  </data>
+  <data name="Teacher.Routines.CustomFilter" xml:space="preserve">
+    <value>custom filter</value>
+  </data>
+  <data name="Teacher.Routines.Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Teacher.Classrooms.PendingInvites" xml:space="preserve">
+    <value>Pending invites</value>
+  </data>
+  <data name="Teacher.Classrooms.Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Teacher.Members.SendInvite" xml:space="preserve">
+    <value>Send invitation</value>
+  </data>
+  <data name="Teacher.Routines.Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Teacher.Routines.Exercises" xml:space="preserve">
+    <value>Exercises</value>
+  </data>
+  <data name="Teacher.Routines.Assigned" xml:space="preserve">
+    <value>assigned</value>
+  </data>
+  <data name="Teacher.Members.InviteTitle" xml:space="preserve">
+    <value>Invite a student to {0}</value>
+  </data>
+  <data name="Teacher.Classrooms.Cancel" xml:space="preserve">
+    <value>cancel</value>
+  </data>
+  <data name="Teacher.Routines.Target" xml:space="preserve">
+    <value>target</value>
+  </data>
+  <data name="Teacher.Classrooms.Joined" xml:space="preserve">
+    <value>joined</value>
+  </data>
+  <data name="Toast.InviteSavedNoEmail" xml:space="preserve">
+    <value>Invite saved, but the email could not be sent. Share this link manually:</value>
+  </data>
+  <data name="Toast.ClassroomRestored" xml:space="preserve">
+    <value>Classroom restored.</value>
+  </data>
+  <data name="Toast.ItemAdded" xml:space="preserve">
+    <value>Exercise added to routine.</value>
+  </data>
+  <data name="Teacher.Routines.Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Toast.RoutineAssigned" xml:space="preserve">
+    <value>Routine assigned.</value>
+  </data>
+  <data name="Toast.ItemUpdated" xml:space="preserve">
+    <value>Item updated.</value>
+  </data>
+  <data name="Toast.AlreadyMember" xml:space="preserve">
+    <value>That student is already a member of this classroom.</value>
+  </data>
+  <data name="Toast.RoutineCreated" xml:space="preserve">
+    <value>Routine created.</value>
+  </data>
+  <data name="Teacher.Routines.Assignments" xml:space="preserve">
+    <value>Assignments</value>
+  </data>
+  <data name="Teacher.Classrooms.Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Teacher.Routines.Due" xml:space="preserve">
+    <value>due</value>
+  </data>
+  <data name="Teacher.Routines.RemoveItemConfirm" xml:space="preserve">
+    <value>Remove this exercise from the routine?</value>
+  </data>
+  <data name="Teacher.Members.Sending" xml:space="preserve">
+    <value>Sending…</value>
+  </data>
+  <data name="Toast.ClassroomUpdated" xml:space="preserve">
+    <value>Classroom updated.</value>
+  </data>
+  <data name="Teacher.Classrooms.Expires" xml:space="preserve">
+    <value>expires</value>
+  </data>
+  <data name="Teacher.Routines.AddExercise" xml:space="preserve">
+    <value>Add exercise</value>
+  </data>
+  <data name="Toast.ItemRemoved" xml:space="preserve">
+    <value>Item removed.</value>
+  </data>
+  <data name="Teacher.Classrooms.InviteStudent" xml:space="preserve">
+    <value>Invite student</value>
+  </data>
+  <data name="Toast.AssignmentRemoved" xml:space="preserve">
+    <value>Assignment removed.</value>
+  </data>
+  <data name="Teacher.Members.Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Toast.RoutineActiveAssignments" xml:space="preserve">
+    <value>Routine has active assignments. Remove them first.</value>
+  </data>
+  <data name="Toast.MemberRemoved" xml:space="preserve">
+    <value>Member removed.</value>
+  </data>
+  <data name="Teacher.Classrooms.CancelInviteConfirm" xml:space="preserve">
+    <value>Cancel this invite?</value>
+  </data>
+  <data name="Teacher.Routines.RemoveAssignmentConfirm" xml:space="preserve">
+    <value>Remove this assignment?</value>
+  </data>
+  <data name="Teacher.Classrooms.NoMembersYet" xml:space="preserve">
+    <value>No members yet. Invite students from the panel on the right.</value>
+  </data>
+  <data name="Toast.RoutineDeleted" xml:space="preserve">
+    <value>Routine deleted.</value>
+  </data>
+  <data name="Teacher.Classrooms.Members" xml:space="preserve">
+    <value>Members</value>
+  </data>
+  <data name="Teacher.Routines.DeleteConfirm" xml:space="preserve">
+    <value>Delete this routine permanently?</value>
+  </data>
+  <data name="Admin.Users.MakeAdmin" xml:space="preserve">
+    <value>Make Admin</value>
+  </data>
+  <data name="Admin.Users.MakeTeacher" xml:space="preserve">
+    <value>Make Teacher</value>
+  </data>
+  <data name="Admin.Users.User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Admin.Users.PromoteAdminConfirm" xml:space="preserve">
+    <value>Make {0} an ADMIN? This grants full access.</value>
+  </data>
+  <data name="Register.FirstName" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="Admin.Users.Locked" xml:space="preserve">
+    <value>locked</value>
+  </data>
+  <data name="Admin.Users.Unconfirmed" xml:space="preserve">
+    <value>unconfirmed</value>
+  </data>
+  <data name="Admin.Users.RemoveAdmin" xml:space="preserve">
+    <value>Remove Admin</value>
+  </data>
+  <data name="Admin.Users.Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Admin.Users.RemoveTeacher" xml:space="preserve">
+    <value>Remove Teacher</value>
+  </data>
+  <data name="Admin.Users.PromoteTeacherConfirm" xml:space="preserve">
+    <value>Promote {0} to Teacher?</value>
+  </data>
+  <data name="Admin.Users.AllRoles" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Admin.Users.CannotDemoteSelf" xml:space="preserve">
+    <value>You cannot demote yourself.</value>
+  </data>
+  <data name="Admin.Users.Title" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="Admin.Users.DemoteTeacherConfirm" xml:space="preserve">
+    <value>Remove Teacher role from {0}?</value>
+  </data>
+  <data name="Register.LastName" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="Admin.Users.DemoteAdminConfirm" xml:space="preserve">
+    <value>Remove Admin role from {0}?</value>
+  </data>
+  <data name="Admin.Users.Results" xml:space="preserve">
+    <value>result(s)</value>
+  </data>
+  <data name="Admin.Users.Search" xml:space="preserve">
+    <value>Search (email or username)</value>
+  </data>
+  <data name="Admin.Users.Roles" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="Admin.Users.CannotDemoteLastAdmin" xml:space="preserve">
+    <value>Cannot demote the last remaining Admin.</value>
+  </data>
+  <data name="Admin.Users.Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Admin.Users.Empty" xml:space="preserve">
+    <value>No users match.</value>
+  </data>
 </root>

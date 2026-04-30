@@ -2,9 +2,11 @@ using AcademiaAuditiva.Areas.Teacher.Models;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
+using AcademiaAuditiva.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Teacher.Controllers;
 
@@ -13,15 +15,18 @@ public class ClassroomsController : TeacherAreaController
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _users;
     private readonly ILogger<ClassroomsController> _logger;
+    private readonly IStringLocalizer<SharedResources> _l;
 
     public ClassroomsController(
         ApplicationDbContext db,
         UserManager<ApplicationUser> users,
-        ILogger<ClassroomsController> logger)
+        ILogger<ClassroomsController> logger,
+        IStringLocalizer<SharedResources> localizer)
     {
         _db = db;
         _users = users;
         _logger = logger;
+        _l = localizer;
     }
 
     private string TeacherId => _users.GetUserId(User)!;
@@ -79,7 +84,7 @@ public class ClassroomsController : TeacherAreaController
         await _db.SaveChangesAsync();
 
         _logger.LogInformation("Classroom {Id} created by {Teacher}", classroom.Id, TeacherId);
-        TempData["Success"] = "Classroom created.";
+        TempData["Success"] = _l["Toast.ClassroomCreated"].Value;
         return RedirectToAction(nameof(Details), new { id = classroom.Id });
     }
 
@@ -112,7 +117,7 @@ public class ClassroomsController : TeacherAreaController
         classroom.Description = string.IsNullOrWhiteSpace(model.Description) ? null : model.Description.Trim();
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Classroom updated.";
+        TempData["Success"] = _l["Toast.ClassroomUpdated"].Value;
         return RedirectToAction(nameof(Details), new { id });
     }
 
@@ -126,7 +131,7 @@ public class ClassroomsController : TeacherAreaController
         classroom.IsArchived = true;
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Classroom archived.";
+        TempData["Success"] = _l["Toast.ClassroomArchived"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -140,7 +145,7 @@ public class ClassroomsController : TeacherAreaController
         classroom.IsArchived = false;
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Classroom restored.";
+        TempData["Success"] = _l["Toast.ClassroomRestored"].Value;
         return RedirectToAction(nameof(Index), new { includeArchived = true });
     }
 }

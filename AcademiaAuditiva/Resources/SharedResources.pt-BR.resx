@@ -1542,4 +1542,280 @@
   <data name="Exercise.SolfegeMelody.Tip3" xml:space="preserve">
     <value>Se necessário, pratique com escalas antes de tentar.</value>
   </data>
+  <data name="Exercise.GuessQuality.Subtitle" xml:space="preserve">
+    <value>Adivinhe a qualidade do acorde tocado.</value>
+  </data>
+  <data name="SolfegeMelody" xml:space="preserve">
+    <value>Solfejo Melódico</value>
+  </data>
+  <data name="Exercise.GuessChords.Subtitle" xml:space="preserve">
+    <value>Reconhecimento de acordes</value>
+  </data>
+  <data name="Exercise.GuessNote.Subtitle" xml:space="preserve">
+    <value>Adivinhe a Nota tocada</value>
+  </data>
+  <data name="Exercise.GuessFullInterval.Subtitle" xml:space="preserve">
+    <value>Adivinhe o intervalo completo (maior, menor, justo...)</value>
+  </data>
+  <data name="Exercise.SolfegeMelody.Subtitle" xml:space="preserve">
+    <value>Leia a melodia e cante-a.</value>
+  </data>
+  <data name="Exercise.GuessFunction.Subtitle" xml:space="preserve">
+    <value>Adivinhe a função do acorde dentro do campo harmônico.</value>
+  </data>
+  <data name="Exercise.GuessMissingNote.Subtitle" xml:space="preserve">
+    <value>Ouça duas melodias e diga se são iguais ou diferentes.</value>
+  </data>
+  <data name="IntervalMelodico" xml:space="preserve">
+    <value>Intervalos Melódicos</value>
+  </data>
+  <data name="Exercise.GuessInterval.Subtitle" xml:space="preserve">
+    <value>Adivinhe o Intervalo tocado</value>
+  </data>
+  <data name="Exercise.IntervalMelodico.Subtitle" xml:space="preserve">
+    <value>Identifique graus e intervalos de uma melodia</value>
+  </data>
+  <data name="Report.KeepCurrentLevel" xml:space="preserve">
+    <value>Continue praticando no seu nível atual.</value>
+  </data>
+  <data name="Report.ReviewExercise" xml:space="preserve">
+    <value>Revise o exercício: {0}</value>
+  </data>
+  <data name="Report.IncreaseDifficulty" xml:space="preserve">
+    <value>Sua acurácia está alta. Considere aumentar a dificuldade.</value>
+  </data>
+  <data name="Report.KeepPracticing" xml:space="preserve">
+    <value>Continue praticando mais exercícios para melhorar seu desempenho.</value>
+  </data>
+  <data name="Teacher.Members.InviteHelp" xml:space="preserve">
+    <value>Se o aluno já tiver uma conta, ele será adicionado à sua turma ao aceitar. Caso contrário, receberá um link para finalizar a criação da conta.</value>
+  </data>
+  <data name="Teacher.Routines.NoExercisesYet" xml:space="preserve">
+    <value>Nenhum exercício ainda.</value>
+  </data>
+  <data name="Teacher.Routines.Assign" xml:space="preserve">
+    <value>Atribuir</value>
+  </data>
+  <data name="Teacher.Routines.MinScore" xml:space="preserve">
+    <value>pontuação mínima</value>
+  </data>
+  <data name="Teacher.Classrooms.Remove" xml:space="preserve">
+    <value>Remover</value>
+  </data>
+  <data name="Teacher.Routines.RemoveAssignment" xml:space="preserve">
+    <value>remover</value>
+  </data>
+  <data name="Teacher.Classrooms.None" xml:space="preserve">
+    <value>Nenhum</value>
+  </data>
+  <data name="Toast.ClassroomArchived" xml:space="preserve">
+    <value>Turma arquivada.</value>
+  </data>
+  <data name="Teacher.Classrooms.RemoveConfirm" xml:space="preserve">
+    <value>Remover {0} da turma?</value>
+  </data>
+  <data name="Teacher.Routines.Delete" xml:space="preserve">
+    <value>Excluir rotina</value>
+  </data>
+  <data name="Teacher.Routines.NotAssignedYet" xml:space="preserve">
+    <value>Ainda não foi atribuída a ninguém.</value>
+  </data>
+  <data name="Toast.InviteCancelled" xml:space="preserve">
+    <value>Convite cancelado.</value>
+  </data>
+  <data name="Toast.RoutineUpdated" xml:space="preserve">
+    <value>Rotina atualizada.</value>
+  </data>
+  <data name="Toast.ClassroomCreated" xml:space="preserve">
+    <value>Turma criada.</value>
+  </data>
+  <data name="Teacher.Routines.CustomFilter" xml:space="preserve">
+    <value>filtro personalizado</value>
+  </data>
+  <data name="Teacher.Routines.Back" xml:space="preserve">
+    <value>Voltar</value>
+  </data>
+  <data name="Teacher.Classrooms.PendingInvites" xml:space="preserve">
+    <value>Convites pendentes</value>
+  </data>
+  <data name="Teacher.Classrooms.Dashboard" xml:space="preserve">
+    <value>Painel</value>
+  </data>
+  <data name="Teacher.Members.SendInvite" xml:space="preserve">
+    <value>Enviar convite</value>
+  </data>
+  <data name="Teacher.Routines.Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Teacher.Routines.Exercises" xml:space="preserve">
+    <value>Exercícios</value>
+  </data>
+  <data name="Teacher.Routines.Assigned" xml:space="preserve">
+    <value>atribuída em</value>
+  </data>
+  <data name="Teacher.Members.InviteTitle" xml:space="preserve">
+    <value>Convidar um aluno para {0}</value>
+  </data>
+  <data name="Teacher.Classrooms.Cancel" xml:space="preserve">
+    <value>cancelar</value>
+  </data>
+  <data name="Teacher.Routines.Target" xml:space="preserve">
+    <value>meta</value>
+  </data>
+  <data name="Teacher.Classrooms.Joined" xml:space="preserve">
+    <value>entrou em</value>
+  </data>
+  <data name="Toast.InviteSavedNoEmail" xml:space="preserve">
+    <value>Convite salvo, mas o e-mail não pôde ser enviado. Compartilhe este link manualmente:</value>
+  </data>
+  <data name="Toast.ClassroomRestored" xml:space="preserve">
+    <value>Turma restaurada.</value>
+  </data>
+  <data name="Toast.ItemAdded" xml:space="preserve">
+    <value>Exercício adicionado à rotina.</value>
+  </data>
+  <data name="Teacher.Routines.Remove" xml:space="preserve">
+    <value>Remover</value>
+  </data>
+  <data name="Toast.RoutineAssigned" xml:space="preserve">
+    <value>Rotina atribuída.</value>
+  </data>
+  <data name="Toast.ItemUpdated" xml:space="preserve">
+    <value>Item atualizado.</value>
+  </data>
+  <data name="Toast.AlreadyMember" xml:space="preserve">
+    <value>Esse aluno já é membro desta turma.</value>
+  </data>
+  <data name="Toast.RoutineCreated" xml:space="preserve">
+    <value>Rotina criada.</value>
+  </data>
+  <data name="Teacher.Routines.Assignments" xml:space="preserve">
+    <value>Atribuições</value>
+  </data>
+  <data name="Teacher.Classrooms.Back" xml:space="preserve">
+    <value>Voltar</value>
+  </data>
+  <data name="Teacher.Routines.Due" xml:space="preserve">
+    <value>prazo</value>
+  </data>
+  <data name="Teacher.Routines.RemoveItemConfirm" xml:space="preserve">
+    <value>Remover este exercício da rotina?</value>
+  </data>
+  <data name="Teacher.Members.Sending" xml:space="preserve">
+    <value>Enviando…</value>
+  </data>
+  <data name="Toast.ClassroomUpdated" xml:space="preserve">
+    <value>Turma atualizada.</value>
+  </data>
+  <data name="Teacher.Classrooms.Expires" xml:space="preserve">
+    <value>expira em</value>
+  </data>
+  <data name="Teacher.Routines.AddExercise" xml:space="preserve">
+    <value>Adicionar exercício</value>
+  </data>
+  <data name="Toast.ItemRemoved" xml:space="preserve">
+    <value>Item removido.</value>
+  </data>
+  <data name="Teacher.Classrooms.InviteStudent" xml:space="preserve">
+    <value>Convidar aluno</value>
+  </data>
+  <data name="Toast.AssignmentRemoved" xml:space="preserve">
+    <value>Atribuição removida.</value>
+  </data>
+  <data name="Teacher.Members.Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Toast.RoutineActiveAssignments" xml:space="preserve">
+    <value>A rotina possui atribuições ativas. Remova-as primeiro.</value>
+  </data>
+  <data name="Toast.MemberRemoved" xml:space="preserve">
+    <value>Membro removido.</value>
+  </data>
+  <data name="Teacher.Classrooms.CancelInviteConfirm" xml:space="preserve">
+    <value>Cancelar este convite?</value>
+  </data>
+  <data name="Teacher.Routines.RemoveAssignmentConfirm" xml:space="preserve">
+    <value>Remover esta atribuição?</value>
+  </data>
+  <data name="Teacher.Classrooms.NoMembersYet" xml:space="preserve">
+    <value>Nenhum membro ainda. Convide alunos pelo painel à direita.</value>
+  </data>
+  <data name="Toast.RoutineDeleted" xml:space="preserve">
+    <value>Rotina excluída.</value>
+  </data>
+  <data name="Teacher.Classrooms.Members" xml:space="preserve">
+    <value>Membros</value>
+  </data>
+  <data name="Teacher.Routines.DeleteConfirm" xml:space="preserve">
+    <value>Excluir esta rotina permanentemente?</value>
+  </data>
+  <data name="Admin.Users.MakeAdmin" xml:space="preserve">
+    <value>Tornar Admin</value>
+  </data>
+  <data name="Admin.Users.MakeTeacher" xml:space="preserve">
+    <value>Tornar Professor</value>
+  </data>
+  <data name="Admin.Users.User" xml:space="preserve">
+    <value>Usuário</value>
+  </data>
+  <data name="Admin.Users.PromoteAdminConfirm" xml:space="preserve">
+    <value>Tornar {0} um ADMIN? Isso concede acesso total.</value>
+  </data>
+  <data name="Register.FirstName" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="Admin.Users.Locked" xml:space="preserve">
+    <value>bloqueado</value>
+  </data>
+  <data name="Admin.Users.Unconfirmed" xml:space="preserve">
+    <value>não confirmado</value>
+  </data>
+  <data name="Admin.Users.RemoveAdmin" xml:space="preserve">
+    <value>Remover Admin</value>
+  </data>
+  <data name="Admin.Users.Filter" xml:space="preserve">
+    <value>Filtrar</value>
+  </data>
+  <data name="Admin.Users.RemoveTeacher" xml:space="preserve">
+    <value>Remover Professor</value>
+  </data>
+  <data name="Admin.Users.PromoteTeacherConfirm" xml:space="preserve">
+    <value>Promover {0} a Professor?</value>
+  </data>
+  <data name="Admin.Users.AllRoles" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="Admin.Users.CannotDemoteSelf" xml:space="preserve">
+    <value>Você não pode rebaixar a si mesmo.</value>
+  </data>
+  <data name="Admin.Users.Title" xml:space="preserve">
+    <value>Usuários</value>
+  </data>
+  <data name="Admin.Users.DemoteTeacherConfirm" xml:space="preserve">
+    <value>Remover papel de Professor de {0}?</value>
+  </data>
+  <data name="Register.LastName" xml:space="preserve">
+    <value>Sobrenome</value>
+  </data>
+  <data name="Admin.Users.DemoteAdminConfirm" xml:space="preserve">
+    <value>Remover papel de Admin de {0}?</value>
+  </data>
+  <data name="Admin.Users.Results" xml:space="preserve">
+    <value>resultado(s)</value>
+  </data>
+  <data name="Admin.Users.Search" xml:space="preserve">
+    <value>Pesquisar (e-mail ou nome de usuário)</value>
+  </data>
+  <data name="Admin.Users.Roles" xml:space="preserve">
+    <value>Perfis</value>
+  </data>
+  <data name="Admin.Users.CannotDemoteLastAdmin" xml:space="preserve">
+    <value>Não é possível rebaixar o último Admin restante.</value>
+  </data>
+  <data name="Admin.Users.Role" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="Admin.Users.Empty" xml:space="preserve">
+    <value>Nenhum usuário encontrado.</value>
+  </data>
 </root>

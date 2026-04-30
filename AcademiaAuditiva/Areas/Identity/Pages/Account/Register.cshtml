@@ -16,14 +16,14 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-floating">
-                            <input asp-for="Input.FirstName" class="form-control" placeholder="First name" />
+                            <input asp-for="Input.FirstName" class="form-control" placeholder="@Localizer["Register.FirstName"]" />
                             <label asp-for="Input.FirstName"></label>
                             <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating">
-                            <input asp-for="Input.LastName" class="form-control" placeholder="Last name" />
+                            <input asp-for="Input.LastName" class="form-control" placeholder="@Localizer["Register.LastName"]" />
                             <label asp-for="Input.LastName"></label>
                             <span asp-validation-for="Input.LastName" class="text-danger small"></span>
                         </div>
