@@ -1,19 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
-  //Iniciate Audio
   AcademiaAuditiva.init();
   AudioEngine.setupWaveform();
 
   const loc = document.getElementById("localizer").dataset;
-  //Iniciate Variables
-  let melody1 = [];
-  let melody2 = [];
+
+  // Two tokens — one per melody. The user MUST listen to both clips
+  // and decide same/different by ear; the front cannot infer the
+  // answer from the response (no melody arrays leak any more).
+  let melody1Token = null;
+  let melody2Token = null;
+  let roundId = null;
   let selectedGuess = "";
   let exerciseStartTime = Date.now();
 
-  const exerciseIdInput = document.getElementById("exerciseId");
-  const exerciseId = exerciseIdInput ? exerciseIdInput.value : null;
+  const exerciseId = document.getElementById("exerciseId")?.value;
 
-  //Iniciate Click Events
   const guessButtons = document.querySelectorAll(".guessAnswer");
   guessButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
@@ -22,6 +23,13 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedGuess = e.target.value;
     });
   });
+
+  async function playBoth(gapSeconds) {
+    if (!melody1Token || !melody2Token) return;
+    await AudioEngine.playToken(melody1Token);
+    await new Promise((r) => setTimeout(r, gapSeconds * 1000));
+    await AudioEngine.playToken(melody2Token);
+  }
 
   const playBtn = document.getElementById("Play");
   if (playBtn) {
@@ -33,83 +41,61 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           exerciseId: exerciseId,
-          filters: {
-            melodyLength: length,
-          },
+          filters: { melodyLength: length },
         }),
       })
         .then((resp) => resp.json())
         .then((data) => {
-          melody1 = data.melody1;
-          melody2 = data.melody2;
-          AcademiaAuditiva.audio.playMelodyWithRhythm(melody1);
-          const totalTime = melody1.reduce((sum, n) => sum + n.duration, 0);
-
-          setTimeout(() => {
-            AcademiaAuditiva.audio.playMelodyWithRhythm(melody2);
-          }, (totalTime + 1) * 1000);
+          melody1Token = data.melody1Token;
+          melody2Token = data.melody2Token;
+          roundId = data.roundId;
+          // 1s gap between the two melodies, matching the legacy UX.
+          playBoth(1.0);
         })
-        .catch((err) => {
-          console.error("Erro ao gerar melodias:", err);
-        });
+        .catch((err) => console.error("Erro ao gerar melodias:", err));
     });
   }
 
   const replayBtn = document.getElementById("Replay");
   if (replayBtn) {
     replayBtn.addEventListener("click", () => {
-      if (!melody1.length || !melody2.length) {
-        Swal.fire({
-          icon: "warning",
-          title: loc.incompleteTitle,
-          text: loc.incompleteText,
-        });
+      if (!melody1Token || !melody2Token) {
+        Swal.fire({ icon: "warning", title: loc.incompleteTitle, text: loc.incompleteText });
         return;
       }
-      AudioEngine.playSequence(melody1, 0.35, () => {
-        setTimeout(() => AudioEngine.playSequence(melody2, 0.35), 600);
-      });
+      playBoth(0.6);
     });
   }
 
   const m1Btn = document.getElementById("Melody1");
   if (m1Btn) {
     m1Btn.addEventListener("click", () => {
-      if (melody1.length) AudioEngine.playSequence(melody1, 0.35);
+      if (melody1Token) AudioEngine.playToken(melody1Token);
     });
   }
 
   const m2Btn = document.getElementById("Melody2");
   if (m2Btn) {
     m2Btn.addEventListener("click", () => {
-      if (melody2.length) AudioEngine.playSequence(melody2, 0.35);
+      if (melody2Token) AudioEngine.playToken(melody2Token);
     });
   }
 
   const validateBtn = document.getElementById("validateGuess");
   if (validateBtn) {
     validateBtn.addEventListener("click", () => {
-      if (!selectedGuess || !melody1.length || !melody2.length) {
-        Swal.fire({
-          icon: "warning",
-          title: loc.incompleteTitle,
-          text: loc.incompleteText,
-        });
+      if (!selectedGuess || !roundId) {
+        Swal.fire({ icon: "warning", title: loc.incompleteTitle, text: loc.incompleteText });
         return;
       }
-
-      const isEqual = JSON.stringify(melody1) === JSON.stringify(melody2);
-      const userIsCorrect =
-        (isEqual && selectedGuess === "same") ||
-        (!isEqual && selectedGuess === "diff");
 
       fetch("/Exercise/ValidateExercise", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           exerciseId: exerciseId,
+          roundId: roundId,
           userGuess: selectedGuess,
-          actualAnswer: isEqual ? "same" : "diff",
           timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
         }),
       })
@@ -118,24 +104,17 @@ document.addEventListener("DOMContentLoaded", () => {
           const correctCountEl = document.getElementById("correctCount");
           const errorCountEl = document.getElementById("errorCount");
           if (data.isCorrect) {
-            if (correctCountEl) {
-              correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-            }
+            if (correctCountEl) correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
             Swal.fire("Correct!", "You got it right!", "success");
           } else {
-            if (errorCountEl) {
-              errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-            }
-            Swal.fire(
-              "Wrong!",
-              `The correct answer was ${data.answer}.`,
-              "error"
-            );
+            if (errorCountEl) errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+            Swal.fire("Wrong!", `The correct answer was ${data.answer}.`, "error");
           }
 
           selectedGuess = "";
-          melody1 = [];
-          melody2 = [];
+          melody1Token = null;
+          melody2Token = null;
+          roundId = null;
           guessButtons.forEach((btn) => btn.classList.remove("selected"));
         });
     });

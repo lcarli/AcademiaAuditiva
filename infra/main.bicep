@@ -107,3 +107,6 @@ output sqlDatabaseName string = stack.outputs.sqlDatabaseName
 output managedIdentityClientId string = stack.outputs.managedIdentityClientId
 output managedIdentityPrincipalId string = stack.outputs.managedIdentityPrincipalId
 output applicationInsightsConnectionString string = stack.outputs.applicationInsightsConnectionString
+output storageAccountName string = stack.outputs.storageAccountName
+output storageBlobEndpoint string = stack.outputs.storageBlobEndpoint
+output audioBaseUrl string = stack.outputs.audioBaseUrl

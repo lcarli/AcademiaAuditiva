@@ -29,6 +29,7 @@ var logAnalyticsName = 'log-${nameBase}'
 var appInsightsName = 'appi-${nameBase}'
 var containerAppEnvName = 'cae-${nameBase}'
 var containerAppName = 'ca-${nameBase}'
+var storageAccountName = take('st${nameBaseFlat}${unique6}', 24)
 
 // -----------------------------------------------------------------------------
 // Identity
@@ -107,6 +108,20 @@ module sql 'modules/sql.bicep' = {
 }
 
 // -----------------------------------------------------------------------------
+// Storage (audio assets + exercise logs)
+// -----------------------------------------------------------------------------
+
+module storage 'modules/storage.bicep' = {
+  name: 'storage'
+  params: {
+    name: storageAccountName
+    location: location
+    tags: tags
+    managedIdentityPrincipalId: identity.outputs.principalId
+  }
+}
+
+// -----------------------------------------------------------------------------
 // Container Apps
 // -----------------------------------------------------------------------------
 
@@ -139,6 +154,7 @@ module containerApp 'modules/containerapp.bicep' = {
     minReplicas: containerAppMinReplicas
     maxReplicas: containerAppMaxReplicas
     adminEmail: aadAdminLogin
+    storageBlobEndpoint: storage.outputs.blobEndpoint
   }
 }
 
@@ -155,3 +171,6 @@ output sqlDatabaseName string = sql.outputs.databaseName
 output managedIdentityClientId string = identity.outputs.clientId
 output managedIdentityPrincipalId string = identity.outputs.principalId
 output applicationInsightsConnectionString string = monitoring.outputs.appInsightsConnectionString
+output storageAccountName string = storage.outputs.name
+output storageBlobEndpoint string = storage.outputs.blobEndpoint
+output audioBaseUrl string = storage.outputs.pianoAudioBaseUrl

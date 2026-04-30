@@ -8,6 +8,7 @@ using AcademiaAuditiva.ViewModels;
 using AcademiaAuditiva.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Localization;
 using Newtonsoft.Json;
@@ -29,6 +30,9 @@ namespace AcademiaAuditiva.Controllers
 		private readonly IExerciseValidatorRegistry _validators;
 		private readonly IMusicTheoryService _musicTheory;
 		private readonly IDistributedCache _cache;
+		private readonly IAudioTokenService _audioTokens;
+		private readonly IAudioMixerService _audioMixer;
+		private readonly AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner _playbackPlanner;
 
 		// Expected-answer entries live for one round (15 min) and are
 		// keyed per (user, exercise). The cache is a distributed abstraction
@@ -36,7 +40,16 @@ namespace AcademiaAuditiva.Controllers
 		private static readonly DistributedCacheEntryOptions _expectedAnswerTtl =
 			new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) };
 
-		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, IAnalyticsService analyticsService, IExerciseValidatorRegistry validators, IMusicTheoryService musicTheory, IDistributedCache cache)
+		public ExerciseController(
+			ApplicationDbContext context,
+			IStringLocalizer<SharedResources> localizer,
+			IAnalyticsService analyticsService,
+			IExerciseValidatorRegistry validators,
+			IMusicTheoryService musicTheory,
+			IDistributedCache cache,
+			IAudioTokenService audioTokens,
+			IAudioMixerService audioMixer,
+			AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner playbackPlanner)
 		{
 			_context = context;
 			_localizer = localizer;
@@ -44,6 +57,9 @@ namespace AcademiaAuditiva.Controllers
 			_validators = validators;
 			_musicTheory = musicTheory;
 			_cache = cache;
+			_audioTokens = audioTokens;
+			_audioMixer = audioMixer;
+			_playbackPlanner = playbackPlanner;
 		}
 
 		private static string ExpectedAnswerCacheKey(string userId, int exerciseId)
@@ -62,6 +78,7 @@ namespace AcademiaAuditiva.Controllers
 		#region General Play and Validate
 		
 		[HttpPost]
+		[EnableRateLimiting("RequestPlay")]
 		public async Task<IActionResult> RequestPlay([FromBody] PlayRequestDto request)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -83,19 +100,48 @@ namespace AcademiaAuditiva.Controllers
 			if (!filters.ContainsKey("noteRange"))
 				filters["noteRange"] = noteRange;
 
-			var result = _musicTheory.GenerateNoteForExercise(exercise, filters);
+			var plan = _playbackPlanner.Plan(exercise, filters);
 
-			var sessionData = new ExerciseSessionData
+			// Sheet-music exercises (SolfegeMelody / IntervalMelodico) do
+			// not get an audio token — they are out of scope for this
+			// anti-cheat flow. We still cache the expected answer so
+			// ValidateExercise can score them, but we keep the original
+			// response shape (notes in clear text) so the front-end can
+			// render the sheet music.
+			if (plan.PlaybackPlans.Count == 0)
 			{
-				ExpectedAnswer = JsonConvert.SerializeObject(result)
-			};
+				var legacyPayload = JsonConvert.DeserializeObject(plan.ExpectedAnswerJson)!;
+				var sessionData = new ExerciseSessionData { ExpectedAnswer = plan.ExpectedAnswerJson };
+				await _cache.SetStringAsync(
+					ExpectedAnswerCacheKey(userId, request.ExerciseId),
+					JsonConvert.SerializeObject(sessionData),
+					_expectedAnswerTtl);
+				return Json(legacyPayload);
+			}
 
-			await _cache.SetStringAsync(
-				ExpectedAnswerCacheKey(userId, request.ExerciseId),
-				JsonConvert.SerializeObject(sessionData),
-				_expectedAnswerTtl);
+			// Mix every plan into a single playable blob, then collect
+			// "container/blobName" strings so the token service stores
+			// only opaque references.
+			var mixedAddresses = new string[plan.PlaybackPlans.Count];
+			for (var i = 0; i < plan.PlaybackPlans.Count; i++)
+			{
+				var mixed = await _audioMixer.MixAsync(plan.PlaybackPlans[i], HttpContext.RequestAborted);
+				mixedAddresses[i] = $"{mixed.Container}/{mixed.BlobName}";
+			}
 
-			return Json(result);
+			var round = await _audioTokens.CreateRoundAsync(
+				userId,
+				request.ExerciseId,
+				plan.ExpectedAnswerJson,
+				mixedAddresses,
+				HttpContext.RequestAborted);
+
+			// Uniform response: most exercises ship one play token; only
+			// GuessMissingNote ships two (melody1Token, melody2Token).
+			object response = exercise.Name == "GuessMissingNote"
+				? new { roundId = round.RoundId, melody1Token = round.Tokens[0], melody2Token = round.Tokens[1] }
+				: new { roundId = round.RoundId, playToken = round.Tokens[0] };
+			return Json(response);
 		}
 
 
@@ -110,14 +156,31 @@ namespace AcademiaAuditiva.Controllers
 			if (exercise == null)
 				return NotFound(_localizer["Exercise.NotFound"].Value);
 
-			var sessionKey = ExpectedAnswerCacheKey(userId, dto.ExerciseId);
-			var json = await _cache.GetStringAsync(sessionKey);
+			// Resolve the expected answer either from the round (modern
+			// audio-token flow) or, for sheet-music exercises that don't
+			// produce a token, from the legacy session-key cache.
+			string expectedAnswer = null;
+			bool roundConsumed = false;
 
-			if (string.IsNullOrEmpty(json))
-				return Json(new { success = false, message = _localizer["Exercise.SessionExpired"].Value, isCorrect = false });
+			if (!string.IsNullOrEmpty(dto.RoundId))
+			{
+				var round = await _audioTokens.GetRoundAsync(userId, dto.ExerciseId, dto.RoundId, HttpContext.RequestAborted);
+				if (round is not null)
+				{
+					expectedAnswer = round.ExpectedAnswerJson;
+					roundConsumed = true;
+				}
+			}
 
-			var sessionData = JsonConvert.DeserializeObject<ExerciseSessionData>(json);
-			var expectedAnswer = sessionData.ExpectedAnswer;
+			var legacyKey = ExpectedAnswerCacheKey(userId, dto.ExerciseId);
+			if (expectedAnswer is null)
+			{
+				var json = await _cache.GetStringAsync(legacyKey);
+				if (string.IsNullOrEmpty(json))
+					return Json(new { success = false, message = _localizer["Exercise.SessionExpired"].Value, isCorrect = false });
+				var legacy = JsonConvert.DeserializeObject<ExerciseSessionData>(json);
+				expectedAnswer = legacy.ExpectedAnswer;
+			}
 
 			var validator = _validators.Get(exercise.Name);
 			if (validator == null)
@@ -125,7 +188,7 @@ namespace AcademiaAuditiva.Controllers
 				return Json(new { success = false, message = _localizer["Exercise.NoValidator", exercise.Name].Value, isCorrect = false });
 			}
 
-			var validation = validator.Validate(dto.UserGuess, sessionData.ExpectedAnswer);
+			var validation = validator.Validate(dto.UserGuess, expectedAnswer);
 			var isCorrect = validation.IsCorrect;
 			var currentAnswer = validation.CanonicalAnswer;
 
@@ -193,9 +256,15 @@ namespace AcademiaAuditiva.Controllers
 
 			await _context.SaveChangesAsync();
 
-			// One-shot semantics: drop the expected-answer entry so the
-			// same round can't be replayed against the same cached answer.
-			await _cache.RemoveAsync(sessionKey);
+			// One-shot semantics. Drop both the modern round (so the same
+			// audio tokens can't be replayed against the just-scored
+			// answer) and the legacy expected-answer key (used by the
+			// sheet-music exercises that don't get a round).
+			if (roundConsumed)
+			{
+				await _audioTokens.RemoveRoundAsync(userId, dto.ExerciseId, dto.RoundId, HttpContext.RequestAborted);
+			}
+			await _cache.RemoveAsync(legacyKey);
 			
 			await _analyticsService.SaveAttemptAsync(new ExerciseAttemptLog
 			{
