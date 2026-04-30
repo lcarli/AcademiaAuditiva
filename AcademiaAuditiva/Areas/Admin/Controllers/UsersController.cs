@@ -1,4 +1,5 @@
 using AcademiaAuditiva.Areas.Admin.Models;
+using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -72,7 +73,7 @@ public class UsersController : AdminAreaController
         if (!await _users.IsInRoleAsync(u, RoleNames.Teacher))
         {
             await _users.AddToRoleAsync(u, RoleNames.Teacher);
-            _logger.LogInformation("Admin {Admin} promoted user {UserId} to Teacher", User.Identity?.Name, id);
+            _logger.LogInformation("Admin {Admin} promoted user {UserId} to Teacher", LogSanitizer.Sanitize(User.Identity?.Name), LogSanitizer.Sanitize(id));
         }
         TempData["Success"] = $"{u.UserName} is now a Teacher.";
         return RedirectToAction(nameof(Index));
@@ -86,7 +87,7 @@ public class UsersController : AdminAreaController
         if (await _users.IsInRoleAsync(u, RoleNames.Teacher))
         {
             await _users.RemoveFromRoleAsync(u, RoleNames.Teacher);
-            _logger.LogInformation("Admin {Admin} demoted teacher {UserId} to student", User.Identity?.Name, id);
+            _logger.LogInformation("Admin {Admin} demoted teacher {UserId} to student", LogSanitizer.Sanitize(User.Identity?.Name), LogSanitizer.Sanitize(id));
         }
         TempData["Success"] = $"{u.UserName} is no longer a Teacher.";
         return RedirectToAction(nameof(Index));
@@ -100,7 +101,7 @@ public class UsersController : AdminAreaController
         if (!await _users.IsInRoleAsync(u, RoleNames.Admin))
         {
             await _users.AddToRoleAsync(u, RoleNames.Admin);
-            _logger.LogWarning("Admin {Admin} promoted user {UserId} to ADMIN", User.Identity?.Name, id);
+            _logger.LogWarning("Admin {Admin} promoted user {UserId} to ADMIN", LogSanitizer.Sanitize(User.Identity?.Name), LogSanitizer.Sanitize(id));
         }
         TempData["Success"] = $"{u.UserName} is now an Admin.";
         return RedirectToAction(nameof(Index));
@@ -129,7 +130,7 @@ public class UsersController : AdminAreaController
         if (await _users.IsInRoleAsync(u, RoleNames.Admin))
         {
             await _users.RemoveFromRoleAsync(u, RoleNames.Admin);
-            _logger.LogWarning("Admin {Admin} demoted admin {UserId}", User.Identity?.Name, id);
+            _logger.LogWarning("Admin {Admin} demoted admin {UserId}", LogSanitizer.Sanitize(User.Identity?.Name), LogSanitizer.Sanitize(id));
         }
         TempData["Success"] = $"{u.UserName} is no longer an Admin.";
         return RedirectToAction(nameof(Index));

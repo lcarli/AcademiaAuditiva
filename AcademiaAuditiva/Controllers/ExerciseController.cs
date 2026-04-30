@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AcademiaAuditiva.Controllers
 {
 	[Authorize]
+	[AutoValidateAntiforgeryToken]
 	public class ExerciseController : Controller
 	{
 		private readonly ApplicationDbContext _context;
