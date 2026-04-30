@@ -19,10 +19,16 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
 	<!-- Custom -->
 	<link href="~/css/site.css" rel="stylesheet" />
+    <style>
+        [x-cloak] { display: none !important; }
+        .htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
+        .htmx-request .htmx-indicator { opacity: 1; }
+    </style>
 </head>
 
-<body>
+<body hx-boost="true" hx-indicator="#htmx-progress">
 	<a href="#mainContent" class="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary">Skip to main content</a>
+	<div id="htmx-progress" class="htmx-indicator position-fixed top-0 start-0 end-0" style="height: 3px; background: linear-gradient(90deg, #0d6efd, #6610f2); z-index: 2000;" aria-hidden="true"></div>
 	<header>
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 			<div class="container-fluid">
@@ -102,6 +108,12 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.min.js"
 		integrity="sha512-fHY2UiQlipUq0dEabSM4s+phmn+bcxSYzXP4vAXItBvBHU7zAM/mkhCZjtBEIJexhOMzZbgFlPLuErlJF2b+0g=="
 		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<!-- HTMX 2.x — progressive enhancement for forms (hx-boost) -->
+	<script src="https://unpkg.com/htmx.org@2.0.3"
+		integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
+		crossorigin="anonymous"></script>
+	<!-- Alpine.js 3.x — small reactive directives for inline UX -->
+	<script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
 	<!-- SweetAlert2 JS -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 	<!-- ToneJS -->
