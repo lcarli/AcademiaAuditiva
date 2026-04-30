@@ -12,7 +12,18 @@ using System.Globalization;
 using Azure.Identity;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Security.KeyVault.Secrets;
+using Microsoft.ApplicationInsights.Extensibility;
+using Serilog;
+using Serilog.Events;
 
+// Bootstrap logger — captures startup errors before host is built.
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
+try
+{
 var builder = WebApplication.CreateBuilder(args);
 
 // Wire Azure Key Vault BEFORE reading any configuration so KV-backed values
@@ -65,6 +76,26 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddApplicationInsightsTelemetry(options =>
 {
     options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+
+// Serilog — Console (always) + Application Insights (when configured).
+// Replaces the default ASP.NET Core logger so we get structured logs end-to-end.
+builder.Host.UseSerilog((ctx, services, cfg) =>
+{
+    cfg.ReadFrom.Configuration(ctx.Configuration)
+       .ReadFrom.Services(services)
+       .Enrich.FromLogContext()
+       .Enrich.WithProperty("Application", "AcademiaAuditiva")
+       .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
+       .WriteTo.Console(
+           outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj} {Properties:j}{NewLine}{Exception}");
+
+    var aiConn = ctx.Configuration["ApplicationInsights:ConnectionString"];
+    if (!string.IsNullOrWhiteSpace(aiConn))
+    {
+        var telemetryConfig = services.GetRequiredService<TelemetryConfiguration>();
+        cfg.WriteTo.ApplicationInsights(telemetryConfig, TelemetryConverter.Traces);
+    }
 });
 
 // Health checks: liveness ("is the process up?") and readiness ("can it
@@ -165,6 +196,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSerilogRequestLogging();
+
 app.UseSession();
 
 app.UseAuthorization();
@@ -205,3 +238,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+}
+catch (Exception ex) when (ex is not HostAbortedException)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
