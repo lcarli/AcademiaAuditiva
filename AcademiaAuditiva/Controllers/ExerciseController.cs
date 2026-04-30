@@ -49,7 +49,7 @@ namespace AcademiaAuditiva.Controllers
 		{
 			var exercise = _context.Exercises.FirstOrDefault(e => e.ExerciseId == request.ExerciseId);
 			if (exercise == null)
-				return NotFound("Exercise not found.");
+				return NotFound(_localizer["Exercise.NotFound"].Value);
 
 			var filters = request.Filters ?? new Dictionary<string, string>();
 
@@ -84,13 +84,13 @@ namespace AcademiaAuditiva.Controllers
 
 			var exercise = await _context.Exercises.FirstOrDefaultAsync(e => e.ExerciseId == dto.ExerciseId);
 			if (exercise == null)
-				return NotFound("Exercício não encontrado.");
+				return NotFound(_localizer["Exercise.NotFound"].Value);
 
 			var sessionKey = $"ExerciseAnswer_{dto.ExerciseId}";
 			var json = HttpContext.Session.GetString(sessionKey);
 
 			if (string.IsNullOrEmpty(json))
-				return Json(new { success = false, message = "Sessão expirada ou resposta não encontrada.", isCorrect = false });
+				return Json(new { success = false, message = _localizer["Exercise.SessionExpired"].Value, isCorrect = false });
 
 			var sessionData = JsonConvert.DeserializeObject<ExerciseSessionData>(json);
 			var expectedAnswer = sessionData.ExpectedAnswer;
@@ -98,7 +98,7 @@ namespace AcademiaAuditiva.Controllers
 			var validator = _validators.Get(exercise.Name);
 			if (validator == null)
 			{
-				return Json(new { success = false, message = $"Exercise type '{exercise.Name}' has no registered validator.", isCorrect = false });
+				return Json(new { success = false, message = _localizer["Exercise.NoValidator", exercise.Name].Value, isCorrect = false });
 			}
 
 			var validation = validator.Validate(dto.UserGuess, sessionData.ExpectedAnswer);
@@ -156,7 +156,7 @@ namespace AcademiaAuditiva.Controllers
 				newErrorCount = errorCount,
 				bestScore,
 				answer = currentAnswer,
-				message = isCorrect ? "Resposta correta!" : "Resposta incorreta."
+				message = isCorrect ? _localizer["Exercise.CorrectAnswer"].Value : _localizer["Exercise.IncorrectAnswer"].Value
 			});
 		}
 
@@ -228,11 +228,11 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessInterval");
 			if (exercise == null)
-				return Json(new { success = false, message = "Exercício GuessInterval não encontrado." });
+				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
 
 			int currentScore = Math.Max(0, correctCount - errorCount);
 
@@ -250,7 +250,7 @@ namespace AcademiaAuditiva.Controllers
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão de intervalos registrada com sucesso!" });
+			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion
@@ -276,11 +276,11 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessQuality");
 			if (exercise == null)
-				return Json(new { success = false, message = "Exercício GuessQuality não encontrado." });
+				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
 
 			int currentScore = Math.Max(0, correctCount - errorCount);
 
@@ -298,7 +298,7 @@ namespace AcademiaAuditiva.Controllers
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão de qualidade de acordes registrada com sucesso!" });
+			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion
@@ -323,11 +323,11 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFunction");
 			if (exercise == null)
-				return Json(new { success = false, message = "Exercício GuessFunction não encontrado." });
+				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
 
 			int currentScore = Math.Max(0, correctCount - errorCount);
 
@@ -345,7 +345,7 @@ namespace AcademiaAuditiva.Controllers
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão de função harmônica registrada com sucesso!" });
+			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion
@@ -371,11 +371,11 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFullInterval");
 			if (exercise == null)
-				return Json(new { success = false, message = "Exercício GuessFullInterval não encontrado." });
+				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
 
 			int currentScore = Math.Max(0, correctCount - errorCount);
 
@@ -393,7 +393,7 @@ namespace AcademiaAuditiva.Controllers
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão de intervalos completos registrada com sucesso!" });
+			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion
@@ -418,13 +418,13 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (string.IsNullOrEmpty(userId))
 			{
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
 			}
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessMissingNote");
 			if (exercise == null)
 			{
-				return Json(new { success = false, message = "Exercício GuessMissingNote não encontrado." });
+				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
 			}
 
 			int currentScore = Math.Max(0, correctCount - errorCount);
@@ -443,7 +443,7 @@ namespace AcademiaAuditiva.Controllers
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão de Missing Note registrada com sucesso!" });
+			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion

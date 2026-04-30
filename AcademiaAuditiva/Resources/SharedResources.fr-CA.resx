@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -60,45 +60,45 @@
             : and then encoded with base64 encoding.
     -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string"/>
-              <xsd:attribute name="type" type="xsd:string"/>
-              <xsd:attribute name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string"/>
-              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -107,347 +107,347 @@
   </xsd:schema>
   <data name="Header.Exercise" xml:space="preserve">
     <value>Exercise</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Header.Games" xml:space="preserve">
     <value>Jeux</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.Progress" xml:space="preserve">
     <value>Progrès dans les Exercices</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.Overall" xml:space="preserve">
     <value>Performance Générale</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.Timeline" xml:space="preserve">
     <value>Chronologie des Exercices</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.Title" xml:space="preserve">
     <value>Tableau de bord d'Évolution</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.Subtitle" xml:space="preserve">
     <value> Suivez votre progression et votre évolution.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Header.Dashboard" xml:space="preserve">
     <value>Tableau de Bord</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.Hello" xml:space="preserve">
     <value>Bonjour</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.Logout" xml:space="preserve">
     <value>Sortir</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Title" xml:space="preserve">
     <value>Exercices Disponibles</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Tab1.Level" xml:space="preserve">
     <value>Par difficulté</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Tab2.Type" xml:space="preserve">
     <value>Par Type</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Beginner" xml:space="preserve">
     <value>Débutant</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Intermediate" xml:space="preserve">
     <value>Intermédiaire</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Advanced" xml:space="preserve">
     <value>Avancé</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.Login" xml:space="preserve">
     <value>Connexion</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.Register" xml:space="preserve">
     <value>S'Inscrire</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Home.Title" xml:space="preserve">
     <value>Bienvenue à Academia Auditiva</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Home.Subtitle" xml:space="preserve">
     <value>Améliorez vos compétences d'écoute et élargissez vos horizons.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Home.Header" xml:space="preserve">
     <value>Qu'est-ce que l'Academia Auditiva?</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Home.Text1" xml:space="preserve">
     <value> L'Academia Auditiva est une plateforme dédiée à aider les individus à améliorer leurs compétences d'écoute. Grâce à une variété d'exercices et de méthodologies, nous nous efforçons d'offrir la meilleure expérience d'apprentissage auditif à nos membres.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Home.Footer" xml:space="preserve">
     <value>Êtes-vous prêt à commencer?</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Home.FooterText" xml:space="preserve">
     <value>Entrez dans le voyage auditif et découvrez un nouveau monde de possibilités.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.Header" xml:space="preserve">
     <value>Tableau de Bord</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Header" xml:space="preserve">
     <value>Exercices</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.Title" xml:space="preserve">
     <value>Utilisez un compte local pour vous connecter.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.Remember" xml:space="preserve">
     <value>Mot de passe oublié?</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.RegisterText" xml:space="preserve">
     <value>S'inscrire en tant que nouvel utilisateur</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.ResendEmail" xml:space="preserve">
     <value>Renvoyer la confirmation par e-mail</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.ExternalLogin" xml:space="preserve">
     <value>Utilisez un autre service pour vous connecter.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.ExternalLoginText" xml:space="preserve">
     <value>Connectez-vous en utilisant votre compte</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Login.RememberMe" xml:space="preserve">
     <value>Se souvenir de moi</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Logout.Header" xml:space="preserve">
     <value>Sortir</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Logout.Text" xml:space="preserve">
     <value>Vous vous êtes déconnecté avec succès de l'application.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Logout.Confirmation" xml:space="preserve">
     <value>Cliquez ici pour vous déconnecter</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Register.Header" xml:space="preserve">
     <value>S'inscrire</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Register.Title" xml:space="preserve">
     <value>Créez un nouveau compte.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Register.Password" xml:space="preserve">
     <value>Mot de Passe</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Register.PasswordConfirmation" xml:space="preserve">
     <value>Confirmez le mot de passe</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Register.Text" xml:space="preserve">
     <value>Utilisez un autre service pour vous inscrire.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ResendEmailConfirmation.Header" xml:space="preserve">
     <value>Renvoyer l'e-mail de confirmation</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ResendEmailConfirmation.Text" xml:space="preserve">
     <value>Reenvoyer</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Confirmation.Text" xml:space="preserve">
     <value>Veuillez vérifier votre e-mail pour confirmer votre compte.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Confirmation.Header" xml:space="preserve">
     <value>Confirmation d'Inscription</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ForgotPassword.Header" xml:space="preserve">
     <value>Avez-vous oublié votre mot de passe ?</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ForgotPassword.Text" xml:space="preserve">
     <value>Réinitialiser le mot de passe</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ForgotConfirmation.Header" xml:space="preserve">
     <value>Confirmation de réinitialisation du mot de passe</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ForgotConfirmation.Text" xml:space="preserve">
     <value>Veuillez vérifier votre e-mail pour réinitialiser votre mot de passe.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="AccessDenied.Header" xml:space="preserve">
     <value>Accès Refusé</value>
-    <comment/>
+    <comment />
   </data>
   <data name="AccessDenied.Text" xml:space="preserve">
     <value>Vous n'avez pas accès à cette ressource.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="EmailConfirmation.Header" xml:space="preserve">
     <value>Confirmation de l'e-mail</value>
-    <comment/>
+    <comment />
   </data>
   <data name="EmailConfirmationChange.Header" xml:space="preserve">
     <value>Confirmation de changement d'e-mail</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExternalLogin.Title" xml:space="preserve">
     <value>Associez votre compte</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExternalLogin.Text" xml:space="preserve">
     <value>Vous vous êtes authentifié avec succès en utilisant &lt;strong&gt;@Model.ProviderDisplayName&lt;/strong&gt;.Veuillez saisir une adresse e-mail pour ce site ci-dessous et cliquer sur le bouton Inscription pour finaliser l'accès.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Lockout.Text" xml:space="preserve">
     <value>Ce compte a été bloqué, veuillez réessayer plus tard.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Chords.Title" xml:space="preserve">
     <value>Devinez l'Accord</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercice.SelectOctave" xml:space="preserve">
     <value>Sélectionner l'Octave</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Octave4" xml:space="preserve">
     <value>Une Octave (4ᵉ Octave)</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Octave3" xml:space="preserve">
     <value>Une Octave (3ᵉ Octave)</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Full" xml:space="preserve">
     <value>Piano Complet</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.ListenChord" xml:space="preserve">
     <value>Écouter l'Accord</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.RelistenChord" xml:space="preserve">
     <value>Réécouter l'accord</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Major" xml:space="preserve">
     <value>Majeur</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Minor" xml:space="preserve">
     <value>Mineur</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.7" xml:space="preserve">
     <value>7e</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.9" xml:space="preserve">
     <value>9e</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.ValidationButton" xml:space="preserve">
     <value>Valider</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.CorrectAnswers" xml:space="preserve">
     <value>Bonne Réponse</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.ErrorAnswers" xml:space="preserve">
     <value>Mauvaise Réponse</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.BestScore" xml:space="preserve">
     <value>Meilleur Score</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.GuessChordsTitle" xml:space="preserve">
     <value>Devinez l'Accord</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.GuessChordsText" xml:space="preserve">
     <value>Écoutez l'accord et essayez de deviner lequel c'est. Vous devez sélectionner la tonalité et la qualité de l'accord.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.StartButton" xml:space="preserve">
     <value>Commencer</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.SelectOctave" xml:space="preserve">
     <value>Sélectionner l'Octave</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.ChordsText" xml:space="preserve">
     <value>Quel accord a été joué ?</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.TypeChord" xml:space="preserve">
     <value>Type d'Accord</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.TypeChordMajeurMineur" xml:space="preserve">
     <value>Majeurs et Mineurs</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.TypeChordMajeur" xml:space="preserve">
     <value>Majeurs</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.TypeChordMineur" xml:space="preserve">
     <value>Mineurs</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.TypeChordAll" xml:space="preserve">
     <value>Tout</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.GuessChordError1" xml:space="preserve">
     <value>Tout d'abord, cliquez sur "Écouter l'Accord"</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.CorrectMessage" xml:space="preserve">
     <value>Bonne Réponse!</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.WrongMessage" xml:space="preserve">
     <value>Mauvaise Réponse!</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.CorrectMessageText" xml:space="preserve">
     <value>Vous avez deviné l'accord correctement !</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.WrongMessageText" xml:space="preserve">
     <value>Vous avez échoué ! L'accord correct était</value>
-    <comment/>
+    <comment />
   </data>
   <data name="GuessChords" xml:space="preserve">
     <value>Devinez l'Accord</value>
@@ -507,7 +507,7 @@
   </data>
   <data name="Exercise.Function.Title" xml:space="preserve">
     <value>Devinez la Fonction Harmonique         </value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.SelectTom" xml:space="preserve">
     <value>Choisir la tonalité</value>
@@ -527,188 +527,292 @@
   </data>
   <data name="Dashboard.RadarTitle" xml:space="preserve">
     <value>Radar de compétences</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.CategoryAccuracyTitle" xml:space="preserve">
     <value>Précision par catégorie</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.TimelineTitle" xml:space="preserve">
     <value>Chronologie d’apprentissage</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.ExerciseImprovementTitle" xml:space="preserve">
     <value>Amélioration par exercice</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.DifficultyTitle" xml:space="preserve">
     <value>Difficulté perçue</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.SkillRadarLabel" xml:space="preserve">
     <value>Compétences</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.TimelineLabel" xml:space="preserve">
     <value>Activité quotidienne</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.ImprovementLabel" xml:space="preserve">
     <value>Progrès</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.DifficultyLabel" xml:space="preserve">
     <value>Erreurs (%)</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.TotalExercises" xml:space="preserve">
     <value>Total Exercices</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.BestScore" xml:space="preserve">
     <value>Meilleur score</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Dashboard.TotalTime" xml:space="preserve">
     <value>Temps Total</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseType.NoteRecognition" xml:space="preserve">
     <value>Notes</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseType.IntervalRecognition" xml:space="preserve">
     <value>Intervalles</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseType.ChordRecognition" xml:space="preserve">
     <value>Accords</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseType.FunctionRecognition" xml:space="preserve">
     <value>Fonction</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseType.ScaleRecognition" xml:space="preserve">
     <value>Gammes</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseCategory.Harmony" xml:space="preserve">
     <value>Harmonie</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseCategory.EarTraining" xml:space="preserve">
     <value>Entraînement de l'oreille</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseCategory.Rhythm" xml:space="preserve">
     <value>Rythme</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseCategory.Scales" xml:space="preserve">
     <value>Gammes</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseCategory.Melody" xml:space="preserve">
     <value>Mélodie</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseCategory.Games" xml:space="preserve">
     <value>Jeux</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Interval.Title" xml:space="preserve">
     <value>Devinez l’intervalle</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.Interval.Description" xml:space="preserve">
     <value>Écoutez l’intervalle et essayez de deviner lequel c’est.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.NoteNotSelectedTitle" xml:space="preserve">
     <value>Note non sélectionnée</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.NoteNotSelectedText" xml:space="preserve">
     <value>Veuillez d'abord cliquer sur « Écouter l’intervalle ».</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.SelectIntervalText" xml:space="preserve">
     <value>Veuillez sélectionner un intervalle.</value>
-    <comment/>
+    <comment />
   </data>
   <data name="Exercise.WrongIntervalMessageText" xml:space="preserve">
     <value>Mauvaise réponse ! L’intervalle correct était</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseType.MelodyReproduction" xml:space="preserve">
     <value>Reproduction de mélodie</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseType.RhythmPatterns" xml:space="preserve">
     <value>Motifs rythmiques</value>
-    <comment/>
+    <comment />
   </data>
   <data name="ExerciseType.HarmonicField" xml:space="preserve">
     <value>Champ harmonique</value>
-    <comment/>
+    <comment />
   </data>
   <data name="GuessFullInterval" xml:space="preserve">
     <value>Devinez l'Intervale Complexe</value>
-    <comment/>
+    <comment />
   </data>
-  <data name="Exercise.FullInterval.Title"><value>Devinez l’intervalle complet</value></data>
-  <data name="Exercise.FullInterval.Description"><value>Écoutez deux notes et identifiez l’intervalle exact entre elles (ex. : tierce mineure, quinte juste).</value></data>
-  <data name="Exercise.PlayInterval"><value>Écouter l’intervalle</value></data>
-  <data name="Exercise.ReplayInterval"><value>Répéter l’intervalle</value></data>
-  <data name="Exercise.MissingNote.Title"><value>Devinez la mélodie</value></data>
-  <data name="Exercise.MissingNote.Description"><value>Écoutez deux mélodies et indiquez si elles sont identiques ou différentes.</value></data>
-  <data name="Exercise.PlayMelodies"><value>Écouter les mélodies</value></data>
-  <data name="Exercise.PlayMelody1"><value>Mélodie 1</value></data>
-  <data name="Exercise.PlayMelody2"><value>Mélodie 2</value></data>
-  <data name="Exercise.Answer.Same"><value>Identiques</value></data>
-  <data name="Exercise.Answer.Different"><value>Différentes</value></data>
-  <data name="Dashboard.WelcomeMessage" xml:space="preserve"><value>Bienvenue, </value></data>
-  <data name="Dashboard.LastActivity" xml:space="preserve"><value>Dernière activité : </value></data>
-  <data name="Dashboard.ContinueButton" xml:space="preserve"><value>Continuer là où j’ai arrêté</value></data>
-  <data name="Dashboard.QuickAccess" xml:space="preserve"><value>Accès rapide</value></data>
-  <data name="Dashboard.Menu.Exercises" xml:space="preserve"><value>Exercices</value></data>
-  <data name="Dashboard.Menu.Games" xml:space="preserve"><value>Jeux</value></data>
-  <data name="Dashboard.Menu.Ranking" xml:space="preserve"><value>Classement</value></data>
-  <data name="Dashboard.Menu.Settings" xml:space="preserve"><value>Paramètres</value></data>
-  <data name="Dashboard.Menu.Help" xml:space="preserve"><value>Aide</value></data>
-  <data name="Exercise.Start" xml:space="preserve"><value>Lancer l'Exercise</value></data>
-  <data name="Exercise.Scale" xml:space="preserve"><value>Sélectionnez la gamme</value></data>
-  <data name="Exercise.All" xml:space="preserve"><value>Toutes</value></data>
-  <data name="Exercise.Key" xml:space="preserve"><value>Sélectionnez la tonalité</value></data>
-  <data name="Exercise.Direction" xml:space="preserve"><value>Direction</value></data>
-  <data name="Exercise.Direction.Asc" xml:space="preserve"><value>Ascendante</value></data>
-  <data name="Exercise.Direction.Desc" xml:space="preserve"><value>Descendante</value></data>
-  <data name="Exercise.Direction.Both" xml:space="preserve"><value>Les deux</value></data>
-  <data name="Exercise.MelodyLength" xml:space="preserve"><value>Longueur de la mélodie</value></data>
-  <data name="Exercise.Quality.ChordGroup" xml:space="preserve"><value>Type d’accords</value></data>
-  <data name="GuessMissingNote" xml:space="preserve"><value>Comparez 2 mélodies</value></data>
-  <data name="Exercise.IntervalText" xml:space="preserve"><value>Quel était l'intervalle joué?</value></data>
-  <data name="Exercise.QualityText" xml:space="preserve"><value>Quelle est la qualité de l'accord?</value></data>
-  <data name="Exercise.MissingNoteText" xml:space="preserve"><value>Les mélodies sont-elles identiques?</value></data>
-  <data name="Exercise.FunctionText" xml:space="preserve"><value>Quelle est la fonction de l'accord?</value></data>
-  <data name="Dashboard.LearningTimeline" xml:space="preserve"><value>Chronologie d'apprentissage</value></data>
-  <data name="Dashboard.ByDifficulty" xml:space="preserve"><value>Performance par difficulté</value></data>
-  <data name="Dashboard.RecentSessions" xml:space="preserve"><value>Sessions Récentes</value></data>
-  <data name="Dashboard.Exercise" xml:space="preserve"><value>Exercice</value></data>
-  <data name="Dashboard.Date" xml:space="preserve"><value>Date</value></data>
-  <data name="Dashboard.Correct" xml:space="preserve"><value>Réussites</value></data>
-  <data name="Dashboard.Errors" xml:space="preserve"><value>Erreurs</value></data>
-  <data name="Dashboard.TimeSpent" xml:space="preserve"><value>Temps</value></data>
-  <data name="Dashboard.Score" xml:space="preserve"><value>Score</value></data>
-  <data name="Dashboard.MostMissedItems" xml:space="preserve"><value>Éléments les plus échoués</value></data>
-  <data name="Dashboard.Recommendations" xml:space="preserve"><value>Mes recommandations</value></data>
-  <data name="Dashboard.TechnicalSkills" xml:space="preserve"><value>Compétences techniques</value></data>
-  <data name="Dashboard.PedagogicalCategories" xml:space="preserve"><value>Catégories pédagogiques</value></data>
-  <data name="Dashboard.ChartProgress" xml:space="preserve"><value>Progrès</value></data>
-  <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve"><value>Précision par type technique</value></data>
-  <data name="Dashboard.ChartAccuracyByCategory" xml:space="preserve"><value>Précision par catégorie pédagogique</value></data>
-  <data name="Dashboard.ChartAccuracyByDifficulty" xml:space="preserve"><value>Précision par difficulté</value></data>
+  <data name="Exercise.FullInterval.Title">
+    <value>Devinez l’intervalle complet</value>
+  </data>
+  <data name="Exercise.FullInterval.Description">
+    <value>Écoutez deux notes et identifiez l’intervalle exact entre elles (ex. : tierce mineure, quinte juste).</value>
+  </data>
+  <data name="Exercise.PlayInterval">
+    <value>Écouter l’intervalle</value>
+  </data>
+  <data name="Exercise.ReplayInterval">
+    <value>Répéter l’intervalle</value>
+  </data>
+  <data name="Exercise.MissingNote.Title">
+    <value>Devinez la mélodie</value>
+  </data>
+  <data name="Exercise.MissingNote.Description">
+    <value>Écoutez deux mélodies et indiquez si elles sont identiques ou différentes.</value>
+  </data>
+  <data name="Exercise.PlayMelodies">
+    <value>Écouter les mélodies</value>
+  </data>
+  <data name="Exercise.PlayMelody1">
+    <value>Mélodie 1</value>
+  </data>
+  <data name="Exercise.PlayMelody2">
+    <value>Mélodie 2</value>
+  </data>
+  <data name="Exercise.Answer.Same">
+    <value>Identiques</value>
+  </data>
+  <data name="Exercise.Answer.Different">
+    <value>Différentes</value>
+  </data>
+  <data name="Dashboard.WelcomeMessage" xml:space="preserve">
+    <value>Bienvenue, </value>
+  </data>
+  <data name="Dashboard.LastActivity" xml:space="preserve">
+    <value>Dernière activité : </value>
+  </data>
+  <data name="Dashboard.ContinueButton" xml:space="preserve">
+    <value>Continuer là où j’ai arrêté</value>
+  </data>
+  <data name="Dashboard.QuickAccess" xml:space="preserve">
+    <value>Accès rapide</value>
+  </data>
+  <data name="Dashboard.Menu.Exercises" xml:space="preserve">
+    <value>Exercices</value>
+  </data>
+  <data name="Dashboard.Menu.Games" xml:space="preserve">
+    <value>Jeux</value>
+  </data>
+  <data name="Dashboard.Menu.Ranking" xml:space="preserve">
+    <value>Classement</value>
+  </data>
+  <data name="Dashboard.Menu.Settings" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="Dashboard.Menu.Help" xml:space="preserve">
+    <value>Aide</value>
+  </data>
+  <data name="Exercise.Start" xml:space="preserve">
+    <value>Lancer l'Exercise</value>
+  </data>
+  <data name="Exercise.Scale" xml:space="preserve">
+    <value>Sélectionnez la gamme</value>
+  </data>
+  <data name="Exercise.All" xml:space="preserve">
+    <value>Toutes</value>
+  </data>
+  <data name="Exercise.Key" xml:space="preserve">
+    <value>Sélectionnez la tonalité</value>
+  </data>
+  <data name="Exercise.Direction" xml:space="preserve">
+    <value>Direction</value>
+  </data>
+  <data name="Exercise.Direction.Asc" xml:space="preserve">
+    <value>Ascendante</value>
+  </data>
+  <data name="Exercise.Direction.Desc" xml:space="preserve">
+    <value>Descendante</value>
+  </data>
+  <data name="Exercise.Direction.Both" xml:space="preserve">
+    <value>Les deux</value>
+  </data>
+  <data name="Exercise.MelodyLength" xml:space="preserve">
+    <value>Longueur de la mélodie</value>
+  </data>
+  <data name="Exercise.Quality.ChordGroup" xml:space="preserve">
+    <value>Type d’accords</value>
+  </data>
+  <data name="GuessMissingNote" xml:space="preserve">
+    <value>Comparez 2 mélodies</value>
+  </data>
+  <data name="Exercise.IntervalText" xml:space="preserve">
+    <value>Quel était l'intervalle joué?</value>
+  </data>
+  <data name="Exercise.QualityText" xml:space="preserve">
+    <value>Quelle est la qualité de l'accord?</value>
+  </data>
+  <data name="Exercise.MissingNoteText" xml:space="preserve">
+    <value>Les mélodies sont-elles identiques?</value>
+  </data>
+  <data name="Exercise.FunctionText" xml:space="preserve">
+    <value>Quelle est la fonction de l'accord?</value>
+  </data>
+  <data name="Dashboard.LearningTimeline" xml:space="preserve">
+    <value>Chronologie d'apprentissage</value>
+  </data>
+  <data name="Dashboard.ByDifficulty" xml:space="preserve">
+    <value>Performance par difficulté</value>
+  </data>
+  <data name="Dashboard.RecentSessions" xml:space="preserve">
+    <value>Sessions Récentes</value>
+  </data>
+  <data name="Dashboard.Exercise" xml:space="preserve">
+    <value>Exercice</value>
+  </data>
+  <data name="Dashboard.Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Dashboard.Correct" xml:space="preserve">
+    <value>Réussites</value>
+  </data>
+  <data name="Dashboard.Errors" xml:space="preserve">
+    <value>Erreurs</value>
+  </data>
+  <data name="Dashboard.TimeSpent" xml:space="preserve">
+    <value>Temps</value>
+  </data>
+  <data name="Dashboard.Score" xml:space="preserve">
+    <value>Score</value>
+  </data>
+  <data name="Dashboard.MostMissedItems" xml:space="preserve">
+    <value>Éléments les plus échoués</value>
+  </data>
+  <data name="Dashboard.Recommendations" xml:space="preserve">
+    <value>Mes recommandations</value>
+  </data>
+  <data name="Dashboard.TechnicalSkills" xml:space="preserve">
+    <value>Compétences techniques</value>
+  </data>
+  <data name="Dashboard.PedagogicalCategories" xml:space="preserve">
+    <value>Catégories pédagogiques</value>
+  </data>
+  <data name="Dashboard.ChartProgress" xml:space="preserve">
+    <value>Progrès</value>
+  </data>
+  <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve">
+    <value>Précision par type technique</value>
+  </data>
+  <data name="Dashboard.ChartAccuracyByCategory" xml:space="preserve">
+    <value>Précision par catégorie pédagogique</value>
+  </data>
+  <data name="Dashboard.ChartAccuracyByDifficulty" xml:space="preserve">
+    <value>Précision par difficulté</value>
+  </data>
   <data name="Exercise.SolfegeMelody.Title" xml:space="preserve">
     <value>Solfège mélodique</value>
   </data>
@@ -783,5 +887,26 @@
   </data>
   <data name="Exercise.Interval.8J" xml:space="preserve">
     <value>8ve juste</value>
+  </data>
+  <data name="Exercise.NotFound" xml:space="preserve">
+    <value>Exercice introuvable.</value>
+  </data>
+  <data name="Exercise.SessionExpired" xml:space="preserve">
+    <value>Session expirée ou réponse introuvable.</value>
+  </data>
+  <data name="Exercise.CorrectAnswer" xml:space="preserve">
+    <value>Bonne réponse !</value>
+  </data>
+  <data name="Exercise.IncorrectAnswer" xml:space="preserve">
+    <value>Mauvaise réponse.</value>
+  </data>
+  <data name="Exercise.UserNotLoggedIn" xml:space="preserve">
+    <value>Utilisateur non connecté.</value>
+  </data>
+  <data name="Exercise.NoValidator" xml:space="preserve">
+    <value>Aucun validateur enregistré pour le type d'exercice '{0}'.</value>
+  </data>
+  <data name="Exercise.ScoreSaved" xml:space="preserve">
+    <value>Score de la session enregistré avec succès.</value>
   </data>
 </root>
