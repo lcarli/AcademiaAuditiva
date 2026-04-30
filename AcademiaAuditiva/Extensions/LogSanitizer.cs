@@ -1,11 +1,14 @@
 using System;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace AcademiaAuditiva.Extensions;
 
 /// <summary>
 /// Helpers to neutralize user-controlled values before they flow into log
-/// sinks. Removes CR/LF (log-forging) and masks email-shaped values so
-/// PII does not leak into structured logs.
+/// sinks. Removes CR/LF (log-forging) and replaces email-shaped values
+/// with an opaque cryptographic hash so PII does not leak into structured
+/// logs while still allowing correlation across log lines.
 /// </summary>
 public static class LogSanitizer
 {
@@ -33,19 +36,21 @@ public static class LogSanitizer
     }
 
     /// <summary>
-    /// Returns a masked form of an email address for log output, e.g.
-    /// <c>j***@example.com</c>. Falls back to <c>***</c> when the value is
-    /// missing or not email-shaped. Always sanitized for log forging.
+    /// Returns an opaque, deterministic fingerprint of an email for log
+    /// correlation. Output looks like <c>email#a1b2c3d4</c> and contains
+    /// no part of the original address. Uses SHA-256 — CodeQL recognises
+    /// cryptographic hashes as a barrier for the
+    /// <c>cs/exposure-of-sensitive-information</c> taint flow.
     /// </summary>
-    public static string MaskEmail(string? email)
+    public static string HashEmail(string? email)
     {
-        if (string.IsNullOrWhiteSpace(email)) return "***";
-        var clean = Sanitize(email) ?? "***";
-        var at = clean.IndexOf('@');
-        if (at <= 0 || at == clean.Length - 1) return "***";
-        var local = clean[..at];
-        var domain = clean[(at + 1)..];
-        var head = local.Length > 0 ? local[0].ToString() : "*";
-        return $"{head}***@{domain}";
+        if (string.IsNullOrWhiteSpace(email)) return "email#none";
+        var normalized = email.Trim().ToLowerInvariant();
+        Span<byte> hash = stackalloc byte[32];
+        SHA256.HashData(Encoding.UTF8.GetBytes(normalized), hash);
+        var sb = new StringBuilder("email#", 14);
+        for (var i = 0; i < 4; i++) sb.Append(hash[i].ToString("x2"));
+        return sb.ToString();
     }
 }
+

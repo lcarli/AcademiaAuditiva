@@ -1,4 +1,4 @@
-﻿using AcademiaAuditiva.Extensions;
+using AcademiaAuditiva.Extensions;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
@@ -29,7 +29,7 @@ namespace AcademiaAuditiva.Services
                 _logger.LogWarning(
                     "SMTP is not configured (Smtp:Host/User/Password missing). " +
                     "Skipping email to {Email}. Subject: {Subject}",
-                    LogSanitizer.MaskEmail(email), LogSanitizer.Sanitize(subject));
+                    LogSanitizer.HashEmail(email), LogSanitizer.Sanitize(subject));
                 return;
             }
 
@@ -51,7 +51,7 @@ namespace AcademiaAuditiva.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send email to {Email}", LogSanitizer.MaskEmail(email));
+                _logger.LogError(ex, "Failed to send email to {Email}", LogSanitizer.HashEmail(email));
                 throw;
             }
             finally

@@ -90,7 +90,7 @@ public class MembersController : TeacherAreaController
         {
             invite = pending;
             _logger.LogInformation("Resending invite {InviteId} for {Email} to classroom {ClassroomId}",
-                invite.Id, LogSanitizer.MaskEmail(email), classroom.Id);
+                invite.Id, LogSanitizer.HashEmail(email), classroom.Id);
         }
         else
         {
@@ -106,7 +106,7 @@ public class MembersController : TeacherAreaController
             _db.ClassroomInvites.Add(invite);
             await _db.SaveChangesAsync();
             _logger.LogInformation("Created invite {InviteId} for {Email} to classroom {ClassroomId}",
-                invite.Id, LogSanitizer.MaskEmail(email), classroom.Id);
+                invite.Id, LogSanitizer.HashEmail(email), classroom.Id);
         }
 
         var acceptUrl = Url.Action("Accept", "Invites", new { area = "", token = invite.Token },
@@ -127,7 +127,7 @@ public class MembersController : TeacherAreaController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed sending invite email to {Email}", LogSanitizer.MaskEmail(email));
+            _logger.LogError(ex, "Failed sending invite email to {Email}", LogSanitizer.HashEmail(email));
             TempData["Error"] = _l["Toast.InviteSavedNoEmail"].Value + " " + acceptUrl;
             return RedirectToAction("Details", "Classrooms", new { id = classroom.Id });
         }
