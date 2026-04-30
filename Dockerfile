@@ -27,6 +27,10 @@ RUN dotnet publish "AcademiaAuditiva.csproj" \
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION}-alpine AS runtime
 WORKDIR /app
 
+# ICU is required because we run with globalization enabled (PT-BR / FR-CA
+# resources). The base alpine image only ships invariant culture data.
+RUN apk add --no-cache icu-libs icu-data-full tzdata
+
 # Non-root user — the aspnet:8.0-alpine base image already ships a non-root
 # 'app' user/group, so we just chown the working directory and rely on it.
 RUN chown -R app:app /app
