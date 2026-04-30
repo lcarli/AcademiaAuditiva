@@ -3,6 +3,7 @@ using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Scoring;
 using AcademiaAuditiva.ViewModels;
 using AcademiaAuditiva.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -132,16 +133,14 @@ namespace AcademiaAuditiva.Controllers
 				.OrderByDescending(s => s.Timestamp)
 				.FirstOrDefaultAsync();
 
-			int correctCount = existingScore?.CorrectCount ?? 0;
-			int errorCount = existingScore?.ErrorCount ?? 0;
-			int bestScore = existingScore?.BestScore ?? 0;
+			int prevCorrect = existingScore?.CorrectCount ?? 0;
+			int prevError = existingScore?.ErrorCount ?? 0;
+			int prevBest = existingScore?.BestScore ?? 0;
 
-			if (isCorrect) correctCount++;
-			else errorCount++;
-
-			int currentScore = Math.Max(0, correctCount - errorCount);
-			if (currentScore > bestScore)
-				bestScore = currentScore;
+			var update = ScoreAggregator.Apply(prevCorrect, prevError, prevBest, isCorrect);
+			int correctCount = update.CorrectCount;
+			int errorCount = update.ErrorCount;
+			int bestScore = update.BestScore;
 
 			var now = DateTime.UtcNow;
 
