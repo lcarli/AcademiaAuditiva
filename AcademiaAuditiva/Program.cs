@@ -137,6 +137,7 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 //Inject AnalyticsService
 builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>();
+builder.Services.AddSingleton<IMusicTheoryService, MusicTheoryServiceAdapter>();
 
 // Exercise validators (Strategy pattern). Each implementation owns the
 // JSON shape for one exercise; the registry resolves by Exercise.Name.

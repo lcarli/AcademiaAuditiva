@@ -23,13 +23,15 @@ namespace AcademiaAuditiva.Controllers
 		private readonly IStringLocalizer<SharedResources> _localizer;
 		private readonly IAnalyticsService _analyticsService;
 		private readonly IExerciseValidatorRegistry _validators;
+		private readonly IMusicTheoryService _musicTheory;
 
-		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, IAnalyticsService analyticsService, IExerciseValidatorRegistry validators)
+		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, IAnalyticsService analyticsService, IExerciseValidatorRegistry validators, IMusicTheoryService musicTheory)
 		{
 			_context = context;
 			_localizer = localizer;
 			_analyticsService = analyticsService;
 			_validators = validators;
+			_musicTheory = musicTheory;
 		}
 
 		public async Task<IActionResult> Index()
@@ -62,7 +64,7 @@ namespace AcademiaAuditiva.Controllers
 			if (!filters.ContainsKey("noteRange"))
 				filters["noteRange"] = noteRange;
 
-			var result = MusicTheoryService.GenerateNoteForExercise(exercise, filters);
+			var result = _musicTheory.GenerateNoteForExercise(exercise, filters);
 
 			var sessionData = new ExerciseSessionData
 			{

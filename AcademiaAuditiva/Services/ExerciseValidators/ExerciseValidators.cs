@@ -24,19 +24,25 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
 
     public sealed class GuessNoteValidator : IExerciseValidator
     {
+        private readonly IMusicTheoryService _theory;
+        public GuessNoteValidator(IMusicTheoryService theory) { _theory = theory; }
+
         public string ExerciseName => "GuessNote";
 
         public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
         {
             var obj = JObject.Parse(expectedAnswerJson);
             var expectedNote = (string?)obj["note"] ?? string.Empty;
-            var isCorrect = MusicTheoryService.NotesAreEquivalent(userGuess, expectedNote);
+            var isCorrect = _theory.NotesAreEquivalent(userGuess, expectedNote);
             return new ExerciseValidationResult(isCorrect, expectedNote);
         }
     }
 
     public sealed class GuessChordsValidator : IExerciseValidator
     {
+        private readonly IMusicTheoryService _theory;
+        public GuessChordsValidator(IMusicTheoryService theory) { _theory = theory; }
+
         public string ExerciseName => "GuessChords";
 
         public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
@@ -45,7 +51,7 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
             var expectedRoot = (string?)obj["root"] ?? string.Empty;
             var expectedQuality = (string?)obj["quality"] ?? string.Empty;
             var actualChord = $"{expectedRoot}|{expectedQuality}";
-            var isCorrect = MusicTheoryService.AnswersAreEquivalent(userGuess, actualChord);
+            var isCorrect = _theory.AnswersAreEquivalent(userGuess, actualChord);
             return new ExerciseValidationResult(isCorrect, actualChord);
         }
     }
