@@ -7,6 +7,37 @@ Admin: `lucas.decarli.ca@gmail.com` / `Admin!LocalDev1`
 
 ---
 
+## 0. Anti-cheat de áudio (NEW)
+
+Para os 7 exercícios em escopo: **GuessNote, GuessChords, GuessFunction,
+GuessInterval, GuessFullInterval, GuessQuality, GuessMissingNote**.
+
+DevTools → **Network**, filtrar por `audio` ou por `Exercise`:
+
+- [ ] `POST /Exercise/RequestPlay` na resposta tem **somente** `roundId` + `playToken` (ou `melody1Token` + `melody2Token` para GuessMissingNote). Nenhum dos campos a seguir aparece: `note`, `notes`, `note1`, `note2`, `root`, `quality`, `type`, `melody1`, `melody2`, `answer`.
+- [ ] Não existe nenhum request a `/audio/C4.mp3`, `/audio/Cs4.mp3`, etc. — apenas `/audio/token/<guid>`.
+- [ ] A URL em `/audio/token/<guid>` é um GUID hex de 32 caracteres (não um nome de nota).
+- [ ] `Replay` re-toca sem novo download (buffer cacheado em memória pelo `AudioEngine`).
+
+DevTools → **Console**:
+
+- [ ] `window.currentChordNotes` é `undefined`.
+- [ ] No estado de "esperando resposta" não existe nenhuma variável global ou local exposta com o nome da nota / acorde / intervalo.
+
+DevTools → **Application/Storage**:
+
+- [ ] Nenhum cache HTTP guarda o áudio do round (`Cache-Control: no-store` no response de `/audio/token/...`).
+
+Após **Validate**:
+
+- [ ] Resposta JSON inclui `answer` correto — pedagógico, esperado.
+- [ ] Mesmo `roundId` enviado de novo → `success:false` com `Exercise.SessionExpired` (round consumido).
+
+Sheet-music exercises (fora de escopo, devem continuar funcionando):
+
+- [ ] **IntervalMelodico** ainda toca via Sampler legado (notas conhecidas pelo browser por design).
+- [ ] **SolfegeMelody** ainda renderiza partitura corretamente.
+
 ## 1. Idioma & Tema (header)
 - [X] Switcher de idioma no header alterna **EN / FR-CA / PT-BR** e persiste após reload
 - [X] Toggle dark/light no header alterna tema e persiste após reload

@@ -1,17 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
-  //Iniciate Audio
   AcademiaAuditiva.init();
   AudioEngine.setupWaveform();
 
-  //Iniciate Variables
-  const exerciseIdInput = document.getElementById("exerciseId");
-  const exerciseId = exerciseIdInput ? exerciseIdInput.value : null;
+  const exerciseId = document.getElementById("exerciseId")?.value;
 
-  let randomNote = "";
+  // The front-end never learns the actual note. It only holds the
+  // token (to replay) and the roundId (to validate against the same
+  // round). Both come from RequestPlay; both are opaque GUIDs.
+  let playToken = null;
+  let roundId = null;
   let userGuessedNote = "";
   const exerciseStartTime = Date.now();
 
-  //Iniciate Click Events
   const guessButtons = document.querySelectorAll(".guessAnswer");
   guessButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  //Inciate Play and Replay Events
   const playButton = document.getElementById("Play");
   if (playButton) {
     playButton.addEventListener("click", () => {
@@ -29,14 +28,13 @@ document.addEventListener("DOMContentLoaded", () => {
       fetch("/Exercise/RequestPlay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exerciseId: exerciseId,
-        }),
+        body: JSON.stringify({ exerciseId: exerciseId }),
       })
         .then((resp) => resp.json())
         .then((data) => {
-          randomNote = data.note;
-          AudioEngine.playNote(randomNote, 1);
+          playToken = data.playToken;
+          roundId = data.roundId;
+          if (playToken) AudioEngine.playToken(playToken);
         });
     });
   }
@@ -44,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const replayButton = document.getElementById("Replay");
   if (replayButton) {
     replayButton.addEventListener("click", () => {
-      if (!randomNote) {
+      if (!playToken) {
         Swal.fire({
           icon: "warning",
           title: "No note loaded",
@@ -52,15 +50,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         return;
       }
-      AudioEngine.playNote(randomNote, 1);
+      AudioEngine.playToken(playToken);
     });
   }
 
-  //Inciate Validate Event
   const validateBtn = document.getElementById("validateGuess");
   if (validateBtn) {
     validateBtn.addEventListener("click", () => {
-      if (!userGuessedNote || !randomNote) {
+      if (!userGuessedNote || !roundId) {
         Swal.fire({
           icon: "warning",
           title: "Missing data",
@@ -73,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ExerciseId: exerciseId,
+          RoundId: roundId,
           userGuess: userGuessedNote,
           timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
         }),
@@ -92,14 +90,15 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             Swal.fire(
               "Wrong!",
-              `The correct note was ${data.answer
+              `The correct note was ${(data.answer || "")
                 .replace(/\d/g, "")
                 .toUpperCase()}.`,
               "error"
             );
           }
           userGuessedNote = "";
-          randomNote = "";
+          playToken = null;
+          roundId = null;
           guessButtons.forEach((btn) => btn.classList.remove("selected"));
         });
     });

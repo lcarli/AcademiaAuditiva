@@ -1,19 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
-  //Iniciate Audio
   AcademiaAuditiva.init();
   AudioEngine.setupWaveform();
 
   const loc = document.getElementById("localizer").dataset;
-  //Iniciate Variables
+  let playToken = null;
+  let roundId = null;
   let selectedGuess = "";
-  let chordNotes = [];
   let exerciseStartTime = Date.now();
 
   const exerciseId = document.getElementById("exerciseId")?.value;
   const keySelect = document.getElementById("keySelect");
   const scaleTypeSelect = document.getElementById("scaleTypeSelect");
 
-  //Iniciate Click Events
   const guessButtons = document.querySelectorAll(".guessAnswer");
   guessButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
@@ -23,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  //Inciate Play and Replay Events
   const playBtn = document.getElementById("Play");
   if (playBtn) {
     playBtn.addEventListener("click", () => {
@@ -37,16 +34,14 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           exerciseId: exerciseId,
-          filters: {
-            keySelect: key,
-            scaleTypeSelect: scaleType,
-          },
+          filters: { keySelect: key, scaleTypeSelect: scaleType },
         }),
       })
         .then((resp) => resp.json())
         .then((data) => {
-          chordNotes = data.notes;
-          AudioEngine.playChord(chordNotes, 1);
+          playToken = data.playToken;
+          roundId = data.roundId;
+          if (playToken) AudioEngine.playToken(playToken);
         });
     });
   }
@@ -54,28 +49,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const replayBtn = document.getElementById("Replay");
   if (replayBtn) {
     replayBtn.addEventListener("click", () => {
-      if (!chordNotes || chordNotes.length === 0) {
-        Swal.fire({
-          icon: "warning",
-          title: loc.incompleteTitle,
-          text: loc.incompleteText,
-        });
+      if (!playToken) {
+        Swal.fire({ icon: "warning", title: loc.incompleteTitle, text: loc.incompleteText });
         return;
       }
-      AudioEngine.playChord(chordNotes, 1);
+      AudioEngine.playToken(playToken);
     });
   }
 
-  //Inciate Validate Event
   const validateBtn = document.getElementById("validateGuess");
   if (validateBtn) {
     validateBtn.addEventListener("click", () => {
       if (!selectedGuess) {
-        Swal.fire({
-          icon: "warning",
-          title: loc.incompleteTitle,
-          text: loc.incompleteText,
-        });
+        Swal.fire({ icon: "warning", title: loc.incompleteTitle, text: loc.incompleteText });
         return;
       }
 
@@ -84,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           exerciseId: exerciseId,
+          roundId: roundId,
           userGuess: selectedGuess,
           timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
         }),
@@ -93,52 +80,36 @@ document.addEventListener("DOMContentLoaded", () => {
           const correctCountEl = document.getElementById("correctCount");
           const errorCountEl = document.getElementById("errorCount");
           if (data.isCorrect) {
-            if (correctCountEl) {
-              correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-            }
+            if (correctCountEl) correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
             Swal.fire("Correct!", "You got it right!", "success");
           } else {
-            if (errorCountEl) {
-              errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-            }
-            Swal.fire(
-              "Wrong!",
-              `The correct answer was ${data.answer.replace("|", " ")}.`,
-              "error"
-            );
+            if (errorCountEl) errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
+            Swal.fire("Wrong!", `The correct answer was ${(data.answer || "").replace("|", " ")}.`, "error");
           }
 
-          // Reset
           selectedGuess = "";
-          chordNotes = [];
+          playToken = null;
+          roundId = null;
           guessButtons.forEach((btn) => btn.classList.remove("selected"));
         });
     });
   }
 
-  //Inciate Filter Events
   function toggleFunctionButtons(scaleType) {
     const majorFunctions = ["I", "ii", "iii", "IV", "V", "vi", "VII°"];
     const minorFunctions = ["i", "II°", "III", "iv", "v", "VI", "VII"];
-
     const guessButtons = document.querySelectorAll(".guessAnswer");
 
     guessButtons.forEach((btn) => {
       const label = btn.innerText.trim();
       if (scaleType === "major") {
-        btn.style.display = majorFunctions.includes(label)
-          ? "inline-block"
-          : "none";
+        btn.style.display = majorFunctions.includes(label) ? "inline-block" : "none";
       } else if (scaleType === "minor") {
-        btn.style.display = minorFunctions.includes(label)
-          ? "inline-block"
-          : "none";
+        btn.style.display = minorFunctions.includes(label) ? "inline-block" : "none";
       }
     });
   }
 
-  scaleTypeSelect?.addEventListener("change", () => {
-    toggleFunctionButtons(scaleTypeSelect.value);
-  });
+  scaleTypeSelect?.addEventListener("change", () => toggleFunctionButtons(scaleTypeSelect.value));
   toggleFunctionButtons(scaleTypeSelect?.value || "major");
 });

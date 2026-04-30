@@ -150,6 +150,7 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 //Inject AnalyticsService
 builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>();
+builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IMusicTheoryService, MusicTheoryServiceAdapter>();
 
 // Exercise validators (Strategy pattern). Each implementation owns the
@@ -211,6 +212,87 @@ builder.Services.AddAntiforgery(options =>
 // instance is a one-line change (AddStackExchangeRedisCache).
 builder.Services.AddDistributedMemoryCache();
 
+// Audio anti-cheat: opaque per-round tokens replace plaintext note names
+// in the RequestPlay → /audio/token → ValidateExercise flow. The token
+// service owns cache shapes; the mixer composes per-question audio so
+// the front never sees note identity.
+builder.Services.AddSingleton<AcademiaAuditiva.Interfaces.IAudioTokenService,
+    AcademiaAuditiva.Services.Audio.AudioTokenService>();
+
+// Single BlobServiceClient shared by AudioController (read piano-audio)
+// and AudioMixerService (read piano-audio + write piano-audio-mixed).
+// Both containers live in the same storage account; one client with
+// the app's managed identity is enough.
+//
+// We always register the client and the mixer so the rest of the
+// graph can resolve at startup. When Storage:BlobEndpoint is missing
+// (local dev without storage), the underlying calls just fail at
+// request time — same fail-mode as before.
+{
+    var blobEndpoint = builder.Configuration["Storage:BlobEndpoint"];
+    var miClientId = builder.Configuration["ManagedIdentityClientId"];
+    var blobCredential = string.IsNullOrWhiteSpace(miClientId)
+        ? new Azure.Identity.DefaultAzureCredential()
+        : new Azure.Identity.DefaultAzureCredential(new Azure.Identity.DefaultAzureCredentialOptions
+        {
+            ManagedIdentityClientId = miClientId
+        });
+    var endpointUri = !string.IsNullOrWhiteSpace(blobEndpoint)
+        ? new Uri(blobEndpoint)
+        : new Uri("https://placeholder.invalid/");
+    builder.Services.AddSingleton(new Azure.Storage.Blobs.BlobServiceClient(endpointUri, blobCredential));
+    builder.Services.AddSingleton<AcademiaAuditiva.Interfaces.IAudioMixerService,
+        AcademiaAuditiva.Services.Audio.AudioMixerService>();
+}
+
+// Maps GenerateNoteForExercise output to a tokenizable mixer plan.
+// Stateless — singleton is fine.
+builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner>();
+
+// Rate limiting for the audio anti-cheat surface. Two named policies,
+// both partitioned per authenticated user (falls back to remote IP for
+// anonymous traffic — those callers will fail authorization anyway, but
+// partitioning prevents one IP from starving the bucket for everyone).
+//
+// Limits are deliberately generous for legitimate practice (a student
+// rarely fires more than a handful of rounds per minute) but tight
+// enough that brute-force enumeration of token GUIDs is hopeless given
+// the 32-hex search space + 15-min TTL.
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy("RequestPlay", httpContext =>
+    {
+        var key = httpContext.User?.Identity?.IsAuthenticated == true
+            ? httpContext.User.Identity!.Name ?? "anon"
+            : httpContext.Connection.RemoteIpAddress?.ToString() ?? "anon";
+        return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(key, _ =>
+            new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 60,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+
+    options.AddPolicy("AudioToken", httpContext =>
+    {
+        var key = httpContext.User?.Identity?.IsAuthenticated == true
+            ? httpContext.User.Identity!.Name ?? "anon"
+            : httpContext.Connection.RemoteIpAddress?.ToString() ?? "anon";
+        return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(key, _ =>
+            new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 600,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+});
+
 
 var app = builder.Build();
 
@@ -243,6 +325,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseRateLimiter();
 
 app.MapControllerRoute(
     name: "areas",
