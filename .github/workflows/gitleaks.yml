@@ -2,9 +2,9 @@ name: Gitleaks
 
 on:
   pull_request:
-    branches: [main]
+    branches: [master]
   push:
-    branches: [main]
+    branches: [master]
   schedule:
     - cron: "0 6 * * 1"
 

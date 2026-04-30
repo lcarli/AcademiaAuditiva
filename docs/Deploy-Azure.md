@@ -153,7 +153,7 @@ below.
 ### Configure federated identity (one-time)
 
 Use the helper script — it is idempotent (safe to re-run) and creates
-the app registration, federated credentials for both `refs/heads/main`
+the app registration, federated credentials for both `refs/heads/master`
 and the `production` deployment environment, and grants RBAC on the
 RG and ACR:
 
@@ -185,7 +185,7 @@ az ad app federated-credential create --id $AppId --parameters @"
 {
   "name": "main-branch",
   "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "repo:$Repo:ref:refs/heads/main",
+  "subject": "repo:$Repo:ref:refs/heads/master",
   "audiences": ["api://AzureADTokenExchange"]
 }
 "@

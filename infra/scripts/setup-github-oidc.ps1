@@ -5,7 +5,7 @@
 
 .DESCRIPTION
   Creates (or reuses) an Entra ID app registration + service principal,
-  attaches federated credentials for `refs/heads/main` and the
+  attaches federated credentials for `refs/heads/master` and the
   `production` deployment environment, and grants the SP RBAC on the
   resource group + ACR. Idempotent: re-running it is safe.
 
