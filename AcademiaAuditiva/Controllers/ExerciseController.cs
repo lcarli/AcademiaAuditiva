@@ -7,10 +7,12 @@ using AcademiaAuditiva.ViewModels;
 using AcademiaAuditiva.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Localization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,15 +26,26 @@ namespace AcademiaAuditiva.Controllers
 		private readonly IAnalyticsService _analyticsService;
 		private readonly IExerciseValidatorRegistry _validators;
 		private readonly IMusicTheoryService _musicTheory;
+		private readonly IDistributedCache _cache;
 
-		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, IAnalyticsService analyticsService, IExerciseValidatorRegistry validators, IMusicTheoryService musicTheory)
+		// Expected-answer entries live for one round (15 min) and are
+		// keyed per (user, exercise). The cache is a distributed abstraction
+		// so scale-out works once Redis is wired in.
+		private static readonly DistributedCacheEntryOptions _expectedAnswerTtl =
+			new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) };
+
+		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, IAnalyticsService analyticsService, IExerciseValidatorRegistry validators, IMusicTheoryService musicTheory, IDistributedCache cache)
 		{
 			_context = context;
 			_localizer = localizer;
 			_analyticsService = analyticsService;
 			_validators = validators;
 			_musicTheory = musicTheory;
+			_cache = cache;
 		}
+
+		private static string ExpectedAnswerCacheKey(string userId, int exerciseId)
+			=> $"ExerciseAnswer:{userId}:{exerciseId}";
 
 		public async Task<IActionResult> Index()
 		{
@@ -47,8 +60,12 @@ namespace AcademiaAuditiva.Controllers
 		#region General Play and Validate
 		
 		[HttpPost]
-		public IActionResult RequestPlay([FromBody] PlayRequestDto request)
+		public async Task<IActionResult> RequestPlay([FromBody] PlayRequestDto request)
 		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (string.IsNullOrEmpty(userId))
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
+
 			var exercise = _context.Exercises.FirstOrDefault(e => e.ExerciseId == request.ExerciseId);
 			if (exercise == null)
 				return NotFound(_localizer["Exercise.NotFound"].Value);
@@ -71,7 +88,10 @@ namespace AcademiaAuditiva.Controllers
 				ExpectedAnswer = JsonConvert.SerializeObject(result)
 			};
 
-			HttpContext.Session.SetString($"ExerciseAnswer_{request.ExerciseId}", JsonConvert.SerializeObject(sessionData));
+			await _cache.SetStringAsync(
+				ExpectedAnswerCacheKey(userId, request.ExerciseId),
+				JsonConvert.SerializeObject(sessionData),
+				_expectedAnswerTtl);
 
 			return Json(result);
 		}
@@ -88,8 +108,8 @@ namespace AcademiaAuditiva.Controllers
 			if (exercise == null)
 				return NotFound(_localizer["Exercise.NotFound"].Value);
 
-			var sessionKey = $"ExerciseAnswer_{dto.ExerciseId}";
-			var json = HttpContext.Session.GetString(sessionKey);
+			var sessionKey = ExpectedAnswerCacheKey(userId, dto.ExerciseId);
+			var json = await _cache.GetStringAsync(sessionKey);
 
 			if (string.IsNullOrEmpty(json))
 				return Json(new { success = false, message = _localizer["Exercise.SessionExpired"].Value, isCorrect = false });
@@ -172,6 +192,10 @@ namespace AcademiaAuditiva.Controllers
 			}
 
 			await _context.SaveChangesAsync();
+
+			// One-shot semantics: drop the expected-answer entry so the
+			// same round can't be replayed against the same cached answer.
+			await _cache.RemoveAsync(sessionKey);
 			
 			await _analyticsService.SaveAttemptAsync(new ExerciseAttemptLog
 			{

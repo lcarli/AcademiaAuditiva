@@ -174,12 +174,12 @@ if (!string.IsNullOrWhiteSpace(fbAppId) && !string.IsNullOrWhiteSpace(fbAppSecre
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(15);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
+// Distributed cache for short-lived per-user state (e.g. the "expected
+// answer" for an exercise round). Using IDistributedCache instead of
+// HttpContext.Session means scale-out is safe: today the in-memory
+// implementation matches single-replica production; swapping to a Redis
+// instance is a one-line change (AddStackExchangeRedisCache).
+builder.Services.AddDistributedMemoryCache();
 
 
 var app = builder.Build();
@@ -207,8 +207,6 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseSerilogRequestLogging();
-
-app.UseSession();
 
 app.UseAuthorization();
 
