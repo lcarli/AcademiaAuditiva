@@ -17,10 +17,17 @@ using Serilog;
 using Serilog.Events;
 
 // Bootstrap logger — captures startup errors before host is built.
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
+// Guard against re-initialization: WebApplicationFactory invokes the entry
+// point multiple times per process during integration tests, and Serilog's
+// Log.Logger cannot be re-assigned once a non-bootstrap logger has been
+// frozen by UseSerilog().
+if (Log.Logger.GetType().FullName == "Serilog.Core.Pipeline.SilentLogger")
+{
+    Log.Logger = new LoggerConfiguration()
+        .MinimumLevel.Information()
+        .WriteTo.Console()
+        .CreateBootstrapLogger();
+}
 
 try
 {
@@ -80,23 +87,29 @@ builder.Services.AddApplicationInsightsTelemetry(options =>
 
 // Serilog — Console (always) + Application Insights (when configured).
 // Replaces the default ASP.NET Core logger so we get structured logs end-to-end.
-builder.Host.UseSerilog((ctx, services, cfg) =>
+// Skipped under the Testing environment because WebApplicationFactory invokes
+// the entry point repeatedly per test and Serilog's static logger cannot be
+// re-frozen, leading to "The logger is already frozen" failures.
+if (!builder.Environment.IsEnvironment("Testing"))
 {
-    cfg.ReadFrom.Configuration(ctx.Configuration)
-       .ReadFrom.Services(services)
-       .Enrich.FromLogContext()
-       .Enrich.WithProperty("Application", "AcademiaAuditiva")
-       .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
-       .WriteTo.Console(
-           outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj} {Properties:j}{NewLine}{Exception}");
-
-    var aiConn = ctx.Configuration["ApplicationInsights:ConnectionString"];
-    if (!string.IsNullOrWhiteSpace(aiConn))
+    builder.Host.UseSerilog((ctx, services, cfg) =>
     {
-        var telemetryConfig = services.GetRequiredService<TelemetryConfiguration>();
-        cfg.WriteTo.ApplicationInsights(telemetryConfig, TelemetryConverter.Traces);
-    }
-});
+        cfg.ReadFrom.Configuration(ctx.Configuration)
+           .ReadFrom.Services(services)
+           .Enrich.FromLogContext()
+           .Enrich.WithProperty("Application", "AcademiaAuditiva")
+           .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
+           .WriteTo.Console(
+               outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj} {Properties:j}{NewLine}{Exception}");
+
+        var aiConn = ctx.Configuration["ApplicationInsights:ConnectionString"];
+        if (!string.IsNullOrWhiteSpace(aiConn))
+        {
+            var telemetryConfig = services.GetRequiredService<TelemetryConfiguration>();
+            cfg.WriteTo.ApplicationInsights(telemetryConfig, TelemetryConverter.Traces);
+        }
+    });
+}
 
 // Health checks: liveness ("is the process up?") and readiness ("can it
 // reach SQL?"). The Bicep startup/liveness probes hit /health/live;
@@ -206,7 +219,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseSerilogRequestLogging();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseSerilogRequestLogging();
+}
 
 app.UseAuthorization();
 
@@ -235,19 +251,31 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<ApplicationDbContext>();
 
-    // Apply pending EF migrations on startup so a fresh DB (e.g. first
-    // deploy in a new tenant) is brought up to schema before seed/bootstrap.
-    context.Database.Migrate();
+    // Tests use the InMemory EF provider, which doesn't support Migrate().
+    // Skip schema bootstrap/seed/admin-bootstrap in the Testing environment;
+    // tests that need data seed it explicitly via the WebApplicationFactory.
+    if (!app.Environment.IsEnvironment("Testing"))
+    {
+        // Apply pending EF migrations on startup so a fresh DB (e.g. first
+        // deploy in a new tenant) is brought up to schema before seed/bootstrap.
+        context.Database.Migrate();
 
-    SeedData.SeedExercises(context);
+        SeedData.SeedExercises(context);
 
-    var bootstrapper = services.GetRequiredService<IdentityBootstrapper>();
-    await bootstrapper.RunAsync();
+        var bootstrapper = services.GetRequiredService<IdentityBootstrapper>();
+        await bootstrapper.RunAsync();
+    }
 }
 
 app.Run();
 }
-catch (Exception ex) when (ex is not HostAbortedException)
+catch (Exception ex) when (ex is not HostAbortedException
+    // WebApplicationFactory throws an internal HostingListener exception
+    // during integration tests to stop the entry-point right after Build();
+    // letting it bubble out is required for the test host to capture the
+    // built IHost. The exception type is internal, so match by full name.
+    && !(ex.GetType().FullName?.Contains("HostingListener") ?? false)
+    && !(ex.GetType().FullName?.Contains("StopTheHost") ?? false))
 {
     Log.Fatal(ex, "Host terminated unexpectedly");
 }
@@ -255,3 +283,7 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+// Exposes the implicit Program class to WebApplicationFactory<Program>
+// in the integration test project.
+public partial class Program { }
