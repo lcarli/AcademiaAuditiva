@@ -20,11 +20,19 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _sender;
+        private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public RegisterConfirmationModel(UserManager<ApplicationUser> userManager, IEmailSender sender)
+        public RegisterConfirmationModel(
+            UserManager<ApplicationUser> userManager,
+            IEmailSender sender,
+            IConfiguration configuration,
+            IWebHostEnvironment environment)
         {
             _userManager = userManager;
             _sender = sender;
+            _configuration = configuration;
+            _environment = environment;
         }
 
         /// <summary>
@@ -60,6 +68,16 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
             }
 
             Email = email;
+
+            // In Development, or whenever SMTP is not configured, surface the
+            // confirmation link directly on the page so the user is not
+            // permanently stuck on "check your email". The default Identity
+            // scaffolding does this; we just plugged it back in.
+            var smtpConfigured =
+                !string.IsNullOrWhiteSpace(_configuration["Smtp:Host"]) &&
+                !string.IsNullOrWhiteSpace(_configuration["Smtp:User"]) &&
+                !string.IsNullOrWhiteSpace(_configuration["Smtp:Password"]);
+            DisplayConfirmAccountLink = _environment.IsDevelopment() || !smtpConfigured;
 
             if (DisplayConfirmAccountLink)
             {

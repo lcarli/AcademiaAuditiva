@@ -133,6 +133,10 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
+                    // Default role for self-registered accounts is Student.
+                    // Admin and Teacher roles are granted explicitly by an Admin.
+                    await _userManager.AddToRoleAsync(user, AcademiaAuditiva.Models.RoleNames.Student);
+
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

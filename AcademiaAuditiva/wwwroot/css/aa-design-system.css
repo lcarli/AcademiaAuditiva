@@ -1,0 +1,406 @@
+/* ==========================================================================
+   Academia Auditiva — Design System
+   Single source of truth for visual identity (gradients, cards, buttons,
+   animations). All colors derive from Bootstrap 5.3 tokens via var(--bs-*)
+   so they switch automatically with [data-bs-theme="dark|light"].
+   ========================================================================== */
+
+:root {
+    --aa-violet:        #7c3aed;
+    --aa-violet-soft:   #c4b5fd;
+    --aa-teal:          #14b8a6;
+    --aa-teal-soft:     #5eead4;
+    --aa-indigo-deep:   #1e1b4b;
+    --aa-navy-deep:     #0b132b;
+    --aa-slate-deep:    #0f172a;
+    --aa-purple-deep:   #4c1d95;
+    --aa-teal-deep:     #0f766e;
+
+    --aa-grad-brand:    linear-gradient(90deg, var(--aa-violet), var(--aa-teal));
+    --aa-grad-brand-135: linear-gradient(135deg, var(--aa-violet), var(--aa-teal));
+    --aa-grad-text:     linear-gradient(90deg, #fff 0%, var(--aa-violet-soft) 50%, var(--aa-teal-soft) 100%);
+    --aa-grad-text-on-light: linear-gradient(90deg, var(--aa-violet) 0%, #6366f1 50%, var(--aa-teal) 100%);
+    --aa-grad-hero:
+        radial-gradient(1200px 600px at 10% -10%, rgba(124, 58, 237, .35), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(20, 184, 166, .35), transparent 55%),
+        linear-gradient(135deg, var(--aa-slate-deep) 0%, var(--aa-indigo-deep) 55%, var(--aa-navy-deep) 100%);
+    --aa-grad-final:
+        radial-gradient(800px 400px at 90% 10%, rgba(20,184,166,.4), transparent 60%),
+        linear-gradient(135deg, var(--aa-purple-deep), var(--aa-teal-deep));
+
+    --aa-shadow-sm: 0 6px 18px -10px rgba(0, 0, 0, .25);
+    --aa-shadow-md: 0 14px 40px -18px rgba(0, 0, 0, .35);
+    --aa-shadow-violet: 0 10px 30px -10px rgba(124, 58, 237, .6);
+    --aa-shadow-teal: 0 18px 40px -12px rgba(20, 184, 166, .55);
+
+    --aa-radius-sm: .75rem;
+    --aa-radius-md: 1rem;
+    --aa-radius-lg: 1.5rem;
+    --aa-radius-pill: 999px;
+}
+
+/* ==========================================================================
+   Brand text
+   ========================================================================== */
+.aa-brand-text {
+    font-weight: 800;
+    background: var(--aa-grad-text-on-light);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+[data-bs-theme="dark"] .aa-brand-text { background: var(--aa-grad-text); -webkit-background-clip: text; background-clip: text; }
+
+.aa-stat {
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--aa-violet-soft), var(--aa-teal-soft));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* ==========================================================================
+   Hero / Surface gradients
+   ========================================================================== */
+.aa-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--aa-radius-lg);
+    background: var(--aa-grad-hero);
+    color: #f8fafc;
+}
+.aa-hero h1, .aa-hero .display-3, .aa-hero .display-4 {
+    font-weight: 800;
+    line-height: 1.05;
+    background: var(--aa-grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.aa-final {
+    border-radius: var(--aa-radius-lg);
+    background: var(--aa-grad-final);
+    color: #fff;
+}
+
+.aa-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .35rem .8rem;
+    border-radius: var(--aa-radius-pill);
+    background: rgba(255, 255, 255, .08);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, .15);
+    font-size: .85rem;
+    letter-spacing: .02em;
+}
+.aa-eyebrow.aa-eyebrow-light {
+    background: rgba(124, 58, 237, .08);
+    border-color: rgba(124, 58, 237, .25);
+    color: var(--aa-violet);
+    backdrop-filter: none;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.aa-grad-btn {
+    background: var(--aa-grad-brand);
+    border: 0;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: var(--aa-shadow-violet);
+    transition: transform .15s ease, box-shadow .15s ease, color .15s ease;
+}
+.aa-grad-btn:hover,
+.aa-grad-btn:focus-visible {
+    transform: translateY(-2px);
+    color: #fff;
+    box-shadow: var(--aa-shadow-teal);
+}
+.aa-grad-btn:disabled,
+.aa-grad-btn.disabled { opacity: .55; transform: none; box-shadow: none; }
+
+.aa-ghost-btn {
+    background: rgba(255, 255, 255, .06);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, .25);
+    transition: background-color .15s ease;
+}
+.aa-ghost-btn:hover { background: rgba(255, 255, 255, .12); color: #fff; }
+
+.aa-outline-btn {
+    background: transparent;
+    color: var(--aa-violet);
+    border: 1px solid rgba(124, 58, 237, .35);
+    font-weight: 600;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.aa-outline-btn:hover {
+    background: rgba(124, 58, 237, .08);
+    border-color: var(--aa-violet);
+    color: var(--aa-violet);
+}
+[data-bs-theme="dark"] .aa-outline-btn { color: var(--aa-violet-soft); border-color: rgba(196, 181, 253, .35); }
+[data-bs-theme="dark"] .aa-outline-btn:hover { background: rgba(196, 181, 253, .12); border-color: var(--aa-violet-soft); color: var(--aa-violet-soft); }
+
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+.aa-card {
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--aa-radius-md);
+    background: var(--bs-body-bg);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.aa-card:hover,
+.aa-card:focus-within {
+    transform: translateY(-4px);
+    box-shadow: var(--aa-shadow-md);
+    border-color: rgba(124, 58, 237, .45);
+}
+.aa-card-flat {
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--aa-radius-md);
+    background: var(--bs-body-bg);
+}
+
+/* Card with gradient header strip — useful for KPIs and feature cards */
+.aa-card-accent { position: relative; overflow: hidden; }
+.aa-card-accent::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--aa-grad-brand);
+}
+
+/* ==========================================================================
+   Icon pills + Step numbers
+   ========================================================================== */
+.aa-icon-pill {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(124, 58, 237, .15), rgba(20, 184, 166, .15));
+    color: var(--aa-violet);
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+.aa-icon-pill-sm { width: 36px; height: 36px; border-radius: 10px; font-size: 1.05rem; }
+.aa-icon-pill-lg { width: 64px; height: 64px; border-radius: 16px; font-size: 1.75rem; }
+[data-bs-theme="dark"] .aa-icon-pill { color: var(--aa-violet-soft); }
+
+.aa-step-num {
+    width: 36px; height: 36px;
+    border-radius: var(--aa-radius-pill);
+    background: var(--aa-grad-brand-135);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Badges & Pills
+   ========================================================================== */
+.aa-badge-soft {
+    background: rgba(124, 58, 237, .12);
+    color: var(--aa-violet);
+    border-radius: var(--aa-radius-pill);
+    padding: .2rem .6rem;
+    font-size: .8rem;
+    font-weight: 600;
+}
+[data-bs-theme="dark"] .aa-badge-soft { background: rgba(196, 181, 253, .15); color: var(--aa-violet-soft); }
+
+.aa-badge-soft-teal {
+    background: rgba(20, 184, 166, .12);
+    color: var(--aa-teal-deep);
+    border-radius: var(--aa-radius-pill);
+    padding: .2rem .6rem;
+    font-size: .8rem;
+    font-weight: 600;
+}
+[data-bs-theme="dark"] .aa-badge-soft-teal { background: rgba(94, 234, 212, .15); color: var(--aa-teal-soft); }
+
+/* Pill tab toggle (Alpine-driven) */
+.aa-pill-tab {
+    background: var(--bs-tertiary-bg);
+    padding: .25rem;
+    border-radius: var(--aa-radius-pill);
+    display: inline-flex;
+    border: 1px solid var(--bs-border-color);
+}
+.aa-pill-tab button {
+    border: 0;
+    background: transparent;
+    padding: .5rem 1.25rem;
+    border-radius: var(--aa-radius-pill);
+    font-weight: 600;
+    color: var(--bs-secondary-color);
+}
+.aa-pill-tab button.active {
+    background: var(--aa-grad-brand);
+    color: #fff;
+    box-shadow: 0 8px 20px -10px rgba(124, 58, 237, .6);
+}
+
+/* ==========================================================================
+   FAQ accordion
+   ========================================================================== */
+.aa-faq .accordion-button:not(.collapsed) {
+    background: linear-gradient(90deg, rgba(124, 58, 237, .08), rgba(20, 184, 166, .08));
+    color: var(--bs-emphasis-color);
+}
+.aa-faq .accordion-button:focus {
+    box-shadow: 0 0 0 .2rem rgba(124, 58, 237, .25);
+    border-color: rgba(124, 58, 237, .4);
+}
+
+/* ==========================================================================
+   Marquee (auto-scrolling concept strip)
+   ========================================================================== */
+.aa-marquee {
+    display: flex;
+    gap: 2.5rem;
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.aa-marquee-track {
+    display: flex;
+    gap: 2.5rem;
+    animation: aaMarquee 28s linear infinite;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+@keyframes aaMarquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+@keyframes aaBounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+.aa-note { transform-origin: center; animation: aaBounce 2.4s ease-in-out infinite; }
+.aa-note:nth-child(2) { animation-delay: .25s; }
+.aa-note:nth-child(3) { animation-delay: .5s; }
+.aa-note:nth-child(4) { animation-delay: .75s; }
+.aa-note:nth-child(5) { animation-delay: 1s; }
+
+@keyframes aaEq {
+    0%, 100% { transform: scaleY(.4); }
+    50%      { transform: scaleY(1); }
+}
+.aa-eq {
+    display: inline-flex;
+    gap: 3px;
+    align-items: flex-end;
+    height: 18px;
+}
+.aa-eq span { width: 3px; background: currentColor; border-radius: 2px; animation: aaEq 1.1s ease-in-out infinite; }
+.aa-eq span:nth-child(1) { height: 30%; animation-delay: 0s; }
+.aa-eq span:nth-child(2) { height: 80%; animation-delay: .15s; }
+.aa-eq span:nth-child(3) { height: 50%; animation-delay: .3s; }
+.aa-eq span:nth-child(4) { height: 95%; animation-delay: .45s; }
+.aa-eq span:nth-child(5) { height: 60%; animation-delay: .6s; }
+
+.aa-staff { width: 100%; height: auto; display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+    .aa-marquee-track,
+    .aa-note,
+    .aa-eq span { animation: none !important; }
+    .aa-card { transition: none !important; }
+}
+
+/* ==========================================================================
+   Navbar (sutil sólida, theme-aware)
+   ========================================================================== */
+.aa-navbar {
+    background: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+    backdrop-filter: saturate(180%) blur(8px);
+    -webkit-backdrop-filter: saturate(180%) blur(8px);
+}
+.aa-navbar .navbar-brand {
+    font-weight: 800;
+    letter-spacing: -.01em;
+}
+.aa-navbar .nav-link {
+    color: var(--bs-body-color);
+    font-weight: 500;
+    border-radius: .5rem;
+    padding: .4rem .75rem;
+    transition: background-color .15s ease, color .15s ease;
+}
+.aa-navbar .nav-link:hover,
+.aa-navbar .nav-link:focus-visible {
+    background: var(--bs-tertiary-bg);
+    color: var(--aa-violet);
+}
+[data-bs-theme="dark"] .aa-navbar .nav-link:hover,
+[data-bs-theme="dark"] .aa-navbar .nav-link:focus-visible { color: var(--aa-violet-soft); }
+.aa-navbar .nav-link.active {
+    background: linear-gradient(90deg, rgba(124, 58, 237, .12), rgba(20, 184, 166, .12));
+    color: var(--aa-violet);
+}
+[data-bs-theme="dark"] .aa-navbar .nav-link.active { color: var(--aa-violet-soft); }
+
+.aa-theme-toggle {
+    border: 1px solid var(--bs-border-color);
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    width: 38px; height: 38px;
+    border-radius: var(--aa-radius-pill);
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background-color .15s ease, border-color .15s ease;
+}
+.aa-theme-toggle:hover { background: var(--bs-tertiary-bg); border-color: var(--aa-violet); }
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.aa-footer {
+    background: var(--bs-tertiary-bg);
+    border-top: 1px solid var(--bs-border-color);
+    color: var(--bs-secondary-color);
+    padding: 2rem 0 1.25rem;
+    margin-top: 4rem;
+}
+.aa-footer a { color: var(--bs-body-color); text-decoration: none; }
+.aa-footer a:hover { color: var(--aa-violet); }
+[data-bs-theme="dark"] .aa-footer a:hover { color: var(--aa-violet-soft); }
+
+/* ==========================================================================
+   Skip link & misc
+   ========================================================================== */
+.aa-skip-link {
+    position: absolute; top: 0; left: 0;
+    background: var(--aa-violet);
+    color: #fff !important;
+    padding: .5rem 1rem;
+    border-radius: 0 0 .5rem 0;
+    transform: translateY(-110%);
+    transition: transform .2s ease;
+    z-index: 3000;
+}
+.aa-skip-link:focus { transform: translateY(0); }
+
+/* htmx progress bar */
+.aa-htmx-progress {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--aa-grad-brand);
+    z-index: 2000;
+}

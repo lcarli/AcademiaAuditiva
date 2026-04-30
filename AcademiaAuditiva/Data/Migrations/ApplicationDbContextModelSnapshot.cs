@@ -237,6 +237,66 @@ namespace AcademiaAuditiva.Data.Migrations
                     b.ToTable("Scores");
                 });
 
+            modelBuilder.Entity("AcademiaAuditiva.Models.ScoreAggregate", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ExerciseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BestScore")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CorrectCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ErrorCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastAttemptAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId", "ExerciseId");
+
+                    b.HasIndex("ExerciseId");
+
+                    b.ToTable("ScoreAggregates");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.ScoreSnapshot", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ExerciseId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("TimeSpentSeconds")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExerciseId");
+
+                    b.HasIndex("UserId", "ExerciseId", "Timestamp");
+
+                    b.ToTable("ScoreSnapshots");
+                });
+
             modelBuilder.Entity("AcademiaAuditiva.Models.Subscription", b =>
                 {
                     b.Property<int>("Id")
@@ -272,6 +332,250 @@ namespace AcademiaAuditiva.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Subscriptions");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.Classroom", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Classrooms");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.ClassroomInvite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ClassroomId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("ClassroomId", "Email");
+
+                    b.ToTable("ClassroomInvites");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.ClassroomMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClassroomId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("ClassroomId", "StudentId")
+                        .IsUnique();
+
+                    b.ToTable("ClassroomMembers");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.Routine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Routines");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.RoutineAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ClassroomId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DueAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RoutineId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassroomId");
+
+                    b.HasIndex("RoutineId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("RoutineAssignments");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.RoutineAssignmentOverride", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("ExcludeItem")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OverrideFilterJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("OverrideTargetCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoutineAssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoutineItemId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoutineItemId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("RoutineAssignmentId", "StudentId", "RoutineItemId")
+                        .IsUnique();
+
+                    b.ToTable("RoutineAssignmentOverrides");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.RoutineItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ExerciseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FilterJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("MinScore")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoutineId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TargetCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExerciseId");
+
+                    b.HasIndex("RoutineId", "Order");
+
+                    b.ToTable("RoutineItems");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -500,27 +804,6 @@ namespace AcademiaAuditiva.Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "789ea4a4-dd57-45fe-9ee3-4363e9d6632c",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "37f979fc-85e9-42c0-bc5c-3321d0b9cad6",
-                            Email = "lucas.decarli.ca@gmail.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = true,
-                            NormalizedEmail = "LUCAS.DECARLI.CA@GMAIL.COM",
-                            NormalizedUserName = "LUCAS.DECARLI.CA@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBc4R8ouLUbWE6zLZ7nX0Wi26BI1YwBREwap3/6QX3lXm8MHoA7UODbZANd6vnoQaw==",
-                            PhoneNumber = "+15817456586",
-                            PhoneNumberConfirmed = true,
-                            SecurityStamp = "UTUTEH5FUQ6C2MUTMB3CCICNLIBN6CAO",
-                            TwoFactorEnabled = false,
-                            UserName = "lucas.decarli.ca@gmail.com",
-                            FirstName = "Lucas",
-                            LastName = "De Carli"
-                        });
                 });
 
             modelBuilder.Entity("AcademiaAuditiva.Models.BadgesEarned", b =>
@@ -586,6 +869,44 @@ namespace AcademiaAuditiva.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("AcademiaAuditiva.Models.ScoreAggregate", b =>
+                {
+                    b.HasOne("AcademiaAuditiva.Models.Exercise", "Exercise")
+                        .WithMany()
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exercise");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.ScoreSnapshot", b =>
+                {
+                    b.HasOne("AcademiaAuditiva.Models.Exercise", "Exercise")
+                        .WithMany()
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exercise");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("AcademiaAuditiva.Models.Subscription", b =>
                 {
                     b.HasOne("AcademiaAuditiva.Models.ApplicationUser", "User")
@@ -595,6 +916,129 @@ namespace AcademiaAuditiva.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.Classroom", b =>
+                {
+                    b.HasOne("AcademiaAuditiva.Models.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.ClassroomInvite", b =>
+                {
+                    b.HasOne("AcademiaAuditiva.Models.Teaching.Classroom", "Classroom")
+                        .WithMany("Invites")
+                        .HasForeignKey("ClassroomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Classroom");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.ClassroomMember", b =>
+                {
+                    b.HasOne("AcademiaAuditiva.Models.Teaching.Classroom", "Classroom")
+                        .WithMany("Members")
+                        .HasForeignKey("ClassroomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AcademiaAuditiva.Models.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Classroom");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.Routine", b =>
+                {
+                    b.HasOne("AcademiaAuditiva.Models.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.RoutineAssignment", b =>
+                {
+                    b.HasOne("AcademiaAuditiva.Models.Teaching.Classroom", "Classroom")
+                        .WithMany()
+                        .HasForeignKey("ClassroomId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AcademiaAuditiva.Models.Teaching.Routine", "Routine")
+                        .WithMany()
+                        .HasForeignKey("RoutineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AcademiaAuditiva.Models.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Classroom");
+
+                    b.Navigation("Routine");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.RoutineAssignmentOverride", b =>
+                {
+                    b.HasOne("AcademiaAuditiva.Models.Teaching.RoutineAssignment", "RoutineAssignment")
+                        .WithMany("Overrides")
+                        .HasForeignKey("RoutineAssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AcademiaAuditiva.Models.Teaching.RoutineItem", "RoutineItem")
+                        .WithMany()
+                        .HasForeignKey("RoutineItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AcademiaAuditiva.Models.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("RoutineAssignment");
+
+                    b.Navigation("RoutineItem");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.RoutineItem", b =>
+                {
+                    b.HasOne("AcademiaAuditiva.Models.Exercise", "Exercise")
+                        .WithMany()
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AcademiaAuditiva.Models.Teaching.Routine", "Routine")
+                        .WithMany("Items")
+                        .HasForeignKey("RoutineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exercise");
+
+                    b.Navigation("Routine");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -646,6 +1090,23 @@ namespace AcademiaAuditiva.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.Classroom", b =>
+                {
+                    b.Navigation("Invites");
+
+                    b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.Routine", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("AcademiaAuditiva.Models.Teaching.RoutineAssignment", b =>
+                {
+                    b.Navigation("Overrides");
                 });
 
             modelBuilder.Entity("AcademiaAuditiva.Models.ApplicationUser", b =>

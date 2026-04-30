@@ -1,14 +1,15 @@
 ﻿@page
 @model ExternalLoginsModel
 @{
-    ViewData["Title"] = "Gerenciar suas conexões externas";
+    ViewData["Title"] = Localizer["Manage.External.Title"].Value;
     ViewData["ActivePage"] = ManageNavPages.ExternalLogins;
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
+<h3 class="mb-3 text-body-emphasis">@ViewData["Title"]</h3>
 @if (Model.CurrentLogins?.Count > 0)
 {
-    <h3>Conexões Registradas</h3>
+    <h4 class="mt-3 text-body-emphasis">@Localizer["Manage.External.Registered"]</h4>
     <table class="table">
         <tbody>
             @foreach (var login in Model.CurrentLogins)
@@ -22,7 +23,7 @@
                                 <div>
                                     <input asp-for="@login.LoginProvider" name="LoginProvider" type="hidden" />
                                     <input asp-for="@login.ProviderKey" name="ProviderKey" type="hidden" />
-                                    <button type="submit" class="btn btn-primary" title="Remover esta conexão de login @login.ProviderDisplayName da sua conta">Remover</button>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="@string.Format(Localizer["Manage.External.RemoveTitle"].Value, login.ProviderDisplayName)">@Localizer["Manage.External.Remove"]</button>
                                 </div>
                             </form>
                         }
@@ -38,14 +39,14 @@
 }
 @if (Model.OtherLogins?.Count > 0)
 {
-    <h4>Adicionar outro serviço para fazer login.</h4>
+    <h4 class="mt-3 text-body-emphasis">@Localizer["Manage.External.AddOther"]</h4>
     <hr />
     <form id="link-login-form" asp-page-handler="LinkLogin" method="post" class="form-horizontal">
         <div id="socialLoginList">
             <p>
                 @foreach (var provider in Model.OtherLogins)
                 {
-                    <button id="@($"link-login-button-{provider.Name}")" type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Fazer login usando a sua conta @provider.DisplayName">@provider.DisplayName</button>
+                    <button id="@($"link-login-button-{provider.Name}")" type="submit" class="btn btn-outline-primary me-2" name="provider" value="@provider.Name" title="@string.Format(Localizer["Manage.External.LoginWithTitle"].Value, provider.DisplayName)">@provider.DisplayName</button>
                 }
             </p>
         </div>

@@ -1,0 +1,29 @@
+@model AcademiaAuditiva.Areas.Teacher.Models.RoutineFormViewModel
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit routine" : "New routine";
+}
+<h1 class="h4 mb-3">@ViewData["Title"]</h1>
+
+<form asp-action="@(isEdit ? "Edit" : "Create")"
+      asp-route-id="@(isEdit ? Model.Id.ToString() : null)"
+      method="post" class="aa-card-flat shadow-sm" style="max-width: 640px;">
+    <div class="card-body">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">@(isEdit ? "Save changes" : "Create routine")</button>
+        <a class="btn btn-link" asp-action="Index">Cancel</a>
+    </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

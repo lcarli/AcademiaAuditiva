@@ -1,27 +1,22 @@
 ﻿@page
 @model GenerateRecoveryCodesModel
 @{
-    ViewData["Title"] = "Gerar códigos de recuperação de autenticação de dois fatores (2FA)";
+    ViewData["Title"] = Localizer["Manage.GenerateCodes.Title"].Value;
     ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
-<h3>@ViewData["Title"]</h3>
+<h3 class="mb-3 text-body-emphasis">@ViewData["Title"]</h3>
 <div class="alert alert-warning" role="alert">
     <p>
-        <span class="glyphicon glyphicon-warning-sign"></span>
-        <strong>Guarde esses códigos em um local seguro.</strong>
+        <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
+        <strong>@Localizer["Manage.GenerateCodes.Save"]</strong>
     </p>
-    <p>
-        Se você perder o seu dispositivo e não tiver os códigos de recuperação, perderá o acesso à sua conta.
-    </p>
-    <p>
-        Gerar novos códigos de recuperação não altera as chaves usadas em aplicativos autenticadores. Se desejar alterar a chave
-        usada em um aplicativo autenticador, você deve <a asp-page="./ResetAuthenticator">redefinir suas chaves de autenticação.</a>
-    </p>
+    <p>@Localizer["Manage.GenerateCodes.Body"]</p>
+    <p class="mb-0">@Localizer["Manage.GenerateCodes.Body2"]</p>
 </div>
 <div>
     <form method="post">
-        <button class="btn btn-danger" type="submit">Gerar Códigos de Recuperação</button>
+        <button class="btn btn-danger" type="submit">@Localizer["Manage.GenerateCodes.Submit"]</button>
     </form>
 </div>

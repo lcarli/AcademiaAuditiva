@@ -1,0 +1,25 @@
+# Azure Developer CLI configuration — Academia Auditiva
+# https://aka.ms/azd-schema
+name: academiaauditiva
+metadata:
+  template: academiaauditiva@0.1.0
+infra:
+  provider: bicep
+  path: infra
+  module: main
+services:
+  app:
+    project: AcademiaAuditiva
+    language: csharp
+    host: containerapp
+    docker:
+      path: ../Dockerfile
+      context: ../
+hooks:
+  postprovision:
+    shell: pwsh
+    interactive: true
+    run: |
+      Write-Host "Post-provision: seed Key Vault and grant MI to SQL." -ForegroundColor Cyan
+      Write-Host "Run: ./infra/scripts/seed-keyvault.ps1 -VaultName $env:AZURE_KEY_VAULT_NAME"
+      Write-Host "Run: ./infra/scripts/grant-mi-sql.ps1 -ServerFqdn $env:AZURE_SQL_SERVER_FQDN -DatabaseName $env:AZURE_SQL_DATABASE_NAME -ManagedIdentityName id-aa-$env:AZURE_ENV_NAME"

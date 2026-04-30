@@ -165,6 +165,9 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
+                        // Default role for self-registered accounts is Student.
+                        await _userManager.AddToRoleAsync(user, AcademiaAuditiva.Models.RoleNames.Student);
+
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourcePrefix":         { "value": "aa" },
+    "envName":                { "value": "prd" },
+    "location":               { "value": "canadacentral" },
+    "aadAdminObjectId":       { "value": "67c53e2a-dfe1-45a7-b234-3ab8442b89dc" },
+    "aadAdminLogin":          { "value": "lramoscostah@microsoft.com" },
+    "aadTenantId":            { "value": "1d70d939-06d2-4348-b658-58cb38886348" },
+    "containerAppMinReplicas":{ "value": 1 },
+    "containerAppMaxReplicas":{ "value": 3 },
+    "containerImage":         { "value": "mcr.microsoft.com/k8se/quickstart:latest" },
+    "sqlSku":                 { "value": "Basic" }
+  }
+}

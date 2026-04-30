@@ -1,0 +1,91 @@
+@model AcademiaAuditiva.Areas.Admin.Models.UserListViewModel
+@{
+    ViewData["Title"] = Localizer["Admin.Users.Title"].Value;
+}
+<h1 class="h3 mb-3 text-body-emphasis">@Localizer["Admin.Users.Title"]</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-5">
+        <label class="form-label small text-secondary">@Localizer["Admin.Users.Search"]</label>
+        <input name="q" value="@Model.Query" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label small text-secondary">@Localizer["Admin.Users.Role"]</label>
+        <select name="role" class="form-select">
+            <option value="">@Localizer["Admin.Users.AllRoles"]</option>
+            <option value="Admin" selected="@(Model.Role == "Admin")">Admin</option>
+            <option value="Teacher" selected="@(Model.Role == "Teacher")">Teacher</option>
+            <option value="Student" selected="@(Model.Role == "Student")">Student</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn aa-grad-btn w-100">@Localizer["Admin.Users.Filter"]</button>
+    </div>
+    <div class="col-md-2 text-end text-secondary small">@Model.Total @Localizer["Admin.Users.Results"]</div>
+</form>
+
+<div class="aa-card-flat shadow-sm">
+    <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>@Localizer["Admin.Users.User"]</th>
+                    <th>@Localizer["Admin.Users.Roles"]</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Rows)
+                {
+                    <tr>
+                        <td>
+                            <div><strong>@r.UserName</strong></div>
+                            <small class="text-secondary">@r.Email</small>
+                            @if (!r.EmailConfirmed) { <span class="badge bg-warning text-dark ms-2">@Localizer["Admin.Users.Unconfirmed"]</span> }
+                            @if (r.LockoutEndUtc.HasValue && r.LockoutEndUtc.Value > DateTime.UtcNow) { <span class="badge bg-danger ms-2">@Localizer["Admin.Users.Locked"]</span> }
+                        </td>
+                        <td>
+                            @if (r.IsAdmin) { <span class="badge bg-danger me-1">Admin</span> }
+                            @if (r.IsTeacher) { <span class="badge bg-primary me-1">Teacher</span> }
+                            @if (r.IsStudent) { <span class="badge bg-secondary me-1">Student</span> }
+                        </td>
+                        <td class="text-end">
+                            @if (!r.IsTeacher)
+                            {
+                                <form asp-action="PromoteTeacher" asp-route-id="@r.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('@string.Format(Localizer["Admin.Users.PromoteTeacherConfirm"].Value, r.UserName)');">
+                                    <button class="btn btn-sm btn-outline-primary">@Localizer["Admin.Users.MakeTeacher"]</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="DemoteTeacher" asp-route-id="@r.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('@string.Format(Localizer["Admin.Users.DemoteTeacherConfirm"].Value, r.UserName)');">
+                                    <button class="btn btn-sm btn-outline-warning">@Localizer["Admin.Users.RemoveTeacher"]</button>
+                                </form>
+                            }
+                            @if (!r.IsAdmin)
+                            {
+                                <form asp-action="PromoteAdmin" asp-route-id="@r.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('@string.Format(Localizer["Admin.Users.PromoteAdminConfirm"].Value, r.UserName)');">
+                                    <button class="btn btn-sm btn-outline-danger">@Localizer["Admin.Users.MakeAdmin"]</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="DemoteAdmin" asp-route-id="@r.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('@string.Format(Localizer["Admin.Users.DemoteAdminConfirm"].Value, r.UserName)');">
+                                    <button class="btn btn-sm btn-outline-danger">@Localizer["Admin.Users.RemoveAdmin"]</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Rows.Any())
+                {
+                    <tr><td colspan="3" class="text-secondary text-center py-4">@Localizer["Admin.Users.Empty"]</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

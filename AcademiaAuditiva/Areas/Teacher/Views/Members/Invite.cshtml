@@ -1,0 +1,34 @@
+@model AcademiaAuditiva.Areas.Teacher.Models.InviteFormViewModel
+@{
+    var classroom = (AcademiaAuditiva.Models.Teaching.Classroom)ViewBag.Classroom;
+    ViewData["Title"] = string.Format(Localizer["Teacher.Members.InviteTitle"].Value, classroom.Name);
+}
+<h1 class="h4 mb-3 text-body-emphasis">@string.Format(Localizer["Teacher.Members.InviteTitle"].Value, classroom.Name)</h1>
+
+<form asp-action="Invite" method="post" class="aa-card-flat" style="max-width: 480px;"
+      x-data="{ submitting: false }"
+      x-on:submit="submitting = true">
+    <div class="card-body">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="ClassroomId" />
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" autocomplete="off" placeholder="student@example.com"
+                   x-bind:disabled="submitting" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+            <div class="form-text">@Localizer["Teacher.Members.InviteHelp"]</div>
+        </div>
+        <button type="submit" class="btn aa-grad-btn" x-bind:disabled="submitting">
+            <span x-show="!submitting"><i class="bi bi-send me-1" aria-hidden="true"></i>@Localizer["Teacher.Members.SendInvite"]</span>
+            <span x-show="submitting" x-cloak>
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                @Localizer["Teacher.Members.Sending"]
+            </span>
+        </button>
+        <a class="btn btn-link" asp-controller="Classrooms" asp-action="Details" asp-route-id="@Model.ClassroomId">@Localizer["Teacher.Members.Cancel"]</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

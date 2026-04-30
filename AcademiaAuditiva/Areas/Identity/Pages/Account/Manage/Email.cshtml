@@ -1,20 +1,20 @@
 ﻿@page
 @model EmailModel
 @{
-    ViewData["Title"] = "Gerenciar Email";
+    ViewData["Title"] = Localizer["Manage.Email.Title"].Value;
     ViewData["ActivePage"] = ManageNavPages.Email;
 }
 
-<h3>@ViewData["Title"]</h3>
+<h3 class="mb-3 text-body-emphasis">@ViewData["Title"]</h3>
 <partial name="_StatusMessage" for="StatusMessage" />
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-8">
         <form id="email-form" method="post">
             <div asp-validation-summary="All" class="text-danger" role="alert"></div>
             @if (Model.IsEmailConfirmed)
             {
                 <div class="form-floating mb-3 input-group">
-                    <input asp-for="Email" class="form-control" placeholder="Por favor, insira seu email." disabled />
+                    <input asp-for="Email" class="form-control" placeholder="@Localizer["Manage.Email.Placeholder"]" disabled />
                     <div class="input-group-append">
                         <span class="h-100 input-group-text text-success font-weight-bold">✓</span>
                     </div>
@@ -24,17 +24,17 @@
             else
             {
                 <div class="form-floating mb-3">
-                    <input asp-for="Email" class="form-control" placeholder="Por favor, insira seu email." disabled />
+                    <input asp-for="Email" class="form-control" placeholder="@Localizer["Manage.Email.Placeholder"]" disabled />
                     <label asp-for="Email" class="form-label"></label>
-                    <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link">Enviar email de verificação</button>
+                    <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link">@Localizer["Manage.Email.SendVerification"]</button>
                 </div>
             }
             <div class="form-floating mb-3">
-                <input asp-for="Input.NewEmail" class="form-control" autocomplete="email" aria-required="true" placeholder="Por favor, insira o novo email." />
+                <input asp-for="Input.NewEmail" class="form-control" autocomplete="email" aria-required="true" placeholder="@Localizer["Manage.Email.NewPlaceholder"]" />
                 <label asp-for="Input.NewEmail" class="form-label"></label>
                 <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
             </div>
-            <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="w-100 btn btn-lg btn-primary">Alterar email</button>
+            <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="btn aa-grad-btn">@Localizer["Manage.Email.ChangeEmail"]</button>
         </form>
     </div>
 </div>

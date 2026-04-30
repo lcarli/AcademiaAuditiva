@@ -1,0 +1,26 @@
+# Gitleaks configuration for AcademiaAuditiva.
+# Extends the default ruleset and excludes well-known public identifiers
+# that the generic high-entropy rule misclassifies as secrets.
+
+title = "AcademiaAuditiva Gitleaks Config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Azure built-in RBAC role definition IDs are public, well-documented GUIDs
+(see https://learn.microsoft.com/azure/role-based-access-control/built-in-roles).
+They are not secrets and are required as literals in Bicep / ARM templates.
+"""
+regexes = [
+  # Key Vault Secrets User
+  '''4633458b-17de-408a-b874-0445c86b69e6''',
+  '''4633458b-17de-46cb-8b2f-2e01c1e00a91''',
+  # Key Vault Secrets Officer
+  '''b86a8fe4-44ce-4948-aee5-eccb2c155cd7''',
+]
+paths = [
+  # Compiled ARM output of our Bicep templates — same GUIDs as the source.
+  '''infra/main\.json$''',
+]

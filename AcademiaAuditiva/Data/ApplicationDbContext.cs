@@ -1,8 +1,8 @@
 ﻿using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Models.Teaching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 
 namespace AcademiaAuditiva.Data
 {
@@ -18,36 +18,134 @@ namespace AcademiaAuditiva.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            ApplicationUser rootUser = new ApplicationUser
+            // The bootstrap admin user is created at runtime via
+            // IdentityBootstrapper (see Program.cs). Seeding it here would
+            // bake a password hash into EF migrations and source control, and
+            // would also tie the migration to a single tenant identity.
+
+            ConfigureTeachingDomain(modelBuilder);
+        }
+
+        private static void ConfigureTeachingDomain(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Classroom>(b =>
             {
-                UserName = "lucas.decarli.ca@gmail.com",
-                NormalizedUserName = "LUCAS.DECARLI.CA@GMAIL.COM",
-                Email = "lucas.decarli.ca@gmail.com",
-                NormalizedEmail = "LUCAS.DECARLI.CA@GMAIL.COM",
-                EmailConfirmed = true,
-                Id = Guid.NewGuid().ToString(),
-                FirstName = "Lucas",
-                LastName = "De Carli",
-                SecurityStamp = "UTUTEH5FUQ6C2MUTMB3CCICNLIBN6CAO",
-                ConcurrencyStamp = "37f979fc-85e9-42c0-bc5c-3321d0b9cad6",
-                TwoFactorEnabled = false,
-                LockoutEnd = null,
-                LockoutEnabled = true,
-                AccessFailedCount = 0,
-                PhoneNumber = "+15817456586",
-                PhoneNumberConfirmed = true,
-            };
+                b.HasIndex(c => c.OwnerId);
+                b.HasOne(c => c.Owner)
+                    .WithMany()
+                    .HasForeignKey(c => c.OwnerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
-            var password = new PasswordHasher<ApplicationUser>();
-            var hashed = password.HashPassword(rootUser, "Lorenzo*181013");
-            rootUser.PasswordHash = hashed;
+            modelBuilder.Entity<ClassroomMember>(b =>
+            {
+                b.HasIndex(m => new { m.ClassroomId, m.StudentId }).IsUnique();
+                b.HasOne(m => m.Classroom)
+                    .WithMany(c => c.Members)
+                    .HasForeignKey(m => m.ClassroomId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(m => m.Student)
+                    .WithMany()
+                    .HasForeignKey(m => m.StudentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
-            modelBuilder.Entity<ApplicationUser>().HasData(rootUser);
+            modelBuilder.Entity<ClassroomInvite>(b =>
+            {
+                b.HasIndex(i => i.Token).IsUnique();
+                b.HasIndex(i => new { i.ClassroomId, i.Email });
+                b.HasOne(i => i.Classroom)
+                    .WithMany(c => c.Invites)
+                    .HasForeignKey(i => i.ClassroomId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Routine>(b =>
+            {
+                b.HasIndex(r => r.OwnerId);
+                b.HasOne(r => r.Owner)
+                    .WithMany()
+                    .HasForeignKey(r => r.OwnerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<RoutineItem>(b =>
+            {
+                b.HasIndex(i => new { i.RoutineId, i.Order });
+                b.HasOne(i => i.Routine)
+                    .WithMany(r => r.Items)
+                    .HasForeignKey(i => i.RoutineId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(i => i.Exercise)
+                    .WithMany()
+                    .HasForeignKey(i => i.ExerciseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<RoutineAssignment>(b =>
+            {
+                b.HasIndex(a => a.RoutineId);
+                b.HasIndex(a => a.ClassroomId);
+                b.HasIndex(a => a.StudentId);
+                b.HasOne(a => a.Routine)
+                    .WithMany()
+                    .HasForeignKey(a => a.RoutineId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(a => a.Classroom)
+                    .WithMany()
+                    .HasForeignKey(a => a.ClassroomId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(a => a.Student)
+                    .WithMany()
+                    .HasForeignKey(a => a.StudentId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<RoutineAssignmentOverride>(b =>
+            {
+                b.HasIndex(o => new { o.RoutineAssignmentId, o.StudentId, o.RoutineItemId }).IsUnique();
+                b.HasOne(o => o.RoutineAssignment)
+                    .WithMany(a => a.Overrides)
+                    .HasForeignKey(o => o.RoutineAssignmentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(o => o.Student)
+                    .WithMany()
+                    .HasForeignKey(o => o.StudentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(o => o.RoutineItem)
+                    .WithMany()
+                    .HasForeignKey(o => o.RoutineItemId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Score model split (expand-then-contract — see Migration
+            // AddScoreSnapshotAndAggregate). The legacy `Score` table is
+            // still written and read for now; the next migration in the
+            // contract phase will drop it once readers move over.
+            modelBuilder.Entity<ScoreSnapshot>(b =>
+            {
+                b.HasIndex(s => new { s.UserId, s.ExerciseId, s.Timestamp });
+                b.HasOne(s => s.User).WithMany().HasForeignKey(s => s.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(s => s.Exercise).WithMany().HasForeignKey(s => s.ExerciseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<ScoreAggregate>(b =>
+            {
+                b.HasKey(a => new { a.UserId, a.ExerciseId });
+                b.HasOne(a => a.User).WithMany().HasForeignKey(a => a.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(a => a.Exercise).WithMany().HasForeignKey(a => a.ExerciseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
 
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Score> Scores { get; set; }
+        public DbSet<ScoreSnapshot> ScoreSnapshots => Set<ScoreSnapshot>();
+        public DbSet<ScoreAggregate> ScoreAggregates => Set<ScoreAggregate>();
         public DbSet<Badge> Badges { get; set; }
         public DbSet<BadgesEarned> BadgesEarned { get; set; }
         public DbSet<ExerciseType> ExerciseTypes { get; set; }
@@ -55,5 +153,13 @@ namespace AcademiaAuditiva.Data
         public DbSet<DifficultyLevel> DifficultyLevels { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
 
+        // Teaching domain
+        public DbSet<Classroom> Classrooms => Set<Classroom>();
+        public DbSet<ClassroomMember> ClassroomMembers => Set<ClassroomMember>();
+        public DbSet<ClassroomInvite> ClassroomInvites => Set<ClassroomInvite>();
+        public DbSet<Routine> Routines => Set<Routine>();
+        public DbSet<RoutineItem> RoutineItems => Set<RoutineItem>();
+        public DbSet<RoutineAssignment> RoutineAssignments => Set<RoutineAssignment>();
+        public DbSet<RoutineAssignmentOverride> RoutineAssignmentOverrides => Set<RoutineAssignmentOverride>();
     }
 }

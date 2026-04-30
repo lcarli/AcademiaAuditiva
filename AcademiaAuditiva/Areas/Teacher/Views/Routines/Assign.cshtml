@@ -1,0 +1,66 @@
+@model AcademiaAuditiva.Areas.Teacher.Models.AssignRoutineViewModel
+@{
+    ViewData["Title"] = $"Assign — {Model.RoutineName}";
+}
+<h1 class="h4 mb-3">Assign "@Model.RoutineName"</h1>
+
+<form asp-action="Assign" method="post" class="aa-card-flat shadow-sm" style="max-width: 640px;">
+    <div class="card-body">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <input type="hidden" asp-for="RoutineId" />
+        <input type="hidden" asp-for="RoutineName" />
+
+        <div class="mb-3">
+            <label class="form-label">Target</label>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" asp-for="Target" value="classroom" id="tgt-class" />
+                <label class="form-check-label" for="tgt-class">A whole classroom</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" asp-for="Target" value="student" id="tgt-stud" />
+                <label class="form-check-label" for="tgt-stud">A single student</label>
+            </div>
+        </div>
+
+        <div class="mb-3" id="block-classroom">
+            <label asp-for="ClassroomId" class="form-label">Classroom</label>
+            <select asp-for="ClassroomId" class="form-select"
+                    asp-items="@(new SelectList(Model.Classrooms, "Id", "Name", Model.ClassroomId))">
+                <option value="">-- select --</option>
+            </select>
+            <span asp-validation-for="ClassroomId" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3" id="block-student">
+            <label asp-for="StudentId" class="form-label">Student</label>
+            <select asp-for="StudentId" class="form-select"
+                    asp-items="@(new SelectList(Model.Students, "Id", "Display", Model.StudentId))">
+                <option value="">-- select --</option>
+            </select>
+            <span asp-validation-for="StudentId" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="DueAt" class="form-label"></label>
+            <input asp-for="DueAt" type="date" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Assign</button>
+        <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.RoutineId">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            function sync() {
+                var t = document.querySelector('input[name="Target"]:checked')?.value || 'classroom';
+                document.getElementById('block-classroom').style.display = t === 'classroom' ? '' : 'none';
+                document.getElementById('block-student').style.display = t === 'student' ? '' : 'none';
+            }
+            document.querySelectorAll('input[name="Target"]').forEach(function (r) { r.addEventListener('change', sync); });
+            sync();
+        })();
+    </script>
+}

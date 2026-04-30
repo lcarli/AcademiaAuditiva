@@ -3,32 +3,51 @@ using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Scoring;
 using AcademiaAuditiva.ViewModels;
 using AcademiaAuditiva.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Localization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcademiaAuditiva.Controllers
 {
 	[Authorize]
+	[AutoValidateAntiforgeryToken]
 	public class ExerciseController : Controller
 	{
 		private readonly ApplicationDbContext _context;
 		private readonly IStringLocalizer<SharedResources> _localizer;
 		private readonly IAnalyticsService _analyticsService;
+		private readonly IExerciseValidatorRegistry _validators;
+		private readonly IMusicTheoryService _musicTheory;
+		private readonly IDistributedCache _cache;
 
-		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, IAnalyticsService analyticsService)
+		// Expected-answer entries live for one round (15 min) and are
+		// keyed per (user, exercise). The cache is a distributed abstraction
+		// so scale-out works once Redis is wired in.
+		private static readonly DistributedCacheEntryOptions _expectedAnswerTtl =
+			new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) };
+
+		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, IAnalyticsService analyticsService, IExerciseValidatorRegistry validators, IMusicTheoryService musicTheory, IDistributedCache cache)
 		{
 			_context = context;
 			_localizer = localizer;
 			_analyticsService = analyticsService;
+			_validators = validators;
+			_musicTheory = musicTheory;
+			_cache = cache;
 		}
+
+		private static string ExpectedAnswerCacheKey(string userId, int exerciseId)
+			=> $"ExerciseAnswer:{userId}:{exerciseId}";
 
 		public async Task<IActionResult> Index()
 		{
@@ -43,11 +62,15 @@ namespace AcademiaAuditiva.Controllers
 		#region General Play and Validate
 		
 		[HttpPost]
-		public IActionResult RequestPlay([FromBody] PlayRequestDto request)
+		public async Task<IActionResult> RequestPlay([FromBody] PlayRequestDto request)
 		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (string.IsNullOrEmpty(userId))
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
+
 			var exercise = _context.Exercises.FirstOrDefault(e => e.ExerciseId == request.ExerciseId);
 			if (exercise == null)
-				return NotFound("Exercise not found.");
+				return NotFound(_localizer["Exercise.NotFound"].Value);
 
 			var filters = request.Filters ?? new Dictionary<string, string>();
 
@@ -60,14 +83,17 @@ namespace AcademiaAuditiva.Controllers
 			if (!filters.ContainsKey("noteRange"))
 				filters["noteRange"] = noteRange;
 
-			var result = MusicTheoryService.GenerateNoteForExercise(exercise, filters);
+			var result = _musicTheory.GenerateNoteForExercise(exercise, filters);
 
 			var sessionData = new ExerciseSessionData
 			{
 				ExpectedAnswer = JsonConvert.SerializeObject(result)
 			};
 
-			HttpContext.Session.SetString($"ExerciseAnswer_{request.ExerciseId}", JsonConvert.SerializeObject(sessionData));
+			await _cache.SetStringAsync(
+				ExpectedAnswerCacheKey(userId, request.ExerciseId),
+				JsonConvert.SerializeObject(sessionData),
+				_expectedAnswerTtl);
 
 			return Json(result);
 		}
@@ -82,109 +108,45 @@ namespace AcademiaAuditiva.Controllers
 
 			var exercise = await _context.Exercises.FirstOrDefaultAsync(e => e.ExerciseId == dto.ExerciseId);
 			if (exercise == null)
-				return NotFound("Exercício não encontrado.");
+				return NotFound(_localizer["Exercise.NotFound"].Value);
 
-			var sessionKey = $"ExerciseAnswer_{dto.ExerciseId}";
-			var json = HttpContext.Session.GetString(sessionKey);
+			var sessionKey = ExpectedAnswerCacheKey(userId, dto.ExerciseId);
+			var json = await _cache.GetStringAsync(sessionKey);
 
 			if (string.IsNullOrEmpty(json))
-				return Json(new { success = false, message = "Sessão expirada ou resposta não encontrada.", isCorrect = false });
+				return Json(new { success = false, message = _localizer["Exercise.SessionExpired"].Value, isCorrect = false });
 
 			var sessionData = JsonConvert.DeserializeObject<ExerciseSessionData>(json);
 			var expectedAnswer = sessionData.ExpectedAnswer;
 
-			bool isCorrect = false;
-			var currentAnswer = "";
-
-			switch (exercise.Name)
+			var validator = _validators.Get(exercise.Name);
+			if (validator == null)
 			{
-				case "GuessNote":
-					var objNote = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedNote = currentAnswer = (string)objNote["note"];
-					isCorrect = MusicTheoryService.NotesAreEquivalent(dto.UserGuess, expectedNote);
-					break;
-				case "GuessChords":
-					var objChord = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedRoot = (string)objChord["root"];
-					var expectedQuality = (string)objChord["quality"];
-					var actualChord = currentAnswer =  $"{expectedRoot}|{expectedQuality}";
-					isCorrect = MusicTheoryService.AnswersAreEquivalent(dto.UserGuess, actualChord);
-					break;
-				case "GuessInterval":
-					var objInterval = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedInterval = currentAnswer =  (string)objInterval["answer"];
-					isCorrect = string.Equals(dto.UserGuess, expectedInterval, StringComparison.OrdinalIgnoreCase);
-					break;
-				case "GuessMissingNote":
-					var objMelody = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedComparison = currentAnswer = (string)objMelody["answer"];
-					isCorrect = string.Equals(dto.UserGuess, expectedComparison, StringComparison.OrdinalIgnoreCase);
-					break;
-				case "GuessFullInterval":
-					var objFull = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedFull = currentAnswer = (string)objFull["answer"];
-					isCorrect = string.Equals(dto.UserGuess, expectedFull, StringComparison.OrdinalIgnoreCase);
-					break;
-				case "GuessFunction":
-					var objFunc = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedFunc = currentAnswer = (string)objFunc["answer"];
-					isCorrect = string.Equals(dto.UserGuess, expectedFunc, StringComparison.OrdinalIgnoreCase);
-					break;
-				case "GuessQuality":
-					var objQuality = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedQuality2 = currentAnswer = (string)objQuality["answer"];
-					isCorrect = string.Equals(dto.UserGuess, expectedQuality2, StringComparison.OrdinalIgnoreCase);
-					break;
-				case "IntervalMelodico":
-					var objMelodic = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedFirstDegree = objMelodic["firstDegree"]?.ToString() ?? "1";
-					var expectedLastDegree = objMelodic["lastDegree"]?.ToString() ?? "1";
-					var expectedStartInterval = objMelodic["startInterval"]?.ToString() ?? "Unísono";
-					var expectedEndInterval = objMelodic["endInterval"]?.ToString() ?? "Unísono";
-					
-					// UserGuess format: "firstDegree|lastDegree|startInterval|endInterval"
-					var answers = dto.UserGuess.Split('|');
-					if (answers.Length == 4)
-					{
-						var userFirstDegree = answers[0];
-						var userLastDegree = answers[1];
-						var userStartInterval = answers[2];
-						var userEndInterval = answers[3];
-						
-						var correct1 = string.Equals(userFirstDegree, expectedFirstDegree, StringComparison.OrdinalIgnoreCase);
-						var correct2 = string.Equals(userLastDegree, expectedLastDegree, StringComparison.OrdinalIgnoreCase);
-						var correct3 = string.Equals(userStartInterval, expectedStartInterval, StringComparison.OrdinalIgnoreCase);
-						var correct4 = string.Equals(userEndInterval, expectedEndInterval, StringComparison.OrdinalIgnoreCase);
-						
-						isCorrect = correct1 && correct2 && correct3 && correct4;
-						currentAnswer = $"{expectedFirstDegree}|{expectedLastDegree}|{expectedStartInterval}|{expectedEndInterval}";
-					}
-					else
-					{
-						isCorrect = false;
-						currentAnswer = $"{expectedFirstDegree}|{expectedLastDegree}|{expectedStartInterval}|{expectedEndInterval}";
-					}
-					break;
-				default:
-					break;
+				return Json(new { success = false, message = _localizer["Exercise.NoValidator", exercise.Name].Value, isCorrect = false });
 			}
+
+			var validation = validator.Validate(dto.UserGuess, sessionData.ExpectedAnswer);
+			var isCorrect = validation.IsCorrect;
+			var currentAnswer = validation.CanonicalAnswer;
 
 			var existingScore = await _context.Scores
 				.Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
 				.OrderByDescending(s => s.Timestamp)
 				.FirstOrDefaultAsync();
 
-			int correctCount = existingScore?.CorrectCount ?? 0;
-			int errorCount = existingScore?.ErrorCount ?? 0;
-			int bestScore = existingScore?.BestScore ?? 0;
+			int prevCorrect = existingScore?.CorrectCount ?? 0;
+			int prevError = existingScore?.ErrorCount ?? 0;
+			int prevBest = existingScore?.BestScore ?? 0;
 
-			if (isCorrect) correctCount++;
-			else errorCount++;
+			var update = ScoreAggregator.Apply(prevCorrect, prevError, prevBest, isCorrect);
+			int correctCount = update.CorrectCount;
+			int errorCount = update.ErrorCount;
+			int bestScore = update.BestScore;
 
-			int currentScore = correctCount - errorCount;
-			if (currentScore > bestScore)
-				bestScore = currentScore;
+			var now = DateTime.UtcNow;
 
+			// Legacy Score row (running totals; kept until the contract step
+			// of the score-model split drops the table).
 			_context.Scores.Add(new Score
 			{
 				UserId = userId,
@@ -193,9 +155,47 @@ namespace AcademiaAuditiva.Controllers
 				ErrorCount = errorCount,
 				BestScore = bestScore,
 				TimeSpentSeconds = dto.TimeSpentSeconds,
-				Timestamp = DateTime.UtcNow
+				Timestamp = now
 			});
+
+			// New per-attempt snapshot.
+			_context.ScoreSnapshots.Add(new ScoreSnapshot
+			{
+				UserId = userId,
+				ExerciseId = exercise.ExerciseId,
+				IsCorrect = isCorrect,
+				TimeSpentSeconds = dto.TimeSpentSeconds,
+				Timestamp = now
+			});
+
+			// Upsert the aggregate row (one per user+exercise).
+			var aggregate = await _context.ScoreAggregates
+				.FirstOrDefaultAsync(a => a.UserId == userId && a.ExerciseId == exercise.ExerciseId);
+			if (aggregate == null)
+			{
+				_context.ScoreAggregates.Add(new ScoreAggregate
+				{
+					UserId = userId,
+					ExerciseId = exercise.ExerciseId,
+					CorrectCount = correctCount,
+					ErrorCount = errorCount,
+					BestScore = bestScore,
+					LastAttemptAt = now
+				});
+			}
+			else
+			{
+				aggregate.CorrectCount = correctCount;
+				aggregate.ErrorCount = errorCount;
+				aggregate.BestScore = bestScore;
+				aggregate.LastAttemptAt = now;
+			}
+
 			await _context.SaveChangesAsync();
+
+			// One-shot semantics: drop the expected-answer entry so the
+			// same round can't be replayed against the same cached answer.
+			await _cache.RemoveAsync(sessionKey);
 			
 			await _analyticsService.SaveAttemptAsync(new ExerciseAttemptLog
 			{
@@ -220,7 +220,7 @@ namespace AcademiaAuditiva.Controllers
 				newErrorCount = errorCount,
 				bestScore,
 				answer = currentAnswer,
-				message = isCorrect ? "Resposta correta!" : "Resposta incorreta."
+				message = isCorrect ? _localizer["Exercise.CorrectAnswer"].Value : _localizer["Exercise.IncorrectAnswer"].Value
 			});
 		}
 
@@ -292,13 +292,13 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessInterval");
 			if (exercise == null)
-				return Json(new { success = false, message = "Exercício GuessInterval não encontrado." });
+				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 
 			var newScore = new Score
 			{
@@ -314,7 +314,7 @@ namespace AcademiaAuditiva.Controllers
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão de intervalos registrada com sucesso!" });
+			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion
@@ -340,13 +340,13 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessQuality");
 			if (exercise == null)
-				return Json(new { success = false, message = "Exercício GuessQuality não encontrado." });
+				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 
 			var newScore = new Score
 			{
@@ -362,7 +362,7 @@ namespace AcademiaAuditiva.Controllers
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão de qualidade de acordes registrada com sucesso!" });
+			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion
@@ -387,13 +387,13 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFunction");
 			if (exercise == null)
-				return Json(new { success = false, message = "Exercício GuessFunction não encontrado." });
+				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 
 			var newScore = new Score
 			{
@@ -409,7 +409,7 @@ namespace AcademiaAuditiva.Controllers
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão de função harmônica registrada com sucesso!" });
+			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion
@@ -435,13 +435,13 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFullInterval");
 			if (exercise == null)
-				return Json(new { success = false, message = "Exercício GuessFullInterval não encontrado." });
+				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 
 			var newScore = new Score
 			{
@@ -457,7 +457,7 @@ namespace AcademiaAuditiva.Controllers
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão de intervalos completos registrada com sucesso!" });
+			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion
@@ -482,16 +482,16 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (string.IsNullOrEmpty(userId))
 			{
-				return Json(new { success = false, message = "Usuário não está logado." });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
 			}
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessMissingNote");
 			if (exercise == null)
 			{
-				return Json(new { success = false, message = "Exercício GuessMissingNote não encontrado." });
+				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
 			}
 
-			int currentScore = correctCount - errorCount;
+			int currentScore = Math.Max(0, correctCount - errorCount);
 
 			var newScore = new Score
 			{
@@ -507,7 +507,7 @@ namespace AcademiaAuditiva.Controllers
 			_context.Scores.Add(newScore);
 			_context.SaveChanges();
 
-			return Json(new { success = true, message = "Sessão de Missing Note registrada com sucesso!" });
+			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion

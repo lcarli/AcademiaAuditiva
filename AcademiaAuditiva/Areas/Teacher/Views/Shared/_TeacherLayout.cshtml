@@ -1,0 +1,63 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var path = (Context.Request.Path.Value ?? string.Empty).ToLowerInvariant();
+    string ActiveIf(string match) => path.Contains(match) ? "active" : string.Empty;
+}
+
+<div class="row g-4">
+    <aside class="col-lg-3 col-xl-2">
+        <div class="aa-card-flat p-3 sticky-lg-top" style="top: 5rem;">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="aa-icon-pill aa-icon-pill-sm" aria-hidden="true"><i class="bi bi-mortarboard"></i></span>
+                <h6 class="text-uppercase text-secondary small mb-0 fw-bold">@Localizer["Teacher.SidebarTitle"]</h6>
+            </div>
+            <nav class="nav flex-column gap-1 aa-side-nav">
+                <a class="nav-link rounded-2 @ActiveIf("/teacher/home")" asp-area="Teacher" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>@Localizer["Teacher.Nav.Dashboard"]
+                </a>
+                <a class="nav-link rounded-2 @ActiveIf("/teacher/classrooms")" asp-area="Teacher" asp-controller="Classrooms" asp-action="Index">
+                    <i class="bi bi-people me-2" aria-hidden="true"></i>@Localizer["Teacher.Nav.Classrooms"]
+                </a>
+                <a class="nav-link rounded-2 @ActiveIf("/teacher/routines")" asp-area="Teacher" asp-controller="Routines" asp-action="Index">
+                    <i class="bi bi-list-check me-2" aria-hidden="true"></i>@Localizer["Teacher.Nav.Routines"]
+                </a>
+            </nav>
+        </div>
+    </aside>
+    <main class="col-lg-9 col-xl-10">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success border-0 shadow-sm" role="alert">
+                <i class="bi bi-check-circle me-2" aria-hidden="true"></i>@TempData["Success"]
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger border-0 shadow-sm" role="alert">
+                <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>@TempData["Error"]
+            </div>
+        }
+        @RenderBody()
+    </main>
+</div>
+
+<style>
+    .aa-side-nav .nav-link {
+        color: var(--bs-body-color);
+        padding: .55rem .8rem;
+        font-weight: 500;
+        transition: background-color .15s ease, color .15s ease;
+    }
+    .aa-side-nav .nav-link:hover {
+        background: var(--bs-tertiary-bg);
+        color: var(--aa-violet);
+    }
+    [data-bs-theme="dark"] .aa-side-nav .nav-link:hover { color: var(--aa-violet-soft); }
+    .aa-side-nav .nav-link.active {
+        background: linear-gradient(90deg, rgba(124, 58, 237, .12), rgba(20, 184, 166, .12));
+        color: var(--aa-violet);
+    }
+    [data-bs-theme="dark"] .aa-side-nav .nav-link.active { color: var(--aa-violet-soft); }
+</style>
+
+@if (IsSectionDefined("Scripts")) { @RenderSection("Scripts", required: false) }

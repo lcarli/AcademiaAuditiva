@@ -1,0 +1,100 @@
+@model AcademiaAuditiva.Models.Teaching.Classroom
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1 text-body-emphasis">@Model.Name</h1>
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="text-secondary mb-0">@Model.Description</p>
+        }
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-outline-primary btn-sm" asp-controller="Dashboard" asp-action="Classroom" asp-route-id="@Model.Id">
+            <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.Dashboard"]
+        </a>
+        <a class="btn btn-outline-secondary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">
+            <i class="bi bi-pencil me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.Edit"]
+        </a>
+        <a class="btn btn-link btn-sm" asp-action="Index">@Localizer["Teacher.Classrooms.Back"]</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="aa-card-flat">
+            <div class="card-header bg-transparent border-bottom border-body d-flex align-items-center justify-content-between">
+                <strong class="text-body-emphasis"><i class="bi bi-people me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.Members"]</strong>
+                <span class="aa-badge-soft">@Model.Members.Count</span>
+            </div>
+            @if (!Model.Members.Any())
+            {
+                <div class="card-body text-secondary">@Localizer["Teacher.Classrooms.NoMembersYet"]</div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var m in Model.Members.OrderBy(x => x.Student!.UserName))
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span>
+                                <span class="fw-semibold">@m.Student?.UserName</span>
+                                <small class="text-secondary ms-2">@m.Student?.Email</small>
+                            </span>
+                            <span class="d-flex align-items-center gap-2">
+                                <small class="text-secondary">@Localizer["Teacher.Classrooms.Joined"] @m.JoinedAt.ToString("yyyy-MM-dd")</small>
+                                <form asp-controller="Members" asp-action="Remove" method="post"
+                                      onsubmit="return confirm('@Html.Raw(Localizer["Teacher.Classrooms.RemoveConfirm", m.Student?.UserName ?? string.Empty].Value)');">
+                                    <input type="hidden" name="classroomId" value="@Model.Id" />
+                                    <input type="hidden" name="memberId" value="@m.Id" />
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">@Localizer["Teacher.Classrooms.Remove"]</button>
+                                </form>
+                            </span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="aa-card-flat">
+            <div class="card-header bg-transparent border-bottom border-body d-flex align-items-center justify-content-between">
+                <strong class="text-body-emphasis"><i class="bi bi-envelope-paper me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.PendingInvites"]</strong>
+            </div>
+            @{
+                var pending = Model.Invites.Where(i => i.AcceptedAt == null && i.ExpiresAt > DateTime.UtcNow).ToList();
+            }
+            @if (!pending.Any())
+            {
+                <div class="card-body text-secondary small">@Localizer["Teacher.Classrooms.None"]</div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var i in pending.OrderByDescending(x => x.CreatedAt))
+                    {
+                        <li class="list-group-item small d-flex justify-content-between align-items-start gap-2">
+                            <div>
+                                <div>@i.Email</div>
+                                <div class="text-secondary">@Localizer["Teacher.Classrooms.Expires"] @i.ExpiresAt.ToString("yyyy-MM-dd")</div>
+                            </div>
+                            <form asp-controller="Members" asp-action="CancelInvite" method="post"
+                                  onsubmit="return confirm('@Localizer["Teacher.Classrooms.CancelInviteConfirm"].Value');">
+                                <input type="hidden" name="classroomId" value="@Model.Id" />
+                                <input type="hidden" name="inviteId" value="@i.Id" />
+                                <button class="btn btn-sm btn-link text-danger p-0" type="submit">@Localizer["Teacher.Classrooms.Cancel"]</button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+            }
+            <div class="card-body">
+                <a class="btn aa-grad-btn btn-sm w-100" asp-controller="Members" asp-action="Invite" asp-route-classroomId="@Model.Id">
+                    <i class="bi bi-person-plus me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.InviteStudent"]
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

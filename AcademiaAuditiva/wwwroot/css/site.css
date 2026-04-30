@@ -1,14 +1,21 @@
 html {
     font-size: 14px;
-    position: relative;
-    min-height: 100%;
+    height: 100%;
 }
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #ffffff;
-    margin-bottom: 60px;
-    /* margin-top: 72px; ajuste para header fixo */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body > main {
+    flex: 1 0 auto;
+}
+
+body > footer {
+    flex-shrink: 0;
 }
 
 @media (min-width: 768px) {
@@ -24,24 +31,6 @@ body {
 a:focus {
     outline: 2px solid #007BFF;
     outline-offset: 2px;
-}
-
-.navbar {
-    border-bottom: 3px solid #007BFF;
-}
-
-.navbar-dark .navbar-nav .nav-link {
-    color: rgba(255,255,255,.5) !important;
-}
-
-.btn-link.text-white:hover {
-    color: #007BFF !important;
-}
-
-.footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
 }
 
 @media (min-width: 992px) {
@@ -332,3 +321,10 @@ body.dark-mode .card {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     object-fit: cover;
 }
+
+/* Dark mode tweaks (Bootstrap 5.3 data-bs-theme=dark) */
+[data-bs-theme="dark"] .card { background-color: var(--bs-dark-bg-subtle); }
+[data-bs-theme="dark"] .card-header.bg-white { background-color: var(--bs-dark-bg-subtle) !important; color: var(--bs-body-color); }
+[data-bs-theme="dark"] .table-light { --bs-table-bg: var(--bs-dark-bg-subtle); --bs-table-color: var(--bs-body-color); }
+[data-bs-theme="dark"] footer.bg-dark { background-color: #000 !important; }
+

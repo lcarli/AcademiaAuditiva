@@ -1,24 +1,22 @@
 ﻿@page
 @model PersonalDataModel
 @{
-    ViewData["Title"] = "Dados Pessoais";
+    ViewData["Title"] = Localizer["Manage.PersonalData.Title"].Value;
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
+<h3 class="mb-3 text-body-emphasis">@ViewData["Title"]</h3>
 
 <div class="row">
-    <div class="col-md-6">
-        <p>A sua conta contém dados pessoais que você nos forneceu. Esta página permite que você faça o download ou exclua esses dados.</p>
+    <div class="col-md-8">
+        <p class="text-secondary">@Localizer["Manage.PersonalData.Body"]</p>
         <p>
-            <strong>A exclusão desses dados removerá permanentemente a sua conta e isso não poderá ser recuperado.</strong>
+            <strong>@Localizer["Manage.PersonalData.Warning"]</strong>
         </p>
-        <form id="download-data" asp-page="DownloadPersonalData" method="post">
-            <button class="btn btn-primary" type="submit">Download</button>
+        <form id="download-data" asp-page="DownloadPersonalData" method="post" class="d-inline">
+            <button class="btn btn-outline-primary" type="submit"><i class="bi bi-download me-1" aria-hidden="true"></i>@Localizer["Manage.PersonalData.Download"]</button>
         </form>
-        <p>
-            <a id="delete" asp-page="DeletePersonalData" class="btn btn-danger">Excluir</a>
-        </p>
+        <a id="delete" asp-page="DeletePersonalData" class="btn btn-outline-danger ms-2"><i class="bi bi-trash me-1" aria-hidden="true"></i>@Localizer["Manage.PersonalData.Delete"]</a>
     </div>
 </div>
 

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourcePrefix":         { "value": "aa" },
+    "envName":                { "value": "dev" },
+    "location":               { "value": "canadacentral" },
+    "aadAdminObjectId":       { "value": "REPLACE_WITH_YOUR_AAD_OBJECT_ID_IN_TENANT_1d70d939-06d2-4348-b658-58cb38886348" },
+    "aadAdminLogin":          { "value": "lucas.decarli.ca@gmail.com" },
+    "aadTenantId":            { "value": "1d70d939-06d2-4348-b658-58cb38886348" },
+    "containerAppMinReplicas":{ "value": 0 },
+    "containerAppMaxReplicas":{ "value": 2 },
+    "containerImage":         { "value": "mcr.microsoft.com/k8se/quickstart:latest" },
+    "sqlSku":                 { "value": "GP_S_Gen5_1" }
+  }
+}

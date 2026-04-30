@@ -1,15 +1,15 @@
 ﻿@page
 @model DeletePersonalDataModel
 @{
-    ViewData["Title"] = "Deletar Dados Pessoais";
+    ViewData["Title"] = Localizer["Manage.DeletePersonal.Title"].Value;
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
+<h3 class="mb-3 text-body-emphasis">@ViewData["Title"]</h3>
 
 <div class="alert alert-warning" role="alert">
-    <p>
-        <strong>Deletar esses dados removerá permanentemente sua conta, e isso não poderá ser recuperado.</strong>
+    <p class="mb-0">
+        <strong>@Localizer["Manage.DeletePersonal.Warning"]</strong>
     </p>
 </div>
 
@@ -18,13 +18,13 @@
         <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
         @if (Model.RequirePassword)
         {
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Insira sua senha." />
-                <label asp-for="Input.Password" class="form-label">Senha</label>
+            <div class="form-floating mb-3" style="max-width: 480px;">
+                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="@Localizer["Manage.DeletePersonal.PasswordPlaceholder"]" />
+                <label asp-for="Input.Password" class="form-label">@Localizer["Manage.DeletePersonal.PasswordLabel"]</label>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
         }
-        <button class="w-100 btn btn-lg btn-danger" type="submit">Deletar dados e encerrar minha conta</button>
+        <button class="btn btn-danger" type="submit"><i class="bi bi-trash me-1" aria-hidden="true"></i>@Localizer["Manage.DeletePersonal.Submit"]</button>
     </form>
 </div>
 

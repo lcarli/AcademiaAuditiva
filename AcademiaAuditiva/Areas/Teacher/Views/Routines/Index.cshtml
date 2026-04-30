@@ -1,0 +1,54 @@
+@model IEnumerable<AcademiaAuditiva.Areas.Teacher.Models.RoutineListItem>
+@{
+    ViewData["Title"] = Localizer["Teacher.Routines.Title"].Value;
+}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h1 class="h3 mb-0 text-body-emphasis">@Localizer["Teacher.Routines.Title"]</h1>
+    <a class="btn aa-grad-btn" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.NewBtn"]</a>
+</div>
+
+@if (TempData["Success"] is string s) { <div class="alert alert-success">@s</div> }
+@if (TempData["Error"] is string e) { <div class="alert alert-danger">@e</div> }
+
+@if (!Model.Any())
+{
+    <div class="aa-card-flat p-4 text-center">
+        <span class="aa-icon-pill mb-2" aria-hidden="true" style="color:#7c3aed"><i class="bi bi-list-check"></i></span>
+        <p class="mb-2 text-secondary">@Localizer["Teacher.Routines.Empty"]</p>
+        <a class="btn aa-grad-btn btn-sm" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.NewBtn"]</a>
+    </div>
+}
+else
+{
+    <div class="aa-card-flat">
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>@Localizer["Teacher.Routines.Col.Name"]</th>
+                        <th>@Localizer["Teacher.Routines.Col.Items"]</th>
+                        <th>@Localizer["Teacher.Routines.Col.Assignments"]</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@r.Id">@r.Name</a>
+                            @if (!string.IsNullOrEmpty(r.Description)) { <div class="small text-secondary">@r.Description</div> }
+                        </td>
+                        <td>@r.ItemCount</td>
+                        <td>@r.AssignmentCount</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@r.Id">@Localizer["Teacher.Routines.Edit"]</a>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Assign" asp-route-routineId="@r.Id">@Localizer["Teacher.Routines.Assign"]</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

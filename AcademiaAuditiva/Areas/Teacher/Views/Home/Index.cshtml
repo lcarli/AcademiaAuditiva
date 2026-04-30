@@ -1,0 +1,39 @@
+@model AcademiaAuditiva.Areas.Teacher.Models.TeacherHomeViewModel
+@{
+    ViewData["Title"] = Localizer["Teacher.Home.Title"].Value;
+}
+
+<header class="mb-4">
+    <span class="aa-badge-soft">@Localizer["Teacher.Home.Title"]</span>
+    <h1 class="display-6 fw-bold mt-2 mb-1 text-body-emphasis">@Localizer["Teacher.Home.Welcome"]</h1>
+    <p class="text-secondary mb-0">@Localizer["Teacher.Home.Subtitle"]</p>
+</header>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="aa-card aa-card-accent p-4 h-100">
+            <span class="aa-icon-pill mb-3" aria-hidden="true"><i class="bi bi-house-heart"></i></span>
+            <h6 class="text-secondary text-uppercase small mb-1">@Localizer["Teacher.Home.ActiveClassrooms"]</h6>
+            <p class="display-5 fw-bold mb-2 text-body-emphasis">@Model.ActiveClassrooms</p>
+            <a class="text-decoration-none fw-semibold aa-brand-text" asp-area="Teacher" asp-controller="Classrooms" asp-action="Index">
+                @Localizer["Teacher.Home.Manage"] <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="aa-card aa-card-accent p-4 h-100">
+            <span class="aa-icon-pill mb-3" aria-hidden="true" style="color:#7c3aed"><i class="bi bi-list-check"></i></span>
+            <h6 class="text-secondary text-uppercase small mb-1">@Localizer["Teacher.Home.Routines"]</h6>
+            <p class="display-5 fw-bold mb-2 text-body-emphasis">@Model.Routines</p>
+            <span class="text-secondary small">@Localizer["Teacher.Home.ComingSoon"]</span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="aa-card aa-card-accent p-4 h-100">
+            <span class="aa-icon-pill mb-3" aria-hidden="true" style="color:#14b8a6"><i class="bi bi-envelope-paper"></i></span>
+            <h6 class="text-secondary text-uppercase small mb-1">@Localizer["Teacher.Home.PendingInvites"]</h6>
+            <p class="display-5 fw-bold mb-2 text-body-emphasis">@Model.PendingInvites</p>
+            <span class="text-secondary small">@Localizer["Teacher.Home.AwaitingAcceptance"]</span>
+        </div>
+    </div>
+</div>

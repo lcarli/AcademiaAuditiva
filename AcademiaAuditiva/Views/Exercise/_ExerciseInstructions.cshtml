@@ -1,20 +1,37 @@
 @model AcademiaAuditiva.ViewModels.ExerciseViewModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
+@{
+    // Prefer localized "Exercise.<Name>.Instructions" / ".TipN" keys.
+    // Fall back to the legacy DB-stored Portuguese strings when a key is missing.
+    var instrLocalized = S[$"Exercise.{Model.Title}.Instructions"];
+    var instructions = instrLocalized.ResourceNotFound ? Model.Instructions : instrLocalized.Value;
 
-<div class="card shadow-sm p-3">
-    @if (!string.IsNullOrEmpty(Model.Instructions))
+    var localizedTips = new List<string>();
+    for (var i = 1; i <= 8; i++)
     {
-        <h5 class="mb-3 text-warning">
-            <i class="bi bi-lightbulb-fill"></i> @Localizer["Instructions"]
+        var tip = S[$"Exercise.{Model.Title}.Tip{i}"];
+        if (tip.ResourceNotFound) break;
+        localizedTips.Add(tip.Value);
+    }
+    var tips = localizedTips.Count > 0 ? localizedTips : (Model.Tips ?? new List<string>());
+}
+
+<div class="aa-card-flat p-3">
+    @if (!string.IsNullOrEmpty(instructions))
+    {
+        <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
+            <i class="bi bi-lightbulb-fill text-warning" aria-hidden="true"></i>
+            @Localizer["Instructions"]
         </h5>
-        <p class="mb-2">@Model.Instructions</p>
+        <p class="mb-2">@instructions</p>
     }
 
-    @if (Model.Tips != null && Model.Tips.Any())
+    @if (tips.Any())
     {
-        <div class="bg-light rounded p-2 mt-3">
-            <strong>@Localizer["Tips"]:</strong>
-            <ul class="mb-0">
-                @foreach (var tip in Model.Tips)
+        <div class="bg-body-tertiary rounded p-3 mt-3">
+            <strong class="text-body-emphasis">@Localizer["Tips"]:</strong>
+            <ul class="mb-0 mt-1">
+                @foreach (var tip in tips)
                 {
                     <li>@tip</li>
                 }

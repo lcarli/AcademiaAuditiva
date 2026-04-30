@@ -1,0 +1,52 @@
+@model AcademiaAuditiva.Areas.Teacher.Models.RoutineItemFormViewModel
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit exercise" : "Add exercise";
+}
+<h1 class="h4 mb-3">@ViewData["Title"]</h1>
+
+<form asp-action="@(isEdit ? "EditItem" : "AddItem")" method="post"
+      class="aa-card-flat shadow-sm" style="max-width: 720px;">
+    <div class="card-body">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="RoutineId" />
+
+        <div class="mb-3">
+            <label asp-for="ExerciseId" class="form-label"></label>
+            <select asp-for="ExerciseId" class="form-select"
+                    asp-items="@(new SelectList(Model.ExerciseOptions, "Id", "Name", Model.ExerciseId))">
+                <option value="">-- select --</option>
+            </select>
+            <span asp-validation-for="ExerciseId" class="text-danger small"></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="TargetCount" class="form-label"></label>
+                <input asp-for="TargetCount" type="number" min="1" max="100" class="form-control" />
+                <span asp-validation-for="TargetCount" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="MinScore" class="form-label"></label>
+                <input asp-for="MinScore" type="number" min="0" max="100" class="form-control" />
+                <span asp-validation-for="MinScore" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <label asp-for="FilterJson" class="form-label"></label>
+            <textarea asp-for="FilterJson" rows="4" class="form-control font-monospace"
+                      placeholder='{"intervalo":"P5"}'></textarea>
+            <div class="form-text">Optional. Same shape as Exercise.FiltersJson.</div>
+            <span asp-validation-for="FilterJson" class="text-danger small"></span>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">@(isEdit ? "Save" : "Add to routine")</button>
+            <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.RoutineId">Cancel</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
