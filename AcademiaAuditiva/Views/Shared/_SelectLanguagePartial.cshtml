@@ -19,7 +19,7 @@
 #pragma warning restore CS8602
 }
 
-<form id="selectLanguage" asp-controller="Dashboard" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post">
+<form id="selectLanguage" asp-area="" asp-controller="Dashboard" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post">
     <div class="dropdown dropup">
         <button class="btn btn-link dropdown-toggle p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="~/images/@(currentFlag)-icon.webp" alt="@currentCulture" width="30" height="20" class="flag-icon" />

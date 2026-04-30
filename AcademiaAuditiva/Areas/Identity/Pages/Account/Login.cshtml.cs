@@ -116,7 +116,11 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return RedirectToAction("Index", "Dashboard");
+                    if (Url.IsLocalUrl(returnUrl) && returnUrl != Url.Content("~/"))
+                    {
+                        return LocalRedirect(returnUrl);
+                    }
+                    return RedirectToAction("Index", "Dashboard", new { area = "" });
                 }
                 if (result.RequiresTwoFactor)
                 {

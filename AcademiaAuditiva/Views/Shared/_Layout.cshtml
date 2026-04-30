@@ -32,7 +32,7 @@
     </style>
 </head>
 
-<body hx-boost="true" hx-indicator="#htmx-progress">
+<body hx-indicator="#htmx-progress">
 	<a href="#mainContent" class="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary">Skip to main content</a>
 	<div id="htmx-progress" class="htmx-indicator position-fixed top-0 start-0 end-0" style="height: 3px; background: linear-gradient(90deg, #0d6efd, #6610f2); z-index: 2000;" aria-hidden="true"></div>
 	<header>
@@ -50,19 +50,19 @@
 					{
 						<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 							<li class="nav-item">
-								<a class="nav-link" asp-controller="Dashboard"
+								<a class="nav-link" asp-area="" asp-controller="Dashboard"
 									asp-action="Index">@Localizer["Header.Dashboard"]</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" asp-controller="Exercise"
+								<a class="nav-link" asp-area="" asp-controller="Exercise"
 									asp-action="Index">@Localizer["Header.Exercise"]</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" asp-controller="Dashboard"
+								<a class="nav-link" asp-area="" asp-controller="Dashboard"
 									asp-action="Index">@Localizer["Header.Games"]</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" asp-controller="MyTraining" asp-action="Index">My training</a>
+								<a class="nav-link" asp-area="" asp-controller="MyTraining" asp-action="Index">My training</a>
 							</li>
 							@if (User.IsInRole(AcademiaAuditiva.Models.RoleNames.Teacher) || User.IsInRole(AcademiaAuditiva.Models.RoleNames.Admin))
 							{

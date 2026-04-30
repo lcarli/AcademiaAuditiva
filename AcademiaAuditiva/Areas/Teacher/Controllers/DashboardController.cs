@@ -20,6 +20,11 @@ public class DashboardController : TeacherAreaController
 
     private string TeacherId => _users.GetUserId(User)!;
 
+    // Some sidebar/menu links point at /Teacher/Dashboard. The actual teacher
+    // landing page is rendered by HomeController, so redirect there instead
+    // of 404'ing.
+    public IActionResult Index() => RedirectToAction("Index", "Home");
+
     public async Task<IActionResult> Classroom(int id)
     {
         var classroom = await _db.Classrooms

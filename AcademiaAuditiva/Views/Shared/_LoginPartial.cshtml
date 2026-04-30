@@ -6,9 +6,16 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
+    var currentUser = await UserManager.GetUserAsync(User);
+    var fullName = currentUser is null
+        ? null
+        : $"{currentUser.FirstName} {currentUser.LastName}".Trim();
+    var displayName = !string.IsNullOrWhiteSpace(fullName)
+        ? fullName
+        : (User.Identity?.Name ?? string.Empty);
     <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link" asp-page="/Account/Manage/Index" asp-area="Identity">@Localizer["Login.Hello"], @User.Identity.Name!</a>
+            <a class="nav-link" asp-page="/Account/Manage/Index" asp-area="Identity">@Localizer["Login.Hello"], @displayName!</a>
         </li>
         <li class="nav-item">
             <form method="post" asp-page="/Account/Logout" asp-area="Identity">
