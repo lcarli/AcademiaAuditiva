@@ -22,12 +22,14 @@ namespace AcademiaAuditiva.Controllers
 		private readonly ApplicationDbContext _context;
 		private readonly IStringLocalizer<SharedResources> _localizer;
 		private readonly IAnalyticsService _analyticsService;
+		private readonly IExerciseValidatorRegistry _validators;
 
-		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, IAnalyticsService analyticsService)
+		public ExerciseController(ApplicationDbContext context, IStringLocalizer<SharedResources> localizer, IAnalyticsService analyticsService, IExerciseValidatorRegistry validators)
 		{
 			_context = context;
 			_localizer = localizer;
 			_analyticsService = analyticsService;
+			_validators = validators;
 		}
 
 		public async Task<IActionResult> Index()
@@ -93,81 +95,15 @@ namespace AcademiaAuditiva.Controllers
 			var sessionData = JsonConvert.DeserializeObject<ExerciseSessionData>(json);
 			var expectedAnswer = sessionData.ExpectedAnswer;
 
-			bool isCorrect = false;
-			var currentAnswer = "";
-
-			switch (exercise.Name)
+			var validator = _validators.Get(exercise.Name);
+			if (validator == null)
 			{
-				case "GuessNote":
-					var objNote = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedNote = currentAnswer = (string)objNote["note"];
-					isCorrect = MusicTheoryService.NotesAreEquivalent(dto.UserGuess, expectedNote);
-					break;
-				case "GuessChords":
-					var objChord = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedRoot = (string)objChord["root"];
-					var expectedQuality = (string)objChord["quality"];
-					var actualChord = currentAnswer =  $"{expectedRoot}|{expectedQuality}";
-					isCorrect = MusicTheoryService.AnswersAreEquivalent(dto.UserGuess, actualChord);
-					break;
-				case "GuessInterval":
-					var objInterval = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedInterval = currentAnswer =  (string)objInterval["answer"];
-					isCorrect = string.Equals(dto.UserGuess, expectedInterval, StringComparison.OrdinalIgnoreCase);
-					break;
-				case "GuessMissingNote":
-					var objMelody = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedComparison = currentAnswer = (string)objMelody["answer"];
-					isCorrect = string.Equals(dto.UserGuess, expectedComparison, StringComparison.OrdinalIgnoreCase);
-					break;
-				case "GuessFullInterval":
-					var objFull = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedFull = currentAnswer = (string)objFull["answer"];
-					isCorrect = string.Equals(dto.UserGuess, expectedFull, StringComparison.OrdinalIgnoreCase);
-					break;
-				case "GuessFunction":
-					var objFunc = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedFunc = currentAnswer = (string)objFunc["answer"];
-					isCorrect = string.Equals(dto.UserGuess, expectedFunc, StringComparison.OrdinalIgnoreCase);
-					break;
-				case "GuessQuality":
-					var objQuality = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedQuality2 = currentAnswer = (string)objQuality["answer"];
-					isCorrect = string.Equals(dto.UserGuess, expectedQuality2, StringComparison.OrdinalIgnoreCase);
-					break;
-				case "IntervalMelodico":
-					var objMelodic = JObject.Parse(sessionData.ExpectedAnswer);
-					var expectedFirstDegree = objMelodic["firstDegree"]?.ToString() ?? "1";
-					var expectedLastDegree = objMelodic["lastDegree"]?.ToString() ?? "1";
-					var expectedStartInterval = objMelodic["startInterval"]?.ToString() ?? "Unísono";
-					var expectedEndInterval = objMelodic["endInterval"]?.ToString() ?? "Unísono";
-					
-					// UserGuess format: "firstDegree|lastDegree|startInterval|endInterval"
-					var answers = dto.UserGuess.Split('|');
-					if (answers.Length == 4)
-					{
-						var userFirstDegree = answers[0];
-						var userLastDegree = answers[1];
-						var userStartInterval = answers[2];
-						var userEndInterval = answers[3];
-						
-						var correct1 = string.Equals(userFirstDegree, expectedFirstDegree, StringComparison.OrdinalIgnoreCase);
-						var correct2 = string.Equals(userLastDegree, expectedLastDegree, StringComparison.OrdinalIgnoreCase);
-						var correct3 = string.Equals(userStartInterval, expectedStartInterval, StringComparison.OrdinalIgnoreCase);
-						var correct4 = string.Equals(userEndInterval, expectedEndInterval, StringComparison.OrdinalIgnoreCase);
-						
-						isCorrect = correct1 && correct2 && correct3 && correct4;
-						currentAnswer = $"{expectedFirstDegree}|{expectedLastDegree}|{expectedStartInterval}|{expectedEndInterval}";
-					}
-					else
-					{
-						isCorrect = false;
-						currentAnswer = $"{expectedFirstDegree}|{expectedLastDegree}|{expectedStartInterval}|{expectedEndInterval}";
-					}
-					break;
-				default:
-					break;
+				return Json(new { success = false, message = $"Exercise type '{exercise.Name}' has no registered validator.", isCorrect = false });
 			}
+
+			var validation = validator.Validate(dto.UserGuess, sessionData.ExpectedAnswer);
+			var isCorrect = validation.IsCorrect;
+			var currentAnswer = validation.CanonicalAnswer;
 
 			var existingScore = await _context.Scores
 				.Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
