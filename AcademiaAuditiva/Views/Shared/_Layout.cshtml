@@ -1,12 +1,18 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Antiforgery
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject IAntiforgery Antiforgery
+@{
+    var antiforgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
 <!DOCTYPE html>
 <html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" data-bs-theme="light">
 
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="request-verification-token" content="@antiforgeryToken" />
 	<title>@ViewBag.Title - Academia Auditiva</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css"
 		integrity="sha512-Z/def5z5u2aR89OuzYcxmDJ0Bnd5V1cKqBEbvLOiUNWdg9PQeXVvXLI90SE4QOHGlfLqUnDNVAYyZi8UwUTmWQ=="
@@ -102,6 +108,31 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
 		integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
 		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script>
+		// Anti-forgery token injection: every same-origin POST/PUT/DELETE/PATCH
+		// fetch() picks up the request-verification-token meta automatically,
+		// so existing JS in wwwroot/js/Exercises/* keeps working under the
+		// global AutoValidateAntiforgeryToken filter without per-call changes.
+		(function () {
+			var meta = document.querySelector('meta[name="request-verification-token"]');
+			if (!meta) return;
+			var token = meta.getAttribute('content') || '';
+			var unsafe = { POST: 1, PUT: 1, DELETE: 1, PATCH: 1 };
+			var origFetch = window.fetch.bind(window);
+			window.fetch = function (input, init) {
+				init = init || {};
+				var method = (init.method || (typeof input !== 'string' && input && input.method) || 'GET').toUpperCase();
+				if (!unsafe[method]) return origFetch(input, init);
+				var url = typeof input === 'string' ? input : (input && input.url) || '';
+				var sameOrigin = url.startsWith('/') || url.startsWith(window.location.origin);
+				if (!sameOrigin) return origFetch(input, init);
+				var headers = new Headers(init.headers || {});
+				if (!headers.has('RequestVerificationToken')) headers.set('RequestVerificationToken', token);
+				init.headers = headers;
+				return origFetch(input, init);
+			};
+		})();
+	</script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"
 		integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ=="
 		crossorigin="anonymous" referrerpolicy="no-referrer"></script>

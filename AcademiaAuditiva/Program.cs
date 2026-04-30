@@ -185,7 +185,24 @@ if (!string.IsNullOrWhiteSpace(fbAppId) && !string.IsNullOrWhiteSpace(fbAppSecre
         });
 }
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // Global anti-forgery enforcement on every unsafe HTTP method (POST,
+    // PUT, DELETE, PATCH). Combined with the AntiforgeryOptions below,
+    // this protects every authenticated mutating endpoint — including the
+    // form-style Exercise SaveScore actions — from CSRF without requiring
+    // each controller method to opt in via [ValidateAntiForgeryToken].
+    options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
+});
+
+// Expose the anti-forgery token to JS via a custom request header so the
+// fetch() calls in wwwroot/js/Exercises/* can attach it. The bootstrap
+// script in _Layout.cshtml wraps window.fetch and injects this header for
+// same-origin POSTs, so existing JSON endpoints keep working.
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "RequestVerificationToken";
+});
 
 // Distributed cache for short-lived per-user state (e.g. the "expected
 // answer" for an exercise round). Using IDistributedCache instead of
