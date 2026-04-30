@@ -1,8 +1,10 @@
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Services;
 public class UserReportService
@@ -10,12 +12,21 @@ public class UserReportService
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IAnalyticsService _analyticsService;
+    private readonly IStringLocalizer<SharedResources> _l;
 
-    public UserReportService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IAnalyticsService analyticsService)
+    public UserReportService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IAnalyticsService analyticsService, IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _userManager = userManager;
         _analyticsService = analyticsService;
+        _l = localizer;
+    }
+
+    private string LocExercise(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return name;
+        var v = _l[name];
+        return v.ResourceNotFound ? name : v.Value;
     }
 
     public List<Score> GetBestScoresForUser(string userId)
@@ -121,7 +132,7 @@ public class UserReportService
         var errors = _context.Scores
             .Where(s => s.UserId == userId && s.ErrorCount > 0)
             .Include(s => s.Exercise)
-            .GroupBy(s => s.Exercise.Description)
+            .GroupBy(s => s.Exercise.Name)
             .Select(g => new
             {
                 Exercise = g.Key,
@@ -159,13 +170,13 @@ public class UserReportService
 
             if (!string.IsNullOrEmpty(exerciseName))
             {
-                recommendations.Add($"Revisar o exercício: {exerciseName}");
+                recommendations.Add(_l["Report.ReviewExercise", LocExercise(exerciseName)].Value);
             }
         }
 
         if (recentScores.Count < 5)
         {
-            recommendations.Add("Continue praticando mais exercícios para melhorar seu desempenho.");
+            recommendations.Add(_l["Report.KeepPracticing"].Value);
         }
 
         return recommendations;
@@ -801,9 +812,9 @@ public class UserReportService
         double overallAccuracy = GetOverallAccuracy(userId);
         if (overallAccuracy >= 90)
         {
-            return "Sua acurácia está alta. Considere aumentar a dificuldade.";
+            return _l["Report.IncreaseDifficulty"].Value;
         }
-        return "Continue praticando no seu nível atual.";
+        return _l["Report.KeepCurrentLevel"].Value;
     }
     
     public List<string> GetExercisesAboveAverage(string userId)

@@ -20,9 +20,9 @@
 }
 
 <form id="selectLanguage" asp-area="" asp-controller="Dashboard" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post">
-    <div class="dropdown dropup">
-        <button class="btn btn-link dropdown-toggle p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="~/images/@(currentFlag)-icon.webp" alt="@currentCulture" width="30" height="20" class="flag-icon" />
+    <div class="dropdown">
+        <button class="aa-theme-toggle dropdown-toggle d-inline-flex align-items-center justify-content-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="@currentCulture" style="width:auto; padding: 0 .5rem;">
+            <img src="~/images/@(currentFlag)-icon.webp" alt="@currentCulture" width="22" height="15" class="flag-icon" />
         </button>
         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
             @foreach (var item in cultureItems)

@@ -1,30 +1,25 @@
 ﻿@page
 @model ShowRecoveryCodesModel
 @{
-    ViewData["Title"] = "Códigos de recuperação";
+    ViewData["Title"] = Localizer["Manage.ShowCodes.Title"].Value;
     ViewData["ActivePage"] = "TwoFactorAuthentication";
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
-<h3>@ViewData["Title"]</h3>
+<h3 class="mb-3 text-body-emphasis">@ViewData["Title"]</h3>
 <div class="alert alert-warning" role="alert">
     <p>
-        <strong>Guarde esses códigos em um local seguro.</strong>
+        <strong>@Localizer["Manage.ShowCodes.Save"]</strong>
     </p>
-    <p>
-        Se você perder o seu dispositivo e não tiver os códigos de recuperação, perderá o acesso à sua conta.
-    </p>
+    <p class="mb-0">@Localizer["Manage.ShowCodes.Body"]</p>
 </div>
 <div class="row">
     <div class="col-md-12">
         @for (var row = 0; row < Model.RecoveryCodes.Length; row += 2)
         {
             <code class="recovery-code">@Model.RecoveryCodes[row]</code>
-
             <text>&nbsp;</text>
-
             <code class="recovery-code">@Model.RecoveryCodes[row + 1]</code>
-
             <br />
         }
     </div>

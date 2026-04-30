@@ -2,9 +2,11 @@ using AcademiaAuditiva.Areas.Teacher.Models;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
+using AcademiaAuditiva.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Teacher.Controllers;
 
@@ -12,11 +14,13 @@ public class RoutinesController : TeacherAreaController
 {
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _users;
+    private readonly IStringLocalizer<SharedResources> _l;
 
-    public RoutinesController(ApplicationDbContext db, UserManager<ApplicationUser> users)
+    public RoutinesController(ApplicationDbContext db, UserManager<ApplicationUser> users, IStringLocalizer<SharedResources> localizer)
     {
         _db = db;
         _users = users;
+        _l = localizer;
     }
 
     private string TeacherId => _users.GetUserId(User)!;
@@ -57,7 +61,7 @@ public class RoutinesController : TeacherAreaController
         };
         _db.Routines.Add(routine);
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Routine created.";
+        TempData["Success"] = _l["Toast.RoutineCreated"].Value;
         return RedirectToAction(nameof(Details), new { id = routine.Id });
     }
 
@@ -84,7 +88,7 @@ public class RoutinesController : TeacherAreaController
         r.Name = model.Name.Trim();
         r.Description = string.IsNullOrWhiteSpace(model.Description) ? null : model.Description.Trim();
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Routine updated.";
+        TempData["Success"] = _l["Toast.RoutineUpdated"].Value;
         return RedirectToAction(nameof(Details), new { id });
     }
 
@@ -114,12 +118,12 @@ public class RoutinesController : TeacherAreaController
         var hasAssignments = await _db.RoutineAssignments.AnyAsync(a => a.RoutineId == id);
         if (hasAssignments)
         {
-            TempData["Error"] = "Routine has active assignments. Remove them first.";
+            TempData["Error"] = _l["Toast.RoutineActiveAssignments"].Value;
             return RedirectToAction(nameof(Details), new { id });
         }
         _db.Routines.Remove(r);
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Routine deleted.";
+        TempData["Success"] = _l["Toast.RoutineDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -176,7 +180,7 @@ public class RoutinesController : TeacherAreaController
             Order = nextOrder
         });
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Exercise added to routine.";
+        TempData["Success"] = _l["Toast.ItemAdded"].Value;
         return RedirectToAction(nameof(Details), new { id = r.Id });
     }
 
@@ -208,7 +212,7 @@ public class RoutinesController : TeacherAreaController
         item.MinScore = model.MinScore;
         item.FilterJson = string.IsNullOrWhiteSpace(model.FilterJson) ? null : model.FilterJson;
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Item updated.";
+        TempData["Success"] = _l["Toast.ItemUpdated"].Value;
         return RedirectToAction(nameof(Details), new { id = r.Id });
     }
 
@@ -221,7 +225,7 @@ public class RoutinesController : TeacherAreaController
         if (item == null) return NotFound();
         _db.RoutineItems.Remove(item);
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Item removed.";
+        TempData["Success"] = _l["Toast.ItemRemoved"].Value;
         return RedirectToAction(nameof(Details), new { id = routineId });
     }
 
@@ -303,7 +307,7 @@ public class RoutinesController : TeacherAreaController
         });
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Routine assigned.";
+        TempData["Success"] = _l["Toast.RoutineAssigned"].Value;
         return RedirectToAction(nameof(Details), new { id = r.Id });
     }
 
@@ -317,7 +321,7 @@ public class RoutinesController : TeacherAreaController
         if (a == null) return NotFound();
         _db.RoutineAssignments.Remove(a);
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Assignment removed.";
+        TempData["Success"] = _l["Toast.AssignmentRemoved"].Value;
         return RedirectToAction(nameof(Details), new { id = routineId });
     }
 }

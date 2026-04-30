@@ -3,10 +3,12 @@ using AcademiaAuditiva.Areas.Teacher.Services;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
+using AcademiaAuditiva.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Teacher.Controllers;
 
@@ -16,18 +18,21 @@ public class MembersController : TeacherAreaController
     private readonly UserManager<ApplicationUser> _users;
     private readonly IEmailSender _email;
     private readonly ILogger<MembersController> _logger;
+    private readonly IStringLocalizer<SharedResources> _l;
     private static readonly TimeSpan InviteLifetime = TimeSpan.FromDays(14);
 
     public MembersController(
         ApplicationDbContext db,
         UserManager<ApplicationUser> users,
         IEmailSender email,
-        ILogger<MembersController> logger)
+        ILogger<MembersController> logger,
+        IStringLocalizer<SharedResources> localizer)
     {
         _db = db;
         _users = users;
         _email = email;
         _logger = logger;
+        _l = localizer;
     }
 
     private string TeacherId => _users.GetUserId(User)!;
@@ -66,7 +71,7 @@ public class MembersController : TeacherAreaController
                 .AnyAsync(m => m.ClassroomId == classroom.Id && m.StudentId == existingUser.Id);
             if (alreadyMember)
             {
-                TempData["Error"] = "That student is already a member of this classroom.";
+                TempData["Error"] = _l["Toast.AlreadyMember"].Value;
                 return RedirectToAction("Details", "Classrooms", new { id = classroom.Id });
             }
         }
@@ -122,7 +127,7 @@ public class MembersController : TeacherAreaController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed sending invite email to {Email}", email);
-            TempData["Error"] = "Invite saved, but the email could not be sent. Share this link manually: " + acceptUrl;
+            TempData["Error"] = _l["Toast.InviteSavedNoEmail"].Value + " " + acceptUrl;
             return RedirectToAction("Details", "Classrooms", new { id = classroom.Id });
         }
 
@@ -143,7 +148,7 @@ public class MembersController : TeacherAreaController
         _db.ClassroomMembers.Remove(member);
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Member removed.";
+        TempData["Success"] = _l["Toast.MemberRemoved"].Value;
         return RedirectToAction("Details", "Classrooms", new { id = classroomId });
     }
 
@@ -160,7 +165,7 @@ public class MembersController : TeacherAreaController
         _db.ClassroomInvites.Remove(invite);
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Invite cancelled.";
+        TempData["Success"] = _l["Toast.InviteCancelled"].Value;
         return RedirectToAction("Details", "Classrooms", new { id = classroomId });
     }
 }

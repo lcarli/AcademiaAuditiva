@@ -2,101 +2,98 @@
 @{
     ViewData["Title"] = Model.Name;
 }
-@if (TempData["Success"] is string success)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @success
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-@if (TempData["Error"] is string err)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @err
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-<div class="d-flex justify-content-between align-items-start mb-3">
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
     <div>
-        <h1 class="h3 mb-1">@Model.Name</h1>
+        <h1 class="h3 fw-bold mb-1 text-body-emphasis">@Model.Name</h1>
         @if (!string.IsNullOrEmpty(Model.Description))
         {
-            <p class="text-muted mb-0">@Model.Description</p>
+            <p class="text-secondary mb-0">@Model.Description</p>
         }
     </div>
-    <div>
-        <a class="btn btn-outline-primary" asp-controller="Dashboard" asp-action="Classroom" asp-route-id="@Model.Id">Dashboard</a>
-        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
-        <a class="btn btn-link" asp-action="Index">Back</a>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-outline-primary btn-sm" asp-controller="Dashboard" asp-action="Classroom" asp-route-id="@Model.Id">
+            <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.Dashboard"]
+        </a>
+        <a class="btn btn-outline-secondary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">
+            <i class="bi bi-pencil me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.Edit"]
+        </a>
+        <a class="btn btn-link btn-sm" asp-action="Index">@Localizer["Teacher.Classrooms.Back"]</a>
     </div>
 </div>
 
-<div class="row g-3">
-    <div class="col-md-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
-                <strong>Members</strong>
-                <span class="badge bg-secondary ms-2">@Model.Members.Count</span>
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="aa-card-flat">
+            <div class="card-header bg-transparent border-bottom border-body d-flex align-items-center justify-content-between">
+                <strong class="text-body-emphasis"><i class="bi bi-people me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.Members"]</strong>
+                <span class="aa-badge-soft">@Model.Members.Count</span>
             </div>
-            <ul class="list-group list-group-flush">
-                @if (!Model.Members.Any())
-                {
-                    <li class="list-group-item text-muted">No members yet. Invite students from the panel on the right.</li>
-                }
-                else
-                {
+            @if (!Model.Members.Any())
+            {
+                <div class="card-body text-secondary">@Localizer["Teacher.Classrooms.NoMembersYet"]</div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush">
                     @foreach (var m in Model.Members.OrderBy(x => x.Student!.UserName))
                     {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>@m.Student?.UserName <small class="text-muted">@m.Student?.Email</small></span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span>
+                                <span class="fw-semibold">@m.Student?.UserName</span>
+                                <small class="text-secondary ms-2">@m.Student?.Email</small>
+                            </span>
                             <span class="d-flex align-items-center gap-2">
-                                <small class="text-muted">joined @m.JoinedAt.ToString("yyyy-MM-dd")</small>
+                                <small class="text-secondary">@Localizer["Teacher.Classrooms.Joined"] @m.JoinedAt.ToString("yyyy-MM-dd")</small>
                                 <form asp-controller="Members" asp-action="Remove" method="post"
-                                      onsubmit="return confirm('Remove @m.Student?.UserName from the classroom?');">
+                                      onsubmit="return confirm('@Html.Raw(Localizer["Teacher.Classrooms.RemoveConfirm", m.Student?.UserName ?? string.Empty].Value)');">
                                     <input type="hidden" name="classroomId" value="@Model.Id" />
                                     <input type="hidden" name="memberId" value="@m.Id" />
-                                    <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">@Localizer["Teacher.Classrooms.Remove"]</button>
                                 </form>
                             </span>
                         </li>
                     }
-                }
-            </ul>
+                </ul>
+            }
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white"><strong>Pending invites</strong></div>
-            <ul class="list-group list-group-flush">
-                @{
-                    var pending = Model.Invites.Where(i => i.AcceptedAt == null && i.ExpiresAt > DateTime.UtcNow).ToList();
-                }
-                @if (!pending.Any())
-                {
-                    <li class="list-group-item text-muted small">None</li>
-                }
-                else
-                {
+    <div class="col-lg-4">
+        <div class="aa-card-flat">
+            <div class="card-header bg-transparent border-bottom border-body d-flex align-items-center justify-content-between">
+                <strong class="text-body-emphasis"><i class="bi bi-envelope-paper me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.PendingInvites"]</strong>
+            </div>
+            @{
+                var pending = Model.Invites.Where(i => i.AcceptedAt == null && i.ExpiresAt > DateTime.UtcNow).ToList();
+            }
+            @if (!pending.Any())
+            {
+                <div class="card-body text-secondary small">@Localizer["Teacher.Classrooms.None"]</div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush">
                     @foreach (var i in pending.OrderByDescending(x => x.CreatedAt))
                     {
-                        <li class="list-group-item small d-flex justify-content-between align-items-start">
+                        <li class="list-group-item small d-flex justify-content-between align-items-start gap-2">
                             <div>
-                                @i.Email
-                                <div class="text-muted">expires @i.ExpiresAt.ToString("yyyy-MM-dd")</div>
+                                <div>@i.Email</div>
+                                <div class="text-secondary">@Localizer["Teacher.Classrooms.Expires"] @i.ExpiresAt.ToString("yyyy-MM-dd")</div>
                             </div>
                             <form asp-controller="Members" asp-action="CancelInvite" method="post"
-                                  onsubmit="return confirm('Cancel this invite?');">
+                                  onsubmit="return confirm('@Localizer["Teacher.Classrooms.CancelInviteConfirm"].Value');">
                                 <input type="hidden" name="classroomId" value="@Model.Id" />
                                 <input type="hidden" name="inviteId" value="@i.Id" />
-                                <button class="btn btn-sm btn-link text-danger p-0" type="submit">cancel</button>
+                                <button class="btn btn-sm btn-link text-danger p-0" type="submit">@Localizer["Teacher.Classrooms.Cancel"]</button>
                             </form>
                         </li>
                     }
-                }
-            </ul>
+                </ul>
+            }
             <div class="card-body">
-                <a class="btn btn-sm btn-primary"
-                   asp-controller="Members" asp-action="Invite" asp-route-classroomId="@Model.Id">Invite student</a>
+                <a class="btn aa-grad-btn btn-sm w-100" asp-controller="Members" asp-action="Invite" asp-route-classroomId="@Model.Id">
+                    <i class="bi bi-person-plus me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.InviteStudent"]
+                </a>
             </div>
         </div>
     </div>

@@ -5,8 +5,8 @@
 <div class="d-flex justify-content-between align-items-start mb-3">
     <div>
         <h1 class="h3 mb-1">@Model.Display</h1>
-        <div class="text-muted">@Model.Email</div>
-        <div class="small text-muted">
+        <div class="text-secondary">@Model.Email</div>
+        <div class="small text-secondary">
             @foreach (var c in Model.Classrooms) { <span class="badge bg-light text-dark me-1">@c.Name</span> }
         </div>
     </div>
@@ -20,36 +20,36 @@
 
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100"><div class="card-body">
-            <div class="text-muted small">Sessions</div>
+        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+            <div class="text-secondary small">Sessions</div>
             <div class="h3 mb-0">@Model.TotalSessions.ToString("N0")</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100"><div class="card-body">
-            <div class="text-muted small">Attempts</div>
+        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+            <div class="text-secondary small">Attempts</div>
             <div class="h3 mb-0">@Model.TotalAttempts.ToString("N0")</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100"><div class="card-body">
-            <div class="text-muted small">Accuracy</div>
+        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+            <div class="text-secondary small">Accuracy</div>
             <div class="h3 mb-0">@Model.OverallAccuracy.ToString("F1")%</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100"><div class="card-body">
-            <div class="text-muted small">Last activity</div>
+        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+            <div class="text-secondary small">Last activity</div>
             <div class="h5 mb-0">
                 @if (Model.LastActivity.HasValue) { @Model.LastActivity.Value.ToString("yyyy-MM-dd HH:mm") }
-                else { <span class="text-muted">never</span> }
+                else { <span class="text-secondary">never</span> }
             </div>
         </div></div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white"><strong>By exercise</strong></div>
+<div class="aa-card-flat shadow-sm">
+    <div class="card-header bg-transparent border-bottom border-body"><strong>By exercise</strong></div>
     <div class="table-responsive">
         <table class="table mb-0 align-middle">
             <thead class="table-light">
@@ -74,7 +74,7 @@
             }
             @if (!Model.ByExercise.Any())
             {
-                <tr><td colspan="5" class="text-muted text-center py-4">This student hasn't practiced yet.</td></tr>
+                <tr><td colspan="5" class="text-secondary text-center py-4">This student hasn't practiced yet.</td></tr>
             }
             </tbody>
         </table>
