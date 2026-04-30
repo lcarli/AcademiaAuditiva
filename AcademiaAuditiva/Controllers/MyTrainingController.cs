@@ -1,3 +1,4 @@
+using AcademiaAuditiva.Areas.Teacher.Services;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
@@ -78,9 +79,10 @@ public class MyTrainingController : Controller
             {
                 var ovr = overrides.FirstOrDefault(o =>
                     o.RoutineAssignmentId == a.Id && o.RoutineItemId == i.Id);
-                if (ovr?.ExcludeItem == true) return null;
+                var effective = RoutineItemResolver.Resolve(i, ovr);
+                if (effective is null) return null;
 
-                var target = ovr?.OverrideTargetCount ?? i.TargetCount;
+                var target = effective.Value.Target;
                 var done = scores.Where(s => s.ExerciseId == i.ExerciseId)
                     .Sum(s => s.CorrectCount + s.ErrorCount);
                 var clamped = Math.Min(done, target);
