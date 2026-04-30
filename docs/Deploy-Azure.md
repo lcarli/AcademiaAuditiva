@@ -152,6 +152,27 @@ below.
 
 ### Configure federated identity (one-time)
 
+Use the helper script — it is idempotent (safe to re-run) and creates
+the app registration, federated credentials for both `refs/heads/main`
+and the `production` deployment environment, and grants RBAC on the
+RG and ACR:
+
+```powershell
+./infra/scripts/setup-github-oidc.ps1 `
+  -SubscriptionId 3dc8ff32-42e4-4152-b194-46b704ed70f2 `
+  -ResourceGroup  rg-aa-prd `
+  -AcrName        craaprdrmz6b3 `
+  -Repo           lcarli/AcademiaAuditiva
+```
+
+The script prints the three values you need to set as **GitHub Actions
+secrets** on the repository, and the `ACR_NAME` repository **variable**.
+You also need to create a deployment environment named `production` under
+`Settings → Environments` so the environment-scoped federated credential
+is honored by `cd.yml`.
+
+<details><summary>What the script does manually</summary>
+
 ```powershell
 $AppName  = "academiaauditiva-cd"
 $Repo     = "lcarli/AcademiaAuditiva"
@@ -173,6 +194,8 @@ az ad app federated-credential create --id $AppId --parameters @"
 az role assignment create --assignee $SpId --role "Contributor" `
   --scope "/subscriptions/<sub>/resourceGroups/rg-aa-prd"
 ```
+
+</details>
 
 Then add these GitHub Actions secrets:
 - `AZURE_CLIENT_ID` = `$AppId`
