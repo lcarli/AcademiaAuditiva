@@ -183,13 +183,10 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-//Localization
-var supportedCultures = new[] { "fr-CA", "en-US", "pt-BR" };
-var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(supportedCultures[0])
-    .AddSupportedCultures(supportedCultures)
-    .AddSupportedUICultures(supportedCultures);
-
-app.UseRequestLocalization(localizationOptions);
+// Localization — single source of truth: the RequestLocalizationOptions
+// configured above (default en-US, supports fr-CA / en-US / pt-BR).
+// Pulling from IOptions ensures middleware and DI agree on the same set.
+app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
