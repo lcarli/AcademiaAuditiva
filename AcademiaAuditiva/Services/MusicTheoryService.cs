@@ -559,7 +559,12 @@ namespace AcademiaAuditiva.Services
 
         public static bool NotesAreEquivalent(string note1, string note2)
         {
-            var enharmonicMap = new Dictionary<string, string>
+            // Canonical form keeps the letter capitalized and preserves the
+            // accidental (# or b). Stripping octave digits lets callers pass
+            // either "C4" or "C". The enharmonic map below is case-sensitive
+            // by design — comparisons use OrdinalIgnoreCase so input casing
+            // ("c#", "DB", etc.) doesn't break equivalence.
+            var enharmonicMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "C#", "Db" }, { "Db", "C#" },
                 { "D#", "Eb" }, { "Eb", "D#" },
@@ -568,11 +573,12 @@ namespace AcademiaAuditiva.Services
                 { "A#", "Bb" }, { "Bb", "A#" }
             };
 
-            note1 = Regex.Replace(note1 ?? "", @"\d", "").ToUpper();
-            note2 = Regex.Replace(note2 ?? "", @"\d", "").ToUpper();
+            note1 = Regex.Replace(note1 ?? "", @"\d", "");
+            note2 = Regex.Replace(note2 ?? "", @"\d", "");
 
-            if (note1 == note2) return true;
-            if (enharmonicMap.TryGetValue(note1, out var mapped) && mapped == note2) return true;
+            if (string.Equals(note1, note2, StringComparison.OrdinalIgnoreCase)) return true;
+            if (enharmonicMap.TryGetValue(note1, out var mapped) &&
+                string.Equals(mapped, note2, StringComparison.OrdinalIgnoreCase)) return true;
 
             return false;
         }
