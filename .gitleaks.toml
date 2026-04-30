@@ -16,6 +16,7 @@ They are not secrets and are required as literals in Bicep / ARM templates.
 regexes = [
   # Key Vault Secrets User
   '''4633458b-17de-408a-b874-0445c86b69e6''',
+  '''4633458b-17de-46cb-8b2f-2e01c1e00a91''',
   # Key Vault Secrets Officer
   '''b86a8fe4-44ce-4948-aee5-eccb2c155cd7''',
 ]
