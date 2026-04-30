@@ -1,3 +1,4 @@
+using AcademiaAuditiva.Areas.Teacher.Services;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
@@ -48,7 +49,7 @@ public class InvitesController : Controller
             .Include(i => i.Classroom)
             .FirstOrDefaultAsync(i => i.Token == token);
 
-        if (invite == null || invite.AcceptedAt != null || invite.ExpiresAt < DateTime.UtcNow)
+        if (!InvitePolicy.IsAcceptable(invite, DateTime.UtcNow))
         {
             return View("Invalid");
         }
