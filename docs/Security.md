@@ -13,6 +13,32 @@
 | CSRF | ASP.NET Core anti-forgery on POST forms |
 | Brute-force login | Identity lockout enabled (`LockoutEnabled = true`) |
 
+## Secret inventory (production)
+
+Vault: `kv-aa-prd-rmz6b3` (RG `rg-aa-prd`, region `canadacentral`).
+Read access: user-assigned MI `id-aa-prd` (role *Key Vault Secrets User*).
+The Container App `ca-aa-prd` mounts each one as a `keyVaultUrl` secret
+reference; the runtime env var swaps `--` for `__` to match the .NET
+configuration provider (e.g. `Facebook--AppSecret` → `Facebook__AppSecret`
+→ `Configuration["Facebook:AppSecret"]`).
+
+| Secret | Bound to (Configuration key) | Source of truth |
+|---|---|---|
+| `ConnectionStrings--DefaultConnection` | `ConnectionStrings:DefaultConnection` | Generated post-deploy from SQL FQDN + DB name; auth is AAD (`Authentication=Active Directory Default`) |
+| `Facebook--AppId` | `Facebook:AppId` | Facebook for Developers → App → Settings → Basic |
+| `Facebook--AppSecret` | `Facebook:AppSecret` | same — *Show* the App Secret |
+| `Smtp--Host` | `Smtp:Host` | `smtp.gmail.com` |
+| `Smtp--Port` | `Smtp:Port` | `587` |
+| `Smtp--User` | `Smtp:User` | Gmail address that owns the App Password |
+| `Smtp--Password` | `Smtp:Password` | Google → Security → 2FA → App passwords |
+
+Verify the inventory at any time:
+
+```powershell
+az keyvault secret list --vault-name kv-aa-prd-rmz6b3 `
+   --query "[].{name:name,updated:attributes.updated}" -o table
+```
+
 ## Secret rotation runbook
 
 > All secrets live in `kv-aa-prd-<suffix>`.
