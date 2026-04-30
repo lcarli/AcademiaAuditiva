@@ -27,9 +27,9 @@ RUN dotnet publish "AcademiaAuditiva.csproj" \
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION}-alpine AS runtime
 WORKDIR /app
 
-# Non-root user
-RUN addgroup -S app && adduser -S app -G app \
-    && chown -R app:app /app
+# Non-root user — the aspnet:8.0-alpine base image already ships a non-root
+# 'app' user/group, so we just chown the working directory and rely on it.
+RUN chown -R app:app /app
 
 USER app
 
