@@ -61,8 +61,17 @@ resource kvAdminOfficer 'Microsoft.Authorization/roleAssignments@2022-04-01' = i
 
 // Placeholder secrets so the Container App can wire references on first deploy.
 // Real values are written later via infra/scripts/seed-keyvault.ps1.
+//
+// IMPORTANT: This Bicep does **not** include ConnectionStrings--DefaultConnection
+// in the placeholder list. Doing so would clobber the real SQL connection string
+// on every redeploy (the placeholder is just 'placeholder-set-via-seed-script',
+// 31 characters, which then fails Migrate() at startup with
+// "Format of the initialization string does not conform to specification").
+// The SQL connection string is constructed deterministically in
+// modules/containerapp.bicep from the SQL outputs and exposed both as the
+// SqlConnection__Default env var and (via that module) as the
+// connectionstrings--defaultconnection KV-backed secret.
 var placeholderSecretNames = [
-  'ConnectionStrings--DefaultConnection'
   'Facebook--AppId'
   'Facebook--AppSecret'
   'Smtp--Host'
