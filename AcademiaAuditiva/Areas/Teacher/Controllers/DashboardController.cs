@@ -30,26 +30,38 @@ public class DashboardController : TeacherAreaController
         var studentIds = classroom.Members.Select(m => m.StudentId).ToList();
         var since30 = DateTime.UtcNow.AddDays(-30);
 
-        var scores = await _db.Scores
+        // Use ScoreAggregates for cumulative totals (one row per user/exercise),
+        // and ScoreSnapshots for per-attempt counts. The legacy `Scores` table
+        // stores running totals across rows so summing it overcounts attempts.
+        var aggregates = await _db.ScoreAggregates
+            .Where(a => studentIds.Contains(a.UserId))
+            .ToListAsync();
+
+        var snapshotCounts = await _db.ScoreSnapshots
             .Where(s => studentIds.Contains(s.UserId))
+            .GroupBy(s => s.UserId)
+            .Select(g => new { UserId = g.Key, Sessions = g.Count() })
             .ToListAsync();
 
         var perStudent = classroom.Members.Select(m =>
         {
-            var mine = scores.Where(s => s.UserId == m.StudentId).ToList();
-            var totalAttempts = mine.Sum(x => x.CorrectCount + x.ErrorCount);
+            var mineAgg = aggregates.Where(a => a.UserId == m.StudentId).ToList();
+            var totalAttempts = mineAgg.Sum(a => a.CorrectCount + a.ErrorCount);
+            var totalCorrect = mineAgg.Sum(a => a.CorrectCount);
             var accuracy = totalAttempts == 0 ? 0
-                : Math.Round(100.0 * mine.Sum(x => x.CorrectCount) / totalAttempts, 1);
+                : Math.Round(100.0 * totalCorrect / totalAttempts, 1);
+            var lastActivity = mineAgg.Count == 0 ? (DateTime?)null
+                : mineAgg.Max(a => a.LastAttemptAt);
             return new ClassroomDashboardRow
             {
                 StudentId = m.StudentId,
                 Display = m.Student?.UserName ?? m.Student?.Email ?? m.StudentId,
                 Email = m.Student?.Email ?? "",
-                Sessions = mine.Count,
+                Sessions = snapshotCounts.FirstOrDefault(c => c.UserId == m.StudentId)?.Sessions ?? 0,
                 Attempts = totalAttempts,
                 Accuracy = accuracy,
-                LastActivity = mine.OrderByDescending(x => x.Timestamp).FirstOrDefault()?.Timestamp,
-                ActiveLast30Days = mine.Any(x => x.Timestamp >= since30)
+                LastActivity = lastActivity,
+                ActiveLast30Days = lastActivity.HasValue && lastActivity.Value >= since30
             };
         })
         .OrderByDescending(r => r.LastActivity ?? DateTime.MinValue)
@@ -81,24 +93,29 @@ public class DashboardController : TeacherAreaController
         var student = membership.First().Student!;
         var since30 = DateTime.UtcNow.AddDays(-30);
 
-        var scores = await _db.Scores
-            .Where(s => s.UserId == id)
-            .Include(s => s.Exercise)
+        var aggregates = await _db.ScoreAggregates
+            .Where(a => a.UserId == id)
+            .Include(a => a.Exercise)
             .ToListAsync();
 
-        var totalAttempts = scores.Sum(s => s.CorrectCount + s.ErrorCount);
-        var byExercise = scores
-            .GroupBy(s => new { s.ExerciseId, Name = s.Exercise?.Name ?? "?" })
-            .Select(g =>
+        var sessionCount = await _db.ScoreSnapshots.CountAsync(s => s.UserId == id);
+
+        var totalAttempts = aggregates.Sum(a => a.CorrectCount + a.ErrorCount);
+        var totalCorrect = aggregates.Sum(a => a.CorrectCount);
+        var lastActivity = aggregates.Count == 0 ? (DateTime?)null
+            : aggregates.Max(a => a.LastAttemptAt);
+
+        var byExercise = aggregates
+            .Select(a =>
             {
-                var att = g.Sum(x => x.CorrectCount + x.ErrorCount);
+                var att = a.CorrectCount + a.ErrorCount;
                 return new StudentExerciseRow
                 {
-                    ExerciseName = g.Key.Name,
+                    ExerciseName = a.Exercise?.Name ?? "?",
                     Attempts = att,
-                    Accuracy = att == 0 ? 0 : Math.Round(100.0 * g.Sum(x => x.CorrectCount) / att, 1),
-                    BestScore = g.Max(x => x.BestScore),
-                    LastActivity = g.Max(x => x.Timestamp)
+                    Accuracy = att == 0 ? 0 : Math.Round(100.0 * a.CorrectCount / att, 1),
+                    BestScore = a.BestScore,
+                    LastActivity = a.LastAttemptAt
                 };
             })
             .OrderByDescending(r => r.LastActivity)
@@ -111,12 +128,12 @@ public class DashboardController : TeacherAreaController
             Email = student.Email ?? "",
             Classrooms = membership.Select(m => new ClassroomOption(m.ClassroomId, m.Classroom!.Name)).ToList(),
             BackClassroomId = classroomId,
-            TotalSessions = scores.Count,
+            TotalSessions = sessionCount,
             TotalAttempts = totalAttempts,
             OverallAccuracy = totalAttempts == 0 ? 0
-                : Math.Round(100.0 * scores.Sum(s => s.CorrectCount) / totalAttempts, 1),
-            ActiveLast30Days = scores.Any(s => s.Timestamp >= since30),
-            LastActivity = scores.OrderByDescending(s => s.Timestamp).FirstOrDefault()?.Timestamp,
+                : Math.Round(100.0 * totalCorrect / totalAttempts, 1),
+            ActiveLast30Days = lastActivity.HasValue && lastActivity.Value >= since30,
+            LastActivity = lastActivity,
             ByExercise = byExercise
         };
         return View(vm);

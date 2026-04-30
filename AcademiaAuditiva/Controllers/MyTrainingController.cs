@@ -69,8 +69,8 @@ public class MyTrainingController : Controller
             .Distinct()
             .ToList();
 
-        var scores = await _db.Scores
-            .Where(s => s.UserId == uid && routineExerciseIds.Contains(s.ExerciseId))
+        var aggregates = await _db.ScoreAggregates
+            .Where(a => a.UserId == uid && routineExerciseIds.Contains(a.ExerciseId))
             .ToListAsync();
 
         var rows = assignments.Select(a =>
@@ -83,8 +83,11 @@ public class MyTrainingController : Controller
                 if (effective is null) return null;
 
                 var target = effective.Value.Target;
-                var done = scores.Where(s => s.ExerciseId == i.ExerciseId)
-                    .Sum(s => s.CorrectCount + s.ErrorCount);
+                // ScoreAggregate holds the running totals authoritatively; the
+                // legacy `Scores` table stored cumulative rows-per-attempt and
+                // would overcount if summed.
+                var agg = aggregates.FirstOrDefault(a2 => a2.ExerciseId == i.ExerciseId);
+                var done = agg is null ? 0 : agg.CorrectCount + agg.ErrorCount;
                 var clamped = Math.Min(done, target);
                 return new MyRoutineItemRow
                 {
