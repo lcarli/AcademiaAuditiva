@@ -217,13 +217,14 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseRouting();
-
 if (!app.Environment.IsEnvironment("Testing"))
 {
     app.UseSerilogRequestLogging();
 }
 
+app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
