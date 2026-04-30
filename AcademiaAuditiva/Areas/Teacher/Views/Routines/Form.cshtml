@@ -7,7 +7,7 @@
 
 <form asp-action="@(isEdit ? "Edit" : "Create")"
       asp-route-id="@(isEdit ? Model.Id.ToString() : null)"
-      method="post" class="card border-0 shadow-sm" style="max-width: 640px;">
+      method="post" class="aa-card-flat shadow-sm" style="max-width: 640px;">
     <div class="card-body">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input type="hidden" asp-for="Id" />

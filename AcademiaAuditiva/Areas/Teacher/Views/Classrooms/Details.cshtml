@@ -21,7 +21,7 @@
         <h1 class="h3 mb-1">@Model.Name</h1>
         @if (!string.IsNullOrEmpty(Model.Description))
         {
-            <p class="text-muted mb-0">@Model.Description</p>
+            <p class="text-secondary mb-0">@Model.Description</p>
         }
     </div>
     <div>
@@ -33,24 +33,24 @@
 
 <div class="row g-3">
     <div class="col-md-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
+        <div class="aa-card-flat shadow-sm">
+            <div class="card-header bg-transparent border-bottom border-body">
                 <strong>Members</strong>
                 <span class="badge bg-secondary ms-2">@Model.Members.Count</span>
             </div>
             <ul class="list-group list-group-flush">
                 @if (!Model.Members.Any())
                 {
-                    <li class="list-group-item text-muted">No members yet. Invite students from the panel on the right.</li>
+                    <li class="list-group-item text-secondary">No members yet. Invite students from the panel on the right.</li>
                 }
                 else
                 {
                     @foreach (var m in Model.Members.OrderBy(x => x.Student!.UserName))
                     {
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>@m.Student?.UserName <small class="text-muted">@m.Student?.Email</small></span>
+                            <span>@m.Student?.UserName <small class="text-secondary">@m.Student?.Email</small></span>
                             <span class="d-flex align-items-center gap-2">
-                                <small class="text-muted">joined @m.JoinedAt.ToString("yyyy-MM-dd")</small>
+                                <small class="text-secondary">joined @m.JoinedAt.ToString("yyyy-MM-dd")</small>
                                 <form asp-controller="Members" asp-action="Remove" method="post"
                                       onsubmit="return confirm('Remove @m.Student?.UserName from the classroom?');">
                                     <input type="hidden" name="classroomId" value="@Model.Id" />
@@ -65,15 +65,15 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white"><strong>Pending invites</strong></div>
+        <div class="aa-card-flat shadow-sm">
+            <div class="card-header bg-transparent border-bottom border-body"><strong>Pending invites</strong></div>
             <ul class="list-group list-group-flush">
                 @{
                     var pending = Model.Invites.Where(i => i.AcceptedAt == null && i.ExpiresAt > DateTime.UtcNow).ToList();
                 }
                 @if (!pending.Any())
                 {
-                    <li class="list-group-item text-muted small">None</li>
+                    <li class="list-group-item text-secondary small">None</li>
                 }
                 else
                 {
@@ -82,7 +82,7 @@
                         <li class="list-group-item small d-flex justify-content-between align-items-start">
                             <div>
                                 @i.Email
-                                <div class="text-muted">expires @i.ExpiresAt.ToString("yyyy-MM-dd")</div>
+                                <div class="text-secondary">expires @i.ExpiresAt.ToString("yyyy-MM-dd")</div>
                             </div>
                             <form asp-controller="Members" asp-action="CancelInvite" method="post"
                                   onsubmit="return confirm('Cancel this invite?');">

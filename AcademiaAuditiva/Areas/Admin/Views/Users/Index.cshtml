@@ -9,11 +9,11 @@
 
 <form method="get" class="row g-2 align-items-end mb-3">
     <div class="col-md-5">
-        <label class="form-label small text-muted">Search (email or username)</label>
+        <label class="form-label small text-secondary">Search (email or username)</label>
         <input name="q" value="@Model.Query" class="form-control" />
     </div>
     <div class="col-md-3">
-        <label class="form-label small text-muted">Role</label>
+        <label class="form-label small text-secondary">Role</label>
         <select name="role" class="form-select">
             <option value="">All</option>
             <option value="Admin" selected="@(Model.Role == "Admin")">Admin</option>
@@ -24,10 +24,10 @@
     <div class="col-md-2">
         <button class="btn btn-primary w-100">Filter</button>
     </div>
-    <div class="col-md-2 text-end text-muted small">@Model.Total result(s)</div>
+    <div class="col-md-2 text-end text-secondary small">@Model.Total result(s)</div>
 </form>
 
-<div class="card border-0 shadow-sm">
+<div class="aa-card-flat shadow-sm">
     <div class="table-responsive">
         <table class="table mb-0 align-middle">
             <thead class="table-light">
@@ -43,7 +43,7 @@
                     <tr>
                         <td>
                             <div><strong>@r.UserName</strong></div>
-                            <small class="text-muted">@r.Email</small>
+                            <small class="text-secondary">@r.Email</small>
                             @if (!r.EmailConfirmed) { <span class="badge bg-warning text-dark ms-2">unconfirmed</span> }
                             @if (r.LockoutEndUtc.HasValue && r.LockoutEndUtc.Value > DateTime.UtcNow) { <span class="badge bg-danger ms-2">locked</span> }
                         </td>
@@ -86,7 +86,7 @@
                 }
                 @if (!Model.Rows.Any())
                 {
-                    <tr><td colspan="3" class="text-muted text-center py-4">No users match.</td></tr>
+                    <tr><td colspan="3" class="text-secondary text-center py-4">No users match.</td></tr>
                 }
             </tbody>
         </table>

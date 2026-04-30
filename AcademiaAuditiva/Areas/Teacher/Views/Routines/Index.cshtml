@@ -12,13 +12,13 @@
 
 @if (!Model.Any())
 {
-    <div class="card border-0 shadow-sm"><div class="card-body text-muted">
+    <div class="aa-card-flat shadow-sm"><div class="card-body text-secondary">
         No routines yet. Create one to start assigning training plans to your students.
     </div></div>
 }
 else
 {
-    <div class="card border-0 shadow-sm">
+    <div class="aa-card-flat shadow-sm">
         <table class="table mb-0 align-middle">
             <thead class="table-light">
                 <tr>
@@ -31,7 +31,7 @@ else
                 <tr>
                     <td>
                         <a asp-action="Details" asp-route-id="@r.Id">@r.Name</a>
-                        @if (!string.IsNullOrEmpty(r.Description)) { <div class="small text-muted">@r.Description</div> }
+                        @if (!string.IsNullOrEmpty(r.Description)) { <div class="small text-secondary">@r.Description</div> }
                     </td>
                     <td>@r.ItemCount</td>
                     <td>@r.AssignmentCount</td>

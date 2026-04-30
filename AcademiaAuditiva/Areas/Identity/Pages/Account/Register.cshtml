@@ -1,84 +1,65 @@
-﻿@page
+@page
 @model RegisterModel
 @{
-    ViewData["Title"] = Localizer["Register.Header"];
+    ViewData["Title"] = Localizer["Register.Header"].Value;
 }
 
-<h1>@ViewData["Title"]</h1>
-
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>@Localizer["Register.Title"]</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.FirstName" class="form-control" />
-                <label asp-for="Input.FirstName"></label>
-                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
-            </div>
-
-            <div class="form-floating mb-3">
-                <input asp-for="Input.LastName" class="form-control" />
-                <label asp-for="Input.LastName"></label>
-                <span asp-validation-for="Input.LastName" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true"
-                    placeholder="name@exemplo.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true"
-                    placeholder="@Localizer["Register.Password"]" />
-                <label asp-for="Input.Password">@Localizer["Register.Password"]</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password"
-                    aria-required="true" placeholder="@Localizer["Register.PasswordConfirmation"]" />
-                <label asp-for="Input.ConfirmPassword">@Localizer["Register.PasswordConfirmation"]</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit"
-                class="w-100 btn btn-lg btn-primary">@Localizer["Register.Header"]</button>
-        </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>@Localizer["Register.Text"]</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            Não há serviços de autenticação externa configurados. Veja este <a
-                                href="https://go.microsoft.com/fwlink/?LinkID=532715">
-                                artigo
-                                sobre como configurar este aplicativo ASP.NET para suportar o login através de serviços externos
-                            </a>.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post"
-                        class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name"
-                                        title="Entre usando sua conta @provider.DisplayName">@provider.DisplayName</button>
-                                }
-                            </p>
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="aa-card-flat p-4 p-md-5">
+            <header class="text-center mb-4">
+                <span class="aa-badge-soft">@Localizer["Identity.Auth.JoinTitle"]</span>
+                <h1 class="display-6 fw-bold mt-2 mb-0 text-body-emphasis">@Localizer["Register.Title"]</h1>
+            </header>
+            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert"></div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="Input.FirstName" class="form-control" placeholder="First name" />
+                            <label asp-for="Input.FirstName"></label>
+                            <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
                         </div>
-                    </form>
-                }
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="Input.LastName" class="form-control" placeholder="Last name" />
+                            <label asp-for="Input.LastName"></label>
+                            <span asp-validation-for="Input.LastName" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-floating mt-3 mb-3">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                    <label asp-for="Input.Email">Email</label>
+                    <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="@Localizer["Register.Password"]" />
+                    <label asp-for="Input.Password">@Localizer["Register.Password"]</label>
+                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="@Localizer["Register.PasswordConfirmation"]" />
+                    <label asp-for="Input.ConfirmPassword">@Localizer["Register.PasswordConfirmation"]</label>
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                </div>
+                <button id="registerSubmit" type="submit" class="w-100 btn btn-lg aa-grad-btn">@Localizer["Register.Header"]</button>
+            </form>
+            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+                <hr class="my-4" />
+                <p class="text-secondary small text-center mb-2">@Localizer["Register.Text"]</p>
+                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        @foreach (var provider in Model.ExternalLogins!)
+                        {
+                            <button type="submit" class="btn btn-outline-secondary" name="provider" value="@provider.Name">@provider.DisplayName</button>
+                        }
+                    </div>
+                </form>
             }
-        </section>
+        </div>
     </div>
 </div>
 

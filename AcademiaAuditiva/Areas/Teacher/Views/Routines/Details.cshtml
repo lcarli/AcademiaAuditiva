@@ -9,7 +9,7 @@
 <div class="d-flex justify-content-between align-items-start mb-3">
     <div>
         <h1 class="h3 mb-1">@Model.Name</h1>
-        @if (!string.IsNullOrEmpty(Model.Description)) { <p class="text-muted mb-0">@Model.Description</p> }
+        @if (!string.IsNullOrEmpty(Model.Description)) { <p class="text-secondary mb-0">@Model.Description</p> }
     </div>
     <div class="d-flex gap-2">
         <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
@@ -20,14 +20,14 @@
 
 <div class="row g-3">
     <div class="col-lg-7">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="aa-card-flat shadow-sm">
+            <div class="card-header bg-transparent border-bottom border-body d-flex justify-content-between align-items-center">
                 <strong>Exercises (@Model.Items.Count)</strong>
                 <a class="btn btn-sm btn-primary" asp-action="AddItem" asp-route-routineId="@Model.Id">Add exercise</a>
             </div>
             @if (!Model.Items.Any())
             {
-                <div class="card-body text-muted">No exercises yet.</div>
+                <div class="card-body text-secondary">No exercises yet.</div>
             }
             else
             {
@@ -37,7 +37,7 @@
                         <li class="list-group-item d-flex justify-content-between align-items-start">
                             <div>
                                 <div><strong>@item.Exercise?.Name</strong></div>
-                                <div class="small text-muted">
+                                <div class="small text-secondary">
                                     target: @item.TargetCount
                                     @if (item.MinScore.HasValue) { <text>· min score: @item.MinScore</text> }
                                     @if (!string.IsNullOrEmpty(item.FilterJson)) { <text>· custom filter</text> }
@@ -60,11 +60,11 @@
         </div>
     </div>
     <div class="col-lg-5">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white"><strong>Assignments (@assignments.Count)</strong></div>
+        <div class="aa-card-flat shadow-sm">
+            <div class="card-header bg-transparent border-bottom border-body"><strong>Assignments (@assignments.Count)</strong></div>
             @if (!assignments.Any())
             {
-                <div class="card-body text-muted small">Not assigned to anyone yet.</div>
+                <div class="card-body text-secondary small">Not assigned to anyone yet.</div>
             }
             else
             {
@@ -75,7 +75,7 @@
                             <span>
                                 @if (a.ClassroomId != null) { <text>👥 @a.Classroom?.Name</text> }
                                 else { <text>👤 @a.Student?.UserName</text> }
-                                <div class="text-muted">
+                                <div class="text-secondary">
                                     assigned @a.AssignedAt.ToString("yyyy-MM-dd")
                                     @if (a.DueAt.HasValue) { <text>· due @a.DueAt.Value.ToString("yyyy-MM-dd")</text> }
                                 </div>

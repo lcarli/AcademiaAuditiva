@@ -37,13 +37,13 @@ else
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr class="@(item.IsArchived ? "text-muted" : "")">
+                    <tr class="@(item.IsArchived ? "text-secondary" : "")">
                         <td>
                             <a asp-action="Details" asp-route-id="@item.Id"><strong>@item.Name</strong></a>
                             @if (item.IsArchived) { <span class="badge bg-secondary ms-2">Archived</span> }
                             @if (!string.IsNullOrEmpty(item.Description))
                             {
-                                <div class="small text-muted">@item.Description</div>
+                                <div class="small text-secondary">@item.Description</div>
                             }
                         </td>
                         <td>@item.MemberCount</td>

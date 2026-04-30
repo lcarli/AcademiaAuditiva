@@ -1,18 +1,26 @@
 @{
-    ViewData["Title"] = "My training";
+    ViewData["Title"] = Localizer["MyTraining.Title"].Value;
     var classrooms = (List<AcademiaAuditiva.Controllers.MyClassroomRow>)ViewBag.Classrooms;
     var assignments = (List<AcademiaAuditiva.Controllers.MyRoutineAssignmentRow>)ViewBag.Assignments;
 }
-<h1 class="h3 mb-3">My training</h1>
 
-<div class="row g-3">
+<header class="mb-4">
+    <span class="aa-badge-soft">@Localizer["MyTraining.Title"]</span>
+    <h1 class="display-6 fw-bold mt-2 mb-1 text-body-emphasis">@Localizer["MyTraining.Title"]</h1>
+    <p class="text-secondary mb-0">@Localizer["MyTraining.Subtitle"]</p>
+</header>
+
+<div class="row g-4">
     <div class="col-lg-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white"><strong>My classrooms</strong></div>
+        <div class="aa-card-flat h-100">
+            <div class="p-3 border-bottom border-body d-flex align-items-center gap-2">
+                <span class="aa-icon-pill" aria-hidden="true"><i class="bi bi-people"></i></span>
+                <strong class="text-body-emphasis">@Localizer["MyTraining.MyClassrooms"]</strong>
+            </div>
             @if (!classrooms.Any())
             {
-                <div class="card-body text-muted small">
-                    You're not a member of any classroom yet. Ask your teacher for an invitation.
+                <div class="p-3 text-secondary small">
+                    @Localizer["MyTraining.NoClassrooms"]
                 </div>
             }
             else
@@ -20,9 +28,9 @@
                 <ul class="list-group list-group-flush">
                     @foreach (var c in classrooms)
                     {
-                        <li class="list-group-item">
-                            <div><strong>@c.Name</strong></div>
-                            <small class="text-muted">teacher: @c.TeacherDisplay · joined @c.JoinedAt.ToString("yyyy-MM-dd")</small>
+                        <li class="list-group-item bg-transparent">
+                            <div class="fw-semibold text-body-emphasis">@c.Name</div>
+                            <small class="text-secondary">@Localizer["MyTraining.Teacher"]: @c.TeacherDisplay · @Localizer["MyTraining.Joined"] @c.JoinedAt.ToString("yyyy-MM-dd")</small>
                         </li>
                     }
                 </ul>
@@ -31,42 +39,45 @@
     </div>
 
     <div class="col-lg-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white"><strong>My routines</strong></div>
+        <div class="aa-card-flat h-100">
+            <div class="p-3 border-bottom border-body d-flex align-items-center gap-2">
+                <span class="aa-icon-pill" aria-hidden="true" style="color:#7c3aed"><i class="bi bi-list-check"></i></span>
+                <strong class="text-body-emphasis">@Localizer["MyTraining.MyRoutines"]</strong>
+            </div>
             @if (!assignments.Any())
             {
-                <div class="card-body text-muted small">No routines assigned to you right now.</div>
+                <div class="p-3 text-secondary small">@Localizer["MyTraining.NoRoutines"]</div>
             }
             else
             {
-                <div class="card-body">
+                <div class="p-3">
                     @foreach (var a in assignments)
                     {
                         <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                 <div>
-                                    <strong>@a.RoutineName</strong>
-                                    <span class="badge bg-light text-dark ms-2">@a.Source</span>
+                                    <strong class="text-body-emphasis">@a.RoutineName</strong>
+                                    <span class="aa-badge-soft ms-2">@a.Source</span>
                                 </div>
-                                <small class="text-muted">
-                                    @if (a.DueAt.HasValue) { <text>due @a.DueAt.Value.ToString("yyyy-MM-dd")</text> }
-                                    else { <text>no deadline</text> }
+                                <small class="text-secondary">
+                                    @if (a.DueAt.HasValue) { <text>@Localizer["MyTraining.Due"] @a.DueAt.Value.ToString("yyyy-MM-dd")</text> }
+                                    else { <text>@Localizer["MyTraining.NoDeadline"]</text> }
                                 </small>
                             </div>
                             <div class="progress my-2" role="progressbar" aria-valuenow="@a.OverallPercent" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
-                                <div class="progress-bar" style="width: @(a.OverallPercent)%;"></div>
+                                <div class="progress-bar" style="width: @(a.OverallPercent)%; background: var(--aa-grad);"></div>
                             </div>
                             <ul class="list-group list-group-flush small">
                                 @foreach (var i in a.Items)
                                 {
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <a asp-controller="Exercise" asp-action="Index" asp-route-id="@i.ExerciseId">@i.ExerciseName</a>
-                                        <span class="text-muted">@i.Done / @i.Target (@(i.PercentComplete)%)</span>
+                                    <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0 border-0">
+                                        <a class="text-body link-offset-2" asp-controller="Exercise" asp-action="Index" asp-route-id="@i.ExerciseId">@i.ExerciseName</a>
+                                        <span class="text-secondary">@i.Done / @i.Target (@(i.PercentComplete)%)</span>
                                     </li>
                                 }
                                 @if (!a.Items.Any())
                                 {
-                                    <li class="list-group-item text-muted px-0">No exercises in this routine.</li>
+                                    <li class="list-group-item bg-transparent text-secondary px-0 border-0">@Localizer["MyTraining.NoExercises"]</li>
                                 }
                             </ul>
                         </div>

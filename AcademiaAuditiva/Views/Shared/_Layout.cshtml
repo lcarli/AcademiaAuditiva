@@ -7,187 +7,226 @@
     var antiforgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
 }
 <!DOCTYPE html>
-<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" data-bs-theme="light">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta name="request-verification-token" content="@antiforgeryToken" />
-	<title>@ViewBag.Title - Academia Auditiva</title>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css"
-		integrity="sha512-Z/def5z5u2aR89OuzYcxmDJ0Bnd5V1cKqBEbvLOiUNWdg9PQeXVvXLI90SE4QOHGlfLqUnDNVAYyZi8UwUTmWQ=="
-		crossorigin="anonymous" referrerpolicy="no-referrer" />
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-		integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-		crossorigin="anonymous" referrerpolicy="no-referrer" />
-	<!-- SweetAlert2 CSS -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
-	<!-- Custom -->
-	<link href="~/css/site.css" rel="stylesheet" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="request-verification-token" content="@antiforgeryToken" />
+    <meta name="color-scheme" content="light dark" />
+    <title>@ViewBag.Title - Academia Auditiva</title>
+
+    <script>
+        // Theme bootstrap — runs before CSS paints to prevent FOUC.
+        // Priority: saved preference > system (prefers-color-scheme) > light.
+        (function () {
+            try {
+                var saved = localStorage.getItem('aa-theme');
+                var theme;
+                if (saved === 'dark' || saved === 'light') {
+                    theme = saved;
+                } else {
+                    theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-bs-theme', theme);
+            } catch (e) { document.documentElement.setAttribute('data-bs-theme', 'light'); }
+        })();
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css"
+          integrity="sha512-Z/def5z5u2aR89OuzYcxmDJ0Bnd5V1cKqBEbvLOiUNWdg9PQeXVvXLI90SE4QOHGlfLqUnDNVAYyZi8UwUTmWQ=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="~/css/aa-design-system.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <style>
         [x-cloak] { display: none !important; }
         .htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
         .htmx-request .htmx-indicator { opacity: 1; }
+        body { background: var(--bs-body-bg); color: var(--bs-body-color); }
     </style>
 </head>
 
 <body hx-indicator="#htmx-progress">
-	<a href="#mainContent" class="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary">Skip to main content</a>
-	<div id="htmx-progress" class="htmx-indicator position-fixed top-0 start-0 end-0" style="height: 3px; background: linear-gradient(90deg, #0d6efd, #6610f2); z-index: 2000;" aria-hidden="true"></div>
-	<header>
-		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-			<div class="container-fluid">
-				<a class="navbar-brand" href="/">Academia Auditiva</a>
+    <a href="#mainContent" class="aa-skip-link">@Localizer["Layout.SkipToMain"]</a>
+    <div id="htmx-progress" class="htmx-indicator aa-htmx-progress" aria-hidden="true"></div>
 
-				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-					aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
+    <header>
+        <nav class="navbar navbar-expand-lg aa-navbar sticky-top">
+            <div class="container-fluid px-3 px-lg-4">
+                <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="aa-icon-pill aa-icon-pill-sm" aria-hidden="true"><i class="bi bi-soundwave"></i></span>
+                    <span class="aa-brand-text">Academia Auditiva</span>
+                </a>
 
-				<div class="collapse navbar-collapse" id="mainNavbar">
-					@if (SignInManager.IsSignedIn(User))
-					{
-						<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-							<li class="nav-item">
-								<a class="nav-link" asp-area="" asp-controller="Dashboard"
-									asp-action="Index">@Localizer["Header.Dashboard"]</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" asp-area="" asp-controller="Exercise"
-									asp-action="Index">@Localizer["Header.Exercise"]</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" asp-area="" asp-controller="Dashboard"
-									asp-action="Index">@Localizer["Header.Games"]</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" asp-area="" asp-controller="MyTraining" asp-action="Index">My training</a>
-							</li>
-							@if (User.IsInRole(AcademiaAuditiva.Models.RoleNames.Teacher) || User.IsInRole(AcademiaAuditiva.Models.RoleNames.Admin))
-							{
-								<li class="nav-item">
-									<a class="nav-link" asp-area="Teacher" asp-controller="Home" asp-action="Index">Teacher</a>
-								</li>
-							}
-							@if (User.IsInRole(AcademiaAuditiva.Models.RoleNames.Admin))
-							{
-								<li class="nav-item">
-									<a class="nav-link text-danger" asp-area="Admin" asp-controller="Home" asp-action="Index">Admin</a>
-								</li>
-							}
-						</ul>
-					}
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar" aria-expanded="false" aria-label="@Localizer["Layout.ToggleNav"]">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-					<div class="d-flex ms-auto align-items-center gap-2">
-						<button id="themeToggle" type="button" class="btn btn-sm btn-outline-light" aria-label="Toggle dark mode" title="Toggle dark mode">
-							<i class="bi bi-moon-stars" aria-hidden="true"></i>
-						</button>
-						@await Html.PartialAsync("_LoginPartial")
-					</div>
-				</div>
-			</div>
-		</nav>
-	</header>
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-lg-1">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>@Localizer["Header.Dashboard"]
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Exercise" asp-action="Index">
+                                    <i class="bi bi-music-note-list me-1" aria-hidden="true"></i>@Localizer["Header.Exercise"]
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="MyTraining" asp-action="Index">
+                                    <i class="bi bi-bullseye me-1" aria-hidden="true"></i>@Localizer["Header.MyTraining"]
+                                </a>
+                            </li>
+                            @if (User.IsInRole(AcademiaAuditiva.Models.RoleNames.Teacher) || User.IsInRole(AcademiaAuditiva.Models.RoleNames.Admin))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="Teacher" asp-controller="Home" asp-action="Index">
+                                        <i class="bi bi-mortarboard me-1" aria-hidden="true"></i>@Localizer["Header.Teacher"]
+                                    </a>
+                                </li>
+                            }
+                            @if (User.IsInRole(AcademiaAuditiva.Models.RoleNames.Admin))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">
+                                        <i class="bi bi-shield-lock me-1" aria-hidden="true"></i>@Localizer["Header.Admin"]
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    }
 
-	<main id="mainContent" class="container mt-4" role="main">
-		@RenderBody()
-	</main>
+                    <div class="d-flex ms-auto align-items-center gap-2 flex-wrap">
+                        @await Html.PartialAsync("_SelectLanguagePartial")
+                        <button id="themeToggle" type="button" class="aa-theme-toggle" aria-label="@Localizer["Layout.ToggleTheme"]" title="@Localizer["Layout.ToggleTheme"]">
+                            <i class="bi bi-moon-stars" aria-hidden="true"></i>
+                        </button>
+                        @await Html.PartialAsync("_LoginPartial")
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
 
-	<footer class="footer bg-dark text-white text-center py-3">
-		<div class="row">
-			<div class="col-md-9">
-				&copy; @DateTime.Now.Year - Academia Auditiva
-			</div>
-			<div class="col-md-3 text-right">
-				@await Html.PartialAsync("_SelectLanguagePartial")
-			</div>
-		</div>
-	</footer>
+    <main id="mainContent" class="container-xl my-4" role="main">
+        @RenderBody()
+    </main>
 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
-		integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
-		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-	<script>
-		// Anti-forgery token injection: every same-origin POST/PUT/DELETE/PATCH
-		// fetch() picks up the request-verification-token meta automatically,
-		// so existing JS in wwwroot/js/Exercises/* keeps working under the
-		// global AutoValidateAntiforgeryToken filter without per-call changes.
-		(function () {
-			var meta = document.querySelector('meta[name="request-verification-token"]');
-			if (!meta) return;
-			var token = meta.getAttribute('content') || '';
-			var unsafe = { POST: 1, PUT: 1, DELETE: 1, PATCH: 1 };
-			var origFetch = window.fetch.bind(window);
-			window.fetch = function (input, init) {
-				init = init || {};
-				var method = (init.method || (typeof input !== 'string' && input && input.method) || 'GET').toUpperCase();
-				if (!unsafe[method]) return origFetch(input, init);
-				var url = typeof input === 'string' ? input : (input && input.url) || '';
-				var sameOrigin = url.startsWith('/') || url.startsWith(window.location.origin);
-				if (!sameOrigin) return origFetch(input, init);
-				var headers = new Headers(init.headers || {});
-				if (!headers.has('RequestVerificationToken')) headers.set('RequestVerificationToken', token);
-				init.headers = headers;
-				return origFetch(input, init);
-			};
-		})();
-	</script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"
-		integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ=="
-		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.min.js"
-		integrity="sha512-fHY2UiQlipUq0dEabSM4s+phmn+bcxSYzXP4vAXItBvBHU7zAM/mkhCZjtBEIJexhOMzZbgFlPLuErlJF2b+0g=="
-		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-	<!-- HTMX 2.x — progressive enhancement for forms (hx-boost) -->
-	<script src="https://unpkg.com/htmx.org@2.0.3"
-		integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
-		crossorigin="anonymous"></script>
-	<!-- Alpine.js 3.x — small reactive directives for inline UX -->
-	<script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
-	<!-- SweetAlert2 JS -->
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-	<!-- ToneJS -->
-	<script src="/js/tone.js"></script>
-	<!-- VexFlow -->
-	<script src="/js/vexflow.js"></script>
-	<!-- Essentia -->
-	@* <script src="/js/essentia-wasm.web.js"></script>
-	<script src="/js/essentia.js"></script> *@
-	<script src="/js/dist/essentia.js-core.js?v=1.0.2"></script>
-	<script src="/js/dist/essentia.js-extractor.js?v=1.0.2"></script>
-	<script src="/js/dist/essentia.js-model.js?v=1.0.2"></script>
-	<script src="/js/dist/essentia.js-plot.js?v=1.0.2"></script>
-	<script src="/js/dist/essentia-wasm.web.js?v=1.0.2"></script>
-	<!-- Custom -->
-	@* <script src="~/js/site.js?v=7"></script> *@
-	<script src="/js/core/audio-engine.js?v=1.0.2"></script>
-	<script src="/js/games/game-engine.js?v=1.0.2"></script>
-	<script src="/js/main/academia-auditiva.js?v=1.0.2"></script>
-	<script src="/js/AcademiaAuditiva.Filters.js?v=1.0.2"></script>
-	<script>
-		// Theme toggle: persists choice in localStorage and toggles Bootstrap 5.3 data-bs-theme.
-		(function () {
-			var html = document.documentElement;
-			var btn = document.getElementById('themeToggle');
-			var saved = localStorage.getItem('aa-theme');
-			if (saved === 'dark' || saved === 'light') html.setAttribute('data-bs-theme', saved);
-			function paint() {
-				var icon = btn && btn.querySelector('i');
-				if (!icon) return;
-				icon.className = html.getAttribute('data-bs-theme') === 'dark'
-					? 'bi bi-sun' : 'bi bi-moon-stars';
-			}
-			paint();
-			if (btn) btn.addEventListener('click', function () {
-				var next = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
-				html.setAttribute('data-bs-theme', next);
-				localStorage.setItem('aa-theme', next);
-				paint();
-			});
-		})();
-	</script>
-	@await RenderSectionAsync("Scripts", required: false)
+    <footer class="aa-footer mt-auto">
+        <div class="container-xl">
+            <div class="row gy-3 align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="aa-icon-pill aa-icon-pill-sm" aria-hidden="true"><i class="bi bi-soundwave"></i></span>
+                        <strong class="aa-brand-text">Academia Auditiva</strong>
+                    </div>
+                    <small class="d-block text-secondary">@Localizer["Layout.FooterTagline"]</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="d-block text-secondary mb-1">&copy; @DateTime.Now.Year Academia Auditiva</small>
+                    <small>
+                        <a asp-area="" asp-controller="Home" asp-action="Privacy">@Localizer["Layout.Privacy"]</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+            integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        // Anti-forgery token injection: every same-origin POST/PUT/DELETE/PATCH
+        // fetch() picks up the request-verification-token meta automatically,
+        // so existing JS in wwwroot/js/Exercises/* keeps working under the
+        // global AutoValidateAntiforgeryToken filter without per-call changes.
+        (function () {
+            var meta = document.querySelector('meta[name="request-verification-token"]');
+            if (!meta) return;
+            var token = meta.getAttribute('content') || '';
+            var unsafe = { POST: 1, PUT: 1, DELETE: 1, PATCH: 1 };
+            var origFetch = window.fetch.bind(window);
+            window.fetch = function (input, init) {
+                init = init || {};
+                var method = (init.method || (typeof input !== 'string' && input && input.method) || 'GET').toUpperCase();
+                if (!unsafe[method]) return origFetch(input, init);
+                var url = typeof input === 'string' ? input : (input && input.url) || '';
+                var sameOrigin = url.startsWith('/') || url.startsWith(window.location.origin);
+                if (!sameOrigin) return origFetch(input, init);
+                var headers = new Headers(init.headers || {});
+                if (!headers.has('RequestVerificationToken')) headers.set('RequestVerificationToken', token);
+                init.headers = headers;
+                return origFetch(input, init);
+            };
+        })();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"
+            integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.min.js"
+            integrity="sha512-fHY2UiQlipUq0dEabSM4s+phmn+bcxSYzXP4vAXItBvBHU7zAM/mkhCZjtBEIJexhOMzZbgFlPLuErlJF2b+0g=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.3"
+            integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
+            crossorigin="anonymous"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="/js/tone.js"></script>
+    <script src="/js/vexflow.js"></script>
+    <script src="/js/dist/essentia.js-core.js?v=1.0.2"></script>
+    <script src="/js/dist/essentia.js-extractor.js?v=1.0.2"></script>
+    <script src="/js/dist/essentia.js-model.js?v=1.0.2"></script>
+    <script src="/js/dist/essentia.js-plot.js?v=1.0.2"></script>
+    <script src="/js/dist/essentia-wasm.web.js?v=1.0.2"></script>
+    <script src="/js/core/audio-engine.js?v=1.0.2"></script>
+    <script src="/js/games/game-engine.js?v=1.0.2"></script>
+    <script src="/js/main/academia-auditiva.js?v=1.0.2"></script>
+    <script src="/js/AcademiaAuditiva.Filters.js?v=1.0.2"></script>
+    <script>
+        // Theme toggle: persists choice in localStorage, follows system if no choice saved.
+        (function () {
+            var html = document.documentElement;
+            var btn = document.getElementById('themeToggle');
+            var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+            function paint() {
+                var icon = btn && btn.querySelector('i');
+                if (!icon) return;
+                icon.className = html.getAttribute('data-bs-theme') === 'dark'
+                    ? 'bi bi-sun' : 'bi bi-moon-stars';
+            }
+            paint();
+
+            if (btn) {
+                btn.addEventListener('click', function () {
+                    var next = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+                    html.setAttribute('data-bs-theme', next);
+                    localStorage.setItem('aa-theme', next);
+                    paint();
+                });
+            }
+
+            // Live-follow system preference when user has not set an explicit choice.
+            if (media && media.addEventListener) {
+                media.addEventListener('change', function (e) {
+                    if (localStorage.getItem('aa-theme')) return;
+                    html.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light');
+                    paint();
+                });
+            }
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>

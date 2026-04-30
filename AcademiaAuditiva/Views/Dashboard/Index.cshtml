@@ -1,93 +1,131 @@
-﻿@{
-    ViewBag.Title = "Dashboard";
+@{
+    ViewBag.Title = Localizer["Dashboard.Title"].Value;
 }
 
-<div class="container mt-4">
-    <h2 class="fw-bold">@Localizer["Dashboard.WelcomeMessage"] @ViewBag.FirstName!</h2>
+<header class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <span class="aa-badge-soft">@Localizer["Dashboard.Title"]</span>
+        <h1 class="display-6 fw-bold mt-2 mb-1 text-body-emphasis">
+            @Localizer["Dashboard.WelcomeMessage"] <span class="aa-brand-text">@ViewBag.FirstName</span>!
+        </h1>
+        <p class="text-secondary mb-0">@Localizer["Dashboard.Subtitle"]</p>
+    </div>
+    <a class="btn aa-grad-btn" asp-controller="Exercise" asp-action="Index">
+        <i class="bi bi-play-circle me-2" aria-hidden="true"></i>@Localizer["Dashboard.StartTraining"]
+    </a>
+</header>
 
-    <!-- KPIs -->
-    <div class="row row-cols-1 row-cols-md-3 g-4 my-3">
-        <div class="col">
-            <div class="card text-bg-light h-100 text-center p-3">
-                <h6 class="text-uppercase">@Localizer["Dashboard.TotalExercises"]</h6>
-                <h3 class="fw-bold">@ViewBag.TotalExercises</h3>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card text-bg-light h-100 text-center p-3">
-                <h6 class="text-uppercase">@Localizer["Dashboard.BestScore"]</h6>
-                <h3 class="fw-bold">@ViewBag.BestScore</h3>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card text-bg-light h-100 text-center p-3">
-                <h6 class="text-uppercase">@Localizer["Dashboard.TotalTime"]</h6>
-                <h3 class="fw-bold">@ViewBag.TotalTime min</h3>
+<!-- KPIs -->
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+    <div class="col">
+        <div class="aa-card aa-card-accent p-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <span class="aa-icon-pill" aria-hidden="true"><i class="bi bi-music-note-list"></i></span>
+                <div>
+                    <h6 class="text-uppercase small text-secondary mb-1">@Localizer["Dashboard.TotalExercises"]</h6>
+                    <h3 class="fw-bold mb-0 text-body-emphasis">@ViewBag.TotalExercises</h3>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Gráficos principais -->
-    <div class="row row-cols-1 row-cols-md-2 g-4">
-        <div class="col">
-            <div class="card p-3 h-100">
-                <h5 class="mb-2">@Localizer["Dashboard.LearningTimeline"]</h5>
-                <canvas id="learningTimelineChart" height="120"></canvas>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card p-3 h-100">
-                <h5 class="mb-2">@Localizer["Dashboard.ByDifficulty"]</h5>
-                <canvas id="difficultyChart" height="120"></canvas>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card p-3 h-100">
-                <h5 class="mb-2">@Localizer["Dashboard.TechnicalSkills"]</h5>
-                <canvas id="radarTechnicalChart" height="180"></canvas>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card p-3 h-100">
-                <h5 class="mb-2">@Localizer["Dashboard.PedagogicalCategories"]</h5>
-                <canvas id="radarCategoryChart" height="180"></canvas>
+    <div class="col">
+        <div class="aa-card aa-card-accent p-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <span class="aa-icon-pill" aria-hidden="true" style="color:#f59e0b;"><i class="bi bi-trophy"></i></span>
+                <div>
+                    <h6 class="text-uppercase small text-secondary mb-1">@Localizer["Dashboard.BestScore"]</h6>
+                    <h3 class="fw-bold mb-0 text-body-emphasis">@ViewBag.BestScore</h3>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Histórico de sessões -->
-    <div class="card mt-5 p-3">
-        <h5>@Localizer["Dashboard.RecentSessions"]</h5>
-        <div class="table-responsive mt-2">
-            <table class="table table-sm table-striped">
-                <thead>
-                    <tr>
-                        <th>@Localizer["Dashboard.Exercise"]</th>
-                        <th>@Localizer["Dashboard.Date"]</th>
-                        <th>@Localizer["Dashboard.Correct"]</th>
-                        <th>@Localizer["Dashboard.Errors"]</th>
-                        <th>@Localizer["Dashboard.TimeSpent"]</th>
-                        <th>@Localizer["Dashboard.Score"]</th>
-                    </tr>
-                </thead>
-                <tbody id="scoreHistoryTable"></tbody>
-            </table>
+    <div class="col">
+        <div class="aa-card aa-card-accent p-4 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <span class="aa-icon-pill" aria-hidden="true" style="color:#14b8a6;"><i class="bi bi-stopwatch"></i></span>
+                <div>
+                    <h6 class="text-uppercase small text-secondary mb-1">@Localizer["Dashboard.TotalTime"]</h6>
+                    <h3 class="fw-bold mb-0 text-body-emphasis">@ViewBag.TotalTime <small class="fs-6 text-secondary">min</small></h3>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- Dificuldades & Recomendações -->
-    <div class="row row-cols-1 row-cols-md-2 g-4 mt-4">
-        <div class="col">
-            <div class="card p-3 h-100">
-                <h5>@Localizer["Dashboard.MostMissedItems"]</h5>
-                <ul class="list-group mt-2" id="mostMissedList"></ul>
-            </div>
+<!-- Charts -->
+<div class="row row-cols-1 row-cols-lg-2 g-4">
+    <div class="col">
+        <div class="aa-card-flat p-4 h-100">
+            <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
+                <i class="bi bi-graph-up text-primary" aria-hidden="true"></i>@Localizer["Dashboard.LearningTimeline"]
+            </h5>
+            <canvas id="learningTimelineChart" height="120"></canvas>
         </div>
-        <div class="col">
-            <div class="card p-3 h-100">
-                <h5>@Localizer["Dashboard.Recommendations"]</h5>
-                <div id="recommendationsList" class="list-group mt-2"></div>
-            </div>
+    </div>
+    <div class="col">
+        <div class="aa-card-flat p-4 h-100">
+            <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
+                <i class="bi bi-bar-chart" aria-hidden="true" style="color:#7c3aed"></i>@Localizer["Dashboard.ByDifficulty"]
+            </h5>
+            <canvas id="difficultyChart" height="120"></canvas>
+        </div>
+    </div>
+    <div class="col">
+        <div class="aa-card-flat p-4 h-100">
+            <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
+                <i class="bi bi-radar" aria-hidden="true" style="color:#3b82f6"></i>@Localizer["Dashboard.TechnicalSkills"]
+            </h5>
+            <canvas id="radarTechnicalChart" height="180"></canvas>
+        </div>
+    </div>
+    <div class="col">
+        <div class="aa-card-flat p-4 h-100">
+            <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
+                <i class="bi bi-pie-chart" aria-hidden="true" style="color:#ec4899"></i>@Localizer["Dashboard.PedagogicalCategories"]
+            </h5>
+            <canvas id="radarCategoryChart" height="180"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent sessions -->
+<div class="aa-card-flat p-4 mt-4">
+    <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
+        <i class="bi bi-clock-history" aria-hidden="true" style="color:#14b8a6"></i>@Localizer["Dashboard.RecentSessions"]
+    </h5>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead>
+                <tr class="text-secondary small text-uppercase">
+                    <th>@Localizer["Dashboard.Exercise"]</th>
+                    <th>@Localizer["Dashboard.Date"]</th>
+                    <th>@Localizer["Dashboard.Correct"]</th>
+                    <th>@Localizer["Dashboard.Errors"]</th>
+                    <th>@Localizer["Dashboard.TimeSpent"]</th>
+                    <th>@Localizer["Dashboard.Score"]</th>
+                </tr>
+            </thead>
+            <tbody id="scoreHistoryTable"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Difficulties + Recommendations -->
+<div class="row row-cols-1 row-cols-lg-2 g-4 mt-2">
+    <div class="col">
+        <div class="aa-card-flat p-4 h-100">
+            <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
+                <i class="bi bi-exclamation-triangle text-warning" aria-hidden="true"></i>@Localizer["Dashboard.MostMissedItems"]
+            </h5>
+            <ul class="list-group list-group-flush" id="mostMissedList"></ul>
+        </div>
+    </div>
+    <div class="col">
+        <div class="aa-card-flat p-4 h-100">
+            <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
+                <i class="bi bi-lightbulb" aria-hidden="true" style="color:#7c3aed"></i>@Localizer["Dashboard.Recommendations"]
+            </h5>
+            <div id="recommendationsList" class="list-group list-group-flush"></div>
         </div>
     </div>
 </div>
@@ -100,7 +138,6 @@
      data-diff-Beginner="@Localizer["Exercise.Beginner"]"
      data-diff-Intermediate="@Localizer["Exercise.Intermediate"]"
      data-diff-Advanced="@Localizer["Exercise.Advanced"]"></div>
-</div>
 
 
 @section Scripts {
@@ -131,9 +168,10 @@
                             datasets: [{
                                 label: loc.chartProgress,
                                 data: scores,
-                                fill: false,
-                                borderColor: 'rgb(75, 192, 192)',
-                                tension: 0.2
+                                fill: true,
+                                backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                                borderColor: 'rgba(124, 58, 237, 1)',
+                                tension: 0.3
                             }]
                         },
                         options: {
@@ -160,8 +198,8 @@
                             datasets: [{
                                 label: loc.chartAccuracyBySkill,
                                 data: values,
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                                borderColor: 'rgba(124, 58, 237, 1)',
                                 borderWidth: 1
                             }]
                         },
@@ -184,8 +222,8 @@
                             datasets: [{
                                 label: loc.chartAccuracyByCategory,
                                 data: catValues,
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                                borderColor: 'rgba(20, 184, 166, 1)',
                                 borderWidth: 1
                             }]
                         },
@@ -208,10 +246,10 @@
                         tr.innerHTML = `
                                 <td>${exerciseTranslations[row.exercise] || row.exercise}</td>
                                 <td>${row.date}</td>
-                                <td>${row.correct}</td>
-                                <td>${row.error}</td>
+                                <td><span class="text-success fw-semibold">${row.correct}</span></td>
+                                <td><span class="text-danger fw-semibold">${row.error}</span></td>
                                 <td>${row.timeSpent}</td>
-                                <td>${row.score}</td>
+                                <td><span class="aa-badge-soft">${row.score}</span></td>
                             `;
                         tbody.appendChild(tr);
                     });
@@ -238,8 +276,8 @@
                             datasets: [{
                                 label: loc.chartAccuracyByDifficulty,
                                 data: values,
-                                backgroundColor: 'rgba(153, 102, 255, 0.6)',
-                                borderColor: 'rgba(153, 102, 255, 1)',
+                                backgroundColor: 'rgba(124, 58, 237, 0.6)',
+                                borderColor: 'rgba(124, 58, 237, 1)',
                                 borderWidth: 1
                             }]
                         },
@@ -259,8 +297,8 @@
                     const list = document.getElementById("mostMissedList");
                     data.forEach(item => {
                         const li = document.createElement("li");
-                        li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
-                        li.innerHTML = `${item.exercise} <span class="badge bg-danger">${item.errors}</span>`;
+                        li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center", "border-0", "px-0");
+                        li.innerHTML = `<span>${item.exercise}</span> <span class="badge bg-danger-subtle text-danger-emphasis">${item.errors}</span>`;
                         list.appendChild(li);
                     });
                 });
@@ -272,8 +310,8 @@
                     const list = document.getElementById("recommendationsList");
                     data.forEach(msg => {
                         const div = document.createElement("div");
-                        div.classList.add("list-group-item");
-                        div.innerText = msg;
+                        div.classList.add("list-group-item", "border-0", "px-0", "d-flex", "align-items-start", "gap-2");
+                        div.innerHTML = `<i class="bi bi-arrow-right-circle text-primary mt-1"></i><span>${msg}</span>`;
                         list.appendChild(div);
                     });
                 });
