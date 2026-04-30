@@ -1818,4 +1818,250 @@
   <data name="Admin.Users.Empty" xml:space="preserve">
     <value>Nenhum usuário encontrado.</value>
   </data>
+  <data name="Manage.DeletePersonal.Warning" xml:space="preserve">
+    <value>Excluir esses dados removerá permanentemente sua conta, e isso não poderá ser recuperado.</value>
+  </data>
+  <data name="Manage.Disable2fa.OnlyDisables" xml:space="preserve">
+    <value>Esta ação apenas desativa o 2FA.</value>
+  </data>
+  <data name="Manage.Nav.Profile" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="Manage.Nav.Password" xml:space="preserve">
+    <value>Senha</value>
+  </data>
+  <data name="Manage.Nav.Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="Manage.ResetAuth.Title" xml:space="preserve">
+    <value>Redefinir chave de autenticador</value>
+  </data>
+  <data name="Manage.ShowCodes.Title" xml:space="preserve">
+    <value>Códigos de recuperação</value>
+  </data>
+  <data name="Manage.Subtitle" xml:space="preserve">
+    <value>Altere as configurações da sua conta</value>
+  </data>
+  <data name="Manage.Password.NewPlaceholder" xml:space="preserve">
+    <value>Digite sua nova senha.</value>
+  </data>
+  <data name="Manage.PersonalData.Download" xml:space="preserve">
+    <value>Baixar</value>
+  </data>
+  <data name="Manage.Tfa.OneCodeGenerate" xml:space="preserve">
+    <value>Você pode &lt;a asp-page=&quot;./GenerateRecoveryCodes&quot;&gt;gerar um novo conjunto de códigos de recuperação&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.SetPassword.Intro" xml:space="preserve">
+    <value>Você não possui um nome de usuário/senha local para este site. Adicione uma conta local para que possa fazer login sem uma conta externa.</value>
+  </data>
+  <data name="Manage.EnableAuth.QRHelp" xml:space="preserve">
+    <value>Saiba como &lt;a href=&quot;https://go.microsoft.com/fwlink/?Linkid=852423&quot;&gt;ativar a geração de códigos QR&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.PersonalData.Warning" xml:space="preserve">
+    <value>Excluir esses dados removerá permanentemente sua conta, e isso não poderá ser recuperado.</value>
+  </data>
+  <data name="Manage.External.Remove" xml:space="preserve">
+    <value>Remover</value>
+  </data>
+  <data name="Manage.GenerateCodes.Body" xml:space="preserve">
+    <value>Se você perder seu dispositivo e não tiver os códigos de recuperação, perderá o acesso à sua conta.</value>
+  </data>
+  <data name="Manage.EnableAuth.Verify" xml:space="preserve">
+    <value>Verificar</value>
+  </data>
+  <data name="Manage.Disable2fa.Body" xml:space="preserve">
+    <value>Desativar o 2FA não altera as chaves usadas nos aplicativos de autenticação. Se você deseja alterar a chave usada em um aplicativo de autenticação, você deve &lt;a asp-page=&quot;./ResetAuthenticator&quot;&gt;redefinir suas chaves de autenticação.&lt;/a&gt;</value>
+  </data>
+  <data name="Manage.SetPassword.Title" xml:space="preserve">
+    <value>Definir sua senha</value>
+  </data>
+  <data name="Manage.Tfa.AppHeader" xml:space="preserve">
+    <value>Aplicativo autenticador</value>
+  </data>
+  <data name="Manage.Email.Title" xml:space="preserve">
+    <value>Gerenciar e-mail</value>
+  </data>
+  <data name="Manage.Tfa.FewCodesLeft" xml:space="preserve">
+    <value>Você tem {0} códigos de recuperação restantes.</value>
+  </data>
+  <data name="Manage.SetPassword.Submit" xml:space="preserve">
+    <value>Definir senha</value>
+  </data>
+  <data name="Manage.GenerateCodes.Submit" xml:space="preserve">
+    <value>Gerar códigos de recuperação</value>
+  </data>
+  <data name="Manage.Tfa.ForgetBrowser" xml:space="preserve">
+    <value>Esquecer este navegador</value>
+  </data>
+  <data name="Manage.Tfa.NoCodesGenerate" xml:space="preserve">
+    <value>Você deve &lt;a asp-page=&quot;./GenerateRecoveryCodes&quot;&gt;gerar um novo conjunto de códigos de recuperação&lt;/a&gt; antes de poder fazer login com um código de recuperação.</value>
+  </data>
+  <data name="Manage.Index.Save" xml:space="preserve">
+    <value>Salvar</value>
+  </data>
+  <data name="Manage.Password.OldPlaceholder" xml:space="preserve">
+    <value>Digite sua senha antiga.</value>
+  </data>
+  <data name="Manage.Email.SendVerification" xml:space="preserve">
+    <value>Enviar e-mail de verificação</value>
+  </data>
+  <data name="Manage.Tfa.Title" xml:space="preserve">
+    <value>Autenticação de dois fatores (2FA)</value>
+  </data>
+  <data name="Manage.Tfa.ResetApp" xml:space="preserve">
+    <value>Redefinir aplicativo autenticador</value>
+  </data>
+  <data name="Manage.DeletePersonal.PasswordPlaceholder" xml:space="preserve">
+    <value>Insira sua senha.</value>
+  </data>
+  <data name="Manage.EnableAuth.Step3" xml:space="preserve">
+    <value>Depois de escanear o código QR ou inserir a chave acima, seu aplicativo de autenticação de dois fatores fornecerá um código exclusivo. Insira o código na caixa de confirmação abaixo.</value>
+  </data>
+  <data name="Manage.Tfa.PrivacyDeniedBody" xml:space="preserve">
+    <value>Você deve aceitar a política antes de poder ativar a autenticação de dois fatores.</value>
+  </data>
+  <data name="Manage.ShowCodes.Save" xml:space="preserve">
+    <value>Guarde esses códigos em um local seguro.</value>
+  </data>
+  <data name="Manage.Index.PhonePlaceholder" xml:space="preserve">
+    <value>Insira seu número de telefone.</value>
+  </data>
+  <data name="Manage.EnableAuth.Title" xml:space="preserve">
+    <value>Configurar aplicativo autenticador</value>
+  </data>
+  <data name="Manage.External.Registered" xml:space="preserve">
+    <value>Logins registrados</value>
+  </data>
+  <data name="Manage.Email.Placeholder" xml:space="preserve">
+    <value>Insira seu e-mail.</value>
+  </data>
+  <data name="Manage.EnableAuth.Step2" xml:space="preserve">
+    <value>Escaneie o Código QR ou insira esta chave {0} no seu aplicativo autenticador de dois fatores. Espaços e maiúsculas não importam.</value>
+  </data>
+  <data name="Manage.External.LoginWithTitle" xml:space="preserve">
+    <value>Fazer login usando sua conta {0}</value>
+  </data>
+  <data name="Manage.Email.NewPlaceholder" xml:space="preserve">
+    <value>Insira o novo e-mail.</value>
+  </data>
+  <data name="Manage.Index.Title" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="Manage.Password.ConfirmPlaceholder" xml:space="preserve">
+    <value>Confirme sua nova senha.</value>
+  </data>
+  <data name="Manage.Tfa.ResetCodes" xml:space="preserve">
+    <value>Redefinir códigos de recuperação</value>
+  </data>
+  <data name="Manage.ShowCodes.Body" xml:space="preserve">
+    <value>Se você perder seu dispositivo e não tiver os códigos de recuperação, perderá o acesso à sua conta.</value>
+  </data>
+  <data name="Manage.DeletePersonal.PasswordLabel" xml:space="preserve">
+    <value>Senha</value>
+  </data>
+  <data name="Manage.Tfa.NoCodes" xml:space="preserve">
+    <value>Você não possui mais códigos de recuperação.</value>
+  </data>
+  <data name="Manage.DeletePersonal.Title" xml:space="preserve">
+    <value>Excluir dados pessoais</value>
+  </data>
+  <data name="Manage.Tfa.OneCodeLeft" xml:space="preserve">
+    <value>Você tem 1 código de recuperação restante.</value>
+  </data>
+  <data name="Manage.External.Title" xml:space="preserve">
+    <value>Gerenciar seus logins externos</value>
+  </data>
+  <data name="Manage.Email.ChangeEmail" xml:space="preserve">
+    <value>Alterar e-mail</value>
+  </data>
+  <data name="Manage.ResetAuth.Body" xml:space="preserve">
+    <value>Esse processo desabilita a autenticação de dois fatores até que você verifique seu aplicativo autenticador. Se você não concluir a configuração do aplicativo autenticador, poderá perder o acesso à sua conta.</value>
+  </data>
+  <data name="Manage.Nav.PersonalData" xml:space="preserve">
+    <value>Dados pessoais</value>
+  </data>
+  <data name="Manage.EnableAuth.Step1" xml:space="preserve">
+    <value>Baixe um aplicativo autenticador de dois fatores, como o Microsoft Authenticator para &lt;a href=&quot;https://go.microsoft.com/fwlink/?Linkid=825072&quot;&gt;Android&lt;/a&gt; e &lt;a href=&quot;https://go.microsoft.com/fwlink/?Linkid=825073&quot;&gt;iOS&lt;/a&gt;, ou o Google Authenticator para &lt;a href=&quot;https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;amp;hl=en&quot;&gt;Android&lt;/a&gt; e &lt;a href=&quot;https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8&quot;&gt;iOS&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.EnableAuth.Intro" xml:space="preserve">
+    <value>Para usar um aplicativo autenticador, siga as etapas a seguir:</value>
+  </data>
+  <data name="Manage.PersonalData.Title" xml:space="preserve">
+    <value>Dados pessoais</value>
+  </data>
+  <data name="Manage.Disable2fa.Title" xml:space="preserve">
+    <value>Desativar autenticação de dois fatores (2FA)</value>
+  </data>
+  <data name="Manage.Password.Title" xml:space="preserve">
+    <value>Alterar senha</value>
+  </data>
+  <data name="Manage.Tfa.AddApp" xml:space="preserve">
+    <value>Adicionar aplicativo autenticador</value>
+  </data>
+  <data name="Manage.PersonalData.Delete" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="Manage.ResetAuth.Warning" xml:space="preserve">
+    <value>Se você redefinir sua chave de autenticador, seu aplicativo autenticador não funcionará até que você o reconfigure.</value>
+  </data>
+  <data name="Manage.DeletePersonal.Submit" xml:space="preserve">
+    <value>Excluir dados e encerrar minha conta</value>
+  </data>
+  <data name="Manage.ResetAuth.Submit" xml:space="preserve">
+    <value>Redefinir chave de autenticador</value>
+  </data>
+  <data name="Manage.Title" xml:space="preserve">
+    <value>Gerenciar sua conta</value>
+  </data>
+  <data name="Manage.External.RemoveTitle" xml:space="preserve">
+    <value>Remover este login {0} da sua conta</value>
+  </data>
+  <data name="Manage.Tfa.SetupApp" xml:space="preserve">
+    <value>Configurar aplicativo autenticador</value>
+  </data>
+  <data name="Manage.Disable2fa.Submit" xml:space="preserve">
+    <value>Desativar 2FA</value>
+  </data>
+  <data name="Manage.Tfa.FewCodesGenerate" xml:space="preserve">
+    <value>Você deveria &lt;a asp-page=&quot;./GenerateRecoveryCodes&quot;&gt;gerar um novo conjunto de códigos de recuperação&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.External.AddOther" xml:space="preserve">
+    <value>Adicionar outro serviço para fazer login.</value>
+  </data>
+  <data name="Manage.GenerateCodes.Title" xml:space="preserve">
+    <value>Gerar códigos de recuperação de autenticação de dois fatores (2FA)</value>
+  </data>
+  <data name="Manage.Tfa.Disable" xml:space="preserve">
+    <value>Desativar 2FA</value>
+  </data>
+  <data name="Manage.PersonalData.Body" xml:space="preserve">
+    <value>Sua conta contém dados pessoais que você nos forneceu. Esta página permite que você baixe ou exclua esses dados.</value>
+  </data>
+  <data name="Manage.EnableAuth.CodeLabel" xml:space="preserve">
+    <value>Código de verificação</value>
+  </data>
+  <data name="Manage.Nav.ExternalLogins" xml:space="preserve">
+    <value>Logins externos</value>
+  </data>
+  <data name="Manage.Nav.TwoFactor" xml:space="preserve">
+    <value>Autenticação de dois fatores</value>
+  </data>
+  <data name="Manage.Password.Submit" xml:space="preserve">
+    <value>Atualizar senha</value>
+  </data>
+  <data name="Manage.GenerateCodes.Save" xml:space="preserve">
+    <value>Guarde esses códigos em um local seguro.</value>
+  </data>
+  <data name="Manage.Tfa.PrivacyDenied" xml:space="preserve">
+    <value>Políticas de privacidade e cookies não foram aceitas.</value>
+  </data>
+  <data name="Manage.GenerateCodes.Body2" xml:space="preserve">
+    <value>Gerar novos códigos de recuperação não altera as chaves usadas em aplicativos autenticadores. Se desejar alterar a chave usada em um aplicativo autenticador, você deve &lt;a asp-page=&quot;./ResetAuthenticator&quot;&gt;redefinir suas chaves de autenticação.&lt;/a&gt;</value>
+  </data>
+  <data name="Manage.EnableAuth.CodePlaceholder" xml:space="preserve">
+    <value>Digite o código.</value>
+  </data>
+  <data name="Manage.Index.UsernamePlaceholder" xml:space="preserve">
+    <value>Escolha seu nome de usuário.</value>
+  </data>
 </root>

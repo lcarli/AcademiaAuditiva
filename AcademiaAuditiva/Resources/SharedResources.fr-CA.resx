@@ -1818,4 +1818,250 @@
   <data name="Admin.Users.Empty" xml:space="preserve">
     <value>Aucun utilisateur trouvé.</value>
   </data>
+  <data name="Manage.DeletePersonal.Warning" xml:space="preserve">
+    <value>La suppression de ces données supprimera définitivement votre compte et cette opération est irréversible.</value>
+  </data>
+  <data name="Manage.Disable2fa.OnlyDisables" xml:space="preserve">
+    <value>Cette action désactive uniquement la 2FA.</value>
+  </data>
+  <data name="Manage.Nav.Profile" xml:space="preserve">
+    <value>Profil</value>
+  </data>
+  <data name="Manage.Nav.Password" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="Manage.Nav.Email" xml:space="preserve">
+    <value>Courriel</value>
+  </data>
+  <data name="Manage.ResetAuth.Title" xml:space="preserve">
+    <value>Réinitialiser la clé d&apos;authentification</value>
+  </data>
+  <data name="Manage.ShowCodes.Title" xml:space="preserve">
+    <value>Codes de récupération</value>
+  </data>
+  <data name="Manage.Subtitle" xml:space="preserve">
+    <value>Modifier les paramètres de votre compte</value>
+  </data>
+  <data name="Manage.Password.NewPlaceholder" xml:space="preserve">
+    <value>Saisissez votre nouveau mot de passe.</value>
+  </data>
+  <data name="Manage.PersonalData.Download" xml:space="preserve">
+    <value>Télécharger</value>
+  </data>
+  <data name="Manage.Tfa.OneCodeGenerate" xml:space="preserve">
+    <value>Vous pouvez &lt;a asp-page=&quot;./GenerateRecoveryCodes&quot;&gt;générer un nouvel ensemble de codes de récupération&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.SetPassword.Intro" xml:space="preserve">
+    <value>Vous n&apos;avez pas de nom d&apos;utilisateur/mot de passe local pour ce site. Ajoutez un compte local pour pouvoir vous connecter sans compte externe.</value>
+  </data>
+  <data name="Manage.EnableAuth.QRHelp" xml:space="preserve">
+    <value>Apprenez à &lt;a href=&quot;https://go.microsoft.com/fwlink/?Linkid=852423&quot;&gt;activer la génération de codes QR&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.PersonalData.Warning" xml:space="preserve">
+    <value>La suppression de ces données supprimera définitivement votre compte et cette opération est irréversible.</value>
+  </data>
+  <data name="Manage.External.Remove" xml:space="preserve">
+    <value>Retirer</value>
+  </data>
+  <data name="Manage.GenerateCodes.Body" xml:space="preserve">
+    <value>Si vous perdez votre appareil et que vous n&apos;avez pas les codes de récupération, vous perdrez l&apos;accès à votre compte.</value>
+  </data>
+  <data name="Manage.EnableAuth.Verify" xml:space="preserve">
+    <value>Vérifier</value>
+  </data>
+  <data name="Manage.Disable2fa.Body" xml:space="preserve">
+    <value>La désactivation de la 2FA ne modifie pas les clés utilisées dans les applications d&apos;authentification. Si vous souhaitez modifier la clé utilisée dans une application d&apos;authentification, vous devez &lt;a asp-page=&quot;./ResetAuthenticator&quot;&gt;réinitialiser vos clés d&apos;authentification.&lt;/a&gt;</value>
+  </data>
+  <data name="Manage.SetPassword.Title" xml:space="preserve">
+    <value>Définir votre mot de passe</value>
+  </data>
+  <data name="Manage.Tfa.AppHeader" xml:space="preserve">
+    <value>Application d&apos;authentification</value>
+  </data>
+  <data name="Manage.Email.Title" xml:space="preserve">
+    <value>Gérer le courriel</value>
+  </data>
+  <data name="Manage.Tfa.FewCodesLeft" xml:space="preserve">
+    <value>Il vous reste {0} codes de récupération.</value>
+  </data>
+  <data name="Manage.SetPassword.Submit" xml:space="preserve">
+    <value>Définir le mot de passe</value>
+  </data>
+  <data name="Manage.GenerateCodes.Submit" xml:space="preserve">
+    <value>Générer des codes de récupération</value>
+  </data>
+  <data name="Manage.Tfa.ForgetBrowser" xml:space="preserve">
+    <value>Oublier ce navigateur</value>
+  </data>
+  <data name="Manage.Tfa.NoCodesGenerate" xml:space="preserve">
+    <value>Vous devez &lt;a asp-page=&quot;./GenerateRecoveryCodes&quot;&gt;générer un nouvel ensemble de codes de récupération&lt;/a&gt; avant de pouvoir vous connecter avec un code de récupération.</value>
+  </data>
+  <data name="Manage.Index.Save" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="Manage.Password.OldPlaceholder" xml:space="preserve">
+    <value>Saisissez votre ancien mot de passe.</value>
+  </data>
+  <data name="Manage.Email.SendVerification" xml:space="preserve">
+    <value>Envoyer le courriel de vérification</value>
+  </data>
+  <data name="Manage.Tfa.Title" xml:space="preserve">
+    <value>Authentification à deux facteurs (2FA)</value>
+  </data>
+  <data name="Manage.Tfa.ResetApp" xml:space="preserve">
+    <value>Réinitialiser l&apos;application d&apos;authentification</value>
+  </data>
+  <data name="Manage.DeletePersonal.PasswordPlaceholder" xml:space="preserve">
+    <value>Saisissez votre mot de passe.</value>
+  </data>
+  <data name="Manage.EnableAuth.Step3" xml:space="preserve">
+    <value>Une fois que vous aurez scanné le code QR ou saisi la clé ci-dessus, votre application d&apos;authentification à deux facteurs vous fournira un code unique. Saisissez le code dans la zone de confirmation ci-dessous.</value>
+  </data>
+  <data name="Manage.Tfa.PrivacyDeniedBody" xml:space="preserve">
+    <value>Vous devez accepter la politique avant de pouvoir activer l&apos;authentification à deux facteurs.</value>
+  </data>
+  <data name="Manage.ShowCodes.Save" xml:space="preserve">
+    <value>Conservez ces codes en lieu sûr.</value>
+  </data>
+  <data name="Manage.Index.PhonePlaceholder" xml:space="preserve">
+    <value>Saisissez votre numéro de téléphone.</value>
+  </data>
+  <data name="Manage.EnableAuth.Title" xml:space="preserve">
+    <value>Configurer l&apos;application d&apos;authentification</value>
+  </data>
+  <data name="Manage.External.Registered" xml:space="preserve">
+    <value>Connexions enregistrées</value>
+  </data>
+  <data name="Manage.Email.Placeholder" xml:space="preserve">
+    <value>Saisissez votre courriel.</value>
+  </data>
+  <data name="Manage.EnableAuth.Step2" xml:space="preserve">
+    <value>Scannez le code QR ou saisissez cette clé {0} dans votre application d&apos;authentification à deux facteurs. Les espaces et la casse ne sont pas importants.</value>
+  </data>
+  <data name="Manage.External.LoginWithTitle" xml:space="preserve">
+    <value>Se connecter avec votre compte {0}</value>
+  </data>
+  <data name="Manage.Email.NewPlaceholder" xml:space="preserve">
+    <value>Saisissez le nouveau courriel.</value>
+  </data>
+  <data name="Manage.Index.Title" xml:space="preserve">
+    <value>Profil</value>
+  </data>
+  <data name="Manage.Password.ConfirmPlaceholder" xml:space="preserve">
+    <value>Confirmez votre nouveau mot de passe.</value>
+  </data>
+  <data name="Manage.Tfa.ResetCodes" xml:space="preserve">
+    <value>Réinitialiser les codes de récupération</value>
+  </data>
+  <data name="Manage.ShowCodes.Body" xml:space="preserve">
+    <value>Si vous perdez votre appareil et que vous n&apos;avez pas les codes de récupération, vous perdrez l&apos;accès à votre compte.</value>
+  </data>
+  <data name="Manage.DeletePersonal.PasswordLabel" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="Manage.Tfa.NoCodes" xml:space="preserve">
+    <value>Vous n&apos;avez plus de codes de récupération.</value>
+  </data>
+  <data name="Manage.DeletePersonal.Title" xml:space="preserve">
+    <value>Supprimer les données personnelles</value>
+  </data>
+  <data name="Manage.Tfa.OneCodeLeft" xml:space="preserve">
+    <value>Il vous reste 1 code de récupération.</value>
+  </data>
+  <data name="Manage.External.Title" xml:space="preserve">
+    <value>Gérer vos connexions externes</value>
+  </data>
+  <data name="Manage.Email.ChangeEmail" xml:space="preserve">
+    <value>Modifier le courriel</value>
+  </data>
+  <data name="Manage.ResetAuth.Body" xml:space="preserve">
+    <value>Ce processus désactive la 2FA jusqu&apos;à ce que vous vérifiiez votre application d&apos;authentification. Si vous ne terminez pas la configuration de votre application d&apos;authentification, vous risquez de perdre l&apos;accès à votre compte.</value>
+  </data>
+  <data name="Manage.Nav.PersonalData" xml:space="preserve">
+    <value>Données personnelles</value>
+  </data>
+  <data name="Manage.EnableAuth.Step1" xml:space="preserve">
+    <value>Téléchargez une application d&apos;authentification à deux facteurs comme Microsoft Authenticator pour &lt;a href=&quot;https://go.microsoft.com/fwlink/?Linkid=825072&quot;&gt;Android&lt;/a&gt; et &lt;a href=&quot;https://go.microsoft.com/fwlink/?Linkid=825073&quot;&gt;iOS&lt;/a&gt;, ou Google Authenticator pour &lt;a href=&quot;https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;amp;hl=en&quot;&gt;Android&lt;/a&gt; et &lt;a href=&quot;https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8&quot;&gt;iOS&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.EnableAuth.Intro" xml:space="preserve">
+    <value>Pour utiliser une application d&apos;authentification, suivez les étapes suivantes :</value>
+  </data>
+  <data name="Manage.PersonalData.Title" xml:space="preserve">
+    <value>Données personnelles</value>
+  </data>
+  <data name="Manage.Disable2fa.Title" xml:space="preserve">
+    <value>Désactiver l&apos;authentification à deux facteurs (2FA)</value>
+  </data>
+  <data name="Manage.Password.Title" xml:space="preserve">
+    <value>Modifier le mot de passe</value>
+  </data>
+  <data name="Manage.Tfa.AddApp" xml:space="preserve">
+    <value>Ajouter une application d&apos;authentification</value>
+  </data>
+  <data name="Manage.PersonalData.Delete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Manage.ResetAuth.Warning" xml:space="preserve">
+    <value>Si vous réinitialisez votre clé d&apos;authentification, votre application d&apos;authentification ne fonctionnera plus tant que vous ne l&apos;aurez pas reconfigurée.</value>
+  </data>
+  <data name="Manage.DeletePersonal.Submit" xml:space="preserve">
+    <value>Supprimer les données et fermer mon compte</value>
+  </data>
+  <data name="Manage.ResetAuth.Submit" xml:space="preserve">
+    <value>Réinitialiser la clé d&apos;authentification</value>
+  </data>
+  <data name="Manage.Title" xml:space="preserve">
+    <value>Gérer votre compte</value>
+  </data>
+  <data name="Manage.External.RemoveTitle" xml:space="preserve">
+    <value>Retirer cette connexion {0} de votre compte</value>
+  </data>
+  <data name="Manage.Tfa.SetupApp" xml:space="preserve">
+    <value>Configurer l&apos;application d&apos;authentification</value>
+  </data>
+  <data name="Manage.Disable2fa.Submit" xml:space="preserve">
+    <value>Désactiver 2FA</value>
+  </data>
+  <data name="Manage.Tfa.FewCodesGenerate" xml:space="preserve">
+    <value>Vous devriez &lt;a asp-page=&quot;./GenerateRecoveryCodes&quot;&gt;générer un nouvel ensemble de codes de récupération&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.External.AddOther" xml:space="preserve">
+    <value>Ajouter un autre service pour vous connecter.</value>
+  </data>
+  <data name="Manage.GenerateCodes.Title" xml:space="preserve">
+    <value>Générer des codes de récupération d&apos;authentification à deux facteurs (2FA)</value>
+  </data>
+  <data name="Manage.Tfa.Disable" xml:space="preserve">
+    <value>Désactiver 2FA</value>
+  </data>
+  <data name="Manage.PersonalData.Body" xml:space="preserve">
+    <value>Votre compte contient des données personnelles que vous nous avez fournies. Cette page vous permet de télécharger ou de supprimer ces données.</value>
+  </data>
+  <data name="Manage.EnableAuth.CodeLabel" xml:space="preserve">
+    <value>Code de vérification</value>
+  </data>
+  <data name="Manage.Nav.ExternalLogins" xml:space="preserve">
+    <value>Connexions externes</value>
+  </data>
+  <data name="Manage.Nav.TwoFactor" xml:space="preserve">
+    <value>Authentification à deux facteurs</value>
+  </data>
+  <data name="Manage.Password.Submit" xml:space="preserve">
+    <value>Mettre à jour le mot de passe</value>
+  </data>
+  <data name="Manage.GenerateCodes.Save" xml:space="preserve">
+    <value>Conservez ces codes en lieu sûr.</value>
+  </data>
+  <data name="Manage.Tfa.PrivacyDenied" xml:space="preserve">
+    <value>Les politiques de confidentialité et de cookies n&apos;ont pas été acceptées.</value>
+  </data>
+  <data name="Manage.GenerateCodes.Body2" xml:space="preserve">
+    <value>Générer de nouveaux codes de récupération ne modifie pas les clés utilisées dans les applications d&apos;authentification. Si vous souhaitez modifier la clé utilisée dans une application d&apos;authentification, vous devez &lt;a asp-page=&quot;./ResetAuthenticator&quot;&gt;réinitialiser vos clés d&apos;authentification.&lt;/a&gt;</value>
+  </data>
+  <data name="Manage.EnableAuth.CodePlaceholder" xml:space="preserve">
+    <value>Saisissez le code.</value>
+  </data>
+  <data name="Manage.Index.UsernamePlaceholder" xml:space="preserve">
+    <value>Choisissez votre nom d&apos;utilisateur.</value>
+  </data>
 </root>

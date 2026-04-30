@@ -1818,4 +1818,250 @@
   <data name="Admin.Users.Empty" xml:space="preserve">
     <value>No users match.</value>
   </data>
+  <data name="Manage.DeletePersonal.Warning" xml:space="preserve">
+    <value>Deleting this data will permanently remove your account, and this cannot be recovered.</value>
+  </data>
+  <data name="Manage.Disable2fa.OnlyDisables" xml:space="preserve">
+    <value>This action only disables 2FA.</value>
+  </data>
+  <data name="Manage.Nav.Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Manage.Nav.Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Manage.Nav.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Manage.ResetAuth.Title" xml:space="preserve">
+    <value>Reset authenticator key</value>
+  </data>
+  <data name="Manage.ShowCodes.Title" xml:space="preserve">
+    <value>Recovery codes</value>
+  </data>
+  <data name="Manage.Subtitle" xml:space="preserve">
+    <value>Change your account settings</value>
+  </data>
+  <data name="Manage.Password.NewPlaceholder" xml:space="preserve">
+    <value>Enter your new password.</value>
+  </data>
+  <data name="Manage.PersonalData.Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Manage.Tfa.OneCodeGenerate" xml:space="preserve">
+    <value>You can &lt;a asp-page=&quot;./GenerateRecoveryCodes&quot;&gt;generate a new set of recovery codes&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.SetPassword.Intro" xml:space="preserve">
+    <value>You do not have a local username/password for this site. Add a local account so you can log in without an external account.</value>
+  </data>
+  <data name="Manage.EnableAuth.QRHelp" xml:space="preserve">
+    <value>Learn how to &lt;a href=&quot;https://go.microsoft.com/fwlink/?Linkid=852423&quot;&gt;enable QR code generation&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.PersonalData.Warning" xml:space="preserve">
+    <value>Deleting this data will permanently remove your account, and this cannot be recovered.</value>
+  </data>
+  <data name="Manage.External.Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Manage.GenerateCodes.Body" xml:space="preserve">
+    <value>If you lose your device and do not have the recovery codes you will lose access to your account.</value>
+  </data>
+  <data name="Manage.EnableAuth.Verify" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="Manage.Disable2fa.Body" xml:space="preserve">
+    <value>Disabling 2FA does not change the keys used in authenticator apps. If you wish to change the key used in an authenticator app you should &lt;a asp-page=&quot;./ResetAuthenticator&quot;&gt;reset your authenticator keys.&lt;/a&gt;</value>
+  </data>
+  <data name="Manage.SetPassword.Title" xml:space="preserve">
+    <value>Set your password</value>
+  </data>
+  <data name="Manage.Tfa.AppHeader" xml:space="preserve">
+    <value>Authenticator app</value>
+  </data>
+  <data name="Manage.Email.Title" xml:space="preserve">
+    <value>Manage email</value>
+  </data>
+  <data name="Manage.Tfa.FewCodesLeft" xml:space="preserve">
+    <value>You have {0} recovery codes left.</value>
+  </data>
+  <data name="Manage.SetPassword.Submit" xml:space="preserve">
+    <value>Set password</value>
+  </data>
+  <data name="Manage.GenerateCodes.Submit" xml:space="preserve">
+    <value>Generate recovery codes</value>
+  </data>
+  <data name="Manage.Tfa.ForgetBrowser" xml:space="preserve">
+    <value>Forget this browser</value>
+  </data>
+  <data name="Manage.Tfa.NoCodesGenerate" xml:space="preserve">
+    <value>You must &lt;a asp-page=&quot;./GenerateRecoveryCodes&quot;&gt;generate a new set of recovery codes&lt;/a&gt; before you can log in with a recovery code.</value>
+  </data>
+  <data name="Manage.Index.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Manage.Password.OldPlaceholder" xml:space="preserve">
+    <value>Enter your old password.</value>
+  </data>
+  <data name="Manage.Email.SendVerification" xml:space="preserve">
+    <value>Send verification email</value>
+  </data>
+  <data name="Manage.Tfa.Title" xml:space="preserve">
+    <value>Two-factor authentication (2FA)</value>
+  </data>
+  <data name="Manage.Tfa.ResetApp" xml:space="preserve">
+    <value>Reset authenticator app</value>
+  </data>
+  <data name="Manage.DeletePersonal.PasswordPlaceholder" xml:space="preserve">
+    <value>Enter your password.</value>
+  </data>
+  <data name="Manage.EnableAuth.Step3" xml:space="preserve">
+    <value>Once you have scanned the QR code or entered the key above, your two-factor authentication app will provide you with a unique code. Enter the code in the confirmation box below.</value>
+  </data>
+  <data name="Manage.Tfa.PrivacyDeniedBody" xml:space="preserve">
+    <value>You must accept the policy before you can enable two-factor authentication.</value>
+  </data>
+  <data name="Manage.ShowCodes.Save" xml:space="preserve">
+    <value>Put these codes in a safe place.</value>
+  </data>
+  <data name="Manage.Index.PhonePlaceholder" xml:space="preserve">
+    <value>Enter your phone number.</value>
+  </data>
+  <data name="Manage.EnableAuth.Title" xml:space="preserve">
+    <value>Configure authenticator app</value>
+  </data>
+  <data name="Manage.External.Registered" xml:space="preserve">
+    <value>Registered logins</value>
+  </data>
+  <data name="Manage.Email.Placeholder" xml:space="preserve">
+    <value>Enter your email.</value>
+  </data>
+  <data name="Manage.EnableAuth.Step2" xml:space="preserve">
+    <value>Scan the QR Code or enter this key {0} into your two-factor authenticator app. Spaces and casing do not matter.</value>
+  </data>
+  <data name="Manage.External.LoginWithTitle" xml:space="preserve">
+    <value>Log in using your {0} account</value>
+  </data>
+  <data name="Manage.Email.NewPlaceholder" xml:space="preserve">
+    <value>Enter your new email.</value>
+  </data>
+  <data name="Manage.Index.Title" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Manage.Password.ConfirmPlaceholder" xml:space="preserve">
+    <value>Confirm your new password.</value>
+  </data>
+  <data name="Manage.Tfa.ResetCodes" xml:space="preserve">
+    <value>Reset recovery codes</value>
+  </data>
+  <data name="Manage.ShowCodes.Body" xml:space="preserve">
+    <value>If you lose your device and do not have the recovery codes you will lose access to your account.</value>
+  </data>
+  <data name="Manage.DeletePersonal.PasswordLabel" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Manage.Tfa.NoCodes" xml:space="preserve">
+    <value>You have no recovery codes left.</value>
+  </data>
+  <data name="Manage.DeletePersonal.Title" xml:space="preserve">
+    <value>Delete personal data</value>
+  </data>
+  <data name="Manage.Tfa.OneCodeLeft" xml:space="preserve">
+    <value>You have 1 recovery code left.</value>
+  </data>
+  <data name="Manage.External.Title" xml:space="preserve">
+    <value>Manage your external logins</value>
+  </data>
+  <data name="Manage.Email.ChangeEmail" xml:space="preserve">
+    <value>Change email</value>
+  </data>
+  <data name="Manage.ResetAuth.Body" xml:space="preserve">
+    <value>This process disables 2FA until you verify your authenticator app. If you do not complete your authenticator app configuration you may lose access to your account.</value>
+  </data>
+  <data name="Manage.Nav.PersonalData" xml:space="preserve">
+    <value>Personal data</value>
+  </data>
+  <data name="Manage.EnableAuth.Step1" xml:space="preserve">
+    <value>Download a two-factor authenticator app like Microsoft Authenticator for &lt;a href=&quot;https://go.microsoft.com/fwlink/?Linkid=825072&quot;&gt;Android&lt;/a&gt; and &lt;a href=&quot;https://go.microsoft.com/fwlink/?Linkid=825073&quot;&gt;iOS&lt;/a&gt;, or Google Authenticator for &lt;a href=&quot;https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;amp;hl=en&quot;&gt;Android&lt;/a&gt; and &lt;a href=&quot;https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8&quot;&gt;iOS&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.EnableAuth.Intro" xml:space="preserve">
+    <value>To use an authenticator app go through the following steps:</value>
+  </data>
+  <data name="Manage.PersonalData.Title" xml:space="preserve">
+    <value>Personal data</value>
+  </data>
+  <data name="Manage.Disable2fa.Title" xml:space="preserve">
+    <value>Disable two-factor authentication (2FA)</value>
+  </data>
+  <data name="Manage.Password.Title" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="Manage.Tfa.AddApp" xml:space="preserve">
+    <value>Add authenticator app</value>
+  </data>
+  <data name="Manage.PersonalData.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Manage.ResetAuth.Warning" xml:space="preserve">
+    <value>If you reset your authenticator key your authenticator app will not work until you reconfigure it.</value>
+  </data>
+  <data name="Manage.DeletePersonal.Submit" xml:space="preserve">
+    <value>Delete data and close my account</value>
+  </data>
+  <data name="Manage.ResetAuth.Submit" xml:space="preserve">
+    <value>Reset authenticator key</value>
+  </data>
+  <data name="Manage.Title" xml:space="preserve">
+    <value>Manage your account</value>
+  </data>
+  <data name="Manage.External.RemoveTitle" xml:space="preserve">
+    <value>Remove this {0} login from your account</value>
+  </data>
+  <data name="Manage.Tfa.SetupApp" xml:space="preserve">
+    <value>Set up authenticator app</value>
+  </data>
+  <data name="Manage.Disable2fa.Submit" xml:space="preserve">
+    <value>Disable 2FA</value>
+  </data>
+  <data name="Manage.Tfa.FewCodesGenerate" xml:space="preserve">
+    <value>You should &lt;a asp-page=&quot;./GenerateRecoveryCodes&quot;&gt;generate a new set of recovery codes&lt;/a&gt;.</value>
+  </data>
+  <data name="Manage.External.AddOther" xml:space="preserve">
+    <value>Add another service to log in.</value>
+  </data>
+  <data name="Manage.GenerateCodes.Title" xml:space="preserve">
+    <value>Generate two-factor authentication (2FA) recovery codes</value>
+  </data>
+  <data name="Manage.Tfa.Disable" xml:space="preserve">
+    <value>Disable 2FA</value>
+  </data>
+  <data name="Manage.PersonalData.Body" xml:space="preserve">
+    <value>Your account contains personal data that you have provided to us. This page allows you to download or delete that data.</value>
+  </data>
+  <data name="Manage.EnableAuth.CodeLabel" xml:space="preserve">
+    <value>Verification code</value>
+  </data>
+  <data name="Manage.Nav.ExternalLogins" xml:space="preserve">
+    <value>External logins</value>
+  </data>
+  <data name="Manage.Nav.TwoFactor" xml:space="preserve">
+    <value>Two-factor authentication</value>
+  </data>
+  <data name="Manage.Password.Submit" xml:space="preserve">
+    <value>Update password</value>
+  </data>
+  <data name="Manage.GenerateCodes.Save" xml:space="preserve">
+    <value>Put these codes in a safe place.</value>
+  </data>
+  <data name="Manage.Tfa.PrivacyDenied" xml:space="preserve">
+    <value>Privacy and cookie policy have not been accepted.</value>
+  </data>
+  <data name="Manage.GenerateCodes.Body2" xml:space="preserve">
+    <value>Generating new recovery codes does not change the keys used in authenticator apps. If you wish to change the key used in an authenticator app you should &lt;a asp-page=&quot;./ResetAuthenticator&quot;&gt;reset your authenticator keys.&lt;/a&gt;</value>
+  </data>
+  <data name="Manage.EnableAuth.CodePlaceholder" xml:space="preserve">
+    <value>Enter the code.</value>
+  </data>
+  <data name="Manage.Index.UsernamePlaceholder" xml:space="preserve">
+    <value>Choose your username.</value>
+  </data>
 </root>

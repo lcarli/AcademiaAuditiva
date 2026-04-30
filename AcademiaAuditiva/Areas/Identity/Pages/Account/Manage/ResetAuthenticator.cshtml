@@ -1,24 +1,21 @@
 ﻿@page
 @model ResetAuthenticatorModel
 @{
-    ViewData["Title"] = "Redefinir chave de autenticador";
+    ViewData["Title"] = Localizer["Manage.ResetAuth.Title"].Value;
     ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
-<h3>@ViewData["Title"]</h3>
+<h3 class="mb-3 text-body-emphasis">@ViewData["Title"]</h3>
 <div class="alert alert-warning" role="alert">
     <p>
-        <span class="glyphicon glyphicon-warning-sign"></span>
-        <strong>Se você redefinir a sua chave de autenticador, o seu aplicativo autenticador não funcionará até que você a reconfigure.</strong>
+        <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
+        <strong>@Localizer["Manage.ResetAuth.Warning"]</strong>
     </p>
-    <p>
-        Esse processo desabilita a autenticação de dois fatores até que você verifique o seu aplicativo autenticador.
-        Se você não concluir a configuração do aplicativo autenticador, poderá perder o acesso à sua conta.
-    </p>
+    <p class="mb-0">@Localizer["Manage.ResetAuth.Body"]</p>
 </div>
 <div>
     <form id="reset-authenticator-form" method="post">
-        <button id="reset-authenticator-button" class="btn btn-danger" type="submit">Redefinir chave de autenticador</button>
+        <button id="reset-authenticator-button" class="btn btn-danger" type="submit">@Localizer["Manage.ResetAuth.Submit"]</button>
     </form>
 </div>

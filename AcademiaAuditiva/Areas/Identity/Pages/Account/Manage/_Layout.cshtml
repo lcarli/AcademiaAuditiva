@@ -1,24 +1,27 @@
 ﻿@{
-    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout !=  null)
+    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout != null)
     {
         Layout = parentLayout.ToString();
     }
     else
     {
-        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+        Layout = "/Views/Shared/_Layout.cshtml";
     }
 }
 
-<h1>Manage your account</h1>
+<div class="d-flex flex-column gap-1 mb-4">
+    <h1 class="h3 fw-bold mb-0 text-body-emphasis">@Localizer["Manage.Title"]</h1>
+    <p class="text-secondary mb-0">@Localizer["Manage.Subtitle"]</p>
+</div>
 
-<div>
-    <h2>Altere as configurações de sua conta</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-3">
+<div class="row g-4">
+    <div class="col-lg-3">
+        <div class="aa-card-flat p-2">
             <partial name="_ManageNav" />
         </div>
-        <div class="col-md-9">
+    </div>
+    <div class="col-lg-9">
+        <div class="aa-card-flat p-4">
             @RenderBody()
         </div>
     </div>
