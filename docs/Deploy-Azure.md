@@ -4,6 +4,14 @@ This guide deploys Academia Auditiva to a fresh Azure tenant using the
 Bicep IaC under `infra/`. The Bicep provisions every resource needed
 end-to-end (Container Apps + SQL + Key Vault + ACR + Monitoring).
 
+> **Important — `azd up` is NOT a single-command deploy.** The very first
+> deployment is a *three-phase* process: (1) provision the infra, (2) seed
+> Key Vault and grant the managed identity SQL access, (3) push the real
+> container image and let the Container App pick it up. Phases 2 and 3 are
+> deliberately manual the first time so secrets can be entered interactively
+> and the SQL admin role is exercised by a human. After that, every
+> subsequent change to `master` flows through CD without manual steps.
+
 ## Target topology
 
 ```
