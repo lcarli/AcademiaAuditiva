@@ -125,6 +125,24 @@ module storage 'modules/storage.bicep' = {
 // Container Apps
 // -----------------------------------------------------------------------------
 
+// Write the SQL connection string to KV deterministically. Built from the
+// same parts the container app would use; keeping this resource here (rather
+// than as a placeholder in modules/keyvault.bicep) means redeploys do not
+// clobber an externally-rotated value with a placeholder, and the value is
+// always in sync with the SQL outputs.
+resource sqlConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+  name: '${keyVaultName}/ConnectionStrings--DefaultConnection'
+  properties: {
+    value: 'Server=tcp:${sql.outputs.serverFqdn},1433;Initial Catalog=${sql.outputs.databaseName};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=Active Directory Default;User Id=${identity.outputs.clientId}'
+    contentType: 'text/plain'
+  }
+  dependsOn: [
+    keyvault
+    sql
+    identity
+  ]
+}
+
 module caeEnv 'modules/containerapp-env.bicep' = {
   name: 'cae-env'
   params: {
@@ -156,6 +174,9 @@ module containerApp 'modules/containerapp.bicep' = {
     adminEmail: aadAdminLogin
     storageBlobEndpoint: storage.outputs.blobEndpoint
   }
+  dependsOn: [
+    sqlConnectionStringSecret
+  ]
 }
 
 // -----------------------------------------------------------------------------
