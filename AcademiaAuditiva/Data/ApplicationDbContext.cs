@@ -117,11 +117,35 @@ namespace AcademiaAuditiva.Data
                     .HasForeignKey(o => o.RoutineItemId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+
+            // Score model split (expand-then-contract — see Migration
+            // AddScoreSnapshotAndAggregate). The legacy `Score` table is
+            // still written and read for now; the next migration in the
+            // contract phase will drop it once readers move over.
+            modelBuilder.Entity<ScoreSnapshot>(b =>
+            {
+                b.HasIndex(s => new { s.UserId, s.ExerciseId, s.Timestamp });
+                b.HasOne(s => s.User).WithMany().HasForeignKey(s => s.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(s => s.Exercise).WithMany().HasForeignKey(s => s.ExerciseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<ScoreAggregate>(b =>
+            {
+                b.HasKey(a => new { a.UserId, a.ExerciseId });
+                b.HasOne(a => a.User).WithMany().HasForeignKey(a => a.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(a => a.Exercise).WithMany().HasForeignKey(a => a.ExerciseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
 
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Score> Scores { get; set; }
+        public DbSet<ScoreSnapshot> ScoreSnapshots => Set<ScoreSnapshot>();
+        public DbSet<ScoreAggregate> ScoreAggregates => Set<ScoreAggregate>();
         public DbSet<Badge> Badges { get; set; }
         public DbSet<BadgesEarned> BadgesEarned { get; set; }
         public DbSet<ExerciseType> ExerciseTypes { get; set; }

@@ -123,6 +123,10 @@ namespace AcademiaAuditiva.Controllers
 			if (currentScore > bestScore)
 				bestScore = currentScore;
 
+			var now = DateTime.UtcNow;
+
+			// Legacy Score row (running totals; kept until the contract step
+			// of the score-model split drops the table).
 			_context.Scores.Add(new Score
 			{
 				UserId = userId,
@@ -131,8 +135,42 @@ namespace AcademiaAuditiva.Controllers
 				ErrorCount = errorCount,
 				BestScore = bestScore,
 				TimeSpentSeconds = dto.TimeSpentSeconds,
-				Timestamp = DateTime.UtcNow
+				Timestamp = now
 			});
+
+			// New per-attempt snapshot.
+			_context.ScoreSnapshots.Add(new ScoreSnapshot
+			{
+				UserId = userId,
+				ExerciseId = exercise.ExerciseId,
+				IsCorrect = isCorrect,
+				TimeSpentSeconds = dto.TimeSpentSeconds,
+				Timestamp = now
+			});
+
+			// Upsert the aggregate row (one per user+exercise).
+			var aggregate = await _context.ScoreAggregates
+				.FirstOrDefaultAsync(a => a.UserId == userId && a.ExerciseId == exercise.ExerciseId);
+			if (aggregate == null)
+			{
+				_context.ScoreAggregates.Add(new ScoreAggregate
+				{
+					UserId = userId,
+					ExerciseId = exercise.ExerciseId,
+					CorrectCount = correctCount,
+					ErrorCount = errorCount,
+					BestScore = bestScore,
+					LastAttemptAt = now
+				});
+			}
+			else
+			{
+				aggregate.CorrectCount = correctCount;
+				aggregate.ErrorCount = errorCount;
+				aggregate.BestScore = bestScore;
+				aggregate.LastAttemptAt = now;
+			}
+
 			await _context.SaveChangesAsync();
 			
 			await _analyticsService.SaveAttemptAsync(new ExerciseAttemptLog
