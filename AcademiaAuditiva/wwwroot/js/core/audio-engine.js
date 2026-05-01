@@ -156,6 +156,13 @@ const AudioEngine = (() => {
         preload,
         stop,
         setupWaveform,
+        // No-op for backward compat. The legacy bootstrap calls
+        // AudioEngine.initSampler() on every page load; the new flow
+        // builds the sampler lazily on first legacy playback (see
+        // __initLegacySampler) and the token flow doesn't need it at
+        // all. Keeping this method as a no-op avoids a TypeError on
+        // page init for callers we haven't migrated.
+        initSampler: () => {},
         // === Legacy API ===
         // Used only by the sheet-music exercises (IntervalMelodico,
         // and SolfegeMelody if it grows playback) where the note name
