@@ -71,13 +71,12 @@ const AudioEngine = (() => {
 
         stop();
 
-        // Use a raw BufferSource — Tone.Player would also work, but
-        // BufferSource is the lowest-friction primitive for "play this
-        // exact buffer once" and keeps the destination wired through
-        // Tone.Destination so setupWaveform's analyser still observes it.
-        const source = Tone.context.createBufferSource();
-        source.buffer = buffer;
-        source.connect(Tone.Destination.input ?? Tone.Destination);
+        // Use Tone.ToneBufferSource so the node integrates with the Tone
+        // graph (and setupWaveform's analyser, which is wired off
+        // Tone.Destination). A native createBufferSource() can't connect
+        // to Tone.Destination directly — Tone's internal lookup throws
+        // "A value with the given key could not be found".
+        const source = new Tone.ToneBufferSource(buffer).toDestination();
         currentSource = source;
 
         return new Promise((resolve) => {
