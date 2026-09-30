@@ -9,6 +9,10 @@
 // The Container App's user-assigned MI receives "Storage Blob Data Contributor"
 // so the app can read source mp3s, write mixed blobs, write logs and maintain
 // the Data Protection key ring without keys.
+//
+// Only the app talks to the account, through its blob private endpoint:
+// public network access and shared key auth are disabled, and browsers get
+// audio from the app, never from blob URLs, so there is no CORS.
 
 param name string
 param location string
@@ -29,13 +33,13 @@ resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   properties: {
     accessTier: 'Hot'
     allowBlobPublicAccess: false
-    allowSharedKeyAccess: true
+    allowSharedKeyAccess: false
     minimumTlsVersion: 'TLS1_2'
     supportsHttpsTrafficOnly: true
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     networkAcls: {
       bypass: 'AzureServices'
-      defaultAction: 'Allow'
+      defaultAction: 'Deny'
     }
   }
 }
@@ -45,15 +49,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01'
   name: 'default'
   properties: {
     cors: {
-      corsRules: [
-        {
-          allowedOrigins: [ '*' ]
-          allowedMethods: [ 'GET', 'HEAD', 'OPTIONS' ]
-          allowedHeaders: [ '*' ]
-          exposedHeaders: [ '*' ]
-          maxAgeInSeconds: 3600
-        }
-      ]
+      corsRules: []
     }
   }
 }

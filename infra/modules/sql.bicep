@@ -1,4 +1,6 @@
-// Azure SQL Server + Database with AAD-only authentication.
+// Azure SQL Server + Database with AAD-only authentication, reachable only
+// through its private endpoint (public network access disabled, so there are
+// no firewall rules).
 // The Container App MI must be granted as a contained DB user via the
 // post-deploy script `infra/scripts/grant-mi-sql.ps1` (run once after deploy).
 
@@ -35,20 +37,9 @@ resource server 'Microsoft.Sql/servers@2023-08-01-preview' = {
       tenantId: aadTenantId
       azureADOnlyAuthentication: true
     }
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     minimalTlsVersion: '1.2'
     version: '12.0'
-  }
-}
-
-// Allow Azure services (Container Apps egress) to reach the SQL server.
-// Range 0.0.0.0 - 0.0.0.0 is the documented "Allow Azure services" toggle.
-resource fwAzureServices 'Microsoft.Sql/servers/firewallRules@2023-08-01-preview' = {
-  parent: server
-  name: 'AllowAllAzureIps'
-  properties: {
-    startIpAddress: '0.0.0.0'
-    endIpAddress: '0.0.0.0'
   }
 }
 
@@ -68,6 +59,7 @@ resource db 'Microsoft.Sql/servers/databases@2023-08-01-preview' = {
   }
 }
 
+output serverId string = server.id
 output serverName string = server.name
 output serverFqdn string = server.properties.fullyQualifiedDomainName
 output databaseName string = db.name

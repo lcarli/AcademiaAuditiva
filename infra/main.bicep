@@ -3,13 +3,12 @@
 // Subscription-scoped entry point. Creates the resource group and deploys the
 // full stack via the resources module.
 //
-// Deploy:
+// Deploy with the wrapper, which keeps the running image and the custom domain
+// certificates (a plain `az deployment sub create` resets the image to the
+// placeholder below):
 //   az login --tenant 1d70d939-06d2-4348-b658-58cb38886348
-//   az account set --subscription 3dc8ff32-42e4-4152-b194-46b704ed70f2
-//   az deployment sub create \
-//     --location canadacentral \
-//     --template-file infra/main.bicep \
-//     --parameters infra/main.parameters.prd.json
+//   ./infra/scripts/deploy-infra.ps1 -WhatIf
+//   ./infra/scripts/deploy-infra.ps1
 // =============================================================================
 
 targetScope = 'subscription'
@@ -52,12 +51,24 @@ param containerAppMinReplicas int = 1
 @maxValue(10)
 param containerAppMaxReplicas int = 3
 
-@description('Initial container image. Bicep deploys a placeholder; azd or CI updates it after the first push.')
+@description('Initial container image. Bicep deploys a placeholder; CD updates it, and deploy-infra.ps1 passes the running image on redeploys.')
 param containerImage string = 'mcr.microsoft.com/k8se/quickstart:latest'
 
 @description('Azure SQL DB SKU.')
 @allowed([ 'Basic', 'S0', 'S1', 'GP_S_Gen5_1' ])
 param sqlSku string = 'Basic'
+
+@description('Email of the application\'s bootstrap admin (Admin__Email). Created on first start if missing, with the Key Vault secret Admin--InitialPassword when set.')
+param appAdminEmail string = ''
+
+@description('VNet address space. The Container Apps subnet takes the first /23, private endpoints the third /24.')
+param vnetAddressPrefix string = '10.60.0.0/16'
+
+@description('Custom domains: [{ name, validationMethod: HTTP (apex, A record to the environment IP) | CNAME (subdomain, CNAME to the app FQDN) }]. The DNS records, including asuid.<name> TXT, must exist before a domain is added.')
+param customDomains array = []
+
+@description('True when the managed certificates of customDomains already exist (deploy-infra.ps1 detects it): bind them directly instead of issuing them.')
+param customDomainCertificatesExist bool = false
 
 // -----------------------------------------------------------------------------
 // Resource Group
@@ -90,6 +101,10 @@ module stack 'resources.bicep' = {
     containerAppMaxReplicas: containerAppMaxReplicas
     containerImage: containerImage
     sqlSku: sqlSku
+    appAdminEmail: appAdminEmail
+    vnetAddressPrefix: vnetAddressPrefix
+    customDomains: customDomains
+    customDomainCertificatesExist: customDomainCertificatesExist
   }
 }
 
@@ -101,7 +116,11 @@ output resourceGroupName string = rg.name
 output keyVaultName string = stack.outputs.keyVaultName
 output keyVaultUri string = stack.outputs.keyVaultUri
 output containerRegistryLoginServer string = stack.outputs.containerRegistryLoginServer
+output containerAppName string = stack.outputs.containerAppName
 output containerAppFqdn string = stack.outputs.containerAppFqdn
+output containerAppEnvironmentName string = stack.outputs.containerAppEnvironmentName
+output containerAppEnvironmentStaticIp string = stack.outputs.containerAppEnvironmentStaticIp
+output customDomainVerificationId string = stack.outputs.customDomainVerificationId
 output sqlServerFqdn string = stack.outputs.sqlServerFqdn
 output sqlDatabaseName string = stack.outputs.sqlDatabaseName
 output managedIdentityClientId string = stack.outputs.managedIdentityClientId

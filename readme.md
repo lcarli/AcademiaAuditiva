@@ -47,12 +47,10 @@ dotnet run
 
 # Azure (one-time setup, see docs/Deploy-Azure.md for details)
 az login --tenant <tenant>
-az account set --subscription <sub>
-az deployment sub create --location canadacentral `
-  --template-file infra/main.bicep `
-  --parameters infra/main.parameters.prd.json
+./infra/scripts/deploy-infra.ps1 -SkipCustomDomains
 ./infra/scripts/seed-keyvault.ps1 -VaultName <kv-name>
-./infra/scripts/grant-mi-sql.ps1 -ServerFqdn <sql-fqdn> -DatabaseName sqldb-aa-prd -ManagedIdentityName id-aa-prd
+./infra/scripts/grant-mi-sql.ps1 -ServerFqdn <sql-fqdn> -DatabaseName sqldb-aa-prd -ManagedIdentityName id-aa-prd  # SQL is private: see the script's help
+# Custom domains: configure-dns.ps1, then deploy-infra.ps1 again (Deploy-Azure.md, step 10)
 ```
 
 ## 🏗️ Repository layout

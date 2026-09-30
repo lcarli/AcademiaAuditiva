@@ -66,16 +66,14 @@ See [Deploy-Azure.md](Deploy-Azure.md) for the diagram and resource list.
 ## Data flow: secrets
 
 ```
-   Key Vault (kv-aa-prd-…)
+   Key Vault (kv-aa-prd-…)  ◀── private endpoint, managed identity
        │  ConnectionStrings--DefaultConnection
        │  Facebook--AppId / AppSecret
        │  Smtp--Host / Port / User / Password
+       │  Admin--InitialPassword
        │
-       │  (read at app start via keyVaultUrl secret references)
-       ▼
-   Container App secrets
-       │
-       │  (mapped to env vars with __ separator)
+       │  (read at app start by the Key Vault configuration provider,
+       │   which maps -- to :)
        ▼
    .NET configuration
        Facebook:AppId, Smtp:Host, ConnectionStrings:DefaultConnection, …
@@ -89,8 +87,8 @@ Secrets Officer** for seeding/rotating.
 
 ## Deployment flow
 
-1. Bicep provisions the entire stack (`az deployment sub create`).
-2. Operator runs `seed-keyvault.ps1` to populate real secret values.
+1. Bicep provisions the entire stack (`infra/scripts/deploy-infra.ps1`).
+2. Operator runs `seed-keyvault.ps1` to set the optional secrets.
 3. Operator runs `grant-mi-sql.ps1` so the MI can run EF migrations.
 4. CI builds the Docker image, pushes to ACR, and updates the
    Container App revision.

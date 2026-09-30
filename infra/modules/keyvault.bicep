@@ -1,9 +1,13 @@
-// Azure Key Vault with RBAC authorization.
+// Azure Key Vault with RBAC authorization, reachable only through its
+// private endpoint (public network access disabled).
 // Roles assigned:
 //   - Container App MI: Key Vault Secrets User (read-only)
 //   - Container App MI: Key Vault Crypto Service Encryption User on the
 //     Data Protection key only (get/wrap/unwrap)
 //   - Human admin (aadAdminObjectId): Key Vault Secrets Officer (manage secrets)
+// Secrets other than ConnectionStrings--DefaultConnection (written by
+// resources.bicep) are optional and never declared here, so a redeploy can't
+// overwrite them: set them with infra/scripts/seed-keyvault.ps1.
 
 param name string
 param location string
@@ -36,10 +40,10 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
     enableSoftDelete: true
     softDeleteRetentionInDays: 7
     enablePurgeProtection: purgeProtection ? true : null
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     networkAcls: {
       bypass: 'AzureServices'
-      defaultAction: 'Allow'
+      defaultAction: 'Deny'
     }
   }
 }
@@ -88,40 +92,6 @@ resource kvMiDataProtection 'Microsoft.Authorization/roleAssignments@2022-04-01'
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', kvCryptoServiceEncryptionUserRoleId)
   }
 }
-
-// Placeholder secrets so the Container App can wire references on first deploy.
-// Real values are written later via infra/scripts/seed-keyvault.ps1.
-//
-// IMPORTANT: This Bicep does **not** include ConnectionStrings--DefaultConnection
-// in the placeholder list. Doing so would clobber the real SQL connection string
-// on every redeploy (the placeholder is just 'placeholder-set-via-seed-script',
-// 31 characters, which then fails Migrate() at startup with
-// "Format of the initialization string does not conform to specification").
-// The SQL connection string is constructed deterministically in
-// modules/containerapp.bicep from the SQL outputs and exposed both as the
-// SqlConnection__Default env var and (via that module) as the
-// connectionstrings--defaultconnection KV-backed secret.
-var placeholderSecretNames = [
-  'Facebook--AppId'
-  'Facebook--AppSecret'
-  'Smtp--Host'
-  'Smtp--Port'
-  'Smtp--User'
-  'Smtp--Password'
-]
-
-@batchSize(1)
-resource placeholders 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = [for n in placeholderSecretNames: {
-  parent: kv
-  name: n
-  properties: {
-    value: 'placeholder-set-via-seed-script'
-    contentType: 'text/plain'
-  }
-  dependsOn: [
-    kvAdminOfficer
-  ]
-}]
 
 output id string = kv.id
 output name string = kv.name

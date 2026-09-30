@@ -28,8 +28,8 @@ param(
     [Parameter(Mandatory)] [string] $ResourceGroup,
     [Parameter(Mandatory)] [string] $AcrName,
     [Parameter(Mandatory)] [string] $Repo,
-    [string] $AppName     = 'academiaauditiva-cd',
-    [string] $Branch      = 'main',
+    [string] $AppName     = 'github-actions-academiaauditiva-cd',
+    [string] $Branch      = 'master',
     [string] $Environment = 'production'
 )
 
@@ -75,12 +75,13 @@ $credentials = @(
     @{ name = "github-env-$Environment"; subject = "repo:${Repo}:environment:${Environment}" }
 )
 
-$existing = (Invoke-Az @('ad','app','federated-credential','list','--id',$appId,'--query','[].name','-o','tsv')) -split "`n" |
-    Where-Object { $_ }
+# Matched on subject: a credential created by hand may have another name.
+$existing = (Invoke-Az @('ad','app','federated-credential','list','--id',$appId,'--query','[].subject','-o','tsv')) -split "`n" |
+    ForEach-Object { $_.Trim() } | Where-Object { $_ }
 
 foreach ($cred in $credentials) {
-    if ($existing -contains $cred.name) {
-        Write-Host "==> Federated credential '$($cred.name)' already exists" -ForegroundColor DarkGray
+    if ($existing -contains $cred.subject) {
+        Write-Host "==> Federated credential for '$($cred.subject)' already exists" -ForegroundColor DarkGray
         continue
     }
     Write-Host "==> Creating federated credential '$($cred.name)'" -ForegroundColor Cyan
