@@ -469,6 +469,182 @@
     <value>Devinez la Note</value>
     <comment>.</comment>
   </data>
+  <data name="HigherOrLower" xml:space="preserve">
+    <value>Plus Aiguë ou Plus Grave</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.HigherOrLower.Title" xml:space="preserve">
+    <value>Plus Aiguë ou Plus Grave</value>
+    <comment />
+  </data>
+  <data name="Exercise.HigherOrLowerText" xml:space="preserve">
+    <value>La deuxième note était-elle plus aiguë ou plus grave que la première?</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectHigherOrLowerText" xml:space="preserve">
+    <value>Veuillez indiquer si la deuxième note est plus aiguë ou plus grave.</value>
+    <comment />
+  </data>
+  <data name="Exercise.HigherAnswer" xml:space="preserve">
+    <value>Plus aiguë</value>
+    <comment />
+  </data>
+  <data name="Exercise.LowerAnswer" xml:space="preserve">
+    <value>Plus grave</value>
+    <comment />
+  </data>
+  <data name="GuessScaleType" xml:space="preserve">
+    <value>Devinez le Type de Gamme</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessScaleType.Title" xml:space="preserve">
+    <value>Devinez le Type de Gamme</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessScaleTypeText" xml:space="preserve">
+    <value>Écoutez la gamme et identifiez son type.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessScaleTypeText" xml:space="preserve">
+    <value>Veuillez sélectionner un type de gamme.</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMajor" xml:space="preserve">
+    <value>Majeure</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMinor" xml:space="preserve">
+    <value>Mineure</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMajorPentatonic" xml:space="preserve">
+    <value>Pentatonique Majeure</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMinorPentatonic" xml:space="preserve">
+    <value>Pentatonique Mineure</value>
+    <comment />
+  </data>
+  <data name="GuessGreekMode" xml:space="preserve">
+    <value>Devinez le Mode Grec</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessGreekMode.Title" xml:space="preserve">
+    <value>Devinez le Mode Grec</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessGreekModeText" xml:space="preserve">
+    <value>Écoutez la gamme modale et identifiez le mode grec qui est joué.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessGreekModeText" xml:space="preserve">
+    <value>Veuillez sélectionner un mode grec.</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeIonian" xml:space="preserve">
+    <value>Ionien</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeDorian" xml:space="preserve">
+    <value>Dorien</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModePhrygian" xml:space="preserve">
+    <value>Phrygien</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeLydian" xml:space="preserve">
+    <value>Lydien</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeMixolydian" xml:space="preserve">
+    <value>Mixolydien</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeAeolian" xml:space="preserve">
+    <value>Éolien</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeLocrian" xml:space="preserve">
+    <value>Locrien</value>
+    <comment />
+  </data>
+  <data name="GuessCadence" xml:space="preserve">
+    <value>Devinez la Cadence</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessCadence.Title" xml:space="preserve">
+    <value>Devinez la Cadence</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessCadenceText" xml:space="preserve">
+    <value>Écoutez la progression de 4 accords et identifiez la cadence.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessCadenceText" xml:space="preserve">
+    <value>Veuillez sélectionner un type de cadence.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadencePerfect" xml:space="preserve">
+    <value>Parfaite</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadencePlagal" xml:space="preserve">
+    <value>Plagale</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadenceImperfect" xml:space="preserve">
+    <value>Imparfaite</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadenceDeceptive" xml:space="preserve">
+    <value>Rompue</value>
+    <comment />
+  </data>
+  <data name="GuessInversion" xml:space="preserve">
+    <value>Devinez l'Inversion</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessInversion.Title" xml:space="preserve">
+    <value>Devinez l'Inversion</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessInversionText" xml:space="preserve">
+    <value>Écoutez l'accord et identifiez l'inversion.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessInversionText" xml:space="preserve">
+    <value>Veuillez sélectionner une inversion.</value>
+    <comment />
+  </data>
+  <data name="Exercise.InversionRoot" xml:space="preserve">
+    <value>État Fondamental</value>
+    <comment />
+  </data>
+  <data name="Exercise.InversionFirst" xml:space="preserve">
+    <value>1er Renversement</value>
+    <comment />
+  </data>
+  <data name="Exercise.InversionSecond" xml:space="preserve">
+    <value>2e Renversement</value>
+    <comment />
+  </data>
+  <data name="CompleteScale" xml:space="preserve">
+    <value>Compléter la Gamme</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.CompleteScale.Title" xml:space="preserve">
+    <value>Compléter la Gamme</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScaleText" xml:space="preserve">
+    <value>Écoutez la tonique et placez les notes restantes sur la portée.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectCompleteScaleText" xml:space="preserve">
+    <value>Veuillez placer les notes restantes sur la portée.</value>
+    <comment />
+  </data>
   <data name="Beginner" xml:space="preserve">
     <value>Débutant</value>
     <comment>.</comment>

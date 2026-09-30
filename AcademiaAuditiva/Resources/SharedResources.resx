@@ -453,6 +453,182 @@
     <value>Guess Note</value>
     <comment>.</comment>
   </data>
+  <data name="HigherOrLower" xml:space="preserve">
+    <value>Higher or Lower</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.HigherOrLower.Title" xml:space="preserve">
+    <value>Higher or Lower</value>
+    <comment />
+  </data>
+  <data name="Exercise.HigherOrLowerText" xml:space="preserve">
+    <value>Was the second note higher or lower than the first?</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectHigherOrLowerText" xml:space="preserve">
+    <value>Please select whether the second note is higher or lower.</value>
+    <comment />
+  </data>
+  <data name="Exercise.HigherAnswer" xml:space="preserve">
+    <value>Higher</value>
+    <comment />
+  </data>
+  <data name="Exercise.LowerAnswer" xml:space="preserve">
+    <value>Lower</value>
+    <comment />
+  </data>
+  <data name="GuessScaleType" xml:space="preserve">
+    <value>Guess Scale Type</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessScaleType.Title" xml:space="preserve">
+    <value>Guess Scale Type</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessScaleTypeText" xml:space="preserve">
+    <value>Listen to the scale and identify its type.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessScaleTypeText" xml:space="preserve">
+    <value>Please select a scale type.</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMajor" xml:space="preserve">
+    <value>Major</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMinor" xml:space="preserve">
+    <value>Minor</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMajorPentatonic" xml:space="preserve">
+    <value>Major Pentatonic</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMinorPentatonic" xml:space="preserve">
+    <value>Minor Pentatonic</value>
+    <comment />
+  </data>
+  <data name="GuessGreekMode" xml:space="preserve">
+    <value>Guess Greek Mode</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessGreekMode.Title" xml:space="preserve">
+    <value>Guess Greek Mode</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessGreekModeText" xml:space="preserve">
+    <value>Listen to the modal scale and identify which Greek mode is playing.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessGreekModeText" xml:space="preserve">
+    <value>Please select a Greek mode.</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeIonian" xml:space="preserve">
+    <value>Ionian</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeDorian" xml:space="preserve">
+    <value>Dorian</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModePhrygian" xml:space="preserve">
+    <value>Phrygian</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeLydian" xml:space="preserve">
+    <value>Lydian</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeMixolydian" xml:space="preserve">
+    <value>Mixolydian</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeAeolian" xml:space="preserve">
+    <value>Aeolian</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeLocrian" xml:space="preserve">
+    <value>Locrian</value>
+    <comment />
+  </data>
+  <data name="GuessCadence" xml:space="preserve">
+    <value>Guess Cadence</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessCadence.Title" xml:space="preserve">
+    <value>Guess the Cadence</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessCadenceText" xml:space="preserve">
+    <value>Listen to the 4-chord progression and identify the cadence.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessCadenceText" xml:space="preserve">
+    <value>Please select a cadence type.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadencePerfect" xml:space="preserve">
+    <value>Perfect</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadencePlagal" xml:space="preserve">
+    <value>Plagal</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadenceImperfect" xml:space="preserve">
+    <value>Imperfect</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadenceDeceptive" xml:space="preserve">
+    <value>Deceptive</value>
+    <comment />
+  </data>
+  <data name="GuessInversion" xml:space="preserve">
+    <value>Guess Inversion</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessInversion.Title" xml:space="preserve">
+    <value>Guess the Inversion</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessInversionText" xml:space="preserve">
+    <value>Listen to the chord and identify the inversion.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessInversionText" xml:space="preserve">
+    <value>Please select an inversion.</value>
+    <comment />
+  </data>
+  <data name="Exercise.InversionRoot" xml:space="preserve">
+    <value>Root Position</value>
+    <comment />
+  </data>
+  <data name="Exercise.InversionFirst" xml:space="preserve">
+    <value>1st Inversion</value>
+    <comment />
+  </data>
+  <data name="Exercise.InversionSecond" xml:space="preserve">
+    <value>2nd Inversion</value>
+    <comment />
+  </data>
+  <data name="CompleteScale" xml:space="preserve">
+    <value>Complete Scale</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.CompleteScale.Title" xml:space="preserve">
+    <value>Complete the Scale</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScaleText" xml:space="preserve">
+    <value>Listen to the tonic and place the remaining notes on the staff.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectCompleteScaleText" xml:space="preserve">
+    <value>Please place the remaining notes on the staff.</value>
+    <comment />
+  </data>
   <data name="GuessChords" xml:space="preserve">
     <value>Guess Chords</value>
     <comment>.</comment>

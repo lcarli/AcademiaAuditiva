@@ -33,6 +33,17 @@ public sealed class ExercisePlaybackPlanner
     // tones; clip them so the mix doesn't drag.
     private const double NoteClipSeconds = 1.5;
 
+    // Scales play many notes in a row — at the default 1.5s+0.5s pace a
+    // 7-note diatonic scale runs ~14s, which feels sluggish. Halve the
+    // clip and shrink the gap so the whole scale lands in ~5s.
+    private const double ScaleNoteClipSeconds = 0.75;
+    private const double ScaleNoteGapSeconds = 0.1;
+
+    // Cadence progression timing — each chord rings for ~1.2s with a
+    // tiny gap so the four chords land in ~5s without dragging.
+    private const double CadenceChordSeconds = 1.2;
+    private const double CadenceChordGapSeconds = 0.05;
+
     /// <summary>
     /// Returns the JSON to cache as <c>ExpectedAnswer</c> together with
     /// the playback plans that need to be mixed and tokenized. An empty
@@ -59,9 +70,11 @@ public sealed class ExercisePlaybackPlanner
             case "GuessChords":
             case "GuessFunction":
             case "GuessQuality":
+            case "GuessInversion":
                 plans.Add(NotesAtOnce(StringArray(token, "notes")));
                 break;
 
+            case "HigherOrLower":
             case "GuessInterval":
             case "GuessFullInterval":
                 plans.Add(NotesInSequence(new[]
@@ -69,6 +82,21 @@ public sealed class ExercisePlaybackPlanner
                     token.Value<string>("note1") ?? throw Bad("note1"),
                     token.Value<string>("note2") ?? throw Bad("note2"),
                 }));
+                break;
+
+            case "GuessScaleType":
+            case "GuessGreekMode":
+                plans.Add(NotesInSequence(
+                    StringArray(token, "notes"),
+                    ScaleNoteClipSeconds,
+                    ScaleNoteGapSeconds));
+                break;
+
+            case "GuessCadence":
+                plans.Add(ChordsInSequence(
+                    ChordArray(token, "chords"),
+                    CadenceChordSeconds,
+                    CadenceChordGapSeconds));
                 break;
 
             case "GuessMissingNote":
@@ -79,6 +107,17 @@ public sealed class ExercisePlaybackPlanner
             case "SolfegeMelody":
             case "IntervalMelodico":
                 // Sheet-music exercises — no audio token is issued.
+                break;
+
+            case "CompleteScale":
+            case "CompleteChord":
+            case "TransposeScale":
+            case "MelodicDictation":
+            case "RhythmDictation":
+                // Staff-based exercises share a unified melody contract:
+                // ExpectedAnswerJson contains a `melody` JArray with
+                // entries { type, note, durationBeats, durationLabel }.
+                plans.Add(MelodyPlan(token["melody"] as JArray ?? throw Bad("melody")));
                 break;
 
             default:
@@ -103,13 +142,43 @@ public sealed class ExercisePlaybackPlanner
     }
 
     private static IReadOnlyList<MixInput> NotesInSequence(IReadOnlyList<string> notes)
+        => NotesInSequence(notes, NoteClipSeconds, IntervalGapSeconds);
+
+    private static IReadOnlyList<MixInput> NotesInSequence(
+        IReadOnlyList<string> notes,
+        double clipSeconds,
+        double gapSeconds)
     {
         var plan = new MixInput[notes.Count];
         var t = 0.0;
         for (var i = 0; i < notes.Count; i++)
         {
-            plan[i] = Note(notes[i], t);
-            t += IntervalGapSeconds + NoteClipSeconds;
+            plan[i] = new MixInput(NoteToBlob(notes[i]), t, clipSeconds);
+            t += gapSeconds + clipSeconds;
+        }
+        return plan;
+    }
+
+    /// <summary>
+    /// Stacks several chords into a single playback plan: every note in
+    /// chord <c>i</c> starts at the same time, the next chord starts
+    /// after <c>chordSeconds + gapSeconds</c>. Used by GuessCadence so
+    /// the four chords play sequentially as a single audio mix.
+    /// </summary>
+    private static IReadOnlyList<MixInput> ChordsInSequence(
+        IReadOnlyList<IReadOnlyList<string>> chords,
+        double chordSeconds,
+        double gapSeconds)
+    {
+        var plan = new List<MixInput>();
+        var t = 0.0;
+        foreach (var chord in chords)
+        {
+            foreach (var note in chord)
+            {
+                plan.Add(new MixInput(NoteToBlob(note), t, chordSeconds));
+            }
+            t += chordSeconds + gapSeconds;
         }
         return plan;
     }
@@ -122,7 +191,8 @@ public sealed class ExercisePlaybackPlanner
         {
             var type = entry.Value<string>("type");
             var note = entry.Value<string>("note");
-            var beats = entry.Value<double?>("duration") ?? 1.0;
+            // Prefer durationBeats (new staff exercises); fall back to duration (legacy GuessMissingNote).
+            var beats = entry.Value<double?>("durationBeats") ?? entry.Value<double?>("duration") ?? 1.0;
             var seconds = beats * BeatDurationSeconds;
 
             if (type == "note" && !string.IsNullOrEmpty(note) && note != "rest")
@@ -147,6 +217,32 @@ public sealed class ExercisePlaybackPlanner
             notes[i] = arr[i].Value<string>() ?? throw Bad(field);
         }
         return notes;
+    }
+
+    /// <summary>
+    /// Reads a 2D array (array-of-arrays-of-strings) from the expected
+    /// answer JSON — used by chord-progression exercises like
+    /// GuessCadence where each entry is one chord's notes.
+    /// </summary>
+    private static IReadOnlyList<IReadOnlyList<string>> ChordArray(JObject token, string field)
+    {
+        if (token[field] is not JArray arr)
+        {
+            throw Bad(field);
+        }
+        var chords = new IReadOnlyList<string>[arr.Count];
+        for (var i = 0; i < arr.Count; i++)
+        {
+            if (arr[i] is not JArray inner)
+                throw Bad($"{field}[{i}]");
+            var notes = new string[inner.Count];
+            for (var j = 0; j < inner.Count; j++)
+            {
+                notes[j] = inner[j].Value<string>() ?? throw Bad($"{field}[{i}][{j}]");
+            }
+            chords[i] = notes;
+        }
+        return chords;
     }
 
     /// <summary>

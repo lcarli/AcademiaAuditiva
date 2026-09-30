@@ -1,0 +1,47 @@
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+@{
+    ViewBag.Title = Localizer["Exercise.HigherOrLower.Title"];
+    ViewData["FiltersPartial"] = "_ExerciseFilters";
+}
+
+<div class="container mt-4">
+    @await Html.PartialAsync("_ExerciseHeader", Model)
+    <input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+    <div class="row">
+        <div class="col-lg-4">
+            @await Html.PartialAsync("_ExerciseInstructions", Model)
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow-sm p-4">
+                <h4 class="text-center mb-3">@Localizer["Exercise.HigherOrLowerText"]</h4>
+
+                <div id="waveform" class="mb-4 text-center" style="height: 100px;"></div>
+
+                @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
+
+                @await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons)
+
+                <div class="text-center mt-3">
+                    <button class="btn btn-success" id="validateGuess">@Localizer["Exercise.ValidationButton"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_ExerciseFiltersModal", Model)
+
+<div id="localizer"
+     data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+     data-incomplete-text="@Localizer["Exercise.SelectHigherOrLowerText"]"
+     data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+     data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
+     data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+     data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]"
+     data-answer-higher="@Localizer["Exercise.HigherAnswer"]"
+     data-answer-lower="@Localizer["Exercise.LowerAnswer"]">
+</div>
+
+@section Scripts {
+    <script src="~/js/Exercises/HigherOrLower.js"></script>
+}
