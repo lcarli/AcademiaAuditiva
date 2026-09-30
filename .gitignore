@@ -16,6 +16,9 @@ node_modules/*
 appsettings.Local.json
 appsettings.*.Local.json
 
+# Local-only data, e.g. the piano samples downloaded by scripts/local-audio.ps1
+.local/
+
 # These are needed, however, they're generated so don't need/want to track
 css/app.css.map
 css/app.min.css
