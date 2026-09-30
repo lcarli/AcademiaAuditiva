@@ -74,6 +74,11 @@ uploads, SQL queries, or external integrations should call out the
 security implications in the PR description. The CODEOWNERS for those
 paths will gate merging.
 
+Gitleaks scans every PR and push, and the weekly run scans the whole
+history. Findings that were already in the history are baselined in
+`.gitleaksignore` by fingerprint; never add new entries for a real secret:
+rotate it instead.
+
 ## Pull requests
 
 - Title: same format as the squash-commit subject.
