@@ -10,7 +10,9 @@
     Manager instead, which needs Contributor or Key Vault Contributor on the
     vault rather than a data-plane role.
 
-    Leave a prompt empty to keep the current value. The app reads Key Vault
+    Leave a prompt empty to keep the current value. Every value written is
+    enabled, so this also turns back on a secret that was disabled to switch
+    a feature off (the app skips disabled secrets). The app reads Key Vault
     only at startup, so restart the revision afterwards.
 
     ConnectionStrings--DefaultConnection is written by the Bicep deployment.
@@ -49,7 +51,8 @@ function Set-Secret {
     # A file keeps the value off the command line, where other processes can read it.
     $body = New-TemporaryFile
     try {
-        Set-Content -Path $body -Value (@{ properties = @{ value = $value } } | ConvertTo-Json -Compress) -Encoding utf8NoBOM -NoNewline
+        $payload = @{ properties = @{ value = $value; attributes = @{ enabled = $true } } }
+        Set-Content -Path $body -Value ($payload | ConvertTo-Json -Compress) -Encoding utf8NoBOM -NoNewline
         az rest --method put --url "https://management.azure.com$vaultId/secrets/${Name}?api-version=2023-07-01" --body "@$body" -o none
         if ($LASTEXITCODE -ne 0) { throw "Failed to set '$Name'." }
     } finally {
