@@ -7,14 +7,16 @@
 
 <form asp-action="Invite" method="post" class="aa-card-flat" style="max-width: 480px;"
       x-data="{ submitting: false }"
-      x-on:submit="submitting = true">
+      x-on:submit="setTimeout(() => submitting = !$event.defaultPrevented)">
+    @* The flag flips after every submit listener has run, so a submit cancelled by client-side
+       validation doesn't lock the form; readonly (not disabled) keeps the email in the POST. *@
     <div class="card-body">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input type="hidden" asp-for="ClassroomId" />
         <div class="mb-3">
             <label asp-for="Email" class="form-label"></label>
             <input asp-for="Email" class="form-control" autocomplete="off" placeholder="student@example.com"
-                   x-bind:disabled="submitting" />
+                   x-bind:readonly="submitting" />
             <span asp-validation-for="Email" class="text-danger small"></span>
             <div class="form-text">@Localizer["Teacher.Members.InviteHelp"]</div>
         </div>
