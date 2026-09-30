@@ -34,11 +34,19 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# stderr (az warnings) stays on the console; only stdout is returned.
+# Only stdout is returned; stderr (progress, warnings) is shown if az fails.
 function Invoke-Az {
-    $out = & az @args
-    if ($LASTEXITCODE -ne 0) { throw "az $($args -join ' ') failed (exit code $LASTEXITCODE)." }
-    return $out
+    $stderr = New-TemporaryFile
+    try {
+        $out = & az @args 2>$stderr
+        if ($LASTEXITCODE -ne 0) {
+            $message = (Get-Content -Raw $stderr) -split '[\r\n]+' | Where-Object { $_ -and $_ -notmatch 'Running \.\.$' }
+            throw "az $($args -join ' ') failed (exit code $LASTEXITCODE):`n$($message -join "`n")"
+        }
+        return $out
+    } finally {
+        Remove-Item $stderr -Force -ErrorAction SilentlyContinue
+    }
 }
 
 function Format-RecordSet($properties) {
