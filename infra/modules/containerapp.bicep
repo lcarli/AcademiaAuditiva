@@ -1,5 +1,8 @@
-// Container App for Academia Auditiva.
-// Pulls secrets from Key Vault via user-assigned MI, scales 1..N on HTTP.
+// Container App for Academia Auditiva. Scales 1..N on HTTP.
+// The app reads its secrets (Facebook, SMTP, Admin) straight from Key Vault
+// at startup (AzureKeyVault__Url) with the user-assigned MI, through the
+// vault's private endpoint. There are no Container Apps secret references,
+// so optional secrets don't need placeholders in the vault.
 
 param name string
 param location string
@@ -31,47 +34,27 @@ param dataProtectionBlobUri string = ''
 @description('Versionless Key Vault key URI used to wrap the Data Protection key ring.')
 param dataProtectionKeyUri string = ''
 
-// SQL connection string built from outputs. AAD auth via the user-assigned MI.
-// User Id=<MI clientId> is required for Active Directory Default to pick the right identity in a multi-MI host.
+@description('Ingress custom domains: [{ name, bindingType: Disabled | SniEnabled, certificateId? }].')
+param customDomains array = []
+
+// SQL connection string built from outputs. AAD auth via the user-assigned MI,
+// so it holds no secret. User Id=<MI clientId> is required for Active
+// Directory Default to pick the right identity in a multi-MI host.
 var sqlConnectionString = 'Server=tcp:${sqlServerFqdn},1433;Initial Catalog=${sqlDatabaseName};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=Active Directory Default;User Id=${managedIdentityClientId}'
 
-// Key Vault secret names map 1:1 to env vars (KV uses --, .NET config uses __).
-var kvSecrets = [
-  { kvName: 'ConnectionStrings--DefaultConnection', envName: 'ConnectionStrings__DefaultConnection', refName: 'connectionstrings--defaultconnection' }
-  { kvName: 'Facebook--AppId', envName: 'Facebook__AppId', refName: 'facebook--appid' }
-  { kvName: 'Facebook--AppSecret', envName: 'Facebook__AppSecret', refName: 'facebook--appsecret' }
-  { kvName: 'Smtp--Host', envName: 'Smtp__Host', refName: 'smtp--host' }
-  { kvName: 'Smtp--Port', envName: 'Smtp__Port', refName: 'smtp--port' }
-  { kvName: 'Smtp--User', envName: 'Smtp__User', refName: 'smtp--user' }
-  { kvName: 'Smtp--Password', envName: 'Smtp__Password', refName: 'smtp--password' }
-]
-
-var kvSecretRefs = [for s in kvSecrets: {
-  name: s.refName
-  keyVaultUrl: '${keyVaultUri}secrets/${s.kvName}'
-  identity: managedIdentityId
-}]
-
-var staticEnv = [
+var envVars = [
   { name: 'ASPNETCORE_ENVIRONMENT', value: 'Production' }
   { name: 'ASPNETCORE_URLS', value: 'http://+:${targetPort}' }
   { name: 'AzureKeyVault__Url', value: keyVaultUri }
   { name: 'ManagedIdentityClientId', value: managedIdentityClientId }
   { name: 'AZURE_CLIENT_ID', value: managedIdentityClientId }
   { name: 'ApplicationInsights__ConnectionString', value: appInsightsConnectionString }
-  { name: 'SqlConnection__Default', value: sqlConnectionString }
+  { name: 'ConnectionStrings__DefaultConnection', value: sqlConnectionString }
   { name: 'Admin__Email', value: adminEmail }
   { name: 'Storage__BlobEndpoint', value: storageBlobEndpoint }
   { name: 'DataProtection__BlobUri', value: dataProtectionBlobUri }
   { name: 'DataProtection__KeyIdentifier', value: dataProtectionKeyUri }
 ]
-
-var secretEnv = [for s in kvSecrets: {
-  name: s.envName
-  secretRef: s.refName
-}]
-
-var allEnv = concat(staticEnv, secretEnv)
 
 resource app 'Microsoft.App/containerApps@2024-03-01' = {
   name: name
@@ -106,6 +89,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
             weight: 100
           }
         ]
+        customDomains: customDomains
       }
       registries: [
         {
@@ -113,7 +97,6 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
           identity: managedIdentityId
         }
       ]
-      secrets: kvSecretRefs
     }
     template: {
       containers: [
@@ -124,7 +107,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
             cpu: json(cpu)
             memory: memory
           }
-          env: allEnv
+          env: envVars
           probes: [
             {
               type: 'Startup'

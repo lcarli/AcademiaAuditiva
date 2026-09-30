@@ -8,7 +8,7 @@
 | Compromised SQL admin | AAD-only auth; no SQL password ever; admin is a human AAD identity |
 | Compromised pod → DB pivot | MI has only `db_datareader/db_datawriter/db_ddladmin` on a single DB |
 | Compromised MI → KV pivot | MI has Secrets **User** (read-only), not Officer; its only key right is wrap/unwrap on the `dataprotection` key |
-| Account takeover | Email confirmation required; bootstrap admin uses random password until forgot-password |
+| Account takeover | Email confirmation required; bootstrap admin gets `Admin--InitialPassword` or a random password (reset with forgot-password) |
 | XSS in user content | Razor encoding by default; no `Html.Raw` on untrusted input |
 | CSRF | ASP.NET Core anti-forgery on POST forms |
 | Brute-force login | Identity lockout enabled (`LockoutEnabled = true`) |
@@ -17,31 +17,34 @@
 | Cookie keys lost on deploy / not shared across replicas | Data Protection key ring persisted in blob container `dataprotection-keys`, wrapped by Key Vault key `dataprotection` |
 | Wrong scheme behind the TLS-terminating ingress | `UseForwardedHeaders` honours `X-Forwarded-Proto`/`-For`, so links, OAuth redirects, secure cookies and HSTS see https |
 | Known-vulnerable dependencies | `dotnet list package --vulnerable --include-transitive` kept clean; jquery-validation self-hosted (no pinned CDN copy) |
+| Data services reachable from the internet | Key Vault, SQL and Storage have public network access disabled; the app reaches them through private endpoints in its VNet |
 
 ## Secret inventory (production)
 
 Vault: `kv-aa-prd-rmz6b3` (RG `rg-aa-prd`, region `canadacentral`).
 Read access: user-assigned MI `id-aa-prd` (role *Key Vault Secrets User*).
-The Container App `ca-aa-prd` mounts each one as a `keyVaultUrl` secret
-reference; the runtime env var swaps `--` for `__` to match the .NET
-configuration provider (e.g. `Facebook--AppSecret` → `Facebook__AppSecret`
-→ `Configuration["Facebook:AppSecret"]`).
+The app loads every secret at startup with the Key Vault configuration
+provider, through the vault's private endpoint. The provider maps `--` to
+`:` (e.g. `Facebook--AppSecret` → `Configuration["Facebook:AppSecret"]`).
 
 | Secret | Bound to (Configuration key) | Source of truth |
 |---|---|---|
-| `ConnectionStrings--DefaultConnection` | `ConnectionStrings:DefaultConnection` | Generated post-deploy from SQL FQDN + DB name; auth is AAD (`Authentication=Active Directory Default`) |
+| `ConnectionStrings--DefaultConnection` | `ConnectionStrings:DefaultConnection` | Written by the Bicep deployment from the SQL FQDN, DB name and MI client id; auth is AAD (`Authentication=Active Directory Default`) |
 | `Facebook--AppId` | `Facebook:AppId` | Facebook for Developers → App → Settings → Basic |
 | `Facebook--AppSecret` | `Facebook:AppSecret` | same — *Show* the App Secret |
 | `Smtp--Host` | `Smtp:Host` | `smtp.gmail.com` |
 | `Smtp--Port` | `Smtp:Port` | `587` |
 | `Smtp--User` | `Smtp:User` | Gmail address that owns the App Password |
 | `Smtp--Password` | `Smtp:Password` | Google → Security → 2FA → App passwords |
+| `Admin--InitialPassword` | `Admin:InitialPassword` | Operator; only used to create the `Admin__Email` account if it doesn't exist |
 
-Verify the inventory at any time:
+The vault's data plane only answers inside the VNet, so list the inventory
+through Azure Resource Manager (names and dates, never values):
 
 ```powershell
-az keyvault secret list --vault-name kv-aa-prd-rmz6b3 `
-   --query "[].{name:name,updated:attributes.updated}" -o table
+$kv = az keyvault show --name kv-aa-prd-rmz6b3 --query id -o tsv
+az rest --method get --url "https://management.azure.com$kv/secrets?api-version=2023-07-01" `
+   --query "value[].{name:name,updated:properties.attributes.updated}" -o table
 ```
 
 ## Secret rotation runbook
@@ -51,13 +54,11 @@ az keyvault secret list --vault-name kv-aa-prd-rmz6b3 `
 ### Rotate a Key Vault secret
 
 ```powershell
-az keyvault secret set --vault-name <kv> --name <name> --value <new>
-# Refresh the Container App so the new secret value is fetched
+./infra/scripts/seed-keyvault.ps1 -VaultName <kv>   # empty answers keep the other values
+# The app reads Key Vault at startup: restart the revision
 az containerapp revision restart --name ca-aa-prd --resource-group rg-aa-prd `
    --revision $(az containerapp revision list -n ca-aa-prd -g rg-aa-prd --query "[?properties.active].name" -o tsv)
 ```
-
-Container Apps re-reads `keyVaultUrl` references on revision restart.
 
 ### Rotate Facebook AppSecret
 

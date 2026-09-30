@@ -6,7 +6,17 @@
 .DESCRIPTION
     Must be executed by a principal that is the AAD admin of the SQL server
     (or a member of the configured AAD admin group).
-    Run once after the first `az deployment sub create`.
+    Run once after the first `az deployment sub create`. The id-aa-prd user
+    already exists in sqldb-aa-prd; only a new database needs it.
+
+    The server has public network access disabled. Run this from inside the
+    VNet, or open the server to your IP only while it runs:
+      az sql server update -g rg-aa-prd -n <server> --enable-public-network true
+      az sql server firewall-rule create -g rg-aa-prd -s <server> -n tmp-grant-mi `
+          --start-ip-address <your IP> --end-ip-address <your IP>
+      (run this script)
+      az sql server firewall-rule delete -g rg-aa-prd -s <server> -n tmp-grant-mi
+      az sql server update -g rg-aa-prd -n <server> --enable-public-network false
 
     Requires:
       - PowerShell 7+

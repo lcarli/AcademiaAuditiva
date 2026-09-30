@@ -8,9 +8,9 @@
     "aadAdminObjectId":       { "value": "REPLACE_WITH_YOUR_AAD_OBJECT_ID_IN_TENANT_1d70d939-06d2-4348-b658-58cb38886348" },
     "aadAdminLogin":          { "value": "lucas.decarli.ca@gmail.com" },
     "aadTenantId":            { "value": "1d70d939-06d2-4348-b658-58cb38886348" },
+    "appAdminEmail":          { "value": "lucas.decarli.ca@gmail.com" },
     "containerAppMinReplicas":{ "value": 0 },
     "containerAppMaxReplicas":{ "value": 2 },
-    "containerImage":         { "value": "mcr.microsoft.com/k8se/quickstart:latest" },
     "sqlSku":                 { "value": "GP_S_Gen5_1" }
   }
 }

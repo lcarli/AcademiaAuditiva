@@ -1,25 +1,34 @@
+#requires -Version 7.0
 <#
 .SYNOPSIS
-    Seeds Azure Key Vault with the application secrets needed by Academia Auditiva.
+    Sets the optional Academia Auditiva secrets in Key Vault.
 
 .DESCRIPTION
-    Idempotent: re-running updates secret values without creating new vault objects.
-    The signed-in principal must hold "Key Vault Secrets Officer" on the vault.
+    The vault has public network access disabled, so its data plane
+    (az keyvault secret set, the portal's Secrets blade) only works from
+    inside the VNet. This script writes the secrets through Azure Resource
+    Manager instead, which needs Contributor or Key Vault Contributor on the
+    vault rather than a data-plane role.
 
-.PARAMETER VaultName
-    Name of the target Key Vault (e.g. kv-aa-prd-abcdef).
+    Leave a prompt empty to keep the current value. The app reads Key Vault
+    only at startup, so restart the revision afterwards.
+
+    ConnectionStrings--DefaultConnection is written by the Bicep deployment.
 
 .EXAMPLE
     az login --tenant 1d70d939-06d2-4348-b658-58cb38886348
-    az account set --subscription 3dc8ff32-42e4-4152-b194-46b704ed70f2
-    ./infra/scripts/seed-keyvault.ps1 -VaultName kv-aa-prd-abcdef
+    ./infra/scripts/seed-keyvault.ps1 -VaultName kv-aa-prd-rmz6b3
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)] [string] $VaultName
+    [Parameter(Mandatory)] [string] $VaultName,
+    [string] $SubscriptionId = '3dc8ff32-42e4-4152-b194-46b704ed70f2'
 )
 
 $ErrorActionPreference = 'Stop'
+
+$vaultId = az keyvault show --name $VaultName --subscription $SubscriptionId --query id -o tsv
+if ($LASTEXITCODE -ne 0 -or -not $vaultId) { throw "Key Vault '$VaultName' not found in subscription $SubscriptionId." }
 
 function Set-Secret {
     param(
@@ -34,17 +43,22 @@ function Set-Secret {
         $value = Read-Host -Prompt $Prompt
     }
     if ([string]::IsNullOrWhiteSpace($value)) {
-        Write-Warning "Skipping '$Name' (empty input)."
+        Write-Host "  - $Name unchanged" -ForegroundColor DarkGray
         return
     }
-    az keyvault secret set --vault-name $VaultName --name $Name --value $value --output none
+    # A file keeps the value off the command line, where other processes can read it.
+    $body = New-TemporaryFile
+    try {
+        Set-Content -Path $body -Value (@{ properties = @{ value = $value } } | ConvertTo-Json -Compress) -Encoding utf8NoBOM -NoNewline
+        az rest --method put --url "https://management.azure.com$vaultId/secrets/${Name}?api-version=2023-07-01" --body "@$body" -o none
+        if ($LASTEXITCODE -ne 0) { throw "Failed to set '$Name'." }
+    } finally {
+        Remove-Item $body -Force -ErrorAction SilentlyContinue
+    }
     Write-Host "  ✓ $Name" -ForegroundColor Green
 }
 
-Write-Host "Seeding secrets into vault '$VaultName'..." -ForegroundColor Cyan
-
-Write-Host "`n— Database —" -ForegroundColor Yellow
-Set-Secret -Name 'ConnectionStrings--DefaultConnection' -Prompt 'SQL connection string (paste output of bicep deploy)' -Mask
+Write-Host "Setting secrets in vault '$VaultName' (empty input keeps the current value)..." -ForegroundColor Cyan
 
 Write-Host "`n— Facebook OAuth —" -ForegroundColor Yellow
 Set-Secret -Name 'Facebook--AppId' -Prompt 'Facebook AppId'
@@ -56,4 +70,8 @@ Set-Secret -Name 'Smtp--Port' -Prompt 'SMTP port (e.g. 465)'
 Set-Secret -Name 'Smtp--User' -Prompt 'SMTP user (sender email)'
 Set-Secret -Name 'Smtp--Password' -Prompt 'SMTP password / app password' -Mask
 
-Write-Host "`nDone. Restart the Container App revision so it re-reads secrets." -ForegroundColor Cyan
+Write-Host "`n— Bootstrap admin —" -ForegroundColor Yellow
+Write-Host "  Only used to create the Admin__Email account if it doesn't exist yet." -ForegroundColor DarkGray
+Set-Secret -Name 'Admin--InitialPassword' -Prompt 'Initial admin password' -Mask
+
+Write-Host "`nDone. Restart the Container App revision so it re-reads the secrets." -ForegroundColor Cyan

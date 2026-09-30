@@ -36,11 +36,10 @@ try
 var builder = WebApplication.CreateBuilder(args);
 
 // Wire Azure Key Vault BEFORE reading any configuration so KV-backed values
-// (Facebook, SMTP, ConnectionStrings) are available below.
-// In Production the Container App injects KV secrets via env vars
-// (Facebook__AppId, ConnectionStrings__DefaultConnection, ...) using
-// keyVaultUrl secret references, so AddAzureKeyVault is only needed when
-// AzureKeyVault:Url is explicitly configured.
+// (Facebook, SMTP, Admin, ConnectionStrings) are available below. In Azure
+// the Container App sets AzureKeyVault__Url and the app reads the vault with
+// its managed identity, through the vault's private endpoint. Vault values
+// override environment variables.
 var keyVaultUrl = builder.Configuration["AzureKeyVault:Url"];
 if (!string.IsNullOrWhiteSpace(keyVaultUrl))
 {

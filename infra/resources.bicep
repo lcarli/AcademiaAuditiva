@@ -15,6 +15,10 @@ param containerAppMinReplicas int
 param containerAppMaxReplicas int
 param containerImage string
 param sqlSku string
+param appAdminEmail string
+param vnetAddressPrefix string
+param customDomains array
+param customDomainCertificatesExist bool
 
 var nameBase = '${resourcePrefix}-${envName}'
 var nameBaseFlat = '${resourcePrefix}${envName}'
@@ -30,6 +34,21 @@ var appInsightsName = 'appi-${nameBase}'
 var containerAppEnvName = 'cae-${nameBase}'
 var containerAppName = 'ca-${nameBase}'
 var storageAccountName = take('st${nameBaseFlat}${unique6}', 24)
+var vnetName = 'vnet-${nameBase}'
+
+// -----------------------------------------------------------------------------
+// Network: VNet, private DNS zones, private endpoints
+// -----------------------------------------------------------------------------
+
+module network 'modules/network.bicep' = {
+  name: 'network'
+  params: {
+    name: vnetName
+    location: location
+    tags: tags
+    addressPrefix: vnetAddressPrefix
+  }
+}
 
 // -----------------------------------------------------------------------------
 // Identity
@@ -121,6 +140,45 @@ module storage 'modules/storage.bicep' = {
   }
 }
 
+module keyVaultPrivateEndpoint 'modules/private-endpoint.bicep' = {
+  name: 'pe-keyvault'
+  params: {
+    name: 'pe-${keyVaultName}'
+    location: location
+    tags: tags
+    subnetId: network.outputs.privateEndpointsSubnetId
+    privateLinkServiceId: keyvault.outputs.id
+    groupId: 'vault'
+    privateDnsZoneId: network.outputs.keyVaultDnsZoneId
+  }
+}
+
+module sqlPrivateEndpoint 'modules/private-endpoint.bicep' = {
+  name: 'pe-sql'
+  params: {
+    name: 'pe-${sqlServerName}'
+    location: location
+    tags: tags
+    subnetId: network.outputs.privateEndpointsSubnetId
+    privateLinkServiceId: sql.outputs.serverId
+    groupId: 'sqlServer'
+    privateDnsZoneId: network.outputs.sqlDnsZoneId
+  }
+}
+
+module blobPrivateEndpoint 'modules/private-endpoint.bicep' = {
+  name: 'pe-blob'
+  params: {
+    name: 'pe-${storageAccountName}-blob'
+    location: location
+    tags: tags
+    subnetId: network.outputs.privateEndpointsSubnetId
+    privateLinkServiceId: storage.outputs.id
+    groupId: 'blob'
+    privateDnsZoneId: network.outputs.blobDnsZoneId
+  }
+}
+
 // -----------------------------------------------------------------------------
 // Container Apps
 // -----------------------------------------------------------------------------
@@ -151,8 +209,30 @@ module caeEnv 'modules/containerapp-env.bicep' = {
     tags: tags
     logAnalyticsCustomerId: monitoring.outputs.logAnalyticsCustomerId
     logAnalyticsSharedKey: monitoring.outputs.logAnalyticsSharedKey
+    infrastructureSubnetId: network.outputs.containerAppsSubnetId
   }
 }
+
+// Custom domains use free managed certificates. A certificate can only be
+// issued once its host name is on the app, so the first deploy adds the host
+// names unbound, issues the certificates, then binds them (containerAppBinding).
+// Once they exist (customDomainCertificatesExist, detected by
+// infra/scripts/deploy-infra.ps1) the app binds them directly, so redeploys
+// never unbind a live certificate.
+var managedCertificateNames = [for d in customDomains: 'mc-${replace(d.name, '.', '-')}']
+
+var unboundCustomDomains = [for d in customDomains: {
+  name: d.name
+  bindingType: 'Disabled'
+}]
+
+var boundCustomDomains = [for (d, i) in customDomains: {
+  name: d.name
+  bindingType: 'SniEnabled'
+  certificateId: resourceId('Microsoft.App/managedEnvironments/managedCertificates', containerAppEnvName, managedCertificateNames[i])
+}]
+
+var issueCertificates = !customDomainCertificatesExist && !empty(customDomains)
 
 module containerApp 'modules/containerapp.bicep' = {
   name: 'containerapp'
@@ -171,13 +251,67 @@ module containerApp 'modules/containerapp.bicep' = {
     appInsightsConnectionString: monitoring.outputs.appInsightsConnectionString
     minReplicas: containerAppMinReplicas
     maxReplicas: containerAppMaxReplicas
-    adminEmail: aadAdminLogin
+    adminEmail: appAdminEmail
     storageBlobEndpoint: storage.outputs.blobEndpoint
     dataProtectionBlobUri: storage.outputs.dataProtectionBlobUri
     dataProtectionKeyUri: keyvault.outputs.dataProtectionKeyUri
+    customDomains: customDomainCertificatesExist ? boundCustomDomains : unboundCustomDomains
   }
   dependsOn: [
     sqlConnectionStringSecret
+    keyVaultPrivateEndpoint
+    sqlPrivateEndpoint
+    blobPrivateEndpoint
+  ]
+}
+
+resource managedEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' existing = {
+  name: containerAppEnvName
+}
+
+resource managedCertificates 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = [for (d, i) in customDomains: if (issueCertificates) {
+  parent: managedEnvironment
+  name: managedCertificateNames[i]
+  location: location
+  tags: tags
+  properties: {
+    subjectName: d.name
+    // HTTP for the apex (A record), CNAME for subdomains.
+    domainControlValidation: d.validationMethod
+  }
+  dependsOn: [
+    containerApp
+  ]
+}]
+
+// Same app as containerApp, now with the certificates bound. Keep the params
+// identical to containerApp's except customDomains, or this second
+// deployment would silently revert them.
+module containerAppBinding 'modules/containerapp.bicep' = if (issueCertificates) {
+  name: 'containerapp-bind'
+  params: {
+    name: containerAppName
+    location: location
+    tags: tags
+    environmentId: caeEnv.outputs.id
+    managedIdentityId: identity.outputs.id
+    managedIdentityClientId: identity.outputs.clientId
+    containerImage: containerImage
+    registryServer: registry.outputs.loginServer
+    keyVaultUri: keyvault.outputs.uri
+    sqlServerFqdn: sql.outputs.serverFqdn
+    sqlDatabaseName: sql.outputs.databaseName
+    appInsightsConnectionString: monitoring.outputs.appInsightsConnectionString
+    minReplicas: containerAppMinReplicas
+    maxReplicas: containerAppMaxReplicas
+    adminEmail: appAdminEmail
+    storageBlobEndpoint: storage.outputs.blobEndpoint
+    dataProtectionBlobUri: storage.outputs.dataProtectionBlobUri
+    dataProtectionKeyUri: keyvault.outputs.dataProtectionKeyUri
+    customDomains: boundCustomDomains
+  }
+  dependsOn: [
+    managedCertificates
   ]
 }
 
@@ -188,7 +322,11 @@ module containerApp 'modules/containerapp.bicep' = {
 output keyVaultName string = keyvault.outputs.name
 output keyVaultUri string = keyvault.outputs.uri
 output containerRegistryLoginServer string = registry.outputs.loginServer
+output containerAppName string = containerAppName
 output containerAppFqdn string = containerApp.outputs.fqdn
+output containerAppEnvironmentName string = caeEnv.outputs.name
+output containerAppEnvironmentStaticIp string = caeEnv.outputs.staticIp
+output customDomainVerificationId string = caeEnv.outputs.customDomainVerificationId
 output sqlServerFqdn string = sql.outputs.serverFqdn
 output sqlDatabaseName string = sql.outputs.databaseName
 output managedIdentityClientId string = identity.outputs.clientId
