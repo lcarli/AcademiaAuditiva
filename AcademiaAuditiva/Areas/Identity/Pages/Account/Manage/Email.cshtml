@@ -18,14 +18,14 @@
                     <div class="input-group-append">
                         <span class="h-100 input-group-text text-success font-weight-bold">✓</span>
                     </div>
-                    <label asp-for="Email" class="form-label"></label>
+                    <label asp-for="Email" class="form-label">@Localizer["Account.Email"]</label>
                 </div>
             }
             else
             {
                 <div class="form-floating mb-3">
                     <input asp-for="Email" class="form-control" placeholder="@Localizer["Manage.Email.Placeholder"]" disabled />
-                    <label asp-for="Email" class="form-label"></label>
+                    <label asp-for="Email" class="form-label">@Localizer["Account.Email"]</label>
                     <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link">@Localizer["Manage.Email.SendVerification"]</button>
                 </div>
             }

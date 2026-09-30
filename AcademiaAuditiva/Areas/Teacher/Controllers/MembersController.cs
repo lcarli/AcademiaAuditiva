@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.Encodings.Web;
 using AcademiaAuditiva.Areas.Teacher.Models;
 using AcademiaAuditiva.Areas.Teacher.Services;
 using AcademiaAuditiva.Data;
@@ -111,15 +113,12 @@ public class MembersController : TeacherAreaController
 
         var acceptUrl = Url.Action("Accept", "Invites", new { area = "", token = invite.Token },
             Request.Scheme) ?? "";
-        var subject = $"You've been invited to {classroom.Name} on Academia Auditiva";
-        var body = $"""
-            <p>Hi,</p>
-            <p>{User.Identity?.Name} has invited you to join the classroom
-               <strong>{System.Net.WebUtility.HtmlEncode(classroom.Name)}</strong>
-               on Academia Auditiva.</p>
-            <p><a href="{acceptUrl}">Click here to accept the invitation</a>.</p>
-            <p>This link expires on {invite.ExpiresAt:yyyy-MM-dd}.</p>
-            """;
+        var subject = _l["Invite.Email.Subject", classroom.Name].Value;
+        var body = _l["Invite.Email.Body",
+            HtmlEncoder.Default.Encode(User.Identity?.Name ?? ""),
+            HtmlEncoder.Default.Encode(classroom.Name),
+            HtmlEncoder.Default.Encode(acceptUrl),
+            HtmlEncoder.Default.Encode(invite.ExpiresAt.ToString("D", CultureInfo.CurrentCulture))].Value;
 
         try
         {
@@ -132,7 +131,7 @@ public class MembersController : TeacherAreaController
             return RedirectToAction("Details", "Classrooms", new { id = classroom.Id });
         }
 
-        TempData["Success"] = $"Invitation sent to {email}.";
+        TempData["Success"] = _l["Toast.InviteSent", email].Value;
         return RedirectToAction("Details", "Classrooms", new { id = classroom.Id });
     }
 

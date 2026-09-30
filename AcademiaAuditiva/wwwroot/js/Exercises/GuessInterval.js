@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   AcademiaAuditiva.init();
   AudioEngine.setupWaveform();
 
-  const loc = document.getElementById("localizer").dataset;
+  const loc = AAi18n.localizer();
 
   let playToken = null;
   let roundId = null;
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (replayBtn) {
     replayBtn.addEventListener("click", () => {
       if (!playToken) {
-        Swal.fire({ icon: "warning", title: loc.incompleteTitle, text: loc.incompleteText });
+        AAi18n.noAudio(loc);
         return;
       }
       AudioEngine.playToken(playToken);
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (validateBtn) {
     validateBtn.addEventListener("click", () => {
       if (!selectedGuess) {
-        Swal.fire({ icon: "warning", title: loc.incompleteTitle, text: loc.incompleteText });
+        AAi18n.incomplete(loc);
         return;
       }
 
@@ -84,14 +84,15 @@ document.addEventListener("DOMContentLoaded", () => {
       })
         .then((resp) => resp.json())
         .then((data) => {
+          if (AAi18n.serverError(data, loc)) return;
           const correctCountEl = document.getElementById("correctCount");
           const errorCountEl = document.getElementById("errorCount");
           if (data.isCorrect) {
             if (correctCountEl) correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-            Swal.fire("Correct!", "You got the interval right!", "success");
+            AAi18n.result(data, loc);
           } else {
             if (errorCountEl) errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-            Swal.fire("Wrong!", `The correct interval was ${data.answer}.`, "error");
+            AAi18n.result(data, loc);
           }
 
           selectedGuess = "";

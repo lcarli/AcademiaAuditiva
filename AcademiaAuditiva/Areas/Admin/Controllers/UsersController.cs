@@ -1,9 +1,11 @@
 using AcademiaAuditiva.Areas.Admin.Models;
 using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Admin.Controllers;
 
@@ -11,11 +13,13 @@ public class UsersController : AdminAreaController
 {
     private readonly UserManager<ApplicationUser> _users;
     private readonly ILogger<UsersController> _logger;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
-    public UsersController(UserManager<ApplicationUser> users, ILogger<UsersController> logger)
+    public UsersController(UserManager<ApplicationUser> users, ILogger<UsersController> logger, IStringLocalizer<SharedResources> localizer)
     {
         _users = users;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> Index(string? q = null, string? role = null, int take = 100)
@@ -75,7 +79,7 @@ public class UsersController : AdminAreaController
             await _users.AddToRoleAsync(u, RoleNames.Teacher);
             _logger.LogInformation("Admin {Admin} promoted user {UserId} to Teacher", LogSanitizer.Sanitize(User.Identity?.Name), LogSanitizer.Sanitize(id));
         }
-        TempData["Success"] = $"{u.UserName} is now a Teacher.";
+        TempData["Success"] = _localizer["Admin.Users.PromotedTeacher", u.UserName ?? u.Email ?? id].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -89,7 +93,7 @@ public class UsersController : AdminAreaController
             await _users.RemoveFromRoleAsync(u, RoleNames.Teacher);
             _logger.LogInformation("Admin {Admin} demoted teacher {UserId} to student", LogSanitizer.Sanitize(User.Identity?.Name), LogSanitizer.Sanitize(id));
         }
-        TempData["Success"] = $"{u.UserName} is no longer a Teacher.";
+        TempData["Success"] = _localizer["Admin.Users.DemotedTeacher", u.UserName ?? u.Email ?? id].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -103,7 +107,7 @@ public class UsersController : AdminAreaController
             await _users.AddToRoleAsync(u, RoleNames.Admin);
             _logger.LogWarning("Admin {Admin} promoted user {UserId} to ADMIN", LogSanitizer.Sanitize(User.Identity?.Name), LogSanitizer.Sanitize(id));
         }
-        TempData["Success"] = $"{u.UserName} is now an Admin.";
+        TempData["Success"] = _localizer["Admin.Users.PromotedAdmin", u.UserName ?? u.Email ?? id].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -113,7 +117,7 @@ public class UsersController : AdminAreaController
         var currentId = _users.GetUserId(User);
         if (id == currentId)
         {
-            TempData["Error"] = "You cannot demote yourself.";
+            TempData["Error"] = _localizer["Admin.Users.CannotDemoteSelf"].Value;
             return RedirectToAction(nameof(Index));
         }
         var u = await _users.FindByIdAsync(id);
@@ -123,7 +127,7 @@ public class UsersController : AdminAreaController
         var admins = await _users.GetUsersInRoleAsync(RoleNames.Admin);
         if (admins.Count <= 1)
         {
-            TempData["Error"] = "Cannot demote the last remaining Admin.";
+            TempData["Error"] = _localizer["Admin.Users.CannotDemoteLastAdmin"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -132,7 +136,7 @@ public class UsersController : AdminAreaController
             await _users.RemoveFromRoleAsync(u, RoleNames.Admin);
             _logger.LogWarning("Admin {Admin} demoted admin {UserId}", LogSanitizer.Sanitize(User.Identity?.Name), LogSanitizer.Sanitize(id));
         }
-        TempData["Success"] = $"{u.UserName} is no longer an Admin.";
+        TempData["Success"] = _localizer["Admin.Users.DemotedAdmin", u.UserName ?? u.Email ?? id].Value;
         return RedirectToAction(nameof(Index));
     }
 }

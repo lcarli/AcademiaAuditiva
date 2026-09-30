@@ -1,6 +1,6 @@
 @model AcademiaAuditiva.Areas.Teacher.Models.StudentDashboardViewModel
 @{
-    ViewData["Title"] = $"Dashboard — {Model.Display}";
+    ViewData["Title"] = $"{Localizer["Teacher.Nav.Dashboard"].Value} — {Model.Display}";
 }
 <div class="d-flex justify-content-between align-items-start mb-3">
     <div>
@@ -13,7 +13,7 @@
     <div>
         @if (Model.BackClassroomId.HasValue)
         {
-            <a class="btn btn-link" asp-action="Classroom" asp-route-id="@Model.BackClassroomId">Back to classroom</a>
+            <a class="btn btn-link" asp-action="Classroom" asp-route-id="@Model.BackClassroomId">@Localizer["Teacher.Dashboard.BackToClassroom"]</a>
         }
     </div>
 </div>
@@ -21,44 +21,44 @@
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
         <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">Sessions</div>
+            <div class="text-secondary small">@Localizer["Teacher.Dashboard.Sessions"]</div>
             <div class="h3 mb-0">@Model.TotalSessions.ToString("N0")</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
         <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">Attempts</div>
+            <div class="text-secondary small">@Localizer["Teacher.Dashboard.Attempts"]</div>
             <div class="h3 mb-0">@Model.TotalAttempts.ToString("N0")</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
         <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">Accuracy</div>
+            <div class="text-secondary small">@Localizer["Teacher.Dashboard.Accuracy"]</div>
             <div class="h3 mb-0">@Model.OverallAccuracy.ToString("F1")%</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
         <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">Last activity</div>
+            <div class="text-secondary small">@Localizer["Dashboard.LastActivity"]</div>
             <div class="h5 mb-0">
                 @if (Model.LastActivity.HasValue) { @Model.LastActivity.Value.ToString("yyyy-MM-dd HH:mm") }
-                else { <span class="text-secondary">never</span> }
+                else { <span class="text-secondary">@Localizer["Teacher.Dashboard.Never"]</span> }
             </div>
         </div></div>
     </div>
 </div>
 
 <div class="aa-card-flat">
-    <div class="card-header bg-transparent border-bottom border-body"><strong>By exercise</strong></div>
+    <div class="card-header bg-transparent border-bottom border-body"><strong>@Localizer["Teacher.Dashboard.ByExercise"]</strong></div>
     <div class="table-responsive">
         <table class="table mb-0 align-middle">
             <thead class="table-light">
                 <tr>
-                    <th>Exercise</th>
-                    <th class="text-end">Attempts</th>
-                    <th class="text-end">Accuracy</th>
-                    <th class="text-end">Best</th>
-                    <th>Last activity</th>
+                    <th>@Localizer["Dashboard.Exercise"]</th>
+                    <th class="text-end">@Localizer["Teacher.Dashboard.Attempts"]</th>
+                    <th class="text-end">@Localizer["Teacher.Dashboard.Accuracy"]</th>
+                    <th class="text-end">@Localizer["Teacher.Dashboard.Best"]</th>
+                    <th>@Localizer["Dashboard.LastActivity"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -74,7 +74,7 @@
             }
             @if (!Model.ByExercise.Any())
             {
-                <tr><td colspan="5" class="text-secondary text-center py-4">This student hasn't practiced yet.</td></tr>
+                <tr><td colspan="5" class="text-secondary text-center py-4">@Localizer["Teacher.Dashboard.StudentNoPractice"]</td></tr>
             }
             </tbody>
         </table>

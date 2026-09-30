@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 {
@@ -21,11 +23,13 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly IStringLocalizer<SharedResources> _localizer;
 
-        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender, IStringLocalizer<SharedResources> localizer)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            _localizer = localizer;
         }
 
         /// <summary>
@@ -45,8 +49,9 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "Validation.Required")]
+            [EmailAddress(ErrorMessage = "Validation.EmailAddress")]
+            [Display(Name = "Account.Email")]
             public string Email { get; set; }
         }
 
@@ -73,8 +78,8 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 
                 await _emailSender.SendEmailAsync(
                     Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    _localizer["Identity.Email.ResetPassword.Subject"],
+                    _localizer["Identity.Email.ResetPassword.Body", HtmlEncoder.Default.Encode(callbackUrl)]);
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let audioChunks = [];
   let isRecording = false;
   let recordedAudioUrl = null;
-  const loc = document.getElementById("localizer").dataset;
+  const loc = AAi18n.localizer();
   const exerciseId = document.getElementById("exerciseId")?.value;
 
   // Function to render the melody on the sheet
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (recordBtn) {
     recordBtn.addEventListener("click", async () => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("Microphone access is not supported in this browser.");
+        Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: loc.microphoneUnsupportedText });
         return;
       }
 
@@ -101,16 +101,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
           mediaRecorder.start();
           isRecording = true;
-          recordBtn.innerHTML = `<i class="bi bi-stop-circle"></i> Parar Gravação`;
+          recordBtn.innerHTML = `<i class="bi bi-stop-circle"></i> ${loc.recordStopText}`;
         } catch (err) {
           console.error("Error accessing microphone:", err);
+          Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: loc.microphoneAccessErrorText });
         }
       } else {
         // Parar gravação
         if (mediaRecorder && mediaRecorder.state === "recording") {
           mediaRecorder.stop();
           isRecording = false;
-          recordBtn.innerHTML = `<i class="bi bi-mic"></i> Gravar Áudio`;
+          recordBtn.innerHTML = `<i class="bi bi-mic"></i> ${loc.recordStartText}`;
         }
       }
     });
@@ -124,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const audio = new Audio(recordedAudioUrl);
         audio.play();
       } else {
-        alert("Nenhum áudio gravado para reproduzir.");
+        AAi18n.incomplete(loc);
       }
     });
   }
@@ -141,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
           })
           .catch((err) => console.error("Error fetching recorded audio:", err));
       } else {
-        alert("Nenhum áudio gravado para validar.");
+        AAi18n.incomplete(loc);
       }
     });
   }
@@ -150,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function sendAudioToBackend(audioBlob) {
     try {
       const note = await analyzeAudio(audioBlob);
-      alert(`Nota identificada: ${note}`);
+      Swal.fire({ icon: "info", title: loc.detectedNoteTitle, text: loc.detectedNoteText.replace("{0}", note) });
 
       if (note) {
         // Enviar apenas a nota identificada

@@ -7,6 +7,39 @@
     int[] keyColumns = { 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13 };
 }
 
+@functions {
+    private static string? AnswerResourceKey(string label, string value)
+    {
+        return value switch
+        {
+            "same" => "Exercise.Answer.Same",
+            "diff" => "Exercise.Answer.Different",
+            "major" => "Exercise.ChordQuality.Major",
+            "major7" => "Exercise.ChordQuality.Major7",
+            "minor" => "Exercise.ChordQuality.Minor",
+            "minor7" => "Exercise.ChordQuality.Minor7",
+            "diminished" => "Exercise.ChordQuality.Diminished",
+            "diminished7" => "Exercise.ChordQuality.Diminished7",
+            "augmented" => "Exercise.ChordQuality.Augmented",
+            "2m" => "Exercise.Interval.2min",
+            "2M" => "Exercise.Interval.2maj",
+            "3m" => "Exercise.Interval.3min",
+            "3M" => "Exercise.Interval.3maj",
+            "4J" => "Exercise.Interval.4J",
+            "4A" => "Exercise.Interval.4A",
+            "5d" => "Exercise.Interval.5dim",
+            "5J" => "Exercise.Interval.5J",
+            "6m" => "Exercise.Interval.6min",
+            "6M" => "Exercise.Interval.6maj",
+            "7m" => "Exercise.Interval.7min",
+            "7M" => "Exercise.Interval.7maj",
+            "8J" => "Exercise.Interval.8J",
+            "C" or "C#" or "D" or "D#" or "E" or "F" or "F#" or "G" or "G#" or "A" or "A#" or "B" => "Exercise.Note." + value.Replace("#", "Sharp"),
+            _ => null
+        };
+    }
+}
+
 @if (Model != null && Model.Count > 0)
 {
     foreach (var group in Model)
@@ -27,7 +60,9 @@
                 {
                     var keyClass = kvp.Value.Contains('#') ? "aa-key-black" : "aa-key-white";
                     var column = keyColumns[index++];
-                    <button type="button" class="aa-answer aa-key @keyClass @group.Key" value="@kvp.Value" style="--c:@column">@(kvp.Key.Replace("#", "♯"))</button>
+                    var resourceKey = AnswerResourceKey(kvp.Key, kvp.Value);
+                    var label = resourceKey is null ? kvp.Key.Replace("#", "♯") : Localizer[resourceKey].Value;
+                    <button type="button" class="aa-answer aa-key @keyClass @group.Key" value="@kvp.Value" style="--c:@column">@label</button>
                 }
             </div>
         }
@@ -36,7 +71,9 @@
             <div class="aa-answer-grid">
                 @foreach (var kvp in group.Value)
                 {
-                    <button type="button" class="aa-answer @group.Key" value="@kvp.Value">@kvp.Key</button>
+                    var resourceKey = AnswerResourceKey(kvp.Key, kvp.Value);
+                    var label = resourceKey is null ? kvp.Key : Localizer[resourceKey].Value;
+                    <button type="button" class="aa-answer @group.Key" value="@kvp.Value">@label</button>
                 }
             </div>
         }

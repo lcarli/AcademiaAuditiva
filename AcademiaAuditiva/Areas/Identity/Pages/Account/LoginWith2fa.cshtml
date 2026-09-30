@@ -1,12 +1,12 @@
-﻿@page
+@page
 @model LoginWith2faModel
 @{
-    ViewData["Title"] = "Autenticação de dois fatores";
+    ViewData["Title"] = Localizer["Identity.TwoFactor.Title"].Value;
 }
 
 <h1>@ViewData["Title"]</h1>
 <hr />
-<p>Seu login está protegido com um aplicativo autenticador. Insira seu código de autenticador abaixo.</p>
+<p>@Localizer["Identity.TwoFactor.Intro"]</p>
 <div class="row">
     <div class="col-md-4">
         <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
@@ -14,7 +14,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.TwoFactorCode" class="form-control" autocomplete="off" />
-                <label asp-for="Input.TwoFactorCode" class="form-label">Código do Autenticador</label>
+                <label asp-for="Input.TwoFactorCode" class="form-label">@Localizer["Identity.TwoFactor.AuthenticatorCode"]</label>
                 <span asp-validation-for="Input.TwoFactorCode" class="text-danger"></span>
             </div>
             <div class="checkbox mb-3">
@@ -24,14 +24,14 @@
                 </label>
             </div>
             <div>
-                <button type="submit" class="w-100 btn btn-lg btn-primary">Entrar</button>
+                <button type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["Login.Login"]</button>
             </div>
         </form>
     </div>
 </div>
 <p>
-    Não tem acesso ao seu dispositivo autenticador? Você pode
-    <a id="recovery-code-login" asp-page="./LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl">entrar com um código de recuperação</a>.
+    @Localizer["Identity.TwoFactor.NoDeviceAccess"]
+    <a id="recovery-code-login" asp-page="./LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl">@Localizer["Identity.TwoFactor.UseRecoveryCode"]</a>.
 </p>
 
 @section Scripts {

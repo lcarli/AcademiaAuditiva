@@ -13,9 +13,9 @@
         <label for="users-role" class="form-label small text-secondary">@Localizer["Admin.Users.Role"]</label>
         <select id="users-role" name="role" class="form-select">
             <option value="">@Localizer["Admin.Users.AllRoles"]</option>
-            <option value="Admin" selected="@(Model.Role == "Admin")">Admin</option>
-            <option value="Teacher" selected="@(Model.Role == "Teacher")">Teacher</option>
-            <option value="Student" selected="@(Model.Role == "Student")">Student</option>
+            <option value="Admin" selected="@(Model.Role == "Admin")">@Localizer["Role.Admin"]</option>
+            <option value="Teacher" selected="@(Model.Role == "Teacher")">@Localizer["Role.Teacher"]</option>
+            <option value="Student" selected="@(Model.Role == "Student")">@Localizer["Role.Student"]</option>
         </select>
     </div>
     <div class="col-md-2">
@@ -45,9 +45,9 @@
                             @if (r.LockoutEndUtc.HasValue && r.LockoutEndUtc.Value > DateTime.UtcNow) { <span class="badge bg-danger ms-2">@Localizer["Admin.Users.Locked"]</span> }
                         </td>
                         <td>
-                            @if (r.IsAdmin) { <span class="badge bg-danger me-1">Admin</span> }
-                            @if (r.IsTeacher) { <span class="badge bg-primary me-1">Teacher</span> }
-                            @if (r.IsStudent) { <span class="badge bg-secondary me-1">Student</span> }
+                            @if (r.IsAdmin) { <span class="badge bg-danger me-1">@Localizer["Role.Admin"]</span> }
+                            @if (r.IsTeacher) { <span class="badge bg-primary me-1">@Localizer["Role.Teacher"]</span> }
+                            @if (r.IsStudent) { <span class="badge bg-secondary me-1">@Localizer["Role.Student"]</span> }
                         </td>
                         <td class="text-end">
                             @if (!r.IsTeacher)

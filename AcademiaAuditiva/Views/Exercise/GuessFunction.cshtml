@@ -1,4 +1,4 @@
-﻿@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
 @{
     ViewData["Title"] = Localizer[Model.Title].Value;
     ViewData["FiltersPartial"] = "_ExerciseFilters";
@@ -34,6 +34,11 @@
 <div id="localizer"
      data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
      data-incomplete-text="@Localizer["Exercise.SelectFunctionText"]"
+
+     data-no-audio-title="@Localizer["Exercise.NoAudioTitle"]"
+     data-no-audio-text="@Localizer["Exercise.NoAudioText"]"
+     data-validation-error-title="@Localizer["Exercise.ValidationErrorTitle"]"
+     data-validation-error-text="@Localizer["Exercise.ValidationErrorText"]"
      data-correct-message="@Localizer["Exercise.CorrectMessage"]"
      data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
      data-wrong-message="@Localizer["Exercise.WrongMessage"]"
@@ -41,5 +46,5 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/Exercises/GuessFunction.js"></script>
+    <script src="~/js/Exercises/GuessFunction.js" asp-append-version="true"></script>
 }

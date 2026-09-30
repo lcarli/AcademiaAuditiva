@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model RegisterConfirmationModel
 @{
     ViewData["Title"] = Localizer["Confirmation.Header"];
@@ -9,8 +9,8 @@
     if (@Model.DisplayConfirmAccountLink)
     {
         <p>
-            Esta aplicação atualmente não possui um serviço real de envio de e-mails configurado. Veja <a href="https://aka.ms/aspaccountconf">estes documentos</a> para saber como configurar um serviço de envio de e-mails real.
-            Normalmente, isso seria enviado por e-mail: <a id="confirm-link" href="@Model.EmailConfirmationUrl">Clique aqui para confirmar sua conta</a>
+            @Localizer["Confirmation.DevEmailNotice"] <a href="https://aka.ms/aspaccountconf">@Localizer["Confirmation.DevEmailDocs"]</a>.
+            @Localizer["Confirmation.DevEmailLinkIntro"] <a id="confirm-link" href="@Model.EmailConfirmationUrl">@Localizer["Confirmation.DevEmailLink"]</a>
         </p>
     }
     else

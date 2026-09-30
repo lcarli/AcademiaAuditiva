@@ -1,8 +1,8 @@
 @model AcademiaAuditiva.Areas.Teacher.Models.AssignRoutineViewModel
 @{
-    ViewData["Title"] = $"Assign — {Model.RoutineName}";
+    ViewData["Title"] = string.Format(Localizer["Teacher.Routines.AssignTitle"].Value, Model.RoutineName);
 }
-<h1 class="h4 mb-3">Assign "@Model.RoutineName"</h1>
+<h1 class="h4 mb-3">@string.Format(Localizer["Teacher.Routines.AssignTitle"].Value, Model.RoutineName)</h1>
 
 <form asp-action="Assign" method="post" class="aa-card-flat" style="max-width: 640px;">
     <div class="card-body">
@@ -11,31 +11,31 @@
         <input type="hidden" asp-for="RoutineName" />
 
         <div class="mb-3">
-            <label class="form-label">Target</label>
+            <label class="form-label">@Localizer["Teacher.Routines.Target"]</label>
             <div class="form-check">
                 <input class="form-check-input" type="radio" asp-for="Target" value="classroom" id="tgt-class" />
-                <label class="form-check-label" for="tgt-class">A whole classroom</label>
+                <label class="form-check-label" for="tgt-class">@Localizer["Teacher.Routines.TargetClassroom"]</label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="radio" asp-for="Target" value="student" id="tgt-stud" />
-                <label class="form-check-label" for="tgt-stud">A single student</label>
+                <label class="form-check-label" for="tgt-stud">@Localizer["Teacher.Routines.TargetStudent"]</label>
             </div>
         </div>
 
         <div class="mb-3" id="block-classroom">
-            <label asp-for="ClassroomId" class="form-label">Classroom</label>
+            <label asp-for="ClassroomId" class="form-label">@Localizer["Admin.Classrooms"]</label>
             <select asp-for="ClassroomId" class="form-select"
                     asp-items="@(new SelectList(Model.Classrooms, "Id", "Name", Model.ClassroomId))">
-                <option value="">-- select --</option>
+                <option value="">@Localizer["Exercise.SelectOption"]</option>
             </select>
             <span asp-validation-for="ClassroomId" class="text-danger small"></span>
         </div>
 
         <div class="mb-3" id="block-student">
-            <label asp-for="StudentId" class="form-label">Student</label>
+            <label asp-for="StudentId" class="form-label">@Localizer["Admin.Students"]</label>
             <select asp-for="StudentId" class="form-select"
                     asp-items="@(new SelectList(Model.Students, "Id", "Display", Model.StudentId))">
-                <option value="">-- select --</option>
+                <option value="">@Localizer["Exercise.SelectOption"]</option>
             </select>
             <span asp-validation-for="StudentId" class="text-danger small"></span>
         </div>
@@ -45,8 +45,8 @@
             <input asp-for="DueAt" type="date" class="form-control" />
         </div>
 
-        <button type="submit" class="btn btn-primary">Assign</button>
-        <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.RoutineId">Cancel</a>
+        <button type="submit" class="btn btn-primary">@Localizer["Teacher.Routines.Assign"]</button>
+        <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.RoutineId">@Localizer["Common.Cancel"]</a>
     </div>
 </form>
 

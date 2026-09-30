@@ -2,9 +2,13 @@
 
 @if (!String.IsNullOrEmpty(Model))
 {
-    var statusMessageClass = Model.StartsWith("Error") ? "danger" : "success";
+    var isError = Model.StartsWith("Error", StringComparison.OrdinalIgnoreCase);
+    var key = Model.StartsWith("Error:", StringComparison.OrdinalIgnoreCase) ? Model["Error:".Length..] : Model;
+    var localized = Localizer[key];
+    var message = localized.Value == key ? Model : localized.Value;
+    var statusMessageClass = isError ? "danger" : "success";
     <div class="alert alert-@statusMessageClass alert-dismissible" role="alert">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        @Model
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@Localizer["Close"]"></button>
+        @message
     </div>
 }

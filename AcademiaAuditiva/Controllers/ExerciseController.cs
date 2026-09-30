@@ -152,7 +152,7 @@ namespace AcademiaAuditiva.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = "User not logged in.", isCorrect = false });
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value, isCorrect = false });
 
 			var exercise = await _context.Exercises.FirstOrDefaultAsync(e => e.ExerciseId == dto.ExerciseId);
 			if (exercise == null)

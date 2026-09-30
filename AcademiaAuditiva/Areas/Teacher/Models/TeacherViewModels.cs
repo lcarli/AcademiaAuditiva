@@ -13,13 +13,13 @@ public class ClassroomFormViewModel
 {
     public int? Id { get; set; }
 
-    [Required]
-    [StringLength(120, MinimumLength = 2)]
-    [Display(Name = "Name")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(120, ErrorMessage = "Validation.StringLength", MinimumLength = 2)]
+    [Display(Name = "Common.Name")]
     public string Name { get; set; } = string.Empty;
 
-    [StringLength(1000)]
-    [Display(Name = "Description")]
+    [StringLength(1000, ErrorMessage = "Validation.MaxLength")]
+    [Display(Name = "Common.Description")]
     public string? Description { get; set; }
 }
 

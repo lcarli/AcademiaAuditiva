@@ -16,14 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let exerciseData = null;
     const exerciseStartTime = Date.now();
 
-    // Get localizer data
-    const localizer = document.getElementById("localizer");
-    const incompleteTitle = localizer?.getAttribute("data-incomplete-title") || "Incompleto";
-    const incompleteText = localizer?.getAttribute("data-incomplete-text") || "Por favor, responda todas as perguntas.";
-    const correctMessage = localizer?.getAttribute("data-correct-message") || "Correto!";
-    const correctMessageText = localizer?.getAttribute("data-correct-message-text") || "Você acertou!";
-    const wrongMessage = localizer?.getAttribute("data-wrong-message") || "Incorreto!";
-    const wrongMessageText = localizer?.getAttribute("data-wrong-message-text") || "Tente novamente.";
+    const loc = AAi18n.localizer();
 
     // Play button event
     const playBtn = document.getElementById("Play");
@@ -51,11 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(resp => resp.json())
             .then(data => {
                 if (data.error) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Erro",
-                        text: data.error
-                    });
+                    Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: data.error });
                     return;
                 }
 
@@ -75,11 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(error => {
                 console.error("Error:", error);
-                Swal.fire({
-                    icon: "error",
-                    title: "Erro",
-                    text: "Erro ao carregar exercício."
-                });
+                Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: loc.validationErrorText });
             });
         });
     }
@@ -89,11 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (replayBtn) {
         replayBtn.addEventListener("click", () => {
             if (!currentMelody || currentMelody.length === 0) {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Nenhuma melodia carregada",
-                    text: "Clique em 'Tocar' primeiro para gerar uma melodia."
-                });
+                AAi18n.noAudio(loc);
                 return;
             }
             
@@ -106,11 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (validateBtn) {
         validateBtn.addEventListener("click", () => {
             if (!exerciseData) {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Nenhuma melodia carregada",
-                    text: "Clique em 'Tocar' primeiro para gerar uma melodia."
-                });
+                AAi18n.noAudio(loc);
                 return;
             }
 
@@ -122,11 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Validate all fields are filled
             if (!firstDegree || !lastDegree || !startInterval || !endInterval) {
-                Swal.fire({
-                    icon: "warning",
-                    title: incompleteTitle,
-                    text: incompleteText
-                });
+                AAi18n.incomplete(loc);
                 return;
             }
 
@@ -144,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .then(resp => resp.json())
             .then(data => {
+                if (AAi18n.serverError(data, loc)) return;
                 const correctCountEl = document.getElementById("correctCount");
                 const errorCountEl = document.getElementById("errorCount");
                 
@@ -151,27 +125,21 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (correctCountEl) {
                         correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
                     }
-                    Swal.fire({
-                        icon: "success",
-                        title: correctMessage,
-                        text: correctMessageText
-                    });
+                    AAi18n.result(data, loc);
                 } else {
                     if (errorCountEl) {
                         errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
                     }
                     
-                    // Parse the correct answer
+                    // Show each part of the correct answer with its localized option label.
                     const correctAnswers = data.answer.split('|');
-                    const correctText = correctAnswers.length >= 4 ? 
-                        `Primeiro grau: ${correctAnswers[0]}, Último grau: ${correctAnswers[1]}, Intervalo início: ${correctAnswers[2]}, Intervalo fim: ${correctAnswers[3]}` :
+                    const correctText = correctAnswers.length >= 4 && loc.answerFormat ?
+                        correctAnswers.slice(0, 4).reduce(
+                            (text, part, i) => text.replace(`{${i}}`, AAi18n.answerLabel(part)),
+                            loc.answerFormat) :
                         data.answer;
                     
-                    Swal.fire({
-                        icon: "error",
-                        title: wrongMessage,
-                        text: `${wrongMessageText} Resposta correta: ${correctText}`
-                    });
+                    AAi18n.result({ ...data, answer: correctText }, loc);
                 }
 
                 // Reset form after validation
@@ -181,11 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(error => {
                 console.error("Error:", error);
-                Swal.fire({
-                    icon: "error",
-                    title: "Erro",
-                    text: "Erro ao validar resposta."
-                });
+                Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: loc.validationErrorText });
             });
         });
     }
