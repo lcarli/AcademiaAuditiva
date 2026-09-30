@@ -18,7 +18,7 @@
             <span asp-validation-for="Email" class="text-danger small"></span>
             <div class="form-text">@Localizer["Teacher.Members.InviteHelp"]</div>
         </div>
-        <button type="submit" class="btn aa-grad-btn" x-bind:disabled="submitting">
+        <button type="submit" class="btn btn-primary" x-bind:disabled="submitting">
             <span x-show="!submitting"><i class="bi bi-send me-1" aria-hidden="true"></i>@Localizer["Teacher.Members.SendInvite"]</span>
             <span x-show="submitting" x-cloak>
                 <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>

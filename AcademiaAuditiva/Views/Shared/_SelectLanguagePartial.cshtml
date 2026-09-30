@@ -1,43 +1,34 @@
-﻿@using Microsoft.AspNetCore.Builder
-@using Microsoft.AspNetCore.Http.Features
-@using Microsoft.AspNetCore.Localization
-@using Microsoft.AspNetCore.Mvc.Localization
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Builder
 @using Microsoft.Extensions.Options
 @inject IOptions<RequestLocalizationOptions> LocOptions
 
 @{
-#pragma warning disable CS8602
-    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
-    var currentCulture = requestCulture.RequestCulture.UICulture.Name;
+    var currentUiCulture = CultureInfo.CurrentUICulture;
     var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
+    var cultures = LocOptions.Value.SupportedUICultures ?? new List<CultureInfo>();
 
-    var cultureItems = LocOptions.Value.SupportedUICultures
-        .Select(c => new SelectListItem { Value = c.Name, Text = c.NativeName })
-        .ToList();
-
-    var currentFlag = currentCulture.Substring(currentCulture.LastIndexOf('-') + 1);
-#pragma warning restore CS8602
+    static string DisplayName(CultureInfo culture) =>
+        string.IsNullOrEmpty(culture.NativeName)
+            ? culture.Name
+            : char.ToUpper(culture.NativeName[0], culture) + culture.NativeName[1..];
 }
 
-<form id="selectLanguage" asp-area="" asp-controller="Dashboard" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post">
-    <div class="dropdown">
-        <button class="aa-theme-toggle dropdown-toggle d-inline-flex align-items-center justify-content-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="@currentCulture" style="width:auto; padding: 0 .5rem;">
-            <img src="~/images/@(currentFlag)-icon.webp" alt="@currentCulture" width="22" height="15" class="flag-icon" />
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-            @foreach (var item in cultureItems)
-            {
-                var code = item.Value;
-                var flag = code.Substring(code.LastIndexOf('-') + 1);
-                <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2" href="#"
-                       onclick="event.preventDefault(); document.getElementById('culture').value='@code'; document.getElementById('selectLanguage').submit();">
-                        <img src="~/images/@(flag)-icon.webp" alt="@item.Text" width="24" height="16" class="flag-icon" />
-                        @item.Text
-                    </a>
-                </li>
-            }
-        </ul>
-    </div>
-    <input type="hidden" id="culture" name="culture" value="@currentCulture" />
+<form asp-area="" asp-controller="Dashboard" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post" class="dropdown">
+    <button class="aa-lang-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+            aria-label="@Localizer["Layout.Language"]: @DisplayName(currentUiCulture)" title="@Localizer["Layout.Language"]">
+        @currentUiCulture.TwoLetterISOLanguageName.ToUpperInvariant()
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        @foreach (var culture in cultures)
+        {
+            var isCurrent = string.Equals(culture.Name, currentUiCulture.Name, StringComparison.OrdinalIgnoreCase);
+            <li>
+                <button type="submit" name="culture" value="@culture.Name" lang="@culture.Name"
+                        class="dropdown-item @(isCurrent ? "active" : null)" aria-current="@(isCurrent ? "true" : null)">
+                    @DisplayName(culture)
+                </button>
+            </li>
+        }
+    </ul>
 </form>

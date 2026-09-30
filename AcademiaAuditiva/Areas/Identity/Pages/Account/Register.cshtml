@@ -8,8 +8,8 @@
     <div class="col-md-7 col-lg-6">
         <div class="aa-card-flat p-4 p-md-5">
             <header class="text-center mb-4">
-                <span class="aa-badge-soft">@Localizer["Identity.Auth.JoinTitle"]</span>
-                <h1 class="display-6 fw-bold mt-2 mb-0 text-body-emphasis">@Localizer["Register.Title"]</h1>
+                <span class="aa-eyebrow">@Localizer["Identity.Auth.JoinTitle"]</span>
+                <h1 class="display-6 mt-2 mb-0 text-body-emphasis">@Localizer["Register.Title"]</h1>
             </header>
             <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert"></div>
@@ -44,7 +44,7 @@
                     <label asp-for="Input.ConfirmPassword">@Localizer["Register.PasswordConfirmation"]</label>
                     <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
                 </div>
-                <button id="registerSubmit" type="submit" class="w-100 btn btn-lg aa-grad-btn">@Localizer["Register.Header"]</button>
+                <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["Register.Header"]</button>
             </form>
             @if ((Model.ExternalLogins?.Count ?? 0) > 0)
             {

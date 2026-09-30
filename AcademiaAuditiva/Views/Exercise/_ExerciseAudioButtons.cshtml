@@ -1,58 +1,53 @@
 @model List<string>
 
-<div class="d-flex justify-content-center gap-3 mb-4">
-    @if (Model != null && Model.Count > 0)
-    {
-        foreach (var buttonName in Model)
+@if (Model != null && Model.Count > 0)
+{
+    <div class="aa-audio-buttons">
+        @foreach (var id in Model)
         {
+            var name = id.ToLowerInvariant();
 
-            var cssButtonClass = "btn btn-outline-primary";
-            var iconClass = "bi bi-soundwave";
-            var titleText = buttonName;
+            @* Note1/Note2 are hidden by the interval scripts anyway, so they are not rendered. *@
+            if (name.StartsWith("note", StringComparison.Ordinal) || name.StartsWith("nota", StringComparison.Ordinal) || name.StartsWith("playnote", StringComparison.Ordinal))
+            {
+                continue;
+            }
 
-            switch (buttonName.ToLower())
+            switch (name)
             {
                 case "play":
                 case "playinterval":
-                    cssButtonClass = "btn btn-primary";
-                    iconClass = "bi bi-soundwave";
-                    titleText = "Play Interval";
+                    <button type="button" id="@id" class="aa-play" title="@Localizer["Exercise.Audio.Play"]" aria-label="@Localizer["Exercise.Audio.Play"]">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 4l14 8-14 8z" fill="currentColor" /></svg>
+                    </button>
                     break;
 
                 case "replay":
                 case "replayinterval":
-                    cssButtonClass = "btn btn-outline-secondary";
-                    iconClass = "bi bi-repeat";
-                    titleText = "Replay Interval";
+                    <button type="button" id="@id" class="aa-audio-btn" title="@Localizer["Exercise.Audio.Replay"]" aria-label="@Localizer["Exercise.Audio.Replay"]">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7" /><path d="M4 4v4h4" /></svg>
+                    </button>
                     break;
 
-                case "nota1":
-                case "playnote1":
-                    cssButtonClass = "btn btn-outline-primary";
-                    iconClass = "bi bi-1-circle";
-                    titleText = "Nota 1";
+                case "melody1":
+                case "melody2":
+                    <button type="button" id="@id" class="aa-audio-pill">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 5l12 7-12 7z" fill="currentColor" /></svg>
+                        @(name == "melody1" ? Localizer["Exercise.PlayMelody1"] : Localizer["Exercise.PlayMelody2"])
+                    </button>
                     break;
 
-                case "nota2":
-                case "playnote2":
-                    cssButtonClass = "btn btn-outline-primary";
-                    iconClass = "bi bi-2-circle";
-                    titleText = "Nota 2";
-                    break;
                 case "generate":
-                    cssButtonClass = "btn btn-outline-success";
-                    iconClass = "bi bi-plus-circle";
-                    titleText = "Generate";
+                    <button type="button" id="@id" class="aa-audio-pill aa-audio-pill-primary">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17V5l10-2v12" /><circle cx="6.5" cy="17" r="2.5" /><circle cx="16.5" cy="15" r="2.5" /></svg>
+                        @Localizer["Exercise.Audio.Generate"]
+                    </button>
+                    break;
+
+                default:
+                    <button type="button" id="@id" class="aa-audio-pill">@id</button>
                     break;
             }
-
-            <button class="@cssButtonClass" id="@buttonName" title="@titleText">
-                <i class="@iconClass"></i>
-            </button>
         }
-    }
-    else
-    {
-        <span>Nenhum botão de áudio disponível.</span>
-    }
-</div>
+    </div>
+}

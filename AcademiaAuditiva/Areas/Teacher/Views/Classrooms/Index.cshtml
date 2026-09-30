@@ -5,7 +5,7 @@
 }
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h1 class="h3 mb-0 text-body-emphasis">@Localizer["Teacher.Classrooms.Title"]</h1>
-    <a class="btn aa-grad-btn" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.NewBtn"]</a>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.NewBtn"]</a>
 </div>
 <form method="get" class="mb-3">
     <div class="form-check form-switch">
@@ -20,7 +20,7 @@
     <div class="aa-card-flat p-4 text-center">
         <span class="aa-icon-pill mb-2" aria-hidden="true"><i class="bi bi-easel"></i></span>
         <p class="mb-2 text-secondary">@Localizer["Teacher.Classrooms.Empty"]</p>
-        <a class="btn aa-grad-btn btn-sm" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.CreateFirst"]</a>
+        <a class="btn btn-primary btn-sm" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Classrooms.CreateFirst"]</a>
     </div>
 }
 else
@@ -32,8 +32,8 @@ else
                     <tr>
                         <th>@Localizer["Teacher.Classrooms.Col.Name"]</th>
                         <th>@Localizer["Teacher.Classrooms.Col.Members"]</th>
-                        <th>@Localizer["Teacher.Classrooms.Col.PendingInvites"]</th>
-                        <th>@Localizer["Teacher.Classrooms.Col.Created"]</th>
+                        <th class="d-none d-md-table-cell">@Localizer["Teacher.Classrooms.Col.PendingInvites"]</th>
+                        <th class="d-none d-md-table-cell">@Localizer["Teacher.Classrooms.Col.Created"]</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -50,9 +50,9 @@ else
                                 }
                             </td>
                             <td>@item.MemberCount</td>
-                            <td>@item.PendingInvites</td>
-                            <td>@item.CreatedAt.ToString("yyyy-MM-dd")</td>
-                            <td class="text-end">
+                            <td class="d-none d-md-table-cell">@item.PendingInvites</td>
+                            <td class="d-none d-md-table-cell">@item.CreatedAt.ToString("yyyy-MM-dd")</td>
+                            <td class="text-end text-nowrap">
                                 <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">@Localizer["Teacher.Classrooms.Edit"]</a>
                                 @if (!item.IsArchived)
                                 {

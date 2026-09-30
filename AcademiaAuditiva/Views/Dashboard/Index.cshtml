@@ -5,13 +5,13 @@
 
 <header class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
     <div>
-        <span class="aa-badge-soft">@Localizer["Dashboard.Title"]</span>
-        <h1 class="display-6 fw-bold mt-2 mb-1 text-body-emphasis">
-            @Localizer["Dashboard.WelcomeMessage"] <span class="aa-brand-text">@ViewBag.FirstName</span>!
+        <span class="aa-eyebrow">@Localizer["Dashboard.Title"]</span>
+        <h1 class="display-6 mt-2 mb-1 text-body-emphasis">
+            @Localizer["Dashboard.WelcomeMessage"] <span class="aa-accent-text">@ViewBag.FirstName</span>!
         </h1>
         <p class="text-secondary mb-0">@Localizer["Dashboard.Subtitle"]</p>
     </div>
-    <a class="btn aa-grad-btn" asp-controller="Exercise" asp-action="Index">
+    <a class="btn btn-primary" asp-controller="Exercise" asp-action="Index">
         <i class="bi bi-play-circle me-2" aria-hidden="true"></i>@Localizer["Dashboard.StartTraining"]
     </a>
 </header>
@@ -32,7 +32,7 @@
     <div class="col">
         <div class="aa-card aa-card-accent p-4 h-100">
             <div class="d-flex align-items-center gap-3">
-                <span class="aa-icon-pill" aria-hidden="true" style="color:#f59e0b;"><i class="bi bi-trophy"></i></span>
+                <span class="aa-icon-pill" aria-hidden="true"><i class="bi bi-trophy"></i></span>
                 <div>
                     <h6 class="text-uppercase small text-secondary mb-1">@Localizer["Dashboard.BestScore"]</h6>
                     <h3 class="fw-bold mb-0 text-body-emphasis">@ViewBag.BestScore</h3>
@@ -43,7 +43,7 @@
     <div class="col">
         <div class="aa-card aa-card-accent p-4 h-100">
             <div class="d-flex align-items-center gap-3">
-                <span class="aa-icon-pill" aria-hidden="true" style="color:#14b8a6;"><i class="bi bi-stopwatch"></i></span>
+                <span class="aa-icon-pill" aria-hidden="true"><i class="bi bi-stopwatch"></i></span>
                 <div>
                     <h6 class="text-uppercase small text-secondary mb-1">@Localizer["Dashboard.TotalTime"]</h6>
                     <h3 class="fw-bold mb-0 text-body-emphasis">@ViewBag.TotalTime <small class="fs-6 text-secondary">min</small></h3>
@@ -66,7 +66,7 @@
     <div class="col">
         <div class="aa-card-flat p-4 h-100">
             <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
-                <i class="bi bi-bar-chart" aria-hidden="true" style="color:#7c3aed"></i>@Localizer["Dashboard.ByDifficulty"]
+                <i class="bi bi-bar-chart text-primary" aria-hidden="true"></i>@Localizer["Dashboard.ByDifficulty"]
             </h5>
             <canvas id="difficultyChart" height="120"></canvas>
         </div>
@@ -74,7 +74,7 @@
     <div class="col">
         <div class="aa-card-flat p-4 h-100">
             <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
-                <i class="bi bi-radar" aria-hidden="true" style="color:#3b82f6"></i>@Localizer["Dashboard.TechnicalSkills"]
+                <i class="bi bi-radar text-primary" aria-hidden="true"></i>@Localizer["Dashboard.TechnicalSkills"]
             </h5>
             <canvas id="radarTechnicalChart" height="180"></canvas>
         </div>
@@ -82,7 +82,7 @@
     <div class="col">
         <div class="aa-card-flat p-4 h-100">
             <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
-                <i class="bi bi-pie-chart" aria-hidden="true" style="color:#ec4899"></i>@Localizer["Dashboard.PedagogicalCategories"]
+                <i class="bi bi-pie-chart text-primary" aria-hidden="true"></i>@Localizer["Dashboard.PedagogicalCategories"]
             </h5>
             <canvas id="radarCategoryChart" height="180"></canvas>
         </div>
@@ -92,7 +92,7 @@
 <!-- Recent sessions -->
 <div class="aa-card-flat p-4 mt-4">
     <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
-        <i class="bi bi-clock-history" aria-hidden="true" style="color:#14b8a6"></i>@Localizer["Dashboard.RecentSessions"]
+        <i class="bi bi-clock-history text-primary" aria-hidden="true"></i>@Localizer["Dashboard.RecentSessions"]
     </h5>
     <div class="table-responsive">
         <table class="table table-sm align-middle mb-0">
@@ -124,7 +124,7 @@
     <div class="col">
         <div class="aa-card-flat p-4 h-100">
             <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
-                <i class="bi bi-lightbulb" aria-hidden="true" style="color:#7c3aed"></i>@Localizer["Dashboard.Recommendations"]
+                <i class="bi bi-lightbulb text-primary" aria-hidden="true"></i>@Localizer["Dashboard.Recommendations"]
             </h5>
             <div id="recommendationsList" class="list-group list-group-flush"></div>
         </div>
@@ -170,6 +170,74 @@
         const tCat = k => aaI18n.categories[k] || k;
         const tExercise = k => aaI18n.exercises[k] || exerciseTranslations[k] || k;
 
+        // Charts take their colours from the design-system CSS variables and are
+        // rebuilt when the theme changes, so they always match light/dark mode.
+        const aaCharts = [];
+
+        function aaChartTheme() {
+            const css = getComputedStyle(document.documentElement);
+            const read = name => css.getPropertyValue(name).trim();
+            return {
+                accent: read('--aa-accent'),
+                accentRgb: read('--aa-accent-rgb'),
+                muted: read('--aa-muted'),
+                line: read('--aa-line'),
+                font: read('--aa-font-ui')
+            };
+        }
+
+        function aaThemedConfig(base) {
+            const t = aaChartTheme();
+            Chart.defaults.color = t.muted;
+            Chart.defaults.borderColor = t.line;
+            Chart.defaults.font.family = t.font;
+
+            const type = base.type;
+            const fillAlpha = type === 'bar' ? 0.75 : (type === 'radar' ? 0.18 : 0.12);
+            const datasets = base.data.datasets.map(d => Object.assign({}, d, {
+                borderColor: t.accent,
+                backgroundColor: `rgba(${t.accentRgb}, ${fillAlpha})`,
+                pointBackgroundColor: t.accent,
+                pointBorderColor: t.accent,
+                borderWidth: type === 'line' ? 2 : 1.5
+            }, type === 'bar' ? { borderRadius: 6 } : {}));
+
+            const baseScales = Object.assign(type === 'radar' ? {} : { x: {} }, base.options?.scales || {});
+            const scales = {};
+            for (const [key, scale] of Object.entries(baseScales)) {
+                scales[key] = Object.assign({}, scale, {
+                    grid: { color: t.line },
+                    border: { color: t.line },
+                    ticks: { color: t.muted, backdropColor: 'transparent' }
+                });
+                if (type === 'radar') {
+                    scales[key].angleLines = { color: t.line };
+                    scales[key].pointLabels = { color: t.muted, font: { family: t.font, size: 12 } };
+                }
+            }
+
+            return {
+                type,
+                data: { labels: base.data.labels, datasets },
+                options: Object.assign({}, base.options, {
+                    scales,
+                    plugins: { legend: { labels: { color: t.muted, font: { family: t.font } } } }
+                })
+            };
+        }
+
+        function aaChart(canvas, base) {
+            if (!canvas) return;
+            aaCharts.push({ canvas, base, chart: new Chart(canvas, aaThemedConfig(base)) });
+        }
+
+        new MutationObserver(() => {
+            aaCharts.forEach(entry => {
+                entry.chart.destroy();
+                entry.chart = new Chart(entry.canvas, aaThemedConfig(entry.base));
+            });
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+
         document.addEventListener("DOMContentLoaded", () => {
             const loc = document.getElementById("localizer")?.dataset;
 
@@ -189,7 +257,7 @@
                     const labels = data.map(d => d.date);
                     const scores = data.map(d => d.score);
 
-                    new Chart(ctx, {
+                    aaChart(ctx, {
                         type: 'line',
                         data: {
                             labels: labels,
@@ -197,8 +265,6 @@
                                 label: loc.chartProgress,
                                 data: scores,
                                 fill: true,
-                                backgroundColor: 'rgba(124, 58, 237, 0.1)',
-                                borderColor: 'rgba(124, 58, 237, 1)',
                                 tension: 0.3
                             }]
                         },
@@ -219,16 +285,13 @@
                     const labels = Object.keys(data.radar).map(tSkill);
                     const values = Object.values(data.radar);
 
-                    new Chart(radarCtx, {
+                    aaChart(radarCtx, {
                         type: 'radar',
                         data: {
                             labels: labels,
                             datasets: [{
                                 label: loc.chartAccuracyBySkill,
-                                data: values,
-                                backgroundColor: 'rgba(124, 58, 237, 0.2)',
-                                borderColor: 'rgba(124, 58, 237, 1)',
-                                borderWidth: 1
+                                data: values
                             }]
                         },
                         options: {
@@ -243,16 +306,13 @@
                     const catLabels = Object.keys(data.byCategory).map(tCat);
                     const catValues = Object.values(data.byCategory);
 
-                    new Chart(radarCat, {
+                    aaChart(radarCat, {
                         type: 'radar',
                         data: {
                             labels: catLabels,
                             datasets: [{
                                 label: loc.chartAccuracyByCategory,
-                                data: catValues,
-                                backgroundColor: 'rgba(20, 184, 166, 0.2)',
-                                borderColor: 'rgba(20, 184, 166, 1)',
-                                borderWidth: 1
+                                data: catValues
                             }]
                         },
                         options: {
@@ -297,16 +357,13 @@
                     };
                     const labels = data.map(d => labelMap[d.difficulty.toLowerCase()] ?? d.difficulty);
 
-                    new Chart(ctx, {
+                    aaChart(ctx, {
                         type: 'bar',
                         data: {
                             labels: labels,
                             datasets: [{
                                 label: loc.chartAccuracyByDifficulty,
-                                data: values,
-                                backgroundColor: 'rgba(124, 58, 237, 0.6)',
-                                borderColor: 'rgba(124, 58, 237, 1)',
-                                borderWidth: 1
+                                data: values
                             }]
                         },
                         options: {

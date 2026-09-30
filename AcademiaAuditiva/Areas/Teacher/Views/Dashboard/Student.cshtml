@@ -7,7 +7,7 @@
         <h1 class="h3 mb-1">@Model.Display</h1>
         <div class="text-secondary">@Model.Email</div>
         <div class="small text-secondary">
-            @foreach (var c in Model.Classrooms) { <span class="badge bg-light text-dark me-1">@c.Name</span> }
+            @foreach (var c in Model.Classrooms) { <span class="aa-badge-soft me-1">@c.Name</span> }
         </div>
     </div>
     <div>
@@ -20,25 +20,25 @@
 
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+        <div class="aa-card-flat h-100"><div class="card-body">
             <div class="text-secondary small">Sessions</div>
             <div class="h3 mb-0">@Model.TotalSessions.ToString("N0")</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+        <div class="aa-card-flat h-100"><div class="card-body">
             <div class="text-secondary small">Attempts</div>
             <div class="h3 mb-0">@Model.TotalAttempts.ToString("N0")</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+        <div class="aa-card-flat h-100"><div class="card-body">
             <div class="text-secondary small">Accuracy</div>
             <div class="h3 mb-0">@Model.OverallAccuracy.ToString("F1")%</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+        <div class="aa-card-flat h-100"><div class="card-body">
             <div class="text-secondary small">Last activity</div>
             <div class="h5 mb-0">
                 @if (Model.LastActivity.HasValue) { @Model.LastActivity.Value.ToString("yyyy-MM-dd HH:mm") }
@@ -48,7 +48,7 @@
     </div>
 </div>
 
-<div class="aa-card-flat shadow-sm">
+<div class="aa-card-flat">
     <div class="card-header bg-transparent border-bottom border-body"><strong>By exercise</strong></div>
     <div class="table-responsive">
         <table class="table mb-0 align-middle">

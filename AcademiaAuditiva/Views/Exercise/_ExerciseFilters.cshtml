@@ -1,39 +1,28 @@
 @model AcademiaAuditiva.ViewModels.ExerciseFiltersViewModel
 
-<div class="card mb-3">
-    <form>
-        <div class="row">
-            <!-- Instrumentos -->
-            <div class="col-12 mb-3">
-                <label class="form-label">@Localizer["Instrument"]</label>
-                <div class="btn-group w-100" role="group" id="instrumentButtons">
-                    <button type="button" class="btn btn-outline-dark instrument" data-instrument="Piano">🎹
-                        Piano</button>
-                    <button type="button" class="btn btn-outline-dark instrument" data-instrument="Guitar" disabled>🎸
-                        Violão (@Localizer["ComingSoon"])</button>
-                    <button type="button" class="btn btn-outline-dark instrument" data-instrument="Violin" disabled>🎻
-                        Violino (@Localizer["ComingSoon"])</button>
-                </div>
-            </div>
-
-            <!-- Range com slider -->
-            <div class="col-12 mb-3">
-                <label class="form-label">@Localizer["Range"]</label>
-                <div class="d-flex align-items-center gap-2">
-                    <span id="rangeStartLabel" class="fw-bold">C4</span>
-                    <input type="range" class="form-range" id="rangeStart" min="1" max="6" value="4" step="1">
-                    <input type="range" class="form-range" id="rangeEnd" min="1" max="6" value="4" step="1">
-                    <span id="rangeEndLabel" class="fw-bold">C4</span>
-                </div>
-            </div>
+<form>
+    <div class="mb-4">
+        <div class="form-label" id="instrumentLabel">@Localizer["Instrument"]</div>
+        <div class="btn-group w-100" role="group" id="instrumentButtons" aria-labelledby="instrumentLabel">
+            <button type="button" class="btn btn-outline-secondary instrument active" data-instrument="Piano" aria-pressed="true">@Localizer["Instrument.Piano"]</button>
+            <button type="button" class="btn btn-outline-secondary instrument" data-instrument="Guitar" disabled>@Localizer["Instrument.Guitar"] (@Localizer["ComingSoon"])</button>
+            <button type="button" class="btn btn-outline-secondary instrument" data-instrument="Violin" disabled>@Localizer["Instrument.Violin"] (@Localizer["ComingSoon"])</button>
         </div>
+    </div>
 
-        @if (!string.IsNullOrWhiteSpace(Model.CustomFiltersHtml))
-        {
-            <hr class="my-3" />
-            <div class="mt-2">
-                @Html.Raw(Model.CustomFiltersHtml)
-            </div>
-        }
-    </form>
-</div>
+    <div class="mb-3">
+        <div class="form-label" id="rangeLabel">@Localizer["Range"]</div>
+        <div class="d-flex align-items-center gap-3">
+            <span id="rangeStartLabel" class="fw-semibold">C4</span>
+            <input type="range" class="form-range" id="rangeStart" min="1" max="6" value="4" step="1" aria-labelledby="rangeLabel">
+            <input type="range" class="form-range" id="rangeEnd" min="1" max="6" value="4" step="1" aria-labelledby="rangeLabel">
+            <span id="rangeEndLabel" class="fw-semibold">C4</span>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.CustomFiltersHtml))
+    {
+        <hr class="my-4" />
+        @Html.Raw(Model.CustomFiltersHtml)
+    }
+</form>

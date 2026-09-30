@@ -1,288 +1,187 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Html
 @{
     ViewData["Title"] = Localizer["Home.PageTitle"].Value;
+    var signedIn = User.Identity?.IsAuthenticated == true;
+
+    var noteHead = new HtmlString("<svg class=\"aa-notehead\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusable=\"false\"><ellipse cx=\"8\" cy=\"8\" rx=\"6\" ry=\"4.4\" transform=\"rotate(-22 8 8)\"/></svg>");
+    // SVG coordinates must not use the request culture's decimal comma.
+    string N(double v) => v.ToString(CultureInfo.InvariantCulture);
+
+    var staffNotes = new[] { (X: 70, Y: 116, Accent: false), (X: 120, Y: 100, Accent: false), (X: 170, Y: 108, Accent: true), (X: 220, Y: 84, Accent: false), (X: 268, Y: 92, Accent: false) };
+    var features = new[] { 1, 2, 3 };
+    var steps = new[] { 1, 2, 3 };
+    var exercises = new[] { "GuessNote", "GuessInterval", "GuessFullInterval", "IntervalMelodico", "GuessChords", "GuessQuality", "GuessFunction", "GuessMissingNote", "SolfegeMelody" };
+    var roles = new[]
+    {
+        (Id: "student", Tab: "Home.Roles.TabStudent", Prefix: "Home.Roles.Student", Note: (string?)null),
+        (Id: "teacher", Tab: "Home.Roles.TabTeacher", Prefix: "Home.Roles.Teacher", Note: (string?)"Home.Roles.TeacherNote")
+    };
 }
 
-<section class="aa-hero p-4 p-md-5 my-2" aria-labelledby="aa-hero-title">
-    <div class="row align-items-center g-4">
+<section class="aa-hero" aria-labelledby="aa-hero-title">
+    <div class="row align-items-center g-5">
         <div class="col-lg-7">
-            <span class="aa-eyebrow">
-                <span class="aa-eq" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
-                @Localizer["Home.Hero.Eyebrow"]
-            </span>
-            <h1 id="aa-hero-title" class="display-3 mt-3 mb-3">@Localizer["Home.Hero.Title"]</h1>
-            <p class="lead text-white-50 mb-4" style="max-width: 56ch;">
-                @Html.Raw(Localizer["Home.Hero.Lead"].Value)
-            </p>
-            <div class="d-flex flex-wrap gap-2 mb-4">
-                <a href="/Identity/Account/Register" class="btn btn-lg aa-grad-btn px-4">
-                    <i class="bi bi-stars me-2" aria-hidden="true"></i>@Localizer["Home.Cta.SignUpFree"]
-                </a>
-                <a href="/Identity/Account/Login" class="btn btn-lg aa-ghost-btn px-4">
-                    <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>@Localizer["Home.Cta.Login"]
-                </a>
-                <a href="#como-funciona" class="btn btn-lg btn-link text-white text-decoration-none px-3">
-                    @Localizer["Home.Cta.HowItWorks"] <i class="bi bi-arrow-down-circle ms-1" aria-hidden="true"></i>
-                </a>
-            </div>
-            <div class="d-flex flex-wrap gap-4 small text-white-50">
-                <span><i class="bi bi-check2-circle text-success me-1" aria-hidden="true"></i>@Localizer["Home.Hero.NoCard"]</span>
-                <span><i class="bi bi-globe2 text-info me-1" aria-hidden="true"></i>@Localizer["Home.Hero.Languages"]</span>
-                <span><i class="bi bi-phone text-warning me-1" aria-hidden="true"></i>@Localizer["Home.Hero.Mobile"]</span>
+            <span class="aa-eyebrow">@Localizer["Home.Hero.Eyebrow"]</span>
+            <h1 id="aa-hero-title" class="aa-hero-title">@Localizer["Home.Hero.Title"]</h1>
+            <p class="lead mb-0">@Localizer["Home.Hero.Lead"]</p>
+            <div class="aa-hero-ctas">
+                @if (signedIn)
+                {
+                    <a class="btn btn-primary btn-lg px-4" asp-area="" asp-controller="Exercise" asp-action="Index">@Localizer["Home.Cta.GoToExercises"]</a>
+                    <a class="btn btn-lg aa-ghost-btn px-4" asp-area="" asp-controller="Dashboard" asp-action="Index">@Localizer["Home.Cta.MyProgress"]</a>
+                }
+                else
+                {
+                    <a class="btn btn-primary btn-lg px-4" asp-area="Identity" asp-page="/Account/Register">@Localizer["Home.Cta.Start"]</a>
+                    <a class="btn btn-lg aa-ghost-btn px-4" href="#how-it-works">@Localizer["Home.Cta.HowItWorks"]</a>
+                }
             </div>
         </div>
         <div class="col-lg-5">
-            <figure class="m-0" aria-label="@Localizer["Home.Hero.StaffAria"]">
-                <svg class="aa-staff" viewBox="0 0 420 260" role="img" aria-hidden="false" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="aaG1" x1="0" x2="1">
-                            <stop offset="0" stop-color="#c4b5fd" />
-                            <stop offset="1" stop-color="#5eead4" />
-                        </linearGradient>
-                    </defs>
-                    <rect x="0" y="0" width="420" height="260" rx="18" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.12)" />
-                    @for (int i = 0; i < 5; i++)
-                    {
-                        <line x1="40" x2="380" y1="@(90 + i*20)" y2="@(90 + i*20)" stroke="rgba(255,255,255,.45)" stroke-width="1.2" />
-                    }
-                    <path d="M55 80 C 55 60, 75 60, 75 80 L 75 170 C 75 195, 45 195, 45 175 C 45 160, 65 158, 75 168" fill="none" stroke="url(#aaG1)" stroke-width="3" stroke-linecap="round" />
-                    <g fill="url(#aaG1)">
-                        <g class="aa-note"><ellipse cx="130" cy="150" rx="11" ry="8" transform="rotate(-18 130 150)" /><rect x="139" y="100" width="2.5" height="52" /></g>
-                        <g class="aa-note"><ellipse cx="180" cy="130" rx="11" ry="8" transform="rotate(-18 180 130)" /><rect x="189" y="80" width="2.5" height="52" /></g>
-                        <g class="aa-note"><ellipse cx="230" cy="160" rx="11" ry="8" transform="rotate(-18 230 160)" /><rect x="239" y="110" width="2.5" height="52" /></g>
-                        <g class="aa-note"><ellipse cx="290" cy="120" rx="11" ry="8" transform="rotate(-18 290 120)" /><rect x="299" y="70" width="2.5" height="52" /></g>
-                        <g class="aa-note"><ellipse cx="345" cy="140" rx="11" ry="8" transform="rotate(-18 345 140)" /><rect x="354" y="90" width="2.5" height="52" /></g>
-                    </g>
-                    <g opacity=".9">
-                        <circle cx="60" cy="40" r="14" fill="#7c3aed" />
-                        <text x="60" y="45" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">+10</text>
-                        <circle cx="370" cy="225" r="16" fill="#14b8a6" />
-                        <text x="370" y="230" text-anchor="middle" font-size="14" font-weight="700" fill="#0b132b">★</text>
-                    </g>
-                </svg>
-            </figure>
-        </div>
-    </div>
-
-    <div class="row text-center text-white-50 mt-5 g-3">
-        <div class="col-6 col-md-3"><div class="aa-stat fs-2">@Localizer["Home.Stats.Sessions.Value"]</div><small>@Localizer["Home.Stats.Sessions.Label"]</small></div>
-        <div class="col-6 col-md-3"><div class="aa-stat fs-2">@Localizer["Home.Stats.Exercises.Value"]</div><small>@Localizer["Home.Stats.Exercises.Label"]</small></div>
-        <div class="col-6 col-md-3"><div class="aa-stat fs-2">@Localizer["Home.Stats.Languages.Value"]</div><small>@Localizer["Home.Stats.Languages.Label"]</small></div>
-        <div class="col-6 col-md-3"><div class="aa-stat fs-2">@Localizer["Home.Stats.Recommend.Value"]</div><small>@Localizer["Home.Stats.Recommend.Label"]</small></div>
-    </div>
-</section>
-
-<section class="py-5" aria-labelledby="aa-marquee-title">
-    <h2 id="aa-marquee-title" class="visually-hidden">@Localizer["Home.Marquee.Title"]</h2>
-    <div class="aa-marquee text-secondary fs-5">
-        @{
-            var marqueeItems = new[] {
-                ("bi-music-note",         "Home.Marquee.NotePerception"),
-                ("bi-music-note-list",    "Home.Marquee.MajorChords"),
-                ("bi-music-note-beamed",  "Home.Marquee.MinorChords"),
-                ("bi-soundwave",          "Home.Marquee.MelodicIntervals"),
-                ("bi-stack",              "Home.Marquee.HarmonicIntervals"),
-                ("bi-diagram-3",          "Home.Marquee.HarmonicFunction"),
-                ("bi-check2-square",      "Home.Marquee.ChordQuality"),
-                ("bi-clock-history",      "Home.Marquee.RhythmReading")
-            };
-        }
-        @for (int track = 0; track < 2; track++)
-        {
-            <div class="aa-marquee-track" @(track == 1 ? "aria-hidden=true" : "")>
-                @foreach (var (icon, key) in marqueeItems)
+            <svg class="aa-staff aa-hero-art" viewBox="0 30 300 104" aria-hidden="true" focusable="false">
+                @for (var i = 0; i < 5; i++)
                 {
-                    <span><i class="bi @icon me-2"></i>@Localizer[key]</span>
+                    var y = 60 + i * 16;
+                    <line class="aa-staff-line" x1="0" x2="300" y1="@y" y2="@y" />
                 }
-            </div>
-        }
-    </div>
-</section>
-
-<section id="como-funciona" class="py-5" aria-labelledby="aa-how-title">
-    <div class="text-center mb-5">
-        <span class="aa-badge-soft">@Localizer["Home.How.Badge"]</span>
-        <h2 id="aa-how-title" class="display-6 fw-bold mt-2 text-body-emphasis">@Localizer["Home.How.Title"]</h2>
-        <p class="text-secondary mx-auto" style="max-width: 60ch;">@Localizer["Home.How.Lead"]</p>
-    </div>
-    <div class="row g-4">
-        @{
-            var steps = new[] {
-                (n: "1", icon: "bi-person-plus",     titleKey: "Home.How.Step1.Title", descKey: "Home.How.Step1.Desc"),
-                (n: "2", icon: "bi-headphones",      titleKey: "Home.How.Step2.Title", descKey: "Home.How.Step2.Desc"),
-                (n: "3", icon: "bi-graph-up-arrow",  titleKey: "Home.How.Step3.Title", descKey: "Home.How.Step3.Desc"),
-                (n: "4", icon: "bi-trophy",          titleKey: "Home.How.Step4.Title", descKey: "Home.How.Step4.Desc")
-            };
-        }
-        @foreach (var s in steps)
-        {
-            <div class="col-md-6 col-lg-3">
-                <article class="aa-card p-4 h-100">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <span class="aa-step-num">@s.n</span>
-                        <i class="bi @s.icon fs-3 text-body-emphasis" aria-hidden="true"></i>
-                    </div>
-                    <h3 class="h5 text-body-emphasis">@Localizer[s.titleKey]</h3>
-                    <p class="text-secondary mb-0">@Localizer[s.descKey]</p>
-                </article>
-            </div>
-        }
-    </div>
-</section>
-
-<section class="py-5" aria-labelledby="aa-ex-title">
-    <div class="text-center mb-5">
-        <span class="aa-badge-soft">@Localizer["Home.Exercises.Badge"]</span>
-        <h2 id="aa-ex-title" class="display-6 fw-bold mt-2 text-body-emphasis">@Localizer["Home.Exercises.Title"]</h2>
-    </div>
-    <div class="row g-4">
-        @{
-            var exs = new[] {
-                (icon:"bi-music-note",        color:"#7c3aed", tag:"GuessNote",      titleKey:"Home.Exercise1.Title", descKey:"Home.Exercise1.Desc"),
-                (icon:"bi-music-note-list",   color:"#14b8a6", tag:"GuessChord",     titleKey:"Home.Exercise2.Title", descKey:"Home.Exercise2.Desc"),
-                (icon:"bi-soundwave",         color:"#ec4899", tag:"GuessInterval",  titleKey:"Home.Exercise3.Title", descKey:"Home.Exercise3.Desc"),
-                (icon:"bi-check2-square",     color:"#f59e0b", tag:"GuessQuality",   titleKey:"Home.Exercise4.Title", descKey:"Home.Exercise4.Desc"),
-                (icon:"bi-diagram-3",         color:"#3b82f6", tag:"GuessFunction",  titleKey:"Home.Exercise5.Title", descKey:"Home.Exercise5.Desc"),
-                (icon:"bi-clock-history",     color:"#10b981", tag:"Rhythm",         titleKey:"Home.Exercise6.Title", descKey:"Home.Exercise6.Desc")
-            };
-        }
-        @foreach (var e in exs)
-        {
-            <div class="col-md-6 col-lg-4">
-                <article class="aa-card p-4 h-100">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <span class="aa-icon-pill" style="color:@e.color;"><i class="bi @e.icon" aria-hidden="true"></i></span>
-                        <span class="aa-badge-soft">@e.tag</span>
-                    </div>
-                    <h3 class="h5 text-body-emphasis">@Localizer[e.titleKey]</h3>
-                    <p class="text-secondary mb-0">@Localizer[e.descKey]</p>
-                </article>
-            </div>
-        }
-    </div>
-</section>
-
-<section class="py-5" aria-labelledby="aa-roles-title" x-data="{ tab: 'aluno' }">
-    <div class="text-center mb-4">
-        <span class="aa-badge-soft">@Localizer["Home.Roles.Badge"]</span>
-        <h2 id="aa-roles-title" class="display-6 fw-bold mt-2 text-body-emphasis">@Localizer["Home.Roles.Title"]</h2>
-    </div>
-    <div class="d-flex justify-content-center mb-4">
-        <div class="aa-pill-tab" role="tablist">
-            <button type="button" role="tab" :class="tab==='aluno' && 'active'" :aria-selected="tab==='aluno'" @@click="tab='aluno'">
-                <i class="bi bi-mortarboard me-2" aria-hidden="true"></i>@Localizer["Home.Roles.TabStudent"]
-            </button>
-            <button type="button" role="tab" :class="tab==='professor' && 'active'" :aria-selected="tab==='professor'" @@click="tab='professor'">
-                <i class="bi bi-easel2 me-2" aria-hidden="true"></i>@Localizer["Home.Roles.TabTeacher"]
-            </button>
+                @foreach (var note in staffNotes)
+                {
+                    <g class="@(note.Accent ? "aa-staff-note-accent" : "aa-staff-note")">
+                        <ellipse cx="@note.X" cy="@note.Y" rx="9" ry="6.5" transform="rotate(-22 @note.X @note.Y)" />
+                        <rect x="@N(note.X + 7.2)" y="@(note.Y - 44)" width="2" height="44" />
+                    </g>
+                }
+            </svg>
         </div>
     </div>
 
-    <div x-show="tab==='aluno'" x-transition class="row g-4" role="tabpanel">
-        @{
-            var studentBenefits = new[] {
-                (icon:"bi-controller",  titleKey:"Home.Roles.Student1.Title", descKey:"Home.Roles.Student1.Desc"),
-                (icon:"bi-bullseye",    titleKey:"Home.Roles.Student2.Title", descKey:"Home.Roles.Student2.Desc"),
-                (icon:"bi-bar-chart",   titleKey:"Home.Roles.Student3.Title", descKey:"Home.Roles.Student3.Desc")
-            };
-        }
-        @foreach (var b in studentBenefits)
+    <ul class="row g-3 list-unstyled mb-0 mt-4 mt-lg-5">
+        @foreach (var i in features)
         {
-            <div class="col-md-4">
-                <article class="aa-card p-4 h-100">
-                    <span class="aa-icon-pill mb-3"><i class="bi @b.icon" aria-hidden="true"></i></span>
-                    <h3 class="h5 text-body-emphasis">@Localizer[b.titleKey]</h3>
-                    <p class="text-secondary mb-0">@Localizer[b.descKey]</p>
-                </article>
-            </div>
+            <li class="col-md-4">
+                <div class="aa-feature">
+                    <h2 class="aa-feature-title">@noteHead @Localizer[$"Home.Feature{i}.Title"]</h2>
+                    <p>@Localizer[$"Home.Feature{i}.Desc"]</p>
+                </div>
+            </li>
         }
-    </div>
-
-    <div x-show="tab==='professor'" x-transition class="row g-4" role="tabpanel" x-cloak>
-        @{
-            var teacherBenefits = new[] {
-                (icon:"bi-people",          titleKey:"Home.Roles.Teacher1.Title", descKey:"Home.Roles.Teacher1.Desc"),
-                (icon:"bi-list-check",      titleKey:"Home.Roles.Teacher2.Title", descKey:"Home.Roles.Teacher2.Desc"),
-                (icon:"bi-clipboard-data",  titleKey:"Home.Roles.Teacher3.Title", descKey:"Home.Roles.Teacher3.Desc")
-            };
-        }
-        @foreach (var b in teacherBenefits)
-        {
-            <div class="col-md-4">
-                <article class="aa-card p-4 h-100">
-                    <span class="aa-icon-pill mb-3"><i class="bi @b.icon" aria-hidden="true"></i></span>
-                    <h3 class="h5 text-body-emphasis">@Localizer[b.titleKey]</h3>
-                    <p class="text-secondary mb-0">@Localizer[b.descKey]</p>
-                </article>
-            </div>
-        }
-    </div>
+    </ul>
 </section>
 
-<section class="py-5" aria-labelledby="aa-test-title">
-    <div class="text-center mb-5">
-        <span class="aa-badge-soft">@Localizer["Home.Testimonials.Badge"]</span>
-        <h2 id="aa-test-title" class="display-6 fw-bold mt-2 text-body-emphasis">@Localizer["Home.Testimonials.Title"]</h2>
+<section id="how-it-works" class="aa-section" aria-labelledby="aa-how-title">
+    <div class="aa-section-head">
+        <span class="aa-eyebrow">@Localizer["Home.How.Badge"]</span>
+        <h2 id="aa-how-title" class="aa-section-title">@Localizer["Home.How.Title"]</h2>
+        <p>@Localizer["Home.How.Lead"]</p>
     </div>
-    <div class="row g-4">
-        @{
-            var quotes = new[] {
-                (nameKey:"Home.Testimonial1.Name", roleKey:"Home.Testimonial1.Role", textKey:"Home.Testimonial1.Text", initial:"M", color:"#7c3aed"),
-                (nameKey:"Home.Testimonial2.Name", roleKey:"Home.Testimonial2.Role", textKey:"Home.Testimonial2.Text", initial:"R", color:"#14b8a6"),
-                (nameKey:"Home.Testimonial3.Name", roleKey:"Home.Testimonial3.Role", textKey:"Home.Testimonial3.Text", initial:"J", color:"#ec4899")
-            };
-        }
-        @foreach (var q in quotes)
+    <ol class="row g-4 list-unstyled mb-0">
+        @foreach (var i in steps)
         {
-            <div class="col-md-4">
-                <article class="aa-card p-4 h-100">
-                    <div class="text-warning mb-2" aria-label="@Localizer["Home.Testimonials.StarsAria"]">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+            <li class="col-md-4">
+                <div class="aa-step">
+                    <span class="aa-step-num" aria-hidden="true">@i</span>
+                    <div>
+                        <h3 class="aa-step-title">@Localizer[$"Home.How.Step{i}.Title"]</h3>
+                        <p>@Localizer[$"Home.How.Step{i}.Desc"]</p>
                     </div>
-                    <blockquote class="text-body-emphasis fs-6 mb-3">“@Localizer[q.textKey]”</blockquote>
-                    <figcaption class="d-flex align-items-center gap-3">
-                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold" style="width:42px;height:42px;background:@q.color;" aria-hidden="true">@q.initial</span>
-                        <span>
-                            <strong class="d-block text-body-emphasis">@Localizer[q.nameKey]</strong>
-                            <small class="text-secondary">@Localizer[q.roleKey]</small>
-                        </span>
-                    </figcaption>
-                </article>
-            </div>
+                </div>
+            </li>
         }
-    </div>
+    </ol>
 </section>
 
-<section class="py-5" aria-labelledby="aa-faq-title">
-    <div class="row g-5">
+<section class="aa-section" aria-labelledby="aa-ex-title">
+    <div class="aa-section-head">
+        <span class="aa-eyebrow">@Localizer["Home.Exercises.Badge"]</span>
+        <h2 id="aa-ex-title" class="aa-section-title">@Localizer["Home.Exercises.Title"]</h2>
+        <p>@Localizer["Home.Exercises.Lead"]</p>
+    </div>
+    <ul class="aa-ex-list">
+        @foreach (var name in exercises)
+        {
+            <li>
+                <a class="aa-ex-item" asp-area="" asp-controller="Exercise" asp-action="@name">
+                    @noteHead
+                    <span>
+                        <span class="aa-ex-item-title">@Localizer[name]</span>
+                        <span class="aa-ex-item-sub">@Localizer[$"Exercise.{name}.Subtitle"]</span>
+                    </span>
+                </a>
+            </li>
+        }
+    </ul>
+</section>
+
+<section class="aa-section" aria-labelledby="aa-roles-title"
+         x-data="{ tab: 'student', toggle() { this.tab = this.tab === 'student' ? 'teacher' : 'student'; this.$nextTick(() => this.$refs[this.tab].focus()); } }">
+    <div class="aa-section-head">
+        <span class="aa-eyebrow">@Localizer["Home.Roles.Badge"]</span>
+        <h2 id="aa-roles-title" class="aa-section-title">@Localizer["Home.Roles.Title"]</h2>
+    </div>
+
+    <div class="aa-pill-tab" role="tablist" aria-labelledby="aa-roles-title">
+        @foreach (var role in roles)
+        {
+            var first = role.Id == "student";
+            <button type="button" role="tab" id="aa-tab-@role.Id" aria-controls="aa-panel-@role.Id"
+                    aria-selected="@(first ? "true" : "false")" tabindex="@(first ? "0" : "-1")"
+                    x-ref="@role.Id"
+                    x-bind:aria-selected="tab === '@role.Id'"
+                    x-bind:tabindex="tab === '@role.Id' ? 0 : -1"
+                    x-on:click="tab = '@role.Id'"
+                    x-on:keydown.left.prevent="toggle()"
+                    x-on:keydown.right.prevent="toggle()">
+                @Localizer[role.Tab]
+            </button>
+        }
+    </div>
+
+    @foreach (var role in roles)
+    {
+        var first = role.Id == "student";
+        <div id="aa-panel-@role.Id" class="aa-roles-panel" role="tabpanel" aria-labelledby="aa-tab-@role.Id" tabindex="0"
+             x-show="tab === '@role.Id'" x-cloak="@(first ? null : string.Empty)">
+            <ul class="aa-note-list">
+                @for (var i = 1; i <= 3; i++)
+                {
+                    <li>
+                        <strong class="d-block text-body-emphasis">@Localizer[$"{role.Prefix}{i}.Title"]</strong>
+                        <span class="text-secondary">@Localizer[$"{role.Prefix}{i}.Desc"]</span>
+                    </li>
+                }
+            </ul>
+            @if (role.Note is not null)
+            {
+                <p class="small text-secondary mt-4 mb-0">@Localizer[role.Note]</p>
+            }
+        </div>
+    }
+</section>
+
+<section class="aa-section" aria-labelledby="aa-faq-title">
+    <div class="row g-4 g-lg-5">
         <div class="col-lg-4">
-            <span class="aa-badge-soft">@Localizer["Home.Faq.Badge"]</span>
-            <h2 id="aa-faq-title" class="display-6 fw-bold mt-2 text-body-emphasis">@Localizer["Home.Faq.Title"]</h2>
-            <p class="text-secondary">@Localizer["Home.Faq.Lead"]</p>
+            <div class="aa-section-head mb-0">
+                <span class="aa-eyebrow">@Localizer["Home.Faq.Badge"]</span>
+                <h2 id="aa-faq-title" class="aa-section-title">@Localizer["Home.Faq.Title"]</h2>
+                <p>@Localizer["Home.Faq.Lead"]</p>
+            </div>
         </div>
         <div class="col-lg-8">
-            <div class="accordion aa-faq" id="aaFaq">
-                @{
-                    var faqs = new[] {
-                        (id:"1", qKey:"Home.Faq1.Q", aKey:"Home.Faq1.A"),
-                        (id:"2", qKey:"Home.Faq2.Q", aKey:"Home.Faq2.A"),
-                        (id:"3", qKey:"Home.Faq3.Q", aKey:"Home.Faq3.A"),
-                        (id:"4", qKey:"Home.Faq4.Q", aKey:"Home.Faq4.A"),
-                        (id:"5", qKey:"Home.Faq5.Q", aKey:"Home.Faq5.A"),
-                        (id:"6", qKey:"Home.Faq6.Q", aKey:"Home.Faq6.A")
-                    };
-                }
-                @foreach (var f in faqs)
+            <div class="accordion accordion-flush aa-faq" id="aaFaq">
+                @for (var i = 1; i <= 6; i++)
                 {
-                    var isFirst = f.id == "1";
+                    var open = i == 1;
                     <div class="accordion-item">
                         <h3 class="accordion-header">
-                            <button class="accordion-button @(isFirst ? "" : "collapsed")" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#aaFaq-@f.id" aria-expanded="@(isFirst ? "true" : "false")" aria-controls="aaFaq-@f.id">
-                                @Localizer[f.qKey]
+                            <button class="accordion-button @(open ? null : "collapsed")" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#aaFaq-@i" aria-expanded="@(open ? "true" : "false")" aria-controls="aaFaq-@i">
+                                @Localizer[$"Home.Faq{i}.Q"]
                             </button>
                         </h3>
-                        <div id="aaFaq-@f.id" class="accordion-collapse collapse @(isFirst ? "show" : "")" data-bs-parent="#aaFaq">
-                            <div class="accordion-body text-secondary">@Localizer[f.aKey]</div>
+                        <div id="aaFaq-@i" class="accordion-collapse collapse @(open ? "show" : null)" data-bs-parent="#aaFaq">
+                            <div class="accordion-body">@Localizer[$"Home.Faq{i}.A"]</div>
                         </div>
                     </div>
                 }
@@ -291,16 +190,18 @@
     </div>
 </section>
 
-<section class="aa-final p-4 p-md-5 my-5 text-center" aria-labelledby="aa-final-title">
-    <div class="mx-auto" style="max-width: 60ch;">
-        <i class="bi bi-stars display-5" aria-hidden="true"></i>
-        <h2 id="aa-final-title" class="display-5 fw-bold mt-2">@Localizer["Home.Final.Title"]</h2>
-        <p class="lead text-white-50">@Localizer["Home.Final.Lead"]</p>
-        <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
-            <a href="/Identity/Account/Register" class="btn btn-lg btn-light fw-semibold px-4">
-                <i class="bi bi-rocket-takeoff me-2" aria-hidden="true"></i>@Localizer["Home.Cta.SignUpFree"]
-            </a>
-            <a href="/Identity/Account/Login" class="btn btn-lg aa-ghost-btn px-4">@Localizer["Home.Cta.HaveAccount"]</a>
-        </div>
+<section class="aa-final" aria-labelledby="aa-final-title">
+    <h2 id="aa-final-title" class="aa-final-title">@Localizer["Home.Final.Title"]</h2>
+    <p>@Localizer[signedIn ? "Home.Final.LeadSignedIn" : "Home.Final.Lead"]</p>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
+        @if (signedIn)
+        {
+            <a class="btn btn-primary btn-lg px-4" asp-area="" asp-controller="Exercise" asp-action="Index">@Localizer["Home.Cta.GoToExercises"]</a>
+        }
+        else
+        {
+            <a class="btn btn-primary btn-lg px-4" asp-area="Identity" asp-page="/Account/Register">@Localizer["Home.Cta.SignUpFree"]</a>
+            <a class="btn btn-lg aa-ghost-btn px-4" asp-area="Identity" asp-page="/Account/Login">@Localizer["Home.Cta.HaveAccount"]</a>
+        }
     </div>
 </section>

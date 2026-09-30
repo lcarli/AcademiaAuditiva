@@ -1,59 +1,50 @@
 @model AcademiaAuditiva.ViewModels.ExerciseViewModel
-
 @{
-    ViewBag.Title = Localizer["Exercise.SolfegeMelody.Title"];
+    ViewData["Title"] = Localizer[Model.Title].Value;
     ViewData["FiltersPartial"] = "_ExerciseFilters";
 }
 
-<div class="container mt-4">
-    @await Html.PartialAsync("_ExerciseHeader", Model)
-    <input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+@await Html.PartialAsync("_ExerciseHeader", Model)
+<input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
 
-    <div class="row">
-        <div class="col-lg-4">
-            @await Html.PartialAsync("_ExerciseInstructions", Model)
-        </div>
-        <div class="col-lg-8">
-            <div class="card shadow-sm p-4">
-                <h4 class="text-center mb-3">@Localizer["Exercise.SolfegeMelodyText"]</h4>
+<div class="row g-4">
+    <div class="col-lg-8 order-lg-2">
+        <section class="aa-panel" aria-labelledby="aa-question">
+            <h2 id="aa-question" class="aa-question">@Localizer["Exercise.SolfegeMelodyText"]</h2>
 
-                <!-- SHEET MUSIC -->
-                <div id="output-sheet" class="mb-5 text-center" style="height: 100px;"></div>
-
-                <!-- Botões de Áudio -->
+            <div class="aa-audio-row justify-content-center">
                 @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
-
-                <!-- Botões de Resposta -->
-                <div class="text-center mb-3">
-                    <button class="btn btn-outline-primary me-2" id="recordAudio">
-                        <i class="bi bi-mic"></i> @Localizer["Exercise.RecordAudio"]
-                    </button>
-                    <button class="btn btn-outline-secondary" id="listenAudio">
-                        <i class="bi bi-headphones"></i> @Localizer["Exercise.ListenAudio"]
-                    </button>
-                </div>
-
-                <!-- Botão de Validação -->
-                <div class="text-center mt-3">
-                    <button class="btn btn-success" id="validateGuess">@Localizer["Exercise.ValidationButton"]</button>
-                </div>
+                @* SolfegeMelody.js swaps the record button's innerHTML while recording, so both keep a bi icon. *@
+                <button type="button" id="recordAudio" class="aa-audio-pill">
+                    <i class="bi bi-mic" aria-hidden="true"></i> @Localizer["Exercise.RecordAudio"]
+                </button>
+                <button type="button" id="listenAudio" class="aa-audio-pill">
+                    <i class="bi bi-headphones" aria-hidden="true"></i> @Localizer["Exercise.ListenAudio"]
+                </button>
             </div>
-        </div>
+
+            <div id="output-sheet" class="aa-sheet text-center"></div>
+
+            <div class="aa-validate">
+                <button type="button" id="validateGuess" class="btn btn-primary px-4">@Localizer["Exercise.ValidationButton"]</button>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-4 order-lg-1">
+        @await Html.PartialAsync("_ExerciseInstructions", Model)
     </div>
 </div>
 
-<!-- Modal de Filtros -->
 @await Html.PartialAsync("_ExerciseFiltersModal", Model)
 
-<!-- Localizer JS Support -->
 <div id="localizer"
-    data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
-    data-correct-message="@Localizer["Exercise.CorrectMessage"]"
-    data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
-    data-wrong-message="@Localizer["Exercise.WrongMessage"]"
-    data-wrong-message-text="@Localizer["Exercise.WrongNoteMessageText"]">
+     data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+     data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+     data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
+     data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+     data-wrong-message-text="@Localizer["Exercise.WrongNoteMessageText"]">
 </div>
 
 @section Scripts {
     <script src="~/js/Exercises/SolfegeMelody.js?v=1.0.2"></script>
-}8 21   
+}

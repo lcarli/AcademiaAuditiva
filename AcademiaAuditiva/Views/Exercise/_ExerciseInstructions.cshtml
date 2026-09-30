@@ -16,21 +16,21 @@
     var tips = localizedTips.Count > 0 ? localizedTips : (Model.Tips ?? new List<string>());
 }
 
-<div class="aa-card-flat p-3">
+<aside class="aa-card-flat p-3 p-lg-4">
     @if (!string.IsNullOrEmpty(instructions))
     {
-        <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
-            <i class="bi bi-lightbulb-fill text-warning" aria-hidden="true"></i>
+        <h2 class="h5 mb-2 d-flex align-items-center gap-2">
+            <i class="bi bi-lightbulb text-primary" aria-hidden="true"></i>
             @Localizer["Instructions"]
-        </h5>
-        <p class="mb-2">@instructions</p>
+        </h2>
+        <p class="mb-0">@instructions</p>
     }
 
     @if (tips.Any())
     {
-        <div class="bg-body-tertiary rounded p-3 mt-3">
-            <strong class="text-body-emphasis">@Localizer["Tips"]:</strong>
-            <ul class="mb-0 mt-1">
+        <div class="border-top pt-3 mt-3">
+            <h3 class="h6 mb-2 text-body-emphasis">@Localizer["Tips"]</h3>
+            <ul class="mb-0 ps-3 small">
                 @foreach (var tip in tips)
                 {
                     <li>@tip</li>
@@ -38,4 +38,4 @@
             </ul>
         </div>
     }
-</div>
+</aside>

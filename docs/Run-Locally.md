@@ -30,6 +30,10 @@ cd AcademiaAuditiva
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" `
     "Server=(localdb)\\mssqllocaldb;Database=AcademiaAuditiva-dev;Trusted_Connection=True;TrustServerCertificate=True"
 
+# Or, with the Docker container from the prerequisites (use 127.0.0.1, not localhost — see Troubleshooting)
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" `
+    "Server=127.0.0.1,1433;Database=AcademiaAuditiva-dev;User Id=sa;Password=YourStrong!Pass1;TrustServerCertificate=True;Encrypt=False"
+
 # Optional: only needed if you want Facebook login locally
 dotnet user-secrets set "Facebook:AppId" "<your-test-app-id>"
 dotnet user-secrets set "Facebook:AppSecret" "<your-test-app-secret>"
@@ -85,6 +89,7 @@ required.
 |---|---|
 | `Connection string 'DefaultConnection' not found` | Run `dotnet user-secrets set "ConnectionStrings:DefaultConnection" "..."` |
 | `A network-related or instance-specific error...` | LocalDB not running. `sqllocaldb start MSSQLLocalDB` |
+| Login timeout / connection refused with the Docker container | `localhost` can resolve to IPv6 (`::1`) first; use `Server=127.0.0.1,1433` and check `docker ps` shows `aa-sql` running |
 | Port already in use | Set `ASPNETCORE_URLS=http://localhost:5050` before `dotnet run` |
 | Facebook button missing | `Facebook:AppId` / `Facebook:AppSecret` not set — expected for local dev |
 | Emails not sent | Same — `Smtp:*` is optional. Check the Console log for the warning. |

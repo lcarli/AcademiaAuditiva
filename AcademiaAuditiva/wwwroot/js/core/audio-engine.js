@@ -12,7 +12,7 @@
 //   AudioEngine.stop()            → interrupts the currently playing clip
 //   AudioEngine.preload(token)    → optional hint to fetch the buffer
 //                                   without playing yet
-//   AudioEngine.setupWaveform(id) → unchanged visual hook
+//   AudioEngine.setupWaveform(id) → live waveform over a staff, themed via CSS
 const AudioEngine = (() => {
     // A round produces one or two tokens; both are short clips. Caching
     // the decoded buffer by token lets Replay be instant without a
@@ -88,62 +88,107 @@ const AudioEngine = (() => {
         });
     }
 
-    // === WAVEFORM VISUAL === (unchanged behaviour)
-    let waveformCanvas;
-    let analyser;
-    let audioContext = Tone.context;
+    // === WAVEFORM VISUAL ===
+    // A live trace of the output drawn over five staff lines. Colours come from
+    // the --aa-wave-line / --aa-wave-staff custom properties of the container, so
+    // the canvas follows the light/dark theme.
+    let waveformCanvas = null;
+    let analyser = null;
 
     function setupWaveform(targetId = "waveform") {
         const container = document.getElementById(targetId);
-        if (!container) return;
+        if (!container || waveformCanvas) return;
 
         waveformCanvas = document.createElement("canvas");
-        waveformCanvas.width = container.clientWidth;
-        waveformCanvas.height = container.clientHeight;
+        waveformCanvas.setAttribute("aria-hidden", "true");
         container.appendChild(waveformCanvas);
 
-        analyser = audioContext.createAnalyser();
+        analyser = Tone.context.createAnalyser();
         analyser.fftSize = 2048;
 
         Tone.Destination.connect(analyser);
-        animateWaveform();
+        animateWaveform(container);
     }
 
-    function animateWaveform() {
+    function animateWaveform(container) {
         if (!waveformCanvas || !analyser) return;
 
-        const ctx = waveformCanvas.getContext("2d");
-        const bufferLength = analyser.fftSize;
-        const dataArray = new Uint8Array(bufferLength);
+        const canvas = waveformCanvas;
+        const ctx = canvas.getContext("2d");
+        const data = new Uint8Array(analyser.fftSize);
+        let colors = readColors();
+        let dirty = true;
+
+        function readColors() {
+            const style = getComputedStyle(container);
+            return {
+                line: style.getPropertyValue("--aa-wave-line").trim() || "#4F46E5",
+                staff: style.getPropertyValue("--aa-wave-staff").trim() || "#D9DCEA"
+            };
+        }
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            const width = Math.max(1, Math.round(container.clientWidth * dpr));
+            const height = Math.max(1, Math.round(container.clientHeight * dpr));
+            if (canvas.width !== width || canvas.height !== height) {
+                canvas.width = width;
+                canvas.height = height;
+            }
+            dirty = true;
+        }
+
+        if (window.ResizeObserver) {
+            new ResizeObserver(resize).observe(container);
+        }
+        new MutationObserver(() => {
+            colors = readColors();
+            dirty = true;
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-bs-theme"] });
+        resize();
 
         function draw() {
             requestAnimationFrame(draw);
-            analyser.getByteTimeDomainData(dataArray);
+            analyser.getByteTimeDomainData(data);
 
-            ctx.fillStyle = "#f2f2f2";
-            ctx.fillRect(0, 0, waveformCanvas.width, waveformCanvas.height);
-
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = "#007BFF";
-            ctx.beginPath();
-
-            const sliceWidth = waveformCanvas.width / bufferLength;
-            let x = 0;
-
-            for (let i = 0; i < bufferLength; i++) {
-                const v = dataArray[i] / 128.0;
-                const y = v * waveformCanvas.height / 2;
-
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-
-                x += sliceWidth;
+            let silent = true;
+            for (let i = 0; i < data.length; i++) {
+                if (data[i] !== 128) { silent = false; break; }
             }
+            // While silent, only redraw after a resize or theme change.
+            if (silent && !dirty) return;
+            dirty = !silent;
 
-            ctx.lineTo(waveformCanvas.width, waveformCanvas.height / 2);
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.clearRect(0, 0, width, height);
+
+            const staffWidth = Math.max(1, Math.round(dpr));
+            const offset = staffWidth % 2 ? 0.5 : 0;
+            ctx.lineWidth = staffWidth;
+            ctx.strokeStyle = colors.staff;
+            ctx.beginPath();
+            for (let line = 1; line <= 5; line++) {
+                const y = Math.round(height * line / 6) + offset;
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+            }
+            ctx.stroke();
+
+            ctx.lineWidth = 2 * dpr;
+            ctx.lineJoin = "round";
+            ctx.strokeStyle = colors.line;
+            ctx.beginPath();
+            const step = width / (data.length - 1);
+            for (let i = 0; i < data.length; i++) {
+                const y = (data[i] / 128) * (height / 2);
+                if (i === 0) {
+                    ctx.moveTo(0, y);
+                } else {
+                    ctx.lineTo(i * step, y);
+                }
+            }
             ctx.stroke();
         }
 
