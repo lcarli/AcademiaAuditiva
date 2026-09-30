@@ -3,6 +3,13 @@
     ViewBag.Title = Localizer["Dashboard.Title"].Value;
 }
 
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success" role="alert">
+        <i class="bi bi-check-circle me-2" aria-hidden="true"></i>@success
+    </div>
+}
+
 <header class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
     <div>
         <span class="aa-eyebrow">@Localizer["Dashboard.Title"]</span>

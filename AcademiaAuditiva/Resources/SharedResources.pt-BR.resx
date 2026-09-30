@@ -2362,7 +2362,7 @@
     <value>Editar exercício</value>
   </data>
   <data name="Teacher.Routines.FilterJsonHelp" xml:space="preserve">
-    <value>Opcional. Mesmo formato de Exercise.FiltersJson.</value>
+    <value>Opcional. Mesmo formato dos filtros do exercício (JSON).</value>
   </data>
   <data name="Teacher.Routines.AddToRoutine" xml:space="preserve">
     <value>Adicionar à rotina</value>
@@ -2504,5 +2504,35 @@
   </data>
   <data name="Manage.Password.ConfirmNew" xml:space="preserve">
     <value>Confirmar nova senha</value>
+  </data>
+  <data name="Common.Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Common.SaveChanges" xml:space="preserve">
+    <value>Salvar alterações</value>
+  </data>
+  <data name="Teacher.Classrooms.EditTitle" xml:space="preserve">
+    <value>Editar turma</value>
+  </data>
+  <data name="Teacher.Classrooms.CreateBtn" xml:space="preserve">
+    <value>Criar turma</value>
+  </data>
+  <data name="Teacher.Routines.EditTitle" xml:space="preserve">
+    <value>Editar rotina</value>
+  </data>
+  <data name="Teacher.Routines.CreateBtn" xml:space="preserve">
+    <value>Criar rotina</value>
+  </data>
+  <data name="Toast.InviteSent" xml:space="preserve">
+    <value>Convite enviado para {0}.</value>
+  </data>
+  <data name="Toast.JoinedClassroom" xml:space="preserve">
+    <value>Você entrou na turma {0}.</value>
+  </data>
+  <data name="Invite.Email.Subject" xml:space="preserve">
+    <value>Você recebeu um convite para a turma {0} na Academia Auditiva</value>
+  </data>
+  <data name="Invite.Email.Body" xml:space="preserve">
+    <value>&lt;p&gt;Olá,&lt;/p&gt;&lt;p&gt;{0} convidou você para participar da turma &lt;strong&gt;{1}&lt;/strong&gt; na Academia Auditiva.&lt;/p&gt;&lt;p&gt;&lt;a href='{2}'&gt;Clique aqui para aceitar o convite&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Este link expira em {3}.&lt;/p&gt;</value>
   </data>
 </root>

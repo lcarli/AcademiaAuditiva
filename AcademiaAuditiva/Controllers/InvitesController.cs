@@ -2,10 +2,12 @@ using AcademiaAuditiva.Areas.Teacher.Services;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
+using AcademiaAuditiva.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Controllers;
 
@@ -17,17 +19,20 @@ public class InvitesController : Controller
     private readonly UserManager<ApplicationUser> _users;
     private readonly SignInManager<ApplicationUser> _signIn;
     private readonly ILogger<InvitesController> _logger;
+    private readonly IStringLocalizer<SharedResources> _l;
 
     public InvitesController(
         ApplicationDbContext db,
         UserManager<ApplicationUser> users,
         SignInManager<ApplicationUser> signIn,
-        ILogger<InvitesController> logger)
+        ILogger<InvitesController> logger,
+        IStringLocalizer<SharedResources> localizer)
     {
         _db = db;
         _users = users;
         _signIn = signIn;
         _logger = logger;
+        _l = localizer;
     }
 
     /// <summary>
@@ -106,7 +111,7 @@ public class InvitesController : Controller
         _logger.LogInformation("User {UserId} accepted invite {InviteId} for classroom {ClassroomId}",
             user.Id, invite.Id, invite.ClassroomId);
 
-        TempData["Success"] = $"You have joined {invite.Classroom?.Name}.";
+        TempData["Success"] = _l["Toast.JoinedClassroom", invite.Classroom?.Name ?? ""].Value;
         return RedirectToAction("Index", "Dashboard");
     }
 }

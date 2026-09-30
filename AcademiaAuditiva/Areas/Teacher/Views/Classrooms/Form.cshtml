@@ -1,7 +1,7 @@
 @model AcademiaAuditiva.Areas.Teacher.Models.ClassroomFormViewModel
 @{
     var isEdit = Model.Id.HasValue;
-    ViewData["Title"] = isEdit ? "Edit classroom" : "New classroom";
+    ViewData["Title"] = isEdit ? Localizer["Teacher.Classrooms.EditTitle"].Value : Localizer["Teacher.Classrooms.NewBtn"].Value;
 }
 <h1 class="h3 mb-4">@ViewData["Title"]</h1>
 <form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post" class="col-lg-6">
@@ -18,8 +18,8 @@
         <textarea asp-for="Description" class="form-control" rows="3"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary">@(isEdit ? "Save changes" : "Create classroom")</button>
-    <a class="btn btn-link" asp-action="Index">@Localizer["Teacher.Classrooms.Cancel"]</a>
+    <button type="submit" class="btn btn-primary">@(isEdit ? Localizer["Common.SaveChanges"] : Localizer["Teacher.Classrooms.CreateBtn"])</button>
+    <a class="btn btn-link" asp-action="Index">@Localizer["Common.Cancel"]</a>
 </form>
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }

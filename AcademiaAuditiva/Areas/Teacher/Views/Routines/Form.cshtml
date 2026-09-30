@@ -1,7 +1,7 @@
 @model AcademiaAuditiva.Areas.Teacher.Models.RoutineFormViewModel
 @{
     var isEdit = Model.Id > 0;
-    ViewData["Title"] = isEdit ? "Edit routine" : "New routine";
+    ViewData["Title"] = isEdit ? Localizer["Teacher.Routines.EditTitle"].Value : Localizer["Teacher.Routines.NewBtn"].Value;
 }
 <h1 class="h4 mb-3">@ViewData["Title"]</h1>
 
@@ -21,8 +21,8 @@
             <textarea asp-for="Description" class="form-control" rows="3"></textarea>
             <span asp-validation-for="Description" class="text-danger small"></span>
         </div>
-        <button type="submit" class="btn btn-primary">@(isEdit ? "Save changes" : "Create routine")</button>
-        <a class="btn btn-link" asp-action="Index">@Localizer["Teacher.Classrooms.Cancel"]</a>
+        <button type="submit" class="btn btn-primary">@(isEdit ? Localizer["Common.SaveChanges"] : Localizer["Teacher.Routines.CreateBtn"])</button>
+        <a class="btn btn-link" asp-action="Index">@Localizer["Common.Cancel"]</a>
     </div>
 </form>
 
