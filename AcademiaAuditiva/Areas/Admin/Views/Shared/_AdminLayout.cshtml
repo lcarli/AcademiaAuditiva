@@ -35,4 +35,7 @@
     </div>
 </div>
 
-@if (IsSectionDefined("Scripts")) { @RenderSection("Scripts", required: false) }
+@* Hand the page's scripts to _Layout, which renders them after jQuery. *@
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}
