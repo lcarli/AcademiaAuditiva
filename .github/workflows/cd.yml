@@ -7,12 +7,20 @@ on:
       - "AcademiaAuditiva/**"
       - "infra/**"
       - "Dockerfile"
+      - "Directory.Build.props"
+      - "Directory.Packages.props"
+      - "global.json"
       - ".github/workflows/cd.yml"
   workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
+
+# One deployment at a time; a newer push replaces any run still waiting.
+concurrency:
+  group: cd-production
+  cancel-in-progress: false
 
 env:
   RESOURCE_GROUP: rg-aa-prd
@@ -21,15 +29,22 @@ env:
   ACR_NAME: ${{ vars.ACR_NAME }}
 
 jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   build-and-deploy:
     name: Build image, push, deploy
+    needs: ci
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}

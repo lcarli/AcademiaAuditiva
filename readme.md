@@ -1,7 +1,7 @@
 # Academia Auditiva 🎵
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/)
-[![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-purple)](https://docs.microsoft.com/aspnet/core)
+[![.NET](https://img.shields.io/badge/.NET-10.0-blue)](https://dotnet.microsoft.com/)
+[![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-10.0-purple)](https://docs.microsoft.com/aspnet/core)
 [![Azure Container Apps](https://img.shields.io/badge/Azure-Container%20Apps-0078d4)](https://learn.microsoft.com/azure/container-apps)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](#license)
 
@@ -38,7 +38,7 @@ localization (en-US / pt-BR / fr-CA).
 ## ⚡ Quick start
 
 ```powershell
-# Local
+# Local (requires the .NET 10 SDK, pinned in global.json)
 cd AcademiaAuditiva
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=(localdb)\\mssqllocaldb;Database=AcademiaAuditiva-dev;Trusted_Connection=True"
 dotnet user-secrets set "Admin:Email" "you@example.com"
@@ -62,14 +62,16 @@ AcademiaAuditiva/        ASP.NET Core MVC app
 infra/                   Bicep IaC (subscription scope) + helper scripts
 Tests/                   xUnit unit and integration test projects
 docs/                    Operator + architecture docs (this README links to)
-.github/workflows/       CI/CD (planned)
+.github/workflows/       CI (build, tests, Bicep), CD gated on CI, CodeQL, Gitleaks
+Directory.*.props        Shared build settings + central NuGet package versions
+global.json              Pinned .NET SDK
 ```
 
 ## 🤝 Contributing
 
 1. Fork & clone, create a feature branch
 2. Run tests: `dotnet test`
-3. Open a PR to `main` — CI runs `dotnet build` + `dotnet test`
+3. Open a PR to `master` — CI runs `dotnet build` + `dotnet test`
 
 ## License
 

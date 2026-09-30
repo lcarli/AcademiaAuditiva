@@ -5,8 +5,9 @@ development and testing. It assumes you have already cloned the repository.
 
 ## Prerequisites
 
-- **.NET SDK 8.0** — `dotnet --version` should report `8.x`. Install from
-  <https://dotnet.microsoft.com/download/dotnet/8.0>.
+- **.NET SDK 10.0** — `dotnet --version` should report `10.x` (the minimum
+  version is pinned in `global.json`). Install from
+  <https://dotnet.microsoft.com/download/dotnet/10.0>.
 - **SQL Server LocalDB** *or* Docker for a SQL Server container.
   LocalDB is bundled with Visual Studio; for VS Code use Docker:
 
@@ -54,6 +55,7 @@ The app calls `context.Database.Migrate()` on startup, so a fresh DB will
 be created automatically. To do it manually:
 
 ```powershell
+dotnet tool restore   # once: installs the dotnet-ef version pinned in dotnet-tools.json
 dotnet ef database update --project AcademiaAuditiva
 ```
 
