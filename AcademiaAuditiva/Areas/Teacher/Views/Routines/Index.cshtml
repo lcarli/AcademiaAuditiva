@@ -4,7 +4,7 @@
 }
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h1 class="h3 mb-0 text-body-emphasis">@Localizer["Teacher.Routines.Title"]</h1>
-    <a class="btn aa-grad-btn" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.NewBtn"]</a>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.NewBtn"]</a>
 </div>
 
 @if (TempData["Success"] is string s) { <div class="alert alert-success">@s</div> }
@@ -13,9 +13,9 @@
 @if (!Model.Any())
 {
     <div class="aa-card-flat p-4 text-center">
-        <span class="aa-icon-pill mb-2" aria-hidden="true" style="color:#7c3aed"><i class="bi bi-list-check"></i></span>
+        <span class="aa-icon-pill mb-2" aria-hidden="true"><i class="bi bi-list-check"></i></span>
         <p class="mb-2 text-secondary">@Localizer["Teacher.Routines.Empty"]</p>
-        <a class="btn aa-grad-btn btn-sm" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.NewBtn"]</a>
+        <a class="btn btn-primary btn-sm" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.NewBtn"]</a>
     </div>
 }
 else

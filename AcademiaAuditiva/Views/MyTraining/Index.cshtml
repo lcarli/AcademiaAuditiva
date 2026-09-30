@@ -5,8 +5,7 @@
 }
 
 <header class="mb-4">
-    <span class="aa-badge-soft">@Localizer["MyTraining.Title"]</span>
-    <h1 class="display-6 fw-bold mt-2 mb-1 text-body-emphasis">@Localizer["MyTraining.Title"]</h1>
+    <h1 class="display-6 mb-1 text-body-emphasis">@Localizer["MyTraining.Title"]</h1>
     <p class="text-secondary mb-0">@Localizer["MyTraining.Subtitle"]</p>
 </header>
 
@@ -41,7 +40,7 @@
     <div class="col-lg-8">
         <div class="aa-card-flat h-100">
             <div class="p-3 border-bottom border-body d-flex align-items-center gap-2">
-                <span class="aa-icon-pill" aria-hidden="true" style="color:#7c3aed"><i class="bi bi-list-check"></i></span>
+                <span class="aa-icon-pill" aria-hidden="true"><i class="bi bi-list-check"></i></span>
                 <strong class="text-body-emphasis">@Localizer["MyTraining.MyRoutines"]</strong>
             </div>
             @if (!assignments.Any())
@@ -65,7 +64,7 @@
                                 </small>
                             </div>
                             <div class="progress my-2" role="progressbar" aria-valuenow="@a.OverallPercent" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
-                                <div class="progress-bar" style="width: @(a.OverallPercent)%; background: var(--aa-grad);"></div>
+                                <div class="progress-bar" style="width: @(a.OverallPercent)%;"></div>
                             </div>
                             <ul class="list-group list-group-flush small">
                                 @foreach (var i in a.Items)

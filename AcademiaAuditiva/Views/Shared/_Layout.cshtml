@@ -5,6 +5,11 @@
 @inject IAntiforgery Antiforgery
 @{
     var antiforgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+    var currentArea = ViewContext.RouteData.Values["area"] as string ?? string.Empty;
+    var currentController = ViewContext.RouteData.Values["controller"] as string ?? string.Empty;
+    bool IsCurrent(string area, string? controller = null) =>
+        string.Equals(currentArea, area, StringComparison.OrdinalIgnoreCase)
+        && (controller is null || string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase));
 }
 <!DOCTYPE html>
 <html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
@@ -15,6 +20,12 @@
     <meta name="request-verification-token" content="@antiforgeryToken" />
     <meta name="color-scheme" content="light dark" />
     <title>@ViewBag.Title - Academia Auditiva</title>
+    <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0A0B12" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="~/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="~/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="~/fonts/fraunces-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin />
 
     <script>
         // Theme bootstrap — runs before CSS paints to prevent FOUC.
@@ -47,7 +58,6 @@
         [x-cloak] { display: none !important; }
         .htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
         .htmx-request .htmx-indicator { opacity: 1; }
-        body { background: var(--bs-body-bg); color: var(--bs-body-color); }
     </style>
 </head>
 
@@ -57,9 +67,9 @@
 
     <header>
         <nav class="navbar navbar-expand-lg aa-navbar sticky-top">
-            <div class="container-fluid px-3 px-lg-4">
-                <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
-                    <span class="aa-icon-pill aa-icon-pill-sm" aria-hidden="true"><i class="bi bi-soundwave"></i></span>
+            <div class="container-xl">
+                <a class="navbar-brand aa-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <partial name="_Logo" />
                     <span class="aa-brand-text">Academia Auditiva</span>
                 </a>
 
@@ -71,36 +81,31 @@
                 <div class="collapse navbar-collapse" id="mainNavbar">
                     @if (SignInManager.IsSignedIn(User))
                     {
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-lg-1">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-lg-1">
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Dashboard" asp-action="Index">
-                                    <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>@Localizer["Header.Dashboard"]
-                                </a>
+                                <a class="nav-link @(IsCurrent("", "Dashboard") ? "active" : null)" aria-current="@(IsCurrent("", "Dashboard") ? "page" : null)"
+                                   asp-area="" asp-controller="Dashboard" asp-action="Index">@Localizer["Header.Dashboard"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Exercise" asp-action="Index">
-                                    <i class="bi bi-music-note-list me-1" aria-hidden="true"></i>@Localizer["Header.Exercise"]
-                                </a>
+                                <a class="nav-link @(IsCurrent("", "Exercise") ? "active" : null)" aria-current="@(IsCurrent("", "Exercise") ? "page" : null)"
+                                   asp-area="" asp-controller="Exercise" asp-action="Index">@Localizer["Header.Exercise"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="MyTraining" asp-action="Index">
-                                    <i class="bi bi-bullseye me-1" aria-hidden="true"></i>@Localizer["Header.MyTraining"]
-                                </a>
+                                <a class="nav-link @(IsCurrent("", "MyTraining") ? "active" : null)" aria-current="@(IsCurrent("", "MyTraining") ? "page" : null)"
+                                   asp-area="" asp-controller="MyTraining" asp-action="Index">@Localizer["Header.MyTraining"]</a>
                             </li>
                             @if (User.IsInRole(AcademiaAuditiva.Models.RoleNames.Teacher) || User.IsInRole(AcademiaAuditiva.Models.RoleNames.Admin))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="Teacher" asp-controller="Home" asp-action="Index">
-                                        <i class="bi bi-mortarboard me-1" aria-hidden="true"></i>@Localizer["Header.Teacher"]
-                                    </a>
+                                    <a class="nav-link @(IsCurrent("Teacher") ? "active" : null)" aria-current="@(IsCurrent("Teacher") ? "page" : null)"
+                                       asp-area="Teacher" asp-controller="Home" asp-action="Index">@Localizer["Header.Teacher"]</a>
                                 </li>
                             }
                             @if (User.IsInRole(AcademiaAuditiva.Models.RoleNames.Admin))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">
-                                        <i class="bi bi-shield-lock me-1" aria-hidden="true"></i>@Localizer["Header.Admin"]
-                                    </a>
+                                    <a class="nav-link @(IsCurrent("Admin") ? "active" : null)" aria-current="@(IsCurrent("Admin") ? "page" : null)"
+                                       asp-area="Admin" asp-controller="Home" asp-action="Index">@Localizer["Header.Admin"]</a>
                                 </li>
                             }
                         </ul>
@@ -122,18 +127,18 @@
         @RenderBody()
     </main>
 
-    <footer class="aa-footer mt-auto">
+    <footer class="aa-footer">
         <div class="container-xl">
             <div class="row gy-3 align-items-center">
                 <div class="col-md-6">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="aa-icon-pill aa-icon-pill-sm" aria-hidden="true"><i class="bi bi-soundwave"></i></span>
-                        <strong class="aa-brand-text">Academia Auditiva</strong>
-                    </div>
-                    <small class="d-block text-secondary">@Localizer["Layout.FooterTagline"]</small>
+                    <a class="aa-brand mb-2" asp-area="" asp-controller="Home" asp-action="Index">
+                        <partial name="_Logo" />
+                        <span class="aa-brand-text">Academia Auditiva</span>
+                    </a>
+                    <small class="d-block">@Localizer["Layout.FooterTagline"]</small>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <small class="d-block text-secondary mb-1">&copy; @DateTime.Now.Year Academia Auditiva</small>
+                    <small class="d-block mb-1">&copy; @DateTime.Now.Year Academia Auditiva</small>
                     <small>
                         <a asp-area="" asp-controller="Home" asp-action="Privacy">@Localizer["Layout.Privacy"]</a>
                     </small>
@@ -188,7 +193,7 @@
     <script src="/js/dist/essentia.js-model.js?v=1.0.2"></script>
     <script src="/js/dist/essentia.js-plot.js?v=1.0.2"></script>
     <script src="/js/dist/essentia-wasm.web.js?v=1.0.2"></script>
-    <script src="/js/core/audio-engine.js?v=1.0.5"></script>
+    <script src="/js/core/audio-engine.js?v=1.0.7"></script>
     <script src="/js/games/game-engine.js?v=1.0.2"></script>
     <script src="/js/main/academia-auditiva.js?v=1.0.2"></script>
     <script src="/js/AcademiaAuditiva.Filters.js?v=1.0.2"></script>

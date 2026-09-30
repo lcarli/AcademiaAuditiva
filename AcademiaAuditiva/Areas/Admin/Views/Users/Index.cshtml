@@ -6,12 +6,12 @@
 
 <form method="get" class="row g-2 align-items-end mb-3">
     <div class="col-md-5">
-        <label class="form-label small text-secondary">@Localizer["Admin.Users.Search"]</label>
-        <input name="q" value="@Model.Query" class="form-control" />
+        <label for="users-q" class="form-label small text-secondary">@Localizer["Admin.Users.Search"]</label>
+        <input id="users-q" name="q" value="@Model.Query" class="form-control" />
     </div>
     <div class="col-md-3">
-        <label class="form-label small text-secondary">@Localizer["Admin.Users.Role"]</label>
-        <select name="role" class="form-select">
+        <label for="users-role" class="form-label small text-secondary">@Localizer["Admin.Users.Role"]</label>
+        <select id="users-role" name="role" class="form-select">
             <option value="">@Localizer["Admin.Users.AllRoles"]</option>
             <option value="Admin" selected="@(Model.Role == "Admin")">Admin</option>
             <option value="Teacher" selected="@(Model.Role == "Teacher")">Teacher</option>
@@ -19,12 +19,12 @@
         </select>
     </div>
     <div class="col-md-2">
-        <button class="btn aa-grad-btn w-100">@Localizer["Admin.Users.Filter"]</button>
+        <button class="btn btn-primary w-100">@Localizer["Admin.Users.Filter"]</button>
     </div>
     <div class="col-md-2 text-end text-secondary small">@Model.Total @Localizer["Admin.Users.Results"]</div>
 </form>
 
-<div class="aa-card-flat shadow-sm">
+<div class="aa-card-flat">
     <div class="table-responsive">
         <table class="table mb-0 align-middle">
             <thead class="table-light">
@@ -41,7 +41,7 @@
                         <td>
                             <div><strong>@r.UserName</strong></div>
                             <small class="text-secondary">@r.Email</small>
-                            @if (!r.EmailConfirmed) { <span class="badge bg-warning text-dark ms-2">@Localizer["Admin.Users.Unconfirmed"]</span> }
+                            @if (!r.EmailConfirmed) { <span class="badge bg-warning-subtle text-warning-emphasis ms-2">@Localizer["Admin.Users.Unconfirmed"]</span> }
                             @if (r.LockoutEndUtc.HasValue && r.LockoutEndUtc.Value > DateTime.UtcNow) { <span class="badge bg-danger ms-2">@Localizer["Admin.Users.Locked"]</span> }
                         </td>
                         <td>

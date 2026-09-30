@@ -14,32 +14,32 @@
 
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+        <div class="aa-card-flat h-100"><div class="card-body">
             <div class="text-secondary small">Students</div>
             <div class="h3 mb-0">@Model.Rows.Count</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+        <div class="aa-card-flat h-100"><div class="card-body">
             <div class="text-secondary small">Active (30d)</div>
             <div class="h3 mb-0">@Model.ActiveStudentsLast30Days</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+        <div class="aa-card-flat h-100"><div class="card-body">
             <div class="text-secondary small">Total attempts</div>
             <div class="h3 mb-0">@Model.TotalAttempts.ToString("N0")</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat shadow-sm h-100"><div class="card-body">
+        <div class="aa-card-flat h-100"><div class="card-body">
             <div class="text-secondary small">Avg accuracy</div>
             <div class="h3 mb-0">@Model.AverageAccuracy.ToString("F1")%</div>
         </div></div>
     </div>
 </div>
 
-<div class="aa-card-flat shadow-sm">
+<div class="aa-card-flat">
     <div class="card-header bg-transparent border-bottom border-body"><strong>Per student</strong></div>
     <div class="table-responsive">
         <table class="table mb-0 align-middle">

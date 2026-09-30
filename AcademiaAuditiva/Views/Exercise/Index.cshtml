@@ -15,8 +15,8 @@
 }
 
 <header class="text-center mb-4">
-    <span class="aa-badge-soft">@Localizer["Exercise.Header"]</span>
-    <h1 class="display-6 fw-bold mt-2 text-body-emphasis">@Localizer["Exercise.Title"]</h1>
+    <span class="aa-eyebrow">@Localizer["Exercise.Header"]</span>
+    <h1 class="display-6 mt-2 text-body-emphasis">@Localizer["Exercise.Title"]</h1>
 </header>
 
 <div class="d-flex justify-content-center mb-4">
@@ -48,7 +48,7 @@
                                     <i class="bi bi-bullseye me-1" aria-hidden="true"></i>@Localizer["ExerciseType." + exercise.ExerciseType.Name]
                                 </p>
                                 <p class="card-text small text-secondary flex-grow-1">@LocSubtitle(exercise)</p>
-                                <a href="@Url.Action(exercise.Name, "Exercise")" class="btn aa-grad-btn btn-sm align-self-start">
+                                <a href="@Url.Action(exercise.Name, "Exercise")" class="btn btn-primary btn-sm align-self-start">
                                     <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer["Exercise.Start"]
                                 </a>
                             </div>
@@ -70,13 +70,13 @@
                     {
                         <div class="col-md-6 col-lg-4">
                             <div class="aa-card aa-card-accent h-100 p-4 d-flex flex-column">
-                                <span class="aa-icon-pill mb-3" aria-hidden="true" style="color:#14b8a6"><i class="bi bi-puzzle"></i></span>
+                                <span class="aa-icon-pill mb-3" aria-hidden="true"><i class="bi bi-puzzle"></i></span>
                                 <h5 class="fw-bold text-body-emphasis">@Localizer[exercise.Name]</h5>
                                 <p class="small text-secondary mb-2">
                                     <i class="bi bi-bar-chart-steps me-1" aria-hidden="true"></i>@Localizer["Exercise." + exercise.DifficultyLevel.Name]
                                 </p>
                                 <p class="card-text small text-secondary flex-grow-1">@LocSubtitle(exercise)</p>
-                                <a href="@Url.Action(exercise.Name, "Exercise")" class="btn aa-grad-btn btn-sm align-self-start">
+                                <a href="@Url.Action(exercise.Name, "Exercise")" class="btn btn-primary btn-sm align-self-start">
                                     <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer["Exercise.Start"]
                                 </a>
                             </div>

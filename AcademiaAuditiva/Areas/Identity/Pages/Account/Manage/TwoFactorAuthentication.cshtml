@@ -49,11 +49,11 @@
         <h4 class="mt-4 text-body-emphasis">@Localizer["Manage.Tfa.AppHeader"]</h4>
         @if (!Model.HasAuthenticator)
         {
-            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn aa-grad-btn">@Localizer["Manage.Tfa.AddApp"]</a>
+            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary">@Localizer["Manage.Tfa.AddApp"]</a>
         }
         else
         {
-            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn aa-grad-btn me-2">@Localizer["Manage.Tfa.SetupApp"]</a>
+            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary me-2">@Localizer["Manage.Tfa.SetupApp"]</a>
             <a id="reset-authenticator" asp-page="./ResetAuthenticator" class="btn btn-outline-danger">@Localizer["Manage.Tfa.ResetApp"]</a>
         }
     }

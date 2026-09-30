@@ -1,41 +1,38 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var path = (Context.Request.Path.Value ?? string.Empty).ToLowerInvariant();
-    string ActiveIf(string match) => path.Contains(match) ? "active" : string.Empty;
+    var currentController = ViewContext.RouteData.Values["controller"] as string ?? string.Empty;
+    string ActiveIf(string controller) => string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty;
 }
 
 <div class="row g-4">
     <aside class="col-lg-3 col-xl-2">
-        <div class="aa-card-flat p-3 sticky-lg-top" style="top: 5rem;">
-            <div class="d-flex align-items-center gap-2 mb-3">
-                <span class="aa-icon-pill aa-icon-pill-sm" aria-hidden="true"><i class="bi bi-shield-lock"></i></span>
-                <h6 class="text-uppercase text-secondary small mb-0 fw-bold">@Localizer["Admin.SidebarTitle"]</h6>
-            </div>
-            <nav class="nav flex-column gap-1 aa-side-nav">
-                <a class="nav-link rounded-2 @ActiveIf("/admin/home")" asp-area="Admin" asp-controller="Home" asp-action="Index">
+        <div class="aa-card-flat p-3 aa-side-sticky">
+            <h2 class="aa-eyebrow d-block mb-2 mb-lg-3">@Localizer["Admin.SidebarTitle"]</h2>
+            <nav class="nav flex-row flex-lg-column gap-1 aa-side-nav">
+                <a class="nav-link rounded-2 @ActiveIf("Home")" asp-area="Admin" asp-controller="Home" asp-action="Index">
                     <i class="bi bi-grid me-2" aria-hidden="true"></i>@Localizer["Admin.Nav.Home"]
                 </a>
-                <a class="nav-link rounded-2 @ActiveIf("/admin/users")" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                <a class="nav-link rounded-2 @ActiveIf("Users")" asp-area="Admin" asp-controller="Users" asp-action="Index">
                     <i class="bi bi-person-badge me-2" aria-hidden="true"></i>@Localizer["Admin.Nav.Users"]
                 </a>
             </nav>
         </div>
     </aside>
-    <main class="col-lg-9 col-xl-10">
+    <div class="col-lg-9 col-xl-10">
         @if (TempData["Success"] != null)
         {
-            <div class="alert alert-success border-0 shadow-sm" role="alert">
+            <div class="alert alert-success" role="alert">
                 <i class="bi bi-check-circle me-2" aria-hidden="true"></i>@TempData["Success"]
             </div>
         }
         @if (TempData["Error"] != null)
         {
-            <div class="alert alert-danger border-0 shadow-sm" role="alert">
+            <div class="alert alert-danger" role="alert">
                 <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>@TempData["Error"]
             </div>
         }
         @RenderBody()
-    </main>
+    </div>
 </div>
 
 @if (IsSectionDefined("Scripts")) { @RenderSection("Scripts", required: false) }

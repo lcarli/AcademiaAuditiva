@@ -1,24 +1,88 @@
 @model Dictionary<string, Dictionary<string, string>>
-
 @{
-	if (Model != null && Model.Count > 0)
-	{
-		foreach (var group in Model)
-		{
-			<div class="mb-3">
-				<div class="d-flex justify-content-center flex-wrap gap-3">
-					@foreach (var kvp in group.Value)
-					{
-						<button class="btn btn-outline-dark @group.Key px-4 py-2" value="@kvp.Value">
-							@kvp.Key
-						</button>
-					}
-				</div>
-			</div>
-		}
-	}
-	else
-	{
-		<div><span>Nenhuma opção de resposta disponível.</span></div>
-	}
+    // A group holding the 12 pitch classes in order is drawn as a one-octave keyboard
+    // (with a toggle back to plain buttons). The exercise scripts read button.value and
+    // toggle the .selected class, so every label stays plain text.
+    string[] chromatic = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+    int[] keyColumns = { 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13 };
+}
+
+@if (Model != null && Model.Count > 0)
+{
+    foreach (var group in Model)
+    {
+        if (group.Value.Values.SequenceEqual(chromatic))
+        {
+            var groupId = "aa-answers-" + group.Key;
+            var index = 0;
+
+            <div class="aa-answer-toolbar">
+                <div class="aa-pill-tab aa-answer-toggle" role="group" aria-label="@Localizer["Exercise.AnswerLayout"]" data-layout-target="@groupId">
+                    <button type="button" data-set-layout="piano" aria-pressed="true">@Localizer["Exercise.AnswerLayout.Keyboard"]</button>
+                    <button type="button" data-set-layout="buttons" aria-pressed="false">@Localizer["Exercise.AnswerLayout.Buttons"]</button>
+                </div>
+            </div>
+            <div id="@groupId" class="aa-answers-chromatic" data-layout="piano">
+                @foreach (var kvp in group.Value)
+                {
+                    var keyClass = kvp.Value.Contains('#') ? "aa-key-black" : "aa-key-white";
+                    var column = keyColumns[index++];
+                    <button type="button" class="aa-answer aa-key @keyClass @group.Key" value="@kvp.Value" style="--c:@column">@(kvp.Key.Replace("#", "♯"))</button>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="aa-answer-grid">
+                @foreach (var kvp in group.Value)
+                {
+                    <button type="button" class="aa-answer @group.Key" value="@kvp.Value">@kvp.Key</button>
+                }
+            </div>
+        }
+    }
+
+    <script>
+        (function () {
+            // Mirror the .selected class set by the exercise scripts to aria-pressed.
+            function sync(button) {
+                button.setAttribute("aria-pressed", button.classList.contains("selected") ? "true" : "false");
+            }
+            var observer = new MutationObserver(function (records) {
+                records.forEach(function (record) { sync(record.target); });
+            });
+            document.querySelectorAll(".aa-answer").forEach(function (button) {
+                sync(button);
+                observer.observe(button, { attributes: true, attributeFilter: ["class"] });
+            });
+
+            // Keyboard or buttons layout, remembered across exercises.
+            var storageKey = "aa-answer-layout";
+            var saved = null;
+            try { saved = localStorage.getItem(storageKey); } catch (e) { }
+            document.querySelectorAll(".aa-answer-toggle").forEach(function (toggle) {
+                var target = document.getElementById(toggle.getAttribute("data-layout-target"));
+                if (!target) return;
+                var buttons = toggle.querySelectorAll("[data-set-layout]");
+                function apply(layout) {
+                    target.setAttribute("data-layout", layout);
+                    buttons.forEach(function (b) {
+                        b.setAttribute("aria-pressed", b.getAttribute("data-set-layout") === layout ? "true" : "false");
+                    });
+                }
+                if (saved === "piano" || saved === "buttons") apply(saved);
+                buttons.forEach(function (b) {
+                    b.addEventListener("click", function () {
+                        var layout = b.getAttribute("data-set-layout");
+                        apply(layout);
+                        try { localStorage.setItem(storageKey, layout); } catch (e) { }
+                    });
+                });
+            });
+        })();
+    </script>
+}
+else
+{
+    <p class="text-center text-secondary mt-3 mb-0">@Localizer["Exercise.NoAnswers"]</p>
 }

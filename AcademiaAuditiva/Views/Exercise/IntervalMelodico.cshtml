@@ -1,119 +1,88 @@
 @model AcademiaAuditiva.ViewModels.ExerciseViewModel
-
 @{
-    ViewBag.Title = Localizer["Exercise.IntervalMelodico.Title"];
+    ViewData["Title"] = Localizer[Model.Title].Value;
     ViewData["FiltersPartial"] = "_ExerciseFilters";
+    string[] degrees = { "I", "II", "III", "IV", "V", "VI", "VII" };
+    string[] intervals = { "2m", "2M", "3m", "3M", "4J", "4A", "5J", "6m", "6M", "7m", "7M", "8J" };
 }
 
-<div class="container mt-4">
-    @await Html.PartialAsync("_ExerciseHeader", Model)
-    <input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+@await Html.PartialAsync("_ExerciseHeader", Model)
+<input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
 
-    <div class="row">
-        <div class="col-lg-4">
-            @await Html.PartialAsync("_ExerciseInstructions", Model)
-        </div>
-        <div class="col-lg-8">
-            <div class="card shadow-sm p-4">
-                <h4 class="text-center mb-3">@Localizer["Exercise.IntervalMelodicoText"]</h4>
+<div class="row g-4">
+    <div class="col-lg-8 order-lg-2">
+        <section class="aa-panel" aria-labelledby="aa-question">
+            <h2 id="aa-question" class="aa-question">@Localizer["Exercise.IntervalMelodicoText"]</h2>
 
-                <!-- WAVEFORM -->
-                <div id="waveform" class="mb-4 text-center" style="height: 120px;"></div>
-
-                <!-- Botões de Áudio -->
+            <div class="aa-audio-row">
                 @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
+                <div id="waveform" class="aa-wave" aria-hidden="true"></div>
+            </div>
 
-                <!-- Perguntas -->
-                <div class="row mt-4">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">@Localizer["Exercise.IntervalMelodico.FirstDegree"]</label>
-                        <select class="form-select" id="firstDegreeSelect">
-                            <option value="">@Localizer["Exercise.SelectOption"]</option>
-                            <option value="I">I</option>
-                            <option value="II">II</option>
-                            <option value="III">III</option>
-                            <option value="IV">IV</option>
-                            <option value="V">V</option>
-                            <option value="VI">VI</option>
-                            <option value="VII">VII</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">@Localizer["Exercise.IntervalMelodico.LastDegree"]</label>
-                        <select class="form-select" id="lastDegreeSelect">
-                            <option value="">@Localizer["Exercise.SelectOption"]</option>
-                            <option value="I">I</option>
-                            <option value="II">II</option>
-                            <option value="III">III</option>
-                            <option value="IV">IV</option>
-                            <option value="V">V</option>
-                            <option value="VI">VI</option>
-                            <option value="VII">VII</option>
-                        </select>
-                    </div>
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label class="form-label" for="firstDegreeSelect">@Localizer["Exercise.IntervalMelodico.FirstDegree"]</label>
+                    <select class="form-select" id="firstDegreeSelect">
+                        <option value="">@Localizer["Exercise.SelectOption"]</option>
+                        @foreach (var degree in degrees)
+                        {
+                            <option value="@degree">@degree</option>
+                        }
+                    </select>
                 </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">@Localizer["Exercise.IntervalMelodico.StartInterval"]</label>
-                        <select class="form-select" id="startIntervalSelect">
-                            <option value="">@Localizer["Exercise.SelectOption"]</option>
-                            <option value="Unísono">@Localizer["Exercise.Interval.Unison"]</option>
-                            <option value="2m">@Localizer["Exercise.Interval.2m"]</option>
-                            <option value="2M">@Localizer["Exercise.Interval.2M"]</option>
-                            <option value="3m">@Localizer["Exercise.Interval.3m"]</option>
-                            <option value="3M">@Localizer["Exercise.Interval.3M"]</option>
-                            <option value="4J">@Localizer["Exercise.Interval.4J"]</option>
-                            <option value="4A">@Localizer["Exercise.Interval.4A"]</option>
-                            <option value="5J">@Localizer["Exercise.Interval.5J"]</option>
-                            <option value="6m">@Localizer["Exercise.Interval.6m"]</option>
-                            <option value="6M">@Localizer["Exercise.Interval.6M"]</option>
-                            <option value="7m">@Localizer["Exercise.Interval.7m"]</option>
-                            <option value="7M">@Localizer["Exercise.Interval.7M"]</option>
-                            <option value="8J">@Localizer["Exercise.Interval.8J"]</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">@Localizer["Exercise.IntervalMelodico.EndInterval"]</label>
-                        <select class="form-select" id="endIntervalSelect">
-                            <option value="">@Localizer["Exercise.SelectOption"]</option>
-                            <option value="Unísono">@Localizer["Exercise.Interval.Unison"]</option>
-                            <option value="2m">@Localizer["Exercise.Interval.2m"]</option>
-                            <option value="2M">@Localizer["Exercise.Interval.2M"]</option>
-                            <option value="3m">@Localizer["Exercise.Interval.3m"]</option>
-                            <option value="3M">@Localizer["Exercise.Interval.3M"]</option>
-                            <option value="4J">@Localizer["Exercise.Interval.4J"]</option>
-                            <option value="4A">@Localizer["Exercise.Interval.4A"]</option>
-                            <option value="5J">@Localizer["Exercise.Interval.5J"]</option>
-                            <option value="6m">@Localizer["Exercise.Interval.6m"]</option>
-                            <option value="6M">@Localizer["Exercise.Interval.6M"]</option>
-                            <option value="7m">@Localizer["Exercise.Interval.7m"]</option>
-                            <option value="7M">@Localizer["Exercise.Interval.7M"]</option>
-                            <option value="8J">@Localizer["Exercise.Interval.8J"]</option>
-                        </select>
-                    </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="lastDegreeSelect">@Localizer["Exercise.IntervalMelodico.LastDegree"]</label>
+                    <select class="form-select" id="lastDegreeSelect">
+                        <option value="">@Localizer["Exercise.SelectOption"]</option>
+                        @foreach (var degree in degrees)
+                        {
+                            <option value="@degree">@degree</option>
+                        }
+                    </select>
                 </div>
-
-                <!-- Botão de Validação -->
-                <div class="text-center mt-3">
-                    <button class="btn btn-success" id="validateGuess">@Localizer["Exercise.ValidationButton"]</button>
+                <div class="col-md-6">
+                    <label class="form-label" for="startIntervalSelect">@Localizer["Exercise.IntervalMelodico.StartInterval"]</label>
+                    <select class="form-select" id="startIntervalSelect">
+                        <option value="">@Localizer["Exercise.SelectOption"]</option>
+                        <option value="Unísono">@Localizer["Exercise.Interval.Unison"]</option>
+                        @foreach (var interval in intervals)
+                        {
+                            <option value="@interval">@(Localizer["Exercise.Interval." + interval])</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="endIntervalSelect">@Localizer["Exercise.IntervalMelodico.EndInterval"]</label>
+                    <select class="form-select" id="endIntervalSelect">
+                        <option value="">@Localizer["Exercise.SelectOption"]</option>
+                        <option value="Unísono">@Localizer["Exercise.Interval.Unison"]</option>
+                        @foreach (var interval in intervals)
+                        {
+                            <option value="@interval">@(Localizer["Exercise.Interval." + interval])</option>
+                        }
+                    </select>
                 </div>
             </div>
-        </div>
+
+            <div class="aa-validate">
+                <button type="button" id="validateGuess" class="btn btn-primary px-4">@Localizer["Exercise.ValidationButton"]</button>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-4 order-lg-1">
+        @await Html.PartialAsync("_ExerciseInstructions", Model)
     </div>
 </div>
 
-<!-- Modal de Filtros -->
 @await Html.PartialAsync("_ExerciseFiltersModal", Model)
 
-<!-- Localizer JS Support -->
 <div id="localizer"
-    data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
-    data-incomplete-text="@Localizer["Exercise.IntervalMelodico.IncompleteText"]"
-    data-correct-message="@Localizer["Exercise.CorrectMessage"]"
-    data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
-    data-wrong-message="@Localizer["Exercise.WrongMessage"]"
-    data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]">
+     data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+     data-incomplete-text="@Localizer["Exercise.IntervalMelodico.IncompleteText"]"
+     data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+     data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
+     data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+     data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]">
 </div>
 
 @section Scripts {

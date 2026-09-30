@@ -146,7 +146,7 @@
     <comment />
   </data>
   <data name="Exercise.Title" xml:space="preserve">
-    <value>Exercices Disponibles</value>
+    <value>Exercices disponibles</value>
     <comment />
   </data>
   <data name="Exercise.Tab1.Level" xml:space="preserve">
@@ -174,31 +174,7 @@
     <comment />
   </data>
   <data name="Login.Register" xml:space="preserve">
-    <value>S'Inscrire</value>
-    <comment />
-  </data>
-  <data name="Home.Title" xml:space="preserve">
-    <value>Bienvenue à Academia Auditiva</value>
-    <comment />
-  </data>
-  <data name="Home.Subtitle" xml:space="preserve">
-    <value>Améliorez vos compétences d'écoute et élargissez vos horizons.</value>
-    <comment />
-  </data>
-  <data name="Home.Header" xml:space="preserve">
-    <value>Qu'est-ce que l'Academia Auditiva?</value>
-    <comment />
-  </data>
-  <data name="Home.Text1" xml:space="preserve">
-    <value> L'Academia Auditiva est une plateforme dédiée à aider les individus à améliorer leurs compétences d'écoute. Grâce à une variété d'exercices et de méthodologies, nous nous efforçons d'offrir la meilleure expérience d'apprentissage auditif à nos membres.</value>
-    <comment />
-  </data>
-  <data name="Home.Footer" xml:space="preserve">
-    <value>Êtes-vous prêt à commencer?</value>
-    <comment />
-  </data>
-  <data name="Home.FooterText" xml:space="preserve">
-    <value>Entrez dans le voyage auditif et découvrez un nouveau monde de possibilités.</value>
+    <value>S'inscrire</value>
     <comment />
   </data>
   <data name="Dashboard.Header" xml:space="preserve">
@@ -329,10 +305,6 @@
     <value>Ce compte a été bloqué, veuillez réessayer plus tard.</value>
     <comment />
   </data>
-  <data name="Exercise.Chords.Title" xml:space="preserve">
-    <value>Devinez l'Accord</value>
-    <comment />
-  </data>
   <data name="Exercice.SelectOctave" xml:space="preserve">
     <value>Sélectionner l'Octave</value>
     <comment />
@@ -378,11 +350,11 @@
     <comment />
   </data>
   <data name="Exercise.CorrectAnswers" xml:space="preserve">
-    <value>Bonne Réponse</value>
+    <value>Bonnes réponses</value>
     <comment />
   </data>
   <data name="Exercise.ErrorAnswers" xml:space="preserve">
-    <value>Mauvaise Réponse</value>
+    <value>Mauvaises réponses</value>
     <comment />
   </data>
   <data name="Exercise.BestScore" xml:space="preserve">
@@ -450,23 +422,23 @@
     <comment />
   </data>
   <data name="GuessChords" xml:space="preserve">
-    <value>Devinez l'Accord</value>
+    <value>Devinez l'accord</value>
     <comment>.</comment>
   </data>
   <data name="GuessInterval" xml:space="preserve">
-    <value>Devinez l'Intervale</value>
+    <value>Devinez l'intervalle</value>
     <comment>.</comment>
   </data>
   <data name="GuessQuality" xml:space="preserve">
-    <value>Devinez la Qualité</value>
+    <value>Devinez la qualité</value>
     <comment>.</comment>
   </data>
   <data name="GuessFunction" xml:space="preserve">
-    <value>Devinez la Fonction</value>
+    <value>Devinez la fonction</value>
     <comment>.</comment>
   </data>
   <data name="GuessNote" xml:space="preserve">
-    <value>Devinez la Note</value>
+    <value>Devinez la note</value>
     <comment>.</comment>
   </data>
   <data name="Beginner" xml:space="preserve">
@@ -474,7 +446,7 @@
     <comment>.</comment>
   </data>
   <data name="Intermediate" xml:space="preserve">
-    <value>Intermediaire</value>
+    <value>Intermédiaire</value>
     <comment>.</comment>
   </data>
   <data name="Advanced" xml:space="preserve">
@@ -494,7 +466,7 @@
     <comment>.</comment>
   </data>
   <data name="Exercise.NoteText" xml:space="preserve">
-    <value>Quelle note a été joué?</value>
+    <value>Quelle note a été jouée ?</value>
     <comment>.</comment>
   </data>
   <data name="Exercise.GuessNoteText" xml:space="preserve">
@@ -504,10 +476,6 @@
   <data name="Exercise.WrongNoteMessageText" xml:space="preserve">
     <value>Vous avez échoué ! La note correcte était</value>
     <comment>.</comment>
-  </data>
-  <data name="Exercise.Function.Title" xml:space="preserve">
-    <value>Devinez la Fonction Harmonique         </value>
-    <comment />
   </data>
   <data name="Exercise.SelectTom" xml:space="preserve">
     <value>Choisir la tonalité</value>
@@ -562,7 +530,7 @@
     <comment />
   </data>
   <data name="Dashboard.TotalExercises" xml:space="preserve">
-    <value>Total Exercices</value>
+    <value>Total d'exercices</value>
     <comment />
   </data>
   <data name="Dashboard.BestScore" xml:space="preserve">
@@ -617,10 +585,6 @@
     <value>Jeux</value>
     <comment />
   </data>
-  <data name="Exercise.Interval.Title" xml:space="preserve">
-    <value>Devinez l’intervalle</value>
-    <comment />
-  </data>
   <data name="Exercise.Interval.Description" xml:space="preserve">
     <value>Écoutez l’intervalle et essayez de deviner lequel c’est.</value>
     <comment />
@@ -654,11 +618,8 @@
     <comment />
   </data>
   <data name="GuessFullInterval" xml:space="preserve">
-    <value>Devinez l'Intervale Complexe</value>
+    <value>Devinez l'intervalle complet</value>
     <comment />
-  </data>
-  <data name="Exercise.FullInterval.Title">
-    <value>Devinez l’intervalle complet</value>
   </data>
   <data name="Exercise.FullInterval.Description">
     <value>Écoutez deux notes et identifiez l’intervalle exact entre elles (ex. : tierce mineure, quinte juste).</value>
@@ -718,7 +679,7 @@
     <value>Aide</value>
   </data>
   <data name="Exercise.Start" xml:space="preserve">
-    <value>Lancer l'Exercise</value>
+    <value>Lancer l'exercice</value>
   </data>
   <data name="Exercise.Scale" xml:space="preserve">
     <value>Sélectionnez la gamme</value>
@@ -813,9 +774,6 @@
   <data name="Dashboard.ChartAccuracyByDifficulty" xml:space="preserve">
     <value>Précision par difficulté</value>
   </data>
-  <data name="Exercise.SolfegeMelody.Title" xml:space="preserve">
-    <value>Solfège mélodique</value>
-  </data>
   <data name="Exercise.SolfegeMelodyText" xml:space="preserve">
     <value>Chantez la mélodie affichée</value>
   </data>
@@ -824,9 +782,6 @@
   </data>
   <data name="Exercise.ListenAudio" xml:space="preserve">
     <value>Écouter l'enregistrement</value>
-  </data>
-  <data name="Exercise.IntervalMelodico.Title" xml:space="preserve">
-    <value>Intervalles mélodiques</value>
   </data>
   <data name="Exercise.IntervalMelodicoText" xml:space="preserve">
     <value>Écoutez la mélodie et identifiez les degrés et intervalles</value>
@@ -966,9 +921,6 @@
   <data name="Home.Cta.SignUpFree" xml:space="preserve">
     <value>Créer un compte gratuit</value>
   </data>
-  <data name="Home.Cta.Login" xml:space="preserve">
-    <value>Se connecter</value>
-  </data>
   <data name="Home.Cta.HaveAccount" xml:space="preserve">
     <value>J&apos;ai déjà un compte</value>
   </data>
@@ -979,286 +931,145 @@
     <value>Entraînez votre oreille musicale</value>
   </data>
   <data name="Home.Hero.Eyebrow" xml:space="preserve">
-    <value>Entraînement de l&apos;oreille qui rend accro (dans le bon sens)</value>
+    <value>Entraînement auditif · gratuit</value>
   </data>
   <data name="Home.Hero.Title" xml:space="preserve">
-    <value>Affinez votre oreille. Accélérez votre musique.</value>
+    <value>Affinez votre oreille.</value>
   </data>
   <data name="Home.Hero.Lead" xml:space="preserve">
-    <value>&lt;strong class=&quot;text-white&quot;&gt;Academia Auditiva&lt;/strong&gt; transforme la perception musicale en un jeu quotidien. Notes, accords, intervalles, qualités, fonctions harmoniques et rythme — tout au même endroit, avec gamification, parcours progressifs et outils pour enseignants.</value>
-  </data>
-  <data name="Home.Hero.NoCard" xml:space="preserve">
-    <value>Sans carte de crédit</value>
-  </data>
-  <data name="Home.Hero.Languages" xml:space="preserve">
-    <value>PT · EN · FR</value>
-  </data>
-  <data name="Home.Hero.Mobile" xml:space="preserve">
-    <value>Fonctionne sur mobile</value>
-  </data>
-  <data name="Home.Hero.StaffAria" xml:space="preserve">
-    <value>Portée musicale animée avec notes sautillantes</value>
-  </data>
-  <data name="Home.Stats.Sessions.Value" xml:space="preserve">
-    <value>+50k</value>
-  </data>
-  <data name="Home.Stats.Sessions.Label" xml:space="preserve">
-    <value>sessions d&apos;entraînement</value>
-  </data>
-  <data name="Home.Stats.Exercises.Value" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="Home.Stats.Exercises.Label" xml:space="preserve">
-    <value>types d&apos;exercices</value>
-  </data>
-  <data name="Home.Stats.Languages.Value" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="Home.Stats.Languages.Label" xml:space="preserve">
-    <value>langues prises en charge</value>
-  </data>
-  <data name="Home.Stats.Recommend.Value" xml:space="preserve">
-    <value>98%</value>
-  </data>
-  <data name="Home.Stats.Recommend.Label" xml:space="preserve">
-    <value>recommanderaient</value>
-  </data>
-  <data name="Home.Marquee.Title" xml:space="preserve">
-    <value>Concepts que vous maîtriserez</value>
-  </data>
-  <data name="Home.Marquee.NotePerception" xml:space="preserve">
-    <value>Perception des notes</value>
-  </data>
-  <data name="Home.Marquee.MajorChords" xml:space="preserve">
-    <value>Accords majeurs</value>
-  </data>
-  <data name="Home.Marquee.MinorChords" xml:space="preserve">
-    <value>Accords mineurs</value>
-  </data>
-  <data name="Home.Marquee.MelodicIntervals" xml:space="preserve">
-    <value>Intervalles mélodiques</value>
-  </data>
-  <data name="Home.Marquee.HarmonicIntervals" xml:space="preserve">
-    <value>Intervalles harmoniques</value>
-  </data>
-  <data name="Home.Marquee.HarmonicFunction" xml:space="preserve">
-    <value>Fonction harmonique</value>
-  </data>
-  <data name="Home.Marquee.ChordQuality" xml:space="preserve">
-    <value>Qualité d&apos;accords</value>
-  </data>
-  <data name="Home.Marquee.RhythmReading" xml:space="preserve">
-    <value>Lecture rythmique</value>
+    <value>De courts exercices sur les notes, les intervalles, les accords et les fonctions harmoniques, avec des progrès que vous pouvez suivre.</value>
   </data>
   <data name="Home.How.Badge" xml:space="preserve">
     <value>Comment ça marche</value>
   </data>
   <data name="Home.How.Title" xml:space="preserve">
-    <value>Du premier accord à l&apos;oreille absolue</value>
+    <value>Écoutez, répondez, recommencez.</value>
   </data>
   <data name="Home.How.Lead" xml:space="preserve">
-    <value>Quatre étapes pour mettre votre oreille en forme — sans théorie ennuyeuse, sans partitions intimidantes.</value>
+    <value>Chaque essai ne prend que quelques secondes. L'important, c'est de pratiquer un peu chaque jour.</value>
   </data>
   <data name="Home.How.Step1.Title" xml:space="preserve">
-    <value>Créez votre compte</value>
+    <value>Choisissez un exercice</value>
   </data>
   <data name="Home.How.Step1.Desc" xml:space="preserve">
-    <value>En quelques secondes. Choisissez votre langue et votre niveau de départ — débutant, intermédiaire ou avancé.</value>
+    <value>Commencez par des notes isolées ou passez directement aux intervalles et aux accords.</value>
   </data>
   <data name="Home.How.Step2.Title" xml:space="preserve">
     <value>Écoutez et répondez</value>
   </data>
   <data name="Home.How.Step2.Desc" xml:space="preserve">
-    <value>Chaque exercice joue un extrait. Vous identifiez la note, l&apos;intervalle, l&apos;accord ou la fonction.</value>
+    <value>Écoutez le son autant de fois que nécessaire, puis répondez sur le clavier ou avec les boutons.</value>
   </data>
   <data name="Home.How.Step3.Title" xml:space="preserve">
-    <value>Progressez avec des données</value>
+    <value>Suivez vos progrès</value>
   </data>
   <data name="Home.How.Step3.Desc" xml:space="preserve">
-    <value>Points, badges, séries et graphiques montrent où votre oreille s&apos;affine.</value>
-  </data>
-  <data name="Home.How.Step4.Title" xml:space="preserve">
-    <value>Atteignez vos objectifs</value>
-  </data>
-  <data name="Home.How.Step4.Desc" xml:space="preserve">
-    <value>Débloquez des niveaux, complétez des parcours — et si vous enseignez, suivez toute votre classe.</value>
+    <value>Votre tableau de bord montre votre précision par compétence et par difficulté, ainsi que les éléments que vous manquez le plus.</value>
   </data>
   <data name="Home.Exercises.Badge" xml:space="preserve">
     <value>Exercices</value>
   </data>
   <data name="Home.Exercises.Title" xml:space="preserve">
-    <value>Six outils, une oreille parfaitement accordée</value>
-  </data>
-  <data name="Home.Exercise1.Title" xml:space="preserve">
-    <value>Perception des notes</value>
-  </data>
-  <data name="Home.Exercise1.Desc" xml:space="preserve">
-    <value>Identifiez des notes isolées avec une précision croissante. Commencez par les notes naturelles et progressez vers les chromatismes.</value>
-  </data>
-  <data name="Home.Exercise2.Title" xml:space="preserve">
-    <value>Accords majeurs et mineurs</value>
-  </data>
-  <data name="Home.Exercise2.Desc" xml:space="preserve">
-    <value>Entraînez la reconnaissance de la couleur de chaque triade. Lumineux ? Sombre ? Votre oreille décide.</value>
-  </data>
-  <data name="Home.Exercise3.Title" xml:space="preserve">
-    <value>Intervalles mélodiques et harmoniques</value>
-  </data>
-  <data name="Home.Exercise3.Desc" xml:space="preserve">
-    <value>Des secondes aux octaves, ascendants, descendants ou simultanés — maîtrisez la grammaire de la mélodie.</value>
-  </data>
-  <data name="Home.Exercise4.Title" xml:space="preserve">
-    <value>Qualité d&apos;accords</value>
-  </data>
-  <data name="Home.Exercise4.Desc" xml:space="preserve">
-    <value>Majeur, mineur, diminué, augmenté, avec septième... apprenez à distinguer chaque couleur harmonique.</value>
-  </data>
-  <data name="Home.Exercise5.Title" xml:space="preserve">
-    <value>Fonction harmonique</value>
-  </data>
-  <data name="Home.Exercise5.Desc" xml:space="preserve">
-    <value>Tonique, sous-dominante, dominante. Écoutez les progressions et nommez les fonctions comme un analyste chevronné.</value>
-  </data>
-  <data name="Home.Exercise6.Title" xml:space="preserve">
-    <value>Lecture rythmique</value>
-  </data>
-  <data name="Home.Exercise6.Desc" xml:space="preserve">
-    <value>Dictez des rythmes, frappez dans les mains au bon moment, lisez des cellules rythmiques — le fondement de toute musique.</value>
+    <value>Neuf façons d'entraîner votre oreille</value>
   </data>
   <data name="Home.Roles.Badge" xml:space="preserve">
-    <value>Pour vous</value>
+    <value>Élèves et enseignants</value>
   </data>
   <data name="Home.Roles.Title" xml:space="preserve">
-    <value>Élève ou enseignant ? Les deux gagnent.</value>
+    <value>Entraînez-vous seul ou avec votre classe.</value>
   </data>
   <data name="Home.Roles.TabStudent" xml:space="preserve">
-    <value>Pour élèves</value>
+    <value>Pour les élèves</value>
   </data>
   <data name="Home.Roles.TabTeacher" xml:space="preserve">
-    <value>Pour enseignants</value>
+    <value>Pour les enseignants</value>
   </data>
   <data name="Home.Roles.Student1.Title" xml:space="preserve">
-    <value>Un entraînement qui ressemble à un jeu</value>
+    <value>Correction immédiate</value>
   </data>
   <data name="Home.Roles.Student1.Desc" xml:space="preserve">
-    <value>Points, badges, séries quotidiennes et niveaux. Cinq minutes par jour suffisent à transformer votre oreille.</value>
+    <value>Sachez tout de suite si vous avez vu juste et réécoutez le son autant de fois que vous voulez.</value>
   </data>
   <data name="Home.Roles.Student2.Title" xml:space="preserve">
-    <value>Parcours adaptatifs</value>
+    <value>Des progrès visibles</value>
   </data>
   <data name="Home.Roles.Student2.Desc" xml:space="preserve">
-    <value>La difficulté augmente avec vos réussites. Les erreurs deviennent une révision automatique — sans frustration.</value>
+    <value>Des graphiques par compétence, catégorie et difficulté montrent où vous progressez.</value>
   </data>
   <data name="Home.Roles.Student3.Title" xml:space="preserve">
-    <value>Progrès visibles</value>
+    <value>Quoi travailler ensuite</value>
   </data>
   <data name="Home.Roles.Student3.Desc" xml:space="preserve">
-    <value>Des graphiques montrent dans quels intervalles vous excellez et lesquels nécessitent encore de l&apos;attention.</value>
+    <value>Des suggestions basées sur les éléments que vous manquez le plus, ainsi que les routines assignées par votre enseignant.</value>
   </data>
   <data name="Home.Roles.Teacher1.Title" xml:space="preserve">
-    <value>Classes en quelques minutes</value>
+    <value>Classes</value>
   </data>
   <data name="Home.Roles.Teacher1.Desc" xml:space="preserve">
-    <value>Créez des classes, invitez les élèves par lien et suivez la progression de tous dans un seul tableau de bord.</value>
+    <value>Créez des classes et invitez vos élèves par courriel.</value>
   </data>
   <data name="Home.Roles.Teacher2.Title" xml:space="preserve">
-    <value>Routines personnalisées</value>
+    <value>Routines</value>
   </data>
   <data name="Home.Roles.Teacher2.Desc" xml:space="preserve">
-    <value>Composez des routines hebdomadaires avec des exercices et des objectifs spécifiques. Chaque élève reçoit la sienne.</value>
+    <value>Regroupez des exercices en routines et assignez-les à une classe ou à un élève, avec une date d'échéance.</value>
   </data>
   <data name="Home.Roles.Teacher3.Title" xml:space="preserve">
-    <value>Rapports concrets</value>
+    <value>Rapports</value>
   </data>
   <data name="Home.Roles.Teacher3.Desc" xml:space="preserve">
-    <value>Voyez le temps de pratique, le taux de réussite par catégorie et identifiez qui a besoin de soutien.</value>
-  </data>
-  <data name="Home.Testimonials.Badge" xml:space="preserve">
-    <value>Les utilisateurs recommandent</value>
-  </data>
-  <data name="Home.Testimonials.Title" xml:space="preserve">
-    <value>Histoires d&apos;oreilles transformées</value>
-  </data>
-  <data name="Home.Testimonials.StarsAria" xml:space="preserve">
-    <value>5 étoiles sur 5</value>
-  </data>
-  <data name="Home.Testimonial1.Name" xml:space="preserve">
-    <value>Marina S.</value>
-  </data>
-  <data name="Home.Testimonial1.Role" xml:space="preserve">
-    <value>Étudiante en musique, 19</value>
-  </data>
-  <data name="Home.Testimonial1.Text" xml:space="preserve">
-    <value>En trois mois, j&apos;ai commencé à reproduire des morceaux à l&apos;oreille. Avant, je bloquais sur n&apos;importe quel intervalle de sixte — maintenant c&apos;est instinctif.</value>
-  </data>
-  <data name="Home.Testimonial2.Name" xml:space="preserve">
-    <value>Prof. Ricardo L.</value>
-  </data>
-  <data name="Home.Testimonial2.Role" xml:space="preserve">
-    <value>Professeur d&apos;oreille musicale</value>
-  </data>
-  <data name="Home.Testimonial2.Text" xml:space="preserve">
-    <value>J&apos;utilise Academia Auditiva avec mes deux classes du conservatoire. Le panneau de rapports est devenu mon meilleur outil pédagogique.</value>
-  </data>
-  <data name="Home.Testimonial3.Name" xml:space="preserve">
-    <value>João P.</value>
-  </data>
-  <data name="Home.Testimonial3.Role" xml:space="preserve">
-    <value>Guitariste autodidacte</value>
-  </data>
-  <data name="Home.Testimonial3.Text" xml:space="preserve">
-    <value>J&apos;avais essayé d&apos;autres applis. Celle-ci est la seule qui me fait revenir chaque jour. La gamification est addictive et le contenu est sérieux.</value>
+    <value>Consultez la précision et l'activité récente par classe, par élève et par exercice.</value>
   </data>
   <data name="Home.Faq.Badge" xml:space="preserve">
-    <value>Questions fréquentes</value>
+    <value>FAQ</value>
   </data>
   <data name="Home.Faq.Title" xml:space="preserve">
-    <value>Tout ce que vous voulez savoir</value>
+    <value>Questions fréquentes</value>
   </data>
   <data name="Home.Faq.Lead" xml:space="preserve">
-    <value>Pas de petits caractères. Si nous n&apos;y répondons pas ici, demandez simplement lorsque vous vous inscrivez.</value>
+    <value>Des réponses rapides sur le fonctionnement d'Academia Auditiva.</value>
   </data>
   <data name="Home.Faq1.Q" xml:space="preserve">
-    <value>Dois-je connaître la théorie musicale pour commencer ?</value>
+    <value>Dois-je connaître la théorie musicale ?</value>
   </data>
   <data name="Home.Faq1.A" xml:space="preserve">
-    <value>Non. Academia Auditiva vous guide à partir de zéro, avec des exercices d&apos;introduction et des conseils à chaque étape. Si vous connaissez déjà la théorie, la plateforme s&apos;adapte à votre niveau.</value>
+    <value>Non. Chaque exercice est accompagné d'instructions et de conseils, et vous pouvez commencer par des notes isolées avant de passer aux intervalles et aux accords.</value>
   </data>
   <data name="Home.Faq2.Q" xml:space="preserve">
-    <value>Cela fonctionne-t-il sur mobile ?</value>
+    <value>Est-ce que ça fonctionne sur mobile ?</value>
   </data>
   <data name="Home.Faq2.A" xml:space="preserve">
-    <value>Oui. La plateforme est entièrement web et responsive — il suffit de l&apos;ouvrir dans le navigateur de votre téléphone, tablette ou ordinateur. Rien à installer.</value>
+    <value>Oui. Tout se passe dans le navigateur du téléphone, de la tablette ou de l'ordinateur, sans rien installer. Un casque d'écoute aide.</value>
   </data>
   <data name="Home.Faq3.Q" xml:space="preserve">
-    <value>Quelles langues sont disponibles ?</value>
+    <value>Quelles langues sont offertes ?</value>
   </data>
   <data name="Home.Faq3.A" xml:space="preserve">
-    <value>Portugais (Brésil), anglais et français. Vous pouvez changer de langue à tout moment dans le menu.</value>
+    <value>Portugais (Brésil), anglais et français. Vous pouvez changer à tout moment depuis le menu en haut de la page.</value>
   </data>
   <data name="Home.Faq4.Q" xml:space="preserve">
     <value>Je suis enseignant. Comment créer une classe ?</value>
   </data>
   <data name="Home.Faq4.A" xml:space="preserve">
-    <value>Après avoir créé votre compte avec un profil enseignant, vous accédez à un panneau pour créer des classes, générer des liens d&apos;invitation et composer des routines hebdomadaires pour chaque élève.</value>
+    <value>Créez votre compte et demandez à l'administrateur d'activer le profil enseignant. L'espace enseignant apparaît alors dans le menu du haut : vous pourrez y créer des classes, inviter vos élèves par courriel et assigner des routines.</value>
   </data>
   <data name="Home.Faq5.Q" xml:space="preserve">
-    <value>Quel répertoire les exercices couvrent-ils ?</value>
+    <value>Quels exercices sont proposés ?</value>
   </data>
   <data name="Home.Faq5.A" xml:space="preserve">
-    <value>Perception des notes, accords majeurs et mineurs, qualité d&apos;accords (y compris diminués, augmentés et tétrades), intervalles mélodiques et harmoniques, fonction harmonique et lecture rythmique.</value>
+    <value>Neuf : reconnaissance des notes, intervalles (par numéro et par nom complet), intervalles mélodiques, accords, qualité des accords, fonction harmonique, comparaison de deux mélodies et solfège.</value>
   </data>
   <data name="Home.Faq6.Q" xml:space="preserve">
-    <value>Est-ce vraiment gratuit ?</value>
+    <value>Est-ce gratuit ?</value>
   </data>
   <data name="Home.Faq6.A" xml:space="preserve">
-    <value>Oui — vous pouvez créer un compte et vous entraîner sans rien payer. Les fonctionnalités avancées pour les enseignants et les classes restent disponibles pendant la période de lancement.</value>
+    <value>Oui. Créer un compte et s'entraîner ne coûte rien.</value>
   </data>
   <data name="Home.Final.Title" xml:space="preserve">
-    <value>Le parcours de votre oreille commence maintenant.</value>
+    <value>Prêt à entraîner votre oreille ?</value>
   </data>
   <data name="Home.Final.Lead" xml:space="preserve">
-    <value>Cinq minutes par jour. Des résultats sentis dès la prochaine répétition. Inscription gratuite, sans engagement.</value>
+    <value>Créez votre compte gratuit et commencez par votre premier exercice.</value>
   </data>
   <data name="Dashboard.StartTraining" xml:space="preserve">
     <value>Commencer l&apos;entraînement</value>
@@ -1363,7 +1174,7 @@
     <value>Classes</value>
   </data>
   <data name="Teacher.Classrooms.NewBtn" xml:space="preserve">
-    <value>+ Nouvelle classe</value>
+    <value>Nouvelle classe</value>
   </data>
   <data name="Teacher.Classrooms.IncludeArchived" xml:space="preserve">
     <value>Inclure les classes archivées</value>
@@ -1546,7 +1357,7 @@
     <value>Devinez la qualité de l&apos;accord joué.</value>
   </data>
   <data name="SolfegeMelody" xml:space="preserve">
-    <value>Solfège Mélodique</value>
+    <value>Solfège mélodique</value>
   </data>
   <data name="Exercise.GuessChords.Subtitle" xml:space="preserve">
     <value>Reconnaissance d&apos;accords</value>
@@ -1567,10 +1378,10 @@
     <value>Écoutez deux mélodies et dites si elles sont identiques ou différentes.</value>
   </data>
   <data name="IntervalMelodico" xml:space="preserve">
-    <value>Intervalles Mélodiques</value>
+    <value>Intervalles mélodiques</value>
   </data>
   <data name="Exercise.GuessInterval.Subtitle" xml:space="preserve">
-    <value>Devinez l&apos;intervalle joué</value>
+    <value>Devinez l'intervalle joué</value>
   </data>
   <data name="Exercise.IntervalMelodico.Subtitle" xml:space="preserve">
     <value>Identifiez les degrés et les intervalles d&apos;une mélodie</value>
@@ -2063,5 +1874,116 @@
   </data>
   <data name="Manage.Index.UsernamePlaceholder" xml:space="preserve">
     <value>Choisissez votre nom d&apos;utilisateur.</value>
+  </data>
+  <data name="Layout.Language" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="Home.Cta.Start" xml:space="preserve">
+    <value>Commencer maintenant</value>
+  </data>
+  <data name="Home.Cta.GoToExercises" xml:space="preserve">
+    <value>Aller aux exercices</value>
+  </data>
+  <data name="Home.Cta.MyProgress" xml:space="preserve">
+    <value>Voir ma progression</value>
+  </data>
+  <data name="Home.Feature1.Title" xml:space="preserve">
+    <value>9 exercices</value>
+  </data>
+  <data name="Home.Feature1.Desc" xml:space="preserve">
+    <value>Notes, intervalles, accords, fonctions harmoniques et solfège.</value>
+  </data>
+  <data name="Home.Feature2.Title" xml:space="preserve">
+    <value>3 langues</value>
+  </data>
+  <data name="Home.Feature2.Desc" xml:space="preserve">
+    <value>Portugais, anglais et français.</value>
+  </data>
+  <data name="Home.Feature3.Title" xml:space="preserve">
+    <value>Pour les enseignants</value>
+  </data>
+  <data name="Home.Feature3.Desc" xml:space="preserve">
+    <value>Classes, invitations et rapports de progression.</value>
+  </data>
+  <data name="Home.Exercises.Lead" xml:space="preserve">
+    <value>Des notes isolées au solfège, sur trois niveaux de difficulté.</value>
+  </data>
+  <data name="Home.Roles.TeacherNote" xml:space="preserve">
+    <value>Le profil enseignant est activé par l'administrateur.</value>
+  </data>
+  <data name="Home.Final.LeadSignedIn" xml:space="preserve">
+    <value>Reprenez là où vous en étiez.</value>
+  </data>
+  <data name="Score" xml:space="preserve">
+    <value>Pointage</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>Filtres</value>
+  </data>
+  <data name="Instructions" xml:space="preserve">
+    <value>Consignes</value>
+  </data>
+  <data name="Tips" xml:space="preserve">
+    <value>Conseils</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="Instrument" xml:space="preserve">
+    <value>Instrument</value>
+  </data>
+  <data name="Range" xml:space="preserve">
+    <value>Plage d'octaves</value>
+  </data>
+  <data name="ComingSoon" xml:space="preserve">
+    <value>bientôt</value>
+  </data>
+  <data name="NoFiltersAvailable" xml:space="preserve">
+    <value>Cet exercice n'a pas de filtres.</value>
+  </data>
+  <data name="Instrument.Piano" xml:space="preserve">
+    <value>Piano</value>
+  </data>
+  <data name="Instrument.Guitar" xml:space="preserve">
+    <value>Guitare</value>
+  </data>
+  <data name="Instrument.Violin" xml:space="preserve">
+    <value>Violon</value>
+  </data>
+  <data name="Exercise.AnswerLayout" xml:space="preserve">
+    <value>Format de réponse</value>
+  </data>
+  <data name="Exercise.AnswerLayout.Keyboard" xml:space="preserve">
+    <value>Clavier</value>
+  </data>
+  <data name="Exercise.AnswerLayout.Buttons" xml:space="preserve">
+    <value>Boutons</value>
+  </data>
+  <data name="Exercise.Audio.Play" xml:space="preserve">
+    <value>Jouer</value>
+  </data>
+  <data name="Exercise.Audio.Replay" xml:space="preserve">
+    <value>Rejouer</value>
+  </data>
+  <data name="Exercise.Audio.Generate" xml:space="preserve">
+    <value>Nouvelle mélodie</value>
+  </data>
+  <data name="Exercise.NoAnswers" xml:space="preserve">
+    <value>Aucune option de réponse disponible.</value>
+  </data>
+  <data name="Exercise.IncompleteTitle" xml:space="preserve">
+    <value>Réponse incomplète</value>
+  </data>
+  <data name="Exercise.SelectNoteText" xml:space="preserve">
+    <value>Veuillez sélectionner une note.</value>
+  </data>
+  <data name="Exercise.SelectChordText" xml:space="preserve">
+    <value>Veuillez sélectionner un accord.</value>
+  </data>
+  <data name="Exercise.SelectFunctionText" xml:space="preserve">
+    <value>Veuillez sélectionner une fonction.</value>
+  </data>
+  <data name="Exercise.SelectAnswerText" xml:space="preserve">
+    <value>Veuillez sélectionner une réponse.</value>
   </data>
 </root>

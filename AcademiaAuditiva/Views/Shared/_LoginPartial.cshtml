@@ -14,12 +14,12 @@
         ? fullName
         : (User.Identity?.Name ?? string.Empty);
     <div class="dropdown">
-        <button class="btn btn-link nav-link dropdown-toggle d-inline-flex align-items-center gap-2 px-2"
-                type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="aa-icon-pill aa-icon-pill-sm" aria-hidden="true"><i class="bi bi-person"></i></span>
+        <button class="btn btn-sm aa-ghost-btn dropdown-toggle d-inline-flex align-items-center gap-2"
+                type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="@displayName">
+            <i class="bi bi-person" aria-hidden="true"></i>
             <span class="d-none d-md-inline">@displayName</span>
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+        <ul class="dropdown-menu dropdown-menu-end">
             <li class="px-3 py-2 text-secondary small">@Localizer["Login.Hello"], <strong class="text-body-emphasis">@displayName</strong></li>
             <li><hr class="dropdown-divider" /></li>
             <li>
@@ -40,7 +40,7 @@
 else
 {
     <div class="d-flex gap-2 align-items-center">
-        <a class="btn btn-link text-decoration-none" asp-page="/Account/Login" asp-area="Identity">@Localizer["Login.Login"]</a>
-        <a class="btn aa-grad-btn btn-sm px-3" asp-page="/Account/Register" asp-area="Identity">@Localizer["Login.Register"]</a>
+        <a class="btn btn-sm aa-ghost-btn px-3" asp-page="/Account/Login" asp-area="Identity">@Localizer["Login.Login"]</a>
+        <a class="btn btn-sm btn-primary px-3" asp-page="/Account/Register" asp-area="Identity">@Localizer["Login.Register"]</a>
     </div>
 }
