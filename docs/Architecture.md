@@ -81,8 +81,11 @@ See [Deploy-Azure.md](Deploy-Azure.md) for the diagram and resource list.
        Facebook:AppId, Smtp:Host, ConnectionStrings:DefaultConnection, …
 ```
 
-The Managed Identity has **Key Vault Secrets User** (read-only). The
-human admin has **Key Vault Secrets Officer** for seeding/rotating.
+The Managed Identity has **Key Vault Secrets User** (read-only), plus
+**Key Vault Crypto Service Encryption User** on the `dataprotection` key
+only, which wraps the ASP.NET Core Data Protection key ring kept in the
+`dataprotection-keys` blob container. The human admin has **Key Vault
+Secrets Officer** for seeding/rotating.
 
 ## Deployment flow
 

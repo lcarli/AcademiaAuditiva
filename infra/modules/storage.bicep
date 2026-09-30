@@ -4,9 +4,11 @@
 //   - piano-audio-mixed    : private (server-mixed per-round clips, 1h lifecycle)
 //   - piano-audio-crypto   : private (legacy — kept until consumers retire)
 //   - exercice-logs        : private (server-only writes)
+//   - dataprotection-keys  : private (ASP.NET Core Data Protection key ring)
 //
 // The Container App's user-assigned MI receives "Storage Blob Data Contributor"
-// so the app can read source mp3s, write mixed blobs, and write logs without keys.
+// so the app can read source mp3s, write mixed blobs, write logs and maintain
+// the Data Protection key ring without keys.
 
 param name string
 param location string
@@ -122,6 +124,16 @@ resource exerciceLogs 'Microsoft.Storage/storageAccounts/blobServices/containers
   }
 }
 
+// Shared key ring so auth/antiforgery cookies survive deploys and work
+// across replicas. The keys inside are wrapped by a Key Vault key.
+resource dataProtectionKeys 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'dataprotection-keys'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
 resource miBlobContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: sa
   name: guid(sa.id, managedIdentityPrincipalId, blobContributorRoleId)
@@ -136,3 +148,4 @@ output id string = sa.id
 output name string = sa.name
 output blobEndpoint string = sa.properties.primaryEndpoints.blob
 output pianoAudioBaseUrl string = '${sa.properties.primaryEndpoints.blob}piano-audio/'
+output dataProtectionBlobUri string = '${sa.properties.primaryEndpoints.blob}${dataProtectionKeys.name}/keys.xml'

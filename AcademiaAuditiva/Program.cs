@@ -13,6 +13,8 @@ using Azure.Identity;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Events;
 
@@ -191,7 +193,7 @@ builder.Services.AddControllersWithViews(options =>
     // Global anti-forgery enforcement on every unsafe HTTP method (POST,
     // PUT, DELETE, PATCH). Combined with the AntiforgeryOptions below,
     // this protects every authenticated mutating endpoint — including the
-    // form-style Exercise SaveScore actions — from CSRF without requiring
+    // JSON Exercise RequestPlay/ValidateExercise actions — from CSRF without requiring
     // each controller method to opt in via [ValidateAntiForgeryToken].
     options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
 });
@@ -231,7 +233,7 @@ builder.Services.AddSingleton<AcademiaAuditiva.Interfaces.IAudioTokenService,
 {
     var blobEndpoint = builder.Configuration["Storage:BlobEndpoint"];
     var miClientId = builder.Configuration["ManagedIdentityClientId"];
-    var blobCredential = string.IsNullOrWhiteSpace(miClientId)
+    var azureCredential = string.IsNullOrWhiteSpace(miClientId)
         ? new Azure.Identity.DefaultAzureCredential()
         : new Azure.Identity.DefaultAzureCredential(new Azure.Identity.DefaultAzureCredentialOptions
         {
@@ -240,10 +242,41 @@ builder.Services.AddSingleton<AcademiaAuditiva.Interfaces.IAudioTokenService,
     var endpointUri = !string.IsNullOrWhiteSpace(blobEndpoint)
         ? new Uri(blobEndpoint)
         : new Uri("https://placeholder.invalid/");
-    builder.Services.AddSingleton(new Azure.Storage.Blobs.BlobServiceClient(endpointUri, blobCredential));
+    builder.Services.AddSingleton(new Azure.Storage.Blobs.BlobServiceClient(endpointUri, azureCredential));
     builder.Services.AddSingleton<AcademiaAuditiva.Interfaces.IAudioMixerService,
         AcademiaAuditiva.Services.Audio.AudioMixerService>();
+
+    // Data Protection keys encrypt the auth cookie and antiforgery tokens.
+    // The default key ring lives inside the container, so every deploy
+    // logged everyone out and replicas rejected each other's cookies.
+    // In Azure the ring is shared in blob storage and wrapped by a Key
+    // Vault key; locally (no DataProtection:BlobUri) the default file
+    // system ring is kept.
+    var dataProtection = builder.Services.AddDataProtection()
+        .SetApplicationName("AcademiaAuditiva");
+    var dpBlobUri = builder.Configuration["DataProtection:BlobUri"];
+    if (!string.IsNullOrWhiteSpace(dpBlobUri))
+    {
+        dataProtection.PersistKeysToAzureBlobStorage(new Uri(dpBlobUri), azureCredential);
+
+        var dpKeyIdentifier = builder.Configuration["DataProtection:KeyIdentifier"];
+        if (!string.IsNullOrWhiteSpace(dpKeyIdentifier))
+            dataProtection.ProtectKeysWithAzureKeyVault(new Uri(dpKeyIdentifier), azureCredential);
+    }
 }
+
+// Container Apps terminates TLS at its Envoy ingress and forwards plain
+// HTTP. Honour X-Forwarded-For/Proto so Request.Scheme is https (email
+// confirmation/reset links, OAuth redirect URIs, secure cookies, HSTS)
+// and RemoteIpAddress is the real client. The ingress addresses aren't
+// known up front, so the proxy allow-lists are cleared; the container
+// is only reachable through the ingress.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Maps GenerateNoteForExercise output to a tokenizable mixer plan.
 // Stateless — singleton is fine.
@@ -295,6 +328,9 @@ builder.Services.AddRateLimiter(options =>
 
 
 var app = builder.Build();
+
+// Must run first so every later middleware sees the original scheme/client IP.
+app.UseForwardedHeaders();
 
 // Localization — single source of truth: the RequestLocalizationOptions
 // configured above (default en-US, supports fr-CA / en-US / pt-BR).

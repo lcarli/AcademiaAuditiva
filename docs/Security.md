@@ -7,11 +7,16 @@
 | Secret exposure in source | Key Vault + RBAC; no secrets in `appsettings.json` or migrations |
 | Compromised SQL admin | AAD-only auth; no SQL password ever; admin is a human AAD identity |
 | Compromised pod → DB pivot | MI has only `db_datareader/db_datawriter/db_ddladmin` on a single DB |
-| Compromised MI → KV pivot | MI has Secrets **User** (read-only), not Officer |
+| Compromised MI → KV pivot | MI has Secrets **User** (read-only), not Officer; its only key right is wrap/unwrap on the `dataprotection` key |
 | Account takeover | Email confirmation required; bootstrap admin uses random password until forgot-password |
 | XSS in user content | Razor encoding by default; no `Html.Raw` on untrusted input |
 | CSRF | ASP.NET Core anti-forgery on POST forms |
 | Brute-force login | Identity lockout enabled (`LockoutEnabled = true`) |
+| Forged scores | Scores are only recorded by `ValidateExercise` against the server-held answer of a one-shot round; no endpoint accepts client-supplied counts |
+| DoS via exercise filters | `noteRange` is parsed defensively and clamped to C1–C6; `RequestPlay` bodies are capped at 8 KB and rate-limited |
+| Cookie keys lost on deploy / not shared across replicas | Data Protection key ring persisted in blob container `dataprotection-keys`, wrapped by Key Vault key `dataprotection` |
+| Wrong scheme behind the TLS-terminating ingress | `UseForwardedHeaders` honours `X-Forwarded-Proto`/`-For`, so links, OAuth redirects, secure cookies and HSTS see https |
+| Known-vulnerable dependencies | `dotnet list package --vulnerable --include-transitive` kept clean; jquery-validation self-hosted (no pinned CDN copy) |
 
 ## Secret inventory (production)
 

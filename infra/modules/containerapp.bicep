@@ -25,6 +25,12 @@ param adminEmail string = ''
 @description('Storage account blob endpoint (e.g. https://staaprd...blob.core.windows.net/).')
 param storageBlobEndpoint string = ''
 
+@description('Blob URI of the ASP.NET Core Data Protection key ring (keys.xml).')
+param dataProtectionBlobUri string = ''
+
+@description('Versionless Key Vault key URI used to wrap the Data Protection key ring.')
+param dataProtectionKeyUri string = ''
+
 // SQL connection string built from outputs. AAD auth via the user-assigned MI.
 // User Id=<MI clientId> is required for Active Directory Default to pick the right identity in a multi-MI host.
 var sqlConnectionString = 'Server=tcp:${sqlServerFqdn},1433;Initial Catalog=${sqlDatabaseName};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=Active Directory Default;User Id=${managedIdentityClientId}'
@@ -56,6 +62,8 @@ var staticEnv = [
   { name: 'SqlConnection__Default', value: sqlConnectionString }
   { name: 'Admin__Email', value: adminEmail }
   { name: 'Storage__BlobEndpoint', value: storageBlobEndpoint }
+  { name: 'DataProtection__BlobUri', value: dataProtectionBlobUri }
+  { name: 'DataProtection__KeyIdentifier', value: dataProtectionKeyUri }
 ]
 
 var secretEnv = [for s in kvSecrets: {
@@ -85,6 +93,13 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
         targetPort: targetPort
         transport: 'auto'
         allowInsecure: false
+        // Audio rounds/expected answers still live in the per-replica
+        // in-memory IDistributedCache; pin each browser to one replica so
+        // scale-out doesn't surface as random "session expired" errors.
+        // Requires activeRevisionsMode 'Single'.
+        stickySessions: {
+          affinity: 'sticky'
+        }
         traffic: [
           {
             latestRevision: true

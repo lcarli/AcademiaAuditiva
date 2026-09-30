@@ -1,6 +1,8 @@
 // Azure Key Vault with RBAC authorization.
 // Roles assigned:
 //   - Container App MI: Key Vault Secrets User (read-only)
+//   - Container App MI: Key Vault Crypto Service Encryption User on the
+//     Data Protection key only (get/wrap/unwrap)
 //   - Human admin (aadAdminObjectId): Key Vault Secrets Officer (manage secrets)
 
 param name string
@@ -16,6 +18,9 @@ var kvSecretsUserRoleId = '4633458b-17de-408a-b874-0445c86b69e6'
 
 @description('Built-in role: Key Vault Secrets Officer')
 var kvSecretsOfficerRoleId = 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7'
+
+@description('Built-in role: Key Vault Crypto Service Encryption User')
+var kvCryptoServiceEncryptionUserRoleId = 'e147488a-f6f5-4113-8e2d-b22465e65bf6'
 
 resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: name
@@ -59,6 +64,31 @@ resource kvAdminOfficer 'Microsoft.Authorization/roleAssignments@2022-04-01' = i
   }
 }
 
+// Wraps the ASP.NET Core Data Protection key ring stored in blob storage.
+// ARM only creates the first version; redeploys leave an existing key untouched.
+resource dataProtectionKey 'Microsoft.KeyVault/vaults/keys@2023-07-01' = {
+  parent: kv
+  name: 'dataprotection'
+  properties: {
+    kty: 'RSA'
+    keySize: 2048
+    keyOps: [
+      'wrapKey'
+      'unwrapKey'
+    ]
+  }
+}
+
+resource kvMiDataProtection 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: dataProtectionKey
+  name: guid(dataProtectionKey.id, managedIdentityPrincipalId, kvCryptoServiceEncryptionUserRoleId)
+  properties: {
+    principalId: managedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', kvCryptoServiceEncryptionUserRoleId)
+  }
+}
+
 // Placeholder secrets so the Container App can wire references on first deploy.
 // Real values are written later via infra/scripts/seed-keyvault.ps1.
 //
@@ -96,3 +126,4 @@ resource placeholders 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = [for n in
 output id string = kv.id
 output name string = kv.name
 output uri string = kv.properties.vaultUri
+output dataProtectionKeyUri string = dataProtectionKey.properties.keyUri

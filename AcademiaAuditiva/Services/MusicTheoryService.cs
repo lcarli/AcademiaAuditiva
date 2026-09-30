@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AcademiaAuditiva.Models;
@@ -94,6 +95,46 @@ namespace AcademiaAuditiva.Services
             }
 
             return allNotes;
+        }
+
+        /// <summary>Lowest octave a client-supplied <c>noteRange</c> may select (matches the UI slider).</summary>
+        public const int MinRangeOctave = 1;
+
+        /// <summary>Highest octave a client-supplied <c>noteRange</c> may select (matches the UI slider).</summary>
+        public const int MaxRangeOctave = 6;
+
+        private const int DefaultRangeOctave = 4;
+
+        /// <summary>
+        /// Parses a <c>noteRange</c> filter such as <c>C3-C5</c> into the list of octaves it spans.
+        /// The value comes from the request body/cookie, so malformed input falls back to the default
+        /// octave and bounds are clamped to [<see cref="MinRangeOctave"/>, <see cref="MaxRangeOctave"/>]
+        /// to keep the generated note list small.
+        /// </summary>
+        public static List<int> ParseOctaveRange(string? noteRange)
+        {
+            var parts = noteRange?.Split('-');
+            if (parts is not { Length: 2 }
+                || !TryParseRangeOctave(parts[0], out var start)
+                || !TryParseRangeOctave(parts[1], out var end))
+            {
+                return new List<int> { DefaultRangeOctave };
+            }
+
+            if (start > end)
+                (start, end) = (end, start);
+
+            start = Math.Clamp(start, MinRangeOctave, MaxRangeOctave);
+            end = Math.Clamp(end, MinRangeOctave, MaxRangeOctave);
+            return Enumerable.Range(start, end - start + 1).ToList();
+        }
+
+        private static bool TryParseRangeOctave(string bound, out int octave)
+        {
+            octave = 0;
+            return bound.Length >= 2
+                && char.IsLetter(bound[0])
+                && int.TryParse(bound.AsSpan(1), NumberStyles.None, CultureInfo.InvariantCulture, out octave);
         }
 
         /// <summary>
@@ -620,42 +661,19 @@ namespace AcademiaAuditiva.Services
         public static object GenerateNoteForExercise(Exercise exercise, Dictionary<string, string> filters)
         {
             var random = new Random();
-            if (!filters.TryGetValue("noteRange", out var noteRange))
-                noteRange = "C4-C4";
+            filters.TryGetValue("noteRange", out var noteRange);
 
             switch (exercise.Name)
             {
                 case "GuessNote":
-                    var octaveList = new List<int>();
-                    if (noteRange.Contains('-'))
-                    {
-                        var parts = noteRange.Split('-');
-                        var startOctave = int.Parse(parts[0].Substring(1));
-                        var endOctave = int.Parse(parts[1].Substring(1));
-                        octaveList = Enumerable.Range(startOctave, endOctave - startOctave + 1).ToList();
-                    }
-                    else
-                    {
-                        octaveList = new List<int> { 4 };
-                    }
+                    var octaveList = ParseOctaveRange(noteRange);
 
                     var allNotes = GetAllNotes(octaveList);
                     var selectedNote = allNotes[random.Next(allNotes.Count)];
                     return new { note = selectedNote };
 
                 case "GuessChords":
-                    var chordOctaves = new List<int>();
-                    if (noteRange.Contains('-'))
-                    {
-                        var parts = noteRange.Split('-');
-                        var startOctave = int.Parse(parts[0].Substring(1));
-                        var endOctave = int.Parse(parts[1].Substring(1));
-                        chordOctaves = Enumerable.Range(startOctave, endOctave - startOctave + 1).ToList();
-                    }
-                    else
-                    {
-                        chordOctaves = new List<int> { 4 };
-                    }
+                    var chordOctaves = ParseOctaveRange(noteRange);
 
                     var rootNotes = GetAllNotes(chordOctaves);
                     var selectedRoot = rootNotes[random.Next(rootNotes.Count)];
