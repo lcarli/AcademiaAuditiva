@@ -1,6 +1,6 @@
 @model AcademiaAuditiva.Areas.Teacher.Models.ClassroomDashboardViewModel
 @{
-    ViewData["Title"] = $"Dashboard — {Model.ClassroomName}";
+    ViewData["Title"] = $"{Localizer["Teacher.Dashboard.Classroom"].Value} — {Model.ClassroomName}";
 }
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
@@ -8,7 +8,7 @@
         <small class="text-secondary">@Localizer["Teacher.Dashboard.Classroom"]</small>
     </div>
     <a class="btn btn-link" asp-controller="Classrooms" asp-action="Details" asp-route-id="@Model.ClassroomId">
-        Back to classroom
+        @Localizer["Teacher.Dashboard.BackToClassroom"]
     </a>
 </div>
 

@@ -798,6 +798,9 @@
   <data name="Exercise.IntervalMelodico.EndInterval" xml:space="preserve">
     <value>Interval between penultimate and last notes</value>
   </data>
+  <data name="Exercise.IntervalMelodico.AnswerFormat" xml:space="preserve">
+    <value>first degree: {{0}}, last degree: {{1}}, first interval: {{2}}, last interval: {{3}}</value>
+  </data>
   <data name="Exercise.IntervalMelodico.IncompleteText" xml:space="preserve">
     <value>Please answer all four questions.</value>
   </data>
@@ -2055,6 +2058,9 @@
   <data name="Identity.TwoFactor.UseRecoveryCode" xml:space="preserve">
     <value>sign in with a recovery code</value>
   </data>
+  <data name="Identity.TwoFactor.NoDeviceAccess" xml:space="preserve">
+    <value>Don't have access to your authenticator device? You can</value>
+  </data>
   <data name="Identity.TwoFactor.RecoveryTitle" xml:space="preserve">
     <value>Recovery code verification</value>
   </data>
@@ -2442,11 +2448,20 @@
   <data name="Invite.Invalid.Heading" xml:space="preserve">
     <value>This invitation isn't valid</value>
   </data>
+  <data name="Invite.Invalid.Body" xml:space="preserve">
+    <value>The link is missing, has already been used, or has expired. Please ask your teacher to send you a new invitation.</value>
+  </data>
   <data name="Invite.EmailMismatch.Title" xml:space="preserve">
     <value>Wrong account</value>
   </data>
   <data name="Invite.EmailMismatch.Heading" xml:space="preserve">
     <value>This invitation is for a different email</value>
+  </data>
+  <data name="Invite.EmailMismatch.Body" xml:space="preserve">
+    <value>You're signed in as &lt;strong&gt;{0}&lt;/strong&gt;, but this invitation was sent to &lt;strong&gt;{1}&lt;/strong&gt;.</value>
+  </data>
+  <data name="Invite.EmailMismatch.Hint" xml:space="preserve">
+    <value>Please sign out and sign in (or register) using the invited email, then click the invitation link again.</value>
   </data>
   <data name="Admin.Users.PromotedTeacher" xml:space="preserve">
     <value>{0} is now a Teacher.</value>

@@ -798,6 +798,9 @@
   <data name="Exercise.IntervalMelodico.EndInterval" xml:space="preserve">
     <value>Intervalle entre avant-dernière et dernière notes</value>
   </data>
+  <data name="Exercise.IntervalMelodico.AnswerFormat" xml:space="preserve">
+    <value>premier degré : {{0}}, dernier degré : {{1}}, intervalle initial : {{2}}, intervalle final : {{3}}</value>
+  </data>
   <data name="Exercise.IntervalMelodico.IncompleteText" xml:space="preserve">
     <value>Veuillez répondre aux quatre questions.</value>
   </data>
@@ -2055,6 +2058,9 @@
   <data name="Identity.TwoFactor.UseRecoveryCode" xml:space="preserve">
     <value>vous connecter avec un code de récupération</value>
   </data>
+  <data name="Identity.TwoFactor.NoDeviceAccess" xml:space="preserve">
+    <value>Vous n’avez pas accès à votre appareil d’authentification ? Vous pouvez</value>
+  </data>
   <data name="Identity.TwoFactor.RecoveryTitle" xml:space="preserve">
     <value>Vérification avec un code de récupération</value>
   </data>
@@ -2442,11 +2448,20 @@
   <data name="Invite.Invalid.Heading" xml:space="preserve">
     <value>Cette invitation n’est pas valide</value>
   </data>
+  <data name="Invite.Invalid.Body" xml:space="preserve">
+    <value>Le lien est incomplet, a déjà été utilisé ou a expiré. Demandez à votre enseignant de vous envoyer une nouvelle invitation.</value>
+  </data>
   <data name="Invite.EmailMismatch.Title" xml:space="preserve">
     <value>Mauvais compte</value>
   </data>
   <data name="Invite.EmailMismatch.Heading" xml:space="preserve">
     <value>Cette invitation est destinée à un autre courriel</value>
+  </data>
+  <data name="Invite.EmailMismatch.Body" xml:space="preserve">
+    <value>Vous êtes connecté en tant que &lt;strong&gt;{0}&lt;/strong&gt;, mais cette invitation a été envoyée à &lt;strong&gt;{1}&lt;/strong&gt;.</value>
+  </data>
+  <data name="Invite.EmailMismatch.Hint" xml:space="preserve">
+    <value>Déconnectez-vous, puis connectez-vous (ou inscrivez-vous) avec le courriel invité et cliquez de nouveau sur le lien d’invitation.</value>
   </data>
   <data name="Admin.Users.PromotedTeacher" xml:space="preserve">
     <value>{0} est maintenant enseignant.</value>

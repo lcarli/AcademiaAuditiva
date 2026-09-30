@@ -131,10 +131,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
                     }
                     
-                    // Parse the correct answer
+                    // Show each part of the correct answer with its localized option label.
                     const correctAnswers = data.answer.split('|');
-                    const correctText = correctAnswers.length >= 4 ? 
-                        `Primeiro grau: ${correctAnswers[0]}, Último grau: ${correctAnswers[1]}, Intervalo início: ${correctAnswers[2]}, Intervalo fim: ${correctAnswers[3]}` :
+                    const correctText = correctAnswers.length >= 4 && loc.answerFormat ?
+                        correctAnswers.slice(0, 4).reduce(
+                            (text, part, i) => text.replace(`{${i}}`, AAi18n.answerLabel(part)),
+                            loc.answerFormat) :
                         data.answer;
                     
                     AAi18n.result({ ...data, answer: correctText }, loc);
