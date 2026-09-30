@@ -198,7 +198,7 @@
     <comment />
   </data>
   <data name="Login.ResendEmail" xml:space="preserve">
-    <value>Renvoyer la confirmation par e-mail</value>
+    <value>Renvoyer la confirmation par courriel</value>
     <comment />
   </data>
   <data name="Login.ExternalLogin" xml:space="preserve">
@@ -246,7 +246,7 @@
     <comment />
   </data>
   <data name="ResendEmailConfirmation.Header" xml:space="preserve">
-    <value>Renvoyer l'e-mail de confirmation</value>
+    <value>Renvoyer le courriel de confirmation</value>
     <comment />
   </data>
   <data name="ResendEmailConfirmation.Text" xml:space="preserve">
@@ -254,7 +254,7 @@
     <comment />
   </data>
   <data name="Confirmation.Text" xml:space="preserve">
-    <value>Veuillez vérifier votre e-mail pour confirmer votre compte.</value>
+    <value>Veuillez vérifier votre courriel pour confirmer votre compte.</value>
     <comment />
   </data>
   <data name="Confirmation.Header" xml:space="preserve">
@@ -274,7 +274,7 @@
     <comment />
   </data>
   <data name="ForgotConfirmation.Text" xml:space="preserve">
-    <value>Veuillez vérifier votre e-mail pour réinitialiser votre mot de passe.</value>
+    <value>Veuillez vérifier votre courriel pour réinitialiser votre mot de passe.</value>
     <comment />
   </data>
   <data name="AccessDenied.Header" xml:space="preserve">
@@ -286,11 +286,11 @@
     <comment />
   </data>
   <data name="EmailConfirmation.Header" xml:space="preserve">
-    <value>Confirmation de l'e-mail</value>
+    <value>Confirmation de courriel</value>
     <comment />
   </data>
   <data name="EmailConfirmationChange.Header" xml:space="preserve">
-    <value>Confirmation de changement d'e-mail</value>
+    <value>Confirmation de changement de courriel</value>
     <comment />
   </data>
   <data name="ExternalLogin.Title" xml:space="preserve">
@@ -298,7 +298,7 @@
     <comment />
   </data>
   <data name="ExternalLogin.Text" xml:space="preserve">
-    <value>Vous vous êtes authentifié avec succès en utilisant &lt;strong&gt;@Model.ProviderDisplayName&lt;/strong&gt;.Veuillez saisir une adresse e-mail pour ce site ci-dessous et cliquer sur le bouton Inscription pour finaliser l'accès.</value>
+    <value>Vous vous êtes authentifié avec succès en utilisant &lt;strong&gt;@Model.ProviderDisplayName&lt;/strong&gt;.Veuillez saisir une adresse courriel pour ce site ci-dessous et cliquer sur le bouton Inscription pour finaliser l'accès.</value>
     <comment />
   </data>
   <data name="Lockout.Text" xml:space="preserve">
@@ -418,7 +418,7 @@
     <comment />
   </data>
   <data name="Exercise.WrongMessageText" xml:space="preserve">
-    <value>Vous avez échoué ! L'accord correct était</value>
+    <value>La bonne réponse était {{0}}.</value>
     <comment />
   </data>
   <data name="GuessChords" xml:space="preserve">
@@ -474,7 +474,7 @@
     <comment>.</comment>
   </data>
   <data name="Exercise.WrongNoteMessageText" xml:space="preserve">
-    <value>Vous avez échoué ! La note correcte était</value>
+    <value>La bonne réponse était {{0}}.</value>
     <comment>.</comment>
   </data>
   <data name="Exercise.SelectTom" xml:space="preserve">
@@ -807,18 +807,6 @@
   <data name="Exercise.Interval.Unison" xml:space="preserve">
     <value>Unisson</value>
   </data>
-  <data name="Exercise.Interval.2m" xml:space="preserve">
-    <value>2nde mineure</value>
-  </data>
-  <data name="Exercise.Interval.2M" xml:space="preserve">
-    <value>2nde majeure</value>
-  </data>
-  <data name="Exercise.Interval.3m" xml:space="preserve">
-    <value>3ce mineure</value>
-  </data>
-  <data name="Exercise.Interval.3M" xml:space="preserve">
-    <value>3ce majeure</value>
-  </data>
   <data name="Exercise.Interval.4J" xml:space="preserve">
     <value>4te juste</value>
   </data>
@@ -827,18 +815,6 @@
   </data>
   <data name="Exercise.Interval.5J" xml:space="preserve">
     <value>5te juste</value>
-  </data>
-  <data name="Exercise.Interval.6m" xml:space="preserve">
-    <value>6te mineure</value>
-  </data>
-  <data name="Exercise.Interval.6M" xml:space="preserve">
-    <value>6te majeure</value>
-  </data>
-  <data name="Exercise.Interval.7m" xml:space="preserve">
-    <value>7ème mineure</value>
-  </data>
-  <data name="Exercise.Interval.7M" xml:space="preserve">
-    <value>7ème majeure</value>
   </data>
   <data name="Exercise.Interval.8J" xml:space="preserve">
     <value>8ve juste</value>
@@ -1230,12 +1206,6 @@
   <data name="Teacher.Routines.Col.Assignments" xml:space="preserve">
     <value>Affectations</value>
   </data>
-  <data name="Teacher.Routines.Edit" xml:space="preserve">
-    <value>Modifier</value>
-  </data>
-  <data name="Teacher.Routines.Assign" xml:space="preserve">
-    <value>Affecter</value>
-  </data>
   <data name="Dashboard.SkillsByType" xml:space="preserve">
     <value>Performance par compétence</value>
   </data>
@@ -1404,9 +1374,6 @@
   <data name="Teacher.Routines.NoExercisesYet" xml:space="preserve">
     <value>Aucun exercice pour l&apos;instant.</value>
   </data>
-  <data name="Teacher.Routines.Assign" xml:space="preserve">
-    <value>Affecter</value>
-  </data>
   <data name="Teacher.Routines.MinScore" xml:space="preserve">
     <value>score min</value>
   </data>
@@ -1454,9 +1421,6 @@
   </data>
   <data name="Teacher.Members.SendInvite" xml:space="preserve">
     <value>Envoyer l&apos;invitation</value>
-  </data>
-  <data name="Teacher.Routines.Edit" xml:space="preserve">
-    <value>Modifier</value>
   </data>
   <data name="Teacher.Routines.Exercises" xml:space="preserve">
     <value>Exercices</value>
@@ -1597,7 +1561,7 @@
     <value>Tous</value>
   </data>
   <data name="Admin.Users.CannotDemoteSelf" xml:space="preserve">
-    <value>Vous ne pouvez pas vous rétrograder vous-même.</value>
+    <value>Vous ne pouvez pas vous retirer votre propre rôle admin.</value>
   </data>
   <data name="Admin.Users.Title" xml:space="preserve">
     <value>Utilisateurs</value>
@@ -1621,7 +1585,7 @@
     <value>Rôles</value>
   </data>
   <data name="Admin.Users.CannotDemoteLastAdmin" xml:space="preserve">
-    <value>Impossible de rétrograder le dernier Admin.</value>
+    <value>Impossible de retirer le dernier admin restant.</value>
   </data>
   <data name="Admin.Users.Role" xml:space="preserve">
     <value>Rôle</value>
@@ -1985,5 +1949,560 @@
   </data>
   <data name="Exercise.SelectAnswerText" xml:space="preserve">
     <value>Veuillez sélectionner une réponse.</value>
+  </data>
+  <data name="Validation.Required" xml:space="preserve">
+    <value>Le champ {0} est obligatoire.</value>
+  </data>
+  <data name="Validation.EmailAddress" xml:space="preserve">
+    <value>Entrez une adresse courriel valide.</value>
+  </data>
+  <data name="Validation.StringLength" xml:space="preserve">
+    <value>Le champ {0} doit contenir au moins {2} caractères et au plus {1} caractères.</value>
+  </data>
+  <data name="Validation.MaxLength" xml:space="preserve">
+    <value>Le champ {0} ne peut pas dépasser {1} caractères.</value>
+  </data>
+  <data name="Validation.Range" xml:space="preserve">
+    <value>Le champ {0} doit être compris entre {1} et {2}.</value>
+  </data>
+  <data name="Validation.Phone" xml:space="preserve">
+    <value>Entrez un numéro de téléphone valide.</value>
+  </data>
+  <data name="Validation.PasswordConfirmMismatch" xml:space="preserve">
+    <value>Le mot de passe et sa confirmation ne correspondent pas.</value>
+  </data>
+  <data name="Validation.NewPasswordConfirmMismatch" xml:space="preserve">
+    <value>Le nouveau mot de passe et sa confirmation ne correspondent pas.</value>
+  </data>
+  <data name="Validation.MissingKeyOrValue" xml:space="preserve">
+    <value>Une valeur est obligatoire.</value>
+  </data>
+  <data name="Validation.InvalidValue" xml:space="preserve">
+    <value>La valeur {0} n’est pas valide.</value>
+  </data>
+  <data name="Validation.InvalidAttemptedValue" xml:space="preserve">
+    <value>La valeur {0} n’est pas valide pour {1}.</value>
+  </data>
+  <data name="Validation.InvalidUnknownValue" xml:space="preserve">
+    <value>La valeur fournie n’est pas valide pour {0}.</value>
+  </data>
+  <data name="Account.Email" xml:space="preserve">
+    <value>Courriel</value>
+  </data>
+  <data name="Common.Name" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="Common.Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Common.Save" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="Role.Admin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="Role.Teacher" xml:space="preserve">
+    <value>Enseignant</value>
+  </data>
+  <data name="Role.Student" xml:space="preserve">
+    <value>Étudiant</value>
+  </data>
+  <data name="ForgotPassword.Instruction" xml:space="preserve">
+    <value>Entrez votre courriel.</value>
+  </data>
+  <data name="ResendEmailConfirmation.Instruction" xml:space="preserve">
+    <value>Entrez votre courriel.</value>
+  </data>
+  <data name="ResetPassword.Header" xml:space="preserve">
+    <value>Réinitialiser le mot de passe</value>
+  </data>
+  <data name="ResetPassword.Instruction" xml:space="preserve">
+    <value>Réinitialisez votre mot de passe.</value>
+  </data>
+  <data name="ResetPasswordConfirmation.Header" xml:space="preserve">
+    <value>Mot de passe réinitialisé</value>
+  </data>
+  <data name="ResetPasswordConfirmation.Text" xml:space="preserve">
+    <value>Votre mot de passe a été réinitialisé. Veuillez</value>
+  </data>
+  <data name="ResetPasswordConfirmation.Link" xml:space="preserve">
+    <value>cliquer ici pour vous connecter</value>
+  </data>
+  <data name="Confirmation.DevEmailNotice" xml:space="preserve">
+    <value>Cette application n’a pas encore de service réel d’envoi de courriels configuré. Consultez</value>
+  </data>
+  <data name="Confirmation.DevEmailDocs" xml:space="preserve">
+    <value>cette documentation</value>
+  </data>
+  <data name="Confirmation.DevEmailLinkIntro" xml:space="preserve">
+    <value>Normalement, ceci serait envoyé par courriel :</value>
+  </data>
+  <data name="Confirmation.DevEmailLink" xml:space="preserve">
+    <value>cliquez ici pour confirmer votre compte</value>
+  </data>
+  <data name="Identity.TwoFactor.Title" xml:space="preserve">
+    <value>Authentification à deux facteurs</value>
+  </data>
+  <data name="Identity.TwoFactor.Intro" xml:space="preserve">
+    <value>Votre connexion est protégée par une application d’authentification. Entrez votre code ci-dessous.</value>
+  </data>
+  <data name="Identity.TwoFactor.AuthenticatorCode" xml:space="preserve">
+    <value>Code d’authentification</value>
+  </data>
+  <data name="Identity.TwoFactor.RememberMachine" xml:space="preserve">
+    <value>Se souvenir de cet appareil</value>
+  </data>
+  <data name="Identity.TwoFactor.UseRecoveryCode" xml:space="preserve">
+    <value>vous connecter avec un code de récupération</value>
+  </data>
+  <data name="Identity.TwoFactor.RecoveryTitle" xml:space="preserve">
+    <value>Vérification avec un code de récupération</value>
+  </data>
+  <data name="Identity.TwoFactor.RecoveryIntro" xml:space="preserve">
+    <value>Vous avez demandé à vous connecter avec un code de récupération. Cette connexion ne sera pas mémorisée tant que vous n’aurez pas fourni un code d’application d’authentification à la connexion ou désactivé l’authentification à deux facteurs et ouvert une nouvelle session.</value>
+  </data>
+  <data name="Identity.TwoFactor.RecoveryCode" xml:space="preserve">
+    <value>Code de récupération</value>
+  </data>
+  <data name="Identity.TwoFactor.InvalidAuthenticatorCode" xml:space="preserve">
+    <value>Code d’authentification invalide.</value>
+  </data>
+  <data name="Identity.TwoFactor.InvalidRecoveryCode" xml:space="preserve">
+    <value>Code de récupération invalide.</value>
+  </data>
+  <data name="Identity.TwoFactor.InvalidVerificationCode" xml:space="preserve">
+    <value>Le code de vérification est invalide.</value>
+  </data>
+  <data name="Identity.Login.InvalidAttempt" xml:space="preserve">
+    <value>Tentative de connexion invalide.</value>
+  </data>
+  <data name="Identity.Password.Incorrect" xml:space="preserve">
+    <value>Mot de passe incorrect.</value>
+  </data>
+  <data name="Identity.Status.ErrorChangingEmail" xml:space="preserve">
+    <value>Erreur lors du changement de courriel.</value>
+  </data>
+  <data name="Identity.Status.ErrorChangingUserName" xml:space="preserve">
+    <value>Erreur lors du changement du nom d’utilisateur.</value>
+  </data>
+  <data name="Identity.Status.EmailChangeConfirmed" xml:space="preserve">
+    <value>Merci d’avoir confirmé votre changement de courriel.</value>
+  </data>
+  <data name="Identity.Status.TwoFactorDisabled" xml:space="preserve">
+    <value>L’authentification à deux facteurs a été désactivée. Vous pourrez la réactiver en configurant une application d’authentification.</value>
+  </data>
+  <data name="Identity.Status.PasswordChanged" xml:space="preserve">
+    <value>Votre mot de passe a été modifié.</value>
+  </data>
+  <data name="Identity.Status.EmailChangeLinkSent" xml:space="preserve">
+    <value>Le lien de confirmation pour changer de courriel a été envoyé. Vérifiez votre courriel.</value>
+  </data>
+  <data name="Identity.Status.EmailUnchanged" xml:space="preserve">
+    <value>Votre courriel est inchangé.</value>
+  </data>
+  <data name="Identity.Status.VerificationEmailSent" xml:space="preserve">
+    <value>Courriel de vérification envoyé. Vérifiez votre courriel.</value>
+  </data>
+  <data name="Identity.Status.PhoneUpdateError" xml:space="preserve">
+    <value>Erreur inattendue lors de la définition du numéro de téléphone.</value>
+  </data>
+  <data name="Identity.Status.ProfileUpdated" xml:space="preserve">
+    <value>Votre profil a été mis à jour.</value>
+  </data>
+  <data name="Identity.Status.ExternalLoginNotRemoved" xml:space="preserve">
+    <value>La connexion externe n’a pas été supprimée.</value>
+  </data>
+  <data name="Identity.Status.ExternalLoginRemoved" xml:space="preserve">
+    <value>La connexion externe a été supprimée.</value>
+  </data>
+  <data name="Identity.Status.ExternalLoginNotAdded" xml:space="preserve">
+    <value>La connexion externe n’a pas été ajoutée. Les connexions externes ne peuvent être associées qu’à un seul compte.</value>
+  </data>
+  <data name="Identity.Status.ExternalLoginAdded" xml:space="preserve">
+    <value>La connexion externe a été ajoutée.</value>
+  </data>
+  <data name="Identity.Status.RecoveryCodesGenerated" xml:space="preserve">
+    <value>Vous avez généré de nouveaux codes de récupération.</value>
+  </data>
+  <data name="Identity.Status.AuthenticatorVerified" xml:space="preserve">
+    <value>Votre application d’authentification a été vérifiée.</value>
+  </data>
+  <data name="Identity.Status.AuthenticatorReset" xml:space="preserve">
+    <value>La clé de votre application d’authentification a été réinitialisée. Vous devrez configurer l’application avec la nouvelle clé.</value>
+  </data>
+  <data name="Identity.Status.PasswordSet" xml:space="preserve">
+    <value>Votre mot de passe a été défini.</value>
+  </data>
+  <data name="Identity.Status.BrowserForgotten" xml:space="preserve">
+    <value>Le navigateur actuel a été oublié. Vous devrez fournir votre code A2F lors de votre prochaine connexion avec ce navigateur.</value>
+  </data>
+  <data name="Identity.Status.ExternalLoginLoadError" xml:space="preserve">
+    <value>Erreur lors du chargement des informations de connexion externe.</value>
+  </data>
+  <data name="Identity.Status.ExternalLoginConfirmationLoadError" xml:space="preserve">
+    <value>Erreur lors du chargement des informations de connexion externe pendant la confirmation.</value>
+  </data>
+  <data name="Identity.Status.ExternalProviderError" xml:space="preserve">
+    <value>Erreur du fournisseur externe : {0}</value>
+  </data>
+  <data name="Identity.Email.Confirm.Subject" xml:space="preserve">
+    <value>Confirmez votre courriel</value>
+  </data>
+  <data name="Identity.Email.Confirm.Body" xml:space="preserve">
+    <value>Veuillez confirmer votre compte en &lt;a href='{0}'&gt;cliquant ici&lt;/a&gt;.</value>
+  </data>
+  <data name="Identity.Email.ResetPassword.Subject" xml:space="preserve">
+    <value>Réinitialiser le mot de passe</value>
+  </data>
+  <data name="Identity.Email.ResetPassword.Body" xml:space="preserve">
+    <value>Veuillez réinitialiser votre mot de passe en &lt;a href='{0}'&gt;cliquant ici&lt;/a&gt;.</value>
+  </data>
+  <data name="Identity.Email.ChangeEmail.Subject" xml:space="preserve">
+    <value>Confirmez votre changement de courriel</value>
+  </data>
+  <data name="Identity.Email.ChangeEmail.Body" xml:space="preserve">
+    <value>Veuillez confirmer votre changement de courriel en &lt;a href='{0}'&gt;cliquant ici&lt;/a&gt;.</value>
+  </data>
+  <data name="Identity.Error.Default" xml:space="preserve">
+    <value>Une erreur inconnue est survenue.</value>
+  </data>
+  <data name="Identity.Error.ConcurrencyFailure" xml:space="preserve">
+    <value>Échec de concurrence optimiste; l’objet a été modifié.</value>
+  </data>
+  <data name="Identity.Error.PasswordMismatch" xml:space="preserve">
+    <value>Mot de passe incorrect.</value>
+  </data>
+  <data name="Identity.Error.InvalidToken" xml:space="preserve">
+    <value>Jeton invalide.</value>
+  </data>
+  <data name="Identity.Error.LoginAlreadyAssociated" xml:space="preserve">
+    <value>Un utilisateur avec cette connexion existe déjà.</value>
+  </data>
+  <data name="Identity.Error.InvalidUserName" xml:space="preserve">
+    <value>Le nom d’utilisateur {0} est invalide. Utilisez seulement des lettres ou des chiffres.</value>
+  </data>
+  <data name="Identity.Error.InvalidEmail" xml:space="preserve">
+    <value>Le courriel {0} est invalide.</value>
+  </data>
+  <data name="Identity.Error.DuplicateUserName" xml:space="preserve">
+    <value>Le nom d’utilisateur {0} est déjà utilisé.</value>
+  </data>
+  <data name="Identity.Error.DuplicateEmail" xml:space="preserve">
+    <value>Le courriel {0} est déjà utilisé.</value>
+  </data>
+  <data name="Identity.Error.InvalidRoleName" xml:space="preserve">
+    <value>Le nom de rôle {0} est invalide.</value>
+  </data>
+  <data name="Identity.Error.DuplicateRoleName" xml:space="preserve">
+    <value>Le nom de rôle {0} est déjà utilisé.</value>
+  </data>
+  <data name="Identity.Error.UserAlreadyHasPassword" xml:space="preserve">
+    <value>L’utilisateur a déjà un mot de passe.</value>
+  </data>
+  <data name="Identity.Error.UserLockoutNotEnabled" xml:space="preserve">
+    <value>Le verrouillage n’est pas activé pour cet utilisateur.</value>
+  </data>
+  <data name="Identity.Error.UserAlreadyInRole" xml:space="preserve">
+    <value>L’utilisateur a déjà le rôle {0}.</value>
+  </data>
+  <data name="Identity.Error.UserNotInRole" xml:space="preserve">
+    <value>L’utilisateur n’a pas le rôle {0}.</value>
+  </data>
+  <data name="Identity.Error.PasswordTooShort" xml:space="preserve">
+    <value>Les mots de passe doivent contenir au moins {0} caractères.</value>
+  </data>
+  <data name="Identity.Error.PasswordRequiresUniqueChars" xml:space="preserve">
+    <value>Les mots de passe doivent utiliser au moins {0} caractères différents.</value>
+  </data>
+  <data name="Identity.Error.PasswordRequiresNonAlphanumeric" xml:space="preserve">
+    <value>Les mots de passe doivent contenir au moins un caractère non alphanumérique.</value>
+  </data>
+  <data name="Identity.Error.PasswordRequiresDigit" xml:space="preserve">
+    <value>Les mots de passe doivent contenir au moins un chiffre.</value>
+  </data>
+  <data name="Identity.Error.PasswordRequiresLower" xml:space="preserve">
+    <value>Les mots de passe doivent contenir au moins une lettre minuscule.</value>
+  </data>
+  <data name="Identity.Error.PasswordRequiresUpper" xml:space="preserve">
+    <value>Les mots de passe doivent contenir au moins une lettre majuscule.</value>
+  </data>
+  <data name="Identity.Error.RecoveryCodeRedemptionFailed" xml:space="preserve">
+    <value>L’utilisation du code de récupération a échoué.</value>
+  </data>
+  <data name="Exercise.NoAudioTitle" xml:space="preserve">
+    <value>Aucun audio chargé</value>
+  </data>
+  <data name="Exercise.NoAudioText" xml:space="preserve">
+    <value>Cliquez d’abord sur Lire pour générer l’exercice.</value>
+  </data>
+  <data name="Exercise.ValidationErrorTitle" xml:space="preserve">
+    <value>Impossible de valider</value>
+  </data>
+  <data name="Exercise.ValidationErrorText" xml:space="preserve">
+    <value>Veuillez générer un nouvel exercice et réessayer.</value>
+  </data>
+  <data name="Exercise.StopRecording" xml:space="preserve">
+    <value>Arrêter l’enregistrement</value>
+  </data>
+  <data name="Exercise.MicrophoneUnsupported" xml:space="preserve">
+    <value>L’accès au microphone n’est pas pris en charge par ce navigateur.</value>
+  </data>
+  <data name="Exercise.MicrophoneAccessError" xml:space="preserve">
+    <value>Impossible d’accéder au microphone. Vérifiez les autorisations du navigateur.</value>
+  </data>
+  <data name="Exercise.NoRecordingText" xml:space="preserve">
+    <value>Enregistrez un audio avant de continuer.</value>
+  </data>
+  <data name="Exercise.DetectedNoteTitle" xml:space="preserve">
+    <value>Note détectée</value>
+  </data>
+  <data name="Exercise.DetectedNoteText" xml:space="preserve">
+    <value>Note détectée : {{0}}</value>
+  </data>
+  <data name="Exercise.Note.C" xml:space="preserve">
+    <value>Do</value>
+  </data>
+  <data name="Exercise.Note.CSharp" xml:space="preserve">
+    <value>Do♯</value>
+  </data>
+  <data name="Exercise.Note.D" xml:space="preserve">
+    <value>Ré</value>
+  </data>
+  <data name="Exercise.Note.DSharp" xml:space="preserve">
+    <value>Ré♯</value>
+  </data>
+  <data name="Exercise.Note.E" xml:space="preserve">
+    <value>Mi</value>
+  </data>
+  <data name="Exercise.Note.F" xml:space="preserve">
+    <value>Fa</value>
+  </data>
+  <data name="Exercise.Note.FSharp" xml:space="preserve">
+    <value>Fa♯</value>
+  </data>
+  <data name="Exercise.Note.G" xml:space="preserve">
+    <value>Sol</value>
+  </data>
+  <data name="Exercise.Note.GSharp" xml:space="preserve">
+    <value>Sol♯</value>
+  </data>
+  <data name="Exercise.Note.A" xml:space="preserve">
+    <value>La</value>
+  </data>
+  <data name="Exercise.Note.ASharp" xml:space="preserve">
+    <value>La♯</value>
+  </data>
+  <data name="Exercise.Note.B" xml:space="preserve">
+    <value>Si</value>
+  </data>
+  <data name="Exercise.ChordQuality.Major" xml:space="preserve">
+    <value>Majeur</value>
+  </data>
+  <data name="Exercise.ChordQuality.Major7" xml:space="preserve">
+    <value>Majeur 7</value>
+  </data>
+  <data name="Exercise.ChordQuality.Minor" xml:space="preserve">
+    <value>Mineur</value>
+  </data>
+  <data name="Exercise.ChordQuality.Minor7" xml:space="preserve">
+    <value>Mineur 7</value>
+  </data>
+  <data name="Exercise.ChordQuality.Diminished" xml:space="preserve">
+    <value>Diminué</value>
+  </data>
+  <data name="Exercise.ChordQuality.Diminished7" xml:space="preserve">
+    <value>Diminué 7</value>
+  </data>
+  <data name="Exercise.ChordQuality.Augmented" xml:space="preserve">
+    <value>Augmenté</value>
+  </data>
+  <data name="Exercise.Interval.2min" xml:space="preserve">
+    <value>Seconde mineure</value>
+  </data>
+  <data name="Exercise.Interval.2maj" xml:space="preserve">
+    <value>Seconde majeure</value>
+  </data>
+  <data name="Exercise.Interval.3min" xml:space="preserve">
+    <value>Tierce mineure</value>
+  </data>
+  <data name="Exercise.Interval.3maj" xml:space="preserve">
+    <value>Tierce majeure</value>
+  </data>
+  <data name="Exercise.Interval.5dim" xml:space="preserve">
+    <value>Quinte diminuée</value>
+  </data>
+  <data name="Exercise.Interval.6min" xml:space="preserve">
+    <value>Sixte mineure</value>
+  </data>
+  <data name="Exercise.Interval.6maj" xml:space="preserve">
+    <value>Sixte majeure</value>
+  </data>
+  <data name="Exercise.Interval.7min" xml:space="preserve">
+    <value>Septième mineure</value>
+  </data>
+  <data name="Exercise.Interval.7maj" xml:space="preserve">
+    <value>Septième majeure</value>
+  </data>
+  <data name="Teacher.Routines.Edit" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="Teacher.Routines.Assign" xml:space="preserve">
+    <value>Attribuer</value>
+  </data>
+  <data name="Teacher.Routines.AssignTitle" xml:space="preserve">
+    <value>Attribuer — {0}</value>
+  </data>
+  <data name="Teacher.Routines.TargetClassroom" xml:space="preserve">
+    <value>Toute une classe</value>
+  </data>
+  <data name="Teacher.Routines.TargetStudent" xml:space="preserve">
+    <value>Un seul étudiant</value>
+  </data>
+  <data name="Teacher.Routines.EditExercise" xml:space="preserve">
+    <value>Modifier l’exercice</value>
+  </data>
+  <data name="Teacher.Routines.FilterJsonHelp" xml:space="preserve">
+    <value>Facultatif. Même format que Exercise.FiltersJson.</value>
+  </data>
+  <data name="Teacher.Routines.AddToRoutine" xml:space="preserve">
+    <value>Ajouter à la routine</value>
+  </data>
+  <data name="Teacher.Routines.TargetCount" xml:space="preserve">
+    <value>Nombre cible</value>
+  </data>
+  <data name="Teacher.Routines.MinimumScore" xml:space="preserve">
+    <value>Score minimal</value>
+  </data>
+  <data name="Teacher.Routines.FilterJson" xml:space="preserve">
+    <value>JSON des filtres</value>
+  </data>
+  <data name="Teacher.Routines.DueDate" xml:space="preserve">
+    <value>Date d’échéance</value>
+  </data>
+  <data name="Teacher.Routines.SelectClassroom" xml:space="preserve">
+    <value>Sélectionnez une classe.</value>
+  </data>
+  <data name="Teacher.Routines.SelectStudent" xml:space="preserve">
+    <value>Sélectionnez un étudiant.</value>
+  </data>
+  <data name="Teacher.Routines.InvalidTarget" xml:space="preserve">
+    <value>Cible invalide.</value>
+  </data>
+  <data name="Teacher.Members.StudentEmail" xml:space="preserve">
+    <value>Courriel de l’étudiant</value>
+  </data>
+  <data name="Teacher.Dashboard.Classroom" xml:space="preserve">
+    <value>Tableau de bord de la classe</value>
+  </data>
+  <data name="Teacher.Dashboard.Active30d" xml:space="preserve">
+    <value>Actifs (30 j)</value>
+  </data>
+  <data name="Teacher.Dashboard.TotalAttempts" xml:space="preserve">
+    <value>Tentatives totales</value>
+  </data>
+  <data name="Teacher.Dashboard.AvgAccuracy" xml:space="preserve">
+    <value>Précision moyenne</value>
+  </data>
+  <data name="Teacher.Dashboard.PerStudent" xml:space="preserve">
+    <value>Par étudiant</value>
+  </data>
+  <data name="Teacher.Dashboard.Sessions" xml:space="preserve">
+    <value>Séances</value>
+  </data>
+  <data name="Teacher.Dashboard.Attempts" xml:space="preserve">
+    <value>Tentatives</value>
+  </data>
+  <data name="Teacher.Dashboard.Accuracy" xml:space="preserve">
+    <value>Précision</value>
+  </data>
+  <data name="Teacher.Dashboard.Never" xml:space="preserve">
+    <value>jamais</value>
+  </data>
+  <data name="Teacher.Dashboard.View" xml:space="preserve">
+    <value>Voir</value>
+  </data>
+  <data name="Teacher.Dashboard.NoStudents" xml:space="preserve">
+    <value>Il n’y a pas encore d’étudiants dans cette classe.</value>
+  </data>
+  <data name="Teacher.Dashboard.BackToClassroom" xml:space="preserve">
+    <value>Retour à la classe</value>
+  </data>
+  <data name="Teacher.Dashboard.ByExercise" xml:space="preserve">
+    <value>Par exercice</value>
+  </data>
+  <data name="Teacher.Dashboard.Best" xml:space="preserve">
+    <value>Meilleur</value>
+  </data>
+  <data name="Teacher.Dashboard.StudentNoPractice" xml:space="preserve">
+    <value>Cet étudiant ne s’est pas encore exercé.</value>
+  </data>
+  <data name="Invite.Invalid.Title" xml:space="preserve">
+    <value>Invitation invalide</value>
+  </data>
+  <data name="Invite.Invalid.Heading" xml:space="preserve">
+    <value>Cette invitation n’est pas valide</value>
+  </data>
+  <data name="Invite.EmailMismatch.Title" xml:space="preserve">
+    <value>Mauvais compte</value>
+  </data>
+  <data name="Invite.EmailMismatch.Heading" xml:space="preserve">
+    <value>Cette invitation est destinée à un autre courriel</value>
+  </data>
+  <data name="Admin.Users.PromotedTeacher" xml:space="preserve">
+    <value>{0} est maintenant enseignant.</value>
+  </data>
+  <data name="Admin.Users.DemotedTeacher" xml:space="preserve">
+    <value>{0} n’est plus enseignant.</value>
+  </data>
+  <data name="Admin.Users.PromotedAdmin" xml:space="preserve">
+    <value>{0} est maintenant admin.</value>
+  </data>
+  <data name="Admin.Users.DemotedAdmin" xml:space="preserve">
+    <value>{0} n’est plus admin.</value>
+  </data>
+  <data name="Layout.Home" xml:space="preserve">
+    <value>Accueil</value>
+  </data>
+  <data name="Error.Title" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="Error.Message" xml:space="preserve">
+    <value>Une erreur est survenue pendant le traitement de votre demande.</value>
+  </data>
+  <data name="Error.RequestId" xml:space="preserve">
+    <value>ID de la demande</value>
+  </data>
+  <data name="Error.DevelopmentMode" xml:space="preserve">
+    <value>Mode développement</value>
+  </data>
+  <data name="Error.DevelopmentModeInfo" xml:space="preserve">
+    <value>Passer en {0} affiche plus de détails sur l’erreur.</value>
+  </data>
+  <data name="Error.DevelopmentModeWarning" xml:space="preserve">
+    <value>L’environnement de développement ne devrait pas être activé pour les applications déployées.</value>
+  </data>
+  <data name="Error.DevelopmentModeDebug" xml:space="preserve">
+    <value>Il peut afficher aux utilisateurs des détails sensibles sur les exceptions. Pour le débogage local, définissez {0} à {1} et redémarrez l’application.</value>
+  </data>
+  <data name="Exercise.Solfege.NoRecordingText" xml:space="preserve">
+    <value>Enregistrez un audio avant de continuer.</value>
+  </data>
+  <data name="Lockout.Header" xml:space="preserve">
+    <value>Compte verrouillé</value>
+  </data>
+  <data name="Manage.Email.New" xml:space="preserve">
+    <value>Nouveau courriel</value>
+  </data>
+  <data name="Manage.Index.PhoneNumber" xml:space="preserve">
+    <value>Téléphone</value>
+  </data>
+  <data name="Manage.Password.Current" xml:space="preserve">
+    <value>Mot de passe actuel</value>
+  </data>
+  <data name="Manage.Password.New" xml:space="preserve">
+    <value>Nouveau mot de passe</value>
+  </data>
+  <data name="Manage.Password.ConfirmNew" xml:space="preserve">
+    <value>Confirmer le nouveau mot de passe</value>
   </data>
 </root>

@@ -19,7 +19,7 @@
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">@(isEdit ? "Save changes" : "Create classroom")</button>
-    <a class="btn btn-link" asp-action="Index">Cancel</a>
+    <a class="btn btn-link" asp-action="Index">@Localizer["Teacher.Classrooms.Cancel"]</a>
 </form>
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }

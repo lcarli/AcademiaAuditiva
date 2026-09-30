@@ -266,7 +266,7 @@ public class RoutinesController : TeacherAreaController
         if (model.Target == "classroom")
         {
             if (model.ClassroomId is null)
-                ModelState.AddModelError(nameof(model.ClassroomId), "Select a classroom.");
+                ModelState.AddModelError(nameof(model.ClassroomId), _l["Teacher.Routines.SelectClassroom"]);
             else
             {
                 var ownsClass = await _db.Classrooms.AnyAsync(c =>
@@ -277,7 +277,7 @@ public class RoutinesController : TeacherAreaController
         else if (model.Target == "student")
         {
             if (string.IsNullOrEmpty(model.StudentId))
-                ModelState.AddModelError(nameof(model.StudentId), "Select a student.");
+                ModelState.AddModelError(nameof(model.StudentId), _l["Teacher.Routines.SelectStudent"]);
             else
             {
                 var ownsStudent = await _db.ClassroomMembers.AnyAsync(m =>
@@ -287,7 +287,7 @@ public class RoutinesController : TeacherAreaController
         }
         else
         {
-            ModelState.AddModelError(nameof(model.Target), "Invalid target.");
+            ModelState.AddModelError(nameof(model.Target), _l["Teacher.Routines.InvalidTarget"]);
         }
 
         if (!ModelState.IsValid)

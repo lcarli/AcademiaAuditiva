@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     AcademiaAuditiva.init();
     AudioEngine.setupWaveform();
 
+    const loc = AAi18n.localizer();
     const exerciseId = document.getElementById("exerciseId")?.value;
     const chordTypeSelect = document.getElementById("chordType");
     let chordType = chordTypeSelect ? chordTypeSelect.value : "major";
@@ -57,11 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (replayBtn) {
         replayBtn.addEventListener("click", () => {
             if (!playToken) {
-                Swal.fire({
-                    icon: "warning",
-                    title: "No chord loaded",
-                    text: "Click 'Play' first to generate a chord."
-                });
+                AAi18n.noAudio(loc);
                 return;
             }
             AudioEngine.playToken(playToken);
@@ -73,11 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
         validateBtn.addEventListener("click", () => {
             if (chordType != "major" && chordType != "minor") {
                 if (!userRoot || !userQuality || !roundId) {
-                    Swal.fire({
-                        icon: "warning",
-                        title: "Missing data",
-                        text: "Generate a chord and select your root/quality before validating."
-                    });
+                    AAi18n.incomplete(loc);
                     return;
                 }
             }
@@ -93,18 +86,19 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .then(resp => resp.json())
             .then(data => {
+                if (AAi18n.serverError(data, loc)) return;
                 const correctCountEl = document.getElementById("correctCount");
                 const errorCountEl = document.getElementById("errorCount");
                 if (data.isCorrect) {
                     if (correctCountEl) {
                         correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
                     }
-                    Swal.fire("Correct!", "You got the chord right!", "success");
+                    AAi18n.result(data, loc);
                 } else {
                     if (errorCountEl) {
                         errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
                     }
-                    Swal.fire("Wrong!", `The correct answer was ${(data.answer || "").replace("|", " ")}.`, "error");
+                    AAi18n.result(data, loc);
                 }
 
                 userRoot = "";

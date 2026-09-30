@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   AcademiaAuditiva.init();
   AudioEngine.setupWaveform();
 
+  const loc = AAi18n.localizer();
   const exerciseId = document.getElementById("exerciseId")?.value;
 
   // The front-end never learns the actual note. It only holds the
@@ -43,11 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (replayButton) {
     replayButton.addEventListener("click", () => {
       if (!playToken) {
-        Swal.fire({
-          icon: "warning",
-          title: "No note loaded",
-          text: "Click 'Play' first to generate the note.",
-        });
+        AAi18n.noAudio(loc);
         return;
       }
       AudioEngine.playToken(playToken);
@@ -58,11 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (validateBtn) {
     validateBtn.addEventListener("click", () => {
       if (!userGuessedNote || !roundId) {
-        Swal.fire({
-          icon: "warning",
-          title: "Missing data",
-          text: "Generate a note and select your answer before validating.",
-        });
+        AAi18n.incomplete(loc);
         return;
       }
       fetch("/Exercise/ValidateExercise", {
@@ -77,24 +70,19 @@ document.addEventListener("DOMContentLoaded", () => {
       })
         .then((resp) => resp.json())
         .then((data) => {
+          if (AAi18n.serverError(data, loc)) return;
           const correctCountEl = document.getElementById("correctCount");
           const errorCountEl = document.getElementById("errorCount");
           if (data.isCorrect) {
             if (correctCountEl) {
               correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
             }
-            Swal.fire("Correct!", "You got the note right!", "success");
+            AAi18n.result(data, loc);
           } else {
             if (errorCountEl) {
               errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
             }
-            Swal.fire(
-              "Wrong!",
-              `The correct note was ${(data.answer || "")
-                .replace(/\d/g, "")
-                .toUpperCase()}.`,
-              "error"
-            );
+            AAi18n.result(data, loc);
           }
           userGuessedNote = "";
           playToken = null;

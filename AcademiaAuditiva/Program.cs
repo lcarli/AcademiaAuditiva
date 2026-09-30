@@ -1,12 +1,15 @@
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 using Azure.Identity;
@@ -61,6 +64,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
+    .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.Configure<AdminBootstrapOptions>(builder.Configuration.GetSection("Admin"));
@@ -129,7 +133,22 @@ builder.Services.AddLocalization();
 
 builder.Services.AddMvc()
     .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
-    .AddDataAnnotationsLocalization();
+    .AddDataAnnotationsLocalization(options =>
+    {
+        options.DataAnnotationLocalizerProvider = (_, factory) => factory.Create(typeof(SharedResources));
+    });
+
+builder.Services.AddOptions<MvcOptions>()
+    .Configure<IStringLocalizer<SharedResources>>((options, localizer) =>
+    {
+        var messages = options.ModelBindingMessageProvider;
+        messages.SetValueMustNotBeNullAccessor(field => localizer["Validation.Required", field]);
+        messages.SetMissingBindRequiredValueAccessor(field => localizer["Validation.Required", field]);
+        messages.SetMissingKeyOrValueAccessor(() => localizer["Validation.MissingKeyOrValue"]);
+        messages.SetValueIsInvalidAccessor(value => localizer["Validation.InvalidValue", value]);
+        messages.SetAttemptedValueIsInvalidAccessor((value, field) => localizer["Validation.InvalidAttemptedValue", value, field]);
+        messages.SetUnknownValueIsInvalidAccessor(field => localizer["Validation.InvalidUnknownValue", field]);
+    });
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {

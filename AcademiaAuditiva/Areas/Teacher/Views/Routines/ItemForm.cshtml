@@ -1,7 +1,7 @@
 @model AcademiaAuditiva.Areas.Teacher.Models.RoutineItemFormViewModel
 @{
     var isEdit = Model.Id > 0;
-    ViewData["Title"] = isEdit ? "Edit exercise" : "Add exercise";
+    ViewData["Title"] = isEdit ? Localizer["Teacher.Routines.EditExercise"].Value : Localizer["Teacher.Routines.AddExercise"].Value;
 }
 <h1 class="h4 mb-3">@ViewData["Title"]</h1>
 
@@ -16,7 +16,7 @@
             <label asp-for="ExerciseId" class="form-label"></label>
             <select asp-for="ExerciseId" class="form-select"
                     asp-items="@(new SelectList(Model.ExerciseOptions, "Id", "Name", Model.ExerciseId))">
-                <option value="">-- select --</option>
+                <option value="">@Localizer["Exercise.SelectOption"]</option>
             </select>
             <span asp-validation-for="ExerciseId" class="text-danger small"></span>
         </div>
@@ -38,13 +38,13 @@
             <label asp-for="FilterJson" class="form-label"></label>
             <textarea asp-for="FilterJson" rows="4" class="form-control font-monospace"
                       placeholder='{"intervalo":"P5"}'></textarea>
-            <div class="form-text">Optional. Same shape as Exercise.FiltersJson.</div>
+            <div class="form-text">@Localizer["Teacher.Routines.FilterJsonHelp"]</div>
             <span asp-validation-for="FilterJson" class="text-danger small"></span>
         </div>
 
         <div class="mt-3">
-            <button type="submit" class="btn btn-primary">@(isEdit ? "Save" : "Add to routine")</button>
-            <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.RoutineId">Cancel</a>
+            <button type="submit" class="btn btn-primary">@(isEdit ? Localizer["Common.Save"] : Localizer["Teacher.Routines.AddToRoutine"])</button>
+            <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.RoutineId">@Localizer["Teacher.Classrooms.Cancel"]</a>
         </div>
     </div>
 </form>

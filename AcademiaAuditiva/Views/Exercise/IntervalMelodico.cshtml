@@ -3,7 +3,21 @@
     ViewData["Title"] = Localizer[Model.Title].Value;
     ViewData["FiltersPartial"] = "_ExerciseFilters";
     string[] degrees = { "I", "II", "III", "IV", "V", "VI", "VII" };
-    string[] intervals = { "2m", "2M", "3m", "3M", "4J", "4A", "5J", "6m", "6M", "7m", "7M", "8J" };
+    (string Value, string Key)[] intervals =
+    {
+        ("2m", "Exercise.Interval.2min"),
+        ("2M", "Exercise.Interval.2maj"),
+        ("3m", "Exercise.Interval.3min"),
+        ("3M", "Exercise.Interval.3maj"),
+        ("4J", "Exercise.Interval.4J"),
+        ("4A", "Exercise.Interval.4A"),
+        ("5J", "Exercise.Interval.5J"),
+        ("6m", "Exercise.Interval.6min"),
+        ("6M", "Exercise.Interval.6maj"),
+        ("7m", "Exercise.Interval.7min"),
+        ("7M", "Exercise.Interval.7maj"),
+        ("8J", "Exercise.Interval.8J")
+    };
 }
 
 @await Html.PartialAsync("_ExerciseHeader", Model)
@@ -47,7 +61,7 @@
                         <option value="Unísono">@Localizer["Exercise.Interval.Unison"]</option>
                         @foreach (var interval in intervals)
                         {
-                            <option value="@interval">@(Localizer["Exercise.Interval." + interval])</option>
+                            <option value="@interval.Value">@Localizer[interval.Key]</option>
                         }
                     </select>
                 </div>
@@ -58,7 +72,7 @@
                         <option value="Unísono">@Localizer["Exercise.Interval.Unison"]</option>
                         @foreach (var interval in intervals)
                         {
-                            <option value="@interval">@(Localizer["Exercise.Interval." + interval])</option>
+                            <option value="@interval.Value">@Localizer[interval.Key]</option>
                         }
                     </select>
                 </div>
@@ -79,6 +93,11 @@
 <div id="localizer"
      data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
      data-incomplete-text="@Localizer["Exercise.IntervalMelodico.IncompleteText"]"
+
+     data-no-audio-title="@Localizer["Exercise.NoAudioTitle"]"
+     data-no-audio-text="@Localizer["Exercise.NoAudioText"]"
+     data-validation-error-title="@Localizer["Exercise.ValidationErrorTitle"]"
+     data-validation-error-text="@Localizer["Exercise.ValidationErrorText"]"
      data-correct-message="@Localizer["Exercise.CorrectMessage"]"
      data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
      data-wrong-message="@Localizer["Exercise.WrongMessage"]"
