@@ -2,7 +2,7 @@
 
 ## Overview
 
-Academia Auditiva is an **ASP.NET Core 8 MVC** application for ear-training
+Academia Auditiva is an **ASP.NET Core 10 MVC** application for ear-training
 exercises. It runs as a single Container App backed by Azure SQL, with all
 secrets in Key Vault and pulled by the app's user-assigned Managed Identity.
 
@@ -28,7 +28,7 @@ secrets in Key Vault and pulled by the app's user-assigned Managed Identity.
 └────────────────────────────┬───────────────────────┘
                              │
 ┌────────────────────────────▼───────────────────────┐
-│  EF Core 8 + SQL Server                             │
+│  EF Core 10 + SQL Server                           │
 │   ApplicationDbContext (Identity + domain tables)   │
 └────────────────────────────────────────────────────┘
 ```

@@ -2,6 +2,7 @@ using AcademiaAuditiva.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,10 +18,16 @@ namespace AcademiaAuditiva.IntegrationTests;
 ///    registration with an InMemory one (each test gets its own DB).
 /// 3. Provide a placeholder DefaultConnection so the configuration check
 ///    in Program.cs doesn't throw before Configure runs.
+///
+/// Subclasses can set <see cref="UseInMemoryDatabase"/> to false to keep
+/// the app's own SQL Server registration (never connected to) when a test
+/// needs the relational model.
 /// </summary>
 public class TestWebApplicationFactory : WebApplicationFactory<Program>
 {
     public string DatabaseName { get; } = $"AAIntegration_{Guid.NewGuid():N}";
+
+    protected virtual bool UseInMemoryDatabase => true;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -36,12 +43,17 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             });
         });
 
+        if (!UseInMemoryDatabase) return;
+
         builder.ConfigureServices(services =>
         {
             // Drop any pre-registered DbContext / DbContextOptions so we can
-            // swap the provider without conflicting registrations.
+            // swap the provider without conflicting registrations. EF Core 9+
+            // stores the AddDbContext callback as IDbContextOptionsConfiguration,
+            // which must go too or SqlServer and InMemory end up both registered.
             var toRemove = services.Where(d =>
                 d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>) ||
+                d.ServiceType == typeof(IDbContextOptionsConfiguration<ApplicationDbContext>) ||
                 d.ServiceType == typeof(ApplicationDbContext)).ToList();
             foreach (var d in toRemove) services.Remove(d);
 

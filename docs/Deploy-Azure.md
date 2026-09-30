@@ -153,7 +153,9 @@ and confirm the dashboard loads.
 ## CI/CD with GitHub Actions
 
 Once the manual deploy works, automate it with the workflow under
-`.github/workflows/cd.yml` (added in a later commit). It uses **OIDC**
+`.github/workflows/cd.yml`. On pushes to `master` that touch the app,
+infra, or build files, it first runs the CI workflow (build, tests, Bicep)
+and deploys only if CI passes. It uses **OIDC**
 federation to authenticate to Azure without storing secrets — see
 [Configure Federated Identity](#configure-federated-identity-one-time)
 below.

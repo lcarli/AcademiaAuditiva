@@ -5,9 +5,9 @@ conventions used in this repository.
 
 ## Branching
 
-- `main` — protected, always deployable.
+- `master` — protected, always deployable.
 - `feat/*`, `fix/*`, `chore/*`, `docs/*` — short-lived feature branches.
-- One PR per feature; squash-merge into `main`.
+- One PR per feature; squash-merge into `master`.
 
 ## Commits
 
@@ -42,6 +42,16 @@ Examples:
 - Localize new user-facing strings via `IStringLocalizer<SharedResources>`;
   do not hardcode pt-BR / en-US text in views or controllers.
 
+## Dependencies
+
+- The .NET SDK is pinned in `global.json`; shared build settings (target
+  framework, nullable, implicit usings) live in `Directory.Build.props`.
+- NuGet versions are managed centrally in `Directory.Packages.props`: add a
+  `<PackageVersion>` there and a versionless `<PackageReference>` in the
+  `.csproj`.
+- Dependabot opens grouped weekly PRs for NuGet packages and GitHub Actions;
+  `.github/dependabot.yml` lists the versions we deliberately hold back.
+
 ## Testing
 
 - Add or update tests for any behavior change in `Tests/UnitTests` or
@@ -51,7 +61,11 @@ Examples:
   dotnet build
   dotnet test
   ```
-- New EF entities require a migration: `dotnet ef migrations add <Name> --project AcademiaAuditiva`.
+- Model changes require a migration: run `dotnet tool restore` once (it
+  installs the `dotnet-ef` version pinned in `dotnet-tools.json`), then
+  `dotnet ef migrations add <Name> --project AcademiaAuditiva`.
+  `MigrationsTests` (integration tests) fails when the model and the
+  migrations drift apart.
 
 ## Security review
 

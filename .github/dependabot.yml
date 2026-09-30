@@ -1,0 +1,45 @@
+version: 2
+
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      aspnetcore-efcore:
+        patterns:
+          - "Microsoft.AspNetCore.*"
+          - "Microsoft.EntityFrameworkCore*"
+      azure:
+        patterns:
+          - "Azure.*"
+      testing:
+        patterns:
+          - "coverlet.*"
+          - "FluentAssertions"
+          - "Microsoft.NET.Test.Sdk"
+          - "Moq"
+          - "xunit*"
+    ignore:
+      # Major versions track the .NET release and need a target framework bump.
+      - dependency-name: "Microsoft.AspNetCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.EntityFrameworkCore*"
+        update-types: ["version-update:semver-major"]
+      # FluentAssertions 8+ requires a commercial license.
+      - dependency-name: "FluentAssertions"
+        versions: [">= 8.0.0"]
+      # Moving to the OpenTelemetry-based Application Insights SDK is a planned migration.
+      - dependency-name: "Microsoft.ApplicationInsights.AspNetCore"
+        versions: [">= 3.0.0"]
+      - dependency-name: "Serilog.Sinks.ApplicationInsights"
+        versions: [">= 5.0.0"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
