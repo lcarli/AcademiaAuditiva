@@ -79,6 +79,8 @@ namespace AcademiaAuditiva.Controllers
 		
 		[HttpPost]
 		[EnableRateLimiting("RequestPlay")]
+		// Legit payloads are ~100 bytes (exerciseId + a few filters).
+		[RequestSizeLimit(8 * 1024)]
 		public async Task<IActionResult> RequestPlay([FromBody] PlayRequestDto request)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -355,37 +357,6 @@ namespace AcademiaAuditiva.Controllers
 			return View(model);
 		}
 
-		[HttpPost]
-		public IActionResult GuessIntervalSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
-		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
-
-			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessInterval");
-			if (exercise == null)
-				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
-
-			int currentScore = Math.Max(0, correctCount - errorCount);
-
-			var newScore = new Score
-			{
-				UserId = userId,
-				ExerciseId = exercise.ExerciseId,
-				CorrectCount = correctCount,
-				ErrorCount = errorCount,
-				BestScore = currentScore,
-				TimeSpentSeconds = timeSpentSeconds,
-				Timestamp = DateTime.UtcNow
-			};
-
-			_context.Scores.Add(newScore);
-			_context.SaveChanges();
-
-			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
-		}
-
 		#endregion
 
 		#region GuessQuality
@@ -403,37 +374,6 @@ namespace AcademiaAuditiva.Controllers
 			return View(model);
 		}
 
-		[HttpPost]
-		public IActionResult GuessQualitySaveScore(int correctCount, int errorCount, int timeSpentSeconds)
-		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
-
-			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessQuality");
-			if (exercise == null)
-				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
-
-			int currentScore = Math.Max(0, correctCount - errorCount);
-
-			var newScore = new Score
-			{
-				UserId = userId,
-				ExerciseId = exercise.ExerciseId,
-				CorrectCount = correctCount,
-				ErrorCount = errorCount,
-				BestScore = currentScore,
-				TimeSpentSeconds = timeSpentSeconds,
-				Timestamp = DateTime.UtcNow
-			};
-
-			_context.Scores.Add(newScore);
-			_context.SaveChanges();
-
-			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
-		}
-
 		#endregion
 
 		#region GuessFunction
@@ -448,37 +388,6 @@ namespace AcademiaAuditiva.Controllers
 			var model = exercise.ToViewModel(_localizer);
 
 			return View(model);
-		}
-
-		[HttpPost]
-		public IActionResult GuessFunctionSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
-		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
-
-			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFunction");
-			if (exercise == null)
-				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
-
-			int currentScore = Math.Max(0, correctCount - errorCount);
-
-			var newScore = new Score
-			{
-				UserId = userId,
-				ExerciseId = exercise.ExerciseId,
-				CorrectCount = correctCount,
-				ErrorCount = errorCount,
-				BestScore = currentScore,
-				TimeSpentSeconds = timeSpentSeconds,
-				Timestamp = DateTime.UtcNow
-			};
-
-			_context.Scores.Add(newScore);
-			_context.SaveChanges();
-
-			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion
@@ -498,37 +407,6 @@ namespace AcademiaAuditiva.Controllers
 			return View(model);
 		}
 
-		[HttpPost]
-		public IActionResult GuessFullIntervalSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
-		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-			if (string.IsNullOrEmpty(userId))
-				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
-
-			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFullInterval");
-			if (exercise == null)
-				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
-
-			int currentScore = Math.Max(0, correctCount - errorCount);
-
-			var newScore = new Score
-			{
-				UserId = userId,
-				ExerciseId = exercise.ExerciseId,
-				CorrectCount = correctCount,
-				ErrorCount = errorCount,
-				BestScore = currentScore,
-				TimeSpentSeconds = timeSpentSeconds,
-				Timestamp = DateTime.UtcNow
-			};
-
-			_context.Scores.Add(newScore);
-			_context.SaveChanges();
-
-			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
-		}
-
 		#endregion
 
 		#region GuessMissingNote
@@ -543,40 +421,6 @@ namespace AcademiaAuditiva.Controllers
 			var model = exercise.ToViewModel(_localizer);
 
 			return View(model);
-		}
-
-		[HttpPost]
-		public IActionResult GuessMissingNoteSaveScore(int correctCount, int errorCount, int timeSpentSeconds)
-		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (string.IsNullOrEmpty(userId))
-			{
-				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
-			}
-
-			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessMissingNote");
-			if (exercise == null)
-			{
-				return Json(new { success = false, message = _localizer["Exercise.NotFound"].Value });
-			}
-
-			int currentScore = Math.Max(0, correctCount - errorCount);
-
-			var newScore = new Score
-			{
-				UserId = userId,
-				ExerciseId = exercise.ExerciseId,
-				CorrectCount = correctCount,
-				ErrorCount = errorCount,
-				BestScore = currentScore,
-				TimeSpentSeconds = timeSpentSeconds,
-				Timestamp = DateTime.UtcNow
-			};
-
-			_context.Scores.Add(newScore);
-			_context.SaveChanges();
-
-			return Json(new { success = true, message = _localizer["Exercise.ScoreSaved"].Value });
 		}
 
 		#endregion

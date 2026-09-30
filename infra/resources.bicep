@@ -173,6 +173,8 @@ module containerApp 'modules/containerapp.bicep' = {
     maxReplicas: containerAppMaxReplicas
     adminEmail: aadAdminLogin
     storageBlobEndpoint: storage.outputs.blobEndpoint
+    dataProtectionBlobUri: storage.outputs.dataProtectionBlobUri
+    dataProtectionKeyUri: keyvault.outputs.dataProtectionKeyUri
   }
   dependsOn: [
     sqlConnectionStringSecret

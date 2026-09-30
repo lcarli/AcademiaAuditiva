@@ -67,11 +67,6 @@ namespace AcademiaAuditiva.Controllers
             return LocalRedirect(returnUrl);
         }
 
-        public List<Score> GetBestScoresForUser(string userId)
-        {
-            return _userReportService.GetBestScoresForUser(userId);
-        }
-
         [HttpGet]
         public IActionResult GetUserProgress()
         {

@@ -1,5 +1,6 @@
 using AcademiaAuditiva.Interfaces;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
@@ -76,7 +77,7 @@ public class AnalyticsService : IAnalyticsService
 
         var prefix = exercise == null ? userId : $"{userId}/{exercise}";
 
-        await foreach (var blobItem in _containerClient.GetBlobsAsync(prefix: prefix))
+        await foreach (var blobItem in _containerClient.GetBlobsAsync(new GetBlobsOptions { Prefix = prefix }))
         {
             var blobClient = _containerClient.GetBlobClient(blobItem.Name);
             var downloadInfo = await blobClient.DownloadAsync();
