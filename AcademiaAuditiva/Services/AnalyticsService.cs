@@ -92,4 +92,25 @@ public class AnalyticsService : IAnalyticsService
 
         return logs;
     }
+
+    public async Task DeleteAttemptsAsync(string userId)
+    {
+        if (_containerClient is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await foreach (var blobItem in _containerClient.GetBlobsAsync(new GetBlobsOptions { Prefix = $"{userId}/" }))
+            {
+                await _containerClient.DeleteBlobIfExistsAsync(blobItem.Name);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Called after the account is already gone; leftovers are logged, not surfaced.
+            _logger.LogWarning(ex, "AnalyticsService failed to delete attempts for user {UserId}.", userId);
+        }
+    }
 }

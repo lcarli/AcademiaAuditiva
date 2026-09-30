@@ -3,16 +3,13 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Services;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
 {
@@ -20,13 +17,16 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<DownloadPersonalDataModel> _logger;
+        private readonly PersonalDataService _personalData;
 
         public DownloadPersonalDataModel(
             UserManager<ApplicationUser> userManager,
-            ILogger<DownloadPersonalDataModel> logger)
+            ILogger<DownloadPersonalDataModel> logger,
+            PersonalDataService personalData)
         {
             _userManager = userManager;
             _logger = logger;
+            _personalData = personalData;
         }
 
         public IActionResult OnGet()
@@ -44,25 +44,8 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
 
             _logger.LogInformation("User with ID '{UserId}' asked for their personal data.", _userManager.GetUserId(User));
 
-            // Only include personal data for download
-            var personalData = new Dictionary<string, string>();
-            var personalDataProps = typeof(ApplicationUser).GetProperties().Where(
-                            prop => Attribute.IsDefined(prop, typeof(PersonalDataAttribute)));
-            foreach (var p in personalDataProps)
-            {
-                personalData.Add(p.Name, p.GetValue(user)?.ToString() ?? "null");
-            }
-
-            var logins = await _userManager.GetLoginsAsync(user);
-            foreach (var l in logins)
-            {
-                personalData.Add($"{l.LoginProvider} external login provider key", l.ProviderKey);
-            }
-
-            personalData.Add($"Authenticator Key", await _userManager.GetAuthenticatorKeyAsync(user));
-
-            Response.Headers.Add("Content-Disposition", "attachment; filename=PersonalData.json");
-            return new FileContentResult(JsonSerializer.SerializeToUtf8Bytes(personalData), "application/json");
+            var json = await _personalData.ExportAsync(user, HttpContext.RequestAborted);
+            return File(json, "application/json", "PersonalData.json");
         }
     }
 }
