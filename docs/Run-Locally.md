@@ -18,6 +18,8 @@ development and testing. It assumes you have already cloned the repository.
   ```
 - **Node.js** is **not** required — the front-end uses CDN-hosted Tone.js
   and Bootstrap directly from `wwwroot/lib`.
+- **Docker** and the **Azure CLI** (`az`) — only to play the piano audio
+  locally (see step 3).
 
 ## 1. Configure local secrets
 
@@ -63,7 +65,36 @@ dotnet tool restore   # once: installs the dotnet-ef version pinned in dotnet-to
 dotnet ef database update --project AcademiaAuditiva
 ```
 
-## 3. Run the app
+## 3. Enable audio (piano samples)
+
+The exercises play piano samples that are **not** in git: in Azure they live
+in the private `piano-audio` blob container. Locally they are served by
+[Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite),
+the Azure Storage emulator. Without it, *Play* hangs for ~20 s and fails.
+
+Run once (downloads the 84 samples from the live site into the git-ignored
+`.local/audio/piano-audio` folder — sign in with any account):
+
+```powershell
+./scripts/local-audio.ps1 -DownloadFrom https://academiaauditiva.com
+```
+
+The script:
+
+1. downloads the samples (skips files that already exist; `-Force` re-downloads);
+2. starts the `aa-azurite` container on `127.0.0.1:10000` (restarts with
+   Docker; data kept in the `aa-azurite-data` volume);
+3. creates the `piano-audio` and `piano-audio-mixed` containers and uploads
+   the samples;
+4. sets the user-secret `Storage:ConnectionString` to
+   `UseDevelopmentStorage=true`, which makes the app use Azurite instead of
+   the managed-identity `Storage:BlobEndpoint`.
+
+Later runs without `-DownloadFrom` just re-upload the local samples (e.g.
+after `docker rm aa-azurite`). To go back to no audio, run
+`dotnet user-secrets remove "Storage:ConnectionString" --project AcademiaAuditiva`.
+
+## 4. Run the app
 
 ```powershell
 dotnet run --project AcademiaAuditiva
@@ -73,7 +104,7 @@ Open <https://localhost:5001> (or the port shown in the console).
 The bootstrap admin user will be created on first launch — sign in with
 the credentials you set under `Admin:*`.
 
-## 4. Run the tests
+## 5. Run the tests
 
 ```powershell
 dotnet test
@@ -93,4 +124,6 @@ required.
 | Port already in use | Set `ASPNETCORE_URLS=http://localhost:5050` before `dotnet run` |
 | Facebook button missing | `Facebook:AppId` / `Facebook:AppSecret` not set — expected for local dev |
 | Emails not sent | Same — `Smtp:*` is optional. Check the Console log for the warning. |
+| *Play* spins for ~20 s and no sound plays | No audio storage configured: run `./scripts/local-audio.ps1` (step 3) |
+| *Play* stopped working (Azurite container stopped) | `docker start aa-azurite` |
 | Stuck on EF migration | Drop the DB: `DROP DATABASE [AcademiaAuditiva-dev]` then re-run |

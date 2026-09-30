@@ -225,12 +225,17 @@ builder.Services.AddSingleton<AcademiaAuditiva.Interfaces.IAudioTokenService,
 // Both containers live in the same storage account; one client with
 // the app's managed identity is enough.
 //
+// Local development: Storage:ConnectionString (set by
+// scripts/local-audio.ps1 to "UseDevelopmentStorage=true", i.e. Azurite)
+// takes precedence over the managed-identity endpoint.
+//
 // We always register the client and the mixer so the rest of the
-// graph can resolve at startup. When Storage:BlobEndpoint is missing
+// graph can resolve at startup. When neither setting is present
 // (local dev without storage), the underlying calls just fail at
 // request time — same fail-mode as before.
 {
     var blobEndpoint = builder.Configuration["Storage:BlobEndpoint"];
+    var storageConnectionString = builder.Configuration["Storage:ConnectionString"];
     var miClientId = builder.Configuration["ManagedIdentityClientId"];
     var azureCredential = string.IsNullOrWhiteSpace(miClientId)
         ? new Azure.Identity.DefaultAzureCredential()
@@ -241,7 +246,9 @@ builder.Services.AddSingleton<AcademiaAuditiva.Interfaces.IAudioTokenService,
     var endpointUri = !string.IsNullOrWhiteSpace(blobEndpoint)
         ? new Uri(blobEndpoint)
         : new Uri("https://placeholder.invalid/");
-    builder.Services.AddSingleton(new Azure.Storage.Blobs.BlobServiceClient(endpointUri, azureCredential));
+    builder.Services.AddSingleton(!string.IsNullOrWhiteSpace(storageConnectionString)
+        ? new Azure.Storage.Blobs.BlobServiceClient(storageConnectionString)
+        : new Azure.Storage.Blobs.BlobServiceClient(endpointUri, azureCredential));
     builder.Services.AddSingleton<AcademiaAuditiva.Interfaces.IAudioMixerService,
         AcademiaAuditiva.Services.Audio.AudioMixerService>();
 
