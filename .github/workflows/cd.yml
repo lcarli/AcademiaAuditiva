@@ -115,7 +115,7 @@ jobs:
           FQDN=$(az containerapp show -n ${{ env.CONTAINER_APP }} -g ${{ env.RESOURCE_GROUP }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --query properties.configuration.ingress.fqdn -o tsv)
           for i in {1..30}; do
             live=$(curl -fsS "https://$FQDN/health/live" || true)
-            version=$(jq -r '.version // ""' <<< "${live:-{}}")
+            version=$(jq -r '.version // empty' <<< "$live" 2>/dev/null || true)
             if [ "$version" = "${{ github.sha }}" ]; then
               echo "Live OK on version $version"; break
             fi
@@ -123,4 +123,5 @@ jobs:
             sleep 5
           done
           ready=$(curl -fsS "https://$FQDN/health/ready") || (echo "Readiness failed"; exit 1)
-          test "$(jq -r '.version // ""' <<< "$ready")" = "${{ github.sha }}" || (echo "Readiness returned the wrong version"; exit 1)
+          ready_version=$(jq -r '.version // empty' <<< "$ready" 2>/dev/null || true)
+          test "$ready_version" = "${{ github.sha }}" || (echo "Readiness returned the wrong version '${ready_version:-none}'"; exit 1)

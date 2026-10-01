@@ -105,7 +105,6 @@ if (!string.IsNullOrWhiteSpace(appInsightsConnectionString) && !builder.Environm
         .UseAzureMonitor(options =>
         {
             options.ConnectionString = appInsightsConnectionString;
-            options.SamplingRatio = builder.Configuration.GetValue("OpenTelemetry:SamplingRatio", 0.25F);
         });
 }
 
@@ -127,6 +126,12 @@ if (!builder.Environment.IsEnvironment("Testing"))
            .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
            .Enrich.WithProperty("AppVersion", appVersion);
     }, writeToProviders: true);
+
+    // Register after Azure Monitor OpenTelemetry so its exporter hosted
+    // service starts first. This keeps migration/seed/bootstrap logs and
+    // startup failures exportable while still failing fast before Kestrel
+    // serves traffic if database bootstrap fails.
+    builder.Services.AddHostedService<StartupBootstrapHostedService>();
 }
 
 // Health checks: liveness ("is the process up?") and readiness ("can it
@@ -446,28 +451,6 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
     ResponseWriter = WriteHealthResponse
 });
 
-//seed
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<ApplicationDbContext>();
-
-    // Tests use the InMemory EF provider, which doesn't support Migrate().
-    // Skip schema bootstrap/seed/admin-bootstrap in the Testing environment;
-    // tests that need data seed it explicitly via the WebApplicationFactory.
-    if (!app.Environment.IsEnvironment("Testing"))
-    {
-        // Apply pending EF migrations on startup so a fresh DB (e.g. first
-        // deploy in a new tenant) is brought up to schema before seed/bootstrap.
-        context.Database.Migrate();
-
-        SeedData.SeedExercises(context);
-
-        var bootstrapper = services.GetRequiredService<IdentityBootstrapper>();
-        await bootstrapper.RunAsync();
-    }
-}
-
 app.Run();
 }
 catch (Exception ex) when (ex is not HostAbortedException
@@ -479,6 +462,7 @@ catch (Exception ex) when (ex is not HostAbortedException
     && !(ex.GetType().FullName?.Contains("StopTheHost") ?? false))
 {
     Log.Fatal(ex, "Host terminated unexpectedly");
+    Environment.ExitCode = 1;
 }
 finally
 {
@@ -488,3 +472,43 @@ finally
 // Exposes the implicit Program class to WebApplicationFactory<Program>
 // in the integration test project.
 public partial class Program { }
+
+internal sealed class StartupBootstrapHostedService : IHostedService
+{
+    private readonly IServiceProvider _services;
+    private readonly ILogger<StartupBootstrapHostedService> _logger;
+
+    public StartupBootstrapHostedService(
+        IServiceProvider services,
+        ILogger<StartupBootstrapHostedService> logger)
+    {
+        _services = services;
+        _logger = logger;
+    }
+
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation("Starting database migration, exercise seed and admin bootstrap.");
+
+            using var scope = _services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await context.Database.MigrateAsync(cancellationToken);
+
+            SeedData.SeedExercises(context);
+
+            var bootstrapper = scope.ServiceProvider.GetRequiredService<IdentityBootstrapper>();
+            await bootstrapper.RunAsync();
+
+            _logger.LogInformation("Database migration, exercise seed and admin bootstrap completed.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, "Database migration, exercise seed or admin bootstrap failed.");
+            throw;
+        }
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+}
