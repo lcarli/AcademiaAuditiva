@@ -66,6 +66,7 @@ public class ExerciseValidatorTests
     [InlineData(typeof(GuessMissingNoteValidator), "GuessMissingNote")]
     [InlineData(typeof(GuessFunctionValidator), "GuessFunction")]
     [InlineData(typeof(GuessQualityValidator), "GuessQuality")]
+    [InlineData(typeof(HigherOrLowerValidator), "HigherOrLower")]
     public void SingleFieldValidators_MatchOnAnswerField_CaseInsensitive(System.Type validatorType, string expectedName)
     {
         var v = (IExerciseValidator)Activator.CreateInstance(validatorType)!;
@@ -98,6 +99,58 @@ public class ExerciseValidatorTests
         v.ExerciseName.Should().Be("GuessFullInterval");
         result.IsCorrect.Should().Be(correct);
         result.CanonicalAnswer.Should().Be(expected);
+    }
+
+    [Fact]
+    public void GuessScaleTypeValidator_MatchesOnScaleTypeField_CaseInsensitive()
+    {
+        var v = new GuessScaleTypeValidator();
+        v.ExerciseName.Should().Be("GuessScaleType");
+
+        var json = "{\"scaleType\":\"majorPentatonic\",\"notes\":[\"C4\",\"D4\"]}";
+        v.Validate("majorPentatonic", json).IsCorrect.Should().BeTrue();
+        v.Validate("MAJORPENTATONIC", json).IsCorrect.Should().BeTrue();
+        v.Validate("major", json).IsCorrect.Should().BeFalse();
+        v.Validate("majorPentatonic", json).CanonicalAnswer.Should().Be("majorPentatonic");
+    }
+
+    [Fact]
+    public void GuessGreekModeValidator_MatchesOnModeField_CaseInsensitive()
+    {
+        var v = new GuessGreekModeValidator();
+        v.ExerciseName.Should().Be("GuessGreekMode");
+
+        var json = "{\"mode\":\"dorian\",\"notes\":[\"D4\",\"E4\"]}";
+        v.Validate("dorian", json).IsCorrect.Should().BeTrue();
+        v.Validate("DORIAN", json).IsCorrect.Should().BeTrue();
+        v.Validate("ionian", json).IsCorrect.Should().BeFalse();
+        v.Validate("dorian", json).CanonicalAnswer.Should().Be("dorian");
+    }
+
+    [Fact]
+    public void GuessCadenceValidator_MatchesOnCadenceField_CaseInsensitive()
+    {
+        var v = new GuessCadenceValidator();
+        v.ExerciseName.Should().Be("GuessCadence");
+
+        var json = "{\"cadence\":\"deceptive\",\"chords\":[[\"C3\"]]}";
+        v.Validate("deceptive", json).IsCorrect.Should().BeTrue();
+        v.Validate("DECEPTIVE", json).IsCorrect.Should().BeTrue();
+        v.Validate("perfect", json).IsCorrect.Should().BeFalse();
+        v.Validate("deceptive", json).CanonicalAnswer.Should().Be("deceptive");
+    }
+
+    [Fact]
+    public void GuessInversionValidator_MatchesOnInversionField_CaseInsensitive()
+    {
+        var v = new GuessInversionValidator();
+        v.ExerciseName.Should().Be("GuessInversion");
+
+        var json = "{\"inversion\":\"first\",\"notes\":[\"E4\",\"G4\",\"C5\"]}";
+        v.Validate("first", json).IsCorrect.Should().BeTrue();
+        v.Validate("FIRST", json).IsCorrect.Should().BeTrue();
+        v.Validate("root", json).IsCorrect.Should().BeFalse();
+        v.Validate("first", json).CanonicalAnswer.Should().Be("first");
     }
 
     [Fact]

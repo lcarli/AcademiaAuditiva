@@ -425,6 +425,182 @@
     <value>Adivinhe a nota</value>
     <comment>.</comment>
   </data>
+  <data name="HigherOrLower" xml:space="preserve">
+    <value>Mais alto ou mais grave</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.HigherOrLower.Title" xml:space="preserve">
+    <value>Mais alto ou mais grave</value>
+    <comment />
+  </data>
+  <data name="Exercise.HigherOrLowerText" xml:space="preserve">
+    <value>A segunda nota foi mais alta ou mais grave que a primeira?</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectHigherOrLowerText" xml:space="preserve">
+    <value>Selecione se a segunda nota é mais alta ou mais grave.</value>
+    <comment />
+  </data>
+  <data name="Exercise.HigherAnswer" xml:space="preserve">
+    <value>Mais alta</value>
+    <comment />
+  </data>
+  <data name="Exercise.LowerAnswer" xml:space="preserve">
+    <value>Mais grave</value>
+    <comment />
+  </data>
+  <data name="GuessScaleType" xml:space="preserve">
+    <value>Adivinhe o tipo de escala</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessScaleType.Title" xml:space="preserve">
+    <value>Adivinhe o tipo de escala</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessScaleTypeText" xml:space="preserve">
+    <value>Ouça a escala e identifique o tipo.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessScaleTypeText" xml:space="preserve">
+    <value>Selecione um tipo de escala.</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMajor" xml:space="preserve">
+    <value>Maior</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMinor" xml:space="preserve">
+    <value>Menor</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMajorPentatonic" xml:space="preserve">
+    <value>Pentatônica maior</value>
+    <comment />
+  </data>
+  <data name="Exercise.ScaleTypeMinorPentatonic" xml:space="preserve">
+    <value>Pentatônica menor</value>
+    <comment />
+  </data>
+  <data name="GuessGreekMode" xml:space="preserve">
+    <value>Adivinhe o modo grego</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessGreekMode.Title" xml:space="preserve">
+    <value>Adivinhe o modo grego</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessGreekModeText" xml:space="preserve">
+    <value>Ouça a escala modal e identifique qual modo grego está tocando.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessGreekModeText" xml:space="preserve">
+    <value>Selecione um modo grego.</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeIonian" xml:space="preserve">
+    <value>Jônio</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeDorian" xml:space="preserve">
+    <value>Dórico</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModePhrygian" xml:space="preserve">
+    <value>Frígio</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeLydian" xml:space="preserve">
+    <value>Lídio</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeMixolydian" xml:space="preserve">
+    <value>Mixolídio</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeAeolian" xml:space="preserve">
+    <value>Eólio</value>
+    <comment />
+  </data>
+  <data name="Exercise.ModeLocrian" xml:space="preserve">
+    <value>Lócrio</value>
+    <comment />
+  </data>
+  <data name="GuessCadence" xml:space="preserve">
+    <value>Adivinhe a cadência</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessCadence.Title" xml:space="preserve">
+    <value>Adivinhe a cadência</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessCadenceText" xml:space="preserve">
+    <value>Ouça a progressão de 4 acordes e identifique a cadência.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessCadenceText" xml:space="preserve">
+    <value>Selecione um tipo de cadência.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadencePerfect" xml:space="preserve">
+    <value>Perfeita</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadencePlagal" xml:space="preserve">
+    <value>Plagal</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadenceImperfect" xml:space="preserve">
+    <value>Imperfeita</value>
+    <comment />
+  </data>
+  <data name="Exercise.CadenceDeceptive" xml:space="preserve">
+    <value>Deceptiva</value>
+    <comment />
+  </data>
+  <data name="GuessInversion" xml:space="preserve">
+    <value>Adivinhe a inversão</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessInversion.Title" xml:space="preserve">
+    <value>Adivinhe a inversão</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessInversionText" xml:space="preserve">
+    <value>Ouça o acorde e identifique a inversão.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectGuessInversionText" xml:space="preserve">
+    <value>Selecione uma inversão.</value>
+    <comment />
+  </data>
+  <data name="Exercise.InversionRoot" xml:space="preserve">
+    <value>Estado fundamental</value>
+    <comment />
+  </data>
+  <data name="Exercise.InversionFirst" xml:space="preserve">
+    <value>1ª inversão</value>
+    <comment />
+  </data>
+  <data name="Exercise.InversionSecond" xml:space="preserve">
+    <value>2ª inversão</value>
+    <comment />
+  </data>
+  <data name="CompleteScale" xml:space="preserve">
+    <value>Complete a escala</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.CompleteScale.Title" xml:space="preserve">
+    <value>Complete a escala</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScaleText" xml:space="preserve">
+    <value>Ouça a tônica e coloque as notas restantes na pauta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectCompleteScaleText" xml:space="preserve">
+    <value>Coloque as notas restantes da escala na pauta.</value>
+    <comment />
+  </data>
   <data name="GuessChords" xml:space="preserve">
     <value>Adivinhe o acorde</value>
     <comment>.</comment>
@@ -2651,5 +2827,125 @@
   </data>
   <data name="Manage.PersonalData.PrivacyLink" xml:space="preserve">
     <value>Como tratamos seus dados</value>
+  </data>
+  <data name="Exercise.HigherOrLower.Subtitle" xml:space="preserve">
+    <value>Ouça duas notas e decida se a segunda subiu ou desceu.</value>
+    <comment />
+  </data>
+  <data name="Exercise.HigherOrLower.Instructions" xml:space="preserve">
+    <value>Ouça as duas notas em sequência e escolha se a segunda nota é mais alta ou mais grave que a primeira.</value>
+    <comment />
+  </data>
+  <data name="Exercise.HigherOrLower.Tip1" xml:space="preserve">
+    <value>Concentre-se na direção do som em vez de tentar nomear cada nota.</value>
+    <comment />
+  </data>
+  <data name="Exercise.HigherOrLower.Tip2" xml:space="preserve">
+    <value>Cante a primeira nota e perceba se a voz precisa subir ou descer.</value>
+    <comment />
+  </data>
+  <data name="Exercise.HigherOrLower.Tip3" xml:space="preserve">
+    <value>Use uma tessitura maior quando estiver pronto para saltos mais amplos.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessScaleType.Subtitle" xml:space="preserve">
+    <value>Identifique se a escala tocada é maior, menor ou pentatônica.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessScaleType.Instructions" xml:space="preserve">
+    <value>Ouça a escala completa e escolha o tipo de escala que corresponde ao som.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessScaleType.Tip1" xml:space="preserve">
+    <value>Escalas maiores costumam soar brilhantes e estáveis.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessScaleType.Tip2" xml:space="preserve">
+    <value>Escalas menores costumam soar mais escuras ou tensas.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessScaleType.Tip3" xml:space="preserve">
+    <value>Escalas pentatônicas têm menos notas e um contorno mais aberto.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessGreekMode.Subtitle" xml:space="preserve">
+    <value>Reconheça de ouvido os sete modos gregos.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessGreekMode.Instructions" xml:space="preserve">
+    <value>Ouça a escala modal e selecione o modo grego que está sendo tocado.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessGreekMode.Tip1" xml:space="preserve">
+    <value>Jônio é o som maior familiar; eólio é o som menor natural familiar.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessGreekMode.Tip2" xml:space="preserve">
+    <value>Dórico tem cor menor com sexta maior; frígio tem segunda menor.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessGreekMode.Tip3" xml:space="preserve">
+    <value>Lídio soa claro pela quarta aumentada; lócrio soa instável pela quinta diminuta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessCadence.Subtitle" xml:space="preserve">
+    <value>Ouça uma progressão de quatro acordes e identifique a cadência.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessCadence.Instructions" xml:space="preserve">
+    <value>Ouça a progressão. Os primeiros acordes estabelecem a tonalidade e o movimento final define a cadência.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessCadence.Tip1" xml:space="preserve">
+    <value>Cadências perfeitas soam resolvidas e conclusivas.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessCadence.Tip2" xml:space="preserve">
+    <value>Cadências plagais têm o som familiar de “amém”, de IV para I.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessCadence.Tip3" xml:space="preserve">
+    <value>Cadências imperfeitas param no V; cadências deceptivas evitam a resolução esperada.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessInversion.Subtitle" xml:space="preserve">
+    <value>Identifique se a tríade está no estado fundamental, na primeira inversão ou na segunda inversão.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessInversion.Instructions" xml:space="preserve">
+    <value>Ouça o acorde e escolha a inversão observando a nota do baixo e o espaçamento do acorde.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessInversion.Tip1" xml:space="preserve">
+    <value>No estado fundamental, a fundamental do acorde está no baixo.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessInversion.Tip2" xml:space="preserve">
+    <value>Na primeira inversão, a terça fica no baixo e o acorde costuma soar mais leve.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessInversion.Tip3" xml:space="preserve">
+    <value>Na segunda inversão, a quinta fica no baixo e o acorde costuma soar menos estável.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScale.Subtitle" xml:space="preserve">
+    <value>Ouça a tônica e complete o restante da escala na pauta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScale.Instructions" xml:space="preserve">
+    <value>Clique em Tocar para ouvir a tônica. Depois use o editor de pauta para inserir as notas restantes da escala em ordem ascendente.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScale.Tip1" xml:space="preserve">
+    <value>Padrão da escala maior: tom, tom, semitom, tom, tom, tom, semitom.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScale.Tip2" xml:space="preserve">
+    <value>Padrão da menor natural: tom, semitom, tom, tom, semitom, tom, tom.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScale.Tip3" xml:space="preserve">
+    <value>Use sustenidos ou bemóis depois de inserir uma nota se a escala pedir um acidente.</value>
+    <comment />
   </data>
 </root>

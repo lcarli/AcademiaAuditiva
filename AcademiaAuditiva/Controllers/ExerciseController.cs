@@ -139,11 +139,53 @@ namespace AcademiaAuditiva.Controllers
 
 			// Uniform response: most exercises ship one play token; only
 			// GuessMissingNote ships two (melody1Token, melody2Token).
-			object response = exercise.Name == "GuessMissingNote"
-				? new { roundId = round.RoundId, melody1Token = round.Tokens[0], melody2Token = round.Tokens[1] }
-				: new { roundId = round.RoundId, playToken = round.Tokens[0] };
+			// Staff-based exercises also need a `metadata` payload so the
+			// front-end can pre-render the prompt notes / staff context
+			// without leaking the full answer.
+			var staffExercises = new HashSet<string> {
+				"CompleteScale", "CompleteChord", "TransposeScale",
+				"MelodicDictation", "RhythmDictation"
+			};
+			object response;
+			if (exercise.Name == "GuessMissingNote")
+			{
+				response = new { roundId = round.RoundId, melody1Token = round.Tokens[0], melody2Token = round.Tokens[1] };
+			}
+			else if (staffExercises.Contains(exercise.Name))
+			{
+				// Build a plain CLR dictionary because the action returns via
+				// System.Text.Json (no AddNewtonsoftJson is registered) which
+				// cannot serialize a Newtonsoft JObject as a real JSON object.
+				var expected = JObject.Parse(plan.ExpectedAnswerJson);
+				var metadata = new Dictionary<string, object?>();
+				foreach (var field in new[] {
+					"promptNotes", "clef", "keySignature", "timeSignature",
+					"numMeasures", "octave", "originalRoot", "targetRoot", "scale", "level"
+				})
+				{
+					var token = expected[field];
+					if (token != null && token.Type != JTokenType.Null)
+					{
+						metadata[field] = ToPlainJsonValue(token);
+					}
+				}
+				response = new { roundId = round.RoundId, playToken = round.Tokens[0], metadata = metadata };
+			}
+			else
+			{
+				response = new { roundId = round.RoundId, playToken = round.Tokens[0] };
+			}
 			return Json(response);
 		}
+
+		private static object? ToPlainJsonValue(JToken token)
+			=> token switch
+			{
+				JValue value => value.Value,
+				JArray array => array.Select(ToPlainJsonValue).ToArray(),
+				JObject obj => obj.Properties().ToDictionary(p => p.Name, p => ToPlainJsonValue(p.Value)),
+				_ => token.ToString()
+			};
 
 
 		[HttpPost]
@@ -156,6 +198,16 @@ namespace AcademiaAuditiva.Controllers
 			var exercise = await _context.Exercises.FirstOrDefaultAsync(e => e.ExerciseId == dto.ExerciseId);
 			if (exercise == null)
 				return NotFound(_localizer["Exercise.NotFound"].Value);
+
+			// Defensive guard: the auth cookie might survive across DB
+			// resets (common in local dev when the dev container is
+			// recreated). When the cookie's UserId no longer exists in
+			// AspNetUsers, the score INSERTs would blow up on the FK
+			// constraint and surface as an opaque 500. Bail out early
+			// with a friendly message instead.
+			var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+			if (!userExists)
+				return Json(new { success = false, message = _localizer["Exercise.SessionExpired"].Value, isCorrect = false });
 
 			// Resolve the expected answer either from the round (modern
 			// audio-token flow) or, for sheet-music exercises that don't
@@ -310,6 +362,96 @@ namespace AcademiaAuditiva.Controllers
 			return View(model);
 		}
 
+		#endregion
+
+		#region HigherOrLower
+		public IActionResult HigherOrLower()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "HigherOrLower");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
+		#region GuessScaleType
+		public IActionResult GuessScaleType()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessScaleType");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
+		#region GuessGreekMode
+		public IActionResult GuessGreekMode()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessGreekMode");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
+		#region GuessCadence
+		public IActionResult GuessCadence()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessCadence");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
+		#region GuessInversion
+		public IActionResult GuessInversion()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessInversion");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
+		#region CompleteScale
+		public IActionResult CompleteScale()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "CompleteScale");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
 		#endregion
 
 		#region GuessChord
