@@ -27,6 +27,24 @@ public class StaffSequenceValidatorTests
     }
 
     [Fact]
+    public void StaffSequence_EnharmonicFlatSpellings_AreAccepted()
+    {
+        var v = new CompleteScaleValidator();
+        var json = "{\"answerString\":\"A#4:w|C#5:q\"}";
+
+        v.Validate("Bb4:w|Db5:q", json).IsCorrect.Should().BeTrue();
+    }
+
+    [Fact]
+    public void StaffSequence_EnharmonicMatch_StillRequiresMatchingDuration()
+    {
+        var v = new CompleteScaleValidator();
+        var json = "{\"answerString\":\"A#4:w\"}";
+
+        v.Validate("Bb4:q", json).IsCorrect.Should().BeFalse();
+    }
+
+    [Fact]
     public void StaffSequence_BarAliasesAreEquivalent()
     {
         var v = new MelodicDictationValidator();

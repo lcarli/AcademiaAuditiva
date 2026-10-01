@@ -2948,4 +2948,24 @@
     <value>Use sustenidos ou bemóis depois de inserir uma nota se a escala pedir um acidente.</value>
     <comment />
   </data>
+  <data name="Exercise.Any" xml:space="preserve">
+    <value>Qualquer</value>
+    <comment />
+  </data>
+  <data name="Exercise.Octave" xml:space="preserve">
+    <value>Oitava</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScale.Prompt" xml:space="preserve">
+    <value>Tipo de escala: {{0}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.OctaveDown" xml:space="preserve">
+    <value>Oitava abaixo</value>
+    <comment />
+  </data>
+  <data name="Exercise.OctaveUp" xml:space="preserve">
+    <value>Oitava acima</value>
+    <comment />
+  </data>
 </root>

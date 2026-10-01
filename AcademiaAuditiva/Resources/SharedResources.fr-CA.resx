@@ -2948,4 +2948,24 @@
     <value>Ajoutez des dièses ou des bémols après avoir placé une note si la gamme exige une altération.</value>
     <comment />
   </data>
+  <data name="Exercise.Any" xml:space="preserve">
+    <value>N’importe lequel</value>
+    <comment />
+  </data>
+  <data name="Exercise.Octave" xml:space="preserve">
+    <value>Octave</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScale.Prompt" xml:space="preserve">
+    <value>Type de gamme : {{0}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.OctaveDown" xml:space="preserve">
+    <value>Octave inférieure</value>
+    <comment />
+  </data>
+  <data name="Exercise.OctaveUp" xml:space="preserve">
+    <value>Octave supérieure</value>
+    <comment />
+  </data>
 </root>

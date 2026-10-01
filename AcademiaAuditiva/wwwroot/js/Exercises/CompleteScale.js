@@ -9,6 +9,25 @@ document.addEventListener("DOMContentLoaded", () => {
   let staffInstance = null;
   const exerciseStartTime = Date.now();
 
+  function filterValues() {
+    const filters = {};
+    document.querySelectorAll("#filtersModal select").forEach((select) => {
+      filters[select.name || select.id] = select.value;
+    });
+    return filters;
+  }
+
+  function scaleLabel(scale) {
+    const key = "scale" + String(scale || "").charAt(0).toUpperCase() + String(scale || "").slice(1);
+    return loc[key] || scale || "";
+  }
+
+  function setPrompt(metadata) {
+    const prompt = document.getElementById("staffPrompt");
+    if (!prompt) return;
+    prompt.textContent = String(loc.completeScalePrompt || "").replace("{{0}}", scaleLabel(metadata.scale));
+  }
+
   function mountEditor(rootNote) {
     const octave = parseInt(String(rootNote).match(/\d+/)?.[0] || "4", 10);
     staffInstance = window.StaffEditor.attach("#staffEditor", {
@@ -20,6 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
       restDurations: [],
       showBarline: false,
       totalSlots: 10,
+      minOctave: 2,
+      maxOctave: 6,
+      octaveDisplayLabel: loc.octaveLabel,
+      octaveDownLabel: loc.octaveDownLabel,
+      octaveUpLabel: loc.octaveUpLabel,
       prefilledNotes: [{ note: rootNote, duration: "w" }],
     });
   }
@@ -35,13 +59,14 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("/Exercise/RequestPlay", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ exerciseId }),
+      body: JSON.stringify({ exerciseId, filters: filterValues() }),
     })
       .then((r) => r.json())
       .then((data) => {
         playToken = data.playToken;
         roundId = data.roundId;
         const promptRoot = data.metadata?.promptNotes?.[0];
+        setPrompt(data.metadata || {});
         if (promptRoot) mountEditor(promptRoot);
         if (playToken) AudioEngine.playToken(playToken);
       });

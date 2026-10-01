@@ -21,6 +21,31 @@ public class StaffExerciseGeneratorTests
         return JObject.FromObject(raw);
     }
 
+    private static void AssertEditorCanEnter(string answerString, int minOctave = 2, int maxOctave = 6)
+    {
+        var durations = new HashSet<string> { "w", "h", "q", "8", "16", "wr", "hr", "qr", "8r", "16r" };
+        foreach (var token in answerString.Split('|', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (token is "bar" or "barline")
+            {
+                continue;
+            }
+
+            var parts = token.Split(':');
+            parts.Length.Should().Be(2, $"token '{token}' must be note:duration");
+            durations.Should().Contain(parts[1], $"duration '{parts[1]}' must be available in the editor");
+            if (parts[0] == "rest" || parts[1].EndsWith('r'))
+            {
+                continue;
+            }
+
+            var octave = int.Parse(parts[0][^1].ToString());
+            octave.Should().BeInRange(minOctave, maxOctave, $"note '{parts[0]}' must be within editor octave controls");
+            parts[0].TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+                .Should().BeOneOf("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B");
+        }
+    }
+
     [Fact]
     public void CompleteScale_ProducesMelodyWithRootAndAnswerWithRest()
     {
@@ -33,6 +58,40 @@ public class StaffExerciseGeneratorTests
 
         var answer = json.Value<string>("answerString")!;
         answer.Should().Be("D4:w|E4:w|F4:w|G4:w|A4:w|B4:w|C5:w");
+    }
+
+    [Fact]
+    public void CompleteScale_OfferedFilters_AlwaysProduceEditorEnterableAnswers()
+    {
+        var roots = new[] { "any", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+        var scales = new[] { "all", "major", "minor", "majorPentatonic", "minorPentatonic" };
+        var octaves = new[] { "3", "4" };
+
+        foreach (var root in roots)
+        foreach (var scale in scales)
+        foreach (var octave in octaves)
+        {
+            var json = GenerateJson("CompleteScale", new() { { "csRoot", root }, { "csScale", scale }, { "csOctave", octave } });
+            json["error"].Should().BeNull($"filters {root}/{scale}/{octave} should be supported");
+            AssertEditorCanEnter(json.Value<string>("answerString")!);
+        }
+    }
+
+    [Fact]
+    public void CompleteScale_InvalidFilters_FallBackToValidRound()
+    {
+        var json = GenerateJson("CompleteScale", new()
+        {
+            { "csRoot", "Db" },
+            { "csScale", "x" },
+            { "csOctave", "9" }
+        });
+
+        json["error"].Should().BeNull();
+        json.Value<string>("root").Should().NotBe("Db");
+        json.Value<string>("scale").Should().BeOneOf("major", "minor", "majorPentatonic", "minorPentatonic");
+        json.Value<int>("octave").Should().Be(4);
+        AssertEditorCanEnter(json.Value<string>("answerString")!);
     }
 
     [Fact]

@@ -1056,13 +1056,27 @@ namespace AcademiaAuditiva.Services
                 case "CompleteScale":
                 {
                     var allNotesPool = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-                    var csRoot = filters.TryGetValue("csRoot", out var csR) && csR != "any" ? csR : allNotesPool[random.Next(allNotesPool.Length)];
-                    var csScale = filters.TryGetValue("csScale", out var csS) && csS != "all" ? csS : new[] { "major", "minor", "majorPentatonic", "minorPentatonic" }[random.Next(4)];
-                    var csOctave = filters.TryGetValue("csOctave", out var csO) && int.TryParse(csO, out var csOctP) ? csOctP : 4;
+                    var scalePool = new[] { "major", "minor", "majorPentatonic", "minorPentatonic" };
+                    var csRoot = filters.TryGetValue("csRoot", out var csR) && allNotesPool.Contains(csR)
+                        ? csR
+                        : allNotesPool[random.Next(allNotesPool.Length)];
+                    var csScale = filters.TryGetValue("csScale", out var csS) && scalePool.Contains(csS)
+                        ? csS
+                        : scalePool[random.Next(scalePool.Length)];
+                    var csOctave = filters.TryGetValue("csOctave", out var csO)
+                        && int.TryParse(csO, out var csOctP)
+                        && (csOctP == 3 || csOctP == 4)
+                        ? csOctP
+                        : 4;
 
                     var csNotes = GetScaleNotes(csRoot + csOctave, csScale);
                     if (csNotes.Count < 2)
-                        return new { error = "Escala não pôde ser gerada." };
+                    {
+                        csRoot = "C";
+                        csScale = "major";
+                        csOctave = 4;
+                        csNotes = GetScaleNotes(csRoot + csOctave, csScale);
+                    }
 
                     // Audio plays the root only; user must complete the rest on the staff.
                     var csMelody = new[] {

@@ -11,6 +11,7 @@
     <div class="col-lg-8 order-lg-2">
         <section class="aa-panel" aria-labelledby="aa-question">
             <h2 id="aa-question" class="aa-question">@Localizer["Exercise.CompleteScaleText"]</h2>
+            <p id="staffPrompt" class="text-secondary text-center mb-0"></p>
 
             <div class="aa-audio-row">
                 @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
@@ -41,7 +42,15 @@
      data-correct-message="@Localizer["Exercise.CorrectMessage"]"
      data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
      data-wrong-message="@Localizer["Exercise.WrongMessage"]"
-     data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]">
+     data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]"
+     data-complete-scale-prompt="@Localizer["Exercise.CompleteScale.Prompt"].Value"
+     data-scale-major="@Localizer["Exercise.ScaleTypeMajor"]"
+     data-scale-minor="@Localizer["Exercise.ScaleTypeMinor"]"
+     data-scale-major-pentatonic="@Localizer["Exercise.ScaleTypeMajorPentatonic"]"
+     data-scale-minor-pentatonic="@Localizer["Exercise.ScaleTypeMinorPentatonic"]"
+     data-octave-label="@Localizer["Exercise.Octave"]"
+     data-octave-down-label="@Localizer["Exercise.OctaveDown"]"
+     data-octave-up-label="@Localizer["Exercise.OctaveUp"]">
 </div>
 
 @section Scripts {

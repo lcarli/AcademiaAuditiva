@@ -1,4 +1,5 @@
 using AcademiaAuditiva.Interfaces;
+using AcademiaAuditiva.Services;
 using Newtonsoft.Json.Linq;
 
 namespace AcademiaAuditiva.Services.ExerciseValidators
@@ -153,10 +154,9 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
     /// Shared logic for staff-based exercises (CompleteScale, CompleteChord,
     /// TransposeScale, MelodicDictation, RhythmDictation). Compares the
     /// pipe-separated <c>answerString</c> field after canonicalising both
-    /// sides: trim, lower-case, normalise enharmonic-free accidentals
-    /// (♯→#, ♭→b, ♮ stripped), unify rest aliases (B4:qr → rest:qr) and
-    /// barline aliases (barline → bar). Note name and duration label are
-    /// compared verbatim — enharmonic spelling matters (matches SonicMind).
+    /// sides: trim, lower-case, normalise accidentals (♯→#, ♭→b, ♮
+    /// stripped), convert pitches to MIDI so enharmonic spellings match,
+    /// unify rest aliases (B4:qr → rest:qr) and barline aliases (barline → bar).
     /// </summary>
     internal static class StaffSequenceHelpers
     {
@@ -215,7 +215,8 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
                     }
                     else
                     {
-                        canon.Add($"{notePart}:{durPart}");
+                        var midi = MusicTheoryService.NoteToMidi(notePart);
+                        canon.Add(midi.HasValue ? $"{midi.Value}:{durPart}" : $"{notePart}:{durPart}");
                     }
                 }
                 else

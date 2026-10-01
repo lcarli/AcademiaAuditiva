@@ -189,6 +189,53 @@ public static class SeedData
                 ExerciseTypeId = 8,
                 ExerciseCategoryId = 5,
                 DifficultyLevelId = 2,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Key",
+                        Name = "csRoot",
+                        Options = new List<FilterOption>
+                        {
+                            new("any", "Exercise.Any"),
+                            new("C", "C"),
+                            new("C#", "C#"),
+                            new("D", "D"),
+                            new("D#", "D#"),
+                            new("E", "E"),
+                            new("F", "F"),
+                            new("F#", "F#"),
+                            new("G", "G"),
+                            new("G#", "G#"),
+                            new("A", "A"),
+                            new("A#", "A#"),
+                            new("B", "B")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Scale",
+                        Name = "csScale",
+                        Options = new List<FilterOption>
+                        {
+                            new("all", "Exercise.All"),
+                            new("major", "Exercise.ScaleTypeMajor"),
+                            new("minor", "Exercise.ScaleTypeMinor"),
+                            new("majorPentatonic", "Exercise.ScaleTypeMajorPentatonic"),
+                            new("minorPentatonic", "Exercise.ScaleTypeMinorPentatonic")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Octave",
+                        Name = "csOctave",
+                        Options = new List<FilterOption>
+                        {
+                            new("3", "3"),
+                            new("4", "4")
+                        }
+                    }
+                }),
                 Instructions = "Você ouvirá a primeira nota (tônica) da escala. Use a paleta para preencher as notas seguintes em ordem ascendente.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Lembre dos intervalos: maior = T-T-S-T-T-T-S; menor natural = T-S-T-T-S-T-T.",

@@ -2948,4 +2948,24 @@
     <value>Use sharps or flats after placing a note if the scale requires an accidental.</value>
     <comment />
   </data>
+  <data name="Exercise.Any" xml:space="preserve">
+    <value>Any</value>
+    <comment />
+  </data>
+  <data name="Exercise.Octave" xml:space="preserve">
+    <value>Octave</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteScale.Prompt" xml:space="preserve">
+    <value>Scale type: {{0}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.OctaveDown" xml:space="preserve">
+    <value>Octave down</value>
+    <comment />
+  </data>
+  <data name="Exercise.OctaveUp" xml:space="preserve">
+    <value>Octave up</value>
+    <comment />
+  </data>
 </root>

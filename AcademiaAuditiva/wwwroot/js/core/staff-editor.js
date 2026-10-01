@@ -44,6 +44,12 @@
     return b;
   }
 
+  function makeAriaBtn(text, label, classes, onClick) {
+    var b = makeBtn(text, classes, onClick);
+    b.setAttribute("aria-label", label);
+    return b;
+  }
+
   function attach(target, opts) {
     var rootEl = typeof target === "string" ? document.querySelector(target) : target;
     if (!rootEl) throw new Error("StaffEditor: target not found " + target);
@@ -52,6 +58,11 @@
     var keySig = opts.keySignature || "C";
     var timeSig = opts.timeSignature || null;
     var octave = opts.octave || 4;
+    var minOctave = opts.minOctave || 2;
+    var maxOctave = opts.maxOctave || 6;
+    var octaveDownLabel = opts.octaveDownLabel || "Octave down";
+    var octaveUpLabel = opts.octaveUpLabel || "Octave up";
+    var octaveDisplayLabel = opts.octaveDisplayLabel || "Octave";
     var allowedDurations = opts.allowedDurations && opts.allowedDurations.length
       ? opts.allowedDurations.slice() : ["w"];
     var restDurations = opts.restDurations || [];
@@ -141,6 +152,23 @@
 
       // Note name buttons
       if (canAddMore()) {
+        var octaveRow = document.createElement("div");
+        octaveRow.className = "btn-group align-items-center";
+        octaveRow.appendChild(makeAriaBtn("−", octaveDownLabel, "btn-outline-secondary", function () {
+          octave = Math.max(minOctave, octave - 1);
+          buildPalette();
+        }));
+        var label = document.createElement("span");
+        label.className = "btn btn-sm btn-outline-secondary disabled";
+        label.setAttribute("aria-live", "polite");
+        label.textContent = octaveDisplayLabel + " " + octave;
+        octaveRow.appendChild(label);
+        octaveRow.appendChild(makeAriaBtn("+", octaveUpLabel, "btn-outline-secondary", function () {
+          octave = Math.min(maxOctave, octave + 1);
+          buildPalette();
+        }));
+        paletteDiv.appendChild(octaveRow);
+
         var noteRow = document.createElement("div");
         noteRow.className = "btn-group";
         NOTE_NAMES.forEach(function (nn) {
