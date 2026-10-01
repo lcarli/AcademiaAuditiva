@@ -109,22 +109,6 @@
     <value>Exercício</value>
     <comment />
   </data>
-  <data name="Header.Games" xml:space="preserve">
-    <value>Jogos</value>
-    <comment />
-  </data>
-  <data name="Dashboard.Progress" xml:space="preserve">
-    <value>Progresso nos Exercícios</value>
-    <comment />
-  </data>
-  <data name="Dashboard.Overall" xml:space="preserve">
-    <value>Desempenho Geral</value>
-    <comment />
-  </data>
-  <data name="Dashboard.Timeline" xml:space="preserve">
-    <value>Linha do Tempo dos Exercícios</value>
-    <comment />
-  </data>
   <data name="Dashboard.Title" xml:space="preserve">
     <value>Painel de evolução</value>
     <comment />
@@ -177,10 +161,6 @@
     <value>Registrar</value>
     <comment />
   </data>
-  <data name="Dashboard.Header" xml:space="preserve">
-    <value>Painel</value>
-    <comment />
-  </data>
   <data name="Exercise.Header" xml:space="preserve">
     <value>Exercícios</value>
     <comment />
@@ -199,10 +179,6 @@
   </data>
   <data name="Login.ResendEmail" xml:space="preserve">
     <value>Reenviar confirmação de email</value>
-    <comment />
-  </data>
-  <data name="Login.ExternalLogin" xml:space="preserve">
-    <value>Use outro serviço para entrar.</value>
     <comment />
   </data>
   <data name="Login.ExternalLoginText" xml:space="preserve">
@@ -305,44 +281,12 @@
     <value>Esta conta foi bloqueada, por favor tente novamente mais tarde.</value>
     <comment />
   </data>
-  <data name="Exercice.SelectOctave" xml:space="preserve">
-    <value>Selecionar Oitava</value>
-    <comment />
-  </data>
-  <data name="Exercise.Octave4" xml:space="preserve">
-    <value>Uma Oitava (4ª Oitava)</value>
-    <comment />
-  </data>
-  <data name="Exercise.Octave3" xml:space="preserve">
-    <value>Uma Oitava (3ª Oitava)</value>
-    <comment />
-  </data>
-  <data name="Exercise.Full" xml:space="preserve">
-    <value>Piano Completo</value>
-    <comment />
-  </data>
-  <data name="Exercise.ListenChord" xml:space="preserve">
-    <value>Ouvir Acorde</value>
-    <comment />
-  </data>
-  <data name="Exercise.RelistenChord" xml:space="preserve">
-    <value>Reouvir Acorde</value>
-    <comment />
-  </data>
   <data name="Exercise.Major" xml:space="preserve">
     <value>Maior</value>
     <comment />
   </data>
   <data name="Exercise.Minor" xml:space="preserve">
     <value>Menor</value>
-    <comment />
-  </data>
-  <data name="Exercise.7" xml:space="preserve">
-    <value>7</value>
-    <comment />
-  </data>
-  <data name="Exercise.9" xml:space="preserve">
-    <value>9</value>
     <comment />
   </data>
   <data name="Exercise.ValidationButton" xml:space="preserve">
@@ -355,26 +299,6 @@
   </data>
   <data name="Exercise.ErrorAnswers" xml:space="preserve">
     <value>Erros</value>
-    <comment />
-  </data>
-  <data name="Exercise.BestScore" xml:space="preserve">
-    <value>Melhor Pontuação</value>
-    <comment />
-  </data>
-  <data name="Exercise.GuessChordsTitle" xml:space="preserve">
-    <value>Adivinhe o Acorde</value>
-    <comment />
-  </data>
-  <data name="Exercise.GuessChordsText" xml:space="preserve">
-    <value>Ouça o acorde e tente adivinhar qual é. Voce precisa selecionar o tom e a qualidade do acorde</value>
-    <comment />
-  </data>
-  <data name="Exercise.StartButton" xml:space="preserve">
-    <value>Começar</value>
-    <comment />
-  </data>
-  <data name="Exercise.SelectOctave" xml:space="preserve">
-    <value>Selecionar Oitava</value>
     <comment />
   </data>
   <data name="Exercise.ChordsText" xml:space="preserve">
@@ -401,10 +325,6 @@
     <value>Todos</value>
     <comment />
   </data>
-  <data name="Exercise.GuessChordError1" xml:space="preserve">
-    <value>Primeiro clique em "Ouvir Acorde"</value>
-    <comment />
-  </data>
   <data name="Exercise.CorrectMessage" xml:space="preserve">
     <value>Correto!</value>
     <comment />
@@ -429,10 +349,6 @@
     <value>Mais alto ou mais grave</value>
     <comment>.</comment>
   </data>
-  <data name="Exercise.HigherOrLower.Title" xml:space="preserve">
-    <value>Mais alto ou mais grave</value>
-    <comment />
-  </data>
   <data name="Exercise.HigherOrLowerText" xml:space="preserve">
     <value>A segunda nota foi mais alta ou mais grave que a primeira?</value>
     <comment />
@@ -452,10 +368,6 @@
   <data name="GuessScaleType" xml:space="preserve">
     <value>Adivinhe o tipo de escala</value>
     <comment>.</comment>
-  </data>
-  <data name="Exercise.GuessScaleType.Title" xml:space="preserve">
-    <value>Adivinhe o tipo de escala</value>
-    <comment />
   </data>
   <data name="Exercise.GuessScaleTypeText" xml:space="preserve">
     <value>Ouça a escala e identifique o tipo.</value>
@@ -484,10 +396,6 @@
   <data name="GuessGreekMode" xml:space="preserve">
     <value>Adivinhe o modo grego</value>
     <comment>.</comment>
-  </data>
-  <data name="Exercise.GuessGreekMode.Title" xml:space="preserve">
-    <value>Adivinhe o modo grego</value>
-    <comment />
   </data>
   <data name="Exercise.GuessGreekModeText" xml:space="preserve">
     <value>Ouça a escala modal e identifique qual modo grego está tocando.</value>
@@ -529,10 +437,6 @@
     <value>Adivinhe a cadência</value>
     <comment>.</comment>
   </data>
-  <data name="Exercise.GuessCadence.Title" xml:space="preserve">
-    <value>Adivinhe a cadência</value>
-    <comment />
-  </data>
   <data name="Exercise.GuessCadenceText" xml:space="preserve">
     <value>Ouça a progressão de 4 acordes e identifique a cadência.</value>
     <comment />
@@ -561,10 +465,6 @@
     <value>Adivinhe a inversão</value>
     <comment>.</comment>
   </data>
-  <data name="Exercise.GuessInversion.Title" xml:space="preserve">
-    <value>Adivinhe a inversão</value>
-    <comment />
-  </data>
   <data name="Exercise.GuessInversionText" xml:space="preserve">
     <value>Ouça o acorde e identifique a inversão.</value>
     <comment />
@@ -588,10 +488,6 @@
   <data name="CompleteScale" xml:space="preserve">
     <value>Complete a escala</value>
     <comment>.</comment>
-  </data>
-  <data name="Exercise.CompleteScale.Title" xml:space="preserve">
-    <value>Complete a escala</value>
-    <comment />
   </data>
   <data name="Exercise.CompleteScaleText" xml:space="preserve">
     <value>Ouça a tônica e coloque as notas restantes na pauta.</value>
@@ -629,81 +525,13 @@
     <value>Avançado</value>
     <comment>.</comment>
   </data>
-  <data name="Exercise.RelistenNote" xml:space="preserve">
-    <value>Reouvir a nota</value>
-    <comment>.</comment>
-  </data>
-  <data name="Exercise.Note.Title" xml:space="preserve">
-    <value>Advinhe a nota</value>
-    <comment>.</comment>
-  </data>
-  <data name="Exercise.ListenNote" xml:space="preserve">
-    <value>Escute a nota</value>
-    <comment>.</comment>
-  </data>
   <data name="Exercise.NoteText" xml:space="preserve">
     <value>Qual foi a nota tocada?</value>
-    <comment>.</comment>
-  </data>
-  <data name="Exercise.GuessNoteText" xml:space="preserve">
-    <value>Ouça a nota e tente adivinhar qual é.</value>
     <comment>.</comment>
   </data>
   <data name="Exercise.WrongNoteMessageText" xml:space="preserve">
     <value>A resposta correta era {{0}}.</value>
     <comment>.</comment>
-  </data>
-  <data name="Exercise.SelectTom" xml:space="preserve">
-    <value>Escolher o tom</value>
-    <comment>.</comment>
-  </data>
-  <data name="Exercise.Quality" xml:space="preserve">
-    <value>Qualidade</value>
-    <comment>.</comment>
-  </data>
-  <data name="Exercise.Function.Text" xml:space="preserve">
-    <value>Qual a função harmônica?</value>
-    <comment>.</comment>
-  </data>
-  <data name="Exercise.WrongFunctionMessageText" xml:space="preserve">
-    <value>Você errou! A função correta era</value>
-    <comment>.</comment>
-  </data>
-  <data name="Dashboard.RadarTitle" xml:space="preserve">
-    <value>Radar de Competências</value>
-    <comment />
-  </data>
-  <data name="Dashboard.CategoryAccuracyTitle" xml:space="preserve">
-    <value>Acertos por Categoria</value>
-    <comment />
-  </data>
-  <data name="Dashboard.TimelineTitle" xml:space="preserve">
-    <value>Linha do Tempo de Aprendizado</value>
-    <comment />
-  </data>
-  <data name="Dashboard.ExerciseImprovementTitle" xml:space="preserve">
-    <value>Melhoria por Exercício</value>
-    <comment />
-  </data>
-  <data name="Dashboard.DifficultyTitle" xml:space="preserve">
-    <value>Dificuldade Percebida</value>
-    <comment />
-  </data>
-  <data name="Dashboard.SkillRadarLabel" xml:space="preserve">
-    <value>Habilidades</value>
-    <comment />
-  </data>
-  <data name="Dashboard.TimelineLabel" xml:space="preserve">
-    <value>Atividade Diária</value>
-    <comment />
-  </data>
-  <data name="Dashboard.ImprovementLabel" xml:space="preserve">
-    <value>Evolução</value>
-    <comment />
-  </data>
-  <data name="Dashboard.DifficultyLabel" xml:space="preserve">
-    <value>Erros (%)</value>
-    <comment />
   </data>
   <data name="Dashboard.TotalExercises" xml:space="preserve">
     <value>Total de exercícios</value>
@@ -761,24 +589,8 @@
     <value>Jogos</value>
     <comment />
   </data>
-  <data name="Exercise.Interval.Description" xml:space="preserve">
-    <value>Ouça o intervalo e tente adivinhar qual é.</value>
-    <comment />
-  </data>
-  <data name="Exercise.NoteNotSelectedTitle" xml:space="preserve">
-    <value>Nota não selecionada</value>
-    <comment />
-  </data>
-  <data name="Exercise.NoteNotSelectedText" xml:space="preserve">
-    <value>Por favor, clique em "Ouvir Intervalo" primeiro.</value>
-    <comment />
-  </data>
   <data name="Exercise.SelectIntervalText" xml:space="preserve">
     <value>Por favor, selecione um intervalo.</value>
-    <comment />
-  </data>
-  <data name="Exercise.WrongIntervalMessageText" xml:space="preserve">
-    <value>Você errou! O intervalo correto era</value>
     <comment />
   </data>
   <data name="ExerciseType.MelodyReproduction" xml:space="preserve">
@@ -797,24 +609,6 @@
     <value>Adivinhe o intervalo completo</value>
     <comment />
   </data>
-  <data name="Exercise.FullInterval.Description">
-    <value>Ouça duas notas e identifique o tipo exato de intervalo entre elas (ex: terça menor, quinta justa).</value>
-  </data>
-  <data name="Exercise.PlayInterval">
-    <value>Ouvir Intervalo</value>
-  </data>
-  <data name="Exercise.ReplayInterval">
-    <value>Repetir Intervalo</value>
-  </data>
-  <data name="Exercise.MissingNote.Title">
-    <value>Adivinhe a Melodia</value>
-  </data>
-  <data name="Exercise.MissingNote.Description">
-    <value>Ouça duas melodias e diga se são iguais ou diferentes.</value>
-  </data>
-  <data name="Exercise.PlayMelodies">
-    <value>Ouvir Melodias</value>
-  </data>
   <data name="Exercise.PlayMelody1">
     <value>Melodia 1</value>
   </data>
@@ -831,28 +625,7 @@
     <value>Olá, </value>
   </data>
   <data name="Dashboard.LastActivity" xml:space="preserve">
-    <value>Última atividade: </value>
-  </data>
-  <data name="Dashboard.ContinueButton" xml:space="preserve">
-    <value>Continuar de onde parei</value>
-  </data>
-  <data name="Dashboard.QuickAccess" xml:space="preserve">
-    <value>Acessos Rápidos</value>
-  </data>
-  <data name="Dashboard.Menu.Exercises" xml:space="preserve">
-    <value>Exercícios</value>
-  </data>
-  <data name="Dashboard.Menu.Games" xml:space="preserve">
-    <value>Jogos</value>
-  </data>
-  <data name="Dashboard.Menu.Ranking" xml:space="preserve">
-    <value>Ranking</value>
-  </data>
-  <data name="Dashboard.Menu.Settings" xml:space="preserve">
-    <value>Configurações</value>
-  </data>
-  <data name="Dashboard.Menu.Help" xml:space="preserve">
-    <value>Ajuda</value>
+    <value>Última atividade</value>
   </data>
   <data name="Exercise.Start" xml:space="preserve">
     <value>Iniciar exercício</value>
@@ -1031,9 +804,6 @@
   <data name="Exercise.NoValidator" xml:space="preserve">
     <value>Nenhum validador registrado para o tipo de exercício '{0}'.</value>
   </data>
-  <data name="Exercise.ScoreSaved" xml:space="preserve">
-    <value>Pontuação da sessão salva com sucesso.</value>
-  </data>
   <data name="Header.MyTraining" xml:space="preserve">
     <value>Meu treino</value>
   </data>
@@ -1081,12 +851,6 @@
   </data>
   <data name="Admin.Nav.Users" xml:space="preserve">
     <value>Usuários</value>
-  </data>
-  <data name="Common.Success" xml:space="preserve">
-    <value>Sucesso</value>
-  </data>
-  <data name="Common.Error" xml:space="preserve">
-    <value>Erro</value>
   </data>
   <data name="Home.Cta.SignUpFree" xml:space="preserve">
     <value>Criar conta grátis</value>
@@ -1313,9 +1077,6 @@
   <data name="Teacher.Home.Manage" xml:space="preserve">
     <value>Gerenciar</value>
   </data>
-  <data name="Teacher.Home.ComingSoon" xml:space="preserve">
-    <value>Em breve</value>
-  </data>
   <data name="Teacher.Home.AwaitingAcceptance" xml:space="preserve">
     <value>Aguardando aceitação</value>
   </data>
@@ -1351,9 +1112,6 @@
   </data>
   <data name="Identity.Auth.OrExternal" xml:space="preserve">
     <value>ou use um provedor</value>
-  </data>
-  <data name="Identity.Auth.NoProviders" xml:space="preserve">
-    <value>Nenhum serviço de autenticação externa está configurado no momento.</value>
   </data>
   <data name="Teacher.Classrooms.Title" xml:space="preserve">
     <value>Turmas</value>
@@ -1414,12 +1172,6 @@
   </data>
   <data name="Teacher.Routines.Col.Assignments" xml:space="preserve">
     <value>Atribuições</value>
-  </data>
-  <data name="Dashboard.SkillsByType" xml:space="preserve">
-    <value>Desempenho por habilidade</value>
-  </data>
-  <data name="Dashboard.AccuracyByCategory" xml:space="preserve">
-    <value>Desempenho por categoria</value>
   </data>
   <data name="Exercise.GuessNote.Instructions" xml:space="preserve">
     <value>Ouça a nota tocada e selecione a nota correspondente entre as opções disponíveis.</value>
@@ -2465,9 +2217,6 @@
   <data name="Exercise.MicrophoneAccessError" xml:space="preserve">
     <value>Não foi possível acessar o microfone. Verifique as permissões do navegador.</value>
   </data>
-  <data name="Exercise.NoRecordingText" xml:space="preserve">
-    <value>Grave um áudio antes de continuar.</value>
-  </data>
   <data name="Exercise.DetectedNoteText" xml:space="preserve">
     <value>Notas que ouvimos: {{0}}</value>
   </data>
@@ -2733,7 +2482,7 @@
     <value>Ocorreu um erro ao processar sua solicitação.</value>
   </data>
   <data name="Error.RequestId" xml:space="preserve">
-    <value>ID da solicitação</value>
+    <value>ID da solicitação:</value>
   </data>
   <data name="Error.DevelopmentMode" xml:space="preserve">
     <value>Modo de desenvolvimento</value>
@@ -2794,6 +2543,12 @@
   </data>
   <data name="Common.SaveChanges" xml:space="preserve">
     <value>Salvar alterações</value>
+  </data>
+  <data name="Common.LabelValue" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Common.Percent" xml:space="preserve">
+    <value>{0}%</value>
   </data>
   <data name="Teacher.Classrooms.EditTitle" xml:space="preserve">
     <value>Editar turma</value>
@@ -2981,10 +2736,6 @@
     <value>Complete o acorde</value>
     <comment />
   </data>
-  <data name="Exercise.CompleteChord.Title" xml:space="preserve">
-    <value>Complete o acorde</value>
-    <comment />
-  </data>
   <data name="Exercise.CompleteChordText" xml:space="preserve">
     <value>Ouça a fundamental e complete o acorde na pauta.</value>
     <comment />
@@ -3021,10 +2772,6 @@
     <value>Transponha a escala</value>
     <comment />
   </data>
-  <data name="Exercise.TransposeScale.Title" xml:space="preserve">
-    <value>Transponha a escala</value>
-    <comment />
-  </data>
   <data name="Exercise.TransposeScaleText" xml:space="preserve">
     <value>Ouça a escala original e escreva-a na tonalidade-alvo.</value>
     <comment />
@@ -3057,10 +2804,6 @@
     <value>Ditado melódico</value>
     <comment />
   </data>
-  <data name="Exercise.MelodicDictation.Title" xml:space="preserve">
-    <value>Ditado melódico</value>
-    <comment />
-  </data>
   <data name="Exercise.MelodicDictationText" xml:space="preserve">
     <value>Ouça a melodia e escreva as notas e o ritmo.</value>
     <comment />
@@ -3090,10 +2833,6 @@
     <comment />
   </data>
   <data name="RhythmDictation" xml:space="preserve">
-    <value>Ditado rítmico</value>
-    <comment />
-  </data>
-  <data name="Exercise.RhythmDictation.Title" xml:space="preserve">
     <value>Ditado rítmico</value>
     <comment />
   </data>

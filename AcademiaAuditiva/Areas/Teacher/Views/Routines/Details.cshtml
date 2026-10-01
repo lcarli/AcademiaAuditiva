@@ -48,15 +48,15 @@
                             <div>
                                 <div><strong>@displayName</strong></div>
                                 <div class="small text-secondary">
-                                    @Localizer["Teacher.Routines.Target"]: @item.TargetCount
-                                    @if (item.MinScore.HasValue) { <text>· @Localizer["Teacher.Routines.MinScore"]: @(item.MinScore)%</text> }
+                                    @Localizer["Common.LabelValue", Localizer["Teacher.Routines.Target"], item.TargetCount]
+                                    @if (item.MinScore.HasValue) { <text>· @Localizer["Common.LabelValue", Localizer["Teacher.Routines.MinScore"], Localizer["Common.Percent", item.MinScore.Value]]</text> }
                                 </div>
                                 @if (applied.Count > 0)
                                 {
                                     <ul class="aa-preset-list mt-1" aria-label="@Localizer["Filters"].Value">
                                         @foreach (var f in applied)
                                         {
-                                            <li class="aa-badge-soft">@Localizer[f.Group.Label]: @Localizer[f.Option.Text]</li>
+                                            <li class="aa-badge-soft">@Localizer["Common.LabelValue", Localizer[f.Group.Label], Localizer[f.Option.Text]]</li>
                                         }
                                     </ul>
                                 }

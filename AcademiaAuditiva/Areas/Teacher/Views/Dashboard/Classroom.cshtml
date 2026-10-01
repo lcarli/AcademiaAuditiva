@@ -34,7 +34,7 @@
     <div class="col-sm-6 col-lg-3">
         <div class="aa-card-flat h-100"><div class="card-body">
             <div class="text-secondary small">@Localizer["Teacher.Dashboard.AvgAccuracy"]</div>
-            <div class="h3 mb-0">@Model.AverageAccuracy.ToString("F1")%</div>
+            <div class="h3 mb-0">@Localizer["Common.Percent", Model.AverageAccuracy.ToString("F1")]</div>
         </div></div>
     </div>
 </div>
@@ -63,7 +63,7 @@
                     </td>
                     <td class="text-end">@r.Sessions</td>
                     <td class="text-end">@r.Attempts.ToString("N0")</td>
-                    <td class="text-end">@r.Accuracy.ToString("F1")%</td>
+                    <td class="text-end">@Localizer["Common.Percent", r.Accuracy.ToString("F1")]</td>
                     <td>
                         @if (r.LastActivity.HasValue) { @r.LastActivity.Value.ToString("yyyy-MM-dd HH:mm") }
                         else { <span class="text-secondary">@Localizer["Teacher.Dashboard.Never"]</span> }
