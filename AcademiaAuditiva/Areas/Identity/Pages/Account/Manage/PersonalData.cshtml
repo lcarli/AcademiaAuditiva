@@ -11,6 +11,9 @@
     <div class="col-md-8">
         <p class="text-secondary">@Localizer["Manage.PersonalData.Body"]</p>
         <p>
+            <a asp-area="" asp-controller="Home" asp-action="Privacy">@Localizer["Manage.PersonalData.PrivacyLink"]</a>
+        </p>
+        <p>
             <strong>@Localizer["Manage.PersonalData.Warning"]</strong>
         </p>
         <form id="download-data" asp-page="DownloadPersonalData" method="post" class="d-inline">

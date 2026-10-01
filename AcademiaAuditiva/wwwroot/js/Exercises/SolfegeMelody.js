@@ -147,30 +147,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Send recorded audio to the backend
+  // The recording is analyzed in the browser and never uploaded (see the
+  // privacy policy); only the detected note names are submitted.
   async function sendAudioToBackend(audioBlob) {
     try {
       const note = await analyzeAudio(audioBlob);
       Swal.fire({ icon: "info", title: loc.detectedNoteTitle, text: loc.detectedNoteText.replace("{0}", note) });
 
-      if (note) {
-        // Enviar apenas a nota identificada
-        fetch(`/Exercise/SubmitNote`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ exerciseId, note }),
-        });
-      } else {
-        // Fallback: enviar o áudio completo
-        const formData = new FormData();
-        formData.append("exerciseId", exerciseId);
-        formData.append("audio", audioBlob);
-
-        fetch(`/Exercise/SubmitAudio`, {
-          method: "POST",
-          body: formData,
-        });
-      }
+      fetch(`/Exercise/SubmitNote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ exerciseId, note }),
+      });
     } catch (err) {
       console.error("Error analyzing or submitting audio:", err);
     }

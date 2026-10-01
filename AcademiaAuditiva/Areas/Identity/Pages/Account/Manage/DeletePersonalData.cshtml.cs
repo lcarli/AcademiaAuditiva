@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
+using AcademiaAuditiva.Services;
 using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
@@ -21,17 +22,20 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
         private readonly IStringLocalizer<SharedResources> _localizer;
+        private readonly PersonalDataService _personalData;
 
         public DeletePersonalDataModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ILogger<DeletePersonalDataModel> logger,
-            IStringLocalizer<SharedResources> localizer)
+            IStringLocalizer<SharedResources> localizer,
+            PersonalDataService personalData)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _localizer = localizer;
+            _personalData = personalData;
         }
 
         /// <summary>
@@ -62,6 +66,11 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
         /// </summary>
         public bool RequirePassword { get; set; }
 
+        /// <summary>
+        ///     True when the user owns classes or routines, which are deleted with the account.
+        /// </summary>
+        public bool OwnsTeachingData { get; set; }
+
         public async Task<IActionResult> OnGet()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -71,6 +80,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
             }
 
             RequirePassword = await _userManager.HasPasswordAsync(user);
+            OwnsTeachingData = await _personalData.OwnsTeachingDataAsync(user.Id);
             return Page();
         }
 
@@ -83,6 +93,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
             }
 
             RequirePassword = await _userManager.HasPasswordAsync(user);
+            OwnsTeachingData = await _personalData.OwnsTeachingDataAsync(user.Id);
             if (RequirePassword)
             {
                 if (!await _userManager.CheckPasswordAsync(user, Input.Password))
@@ -92,8 +103,8 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
                 }
             }
 
-            var result = await _userManager.DeleteAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);
+            var result = await _personalData.DeleteAccountAsync(user, HttpContext.RequestAborted);
             if (!result.Succeeded)
             {
                 throw new InvalidOperationException($"Unexpected error occurred deleting user.");

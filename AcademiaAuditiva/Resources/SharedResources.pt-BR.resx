@@ -2550,4 +2550,10 @@
   <data name="Invite.Email.Body" xml:space="preserve">
     <value>&lt;p&gt;Olá,&lt;/p&gt;&lt;p&gt;{0} convidou você para participar da turma &lt;strong&gt;{1}&lt;/strong&gt; na Academia Auditiva.&lt;/p&gt;&lt;p&gt;&lt;a href='{2}'&gt;Clique aqui para aceitar o convite&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Este link expira em {3}.&lt;/p&gt;</value>
   </data>
+  <data name="Manage.DeletePersonal.TeacherWarning" xml:space="preserve">
+    <value>Suas turmas e rotinas também serão excluídas, e seus alunos perderão o acesso a elas.</value>
+  </data>
+  <data name="Manage.PersonalData.PrivacyLink" xml:space="preserve">
+    <value>Como tratamos seus dados</value>
+  </data>
 </root>

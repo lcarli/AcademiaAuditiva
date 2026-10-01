@@ -11,6 +11,10 @@
     <p class="mb-0">
         <strong>@Localizer["Manage.DeletePersonal.Warning"]</strong>
     </p>
+    @if (Model.OwnsTeachingData)
+    {
+        <p class="mb-0 mt-2">@Localizer["Manage.DeletePersonal.TeacherWarning"]</p>
+    }
 </div>
 
 <div>

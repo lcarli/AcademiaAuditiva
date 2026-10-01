@@ -187,6 +187,7 @@ builder.Services.AddSingleton<IExerciseValidatorRegistry, AcademiaAuditiva.Servi
 
 //Inject UserReportService
 builder.Services.AddScoped<UserReportService>();
+builder.Services.AddScoped<PersonalDataService>();
 
 
 // Facebook login (external auth). Credentials come from configuration:

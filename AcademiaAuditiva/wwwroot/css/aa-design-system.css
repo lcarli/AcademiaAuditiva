@@ -1275,6 +1275,76 @@ a:focus-visible {
     color: var(--aa-muted);
 }
 
+/* ---------- Legal pages ---------- */
+.aa-legal {
+    max-width: 46rem;
+    line-height: 1.7;
+}
+
+.aa-legal-head {
+    margin-bottom: 2.25rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--aa-line);
+}
+
+.aa-legal-head .lead {
+    color: var(--aa-muted);
+    line-height: 1.6;
+}
+
+.aa-legal-meta {
+    color: var(--aa-muted);
+    font-size: .9rem;
+}
+
+.aa-legal section + section {
+    margin-top: 2.5rem;
+}
+
+.aa-legal h2 {
+    margin-bottom: .85rem;
+    font-size: clamp(1.35rem, 2.6vw, 1.65rem);
+    line-height: 1.2;
+}
+
+.aa-legal h3 {
+    margin: 1.5rem 0 .5rem;
+    font-family: var(--aa-font-ui);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -.005em;
+}
+
+.aa-legal ul {
+    padding-left: 1.25rem;
+}
+
+.aa-legal li + li {
+    margin-top: .4rem;
+}
+
+.aa-legal .table {
+    margin-bottom: .75rem;
+    font-size: .92rem;
+    line-height: 1.5;
+}
+
+.aa-legal .table code {
+    word-break: break-word;
+}
+
+.aa-legal-contact {
+    padding: 1.25rem;
+    border: 1px solid var(--aa-line);
+    border-radius: var(--aa-radius-lg);
+    background: var(--aa-accent-soft);
+}
+
+.aa-legal-contact a {
+    font-weight: 600;
+    color: var(--aa-accent-text);
+}
+
 /* ---------- Exercise UI ---------- */
 .aa-exercise-head {
     display: flex;
