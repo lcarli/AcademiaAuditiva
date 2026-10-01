@@ -253,6 +253,189 @@ public static class SeedData
                 AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
             },
             new Exercise {
+                Name = "CompleteChord",
+                Description = "Ouça a fundamental e complete as notas restantes do acorde na pauta.",
+                ExerciseTypeId = 2,
+                ExerciseCategoryId = 1,
+                DifficultyLevelId = 2,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Quality.ChordGroup",
+                        Name = "ccQuality",
+                        Options = new List<FilterOption>
+                        {
+                            new("major", "Exercise.TypeChordMajeur"),
+                            new("minor", "Exercise.TypeChordMineur"),
+                            new("both", "Exercise.TypeChordMajeurMineur")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Octave",
+                        Name = "ccOctave",
+                        Options = new List<FilterOption>
+                        {
+                            new("3", "3"),
+                            new("4", "4"),
+                            new("5", "5")
+                        }
+                    }
+                }),
+                Instructions = "Você ouvirá a fundamental do acorde. Use a paleta para completar a terça e a quinta na pauta.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Acordes maiores usam terça maior e quinta justa.",
+                    "Acordes menores usam terça menor e quinta justa.",
+                    "Conte semitons a partir da fundamental se precisar confirmar o intervalo."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
+                Name = "TransposeScale",
+                Description = "Ouça uma escala e escreva sua transposição para a tonalidade-alvo.",
+                ExerciseTypeId = 8,
+                ExerciseCategoryId = 5,
+                DifficultyLevelId = 3,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Key",
+                        Name = "tsRoot",
+                        Options = new List<FilterOption>
+                        {
+                            new("any", "Exercise.Any"),
+                            new("C", "C"),
+                            new("C#", "C#"),
+                            new("D", "D"),
+                            new("D#", "D#"),
+                            new("E", "E"),
+                            new("F", "F"),
+                            new("F#", "F#"),
+                            new("G", "G"),
+                            new("G#", "G#"),
+                            new("A", "A"),
+                            new("A#", "A#"),
+                            new("B", "B")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Scale",
+                        Name = "tsScale",
+                        Options = new List<FilterOption>
+                        {
+                            new("major", "Exercise.Major"),
+                            new("minor", "Exercise.Minor")
+                        }
+                    }
+                }),
+                Instructions = "Ouça a escala original. O sistema mostrará a tonalidade-alvo; escreva a escala transposta na pauta.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Preserve o padrão de intervalos da escala original.",
+                    "Comece pela nova tônica e suba grau por grau.",
+                    "Use acidentes para manter a distância correta entre os graus."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
+                Name = "MelodicDictation",
+                Description = "Ouça uma melodia curta e escreva as notas e ritmos na pauta.",
+                ExerciseTypeId = 5,
+                ExerciseCategoryId = 2,
+                DifficultyLevelId = 3,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "mdLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("1", "Beginner"),
+                            new("3", "Intermediate"),
+                            new("5", "Advanced")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.MelodyLength",
+                        Name = "mdMeasures",
+                        Options = new List<FilterOption>
+                        {
+                            new("short", "Exercise.Short"),
+                            new("long", "Exercise.Long")
+                        }
+                    }
+                }),
+                Instructions = "Escute a melodia completa e reproduza as notas, durações, pausas e barras de compasso na pauta.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Ouça primeiro o contorno geral antes de escrever.",
+                    "Marque as durações principais e depois ajuste as alturas.",
+                    "Use barras de compasso para separar as frases quando necessário."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
+                Name = "RhythmDictation",
+                Description = "Ouça um ritmo em uma nota fixa e escreva a sequência rítmica.",
+                ExerciseTypeId = 6,
+                ExerciseCategoryId = 3,
+                DifficultyLevelId = 2,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "rdLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("1", "Beginner"),
+                            new("3", "Intermediate"),
+                            new("5", "Advanced")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.MelodyLength",
+                        Name = "rdMeasures",
+                        Options = new List<FilterOption>
+                        {
+                            new("short", "Exercise.Short"),
+                            new("long", "Exercise.Long")
+                        }
+                    }
+                }),
+                Instructions = "Escute o padrão rítmico tocado em uma nota fixa e escreva as durações, pausas e barras de compasso.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Conte os pulsos em voz baixa enquanto escuta.",
+                    "Identifique primeiro os valores longos e depois preencha os curtos.",
+                    "No ditado rítmico, a altura não importa; o sistema corrige apenas o ritmo."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
                 Name = "GuessInversion",
                 Description = "Ouça um acorde tríade e identifique se está no estado fundamental, na 1ª ou na 2ª inversão.",
                 ExerciseTypeId = 2,

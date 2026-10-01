@@ -86,7 +86,14 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 
 ---
 
-### 10. Grau Inicial e Final
+### 10. Complete o acorde
+- **Filtros aplicáveis**:
+  - Qualidade do acorde (maior, menor ou ambas)
+  - Oitava base
+
+---
+
+### 11. Grau Inicial e Final
 - **Filtros aplicáveis**:
   - Tom da melodia
   - Comprimento da melodia (ex: 5 a 10 notas)
@@ -94,24 +101,28 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 
 ---
 
-### 11. Dictado Melódico
+### 12. Dictado Melódico
 - **Filtros aplicáveis**:
   - Tom base
   - Escala usada
   - Comprimento da melodia
   - Presença de cromatismos
+  - Nível de dificuldade
+  - Número de compassos
 
 ---
 
-### 12. Dictado Rítmico
+### 13. Dictado Rítmico
 - **Filtros aplicáveis**:
   - Compasso (2/4, 3/4, 6/8…)
   - Figuras rítmicas incluídas
   - Duração da célula
+  - Nível de dificuldade
+  - Número de compassos
 
 ---
 
-### 13. Reproduza o Intervalo
+### 14. Reproduza o Intervalo
 - **Filtros aplicáveis**:
   - Intervalos sorteáveis
   - Direção do intervalo
@@ -119,7 +130,7 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 
 ---
 
-### 14. Note Missing / Note Modified
+### 15. Note Missing / Note Modified
 - **Filtros aplicáveis**:
   - Número de notas da melodia
   - Escala usada
@@ -128,7 +139,7 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 
 ---
 
-### 15. Igual ou Diferente
+### 16. Igual ou Diferente
 - **Filtros aplicáveis**:
   - Tipo de material (notas, acordes, melodias)
   - Escala
@@ -136,7 +147,7 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 
 ---
 
-### 16. Adivinhe a Escala
+### 17. Adivinhe a Escala
 - **Filtros aplicáveis**:
   - Tipos de escala (maior, menor, modos gregos)
   - Tom base
@@ -144,7 +155,7 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 
 ---
 
-### 17. Adivinhe o Modo Grego
+### 18. Adivinhe o Modo Grego
 - **Filtros aplicáveis**:
   - Modos possíveis (jónico, dórico, frígio, etc.)
   - Tom base
@@ -152,11 +163,19 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 
 ---
 
-### 18. Complete a escala
+### 19. Complete a escala
 - **Filtros aplicáveis**:
   - Tônica
   - Tipo de escala (maior, menor, pentatônica maior ou menor)
   - Oitava base
+
+---
+
+### 20. Transponha a escala
+- **Filtros aplicáveis**:
+  - Tônica original
+  - Escala maior ou menor
+  - Tonalidade-alvo sorteada pelo sistema
 
 ---
 

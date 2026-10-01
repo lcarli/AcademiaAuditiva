@@ -37,13 +37,16 @@
 - **GuessFunction** - Qual a função harmônica?
 - **GuessCadence** - Que cadência é essa?
 - **GuessInversion** - Qual a inversão do acorde?
+- **CompleteChord** - Complete na pauta as notas que faltam em um acorde
 
 ### Melodia
+- **MelodicDictation** - Ouça uma melodia curta e escreva-a na pauta
 - **MelodyReproduction** *(novo)* - Reproduzir melodia após escutar
 - **GuessMelodicContour** *(novo)* - O contorno melódico está subindo, descendo ou misto?
 - **ContinueMelody** *(novo)* - O aluno completa a melodia
 
 ### Ritmo
+- **RhythmDictation** - Ouça um ritmo e escreva as durações na pauta
 - **GuessRhythmPattern** *(novo)* - Qual é o padrão rítmico?
 - **RhythmTap** *(novo)* - Reproduzir ritmo com batidas
 - **MissingBeat** *(novo)* - Qual batida está faltando?
@@ -52,6 +55,7 @@
 - **GuessScaleType** - Qual tipo de escala (maior, menor, pentatônica)?
 - **GuessGreekMode** - Identifique o modo grego (dórico, lídio...)
 - **CompleteScale** - Complete na pauta as notas restantes de uma escala
+- **TransposeScale** - Transponha uma escala para uma nova tonalidade
 - **BuildScale** *(novo)* - Montar a escala a partir da tônica
 
 ### Jogos e Missões (Gamificação)
