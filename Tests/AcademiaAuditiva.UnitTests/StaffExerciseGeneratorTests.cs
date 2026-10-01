@@ -77,7 +77,7 @@ public class StaffExerciseGeneratorTests
     [Fact]
     public void CompleteScale_OfferedFilters_AlwaysProduceEditorEnterableAnswers()
     {
-        var roots = new[] { "any", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+        var roots = new[] { "any", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "Db", "Gb" };
         var scales = new[] { "all", "major", "minor", "majorPentatonic", "minorPentatonic" };
         var octaves = new[] { "3", "4" };
 
@@ -96,13 +96,13 @@ public class StaffExerciseGeneratorTests
     {
         var json = GenerateJson("CompleteScale", new()
         {
-            { "csRoot", "Db" },
+            { "csRoot", "H" },
             { "csScale", "x" },
             { "csOctave", "9" }
         });
 
         json["error"].Should().BeNull();
-        json.Value<string>("root").Should().NotBe("Db");
+        json.Value<string>("root").Should().NotBe("H");
         json.Value<string>("scale").Should().BeOneOf("major", "minor", "majorPentatonic", "minorPentatonic");
         json.Value<int>("octave").Should().Be(4);
         AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: 10);

@@ -1107,7 +1107,7 @@ namespace AcademiaAuditiva.Services
                     };
                 case "CompleteScale":
                 {
-                    var allNotesPool = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+                    var allNotesPool = new[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "Db", "Gb" };
                     var scalePool = new[] { "major", "minor", "majorPentatonic", "minorPentatonic" };
                     var csRoot = filters.TryGetValue("csRoot", out var csR) && allNotesPool.Contains(csR)
                         ? csR
