@@ -278,8 +278,7 @@ public static class SeedData
                         Options = new List<FilterOption>
                         {
                             new("3", "3"),
-                            new("4", "4"),
-                            new("5", "5")
+                            new("4", "4")
                         }
                     }
                 }),
@@ -365,7 +364,7 @@ public static class SeedData
                         {
                             new("1", "Beginner"),
                             new("3", "Intermediate"),
-                            new("5", "Advanced")
+                            new("4", "Advanced")
                         }
                     },
                     new FilterOptionGroup
@@ -408,7 +407,7 @@ public static class SeedData
                         {
                             new("1", "Beginner"),
                             new("3", "Intermediate"),
-                            new("5", "Advanced")
+                            new("4", "Advanced")
                         }
                     },
                     new FilterOptionGroup

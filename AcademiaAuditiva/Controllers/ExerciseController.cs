@@ -163,7 +163,8 @@ namespace AcademiaAuditiva.Controllers
 				var metadata = new Dictionary<string, object?>();
 				foreach (var field in new[] {
 					"promptNotes", "clef", "keySignature", "timeSignature",
-					"numMeasures", "octave", "originalRoot", "targetRoot", "scale", "level"
+					"numMeasures", "octave", "originalRoot", "targetRoot", "scale", "level",
+					"root", "quality", "firstNote", "firstDuration"
 				})
 				{
 					var token = expected[field];

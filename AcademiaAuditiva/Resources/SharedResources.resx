@@ -2975,6 +2975,8 @@
   </data>
   <data name="Exercise.OctaveUp" xml:space="preserve">
     <value>Octave up</value>
+    <comment />
+  </data>
   <data name="CompleteChord" xml:space="preserve">
     <value>Complete Chord</value>
     <comment />
@@ -2992,7 +2994,7 @@
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Prompt" xml:space="preserve">
-    <value>Complete the chord above {root}.</value>
+    <value>Complete the {{0}} chord above {{1}}.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Subtitle" xml:space="preserve">
@@ -3028,7 +3030,7 @@
     <comment />
   </data>
   <data name="Exercise.TransposeScale.Prompt" xml:space="preserve">
-    <value>Transpose the {scale} scale from {from} to {to}.</value>
+    <value>Transpose the {{0}} scale from {{1}} to {{2}}.</value>
     <comment />
   </data>
   <data name="Exercise.TransposeScale.Subtitle" xml:space="preserve">
@@ -3064,7 +3066,7 @@
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Prompt" xml:space="preserve">
-    <value>Time signature: {time}.</value>
+    <value>Key: {{0}}. First note: {{1}}. Time signature: {{2}}.</value>
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Subtitle" xml:space="preserve">
@@ -3100,7 +3102,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Prompt" xml:space="preserve">
-    <value>Time signature: {time}. Pitch is ignored for scoring.</value>
+    <value>Time signature: {{0}}. Pitch is ignored for scoring.</value>
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Subtitle" xml:space="preserve">

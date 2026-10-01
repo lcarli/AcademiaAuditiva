@@ -2,33 +2,55 @@
   "use strict";
 
   function format(template, values) {
-    return String(template || "").replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
+    return String(template || "").replace(/\{\{(\d+)\}\}/g, (_, index) => values[Number(index)] ?? "");
+  }
+
+  function scaleLabel(loc, scale) {
+    const key = "scale" + String(scale || "").charAt(0).toUpperCase() + String(scale || "").slice(1);
+    return loc[key] || scale || "";
+  }
+
+  function qualityLabel(loc, quality) {
+    const key = "quality" + String(quality || "").charAt(0).toUpperCase() + String(quality || "").slice(1);
+    return loc[key] || quality || "";
   }
 
   function promptFor(exerciseName, loc, metadata) {
     if (exerciseName === "CompleteChord") {
-      return format(loc.completeChordPrompt, { root: metadata.promptNotes?.[0] || "" });
+      return format(loc.completeChordPrompt, [qualityLabel(loc, metadata.quality), metadata.promptNotes?.[0] || ""]);
     }
     if (exerciseName === "TransposeScale") {
-      return format(loc.transposeScalePrompt, {
-        from: metadata.originalRoot || "",
-        to: metadata.targetRoot || "",
-        scale: metadata.scale || "",
-      });
+      return format(loc.transposeScalePrompt, [scaleLabel(loc, metadata.scale), metadata.originalRoot || "", metadata.targetRoot || ""]);
     }
     if (exerciseName === "MelodicDictation") {
-      return format(loc.melodicDictationPrompt, { time: metadata.timeSignature || "4/4" });
+      return format(loc.melodicDictationPrompt, [metadata.root || "", metadata.firstNote || "", metadata.timeSignature || "4/4"]);
     }
     if (exerciseName === "RhythmDictation") {
-      return format(loc.rhythmDictationPrompt, { time: metadata.timeSignature || "4/4" });
+      return format(loc.rhythmDictationPrompt, [metadata.timeSignature || "4/4"]);
     }
     return "";
   }
 
+  function filterValues() {
+    const filters = {};
+    document.querySelectorAll("#filtersModal select").forEach((select) => {
+      filters[select.name || select.id] = select.value;
+    });
+    return filters;
+  }
+
   function optionsFor(exerciseName, metadata) {
     const octave = Number(metadata.octave || 4);
+    const labels = {
+      minOctave: 2,
+      maxOctave: 6,
+      octaveDisplayLabel: AAi18n.localizer().octaveLabel,
+      octaveDownLabel: AAi18n.localizer().octaveDownLabel,
+      octaveUpLabel: AAi18n.localizer().octaveUpLabel,
+    };
     if (exerciseName === "CompleteChord") {
       return {
+        ...labels,
         clef: "treble",
         keySignature: "C",
         octave,
@@ -41,6 +63,7 @@
     }
     if (exerciseName === "TransposeScale") {
       return {
+        ...labels,
         clef: "treble",
         keySignature: "C",
         octave,
@@ -50,7 +73,11 @@
         totalSlots: 8,
       };
     }
+    const prefilledNotes = exerciseName === "MelodicDictation" && metadata.firstNote
+      ? [{ note: metadata.firstNote, duration: metadata.firstDuration || "q" }]
+      : [];
     return {
+      ...labels,
       clef: "treble",
       keySignature: "C",
       timeSignature: metadata.timeSignature || "4/4",
@@ -59,6 +86,7 @@
       restDurations: ["wr", "hr", "qr", "8r"],
       showBarline: true,
       totalSlots: 64,
+      prefilledNotes,
     };
   }
 
@@ -86,7 +114,7 @@
         fetch("/Exercise/RequestPlay", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ exerciseId }),
+          body: JSON.stringify({ exerciseId, filters: filterValues() }),
         })
           .then((r) => r.json())
           .then((data) => {

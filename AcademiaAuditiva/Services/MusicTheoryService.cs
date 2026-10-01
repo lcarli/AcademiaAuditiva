@@ -1151,7 +1151,11 @@ namespace AcademiaAuditiva.Services
                 case "CompleteChord":
                 {
                     var ccAllNotes = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-                    var ccOctave = filters.TryGetValue("ccOctave", out var ccO) && int.TryParse(ccO, out var ccOctP) ? ccOctP : 4;
+                    var ccOctave = filters.TryGetValue("ccOctave", out var ccO)
+                        && int.TryParse(ccO, out var ccOctP)
+                        && (ccOctP == 3 || ccOctP == 4)
+                        ? ccOctP
+                        : 4;
                     var ccQualityFilter = filters.TryGetValue("ccQuality", out var ccQ) ? ccQ : "both";
                     var ccQualities = ccQualityFilter switch
                     {
@@ -1186,9 +1190,14 @@ namespace AcademiaAuditiva.Services
                 case "TransposeScale":
                 {
                     var tsAllNotes = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-                    var tsRoot = filters.TryGetValue("tsRoot", out var tsR) && tsR != "any" ? tsR : tsAllNotes[random.Next(tsAllNotes.Length)];
-                    var tsScale = filters.TryGetValue("tsScale", out var tsS) ? tsS : "major";
-                    var tsOctave = filters.TryGetValue("tsOctave", out var tsO) && int.TryParse(tsO, out var tsOctP) ? tsOctP : 4;
+                    var tsScales = new[] { "major", "minor" };
+                    var tsRoot = filters.TryGetValue("tsRoot", out var tsR) && tsAllNotes.Contains(tsR) ? tsR : tsAllNotes[random.Next(tsAllNotes.Length)];
+                    var tsScale = filters.TryGetValue("tsScale", out var tsS) && tsScales.Contains(tsS) ? tsS : "major";
+                    var tsOctave = filters.TryGetValue("tsOctave", out var tsO)
+                        && int.TryParse(tsO, out var tsOctP)
+                        && (tsOctP == 3 || tsOctP == 4)
+                        ? tsOctP
+                        : 4;
 
                     string tsTarget;
                     do { tsTarget = tsAllNotes[random.Next(tsAllNotes.Length)]; } while (tsTarget == tsRoot);
@@ -1196,7 +1205,14 @@ namespace AcademiaAuditiva.Services
                     var tsOriginal = GetScaleNotes(tsRoot + tsOctave, tsScale);
                     var tsTransposed = GetScaleNotes(tsTarget + tsOctave, tsScale);
                     if (tsOriginal.Count < 2 || tsTransposed.Count < 2)
-                        return new { error = "Transposição não pôde ser gerada." };
+                    {
+                        tsRoot = "C";
+                        tsTarget = "G";
+                        tsScale = "major";
+                        tsOctave = 4;
+                        tsOriginal = GetScaleNotes(tsRoot + tsOctave, tsScale);
+                        tsTransposed = GetScaleNotes(tsTarget + tsOctave, tsScale);
+                    }
 
                     // Audio plays the original scale; user enters the transposed scale.
                     var tsMelody = tsOriginal.Select(n => new
@@ -1224,14 +1240,28 @@ namespace AcademiaAuditiva.Services
                 case "MelodicDictation":
                 {
                     var mdAllNotes = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-                    var mdRoot = filters.TryGetValue("mdRoot", out var mdR) && mdR != "any" ? mdR : mdAllNotes[random.Next(mdAllNotes.Length)];
-                    var mdScale = filters.TryGetValue("mdScale", out var mdS) ? mdS : "major";
-                    var mdOctave = filters.TryGetValue("mdOctave", out var mdO) && int.TryParse(mdO, out var mdOctP) ? mdOctP : 4;
-                    var mdLevel = filters.TryGetValue("mdLevel", out var mdL) && int.TryParse(mdL, out var mdLP) ? mdLP : 1;
+                    var mdScales = new[] { "major", "minor" };
+                    var mdRoot = filters.TryGetValue("mdRoot", out var mdR) && mdAllNotes.Contains(mdR) ? mdR : mdAllNotes[random.Next(mdAllNotes.Length)];
+                    var mdScale = filters.TryGetValue("mdScale", out var mdS) && mdScales.Contains(mdS) ? mdS : "major";
+                    var mdOctave = filters.TryGetValue("mdOctave", out var mdO)
+                        && int.TryParse(mdO, out var mdOctP)
+                        && (mdOctP == 3 || mdOctP == 4)
+                        ? mdOctP
+                        : 4;
+                    var mdLevel = filters.TryGetValue("mdLevel", out var mdL)
+                        && int.TryParse(mdL, out var mdLP)
+                        && new[] { 1, 3, 4 }.Contains(mdLP)
+                        ? mdLP
+                        : 1;
 
                     var mdScaleNotes = GetScaleNotes(mdRoot + mdOctave, mdScale);
                     if (mdScaleNotes.Count < 3)
-                        return new { error = "Escala muito curta para ditado melódico." };
+                    {
+                        mdRoot = "C";
+                        mdScale = "major";
+                        mdOctave = 4;
+                        mdScaleNotes = GetScaleNotes(mdRoot + mdOctave, mdScale);
+                    }
 
                     var mdAvail = mdLevel switch
                     {
@@ -1239,19 +1269,20 @@ namespace AcademiaAuditiva.Services
                         2 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
                         3 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
                         4 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q"), (0.5, "8") },
-                        5 => new (double V, string L)[] { (4.0, "w"), (3.0, "h."), (2.0, "h"), (1.5, "q."), (1.0, "q"), (0.5, "8") },
-                        _ => new (double V, string L)[] { (4.0, "w"), (3.0, "h."), (2.0, "h"), (1.5, "q."), (1.0, "q"), (0.5, "8"), (0.25, "16") },
+                        _ => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q"), (0.5, "8") },
                     };
                     var mdAllowRests = mdLevel >= 3;
                     var mdRestChance = mdLevel >= 3 ? 0.15 : 0.0;
                     var mdSigPool = mdLevel <= 2 ? new[] { "4/4" } : mdLevel <= 3 ? new[] { "4/4", "3/4" } : new[] { "4/4", "3/4", "2/4", "6/8" };
                     var mdSig = mdSigPool[random.Next(mdSigPool.Length)];
-                    var mdMeasureFilter = filters.TryGetValue("mdMeasures", out var mdMc) ? mdMc : "short";
+                    var mdMeasureFilter = filters.TryGetValue("mdMeasures", out var mdMc) && mdMc == "long" ? "long" : "short";
                     var mdNumMeasures = mdMeasureFilter == "long" ? 4 : 2;
                     var mdBeats = mdSig switch { "3/4" => 3.0, "2/4" => 2.0, "6/8" => 3.0, _ => 4.0 };
 
                     var mdMelodyEntries = new List<object>();
                     var mdAnsParts = new List<string>();
+                    var mdFirstNote = mdScaleNotes[0];
+                    var mdFirstDuration = "q";
                     for (var m = 0; m < mdNumMeasures; m++)
                     {
                         if (m > 0) mdAnsParts.Add("bar");
@@ -1261,11 +1292,20 @@ namespace AcademiaAuditiva.Services
                             var poss = mdAvail.Where(d => d.V <= rem).ToArray();
                             if (poss.Length == 0) break;
                             var ch = poss[random.Next(poss.Length)];
-                            var isRest = mdAllowRests && random.NextDouble() < mdRestChance;
-                            var note = isRest ? "rest" : mdScaleNotes[random.Next(mdScaleNotes.Count)];
+                            var isFirstEntry = mdMelodyEntries.Count == 0;
+                            var isRest = !isFirstEntry && mdAllowRests && random.NextDouble() < mdRestChance;
+                            var note = isFirstEntry ? mdScaleNotes[0] : isRest ? "rest" : mdScaleNotes[random.Next(mdScaleNotes.Count)];
                             var label = isRest ? ch.L + "r" : ch.L;
                             mdMelodyEntries.Add(new { type = isRest ? "rest" : "note", note, durationBeats = ch.V, durationLabel = label });
-                            mdAnsParts.Add(isRest ? $"rest:{label}" : $"{note}:{label}");
+                            if (isFirstEntry)
+                            {
+                                mdFirstNote = note;
+                                mdFirstDuration = label;
+                            }
+                            else
+                            {
+                                mdAnsParts.Add(isRest ? $"rest:{label}" : $"{note}:{label}");
+                            }
                             rem -= ch.V;
                         }
                     }
@@ -1278,6 +1318,8 @@ namespace AcademiaAuditiva.Services
                         timeSignature = mdSig,
                         numMeasures = mdNumMeasures,
                         level = mdLevel,
+                        firstNote = mdFirstNote,
+                        firstDuration = mdFirstDuration,
                         melody = mdMelodyEntries,
                         answerString = string.Join("|", mdAnsParts)
                     };
@@ -1285,7 +1327,11 @@ namespace AcademiaAuditiva.Services
 
                 case "RhythmDictation":
                 {
-                    var rdLevel = filters.TryGetValue("rdLevel", out var rdL) && int.TryParse(rdL, out var rdLP) ? rdLP : 1;
+                    var rdLevel = filters.TryGetValue("rdLevel", out var rdL)
+                        && int.TryParse(rdL, out var rdLP)
+                        && new[] { 1, 3, 4 }.Contains(rdLP)
+                        ? rdLP
+                        : 1;
 
                     var rdAvail = rdLevel switch
                     {
@@ -1293,14 +1339,13 @@ namespace AcademiaAuditiva.Services
                         2 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
                         3 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
                         4 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q"), (0.5, "8") },
-                        5 => new (double V, string L)[] { (4.0, "w"), (3.0, "h."), (2.0, "h"), (1.5, "q."), (1.0, "q"), (0.5, "8") },
-                        _ => new (double V, string L)[] { (4.0, "w"), (3.0, "h."), (2.0, "h"), (1.5, "q."), (1.0, "q"), (0.5, "8"), (0.25, "16") },
+                        _ => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q"), (0.5, "8") },
                     };
                     var rdAllowRests = rdLevel >= 3;
                     var rdRestChance = rdLevel >= 3 ? 0.15 : 0.0;
                     var rdSigPool = rdLevel <= 2 ? new[] { "4/4" } : rdLevel <= 3 ? new[] { "4/4", "3/4" } : new[] { "4/4", "3/4", "2/4", "6/8" };
                     var rdSig = rdSigPool[random.Next(rdSigPool.Length)];
-                    var rdMeasureFilter = filters.TryGetValue("rdMeasures", out var rdMc) ? rdMc : "short";
+                    var rdMeasureFilter = filters.TryGetValue("rdMeasures", out var rdMc) && rdMc == "long" ? "long" : "short";
                     var rdNumMeasures = rdMeasureFilter == "long" ? 4 : 2;
                     var rdBeats = rdSig switch { "3/4" => 3.0, "2/4" => 2.0, "6/8" => 3.0, _ => 4.0 };
 
