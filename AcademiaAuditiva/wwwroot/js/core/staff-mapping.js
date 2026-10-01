@@ -17,7 +17,7 @@
     if (!note || typeof note !== "string") return null;
     var m = note.match(/^([A-Ga-g])([#b]?)(-?\d+)$/);
     if (!m) return null;
-    return m[1].toLowerCase() + m[2] + "/" + m[3];
+    return m[1].toLowerCase() + "/" + m[3];
   }
 
   /**
