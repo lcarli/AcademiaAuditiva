@@ -2968,4 +2968,12 @@
     <value>Oitava acima</value>
     <comment />
   </data>
+  <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
+    <value>Nota selecionada {{0}}: {{1}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.NoSelection" xml:space="preserve">
+    <value>Nenhuma nota selecionada</value>
+    <comment />
+  </data>
 </root>

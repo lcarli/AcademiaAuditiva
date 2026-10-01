@@ -2968,4 +2968,12 @@
     <value>Octave supérieure</value>
     <comment />
   </data>
+  <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
+    <value>Note sélectionnée {{0}} : {{1}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.NoSelection" xml:space="preserve">
+    <value>Aucune note sélectionnée</value>
+    <comment />
+  </data>
 </root>

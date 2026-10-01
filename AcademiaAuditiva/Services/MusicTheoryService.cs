@@ -97,6 +97,78 @@ namespace AcademiaAuditiva.Services
             return allNotes;
         }
 
+        private static readonly char[] NoteLetters = { 'C', 'D', 'E', 'F', 'G', 'A', 'B' };
+
+        private static readonly Dictionary<char, int> NaturalSemitone = new()
+        {
+            ['C'] = 0,
+            ['D'] = 2,
+            ['E'] = 4,
+            ['F'] = 5,
+            ['G'] = 7,
+            ['A'] = 9,
+            ['B'] = 11
+        };
+
+        private static bool TryParseNoteParts(string note, out char letter, out string accidental, out int octave)
+        {
+            letter = '\0';
+            accidental = string.Empty;
+            octave = 0;
+
+            var match = Regex.Match(note.Trim(), @"^([A-Ga-g])([#b♯♭x]*)(-?\d+)$");
+            if (!match.Success || !int.TryParse(match.Groups[3].Value, out octave))
+            {
+                return false;
+            }
+
+            letter = char.ToUpperInvariant(match.Groups[1].Value[0]);
+            accidental = match.Groups[2].Value;
+            return NaturalSemitone.ContainsKey(letter);
+        }
+
+        private static string SpellMidiAsLetter(int midi, char letter, int octave)
+        {
+            var naturalMidi = (octave + 1) * 12 + NaturalSemitone[letter];
+            var diff = midi - naturalMidi;
+
+            while (diff > 6) diff -= 12;
+            while (diff < -6) diff += 12;
+
+            var accidental = diff switch
+            {
+                -2 => "bb",
+                -1 => "b",
+                0 => string.Empty,
+                1 => "#",
+                2 => "##",
+                _ => string.Empty
+            };
+
+            return $"{letter}{accidental}{octave}";
+        }
+
+        private static string SpellByLetterOffset(int rootMidi, char rootLetter, int rootOctave, int semitoneOffset, int letterOffset)
+        {
+            var rootLetterIndex = Array.IndexOf(NoteLetters, rootLetter);
+            var totalLetterIndex = rootLetterIndex + letterOffset;
+            var targetLetter = NoteLetters[((totalLetterIndex % 7) + 7) % 7];
+            var targetOctave = rootOctave + (int)Math.Floor(totalLetterIndex / 7.0);
+            return SpellMidiAsLetter(rootMidi + semitoneOffset, targetLetter, targetOctave);
+        }
+
+        private static IReadOnlyList<int> ScaleLetterOffsets(string scaleType, int count)
+        {
+            var offsets = scaleType switch
+            {
+                "majorPentatonic" => new[] { 0, 1, 2, 4, 5, 7 },
+                "minorPentatonic" => new[] { 0, 2, 3, 4, 6, 7 },
+                _ => new[] { 0, 1, 2, 3, 4, 5, 6, 7 }
+            };
+
+            return offsets.Take(count).ToArray();
+        }
+
         /// <summary>Lowest octave a client-supplied <c>noteRange</c> may select (matches the UI slider).</summary>
         public const int MinRangeOctave = 1;
 
@@ -424,36 +496,24 @@ namespace AcademiaAuditiva.Services
             if (!ScaleIntervals.ContainsKey(scaleType))
                 return new List<string>();
 
-            if (allNotes == null || allNotes.Count == 0)
-            {
-                allNotes = GetAllNotes(new List<int> { 2, 3, 4, 5 });
-            }
-
             var intervals = ScaleIntervals[scaleType];
-            var rootIndex = allNotes.IndexOf(rootNote);
-            if (rootIndex < 0)
+            var rootMidi = NoteToMidi(rootNote);
+            if (!rootMidi.HasValue || !TryParseNoteParts(rootNote, out var rootLetter, out _, out var rootOctave))
                 return new List<string>();
 
-            var scaleNotes = new List<string> { rootNote };
-            var currentIndex = rootIndex;
+            var semitoneOffsets = new List<int> { 0 };
+            var currentOffset = 0;
 
-            // Percorre cada intervalo e pula semitons na lista de notas.
             foreach (var step in intervals)
             {
-                currentIndex += step;
-                if (currentIndex >= 0 && currentIndex < allNotes.Count)
-                {
-                    scaleNotes.Add(allNotes[currentIndex]);
-                }
-                else
-                {
-                    // Se estourar o range de allNotes, retornamos o que conseguimos montar.
-                    // Em alguns casos pode ser útil "loopar" (usando módulo), mas aqui estamos limitando ao range.
-                    break;
-                }
+                currentOffset += step;
+                semitoneOffsets.Add(currentOffset);
             }
 
-            return scaleNotes;
+            var letterOffsets = ScaleLetterOffsets(scaleType, semitoneOffsets.Count);
+            return semitoneOffsets
+                .Select((offset, index) => SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, offset, letterOffsets[index]))
+                .ToList();
         }
 
         /// <summary>
@@ -472,29 +532,25 @@ namespace AcademiaAuditiva.Services
             var (baseIntervals, seventhInterval) = ChordIntervals[quality];
 
 
-            var allNotes = GetAllNotes(new List<int> { 2, 3, 4, 5 });
-            var index = allNotes.IndexOf(root);
-            if (index < 0)
+            var rootMidi = NoteToMidi(root);
+            if (!rootMidi.HasValue || !TryParseNoteParts(root, out var rootLetter, out _, out var rootOctave))
                 return result;
 
-
-            result.Add(root);
+            var semitoneOffset = 0;
+            var letterOffset = 0;
+            result.Add(SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, semitoneOffset, letterOffset));
             foreach (var step in baseIntervals)
             {
-                index += step;
-                if (index >= allNotes.Count)
-                    return new List<string>();
-
-                result.Add(allNotes[index]);
+                semitoneOffset += step;
+                letterOffset += 2;
+                result.Add(SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, semitoneOffset, letterOffset));
             }
 
             if (seventhInterval.HasValue)
             {
-                index += seventhInterval.Value;
-                if (index < allNotes.Count)
-                {
-                    result.Add(allNotes[index]);
-                }
+                semitoneOffset += seventhInterval.Value;
+                letterOffset += 2;
+                result.Add(SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, semitoneOffset, letterOffset));
             }
 
             return result;

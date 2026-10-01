@@ -81,6 +81,14 @@
     if (n.userPlaced) {
       staveNote.setStyle({ fillStyle: "#0d6efd", strokeStyle: "#0d6efd" });
     }
+    if (n.selected) {
+      staveNote.setStyle({ fillStyle: "#dc3545", strokeStyle: "#dc3545" });
+      if (VexFlow.Annotation) {
+        var annotation = new VexFlow.Annotation("◆");
+        if (annotation.setFont) annotation.setFont("Arial", 9);
+        staveNote.addModifier(annotation, 0);
+      }
+    }
 
     return staveNote;
   }

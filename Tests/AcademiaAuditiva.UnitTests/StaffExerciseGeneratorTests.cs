@@ -51,7 +51,7 @@ public class StaffExerciseGeneratorTests
             var octave = int.Parse(parts[0][^1].ToString());
             octave.Should().BeInRange(minOctave, maxOctave, $"note '{parts[0]}' must be within editor octave controls");
             var pitch = parts[0].TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
-            pitch.Should().BeOneOf("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B");
+            pitch.Should().MatchRegex("^[A-G](#{0,2}|b{0,2})$");
             if (pitch.Contains('#') || pitch.Contains('b'))
             {
                 (placedNotes < totalSlots || accidentalsAvailableAfterFinalSlot).Should().BeTrue(

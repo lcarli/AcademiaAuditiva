@@ -44,6 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
       octaveDisplayLabel: loc.octaveLabel,
       octaveDownLabel: loc.octaveDownLabel,
       octaveUpLabel: loc.octaveUpLabel,
+      selectedNoteLabel: loc.selectedNoteLabel,
+      noSelectionLabel: loc.noSelectionLabel,
       prefilledNotes: [{ note: rootNote, duration: "w" }],
     });
   }

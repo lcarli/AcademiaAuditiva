@@ -1,5 +1,6 @@
 using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -278,38 +279,13 @@ public sealed class ExercisePlaybackPlanner
             throw new ArgumentException("Note name must not be empty.", nameof(note));
         }
 
-        // Normalize flats to sharps — only sharp samples exist.
-        var normalized = note switch
+        var midi = MusicTheoryService.NoteToMidi(note);
+        if (!midi.HasValue)
         {
-            _ when note.Contains('b') => FlatToSharp(note),
-            _ => note,
-        };
-        return normalized.Replace("#", "s") + ".mp3";
-    }
-
-    private static string FlatToSharp(string note)
-    {
-        // E.g. Db4 → C#4, Gb4 → F#4. Keep this small; complete tables
-        // already exist in MusicTheoryService for actual music theory.
-        var letter = note[0].ToString();
-        var octave = note[^1];
-        var prevLetter = letter switch
-        {
-            "A" => "G",
-            "B" => "A",
-            "C" => "B",
-            "D" => "C",
-            "E" => "D",
-            "F" => "E",
-            "G" => "F",
-            _ => letter,
-        };
-        // Cb / Fb don't exist as enharmonic sharps — fall through.
-        if (letter is "C" or "F")
-        {
-            return prevLetter + octave;
+            throw new ArgumentException($"Invalid note name '{note}'.", nameof(note));
         }
-        return prevLetter + "#" + octave;
+
+        return MusicTheoryService.MidiToNote(midi.Value).Replace("#", "s") + ".mp3";
     }
 
     private static InvalidOperationException Bad(string field) =>
