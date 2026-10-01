@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace AcademiaAuditiva.Controllers
@@ -56,15 +57,31 @@ namespace AcademiaAuditiva.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult SetLanguage(string culture, string returnUrl)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SetLanguage(string culture, string returnUrl, [FromServices] IOptions<RequestLocalizationOptions> localization)
         {
-            Response.Cookies.Append(
-                CookieRequestCultureProvider.DefaultCookieName,
-                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
-                new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
-            );
+            var supported = localization.Value.SupportedUICultures?
+                .FirstOrDefault(c => string.Equals(c.Name, culture, StringComparison.OrdinalIgnoreCase));
 
-            return LocalRedirect(returnUrl);
+            // Unknown cultures are ignored rather than stored: RequestCulture would throw
+            // on an invalid name, and the middleware would discard an unsupported one anyway.
+            if (supported != null)
+            {
+                Response.Cookies.Append(
+                    CookieRequestCultureProvider.DefaultCookieName,
+                    CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(supported)),
+                    new CookieOptions
+                    {
+                        Expires = DateTimeOffset.UtcNow.AddYears(1),
+                        IsEssential = true,
+                        HttpOnly = true,
+                        Secure = Request.IsHttps,
+                        SameSite = SameSiteMode.Lax
+                    });
+            }
+
+            return LocalRedirect(Url.IsLocalUrl(returnUrl) ? returnUrl : "~/");
         }
 
         [HttpGet]

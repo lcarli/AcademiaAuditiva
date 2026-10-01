@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace AcademiaAuditiva.Areas.Teacher.Models;
 
@@ -36,13 +37,55 @@ public class RoutineItemFormViewModel
     [Range(0, 100, ErrorMessage = "Validation.Range"), Display(Name = "Teacher.Routines.MinimumScore")]
     public int? MinScore { get; set; }
 
-    [StringLength(4000, ErrorMessage = "Validation.MaxLength"), Display(Name = "Teacher.Routines.FilterJson")]
-    public string? FilterJson { get; set; }
+    /// <summary>
+    /// Filter preset posted as <c>Filters[groupName]=optionValue</c>; an empty
+    /// value lets the student choose. Sanitized against the exercise's groups
+    /// before it is stored in <c>RoutineItem.FilterJson</c>.
+    /// </summary>
+    public Dictionary<string, string?> Filters { get; set; } = new();
 
     public IReadOnlyList<ExerciseOption> ExerciseOptions { get; set; } = Array.Empty<ExerciseOption>();
 }
 
-public record ExerciseOption(int Id, string Name);
+/// <param name="Name">Localized exercise name.</param>
+/// <param name="FilterGroups">Filter selects the exercise offers (may be empty).</param>
+public record ExerciseOption(int Id, string Name, IReadOnlyList<FilterOptionGroup> FilterGroups);
+
+/// <summary>Per-student customization of a classroom assignment.</summary>
+public class RoutineOverridesViewModel
+{
+    public int RoutineId { get; set; }
+    public int AssignmentId { get; set; }
+    public string? StudentId { get; set; }
+
+    [BindNever] public string RoutineName { get; set; } = string.Empty;
+    [BindNever] public string ClassroomName { get; set; } = string.Empty;
+    [BindNever] public string? StudentDisplay { get; set; }
+    [BindNever] public IReadOnlyList<OverrideStudentOption> Students { get; set; } = Array.Empty<OverrideStudentOption>();
+
+    public List<RoutineItemOverrideInput> Items { get; set; } = new();
+}
+
+public record OverrideStudentOption(string Id, string Display, int OverrideCount);
+
+public class RoutineItemOverrideInput
+{
+    public int ItemId { get; set; }
+
+    [Display(Name = "Teacher.Overrides.Exclude")]
+    public bool Exclude { get; set; }
+
+    [Range(1, 100, ErrorMessage = "Validation.Range"), Display(Name = "Teacher.Routines.TargetCount")]
+    public int? TargetCount { get; set; }
+
+    /// <summary>Same shape as <see cref="RoutineItemFormViewModel.Filters"/>; empty keeps the routine setting.</summary>
+    public Dictionary<string, string?> Filters { get; set; } = new();
+
+    [BindNever] public string ExerciseName { get; set; } = string.Empty;
+    [BindNever] public int DefaultTarget { get; set; }
+    [BindNever] public IReadOnlyList<FilterOptionGroup> FilterGroups { get; set; } = Array.Empty<FilterOptionGroup>();
+    [BindNever] public IReadOnlyDictionary<string, string> DefaultFilters { get; set; } = new Dictionary<string, string>();
+}
 
 public class AssignRoutineViewModel
 {

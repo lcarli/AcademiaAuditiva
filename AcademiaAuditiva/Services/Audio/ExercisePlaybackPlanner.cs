@@ -13,10 +13,11 @@ namespace AcademiaAuditiva.Services.Audio;
 ///
 /// Produces:
 ///   - 1 plan for GuessNote / GuessChords / GuessFunction / GuessQuality /
-///     GuessInterval / GuessFullInterval
+///     GuessInterval / GuessFullInterval / IntervalMelodico
 ///   - 2 plans for GuessMissingNote (one per melody)
-///   - 0 plans for SolfegeMelody / IntervalMelodico (out of scope; the
-///     caller short-circuits by not invoking the mixer for those).
+///   - 0 plans for SolfegeMelody (the melody is shown as sheet music for
+///     the student to sing, so there is nothing to hide; the caller
+///     short-circuits by not invoking the mixer).
 /// </summary>
 public sealed class ExercisePlaybackPlanner
 {
@@ -32,6 +33,11 @@ public sealed class ExercisePlaybackPlanner
     // Chord/note clip length. Most piano sample blobs are ~3s sustained
     // tones; clip them so the mix doesn't drag.
     private const double NoteClipSeconds = 1.5;
+
+    // IntervalMelodico melodies: one note every 0.6s, each held for 0.8s
+    // (slightly legato), as the former Tone.js player scheduled them.
+    private const double MelodyStepSeconds = 0.6;
+    private const double MelodyNoteSeconds = 0.8;
 
     /// <summary>
     /// Returns the JSON to cache as <c>ExpectedAnswer</c> together with
@@ -76,9 +82,12 @@ public sealed class ExercisePlaybackPlanner
                 plans.Add(MelodyPlan(token["melody2"] as JArray ?? throw Bad("melody2")));
                 break;
 
-            case "SolfegeMelody":
             case "IntervalMelodico":
-                // Sheet-music exercises — no audio token is issued.
+                plans.Add(EvenMelody(StringArray(token, "melody")));
+                break;
+
+            case "SolfegeMelody":
+                // Sheet-music exercise — no audio token is issued.
                 break;
 
             default:
@@ -110,6 +119,16 @@ public sealed class ExercisePlaybackPlanner
         {
             plan[i] = Note(notes[i], t);
             t += IntervalGapSeconds + NoteClipSeconds;
+        }
+        return plan;
+    }
+
+    private static IReadOnlyList<MixInput> EvenMelody(IReadOnlyList<string> notes)
+    {
+        var plan = new MixInput[notes.Count];
+        for (var i = 0; i < notes.Count; i++)
+        {
+            plan[i] = new MixInput(NoteToBlob(notes[i]), i * MelodyStepSeconds, MelodyNoteSeconds);
         }
         return plan;
     }
@@ -207,7 +226,7 @@ public sealed class ExercisePlaybackPlanner
 /// <param name="ExpectedAnswerJson">JSON to cache and feed to validators (unchanged shape).</param>
 /// <param name="PlaybackPlans">
 /// Mixer plans, in playback order. Empty list means "no audio token to
-/// issue" (sheet-music exercises). Most exercises produce one plan;
+/// issue" (SolfegeMelody). Most exercises produce one plan;
 /// GuessMissingNote produces two (melody1, melody2).
 /// </param>
 public sealed record ExercisePlan(

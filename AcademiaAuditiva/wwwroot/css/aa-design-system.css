@@ -1417,6 +1417,47 @@ a:focus-visible {
     box-shadow: 0 0 0 .25rem var(--aa-focus-ring);
 }
 
+/* Routine preset banner shown above an exercise opened from "My training". */
+.aa-preset {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem .9rem;
+    padding: .75rem 1rem;
+    margin: -.5rem 0 1.5rem;
+    border: 1px solid var(--aa-line);
+    border-radius: var(--aa-radius-lg);
+    background: var(--aa-surface);
+    font-size: .9rem;
+}
+
+.aa-preset > .bi {
+    color: var(--aa-accent-text);
+    font-size: 1.1rem;
+}
+
+.aa-preset-body {
+    display: flex;
+    flex: 1 1 16rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem .75rem;
+}
+
+.aa-preset-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.aa-preset-change {
+    padding: 0;
+    font-weight: 600;
+}
+
 .aa-panel {
     padding: clamp(1rem, 2.5vw, 1.5rem);
     border: 1px solid var(--aa-line);
@@ -1546,6 +1587,14 @@ a:focus-visible {
     border-color: var(--aa-accent-hover);
     background: var(--aa-accent-hover);
     color: var(--aa-on-accent);
+}
+
+/* Microphone button while recording (SolfegeMelody). */
+.aa-audio-pill.is-recording,
+.aa-audio-pill.is-recording:hover {
+    border-color: var(--aa-err);
+    background: var(--aa-err-bg);
+    color: var(--aa-err-hover);
 }
 
 .aa-play:focus-visible,

@@ -1,12 +1,14 @@
 using AcademiaAuditiva.Interfaces;
+using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.ExerciseValidators;
 using Moq;
+using Newtonsoft.Json;
 
 namespace AcademiaAuditiva.UnitTests;
 
 /// <summary>
-/// Coverage of the eight <see cref="IExerciseValidator"/> implementations
+/// Coverage of the nine <see cref="IExerciseValidator"/> implementations
 /// plus the <see cref="ExerciseValidatorRegistry"/> wiring. The validators
 /// are pure functions over a JSON expected-answer payload, so each test is
 /// just feeding in a representative payload and asserting the result.
@@ -62,7 +64,6 @@ public class ExerciseValidatorTests
     [Theory]
     [InlineData(typeof(GuessIntervalValidator), "GuessInterval")]
     [InlineData(typeof(GuessMissingNoteValidator), "GuessMissingNote")]
-    [InlineData(typeof(GuessFullIntervalValidator), "GuessFullInterval")]
     [InlineData(typeof(GuessFunctionValidator), "GuessFunction")]
     [InlineData(typeof(GuessQualityValidator), "GuessQuality")]
     public void SingleFieldValidators_MatchOnAnswerField_CaseInsensitive(System.Type validatorType, string expectedName)
@@ -78,19 +79,158 @@ public class ExerciseValidatorTests
         v.Validate("major third", json).CanonicalAnswer.Should().Be("Major Third");
     }
 
+    [Theory]
+    [InlineData("3M", "3M", true)]
+    [InlineData(" 3M ", "3M", true)]   // stray whitespace
+    [InlineData("3m", "3M", false)]    // minor vs major third: case matters
+    [InlineData("2M", "2m", false)]
+    [InlineData("5d", "4A", true)]     // tritone, either name
+    [InlineData("4A", "5d", true)]
+    [InlineData("5d", "5d", true)]
+    [InlineData("4J", "4A", false)]
+    [InlineData("", "", false)]        // an empty guess never matches
+    public void GuessFullInterval_ComparesCaseSensitiveCodes_AndAcceptsBothTritoneNames(string guess, string expected, bool correct)
+    {
+        var v = new GuessFullIntervalValidator();
+
+        var result = v.Validate(guess, $"{{\"answer\":\"{expected}\"}}");
+
+        v.ExerciseName.Should().Be("GuessFullInterval");
+        result.IsCorrect.Should().Be(correct);
+        result.CanonicalAnswer.Should().Be(expected);
+    }
+
     [Fact]
     public void IntervalMelodico_RequiresAll4Parts_AndComparesEach()
     {
         var v = new IntervalMelodicoValidator();
-        var json = "{\"firstDegree\":\"1\",\"lastDegree\":\"5\",\"startInterval\":\"Unisono\",\"endInterval\":\"Quinta Justa\"}";
+        var json = "{\"firstDegree\":\"I\",\"lastDegree\":\"V\",\"startInterval\":\"1J\",\"endInterval\":\"4A\",\"melody\":[\"C4\",\"C4\",\"G4\"]}";
 
-        v.Validate("1|5|Unisono|Quinta Justa", json).IsCorrect.Should().BeTrue();
-        v.Validate("1|5|UNISONO|quinta justa", json).IsCorrect.Should().BeTrue(); // case-insensitive
-        v.Validate("1|5|Unisono", json).IsCorrect.Should().BeFalse();              // arity mismatch
-        v.Validate("1|5|Unisono|Terca Maior", json).IsCorrect.Should().BeFalse();  // last part wrong
+        v.Validate("I|V|1J|4A", json).IsCorrect.Should().BeTrue();
+        v.Validate("i|v|1J|5d", json).IsCorrect.Should().BeTrue();   // degrees ignore case; tritone either name
+        v.Validate(" I | V |1J|4A", json).IsCorrect.Should().BeTrue(); // whitespace around parts
+        v.Validate("I|V|1j|4A", json).IsCorrect.Should().BeFalse();   // interval codes are case-sensitive
+        v.Validate("I|V|1J", json).IsCorrect.Should().BeFalse();      // arity mismatch
+        v.Validate("I|V|1J|4A|x", json).IsCorrect.Should().BeFalse();
+        v.Validate("I|IV|1J|4A", json).IsCorrect.Should().BeFalse();  // last degree wrong
+        v.Validate("I|V|2m|4A", json).IsCorrect.Should().BeFalse();   // start interval wrong
         v.Validate("", json).IsCorrect.Should().BeFalse();
-        v.Validate("1|5|Unisono|Quinta Justa", json).CanonicalAnswer
-            .Should().Be("1|5|Unisono|Quinta Justa");
+        v.Validate(null!, json).IsCorrect.Should().BeFalse();
+        v.Validate("I|V|1J|5d", json).CanonicalAnswer.Should().Be("I|V|1J|4A");
+    }
+
+    [Fact]
+    public void IntervalMelodico_AcceptsTheAnswerItGenerated()
+    {
+        // End-to-end with the real generator: the canonical answer must validate.
+        var exercise = new Exercise { Name = "IntervalMelodico" };
+        var v = new IntervalMelodicoValidator();
+        for (var i = 0; i < 50; i++)
+        {
+            var json = JsonConvert.SerializeObject(MusicTheoryService.GenerateNoteForExercise(
+                exercise, new Dictionary<string, string> { ["keySelect"] = "D", ["scaleTypeSelect"] = "both" }));
+            var canonical = v.Validate("", json).CanonicalAnswer;
+
+            v.Validate(canonical, json).IsCorrect.Should().BeTrue(json);
+        }
+    }
+
+    private static string SolfegeJson(params string[] items) => JsonConvert.SerializeObject(new
+    {
+        melody = items.Select(n => n == "rest"
+            ? new { type = "rest", note = "rest", duration = 1.0 }
+            : new { type = "note", note = n, duration = 1.0 })
+    });
+
+    [Fact]
+    public void SolfegeMelody_ComparesPitchClasses_InAnyOctave()
+    {
+        var v = new SolfegeMelodyValidator();
+        var json = SolfegeJson("C4", "rest", "E4", "G4");
+
+        v.ExerciseName.Should().Be("SolfegeMelody");
+        v.Validate("C4|E4|G4", json).IsCorrect.Should().BeTrue();
+        v.Validate("C3|E3|G3", json).IsCorrect.Should().BeTrue();   // sung an octave lower
+        v.Validate("C5|E4|G2", json).IsCorrect.Should().BeTrue();   // octave jumps don't matter
+        v.Validate("C4|E4|A4", json).IsCorrect.Should().BeFalse();  // 3-note melody: no tolerance
+        v.Validate("C4|E4", json).IsCorrect.Should().BeFalse();
+        v.Validate("C4|E4|G4", json).CanonicalAnswer.Should().Be("C4|E4|G4"); // rests are left out
+    }
+
+    [Fact]
+    public void SolfegeMelody_TreatsEnharmonicSpellingsAsEqual()
+    {
+        var v = new SolfegeMelodyValidator();
+
+        v.Validate("Db4|Eb4|F#4", SolfegeJson("C#4", "D#4", "Gb4")).IsCorrect.Should().BeTrue();
+    }
+
+    [Fact]
+    public void SolfegeMelody_CollapsesRepeatedNotes_OnBothSides()
+    {
+        // A held note and a repeated note sound the same to the pitch tracker.
+        var v = new SolfegeMelodyValidator();
+        var json = SolfegeJson("D4", "D4", "F4", "A4");
+
+        v.Validate("D4|F4|A4", json).IsCorrect.Should().BeTrue();
+        v.Validate("D4|D4|D4|F4|F4|A4", json).IsCorrect.Should().BeTrue();
+    }
+
+    [Fact]
+    public void SolfegeMelody_ToleratesOneMistake_FromFourDistinctNotes()
+    {
+        var v = new SolfegeMelodyValidator();
+        var json = SolfegeJson("C4", "D4", "E4", "F4");
+
+        v.Validate("C4|D4|E4|F4", json).IsCorrect.Should().BeTrue();
+        v.Validate("C4|D4|E4|G4", json).IsCorrect.Should().BeTrue();    // one wrong note
+        v.Validate("C4|D4|F4", json).IsCorrect.Should().BeTrue();       // one missing
+        v.Validate("C4|D4|E4|F4|G4", json).IsCorrect.Should().BeTrue(); // one extra
+        v.Validate("C4|D4|G4|A4", json).IsCorrect.Should().BeFalse();   // two wrong
+        v.Validate("C4|D4", json).IsCorrect.Should().BeFalse();         // two missing
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("|||")]
+    [InlineData("not a note")]
+    [InlineData("H4|X9|C")]
+    public void SolfegeMelody_RejectsGarbage_WithoutThrowing(string guess)
+    {
+        var v = new SolfegeMelodyValidator();
+
+        var result = v.Validate(guess, SolfegeJson("C4", "D4", "E4", "F4"));
+
+        result.IsCorrect.Should().BeFalse();
+        result.CanonicalAnswer.Should().Be("C4|D4|E4|F4");
+    }
+
+    [Fact]
+    public void SolfegeMelody_RejectsOversizedGuesses_AndEmptyMelodies()
+    {
+        var v = new SolfegeMelodyValidator();
+        var longGuess = string.Join("|", Enumerable.Repeat("C4", 400)); // 1199 characters
+        longGuess.Length.Should().BeGreaterThan(1024);
+
+        v.Validate(longGuess, SolfegeJson("C4")).IsCorrect.Should().BeFalse();
+        v.Validate("C4", SolfegeJson("rest")).IsCorrect.Should().BeFalse();
+        v.Validate("C4", "{}").IsCorrect.Should().BeFalse();
+    }
+
+    [Fact]
+    public void SolfegeMelody_AcceptsTheMelodyItGenerated()
+    {
+        var exercise = new Exercise { Name = "SolfegeMelody" };
+        var v = new SolfegeMelodyValidator();
+        for (var i = 0; i < 50; i++)
+        {
+            var json = JsonConvert.SerializeObject(MusicTheoryService.GenerateNoteForExercise(exercise, new Dictionary<string, string>()));
+            var canonical = v.Validate("", json).CanonicalAnswer;
+
+            canonical.Should().NotBeEmpty(json);
+            v.Validate(canonical, json).IsCorrect.Should().BeTrue(json);
+        }
     }
 
     [Fact]

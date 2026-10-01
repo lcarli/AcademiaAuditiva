@@ -5,7 +5,7 @@
 
 @{
     var currentUiCulture = CultureInfo.CurrentUICulture;
-    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}{Context.Request.QueryString.Value}";
     var cultures = LocOptions.Value.SupportedUICultures ?? new List<CultureInfo>();
 
     static string DisplayName(CultureInfo culture) =>
@@ -14,7 +14,8 @@
             : char.ToUpper(culture.NativeName[0], culture) + culture.NativeName[1..];
 }
 
-<form asp-area="" asp-controller="Dashboard" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post" class="dropdown">
+<form asp-area="" asp-controller="Dashboard" asp-action="SetLanguage" method="post" class="dropdown">
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
     <button class="aa-lang-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
             aria-label="@Localizer["Layout.Language"]: @DisplayName(currentUiCulture)" title="@Localizer["Layout.Language"]">
         @currentUiCulture.TwoLetterISOLanguageName.ToUpperInvariant()

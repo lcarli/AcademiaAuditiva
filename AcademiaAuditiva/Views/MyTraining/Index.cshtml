@@ -56,22 +56,52 @@
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                 <div>
                                     <strong class="text-body-emphasis">@a.RoutineName</strong>
-                                    <span class="aa-badge-soft ms-2">@a.Source</span>
+                                    <span class="aa-badge-soft ms-2">
+                                        @if (a.ClassroomName != null) { <text>@Localizer["MyTraining.Source.Classroom", a.ClassroomName]</text> }
+                                        else { <text>@Localizer["MyTraining.Source.Personal"]</text> }
+                                    </span>
                                 </div>
                                 <small class="text-secondary">
                                     @if (a.DueAt.HasValue) { <text>@Localizer["MyTraining.Due"] @a.DueAt.Value.ToString("yyyy-MM-dd")</text> }
                                     else { <text>@Localizer["MyTraining.NoDeadline"]</text> }
                                 </small>
                             </div>
-                            <div class="progress my-2" role="progressbar" aria-valuenow="@a.OverallPercent" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+                            <div class="progress my-2" role="progressbar" aria-label="@a.RoutineName" aria-valuenow="@a.OverallPercent" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
                                 <div class="progress-bar" style="width: @(a.OverallPercent)%;"></div>
                             </div>
                             <ul class="list-group list-group-flush small">
                                 @foreach (var i in a.Items)
                                 {
-                                    <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0 border-0">
-                                        <a class="text-body link-offset-2" asp-controller="Exercise" asp-action="Index" asp-route-id="@i.ExerciseId">@i.ExerciseName</a>
-                                        <span class="text-secondary">@i.Done / @i.Target (@(i.PercentComplete)%)</span>
+                                    var p = i.Progress;
+                                    var href = Url.Action(i.ExerciseName, "Exercise", new Microsoft.AspNetCore.Routing.RouteValueDictionary(i.Filters.ToDictionary(kv => kv.Key, kv => (object?)kv.Value)))
+                                               ?? Url.Action("Index", "Exercise");
+                                    <li class="list-group-item bg-transparent px-0 border-0 aa-routine-item">
+                                        <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+                                            <a class="text-body link-offset-2 fw-semibold" href="@href">
+                                                @if (p.IsComplete) { <i class="bi bi-check-circle-fill text-success me-1" aria-hidden="true"></i> }
+                                                @i.DisplayName
+                                            </a>
+                                            <span class="text-secondary text-nowrap">
+                                                @if (p.IsComplete) { <span class="visually-hidden">@Localizer["MyTraining.Complete"]: </span> }
+                                                @p.Done / @p.Target (@(p.Percent)%)
+                                            </span>
+                                        </div>
+                                        @if (i.AppliedFilters.Count > 0 || p.MinScore.HasValue)
+                                        {
+                                            <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                                                @foreach (var f in i.AppliedFilters)
+                                                {
+                                                    <span class="aa-badge-soft">@Localizer[f.Group.Label]: @Localizer[f.Option.Text]</span>
+                                                }
+                                                @if (p.MinScore.HasValue)
+                                                {
+                                                    <span class="@(p.Accuracy.HasValue && !p.MeetsMinScore ? "text-danger" : "text-secondary")">
+                                                        @if (p.Accuracy.HasValue) { <text>@Localizer["MyTraining.AccuracyMin", p.Accuracy.Value, p.MinScore.Value]</text> }
+                                                        else { <text>@Localizer["MyTraining.MinAccuracy", p.MinScore.Value]</text> }
+                                                    </span>
+                                                }
+                                            </div>
+                                        }
                                     </li>
                                 }
                                 @if (!a.Items.Any())

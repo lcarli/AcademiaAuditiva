@@ -34,19 +34,55 @@
             </div>
         </div>
 
-        <div class="mt-3">
-            <label asp-for="FilterJson" class="form-label"></label>
-            <textarea asp-for="FilterJson" rows="4" class="form-control font-monospace"
-                      placeholder='{"intervalo":"P5"}'></textarea>
-            <div class="form-text">@Localizer["Teacher.Routines.FilterJsonHelp"]</div>
-            <span asp-validation-for="FilterJson" class="text-danger small"></span>
-        </div>
+        <fieldset class="mt-4">
+            <legend class="form-label fs-6 fw-semibold mb-1">@Localizer["Filters"]</legend>
+            <p class="form-text mt-0 mb-2">@Localizer["Teacher.Routines.Filters.Help"]</p>
+            @* One fieldset per exercise; routine-item-form.js enables the one for the selected exercise.
+               Disabled fieldsets are not posted, so only the chosen exercise's filters reach the server. *@
+            @foreach (var ex in Model.ExerciseOptions)
+            {
+                var active = ex.Id == Model.ExerciseId;
+                <fieldset data-exercise-id="@ex.Id" disabled="@(!active)" hidden="@(!active)">
+                    @if (ex.FilterGroups.Count == 0)
+                    {
+                        <p class="text-secondary small mb-0">@Localizer["Teacher.Routines.Filters.None"]</p>
+                    }
+                    else
+                    {
+                        <div class="row g-3">
+                            @foreach (var group in ex.FilterGroups)
+                            {
+                                var selectId = $"f-{ex.Id}-{group.Name}";
+                                string? current = null;
+                                if (active) Model.Filters.TryGetValue(group.Name, out current);
+                                <div class="col-md-6">
+                                    <label for="@selectId" class="form-label">@Localizer[group.Label]</label>
+                                    <select id="@selectId" name="Filters[@group.Name]" class="form-select">
+                                        <option value="">@Localizer["Teacher.Routines.Filters.StudentChooses"]</option>
+                                        @foreach (var opt in group.Options)
+                                        {
+                                            <option value="@opt.Value" selected="@(opt.Value == current)">@Localizer[opt.Text]</option>
+                                        }
+                                    </select>
+                                </div>
+                            }
+                        </div>
+                    }
+                </fieldset>
+            }
+            <p class="text-secondary small mb-0" data-exercise-none hidden="@(Model.ExerciseOptions.Any(o => o.Id == Model.ExerciseId))">
+                @Localizer["Teacher.Routines.SelectExercise"]
+            </p>
+        </fieldset>
 
-        <div class="mt-3">
+        <div class="mt-4">
             <button type="submit" class="btn btn-primary">@(isEdit ? Localizer["Common.Save"] : Localizer["Teacher.Routines.AddToRoutine"])</button>
             <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.RoutineId">@Localizer["Common.Cancel"]</a>
         </div>
     </div>
 </form>
 
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/teacher/routine-item-form.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,196 @@
+using AcademiaAuditiva.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
+
+namespace AcademiaAuditiva.UnitTests;
+
+/// <summary>
+/// Tests for <see cref="ExerciseFilterPresets"/>, which reads, validates and
+/// merges the filter presets stored on routine items and student overrides.
+/// Older presets were typed by hand, so bad input must be ignored, never thrown.
+/// </summary>
+public class ExerciseFilterPresetsTests
+{
+    private static readonly IReadOnlyList<FilterOptionGroup> KeyAndScale = new List<FilterOptionGroup>
+    {
+        new() { Name = "keySelect", Label = "Exercise.Key", Options = new() { new("C", "C"), new("D", "D") } },
+        new() { Name = "scaleTypeSelect", Label = "Exercise.Scale", Options = new() { new("major", "Exercise.ScaleMajor"), new("minor", "Exercise.ScaleMinor") } },
+    };
+
+    [Fact]
+    public void Groups_ReadsTheExerciseFilters_AndSkipsUnusableGroups()
+    {
+        const string json = """
+            [
+              {"Label":"Exercise.Key","Name":"keySelect","Options":[{"Value":"C","Text":"C"}]},
+              {"Label":"Unnamed","Name":"","Options":[{"Value":"C","Text":"C"}]},
+              {"Label":"Empty","Name":"empty","Options":[]},
+              {"Label":"Missing","Name":"missing"},
+              null
+            ]
+            """;
+
+        var groups = ExerciseFilterPresets.Groups(json);
+
+        groups.Select(g => g.Name).Should().Equal("keySelect");
+        groups[0].Options.Should().ContainSingle(o => o.Value == "C");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("null")]
+    [InlineData("not json")]
+    [InlineData("{}")]
+    [InlineData("[1,2]")]
+    public void Groups_ReturnsEmpty_ForMissingOrInvalidJson(string? json)
+    {
+        ExerciseFilterPresets.Groups(json).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Parse_KeepsStringAndIntegerValues_Only()
+    {
+        const string json = """
+            {"keySelect":"D","melodyLength":5,"flag":true,"none":null,"nested":{"a":"b"},"list":["x"],"ratio":1.5,"blank":""}
+            """;
+
+        ExerciseFilterPresets.Parse(json).Should().BeEquivalentTo(new Dictionary<string, string>
+        {
+            ["keySelect"] = "D",
+            ["melodyLength"] = "5",
+        });
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("  ")]
+    [InlineData("null")]
+    [InlineData("not json")]
+    [InlineData("{")]
+    [InlineData("{} trailing")]
+    [InlineData("[]")]
+    [InlineData("[{\"keySelect\":\"D\"}]")]
+    [InlineData("\"D\"")]
+    [InlineData("42")]
+    public void Parse_ReturnsEmpty_ForAnythingButAJsonObject(string? json)
+    {
+        ExerciseFilterPresets.Parse(json).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Serialize_SortsKeys_AndRoundTrips()
+    {
+        var preset = new Dictionary<string, string> { ["scaleTypeSelect"] = "minor", ["keySelect"] = "D" };
+
+        var json = ExerciseFilterPresets.Serialize(preset);
+
+        json.Should().Be("""{"keySelect":"D","scaleTypeSelect":"minor"}""");
+        ExerciseFilterPresets.Parse(json).Should().BeEquivalentTo(preset);
+    }
+
+    [Fact]
+    public void Serialize_ReturnsNull_ForAnEmptyPreset()
+    {
+        ExerciseFilterPresets.Serialize(null).Should().BeNull();
+        ExerciseFilterPresets.Serialize(new Dictionary<string, string>()).Should().BeNull();
+    }
+
+    [Fact]
+    public void Sanitize_KeepsOnlyKnownGroupsAndOptions()
+    {
+        var values = new Dictionary<string, string?>
+        {
+            ["keySelect"] = "D",
+            ["scaleTypeSelect"] = "Minor", // option values are case-sensitive
+            ["KeySelect"] = "C",           // so are group names
+            ["melodyLength"] = "5",        // not a filter of this exercise
+        };
+
+        ExerciseFilterPresets.Sanitize(values, KeyAndScale).Should().BeEquivalentTo(new Dictionary<string, string>
+        {
+            ["keySelect"] = "D",
+        });
+    }
+
+    [Fact]
+    public void Sanitize_DropsEmptyValues_WhichLetTheStudentChoose()
+    {
+        var values = new Dictionary<string, string?> { ["keySelect"] = "", ["scaleTypeSelect"] = null };
+
+        ExerciseFilterPresets.Sanitize(values, KeyAndScale).Should().BeEmpty();
+        ExerciseFilterPresets.Sanitize(null, KeyAndScale).Should().BeEmpty();
+        ExerciseFilterPresets.Sanitize(new Dictionary<string, string?> { ["keySelect"] = "D" }, Array.Empty<FilterOptionGroup>())
+            .Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FromQuery_ReadsKnownFilters_AndIgnoresTheRest()
+    {
+        var query = new QueryCollection(new Dictionary<string, StringValues>
+        {
+            ["keySelect"] = "D",
+            ["scaleTypeSelect"] = new StringValues(new[] { "major", "minor" }), // repeated parameter
+            ["returnUrl"] = "/MyTraining",
+        });
+
+        ExerciseFilterPresets.FromQuery(query, KeyAndScale).Should().BeEquivalentTo(new Dictionary<string, string>
+        {
+            ["keySelect"] = "D",
+        });
+    }
+
+    [Fact]
+    public void Merge_OverrideKeysWin_AndTheOthersAreInherited()
+    {
+        var merged = ExerciseFilterPresets.Merge(
+            new Dictionary<string, string> { ["keySelect"] = "C", ["scaleTypeSelect"] = "major" },
+            new Dictionary<string, string> { ["scaleTypeSelect"] = "minor", ["melodyLength"] = "5" });
+
+        merged.Should().BeEquivalentTo(new Dictionary<string, string>
+        {
+            ["keySelect"] = "C",
+            ["scaleTypeSelect"] = "minor",
+            ["melodyLength"] = "5",
+        });
+    }
+
+    [Fact]
+    public void Merge_WithoutOverrides_ReturnsACopy()
+    {
+        var baseFilters = new Dictionary<string, string> { ["keySelect"] = "C" };
+
+        var merged = ExerciseFilterPresets.Merge(baseFilters, null);
+
+        merged.Should().BeEquivalentTo(baseFilters);
+        merged.Should().NotBeSameAs(baseFilters);
+    }
+
+    [Fact]
+    public void Describe_FollowsTheExerciseGroupOrder()
+    {
+        var applied = ExerciseFilterPresets.Describe(KeyAndScale, new Dictionary<string, string>
+        {
+            ["scaleTypeSelect"] = "minor",
+            ["keySelect"] = "D",
+        });
+
+        applied.Select(a => a.Group.Name).Should().Equal("keySelect", "scaleTypeSelect");
+        applied.Select(a => a.Option.Text).Should().Equal("D", "Exercise.ScaleMinor");
+    }
+
+    [Fact]
+    public void Describe_SkipsValuesThatAreNoLongerOptions()
+    {
+        var applied = ExerciseFilterPresets.Describe(KeyAndScale, new Dictionary<string, string>
+        {
+            ["keySelect"] = "E",
+            ["scaleTypeSelect"] = "minor",
+            ["melodyLength"] = "5",
+        });
+
+        applied.Should().ContainSingle().Which.Option.Value.Should().Be("minor");
+    }
+}

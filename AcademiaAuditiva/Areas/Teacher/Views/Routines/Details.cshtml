@@ -41,14 +41,25 @@
                         var exName = item.Exercise?.Name ?? string.Empty;
                         var locName = Localizer[exName];
                         var displayName = locName.IsResourceNotFound ? exName : locName.Value;
+                        var applied = AcademiaAuditiva.Services.ExerciseFilterPresets.Describe(
+                            AcademiaAuditiva.Services.ExerciseFilterPresets.Groups(item.Exercise?.FiltersJson),
+                            AcademiaAuditiva.Services.ExerciseFilterPresets.Parse(item.FilterJson));
                         <li class="list-group-item d-flex justify-content-between align-items-start gap-2 flex-wrap">
                             <div>
                                 <div><strong>@displayName</strong></div>
                                 <div class="small text-secondary">
                                     @Localizer["Teacher.Routines.Target"]: @item.TargetCount
-                                    @if (item.MinScore.HasValue) { <text>· @Localizer["Teacher.Routines.MinScore"]: @item.MinScore</text> }
-                                    @if (!string.IsNullOrEmpty(item.FilterJson)) { <text>· @Localizer["Teacher.Routines.CustomFilter"]</text> }
+                                    @if (item.MinScore.HasValue) { <text>· @Localizer["Teacher.Routines.MinScore"]: @(item.MinScore)%</text> }
                                 </div>
+                                @if (applied.Count > 0)
+                                {
+                                    <ul class="aa-preset-list mt-1" aria-label="@Localizer["Filters"].Value">
+                                        @foreach (var f in applied)
+                                        {
+                                            <li class="aa-badge-soft">@Localizer[f.Group.Label]: @Localizer[f.Option.Text]</li>
+                                        }
+                                    </ul>
+                                }
                             </div>
                             <div class="d-flex gap-1">
                                 <a class="btn btn-sm btn-outline-secondary" asp-action="EditItem" asp-route-routineId="@Model.Id" asp-route-itemId="@item.Id">@Localizer["Teacher.Routines.Edit"]</a>
@@ -79,6 +90,7 @@
                 <ul class="list-group list-group-flush">
                     @foreach (var a in assignments)
                     {
+                        var customized = a.Overrides.Select(o => o.StudentId).Distinct().Count();
                         <li class="list-group-item d-flex justify-content-between align-items-center small gap-2 flex-wrap">
                             <span>
                                 @if (a.ClassroomId != null) { <text>👥 @a.Classroom?.Name</text> }
@@ -87,6 +99,15 @@
                                     @Localizer["Teacher.Routines.Assigned"] @a.AssignedAt.ToString("yyyy-MM-dd")
                                     @if (a.DueAt.HasValue) { <text>· @Localizer["Teacher.Routines.Due"] @a.DueAt.Value.ToString("yyyy-MM-dd")</text> }
                                 </div>
+                                @if (a.ClassroomId != null)
+                                {
+                                    <a class="d-inline-block mt-1" asp-action="Overrides" asp-route-routineId="@Model.Id" asp-route-assignmentId="@a.Id">
+                                        <i class="bi bi-sliders me-1" aria-hidden="true"></i>@Localizer["Teacher.Overrides.Title"]</a>
+                                    @if (customized > 0)
+                                    {
+                                        <span class="text-secondary">· @Localizer["Teacher.Overrides.StudentsCustomized", customized]</span>
+                                    }
+                                }
                             </span>
                             <form asp-action="Unassign" method="post"
                                   onsubmit="return confirm('@Localizer["Teacher.Routines.RemoveAssignmentConfirm"].Value');">

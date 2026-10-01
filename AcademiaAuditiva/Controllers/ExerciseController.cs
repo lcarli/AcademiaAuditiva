@@ -104,21 +104,20 @@ namespace AcademiaAuditiva.Controllers
 
 			var plan = _playbackPlanner.Plan(exercise, filters);
 
-			// Sheet-music exercises (SolfegeMelody / IntervalMelodico) do
-			// not get an audio token — they are out of scope for this
-			// anti-cheat flow. We still cache the expected answer so
-			// ValidateExercise can score them, but we keep the original
-			// response shape (notes in clear text) so the front-end can
-			// render the sheet music.
+			// SolfegeMelody shows its melody as sheet music for the student
+			// to sing, so it gets no audio token: the expected answer is
+			// cached for ValidateExercise and the melody is returned in
+			// clear text for the staff renderer.
 			if (plan.PlaybackPlans.Count == 0)
 			{
-				var legacyPayload = JsonConvert.DeserializeObject(plan.ExpectedAnswerJson)!;
 				var sessionData = new ExerciseSessionData { ExpectedAnswer = plan.ExpectedAnswerJson };
 				await _cache.SetStringAsync(
 					ExpectedAnswerCacheKey(userId, request.ExerciseId),
 					JsonConvert.SerializeObject(sessionData),
 					_expectedAnswerTtl);
-				return Json(legacyPayload);
+				// Sent verbatim: Json() uses System.Text.Json, which writes every value of a
+				// Newtonsoft JObject as an empty array.
+				return Content(plan.ExpectedAnswerJson, "application/json");
 			}
 
 			// Mix every plan into a single playable blob, then collect

@@ -288,7 +288,9 @@ namespace AcademiaAuditiva.Services
         /// Gera uma melodia vocal dentro de um certo número de compassos, com time signature, tessitura vocal e nível de dificuldade.
         /// </summary>
         /// <remarks>
-        /// Inclui pausas (rests) aleatoriamente com 25% de chance.
+        /// Inclui pausas (rests) aleatoriamente com 25% de chance, mas nunca no início.
+        /// The notes are natural (C major) and move by at most a third, so the
+        /// melody can be sung at sight.
         /// Durações possíveis variam com o nível de dificuldade:
         /// - Fácil: whole (4), half (2), quarter (1)
         /// - Intermediário: + eighth (0.5)
@@ -349,6 +351,12 @@ namespace AcademiaAuditiva.Services
             {
                 allNotes.Add(ChromaticScaleBase[random.Next(ChromaticScaleBase.Count)] + random.Next(2, 7));
             }
+            var singable = allNotes.Where(n => !n.Contains('#')).ToList();
+            if (singable.Count == 0)
+            {
+                singable = allNotes;
+            }
+            int? previousIndex = null;
         
             var melody = new List<(string Note, double Duration, bool IsRest)>();
             var beatsPerMeasure = int.Parse(timeSignature.Split('/')[0]);
@@ -378,15 +386,18 @@ namespace AcademiaAuditiva.Services
                     }
                 }
         
-                bool isRest = includeRests && random.NextDouble() < 0.25;
+                bool isRest = includeRests && melody.Count > 0 && random.NextDouble() < 0.25;
                 string note;
                 if (isRest)
                     note = "rest";
                 else
                 {
-                    note = allNotes[random.Next(allNotes.Count)];
-                    if (!System.Text.RegularExpressions.Regex.IsMatch(note, @"\d"))
-                        note = note + random.Next(2, 7);
+                    // Start in the lower octave of the range, then move by a step or a third.
+                    var index = previousIndex is int previous
+                        ? Math.Clamp(previous + random.Next(-2, 3), 0, singable.Count - 1)
+                        : random.Next(Math.Min(singable.Count, 7));
+                    previousIndex = index;
+                    note = singable[index];
                 }
         
                 melody.Add((note, selected.Duration, isRest));
@@ -768,7 +779,8 @@ namespace AcademiaAuditiva.Services
                     {
                         { "2m", 1 }, { "2M", 2 },
                         { "3m", 3 }, { "3M", 4 },
-                        { "4J", 5 }, { "4A", 6 },
+                        // The answer buttons name the tritone "5d"; the validator also accepts "4A".
+                        { "4J", 5 }, { "5d", 6 },
                         { "5J", 7 },
                         { "6m", 8 }, { "6M", 9 },
                         { "7m", 10 }, { "7M", 11 },
@@ -829,7 +841,7 @@ namespace AcademiaAuditiva.Services
                         answer = chordQ.Type
                     };
                 case "SolfegeMelody":
-                    var octavesSolfege = new List<int> { 4, 5 };
+                    // One 4/4 bar in the mezzo-soprano range (C4-B5); students may sing it in any octave.
                     var melodyRawSolfege = GenerateVocalMelody(measures: 1, timeSignature: "4/4", voiceType: "mezzosoprano", difficulty: "easy", includeRests: true);
                 
                     var melodySolfege = melodyRawSolfege.Select(m => new
@@ -847,11 +859,18 @@ namespace AcademiaAuditiva.Services
                 case "IntervalMelodico":
                     var keyMel = filters.TryGetValue("keySelect", out var selectedKeyMel) ? selectedKeyMel : "C";
                     var scaleTypeMel = filters.TryGetValue("scaleTypeSelect", out var selectedScale) ? selectedScale : "major";
-                    
+                    if (scaleTypeMel == "both")
+                        scaleTypeMel = random.NextDouble() < 0.5 ? "major" : "minor";
+
                     // Gera escala base
                     var scaleNotesKey = GetScaleNotes(keyMel + "4", scaleTypeMel);
                     if (scaleNotesKey.Count < 4)
-                        return new { error = "Escala muito curta para gerar melodia." };
+                    {
+                        // Unknown key or scale (only possible with a hand-made request).
+                        keyMel = "C";
+                        scaleTypeMel = "major";
+                        scaleNotesKey = GetScaleNotes("C4", "major");
+                    }
 
                     // Melodia com 8-32 notas, pode começar em diferentes graus (não sempre no I)
                     var melodyLengthMel = random.Next(8, 32);
@@ -924,15 +943,23 @@ namespace AcademiaAuditiva.Services
             };
         }
 
+        /// <summary>
+        /// Names the interval between two notes with the codes used by the
+        /// answer options ("1J", "2m", "2M", ..., "8J"). Direction is ignored
+        /// and compound intervals are reduced to a simple one (a 10th is
+        /// named like a 3rd). Six semitones are named "4A".
+        /// </summary>
         public static string GetIntervalBetweenNotes(string note1, string note2)
         {
             var midi1 = NoteToMidi(note1) ?? 60;
             var midi2 = NoteToMidi(note2) ?? 60;
             var semitones = Math.Abs(midi2 - midi1);
-            
+            if (semitones > 12)
+                semitones = semitones % 12 == 0 ? 12 : semitones % 12;
+
             return semitones switch
             {
-                0 => "Unísono",
+                0 => "1J",
                 1 => "2m",
                 2 => "2M",
                 3 => "3m",
@@ -944,8 +971,7 @@ namespace AcademiaAuditiva.Services
                 9 => "6M",
                 10 => "7m",
                 11 => "7M",
-                12 => "8J",
-                _ => $"{semitones}sem"
+                _ => "8J"
             };
         }
         #endregion
