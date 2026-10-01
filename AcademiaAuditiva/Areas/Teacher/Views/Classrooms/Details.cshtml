@@ -46,7 +46,8 @@
                             <span class="d-flex align-items-center gap-2">
                                 <small class="text-secondary">@Localizer["Teacher.Classrooms.Joined"] @m.JoinedAt.ToString("yyyy-MM-dd")</small>
                                 <form asp-controller="Members" asp-action="Remove" method="post"
-                                      onsubmit="return confirm('@Html.Raw(Localizer["Teacher.Classrooms.RemoveConfirm", m.Student?.UserName ?? string.Empty].Value)');">
+                                      data-confirm="@string.Format(Localizer["Teacher.Classrooms.RemoveConfirm"].Value, m.Student?.UserName ?? string.Empty)"
+                                      onsubmit="return confirm(this.dataset.confirm);">
                                     <input type="hidden" name="classroomId" value="@Model.Id" />
                                     <input type="hidden" name="memberId" value="@m.Id" />
                                     <button class="btn btn-sm btn-outline-danger" type="submit">@Localizer["Teacher.Classrooms.Remove"]</button>
@@ -81,7 +82,8 @@
                                 <div class="text-secondary">@Localizer["Teacher.Classrooms.Expires"] @i.ExpiresAt.ToString("yyyy-MM-dd")</div>
                             </div>
                             <form asp-controller="Members" asp-action="CancelInvite" method="post"
-                                  onsubmit="return confirm('@Localizer["Teacher.Classrooms.CancelInviteConfirm"].Value');">
+                                  data-confirm="@Localizer["Teacher.Classrooms.CancelInviteConfirm"].Value"
+                                  onsubmit="return confirm(this.dataset.confirm);">
                                 <input type="hidden" name="classroomId" value="@Model.Id" />
                                 <input type="hidden" name="inviteId" value="@i.Id" />
                                 <button class="btn btn-sm btn-link text-danger p-0" type="submit">@Localizer["Teacher.Classrooms.Cancel"]</button>

@@ -56,10 +56,11 @@ else
                                 <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">@Localizer["Teacher.Classrooms.Edit"]</a>
                                 @if (!item.IsArchived)
                                 {
-                                    <form asp-action="Archive" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    <form asp-action="Archive" asp-route-id="@item.Id" method="post" class="d-inline"
+                                          data-confirm="@Localizer["Teacher.Classrooms.ArchiveConfirm"].Value"
+                                          onsubmit="return confirm(this.dataset.confirm);">
                                         @Html.AntiForgeryToken()
-                                        <button class="btn btn-sm btn-outline-warning"
-                                                onclick="return confirm('@Localizer["Teacher.Classrooms.ArchiveConfirm"]')">@Localizer["Teacher.Classrooms.Archive"]</button>
+                                        <button class="btn btn-sm btn-outline-warning">@Localizer["Teacher.Classrooms.Archive"]</button>
                                     </form>
                                 }
                                 else
