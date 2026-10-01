@@ -56,12 +56,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 30
-      azurite:
-        image: mcr.microsoft.com/azure-storage/azurite
-        ports:
-          - 10000:10000
-          - 10001:10001
-          - 10002:10002
     env:
       SQL_PASSWORD: Aa-ci-only-1433!
       AA_EMAIL: admin-e2e@example.test
@@ -70,6 +64,22 @@ jobs:
       STORAGE_CONNECTION_STRING: UseDevelopmentStorage=true
     steps:
       - uses: actions/checkout@v7
+
+      # Not a service container: services can't pass arguments, and the Azure
+      # SDK may send a storage API version newer than the latest Azurite knows
+      # (Azure.Storage.Blobs 12.30.0 sends 2026-10-06), which Azurite rejects
+      # with 400 InvalidHeaderValue. Same flags as scripts/local-audio.ps1.
+      - name: Start Azurite
+        run: |
+          docker run -d --name azurite -p 10000:10000 -p 10001:10001 -p 10002:10002 \
+            mcr.microsoft.com/azure-storage/azurite \
+            azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --loose --skipApiVersionCheck
+          for i in $(seq 1 30); do
+            if curl -s -o /dev/null http://127.0.0.1:10000/; then exit 0; fi
+            sleep 1
+          done
+          docker logs azurite
+          exit 1
 
       - name: Setup .NET (global.json)
         uses: actions/setup-dotnet@v6
