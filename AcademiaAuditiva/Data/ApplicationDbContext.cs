@@ -24,6 +24,20 @@ namespace AcademiaAuditiva.Data
             // would also tie the migration to a single tenant identity.
 
             ConfigureTeachingDomain(modelBuilder);
+            ConfigureBadges(modelBuilder);
+        }
+
+        // BadgeKey is the foreign key to Badge (EF had added a shadow BadgeKey1
+        // column for the navigation), and a user earns each badge once.
+        private static void ConfigureBadges(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BadgesEarned>(b =>
+            {
+                b.Property(e => e.BadgeKey).HasMaxLength(50);
+                b.HasIndex(e => new { e.UserId, e.BadgeKey }).IsUnique();
+                b.HasOne(e => e.Badge).WithMany().HasForeignKey(e => e.BadgeKey)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
         private static void ConfigureTeachingDomain(ModelBuilder modelBuilder)
