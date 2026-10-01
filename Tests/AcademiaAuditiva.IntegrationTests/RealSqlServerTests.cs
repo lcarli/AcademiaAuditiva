@@ -133,6 +133,71 @@ public sealed class RealSqlServerTests
         }
     }
 
+    [RealSqlFact]
+    public async Task PersonalDataDeletion_IsAllOrNothing_WhenTheCommitFails()
+    {
+        using (var scope = _fixture.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await db.Database.MigrateAsync();
+            SeedData.SeedExercises(db);
+        }
+
+        var teacher = await CreateUserAsync("atomic-teacher");
+        var student = await CreateUserAsync("atomic-student");
+        int classroomId, routineId, itemId, assignmentId;
+
+        using (var scope = _fixture.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var exerciseId = await db.Exercises.Select(e => e.ExerciseId).FirstAsync();
+            var classroom = new Classroom { Name = "Atomic classroom", OwnerId = teacher.Id };
+            var routine = new Routine { Name = "Atomic routine", OwnerId = teacher.Id };
+            var item = new RoutineItem { Routine = routine, ExerciseId = exerciseId, Order = 1 };
+            db.AddRange(classroom, routine, item);
+            await db.SaveChangesAsync();
+
+            var assignment = new RoutineAssignment { RoutineId = routine.Id, ClassroomId = classroom.Id };
+            db.AddRange(
+                assignment,
+                new ClassroomMember { ClassroomId = classroom.Id, StudentId = student.Id },
+                new ClassroomInvite { ClassroomId = classroom.Id, Email = "atomic-invitee@example.test", CreatedById = teacher.Id, Token = Guid.NewGuid().ToString("N") });
+            await db.SaveChangesAsync();
+            (classroomId, routineId, itemId, assignmentId) = (classroom.Id, routine.Id, item.Id, assignment.Id);
+        }
+
+        _fixture.CommitFailure.Arm();
+        try
+        {
+            using var scope = _fixture.Services.CreateScope();
+            var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var service = scope.ServiceProvider.GetRequiredService<PersonalDataService>();
+            var user = await users.FindByIdAsync(teacher.Id);
+            user.Should().NotBeNull();
+
+            var delete = () => service.DeleteAccountAsync(user!);
+
+            await delete.Should().ThrowAsync<InvalidOperationException>(
+                    "the user row must be deleted by the same transaction as the teaching rows")
+                .WithMessage(FailCommitAfterUserDelete.Message);
+        }
+        finally
+        {
+            _fixture.CommitFailure.Disarm();
+        }
+
+        await using (var db = _fixture.CreateContext())
+        {
+            (await db.Users.AnyAsync(u => u.Id == teacher.Id)).Should().BeTrue();
+            (await db.Classrooms.AnyAsync(c => c.Id == classroomId)).Should().BeTrue("its delete was rolled back with the user delete");
+            (await db.Routines.AnyAsync(r => r.Id == routineId)).Should().BeTrue();
+            (await db.RoutineItems.AnyAsync(i => i.Id == itemId)).Should().BeTrue();
+            (await db.RoutineAssignments.AnyAsync(a => a.Id == assignmentId)).Should().BeTrue();
+            (await db.ClassroomMembers.AnyAsync(m => m.ClassroomId == classroomId && m.StudentId == student.Id)).Should().BeTrue();
+            (await db.ClassroomInvites.AnyAsync(i => i.ClassroomId == classroomId)).Should().BeTrue();
+        }
+    }
+
     private async Task<ApplicationUser> CreateUserAsync(string prefix)
     {
         using var scope = _fixture.Services.CreateScope();

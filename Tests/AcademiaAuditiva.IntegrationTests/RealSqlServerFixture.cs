@@ -45,6 +45,7 @@ public sealed class RealSqlServerFixture : IAsyncLifetime
 
     public string DatabaseName { get; } = $"AA_Test_{Guid.NewGuid():N}";
     public string ConnectionString { get; private set; } = string.Empty;
+    public FailCommitAfterUserDelete CommitFailure { get; } = new();
     public IServiceProvider Services => _services ?? throw new InvalidOperationException("Fixture is not initialized.");
 
     public async Task InitializeAsync()
@@ -68,8 +69,11 @@ public sealed class RealSqlServerFixture : IAsyncLifetime
         {
             options.UseSqlServer(ConnectionString);
             options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+            options.AddInterceptors(CommitFailure);
         });
-        services.AddIdentityCore<ApplicationUser>()
+        // Same store options as AddDefaultIdentity in Program.cs: MaxLengthForKeys
+        // sizes the Identity login/token key columns, so it is part of the model.
+        services.AddIdentityCore<ApplicationUser>(options => options.Stores.MaxLengthForKeys = 128)
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
@@ -101,8 +105,11 @@ END
 
     public ApplicationDbContext CreateContext()
     {
+        // EF caches one model per context type, so this context must see the
+        // same Identity store options as the ones resolved from Services.
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseSqlServer(ConnectionString)
+            .UseApplicationServiceProvider(Services)
             .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning))
             .Options;
         return new ApplicationDbContext(options);
