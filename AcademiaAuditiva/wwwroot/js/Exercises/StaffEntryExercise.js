@@ -47,6 +47,8 @@
       octaveDisplayLabel: AAi18n.localizer().octaveLabel,
       octaveDownLabel: AAi18n.localizer().octaveDownLabel,
       octaveUpLabel: AAi18n.localizer().octaveUpLabel,
+      selectedNoteLabel: AAi18n.localizer().selectedNoteLabel,
+      noSelectionLabel: AAi18n.localizer().noSelectionLabel,
     };
     if (exerciseName === "CompleteChord") {
       return {

@@ -214,6 +214,24 @@ public class StaffExerciseGeneratorTests
     }
 
     [Fact]
+    public void TransposeScale_TargetSharpKeys_UseTextbookSpelling()
+    {
+        JObject? fSharpTarget = null;
+        for (var attempt = 0; attempt < 500 && fSharpTarget is null; attempt++)
+        {
+            var json = GenerateJson("TransposeScale", new() { { "tsRoot", "C" }, { "tsScale", "major" }, { "tsOctave", "4" } });
+            if (json.Value<string>("targetRoot") == "F#")
+            {
+                fSharpTarget = json;
+            }
+        }
+
+        fSharpTarget.Should().NotBeNull("random target keys should include F# within many rounds");
+        fSharpTarget!.Value<string>("answerString")!
+            .Should().Contain("E#5:q", "F# major's leading tone is spelled E#, not F");
+    }
+
+    [Fact]
     public void TransposeScale_InvalidFilters_FallBackToValidRound()
     {
         var json = GenerateJson("TransposeScale", new() { { "tsRoot", "Db" }, { "tsScale", "x" }, { "tsOctave", "9" } });
