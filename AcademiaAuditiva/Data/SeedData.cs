@@ -126,6 +126,228 @@ public static class SeedData
                 })
             },
             new Exercise {
+                Name = "HigherOrLower",
+                Description = "Ouça duas notas e diga se a segunda é mais alta ou mais grave.",
+                ExerciseTypeId = 1,
+                ExerciseCategoryId = 4,
+                DifficultyLevelId = 1,
+                Instructions = "Ouça as duas notas tocadas em sequência e identifique se a segunda nota é mais alta ou mais grave que a primeira.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Concentre-se na direção do som.",
+                    "Mais alta = o som 'sobe'.",
+                    "Mais grave = o som 'desce'.",
+                    "Cante as duas notas para sentir a diferença."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Mais alta", "higher" },
+                            { "Mais grave", "lower" }
+                        }
+                    }
+                })
+            },
+            new Exercise {
+                Name = "GuessScaleType",
+                Description = "Ouça uma escala e identifique o tipo: maior, menor ou pentatônica.",
+                ExerciseTypeId = 8,
+                ExerciseCategoryId = 5,
+                DifficultyLevelId = 2,
+                Instructions = "Ouça a escala tocada do início ao fim e identifique se é maior, menor, pentatônica maior ou pentatônica menor.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Maior soa alegre e brilhante.",
+                    "Menor soa melancólica e escura.",
+                    "Pentatônica tem menos notas — soa mais 'aberta'.",
+                    "Preste atenção nos intervalos entre as notas."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Maior", "major" },
+                            { "Menor", "minor" },
+                            { "Pentatônica Maior", "majorPentatonic" },
+                            { "Pentatônica Menor", "minorPentatonic" }
+                        }
+                    }
+                })
+            },
+            new Exercise {
+                Name = "CompleteScale",
+                Description = "Ouça a tônica e complete a escala selecionando as notas restantes na pauta.",
+                ExerciseTypeId = 8,
+                ExerciseCategoryId = 5,
+                DifficultyLevelId = 2,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Key",
+                        Name = "csRoot",
+                        Options = new List<FilterOption>
+                        {
+                            new("any", "Exercise.Any"),
+                            new("C", "C"),
+                            new("C#", "C#"),
+                            new("D", "D"),
+                            new("Eb", "Eb"),
+                            new("E", "E"),
+                            new("F", "F"),
+                            new("F#", "F#"),
+                            new("G", "G"),
+                            new("Ab", "Ab"),
+                            new("A", "A"),
+                            new("Bb", "Bb"),
+                            new("B", "B"),
+                            new("Db", "Db"),
+                            new("Gb", "Gb")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Scale",
+                        Name = "csScale",
+                        Options = new List<FilterOption>
+                        {
+                            new("all", "Exercise.All"),
+                            new("major", "Exercise.ScaleTypeMajor"),
+                            new("minor", "Exercise.ScaleTypeMinor"),
+                            new("majorPentatonic", "Exercise.ScaleTypeMajorPentatonic"),
+                            new("minorPentatonic", "Exercise.ScaleTypeMinorPentatonic")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Octave",
+                        Name = "csOctave",
+                        Options = new List<FilterOption>
+                        {
+                            new("3", "3"),
+                            new("4", "4")
+                        }
+                    }
+                }),
+                Instructions = "Você ouvirá a primeira nota (tônica) da escala. Use a paleta para preencher as notas seguintes em ordem ascendente.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Lembre dos intervalos: maior = T-T-S-T-T-T-S; menor natural = T-S-T-T-S-T-T.",
+                    "Conte os semitons a partir da tônica para escolher cada nota.",
+                    "Use ♯/♭ para ajustar uma nota recém-colocada.",
+                    "Pentatônicas pulam alguns graus — só 5 notas além da tônica."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
+                Name = "GuessInversion",
+                Description = "Ouça um acorde tríade e identifique se está no estado fundamental, na 1ª ou na 2ª inversão.",
+                ExerciseTypeId = 2,
+                ExerciseCategoryId = 1,
+                DifficultyLevelId = 3,
+                Instructions = "Ouça o acorde e identifique sua posição: Fundamental (raiz no baixo), 1ª Inversão (terça no baixo) ou 2ª Inversão (quinta no baixo).",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Fundamental: a nota mais grave é a tônica do acorde.",
+                    "1ª Inversão: a nota mais grave é a terça — soa mais 'flutuante'.",
+                    "2ª Inversão: a nota mais grave é a quinta — soa instável, pede resolução.",
+                    "Foque no intervalo entre o baixo e a próxima nota."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Fundamental", "root" },
+                            { "1ª Inversão", "first" },
+                            { "2ª Inversão", "second" }
+                        }
+                    }
+                })
+            },
+            new Exercise {
+                Name = "GuessCadence",
+                Description = "Ouça uma progressão de 4 acordes e identifique a cadência: perfeita, plagal, imperfeita ou deceptiva.",
+                ExerciseTypeId = 7,
+                ExerciseCategoryId = 1,
+                DifficultyLevelId = 3,
+                Instructions = "Ouça os 4 acordes em sequência. Os dois primeiros estabelecem o contexto tonal; os dois últimos definem o tipo de cadência.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Cadência Perfeita (V → I) soa conclusiva, como um ponto final.",
+                    "Cadência Plagal (IV → I) é a 'cadência amém' — gentil e estável.",
+                    "Cadência Imperfeita (… → V) termina suspensa, sem resolver.",
+                    "Cadência Deceptiva (V → vi) surpreende: parece resolver mas vai para outro lugar."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Perfeita", "perfect" },
+                            { "Plagal", "plagal" },
+                            { "Imperfeita", "imperfect" },
+                            { "Deceptiva", "deceptive" }
+                        }
+                    }
+                })
+            },
+            new Exercise {
+                Name = "GuessGreekMode",
+                Description = "Ouça uma escala modal e identifique qual dos sete modos gregos está sendo tocado.",
+                ExerciseTypeId = 8,
+                ExerciseCategoryId = 5,
+                DifficultyLevelId = 3,
+                Instructions = "Ouça a escala completa e identifique qual modo grego está sendo tocado: Jônio, Dórico, Frígio, Lídio, Mixolídio, Eólio ou Lócrio.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Jônio é a escala maior tradicional — soa alegre e estável.",
+                    "Dórico tem um caráter menor mas com a sexta maior — soa elegante.",
+                    "Frígio tem a segunda menor — soa exótico, com cor espanhola.",
+                    "Lídio tem a quarta aumentada — soa etéreo, sonhador.",
+                    "Mixolídio é maior com a sétima menor — soa bluesy/celta.",
+                    "Eólio é a escala menor natural — soa melancólico.",
+                    "Lócrio tem a quinta diminuta — soa instável, dissonante."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Jônio", "ionian" },
+                            { "Dórico", "dorian" },
+                            { "Frígio", "phrygian" },
+                            { "Lídio", "lydian" },
+                            { "Mixolídio", "mixolydian" },
+                            { "Eólio", "aeolian" },
+                            { "Lócrio", "locrian" }
+                        }
+                    }
+                })
+            },
+            new Exercise {
                 Name = "GuessChords",
                 Description = "Reconhecimento de acordes",
                 ExerciseTypeId = 2,

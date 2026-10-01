@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using AcademiaAuditiva.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,6 +31,23 @@ public class SignedInWebApplicationFactory : TestWebApplicationFactory
             services.AddAuthentication()
                 .AddScheme<AuthenticationSchemeOptions, SignedInHandler>(SignedInHandler.SchemeName, _ => { });
             services.PostConfigure<AuthenticationOptions>(o => o.DefaultAuthenticateScheme = SignedInHandler.SchemeName);
+
+            using var sp = services.BuildServiceProvider();
+            using var scope = sp.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            if (!db.Users.Any(u => u.Id == UserId))
+            {
+                db.Users.Add(new IdentityUser
+                {
+                    Id = UserId,
+                    UserName = UserName,
+                    NormalizedUserName = UserName.ToUpperInvariant(),
+                    Email = UserName,
+                    NormalizedEmail = UserName.ToUpperInvariant(),
+                    EmailConfirmed = true
+                });
+                db.SaveChanges();
+            }
         });
     }
 

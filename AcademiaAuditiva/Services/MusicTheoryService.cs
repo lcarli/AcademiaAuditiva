@@ -97,6 +97,78 @@ namespace AcademiaAuditiva.Services
             return allNotes;
         }
 
+        private static readonly char[] NoteLetters = { 'C', 'D', 'E', 'F', 'G', 'A', 'B' };
+
+        private static readonly Dictionary<char, int> NaturalSemitone = new()
+        {
+            ['C'] = 0,
+            ['D'] = 2,
+            ['E'] = 4,
+            ['F'] = 5,
+            ['G'] = 7,
+            ['A'] = 9,
+            ['B'] = 11
+        };
+
+        private static bool TryParseNoteParts(string note, out char letter, out string accidental, out int octave)
+        {
+            letter = '\0';
+            accidental = string.Empty;
+            octave = 0;
+
+            var match = Regex.Match(note.Trim(), @"^([A-Ga-g])([#b♯♭x]*)(-?\d+)$");
+            if (!match.Success || !int.TryParse(match.Groups[3].Value, out octave))
+            {
+                return false;
+            }
+
+            letter = char.ToUpperInvariant(match.Groups[1].Value[0]);
+            accidental = match.Groups[2].Value;
+            return NaturalSemitone.ContainsKey(letter);
+        }
+
+        private static string SpellMidiAsLetter(int midi, char letter, int octave)
+        {
+            var naturalMidi = (octave + 1) * 12 + NaturalSemitone[letter];
+            var diff = midi - naturalMidi;
+
+            while (diff > 6) diff -= 12;
+            while (diff < -6) diff += 12;
+
+            var accidental = diff switch
+            {
+                -2 => "bb",
+                -1 => "b",
+                0 => string.Empty,
+                1 => "#",
+                2 => "##",
+                _ => string.Empty
+            };
+
+            return $"{letter}{accidental}{octave}";
+        }
+
+        private static string SpellByLetterOffset(int rootMidi, char rootLetter, int rootOctave, int semitoneOffset, int letterOffset)
+        {
+            var rootLetterIndex = Array.IndexOf(NoteLetters, rootLetter);
+            var totalLetterIndex = rootLetterIndex + letterOffset;
+            var targetLetter = NoteLetters[((totalLetterIndex % 7) + 7) % 7];
+            var targetOctave = rootOctave + (int)Math.Floor(totalLetterIndex / 7.0);
+            return SpellMidiAsLetter(rootMidi + semitoneOffset, targetLetter, targetOctave);
+        }
+
+        private static IReadOnlyList<int> ScaleLetterOffsets(string scaleType, int count)
+        {
+            var offsets = scaleType switch
+            {
+                "majorPentatonic" => new[] { 0, 1, 2, 4, 5, 7 },
+                "minorPentatonic" => new[] { 0, 2, 3, 4, 6, 7 },
+                _ => new[] { 0, 1, 2, 3, 4, 5, 6, 7 }
+            };
+
+            return offsets.Take(count).ToArray();
+        }
+
         /// <summary>Lowest octave a client-supplied <c>noteRange</c> may select (matches the UI slider).</summary>
         public const int MinRangeOctave = 1;
 
@@ -424,36 +496,24 @@ namespace AcademiaAuditiva.Services
             if (!ScaleIntervals.ContainsKey(scaleType))
                 return new List<string>();
 
-            if (allNotes == null || allNotes.Count == 0)
-            {
-                allNotes = GetAllNotes(new List<int> { 2, 3, 4, 5 });
-            }
-
             var intervals = ScaleIntervals[scaleType];
-            var rootIndex = allNotes.IndexOf(rootNote);
-            if (rootIndex < 0)
+            var rootMidi = NoteToMidi(rootNote);
+            if (!rootMidi.HasValue || !TryParseNoteParts(rootNote, out var rootLetter, out _, out var rootOctave))
                 return new List<string>();
 
-            var scaleNotes = new List<string> { rootNote };
-            var currentIndex = rootIndex;
+            var semitoneOffsets = new List<int> { 0 };
+            var currentOffset = 0;
 
-            // Percorre cada intervalo e pula semitons na lista de notas.
             foreach (var step in intervals)
             {
-                currentIndex += step;
-                if (currentIndex >= 0 && currentIndex < allNotes.Count)
-                {
-                    scaleNotes.Add(allNotes[currentIndex]);
-                }
-                else
-                {
-                    // Se estourar o range de allNotes, retornamos o que conseguimos montar.
-                    // Em alguns casos pode ser útil "loopar" (usando módulo), mas aqui estamos limitando ao range.
-                    break;
-                }
+                currentOffset += step;
+                semitoneOffsets.Add(currentOffset);
             }
 
-            return scaleNotes;
+            var letterOffsets = ScaleLetterOffsets(scaleType, semitoneOffsets.Count);
+            return semitoneOffsets
+                .Select((offset, index) => SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, offset, letterOffsets[index]))
+                .ToList();
         }
 
         /// <summary>
@@ -472,76 +532,68 @@ namespace AcademiaAuditiva.Services
             var (baseIntervals, seventhInterval) = ChordIntervals[quality];
 
 
-            var allNotes = GetAllNotes(new List<int> { 2, 3, 4, 5 });
-            var index = allNotes.IndexOf(root);
-            if (index < 0)
+            var rootMidi = NoteToMidi(root);
+            if (!rootMidi.HasValue || !TryParseNoteParts(root, out var rootLetter, out _, out var rootOctave))
                 return result;
 
-
-            result.Add(root);
+            var semitoneOffset = 0;
+            var letterOffset = 0;
+            result.Add(SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, semitoneOffset, letterOffset));
             foreach (var step in baseIntervals)
             {
-                index += step;
-                if (index >= allNotes.Count)
-                    return new List<string>();
-
-                result.Add(allNotes[index]);
+                semitoneOffset += step;
+                letterOffset += 2;
+                result.Add(SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, semitoneOffset, letterOffset));
             }
 
             if (seventhInterval.HasValue)
             {
-                index += seventhInterval.Value;
-                if (index < allNotes.Count)
-                {
-                    result.Add(allNotes[index]);
-                }
+                semitoneOffset += seventhInterval.Value;
+                letterOffset += 2;
+                result.Add(SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, semitoneOffset, letterOffset));
             }
 
             return result;
         }
 
         /// <summary>
-        /// Converte o nome da nota (ex: "C#4") para o número MIDI correspondente.
+        /// Converte o nome da nota (ex: "C#4", "B#4", "Cb5") para o número MIDI correspondente.
         /// </summary>
         public static int? NoteToMidi(string note)
         {
             if (string.IsNullOrWhiteSpace(note))
                 return null;
 
-            // Mapeamento das notas para semitons a partir do C.
-            var noteMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            var match = Regex.Match(note.Trim(), @"^([A-Ga-g])([#b♯♭x]*)(-?\d+)$");
+            if (!match.Success)
+                return null;
+
+            var semitone = char.ToUpperInvariant(match.Groups[1].Value[0]) switch
             {
-                { "C", 0 }, { "C#", 1 }, { "Db", 1 },
-                { "D", 2 }, { "D#", 3 }, { "Eb", 3 },
-                { "E", 4 }, { "Fb", 4 },
-                { "F", 5 }, { "F#", 6 }, { "Gb", 6 },
-                { "G", 7 }, { "G#", 8 }, { "Ab", 8 },
-                { "A", 9 }, { "A#", 10 }, { "Bb", 10 },
-                { "B", 11 }, { "Cb", 11 }
+                'C' => 0,
+                'D' => 2,
+                'E' => 4,
+                'F' => 5,
+                'G' => 7,
+                'A' => 9,
+                'B' => 11,
+                _ => 0
             };
 
-            var pitchPart = "";
-            var octavePart = "";
-            for (int i = 0; i < note.Length; i++)
+            foreach (var accidental in match.Groups[2].Value)
             {
-                if (char.IsDigit(note[i]))
+                semitone += accidental switch
                 {
-                    pitchPart = note.Substring(0, i);
-                    octavePart = note.Substring(i);
-                    break;
-                }
+                    '#' or '♯' => 1,
+                    'b' or '♭' => -1,
+                    'x' => 2,
+                    _ => 0
+                };
             }
 
-            if (string.IsNullOrEmpty(pitchPart) || string.IsNullOrEmpty(octavePart))
+            if (!int.TryParse(match.Groups[3].Value, out var octave))
                 return null;
 
-            if (!noteMap.ContainsKey(pitchPart))
-                return null;
-
-            if (!int.TryParse(octavePart, out int octave))
-                return null;
-
-            var semitone = noteMap[pitchPart];
             // Fórmula: (octave + 1) * 12 + semitone
             // Ex: A4 => 69
             return (octave + 1) * 12 + semitone;
@@ -717,6 +769,150 @@ namespace AcademiaAuditiva.Services
                         root = Regex.Replace(selectedRoot, @"\d", ""),
                         quality = selectedQuality,
                         notes = chordNotes
+                    };
+
+                case "HigherOrLower":
+                    var hlOctaves = ParseOctaveRange(noteRange);
+
+                    if (hlOctaves.Count < 2)
+                    {
+                        var octave = hlOctaves[0];
+                        hlOctaves.Add(octave < MaxRangeOctave ? octave + 1 : octave - 1);
+                        hlOctaves.Sort();
+                    }
+
+                    var hlAllNotes = GetAllNotes(hlOctaves);
+                    if (hlAllNotes.Count < 2)
+                        return new { error = "Not enough notes to compare." };
+
+                    var idxA = random.Next(hlAllNotes.Count);
+                    int idxB;
+                    do { idxB = random.Next(hlAllNotes.Count); } while (idxB == idxA);
+
+                    var hlNote1 = hlAllNotes[idxA];
+                    var hlNote2 = hlAllNotes[idxB];
+                    var hlAnswer = idxB > idxA ? "higher" : "lower";
+
+                    return new
+                    {
+                        note1 = hlNote1,
+                        note2 = hlNote2,
+                        answer = hlAnswer
+                    };
+
+                case "GuessScaleType":
+                    var gstAllRoots = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+                    var gstRoot = filters.TryGetValue("scaleRoot", out var gstK) && gstK != "any" ? gstK : gstAllRoots[random.Next(gstAllRoots.Length)];
+                    var gstOctave = filters.TryGetValue("scaleOctave", out var gstOct) && int.TryParse(gstOct, out var gstOctParsed) ? gstOctParsed : 4;
+
+                    var gstScaleTypes = new[] { "major", "minor", "majorPentatonic", "minorPentatonic" };
+                    var gstChosen = gstScaleTypes[random.Next(gstScaleTypes.Length)];
+                    var gstNotes = GetScaleNotes(gstRoot + gstOctave, gstChosen);
+                    if (gstNotes.Count < 2)
+                        return new { error = "Escala não pôde ser gerada." };
+
+                    return new
+                    {
+                        scaleType = gstChosen,
+                        notes = gstNotes
+                    };
+
+                case "GuessGreekMode":
+                    var ggmAllRoots = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+                    var ggmRoot = filters.TryGetValue("scaleRoot", out var ggmK) && ggmK != "any" ? ggmK : ggmAllRoots[random.Next(ggmAllRoots.Length)];
+                    var ggmOctave = filters.TryGetValue("scaleOctave", out var ggmOct) && int.TryParse(ggmOct, out var ggmOctParsed) ? ggmOctParsed : 4;
+
+                    var ggmModes = new[] { "ionian", "dorian", "phrygian", "lydian", "mixolydian", "aeolian", "locrian" };
+                    var ggmChosen = ggmModes[random.Next(ggmModes.Length)];
+                    var ggmNotes = GetScaleNotes(ggmRoot + ggmOctave, ggmChosen);
+                    if (ggmNotes.Count < 2)
+                        return new { error = "Modo grego não pôde ser gerado." };
+
+                    return new
+                    {
+                        mode = ggmChosen,
+                        notes = ggmNotes
+                    };
+
+                case "GuessCadence":
+                    var cadAllRoots = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+                    var cadRoot = filters.TryGetValue("cadenceRoot", out var cadK) && cadK != "any" ? cadK : cadAllRoots[random.Next(cadAllRoots.Length)];
+                    var cadScale = filters.TryGetValue("cadenceScale", out var cadS) && (cadS == "major" || cadS == "minor") ? cadS : "major";
+
+                    // 4-chord progressions: first 2 set context, last 2 define the cadence.
+                    // Mirrors the SonicMind reference catalog.
+                    var cadOptions = cadScale == "minor"
+                        ? new (string Name, string[] Funcs)[]
+                        {
+                            ("perfect",   new[] { "1-minor", "4-minor", "5-major", "1-minor" }),
+                            ("plagal",    new[] { "1-minor", "5-major", "4-minor", "1-minor" }),
+                            ("imperfect", new[] { "1-minor", "6-major", "4-minor", "5-major" }),
+                            ("deceptive", new[] { "1-minor", "4-minor", "5-major", "6-major" }),
+                        }
+                        : new (string Name, string[] Funcs)[]
+                        {
+                            ("perfect",   new[] { "1-major", "4-major", "5-major", "1-major" }),
+                            ("plagal",    new[] { "1-major", "5-major", "4-major", "1-major" }),
+                            ("imperfect", new[] { "1-major", "6-minor", "4-major", "5-major" }),
+                            ("deceptive", new[] { "1-major", "4-major", "5-major", "6-minor" }),
+                        };
+
+                    var cadChosen = cadOptions[random.Next(cadOptions.Length)];
+                    var cadChords = cadChosen.Funcs
+                        .Select(fn => GetChordFromFunction(cadRoot + "3", cadScale, fn))
+                        .ToList();
+
+                    if (cadChords.Any(c => c.Count < 2))
+                        return new { error = "Cadência não pôde ser gerada." };
+
+                    return new
+                    {
+                        cadence = cadChosen.Name,
+                        chords = cadChords
+                    };
+
+                case "GuessInversion":
+                    var invOctave = filters.TryGetValue("invOctave", out var invOct) && int.TryParse(invOct, out var invOctParsed) ? invOctParsed : 4;
+                    var invQualityFilter = filters.TryGetValue("invQuality", out var invQf) ? invQf : "both";
+                    List<string> invQualities = invQualityFilter switch
+                    {
+                        "major" => new List<string> { "major" },
+                        "minor" => new List<string> { "minor" },
+                        _ => new List<string> { "major", "minor" }
+                    };
+
+                    var invRootNotes = GetAllNotes(new List<int> { invOctave });
+                    var invRoot = invRootNotes[random.Next(invRootNotes.Count)];
+                    var invQuality = invQualities[random.Next(invQualities.Count)];
+                    var invChordNotes = GetChordNotes(invRoot, invQuality);
+
+                    if (invChordNotes.Count < 3)
+                        return new { error = "Acorde não pôde ser gerado para inversão." };
+
+                    var invInversionTypes = new[] { "root", "first", "second" };
+                    var chosenInversion = invInversionTypes[random.Next(invInversionTypes.Length)];
+
+                    var invMidis = invChordNotes.Select(n => NoteToMidi(n) ?? 0).ToList();
+
+                    switch (chosenInversion)
+                    {
+                        case "first":
+                            invMidis[0] += 12;
+                            invMidis.Sort();
+                            break;
+                        case "second":
+                            invMidis[0] += 12;
+                            invMidis[1] += 12;
+                            invMidis.Sort();
+                            break;
+                    }
+
+                    var invFinalNotes = invMidis.Select(MidiToNote).Where(n => n != null).Cast<string>().ToList();
+
+                    return new
+                    {
+                        inversion = chosenInversion,
+                        notes = invFinalNotes
                     };
 
                 case "GuessInterval":
@@ -909,6 +1105,235 @@ namespace AcademiaAuditiva.Services
                         key = keyMel,
                         scale = scaleTypeMel
                     };
+                case "CompleteScale":
+                {
+                    var allNotesPool = new[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "Db", "Gb" };
+                    var scalePool = new[] { "major", "minor", "majorPentatonic", "minorPentatonic" };
+                    var csRoot = filters.TryGetValue("csRoot", out var csR) && allNotesPool.Contains(csR)
+                        ? csR
+                        : allNotesPool[random.Next(allNotesPool.Length)];
+                    var csScale = filters.TryGetValue("csScale", out var csS) && scalePool.Contains(csS)
+                        ? csS
+                        : scalePool[random.Next(scalePool.Length)];
+                    var csOctave = filters.TryGetValue("csOctave", out var csO)
+                        && int.TryParse(csO, out var csOctP)
+                        && (csOctP == 3 || csOctP == 4)
+                        ? csOctP
+                        : 4;
+
+                    var csNotes = GetScaleNotes(csRoot + csOctave, csScale);
+                    if (csNotes.Count < 2)
+                    {
+                        csRoot = "C";
+                        csScale = "major";
+                        csOctave = 4;
+                        csNotes = GetScaleNotes(csRoot + csOctave, csScale);
+                    }
+
+                    // Audio plays the root only; user must complete the rest on the staff.
+                    var csMelody = new[] {
+                        new { type = "note", note = csNotes[0], durationBeats = 4.0, durationLabel = "w" }
+                    };
+                    var csAnswer = string.Join("|", csNotes.Skip(1).Select(n => $"{n}:w"));
+
+                    return new
+                    {
+                        root = csRoot,
+                        scale = csScale,
+                        octave = csOctave,
+                        scaleNotes = csNotes,
+                        promptNotes = new[] { csNotes[0] },
+                        melody = csMelody,
+                        answerString = csAnswer
+                    };
+                }
+
+                case "CompleteChord":
+                {
+                    var ccAllNotes = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+                    var ccOctave = filters.TryGetValue("ccOctave", out var ccO) && int.TryParse(ccO, out var ccOctP) ? ccOctP : 4;
+                    var ccQualityFilter = filters.TryGetValue("ccQuality", out var ccQ) ? ccQ : "both";
+                    var ccQualities = ccQualityFilter switch
+                    {
+                        "major" => new[] { "major" },
+                        "minor" => new[] { "minor" },
+                        _ => new[] { "major", "minor" }
+                    };
+                    var ccQuality = ccQualities[random.Next(ccQualities.Length)];
+                    var ccRoot = ccAllNotes[random.Next(ccAllNotes.Length)];
+                    var ccChord = GetChordNotes(ccRoot + ccOctave, ccQuality);
+
+                    if (ccChord.Count < 3)
+                        return new { error = "Acorde não pôde ser gerado." };
+
+                    var ccMelody = new[] {
+                        new { type = "note", note = ccChord[0], durationBeats = 4.0, durationLabel = "w" }
+                    };
+                    var ccAnswer = string.Join("|", ccChord.Skip(1).Select(n => $"{n}:w"));
+
+                    return new
+                    {
+                        root = ccRoot,
+                        quality = ccQuality,
+                        octave = ccOctave,
+                        chordNotes = ccChord,
+                        promptNotes = new[] { ccChord[0] },
+                        melody = ccMelody,
+                        answerString = ccAnswer
+                    };
+                }
+
+                case "TransposeScale":
+                {
+                    var tsAllNotes = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+                    var tsRoot = filters.TryGetValue("tsRoot", out var tsR) && tsR != "any" ? tsR : tsAllNotes[random.Next(tsAllNotes.Length)];
+                    var tsScale = filters.TryGetValue("tsScale", out var tsS) ? tsS : "major";
+                    var tsOctave = filters.TryGetValue("tsOctave", out var tsO) && int.TryParse(tsO, out var tsOctP) ? tsOctP : 4;
+
+                    string tsTarget;
+                    do { tsTarget = tsAllNotes[random.Next(tsAllNotes.Length)]; } while (tsTarget == tsRoot);
+
+                    var tsOriginal = GetScaleNotes(tsRoot + tsOctave, tsScale);
+                    var tsTransposed = GetScaleNotes(tsTarget + tsOctave, tsScale);
+                    if (tsOriginal.Count < 2 || tsTransposed.Count < 2)
+                        return new { error = "Transposição não pôde ser gerada." };
+
+                    // Audio plays the original scale; user enters the transposed scale.
+                    var tsMelody = tsOriginal.Select(n => new
+                    {
+                        type = "note",
+                        note = n,
+                        durationBeats = 1.0,
+                        durationLabel = "q"
+                    }).ToArray();
+                    var tsAnswer = string.Join("|", tsTransposed.Select(n => $"{n}:q"));
+
+                    return new
+                    {
+                        originalRoot = tsRoot,
+                        targetRoot = tsTarget,
+                        scale = tsScale,
+                        octave = tsOctave,
+                        originalNotes = tsOriginal,
+                        transposedNotes = tsTransposed,
+                        melody = tsMelody,
+                        answerString = tsAnswer
+                    };
+                }
+
+                case "MelodicDictation":
+                {
+                    var mdAllNotes = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+                    var mdRoot = filters.TryGetValue("mdRoot", out var mdR) && mdR != "any" ? mdR : mdAllNotes[random.Next(mdAllNotes.Length)];
+                    var mdScale = filters.TryGetValue("mdScale", out var mdS) ? mdS : "major";
+                    var mdOctave = filters.TryGetValue("mdOctave", out var mdO) && int.TryParse(mdO, out var mdOctP) ? mdOctP : 4;
+                    var mdLevel = filters.TryGetValue("mdLevel", out var mdL) && int.TryParse(mdL, out var mdLP) ? mdLP : 1;
+
+                    var mdScaleNotes = GetScaleNotes(mdRoot + mdOctave, mdScale);
+                    if (mdScaleNotes.Count < 3)
+                        return new { error = "Escala muito curta para ditado melódico." };
+
+                    var mdAvail = mdLevel switch
+                    {
+                        1 => new (double V, string L)[] { (4.0, "w"), (2.0, "h") },
+                        2 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
+                        3 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
+                        4 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q"), (0.5, "8") },
+                        5 => new (double V, string L)[] { (4.0, "w"), (3.0, "h."), (2.0, "h"), (1.5, "q."), (1.0, "q"), (0.5, "8") },
+                        _ => new (double V, string L)[] { (4.0, "w"), (3.0, "h."), (2.0, "h"), (1.5, "q."), (1.0, "q"), (0.5, "8"), (0.25, "16") },
+                    };
+                    var mdAllowRests = mdLevel >= 3;
+                    var mdRestChance = mdLevel >= 3 ? 0.15 : 0.0;
+                    var mdSigPool = mdLevel <= 2 ? new[] { "4/4" } : mdLevel <= 3 ? new[] { "4/4", "3/4" } : new[] { "4/4", "3/4", "2/4", "6/8" };
+                    var mdSig = mdSigPool[random.Next(mdSigPool.Length)];
+                    var mdMeasureFilter = filters.TryGetValue("mdMeasures", out var mdMc) ? mdMc : "short";
+                    var mdNumMeasures = mdMeasureFilter == "long" ? 4 : 2;
+                    var mdBeats = mdSig switch { "3/4" => 3.0, "2/4" => 2.0, "6/8" => 3.0, _ => 4.0 };
+
+                    var mdMelodyEntries = new List<object>();
+                    var mdAnsParts = new List<string>();
+                    for (var m = 0; m < mdNumMeasures; m++)
+                    {
+                        if (m > 0) mdAnsParts.Add("bar");
+                        var rem = mdBeats;
+                        while (rem > 0)
+                        {
+                            var poss = mdAvail.Where(d => d.V <= rem).ToArray();
+                            if (poss.Length == 0) break;
+                            var ch = poss[random.Next(poss.Length)];
+                            var isRest = mdAllowRests && random.NextDouble() < mdRestChance;
+                            var note = isRest ? "rest" : mdScaleNotes[random.Next(mdScaleNotes.Count)];
+                            var label = isRest ? ch.L + "r" : ch.L;
+                            mdMelodyEntries.Add(new { type = isRest ? "rest" : "note", note, durationBeats = ch.V, durationLabel = label });
+                            mdAnsParts.Add(isRest ? $"rest:{label}" : $"{note}:{label}");
+                            rem -= ch.V;
+                        }
+                    }
+
+                    return new
+                    {
+                        root = mdRoot,
+                        scale = mdScale,
+                        octave = mdOctave,
+                        timeSignature = mdSig,
+                        numMeasures = mdNumMeasures,
+                        level = mdLevel,
+                        melody = mdMelodyEntries,
+                        answerString = string.Join("|", mdAnsParts)
+                    };
+                }
+
+                case "RhythmDictation":
+                {
+                    var rdLevel = filters.TryGetValue("rdLevel", out var rdL) && int.TryParse(rdL, out var rdLP) ? rdLP : 1;
+
+                    var rdAvail = rdLevel switch
+                    {
+                        1 => new (double V, string L)[] { (4.0, "w"), (2.0, "h") },
+                        2 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
+                        3 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
+                        4 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q"), (0.5, "8") },
+                        5 => new (double V, string L)[] { (4.0, "w"), (3.0, "h."), (2.0, "h"), (1.5, "q."), (1.0, "q"), (0.5, "8") },
+                        _ => new (double V, string L)[] { (4.0, "w"), (3.0, "h."), (2.0, "h"), (1.5, "q."), (1.0, "q"), (0.5, "8"), (0.25, "16") },
+                    };
+                    var rdAllowRests = rdLevel >= 3;
+                    var rdRestChance = rdLevel >= 3 ? 0.15 : 0.0;
+                    var rdSigPool = rdLevel <= 2 ? new[] { "4/4" } : rdLevel <= 3 ? new[] { "4/4", "3/4" } : new[] { "4/4", "3/4", "2/4", "6/8" };
+                    var rdSig = rdSigPool[random.Next(rdSigPool.Length)];
+                    var rdMeasureFilter = filters.TryGetValue("rdMeasures", out var rdMc) ? rdMc : "short";
+                    var rdNumMeasures = rdMeasureFilter == "long" ? 4 : 2;
+                    var rdBeats = rdSig switch { "3/4" => 3.0, "2/4" => 2.0, "6/8" => 3.0, _ => 4.0 };
+
+                    const string rdNote = "C5";
+                    var rdMelodyEntries = new List<object>();
+                    var rdAnsParts = new List<string>();
+                    for (var m = 0; m < rdNumMeasures; m++)
+                    {
+                        if (m > 0) rdAnsParts.Add("bar");
+                        var rem = rdBeats;
+                        while (rem > 0)
+                        {
+                            var poss = rdAvail.Where(d => d.V <= rem).ToArray();
+                            if (poss.Length == 0) break;
+                            var ch = poss[random.Next(poss.Length)];
+                            var isRest = rdAllowRests && random.NextDouble() < rdRestChance;
+                            var label = isRest ? ch.L + "r" : ch.L;
+                            rdMelodyEntries.Add(new { type = isRest ? "rest" : "note", note = rdNote, durationBeats = ch.V, durationLabel = label });
+                            rdAnsParts.Add(label);
+                            rem -= ch.V;
+                        }
+                    }
+
+                    return new
+                    {
+                        timeSignature = rdSig,
+                        numMeasures = rdNumMeasures,
+                        level = rdLevel,
+                        melody = rdMelodyEntries,
+                        answerString = string.Join("|", rdAnsParts)
+                    };
+                }
+
                 default:
                     return new { message = "Exercício sem gerador de nota implementado." };
             }

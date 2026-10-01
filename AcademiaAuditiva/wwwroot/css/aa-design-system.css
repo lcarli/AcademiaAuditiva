@@ -1947,3 +1947,29 @@ body .swal2-icon.swal2-question {
         scroll-behavior: auto !important;
     }
 }
+
+
+/* -------------------------------------------------------------------
+   Exercise answer buttons in dark mode.
+   Bootstrap's .btn-outline-dark is "dark text on light bg" — illegible
+   on a dark theme background. Re-color it with the design-system's
+   violet-soft palette and make sure the .selected highlight is visible
+   too (the legacy site.css rule used a translucent blue overlay that
+   doesn't carry text contrast on its own).
+   ------------------------------------------------------------------- */
+[data-bs-theme="dark"] .btn-outline-dark {
+    color: var(--bs-body-color, #e6e6e6);
+    border-color: rgba(255, 255, 255, .35);
+}
+[data-bs-theme="dark"] .btn-outline-dark:hover,
+[data-bs-theme="dark"] .btn-outline-dark:focus-visible {
+    background-color: rgba(196, 181, 253, .12);
+    border-color: var(--aa-violet-soft);
+    color: var(--aa-violet-soft);
+}
+[data-bs-theme="dark"] .btn-outline-dark.selected,
+[data-bs-theme="dark"] .btn.selected {
+    color: var(--aa-violet-soft) !important;
+    border-color: var(--aa-violet-soft) !important;
+    background-color: rgba(196, 181, 253, .18) !important;
+}

@@ -24,6 +24,7 @@
 
 ### Percepção Auditiva
 - **GuessNote** - Adivinhe a nota
+- **HigherOrLower** - Diga se a segunda nota é mais alta ou mais grave
 - **GuessInterval** - Adivinhe o intervalo simples (1, 2, 3...)
 - **GuessFullInterval** - Adivinhe o intervalo completo (segunda menor, quinta justa...)
 - **GuessMissingNote** - Diga se duas melodias são iguais ou diferentes
@@ -34,8 +35,8 @@
 - **GuessChords** - Adivinhe o acorde
 - **GuessQuality** - Maior, menor ou diminuto?
 - **GuessFunction** - Qual a função harmônica?
-- **GuessCadence** *(novo)* - Que cadência é essa?
-- **GuessInversion** *(novo)* - Qual a inversão do acorde?
+- **GuessCadence** - Que cadência é essa?
+- **GuessInversion** - Qual a inversão do acorde?
 
 ### Melodia
 - **MelodyReproduction** *(novo)* - Reproduzir melodia após escutar
@@ -48,8 +49,9 @@
 - **MissingBeat** *(novo)* - Qual batida está faltando?
 
 ### Escalas
-- **GuessScaleType** *(novo)* - Qual tipo de escala (maior, menor, pentatônica)?
-- **GuessGreekMode** *(novo)* - Identifique o modo grego (dórico, lídio...)
+- **GuessScaleType** - Qual tipo de escala (maior, menor, pentatônica)?
+- **GuessGreekMode** - Identifique o modo grego (dórico, lídio...)
+- **CompleteScale** - Complete na pauta as notas restantes de uma escala
 - **BuildScale** *(novo)* - Montar a escala a partir da tônica
 
 ### Jogos e Missões (Gamificação)

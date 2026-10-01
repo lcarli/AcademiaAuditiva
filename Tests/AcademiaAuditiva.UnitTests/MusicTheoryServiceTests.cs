@@ -171,4 +171,36 @@ public class MusicTheoryServiceTests
         ((string)json["scale"]!).Should().Be("major");
         json["melody"]!.Values<string>().Should().OnlyContain(n => !n!.Contains('#'), "C major has no sharps");
     }
+
+    [Theory]
+    [InlineData("F4", "E#4")]
+    [InlineData("C5", "B#4")]
+    [InlineData("B4", "Cb5")]
+    [InlineData("E4", "Fb4")]
+    [InlineData("D4", "C##4")]
+    [InlineData("Bb3", "A#3")]
+    public void NoteToMidi_HandlesEnharmonicOctaveCarryAndDoubleAccidentals(string canonical, string enharmonic)
+    {
+        MusicTheoryService.NoteToMidi(enharmonic).Should().Be(MusicTheoryService.NoteToMidi(canonical));
+    }
+
+    [Theory]
+    [InlineData("F4", "major", "F4,G4,A4,Bb4,C5,D5,E5,F5")]
+    [InlineData("Gb4", "major", "Gb4,Ab4,Bb4,Cb5,Db5,Eb5,F5,Gb5")]
+    [InlineData("F#4", "major", "F#4,G#4,A#4,B4,C#5,D#5,E#5,F#5")]
+    [InlineData("B4", "major", "B4,C#5,D#5,E5,F#5,G#5,A#5,B5")]
+    public void GetScaleNotes_UsesTextbookSpelling(string root, string scale, string expected)
+    {
+        MusicTheoryService.GetScaleNotes(root, scale).Should().Equal(expected.Split(','));
+    }
+
+    [Theory]
+    [InlineData("Ab4", "major", "Ab4,C5,Eb5")]
+    [InlineData("D4", "minor", "D4,F4,A4")]
+    [InlineData("Bb3", "major", "Bb3,D4,F4")]
+    [InlineData("Eb4", "minor", "Eb4,Gb4,Bb4")]
+    public void GetChordNotes_UsesStackedThirdSpelling(string root, string quality, string expected)
+    {
+        MusicTheoryService.GetChordNotes(root, quality).Should().Equal(expected.Split(','));
+    }
 }
