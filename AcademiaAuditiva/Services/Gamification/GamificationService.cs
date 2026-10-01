@@ -52,17 +52,20 @@ public interface IGamificationService
 public sealed class GamificationService : IGamificationService
 {
     private readonly ApplicationDbContext _db;
+    private readonly PracticeHistory _history;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ILogger<GamificationService> _logger;
     private readonly TimeProvider _clock;
 
     public GamificationService(
         ApplicationDbContext db,
+        PracticeHistory history,
         IStringLocalizer<SharedResources> localizer,
         ILogger<GamificationService> logger,
         TimeProvider clock)
     {
         _db = db;
+        _history = history;
         _localizer = localizer;
         _logger = logger;
         _clock = clock;
@@ -110,15 +113,7 @@ public sealed class GamificationService : IGamificationService
 
     private async Task<PlayerState> LoadAsync(string userId, CancellationToken ct)
     {
-        var answers = await _db.ScoreSnapshots.AsNoTracking()
-            .Where(s => s.UserId == userId)
-            .OrderBy(s => s.Timestamp).ThenBy(s => s.Id)
-            .Select(s => new PracticeAnswer(s.ExerciseId, s.IsCorrect, s.Timestamp))
-            .ToListAsync(ct);
-        for (var i = 0; i < answers.Count; i++)
-        {
-            answers[i] = answers[i] with { Timestamp = AsUtc(answers[i].Timestamp) };
-        }
+        var answers = await _history.GetAsync(userId, ct);
 
         var exercises = await _db.Exercises.AsNoTracking()
             .Select(e => new ExerciseInfo(
@@ -213,9 +208,9 @@ public sealed class GamificationService : IGamificationService
 
     private sealed record EarnedBadge(DateTime EarnedAtUtc, bool IsNew);
 
-    private sealed class PlayerState(List<PracticeAnswer> answers, Dictionary<int, ExerciseInfo> exercises)
+    private sealed class PlayerState(IReadOnlyList<PracticeAnswer> answers, Dictionary<int, ExerciseInfo> exercises)
     {
-        public List<PracticeAnswer> Answers { get; } = answers;
+        public IReadOnlyList<PracticeAnswer> Answers { get; } = answers;
 
         public Dictionary<int, ExerciseInfo> Exercises { get; } = exercises;
 

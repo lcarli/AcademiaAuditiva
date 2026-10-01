@@ -1,0 +1,12 @@
+@model AcademiaAuditiva.Services.LearningPath.LearningPathProgress
+@* One segment per step; the text next to it carries the same information for screen readers. *@
+<ol class="aa-path-track" aria-hidden="true">
+    @foreach (var unit in Model.Units)
+    {
+        foreach (var step in unit.Steps)
+        {
+            var unitStart = unit.Number > 1 && step.Number == unit.Steps[0].Number;
+            <li class="is-@step.State.ToString().ToLowerInvariant() @(unitStart ? "aa-path-track-unit" : null)"></li>
+        }
+    }
+</ol>

@@ -1,0 +1,60 @@
+@model AcademiaAuditiva.Services.LearningPath.LearningPathProgress
+@using AcademiaAuditiva.Services.LearningPath
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
+@{
+    var current = Model.Current;
+}
+
+<section class="aa-card aa-path-card p-4 mb-4" aria-labelledby="aa-path-card-title">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg">
+            <div class="d-flex align-items-start gap-3">
+                <span class="aa-icon-pill" aria-hidden="true"><i class="bi @(current is null ? "bi-trophy" : "bi-signpost-split")"></i></span>
+                <div class="flex-grow-1">
+                    <h2 id="aa-path-card-title" class="h6 text-uppercase small text-secondary mb-1">@Localizer["LearningPath.Title"]</h2>
+                    @if (current is null)
+                    {
+                        <p class="h4 fw-bold mb-1 text-body-emphasis">@Localizer["LearningPath.Done"]</p>
+                        <p class="small text-secondary mb-0">@Localizer["LearningPath.DoneText"]</p>
+                    }
+                    else
+                    {
+                        var unit = Model.UnitOf(current);
+                        <p class="h4 fw-bold mb-1 text-body-emphasis">@S.StepTitle(current)</p>
+                        <p class="small text-secondary mb-0">
+                            @Localizer["LearningPath.StepOf", current.Number, Model.TotalSteps]
+                            · @Localizer["Common.LabelValue", Localizer["LearningPath.UnitNumber", unit.Number], Localizer[$"LearningPath.Unit.{unit.Key}.Title"]]
+                        </p>
+                        <p class="small text-body-emphasis mt-3 mb-2">@Localizer["LearningPath.Goal", current.Required, current.Window]</p>
+                        <div class="d-flex flex-wrap align-items-center gap-2 gap-sm-3">
+                            <div class="progress aa-xp-bar flex-grow-1" role="progressbar"
+                                 aria-label="@S["LearningPath.Progress", current.Correct, current.Required]"
+                                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="@current.Percent">
+                                <div class="progress-bar" style="width: @(current.Percent)%"></div>
+                            </div>
+                            <span class="small text-secondary text-nowrap">@Localizer["LearningPath.Progress", current.Correct, current.Required]</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-auto">
+            <div class="d-flex flex-wrap gap-2">
+                @if (current is not null)
+                {
+                    <a class="btn btn-primary" href="@Url.StepUrl(current)">
+                        <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer[Model.HasStarted ? "LearningPath.Continue" : "LearningPath.Start"]
+                    </a>
+                }
+                <a class="btn btn-outline-secondary" asp-area="" asp-controller="LearningPath" asp-action="Index">@Localizer["LearningPath.ViewPath"]</a>
+            </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <div class="d-flex justify-content-between gap-3 small text-secondary mb-2">
+            <span>@Localizer["LearningPath.StepsCount", Model.CompletedSteps, Model.TotalSteps]</span>
+            <span>@Localizer["Common.Percent", Model.Percent]</span>
+        </div>
+        <partial name="_LearningPathTrack" model="Model" />
+    </div>
+</section>

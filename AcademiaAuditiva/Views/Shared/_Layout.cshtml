@@ -108,6 +108,10 @@
                                    asp-area="" asp-controller="Dashboard" asp-action="Index">@Localizer["Header.Dashboard"]</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link @(IsCurrent("", "LearningPath") ? "active" : null)" aria-current="@(IsCurrent("", "LearningPath") ? "page" : null)"
+                                   asp-area="" asp-controller="LearningPath" asp-action="Index">@Localizer["Header.LearningPath"]</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link @(IsCurrent("", "Exercise") ? "active" : null)" aria-current="@(IsCurrent("", "Exercise") ? "page" : null)"
                                    asp-area="" asp-controller="Exercise" asp-action="Index">@Localizer["Header.Exercise"]</a>
                             </li>

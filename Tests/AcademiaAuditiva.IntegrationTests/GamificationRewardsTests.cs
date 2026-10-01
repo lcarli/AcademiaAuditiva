@@ -1,7 +1,5 @@
-using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -111,24 +109,13 @@ public class GamificationRewardsTests : IClassFixture<SignedInWebApplicationFact
 
         validation.GetProperty("success").GetBoolean().Should().BeTrue();
         validation.GetProperty("isCorrect").GetBoolean().Should().Be(correct);
+        validation.GetProperty("path").ValueKind.Should().Be(JsonValueKind.Null, "SolfegeMelody is not on the learning path");
         return validation.GetProperty("rewards");
     }
 
-    // The layout's language form renders the antiforgery token; the page scripts send it
-    // back in this header on every same-origin POST.
-    private static async Task<HttpClient> WithAntiforgeryHeaderAsync(HttpClient client)
-    {
-        var html = await client.GetStringAsync("/Home/Privacy");
-        var match = Regex.Match(html, "name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"");
-        match.Success.Should().BeTrue("the layout renders the language form");
-        client.DefaultRequestHeaders.Add("RequestVerificationToken", match.Groups[1].Value);
-        return client;
-    }
+    private static Task<HttpClient> WithAntiforgeryHeaderAsync(HttpClient client)
+        => IntegrationHttp.WithAntiforgeryHeaderAsync(client);
 
-    private static async Task<JsonElement> ReadJsonAsync(HttpResponseMessage response)
-    {
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        return json.RootElement.Clone();
-    }
+    private static Task<JsonElement> ReadJsonAsync(HttpResponseMessage response)
+        => IntegrationHttp.ReadJsonAsync(response);
 }

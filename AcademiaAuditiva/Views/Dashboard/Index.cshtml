@@ -27,6 +27,11 @@
     </a>
 </header>
 
+@if (ViewBag.LearningPath is AcademiaAuditiva.Services.LearningPath.LearningPathProgress { TotalSteps: > 0 } learningPath)
+{
+    <partial name="_LearningPathCard" model="learningPath" />
+}
+
 @if (Model is { } profile)
 {
     var progress = profile.Progress;

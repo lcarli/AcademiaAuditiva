@@ -23,7 +23,7 @@
 </div>
 
 @{
-    // Routine links (My training) open the exercise with its filters in the query string.
+    // Routine links (My training) and learning path steps open the exercise with its filters in the query string.
     var appliedPresets = AcademiaAuditiva.Services.ExerciseFilterPresets.Describe(
         Model.Filters.Groups,
         AcademiaAuditiva.Services.ExerciseFilterPresets.FromQuery(Context.Request.Query, Model.Filters.Groups));

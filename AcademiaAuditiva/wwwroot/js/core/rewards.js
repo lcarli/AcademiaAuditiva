@@ -1,6 +1,7 @@
-// XP, level and badge feedback after an exercise answer. ValidateExercise
-// returns `rewards` with every text already localized (see
-// ExerciseController.BuildRewards); this file only renders it.
+// XP, level, badge and learning path feedback after an exercise answer.
+// ValidateExercise returns `rewards` and `path` with every text already
+// localized (see ExerciseController.BuildRewards and BuildPathFeedback);
+// this file only renders them.
 (function (window, document) {
   "use strict";
 
@@ -47,6 +48,24 @@
     return root;
   }
 
+  function pathFooter(p) {
+    const text = p.label + " · " + p.text;
+    const root = el("div", "aa-path-footer" + (p.completed ? " is-complete" : ""));
+    root.append(
+      icon(p.completed ? "bi-check2-circle" : "bi-signpost-split"),
+      el("span", "aa-path-footer-text", text),
+      progressBar(p.percent, text));
+    return root;
+  }
+
+  function answerFooter(r, p) {
+    if (!p) return footer(r);
+    const root = el("div", "aa-answer-footer");
+    if (r) root.append(footer(r));
+    root.append(pathFooter(p));
+    return root;
+  }
+
   function medal(badge) {
     const group = GROUPS.includes(badge.group) ? badge.group : "mastery";
     const item = el("li", "aa-reward-medal aa-medal-" + group);
@@ -63,57 +82,89 @@
     return typeof url === "string" && url.startsWith("/") && !url.startsWith("//") ? url : null;
   }
 
-  function celebrate(r) {
-    const c = r.celebration;
-    if (!c || !window.Swal) return Promise.resolve();
+  // One dialog for everything the answer unlocked: the learning path step
+  // first (with the way to the next step), then the level and the badges.
+  function celebrate(r, p) {
+    const rc = r && r.celebration;
+    const pc = p && p.celebration;
+    if ((!rc && !pc) || !window.Swal) return Promise.resolve();
 
     const content = el("div", "aa-celebration");
-    if (r.levelUp) {
-      content.append(rank(r.rank.symbol, "lg"));
-      if (c.text) content.append(el("p", "aa-celebration-text", c.text));
+    if (pc) {
+      const disc = el("span", "aa-path-disc");
+      disc.append(icon(pc.icon));
+      content.append(disc);
+      if (pc.text) content.append(el("p", "aa-celebration-text", pc.text));
+      if (pc.nextText) content.append(el("p", "aa-celebration-next", pc.nextText));
     }
-    if (Array.isArray(r.badges) && r.badges.length) {
-      if (c.badgesHeading) content.append(el("p", "aa-celebration-heading", c.badgesHeading));
+    if (rc && r.levelUp) {
+      if (pc) content.append(el("p", "aa-celebration-heading", rc.title));
+      content.append(rank(r.rank.symbol, pc ? null : "lg"));
+      if (rc.text) content.append(el("p", "aa-celebration-text", rc.text));
+    }
+    if (rc && Array.isArray(r.badges) && r.badges.length) {
+      const heading = rc.badgesHeading || (pc ? rc.title : null);
+      if (heading) content.append(el("p", "aa-celebration-heading", heading));
       const list = el("ul", "aa-reward-medals");
       r.badges.forEach((badge) => list.append(medal(badge)));
       content.append(list);
     }
 
-    const url = localPath(c.viewAllUrl);
-    return Swal.fire({
-      title: c.title,
+    const nextUrl = pc ? localPath(pc.actionUrl) : null;
+    const viewAllUrl = rc ? localPath(rc.viewAllUrl) : null;
+    const closeText = (pc && pc.closeText) || (rc && rc.closeText) || "OK";
+    const options = {
+      title: pc ? pc.title : rc.title,
       html: content,
       customClass: { popup: "aa-celebration-popup" },
-      showCancelButton: !!url,
-      confirmButtonText: url ? c.viewAllText : c.closeText,
-      cancelButtonText: c.closeText,
-      focusCancel: !!url
-    }).then((result) => {
-      if (url && result.isConfirmed) window.location.assign(url);
+      confirmButtonText: closeText
+    };
+    let confirmUrl = null;
+    let denyUrl = null;
+    if (nextUrl) {
+      confirmUrl = nextUrl;
+      options.confirmButtonText = pc.actionText;
+      if (viewAllUrl) {
+        denyUrl = viewAllUrl;
+        Object.assign(options, { showDenyButton: true, denyButtonText: rc.viewAllText });
+      }
+    } else if (viewAllUrl) {
+      confirmUrl = viewAllUrl;
+      options.confirmButtonText = rc.viewAllText;
+    }
+    if (confirmUrl) {
+      Object.assign(options, { showCancelButton: true, cancelButtonText: closeText, focusCancel: true });
+    }
+
+    return Swal.fire(options).then((result) => {
+      if (result.isConfirmed && confirmUrl) window.location.assign(confirmUrl);
+      else if (result.isDenied && denyUrl) window.location.assign(denyUrl);
     });
   }
 
   window.AARewards = {
     celebrate,
 
-    // Adds the XP footer to an answer dialog and, when the answer unlocked a
-    // level or badge, opens the celebration once that dialog closes.
+    // Adds the XP and learning path footer to an answer dialog and, when the
+    // answer unlocked a level, a badge or a path step, opens the celebration
+    // once that dialog closes.
     decorate(options, data) {
-      const r = data && data.rewards;
-      if (!r || !r.rank) return options;
+      const r = data && data.rewards && data.rewards.rank ? data.rewards : null;
+      const p = data && data.path && data.path.label ? data.path : null;
+      if (!r && !p) return options;
 
       try {
-        options.footer = footer(r);
+        options.footer = answerFooter(r, p);
       } catch (err) {
-        console.error("Could not render the XP footer:", err);
+        console.error("Could not render the answer footer:", err);
       }
 
-      if (r.celebration) {
+      if ((r && r.celebration) || (p && p.celebration)) {
         const didClose = options.didClose;
         options.didClose = function () {
           if (typeof didClose === "function") didClose.apply(this, arguments);
           // SweetAlert2 tears down a dialog opened synchronously from didClose.
-          window.setTimeout(() => celebrate(r), 0);
+          window.setTimeout(() => celebrate(r, p), 0);
         };
       }
       return options;
