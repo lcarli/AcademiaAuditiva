@@ -284,13 +284,20 @@ public class StaffExerciseGeneratorTests
     [Fact]
     public void MelodicDictation_FirstNoteIsGiven_AndOmittedFromSubmittedAnswer()
     {
-        var json = GenerateJson("MelodicDictation", new() { { "mdRoot", "C" }, { "mdScale", "major" }, { "mdLevel", "1" }, { "mdMeasures", "short" } });
-        var melody = (JArray)json["melody"]!;
-        var firstToken = $"{melody[0]!.Value<string>("note")}:{melody[0]!.Value<string>("durationLabel")}";
+        for (var round = 0; round < 20; round++)
+        {
+            var json = GenerateJson("MelodicDictation", new() { { "mdRoot", "C" }, { "mdScale", "major" }, { "mdLevel", "1" }, { "mdMeasures", "short" } });
+            var melody = (JArray)json["melody"]!;
 
-        json.Value<string>("firstNote").Should().Be(melody[0]!.Value<string>("note"));
-        json.Value<string>("answerString")!.Split('|', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()
-            .Should().NotBe(firstToken);
+            json.Value<string>("firstNote").Should().Be(melody[0]!.Value<string>("note"));
+            json.Value<string>("firstDuration").Should().Be(melody[0]!.Value<string>("durationLabel"));
+
+            // Compare by position: the melody may legitimately repeat the given first note.
+            var answerTokens = json.Value<string>("answerString")!.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            answerTokens.Where(t => t != "bar").Should().Equal(
+                melody.Skip(1).Select(e => $"{e.Value<string>("note")}:{e.Value<string>("durationLabel")}"));
+            answerTokens.Count(t => t == "bar").Should().Be(json.Value<int>("numMeasures") - 1);
+        }
     }
 
     [Fact]
