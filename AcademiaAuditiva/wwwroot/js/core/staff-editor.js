@@ -285,8 +285,11 @@
       }
 
       // Note name buttons
-      if (canAddMore()) {
+      if (canAddMore() || selectedEditableIdx() >= 0) {
         appendOctaveRow();
+      }
+
+      if (canAddMore()) {
         var noteRow = document.createElement("div");
         noteRow.className = "btn-group";
         NOTE_NAMES.forEach(function (nn) {
