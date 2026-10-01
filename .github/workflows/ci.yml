@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write
 
 jobs:
   build-and-test:
@@ -38,6 +39,154 @@ jobs:
         with:
           name: test-results
           path: "**/TestResults/**/*"
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    services:
+      sql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: Aa-ci-only-1433!
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Aa-ci-only-1433!' -C -Q 'SELECT 1' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+      azurite:
+        image: mcr.microsoft.com/azure-storage/azurite
+        ports:
+          - 10000:10000
+          - 10001:10001
+          - 10002:10002
+    env:
+      SQL_PASSWORD: Aa-ci-only-1433!
+      AA_EMAIL: admin-e2e@example.test
+      E2E_BASE_URL: http://127.0.0.1:5072
+      E2E_EXPECT_VERSION: ${{ github.sha }}
+      STORAGE_CONNECTION_STRING: UseDevelopmentStorage=true
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET (global.json)
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: Tests/e2e/package-lock.json
+
+      - name: Restore and publish app
+        run: |
+          dotnet restore AcademiaAuditiva.sln
+          dotnet publish AcademiaAuditiva/AcademiaAuditiva.csproj --configuration Release --no-restore --output ./artifacts/app /p:UseAppHost=false
+
+      - name: Install audio tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+
+      - name: Seed Azurite piano samples
+        run: |
+          set -euo pipefail
+          az storage container create --name piano-audio --connection-string "$STORAGE_CONNECTION_STRING" --only-show-errors 1>/dev/null
+          az storage container create --name piano-audio-mixed --connection-string "$STORAGE_CONNECTION_STRING" --only-show-errors 1>/dev/null
+          mkdir -p /tmp/piano-audio
+          notes=(C Cs D Ds E F Fs G Gs A As B)
+          idx=0
+          for octave in 1 2 3 4 5 6 7; do
+            for note in "${notes[@]}"; do
+              freq=$(python3 -c 'import math, sys; idx = int(sys.argv[1]); print(f"{32.70319566257483 * (2 ** (idx / 12)):.4f}")' "$idx")
+              ffmpeg -hide_banner -loglevel error -y -f lavfi -i "sine=frequency=${freq}:duration=2.0:sample_rate=44100" -ac 1 "/tmp/piano-audio/${note}${octave}.mp3"
+              idx=$((idx + 1))
+            done
+          done
+          az storage blob upload-batch --destination piano-audio --source /tmp/piano-audio --pattern '*.mp3' --content-type audio/mpeg --overwrite true --connection-string "$STORAGE_CONNECTION_STRING" --only-show-errors 1>/dev/null
+
+      - name: Install Playwright
+        working-directory: Tests/e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Start app
+        working-directory: ./artifacts/app
+        env:
+          ASPNETCORE_ENVIRONMENT: Production
+          ASPNETCORE_URLS: http://127.0.0.1:5072
+          APP_VERSION: ${{ github.sha }}
+          ConnectionStrings__DefaultConnection: Server=127.0.0.1,1433;Database=AcademiaAuditivaE2E;User Id=sa;Password=${{ env.SQL_PASSWORD }};Encrypt=True;TrustServerCertificate=True
+          Storage__ConnectionString: ${{ env.STORAGE_CONNECTION_STRING }}
+          Admin__Email: ${{ env.AA_EMAIL }}
+          Admin__InitialPassword: ${{ env.SQL_PASSWORD }}
+          ApplicationInsights__ConnectionString: ""
+        run: |
+          dotnet AcademiaAuditiva.dll > ../app.log 2>&1 &
+          echo $! > ../app.pid
+          for i in {1..60}; do
+            if curl -fsS "$E2E_BASE_URL/health/ready" >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat ../app.log
+          exit 1
+
+      - name: Run Playwright suite
+        working-directory: Tests/e2e
+        env:
+          AA_EMAIL: ${{ env.AA_EMAIL }}
+          AA_PASSWORD: ${{ env.SQL_PASSWORD }}
+          E2E_BASE_URL: ${{ env.E2E_BASE_URL }}
+          E2E_EXPECT_VERSION: ${{ env.E2E_EXPECT_VERSION }}
+        run: npm test
+
+      - name: Stop app
+        if: always()
+        run: |
+          if [ -f ./artifacts/app.pid ]; then kill "$(cat ./artifacts/app.pid)" || true; fi
+
+      - name: Upload E2E artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-artifacts
+          path: |
+            Tests/e2e/test-results/**
+            Tests/e2e/playwright-report/**
+            artifacts/app.log
+
+  image-scan:
+    name: Image scan (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build image for scan
+        run: docker build --build-arg APP_VERSION=${{ github.sha }} -t academiaauditiva:${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@d2a0b60797ff03db6132bd4e2b293f9b37081297
+        with:
+          image-ref: academiaauditiva:${{ github.sha }}
+          format: sarif
+          output: trivy-results.sarif
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+          exit-code: "0"
+
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results.sarif
 
   bicep-validate:
     name: Validate Bicep

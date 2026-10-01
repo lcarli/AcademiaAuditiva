@@ -16,6 +16,7 @@ param keyVaultUri string
 param sqlServerFqdn string
 param sqlDatabaseName string
 param appInsightsConnectionString string
+param appVersion string = ''
 param minReplicas int = 1
 param maxReplicas int = 3
 param targetPort int = 8080
@@ -49,6 +50,7 @@ var envVars = [
   { name: 'ManagedIdentityClientId', value: managedIdentityClientId }
   { name: 'AZURE_CLIENT_ID', value: managedIdentityClientId }
   { name: 'ApplicationInsights__ConnectionString', value: appInsightsConnectionString }
+  { name: 'APP_VERSION', value: empty(appVersion) ? containerImage : appVersion }
   { name: 'ConnectionStrings__DefaultConnection', value: sqlConnectionString }
   { name: 'Admin__Email', value: adminEmail }
   { name: 'Storage__BlobEndpoint', value: storageBlobEndpoint }
@@ -76,10 +78,9 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
         targetPort: targetPort
         transport: 'auto'
         allowInsecure: false
-        // Audio rounds/expected answers still live in the per-replica
-        // in-memory IDistributedCache; pin each browser to one replica so
-        // scale-out doesn't surface as random "session expired" errors.
-        // Requires activeRevisionsMode 'Single'.
+        // Keep affinity even though round state is now backed by SQL Server;
+        // it reduces audio-cache churn and remains compatible with
+        // activeRevisionsMode 'Single'.
         stickySessions: {
           affinity: 'sticky'
         }

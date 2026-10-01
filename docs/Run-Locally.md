@@ -16,8 +16,8 @@ development and testing. It assumes you have already cloned the repository.
     -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=YourStrong!Pass1" `
     mcr.microsoft.com/mssql/server:2022-latest
   ```
-- **Node.js** is **not** required — the front-end uses CDN-hosted Tone.js
-  and Bootstrap directly from `wwwroot/lib`.
+- **Node.js** is only required for the Playwright E2E suite under
+  `Tests/e2e`; the app itself does not need a front-end build.
 - **Docker** and the **Azure CLI** (`az`) — only to play the piano audio
   locally (see step 3).
 
@@ -111,8 +111,40 @@ dotnet test
 ```
 
 This runs the `Tests/UnitTests` and `Tests/IntegrationTests` projects.
-Integration tests use EF Core InMemory provider, so SQL Server is **not**
-required.
+Most integration tests use EF Core InMemory. A focused SQL Server collection
+is skipped unless it can reach real SQL Server:
+
+```powershell
+# In one process, without printing the secret connection string:
+Push-Location .\AcademiaAuditiva
+$cs = ((dotnet user-secrets list) | ? { $_ -like 'ConnectionStrings:DefaultConnection = *' }) -replace '^ConnectionStrings:DefaultConnection = ',''
+Pop-Location
+$env:AA_TEST_SQL_CONNECTION = $cs
+dotnet test Tests\AcademiaAuditiva.IntegrationTests
+```
+
+On ARM64 workstations the `mcr.microsoft.com/mssql/server:2022-latest`
+container image is not runnable, so `AA_TEST_SQL_CONNECTION` should point
+to an existing SQL Server such as the local `aa-sql` or Azure SQL Edge
+container. In CI on Ubuntu x64, Testcontainers starts SQL Server
+automatically.
+
+## 6. Run the Playwright E2E suite
+
+Start the app with SQL Server and Azurite audio configured, then:
+
+```powershell
+cd Tests\e2e
+npm ci
+$env:E2E_BASE_URL = "http://127.0.0.1:5072"
+$env:PW_CHANNEL = "msedge"     # local Windows machine; CI uses bundled Chromium
+$env:AA_EMAIL = "<bootstrap-admin-email>"
+$env:AA_PASSWORD = "<bootstrap-admin-password>"
+npm test
+```
+
+The suite checks localized home/catalog/privacy pages, health endpoints,
+admin login, registration, and a real-audio GuessNote round.
 
 ## Troubleshooting
 
@@ -126,4 +158,5 @@ required.
 | Emails not sent | Same — `Smtp:*` is optional. Check the Console log for the warning. |
 | *Play* spins for ~20 s and no sound plays | No audio storage configured: run `./scripts/local-audio.ps1` (step 3) |
 | *Play* stopped working (Azurite container stopped) | `docker start aa-azurite` |
+| SQL Server integration tests are skipped | Set `AA_TEST_SQL_CONNECTION` in the same process running `dotnet test` |
 | Stuck on EF migration | Drop the DB: `DROP DATABASE [AcademiaAuditiva-dev]` then re-run |

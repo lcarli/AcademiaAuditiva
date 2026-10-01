@@ -24,12 +24,13 @@ secrets in Key Vault and pulled by the app's user-assigned Managed Identity.
 │   • IExerciseValidator    — strategy per exercise  │
 │   • IMusicTheoryService   — note/interval theory   │
 │   • UserReportService     — score aggregations     │
+│   • AudioTokenService     — one-shot audio rounds  │
 │   • EmailSender (MailKit) — invites + notifications│
 └────────────────────────────┬───────────────────────┘
                              │
 ┌────────────────────────────▼───────────────────────┐
 │  EF Core 10 + SQL Server                           │
-│   ApplicationDbContext (Identity + domain tables)   │
+│   ApplicationDbContext + SQL distributed cache      │
 └────────────────────────────────────────────────────┘
 ```
 
@@ -90,15 +91,34 @@ Secrets Officer** for seeding/rotating.
 1. Bicep provisions the entire stack (`infra/scripts/deploy-infra.ps1`).
 2. Operator runs `seed-keyvault.ps1` to set the optional secrets.
 3. Operator runs `grant-mi-sql.ps1` so the MI can run EF migrations.
-4. CI builds the Docker image, pushes to ACR, and updates the
-   Container App revision.
-5. New revision starts → `Database.Migrate()` runs → `IdentityBootstrapper`
-   ensures roles + admin → `/health/ready` returns 200 → traffic shifts.
+4. CI builds/tests the app, runs Playwright E2E with SQL Server + Azurite,
+   validates Bicep, and scans the container image with Trivy SARIF upload.
+5. CD builds the Docker image with `APP_VERSION=<git sha>`, pushes to ACR,
+   updates the Container App image/env var, waits until the latest revision
+   is ready on that image with 100% traffic, then smoke-tests the versioned
+   health endpoints.
+6. New revision starts → `Database.Migrate()` creates/updates domain tables
+   and `dbo.AppCache` → `IdentityBootstrapper` ensures roles + admin →
+   `/health/ready` returns 200.
 
 ## Observability
 
-- **Application Insights** auto-tracks requests, dependencies, exceptions.
-- `/health/live` — process liveness (used by Startup + Liveness probes).
-- `/health/ready` — readiness with SQL ping (used by Readiness probe).
+- **Azure Monitor OpenTelemetry distro** exports ASP.NET Core request,
+  HttpClient, SQL client, exception, and structured Serilog log telemetry to
+  Application Insights when `ApplicationInsights:ConnectionString` is set.
+- `/health/live` — process liveness (used by Startup + Liveness probes);
+  returns JSON with the running `APP_VERSION`.
+- `/health/ready` — readiness with SQL ping (used by Readiness probe);
+  also returns `APP_VERSION` so CD can prove the new revision served smoke tests.
 - Log Analytics receives Container App stdout via the Container Apps
   Environment integration.
+
+## Scale-out state
+
+Exercise expected answers and audio tokens use `IDistributedCache`. In
+production the provider is `Microsoft.Extensions.Caching.SqlServer` backed
+by `dbo.AppCache`, whose schema is created by EF migration. The Testing
+environment uses the in-memory distributed cache to keep ordinary integration
+tests self-contained. ASP.NET Core Data Protection keys are already shared in
+Blob Storage and wrapped by Key Vault; sticky sessions remain enabled in
+Container Apps to reduce audio-cache churn.

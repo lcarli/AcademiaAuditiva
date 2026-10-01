@@ -15,8 +15,9 @@
 | Forged scores | Scores are only recorded by `ValidateExercise` against the server-held answer of a one-shot round; no endpoint accepts client-supplied counts |
 | DoS via exercise filters | `noteRange` is parsed defensively and clamped to C1–C6; `RequestPlay` bodies are capped at 8 KB and rate-limited |
 | Cookie keys lost on deploy / not shared across replicas | Data Protection key ring persisted in blob container `dataprotection-keys`, wrapped by Key Vault key `dataprotection` |
+| Exercise round state lost across replicas | `IDistributedCache` uses SQL Server (`dbo.AppCache`) outside Testing, so audio tokens and expected answers are shared |
 | Wrong scheme behind the TLS-terminating ingress | `UseForwardedHeaders` honours `X-Forwarded-Proto`/`-For`, so links, OAuth redirects, secure cookies and HSTS see https |
-| Known-vulnerable dependencies | `dotnet list package --vulnerable --include-transitive` kept clean; jquery-validation self-hosted (no pinned CDN copy) |
+| Known-vulnerable dependencies / base images | `dotnet list package --vulnerable --include-transitive` kept clean; jquery-validation self-hosted (no pinned CDN copy); CI uploads Trivy SARIF for HIGH/CRITICAL container findings with unfixed issues ignored initially |
 | Data services reachable from the internet | Key Vault, SQL and Storage have public network access disabled; the app reaches them through private endpoints in its VNet |
 
 ## Secret inventory (production)
