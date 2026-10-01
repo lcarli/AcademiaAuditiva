@@ -11,7 +11,7 @@ secrets in Key Vault and pulled by the app's user-assigned Managed Identity.
 ```
 ┌────────────────────────────────────────────────────┐
 │  Razor Views (Views/, Areas/Identity/Pages)        │
-│      Bootstrap 5 + Tone.js for audio synthesis     │
+│      Bootstrap 5 + Web Audio API playback          │
 └────────────────────────────┬───────────────────────┘
                              │
 ┌────────────────────────────▼───────────────────────┐
