@@ -97,6 +97,9 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(bool rememberMe, string returnUrl = null)
         {
+            // Keeps the hidden returnUrl field filled when the page is shown again.
+            ReturnUrl = returnUrl;
+
             if (!ModelState.IsValid)
             {
                 return Page();

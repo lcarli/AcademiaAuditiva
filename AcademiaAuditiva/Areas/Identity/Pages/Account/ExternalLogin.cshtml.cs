@@ -103,14 +103,11 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
             return new ChallengeResult(provider, properties);
         }
 
-        public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
+        public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
-            if (remoteError != null)
-            {
-                ErrorMessage = _localizer["Identity.Status.ExternalProviderError", remoteError];
-                return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
-            }
+            // No remoteError parameter: ASP.NET Core never sends one, and showing it
+            // let a crafted link put any text on the login page.
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
