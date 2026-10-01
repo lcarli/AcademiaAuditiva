@@ -58,6 +58,7 @@ namespace AcademiaAuditiva.Controllers
 
         [AllowAnonymous]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult SetLanguage(string culture, string returnUrl, [FromServices] IOptions<RequestLocalizationOptions> localization)
         {
             var supported = localization.Value.SupportedUICultures?

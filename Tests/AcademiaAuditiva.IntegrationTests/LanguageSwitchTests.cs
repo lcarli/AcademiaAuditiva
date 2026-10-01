@@ -21,9 +21,11 @@ public class LanguageSwitchTests : IClassFixture<TestWebApplicationFactory>
         _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
     // Any page with the layout renders the language form, which sets the antiforgery cookie.
-    private static async Task<string> GetFormTokenAsync(HttpClient client)
+    private static async Task<string> GetFormTokenAsync(HttpClient client) =>
+        TokenFrom(await client.GetStringAsync("/Home/Privacy"));
+
+    private static string TokenFrom(string html)
     {
-        var html = await client.GetStringAsync("/Home/Privacy");
         var match = Regex.Match(html, "name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"");
         match.Success.Should().BeTrue("the layout renders the language form");
         return match.Groups[1].Value;
@@ -57,6 +59,25 @@ public class LanguageSwitchTests : IClassFixture<TestWebApplicationFactory>
         var cookie = CultureCookieHeader(response);
         cookie.Should().StartWith(CultureCookie + "=c%3Dpt-BR%7Cuic%3Dpt-BR;", "the culture name is normalized");
         cookie!.ToLowerInvariant().Should().Contain("expires=").And.Contain("httponly").And.Contain("samesite=lax");
+    }
+
+    [Fact]
+    public async Task LanguageForm_SendsTheVisitorBackToTheSamePageAndQuery()
+    {
+        var client = CreateClient();
+        var html = await client.GetStringAsync("/Home/Privacy?q=a'b&keySelect=D");
+
+        // The address comes from the request, so it must reach the page HTML-encoded.
+        var field = Regex.Match(html, "name=\"returnUrl\" value=\"([^\"]*)\"");
+        field.Success.Should().BeTrue("the language form carries the current address");
+        field.Groups[1].Value.Should().NotContain("'").And.Contain("&amp;");
+        var returnUrl = WebUtility.HtmlDecode(field.Groups[1].Value);
+        returnUrl.Should().Be("~/Home/Privacy?q=a'b&keySelect=D");
+
+        var response = await PostAsync(client, TokenFrom(html), "fr-CA", returnUrl);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location!.OriginalString.Should().Be("/Home/Privacy?q=a'b&keySelect=D");
     }
 
     [Theory]
