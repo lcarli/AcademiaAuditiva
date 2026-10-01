@@ -47,11 +47,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css"
           integrity="sha512-Z/def5z5u2aR89OuzYcxmDJ0Bnd5V1cKqBEbvLOiUNWdg9PQeXVvXLI90SE4QOHGlfLqUnDNVAYyZi8UwUTmWQ=="
           crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css"
+          integrity="sha384-vBnv27bYSGJRQPyi/b5+ZvSHCIfEOf/uBVxgFtuoVFUemjwF5hGt/AeK+XXJFVyA"
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
           integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
           crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+    @* SweetAlert2 10.16.10+ ships protestware (plays audio and blocks the page on .ru domains); stay on 10.16.9. *@
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.9/dist/sweetalert2.min.css"
+          integrity="sha384-xlHFsCasw2aJoI2zbyEfOrOdeZGWWDduVXC48pzXU4bdPRpKrkuhgEqtwX4oudAK"
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/css/aa-design-system.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <style>
@@ -185,16 +190,13 @@
     <script src="https://unpkg.com/htmx.org@2.0.3"
             integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
             crossorigin="anonymous"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-    <script src="/js/tone.js"></script>
-    <script src="/js/vexflow.js"></script>
-    <script src="/js/dist/essentia.js-core.js?v=1.0.2"></script>
-    <script src="/js/dist/essentia.js-extractor.js?v=1.0.2"></script>
-    <script src="/js/dist/essentia.js-model.js?v=1.0.2"></script>
-    <script src="/js/dist/essentia.js-plot.js?v=1.0.2"></script>
-    <script src="/js/dist/essentia-wasm.web.js?v=1.0.2"></script>
-    <script src="/js/core/audio-engine.js?v=1.0.7"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"
+            integrity="sha384-l8f0VcPi/M1iHPv8egOnY/15TDwqgbOR1anMIJWvU6nLRgZVLTLSaNqi/TOoT5Fh"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.9/dist/sweetalert2.min.js"
+            integrity="sha384-GjzHyTYR8FCw50srE7hggd4Tlqw3oq9apyk/Gtq815HMWyf38e1yZ7A4KvtL71Xw"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/js/core/audio-engine.js" asp-append-version="true"></script>
     <script src="/js/core/i18n.js?v=1.0.0"></script>
     <script src="~/js/core/alerts.js" asp-append-version="true"></script>
     <script src="/js/games/game-engine.js?v=1.0.2"></script>

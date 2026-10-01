@@ -239,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- Pitch analysis ----------
 
-  // essentia-wasm.web.js (loaded by the layout) compiles its .wasm file
+  // essentia-wasm.web.js (loaded by the view) compiles its .wasm file
   // asynchronously and resolves with the module.
   function loadEssentia() {
     if (!essentiaReady) {
