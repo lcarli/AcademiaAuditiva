@@ -2949,6 +2949,18 @@
     <value>Any</value>
     <comment />
   </data>
+  <data name="Exercise.Short" xml:space="preserve">
+    <value>Short</value>
+    <comment />
+  </data>
+  <data name="Exercise.Long" xml:space="preserve">
+    <value>Long</value>
+    <comment />
+  </data>
+  <data name="Exercise.Level" xml:space="preserve">
+    <value>Level</value>
+    <comment />
+  </data>
   <data name="Exercise.Octave" xml:space="preserve">
     <value>Octave</value>
     <comment />
@@ -2965,12 +2977,168 @@
     <value>Octave up</value>
     <comment />
   </data>
+  <data name="CompleteChord" xml:space="preserve">
+    <value>Complete Chord</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Title" xml:space="preserve">
+    <value>Complete the Chord</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChordText" xml:space="preserve">
+    <value>Listen to the root and complete the chord on the staff.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectStaffExerciseText" xml:space="preserve">
+    <value>Generate the exercise and enter your answer on the staff before validating.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Prompt" xml:space="preserve">
+    <value>Complete the {{0}} above {{1}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Subtitle" xml:space="preserve">
+    <value>Hear a chord root and complete the remaining chord tones on the staff.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Instructions" xml:space="preserve">
+    <value>Click Play to hear the chord root. Then enter the remaining chord tones on the staff.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Tip1" xml:space="preserve">
+    <value>Major triads use a major third and perfect fifth.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Tip2" xml:space="preserve">
+    <value>Minor triads use a minor third and perfect fifth.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Tip3" xml:space="preserve">
+    <value>Check the distance from the root before validating.</value>
+    <comment />
+  </data>
+  <data name="TransposeScale" xml:space="preserve">
+    <value>Transpose Scale</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Title" xml:space="preserve">
+    <value>Transpose the Scale</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScaleText" xml:space="preserve">
+    <value>Listen to the original scale and write it in the target key.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Prompt" xml:space="preserve">
+    <value>Transpose the {{0}} scale from {{1}} to {{2}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Subtitle" xml:space="preserve">
+    <value>Write a played scale transposed to a new key.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Instructions" xml:space="preserve">
+    <value>Listen to the original scale, note the target key, and enter the transposed scale on the staff.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Tip1" xml:space="preserve">
+    <value>Keep the same interval pattern in the new key.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Tip2" xml:space="preserve">
+    <value>Start on the target tonic and move degree by degree.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Tip3" xml:space="preserve">
+    <value>Use accidentals to preserve the scale pattern.</value>
+    <comment />
+  </data>
+  <data name="MelodicDictation" xml:space="preserve">
+    <value>Melodic Dictation</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Title" xml:space="preserve">
+    <value>Melodic Dictation</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictationText" xml:space="preserve">
+    <value>Listen to the melody and write the notes and rhythm.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Prompt" xml:space="preserve">
+    <value>Key: {{0}}. First note: {{1}}. Time signature: {{2}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Subtitle" xml:space="preserve">
+    <value>Hear a short melody and notate it on the staff.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Instructions" xml:space="preserve">
+    <value>Listen to the full melody, then enter notes, durations, rests and barlines on the staff.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Tip1" xml:space="preserve">
+    <value>Listen once for the contour before entering notes.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Tip2" xml:space="preserve">
+    <value>Place the main durations first, then refine pitches.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Tip3" xml:space="preserve">
+    <value>Use barlines to organize the phrase.</value>
+    <comment />
+  </data>
+  <data name="RhythmDictation" xml:space="preserve">
+    <value>Rhythm Dictation</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Title" xml:space="preserve">
+    <value>Rhythm Dictation</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictationText" xml:space="preserve">
+    <value>Listen to the rhythm and write the sequence.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Prompt" xml:space="preserve">
+    <value>Time signature: {{0}}. Pitch is ignored for scoring.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Subtitle" xml:space="preserve">
+    <value>Hear a rhythm on one pitch and write the durations.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Instructions" xml:space="preserve">
+    <value>Listen to the rhythm on a fixed pitch and enter the durations, rests and barlines on the staff.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Tip1" xml:space="preserve">
+    <value>Count the pulse while listening.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Tip2" xml:space="preserve">
+    <value>Identify long values before shorter ones.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Tip3" xml:space="preserve">
+    <value>Only rhythm is scored; pitch does not matter.</value>
+    <comment />
+  </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
     <value>Selected note {{0}}: {{1}}</value>
     <comment />
   </data>
   <data name="Exercise.StaffEditor.NoSelection" xml:space="preserve">
     <value>No note selected</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.QualityMajor" xml:space="preserve">
+    <value>major chord</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.QualityMinor" xml:space="preserve">
+    <value>minor chord</value>
     <comment />
   </data>
 </root>

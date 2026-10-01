@@ -60,6 +60,20 @@ public class StaffExerciseGeneratorTests
         }
     }
 
+    private static void AssertRhythmEditorCanEnter(string answerString)
+    {
+        var durations = new HashSet<string> { "w", "h", "q", "8", "wr", "hr", "qr", "8r" };
+        foreach (var token in answerString.Split('|', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (token is "bar" or "barline")
+            {
+                continue;
+            }
+
+            durations.Should().Contain(token, $"duration '{token}' must be available in the rhythm editor");
+        }
+    }
+
     [Fact]
     public void CompleteScale_ProducesMelodyWithRootAndAnswerWithRest()
     {
@@ -122,6 +136,30 @@ public class StaffExerciseGeneratorTests
     }
 
     [Fact]
+    public void CompleteChord_OfferedFilters_AlwaysProduceEditorEnterableAnswers()
+    {
+        foreach (var quality in new[] { "major", "minor", "both" })
+        foreach (var octave in new[] { "3", "4" })
+        {
+            var json = GenerateJson("CompleteChord", new() { { "ccQuality", quality }, { "ccOctave", octave } });
+
+            json["error"].Should().BeNull($"filters {quality}/{octave} should be supported");
+            json.Value<string>("quality").Should().BeOneOf("major", "minor");
+            AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: 4);
+        }
+    }
+
+    [Fact]
+    public void CompleteChord_InvalidOctave_FallsBackToSampleSafeRound()
+    {
+        var json = GenerateJson("CompleteChord", new() { { "ccQuality", "x" }, { "ccOctave", "5" } });
+
+        json["error"].Should().BeNull();
+        json.Value<int>("octave").Should().Be(4);
+        AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: 4);
+    }
+
+    [Fact]
     public void TransposeScale_ProducesFullOriginalScaleAudio_AndDifferentTargetRoot()
     {
         var json = GenerateJson("TransposeScale", new() { { "tsRoot", "C" }, { "tsScale", "major" }, { "tsOctave", "4" } });
@@ -133,6 +171,75 @@ public class StaffExerciseGeneratorTests
         melody.Count.Should().BeGreaterThan(1, "audio plays the entire original scale");
         var answer = json.Value<string>("answerString")!;
         answer.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void TransposeScale_OfferedFilters_AlwaysProduceEditorEnterableAnswers()
+    {
+        foreach (var root in new[] { "any", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "Db", "Gb" })
+        foreach (var scale in new[] { "major", "minor" })
+        for (var attempt = 0; attempt < 25; attempt++)
+        {
+            var json = GenerateJson("TransposeScale", new() { { "tsRoot", root }, { "tsScale", scale } });
+
+            json["error"].Should().BeNull($"filters {root}/{scale} should be supported");
+            AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "q" }, totalSlots: 8);
+        }
+    }
+
+    [Fact]
+    public void TransposeScale_FinalSharpTarget_IsEnterableBecauseAccidentalsRemainAvailableAfterFinalSlot()
+    {
+        JObject? sharpTarget = null;
+        for (var attempt = 0; attempt < 500 && sharpTarget is null; attempt++)
+        {
+            var json = GenerateJson("TransposeScale", new() { { "tsRoot", "C" }, { "tsScale", "major" } });
+            if (json.Value<string>("targetRoot")!.Contains('#'))
+            {
+                sharpTarget = json;
+            }
+        }
+
+        sharpTarget.Should().NotBeNull("random transposition should produce a sharp target within many rounds");
+        var answer = sharpTarget!.Value<string>("answerString")!;
+        answer.Split('|').Last().Should().Contain("#5");
+
+        var oldEditorCheck = () => AssertEditorCanEnter(
+            answer,
+            new HashSet<string> { "q" },
+            totalSlots: 8,
+            accidentalsAvailableAfterFinalSlot: false);
+        oldEditorCheck.Should().Throw<Exception>("the old palette hid accidentals after the 8th TransposeScale note");
+        AssertEditorCanEnter(answer, new HashSet<string> { "q" }, totalSlots: 8);
+    }
+
+    [Fact]
+    public void TransposeScale_TargetSharpKeys_UseTextbookSpelling()
+    {
+        JObject? fSharpTarget = null;
+        for (var attempt = 0; attempt < 500 && fSharpTarget is null; attempt++)
+        {
+            var json = GenerateJson("TransposeScale", new() { { "tsRoot", "C" }, { "tsScale", "major" }, { "tsOctave", "4" } });
+            if (json.Value<string>("targetRoot") == "F#")
+            {
+                fSharpTarget = json;
+            }
+        }
+
+        fSharpTarget.Should().NotBeNull("random target keys should include F# within many rounds");
+        fSharpTarget!.Value<string>("answerString")!
+            .Should().Contain("E#5:q", "F# major's leading tone is spelled E#, not F");
+    }
+
+    [Fact]
+    public void TransposeScale_InvalidFilters_FallBackToValidRound()
+    {
+        var json = GenerateJson("TransposeScale", new() { { "tsRoot", "H" }, { "tsScale", "x" }, { "tsOctave", "9" } });
+
+        json["error"].Should().BeNull();
+        json.Value<string>("scale").Should().Be("major");
+        json.Value<int>("octave").Should().Be(4);
+        AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "q" }, totalSlots: 8);
     }
 
     [Fact]
@@ -157,6 +264,64 @@ public class StaffExerciseGeneratorTests
     }
 
     [Fact]
+    public void MelodicDictation_OfferedFilters_AlwaysProduceEditorEnterableAnswers()
+    {
+        foreach (var level in new[] { "1", "3", "4" })
+        foreach (var measures in new[] { "short", "long" })
+        {
+            var json = GenerateJson("MelodicDictation", new() { { "mdLevel", level }, { "mdMeasures", measures } });
+
+            json["error"].Should().BeNull($"filters {level}/{measures} should be supported");
+            json.Value<string>("firstNote").Should().NotBeNullOrWhiteSpace();
+            json.Value<string>("firstDuration").Should().NotBeNullOrWhiteSpace();
+            AssertEditorCanEnter(
+                json.Value<string>("answerString")!,
+                new HashSet<string> { "w", "h", "q", "8", "wr", "hr", "qr", "8r" },
+                totalSlots: 64);
+        }
+    }
+
+    [Fact]
+    public void MelodicDictation_FirstNoteIsGiven_AndOmittedFromSubmittedAnswer()
+    {
+        for (var round = 0; round < 20; round++)
+        {
+            var json = GenerateJson("MelodicDictation", new() { { "mdRoot", "C" }, { "mdScale", "major" }, { "mdLevel", "1" }, { "mdMeasures", "short" } });
+            var melody = (JArray)json["melody"]!;
+
+            json.Value<string>("firstNote").Should().Be(melody[0]!.Value<string>("note"));
+            json.Value<string>("firstDuration").Should().Be(melody[0]!.Value<string>("durationLabel"));
+
+            // Compare by position: the melody may legitimately repeat the given first note.
+            var answerTokens = json.Value<string>("answerString")!.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            answerTokens.Where(t => t != "bar").Should().Equal(
+                melody.Skip(1).Select(e => $"{e.Value<string>("note")}:{e.Value<string>("durationLabel")}"));
+            answerTokens.Count(t => t == "bar").Should().Be(json.Value<int>("numMeasures") - 1);
+        }
+    }
+
+    [Fact]
+    public void MelodicDictation_InvalidFilters_FallBackToEnterableRound()
+    {
+        var json = GenerateJson("MelodicDictation", new()
+        {
+            { "mdRoot", "Db" },
+            { "mdScale", "x" },
+            { "mdOctave", "9" },
+            { "mdLevel", "5" },
+            { "mdMeasures", "huge" }
+        });
+
+        json["error"].Should().BeNull();
+        json.Value<int>("level").Should().Be(1);
+        json.Value<int>("octave").Should().Be(4);
+        AssertEditorCanEnter(
+            json.Value<string>("answerString")!,
+            new HashSet<string> { "w", "h", "q", "8", "wr", "hr", "qr", "8r" },
+            totalSlots: 64);
+    }
+
+    [Fact]
     public void RhythmDictation_UsesSinglePitchAndRhythmOnlyAnswer()
     {
         var json = GenerateJson("RhythmDictation", new() { { "rdLevel", "1" } });
@@ -169,6 +334,29 @@ public class StaffExerciseGeneratorTests
 
         var answer = json.Value<string>("answerString")!;
         answer.Should().NotContain(":", "rhythm answer encodes durations only");
+    }
+
+    [Fact]
+    public void RhythmDictation_OfferedFilters_AlwaysProduceEditorEnterableAnswers()
+    {
+        foreach (var level in new[] { "1", "3", "4" })
+        foreach (var measures in new[] { "short", "long" })
+        {
+            var json = GenerateJson("RhythmDictation", new() { { "rdLevel", level }, { "rdMeasures", measures } });
+
+            json["error"].Should().BeNull($"filters {level}/{measures} should be supported");
+            AssertRhythmEditorCanEnter(json.Value<string>("answerString")!);
+        }
+    }
+
+    [Fact]
+    public void RhythmDictation_InvalidFilters_FallBackToEnterableRound()
+    {
+        var json = GenerateJson("RhythmDictation", new() { { "rdLevel", "5" }, { "rdMeasures", "huge" } });
+
+        json["error"].Should().BeNull();
+        json.Value<int>("level").Should().Be(1);
+        AssertRhythmEditorCanEnter(json.Value<string>("answerString")!);
     }
 
     [Fact]

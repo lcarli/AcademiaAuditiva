@@ -2949,6 +2949,18 @@
     <value>Qualquer</value>
     <comment />
   </data>
+  <data name="Exercise.Short" xml:space="preserve">
+    <value>Curto</value>
+    <comment />
+  </data>
+  <data name="Exercise.Long" xml:space="preserve">
+    <value>Longo</value>
+    <comment />
+  </data>
+  <data name="Exercise.Level" xml:space="preserve">
+    <value>Nível</value>
+    <comment />
+  </data>
   <data name="Exercise.Octave" xml:space="preserve">
     <value>Oitava</value>
     <comment />
@@ -2965,12 +2977,168 @@
     <value>Oitava acima</value>
     <comment />
   </data>
+  <data name="CompleteChord" xml:space="preserve">
+    <value>Complete o acorde</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Title" xml:space="preserve">
+    <value>Complete o acorde</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChordText" xml:space="preserve">
+    <value>Ouça a fundamental e complete o acorde na pauta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectStaffExerciseText" xml:space="preserve">
+    <value>Gere o exercício e insira sua resposta na pauta antes de validar.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Prompt" xml:space="preserve">
+    <value>Complete o {{0}} sobre {{1}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Subtitle" xml:space="preserve">
+    <value>Ouça a fundamental de um acorde e complete as notas restantes na pauta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Instructions" xml:space="preserve">
+    <value>Clique em Tocar para ouvir a fundamental do acorde. Depois insira as notas restantes na pauta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Tip1" xml:space="preserve">
+    <value>Tríades maiores usam terça maior e quinta justa.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Tip2" xml:space="preserve">
+    <value>Tríades menores usam terça menor e quinta justa.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Tip3" xml:space="preserve">
+    <value>Confira a distância a partir da fundamental antes de validar.</value>
+    <comment />
+  </data>
+  <data name="TransposeScale" xml:space="preserve">
+    <value>Transponha a escala</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Title" xml:space="preserve">
+    <value>Transponha a escala</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScaleText" xml:space="preserve">
+    <value>Ouça a escala original e escreva-a na tonalidade-alvo.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Prompt" xml:space="preserve">
+    <value>Transponha a escala {{0}} de {{1}} para {{2}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Subtitle" xml:space="preserve">
+    <value>Escreva uma escala tocada transposta para uma nova tonalidade.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Instructions" xml:space="preserve">
+    <value>Ouça a escala original, observe a tonalidade-alvo e insira a escala transposta na pauta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Tip1" xml:space="preserve">
+    <value>Mantenha o mesmo padrão de intervalos na nova tonalidade.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Tip2" xml:space="preserve">
+    <value>Comece pela tônica-alvo e avance grau por grau.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TransposeScale.Tip3" xml:space="preserve">
+    <value>Use acidentes para preservar o padrão da escala.</value>
+    <comment />
+  </data>
+  <data name="MelodicDictation" xml:space="preserve">
+    <value>Ditado melódico</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Title" xml:space="preserve">
+    <value>Ditado melódico</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictationText" xml:space="preserve">
+    <value>Ouça a melodia e escreva as notas e o ritmo.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Prompt" xml:space="preserve">
+    <value>Tonalidade: {{0}}. Primeira nota: {{1}}. Compasso: {{2}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Subtitle" xml:space="preserve">
+    <value>Ouça uma melodia curta e escreva-a na pauta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Instructions" xml:space="preserve">
+    <value>Ouça a melodia completa e insira notas, durações, pausas e barras de compasso na pauta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Tip1" xml:space="preserve">
+    <value>Ouça uma vez o contorno antes de inserir as notas.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Tip2" xml:space="preserve">
+    <value>Marque primeiro as durações principais e depois refine as alturas.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MelodicDictation.Tip3" xml:space="preserve">
+    <value>Use barras de compasso para organizar a frase.</value>
+    <comment />
+  </data>
+  <data name="RhythmDictation" xml:space="preserve">
+    <value>Ditado rítmico</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Title" xml:space="preserve">
+    <value>Ditado rítmico</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictationText" xml:space="preserve">
+    <value>Ouça o ritmo e escreva a sequência.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Prompt" xml:space="preserve">
+    <value>Compasso: {{0}}. A altura é ignorada na correção.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Subtitle" xml:space="preserve">
+    <value>Ouça um ritmo em uma nota fixa e escreva as durações.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Instructions" xml:space="preserve">
+    <value>Ouça o ritmo em uma nota fixa e insira durações, pausas e barras de compasso na pauta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Tip1" xml:space="preserve">
+    <value>Conte o pulso enquanto escuta.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Tip2" xml:space="preserve">
+    <value>Identifique valores longos antes dos curtos.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmDictation.Tip3" xml:space="preserve">
+    <value>Apenas o ritmo é corrigido; a altura não importa.</value>
+    <comment />
+  </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
     <value>Nota selecionada {{0}}: {{1}}</value>
     <comment />
   </data>
   <data name="Exercise.StaffEditor.NoSelection" xml:space="preserve">
     <value>Nenhuma nota selecionada</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.QualityMajor" xml:space="preserve">
+    <value>acorde maior</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.QualityMinor" xml:space="preserve">
+    <value>acorde menor</value>
     <comment />
   </data>
 </root>

@@ -163,7 +163,8 @@ namespace AcademiaAuditiva.Controllers
 				var metadata = new Dictionary<string, object?>();
 				foreach (var field in new[] {
 					"promptNotes", "clef", "keySignature", "timeSignature",
-					"numMeasures", "octave", "originalRoot", "targetRoot", "scale", "level"
+					"numMeasures", "octave", "originalRoot", "targetRoot", "scale", "level",
+					"root", "quality", "firstNote", "firstDuration"
 				})
 				{
 					var token = expected[field];
@@ -451,6 +452,66 @@ namespace AcademiaAuditiva.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "CompleteScale");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
+		#region CompleteChord
+		public IActionResult CompleteChord()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "CompleteChord");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
+		#region TransposeScale
+		public IActionResult TransposeScale()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "TransposeScale");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
+		#region MelodicDictation
+		public IActionResult MelodicDictation()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "MelodicDictation");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
+		#region RhythmDictation
+		public IActionResult RhythmDictation()
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "RhythmDictation");
 			if (exercise == null)
 				return NotFound();
 
