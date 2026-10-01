@@ -545,6 +545,15 @@ a:focus-visible {
     --bs-list-group-active-border-color: color-mix(in srgb, var(--aa-accent) 30%, var(--aa-bg));
 }
 
+/* In flex rows the list number is itself a flex item; a fixed, right-aligned column
+   keeps item content aligned (tabular digits: 1-9 = 0.92em, 10-99 = 1.57em). */
+.list-group-numbered > .list-group-item.d-flex::before {
+    flex-shrink: 0;
+    min-width: 1.6em;
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+}
+
 .progress,
 .progress-stacked {
     --bs-progress-bg: var(--aa-line);

@@ -53,28 +53,32 @@
                             @if (!r.IsTeacher)
                             {
                                 <form asp-action="PromoteTeacher" asp-route-id="@r.Id" method="post" class="d-inline"
-                                      onsubmit="return confirm('@string.Format(Localizer["Admin.Users.PromoteTeacherConfirm"].Value, r.UserName)');">
+                                      data-confirm="@string.Format(Localizer["Admin.Users.PromoteTeacherConfirm"].Value, r.UserName)"
+                                      onsubmit="return confirm(this.dataset.confirm);">
                                     <button class="btn btn-sm btn-outline-primary">@Localizer["Admin.Users.MakeTeacher"]</button>
                                 </form>
                             }
                             else
                             {
                                 <form asp-action="DemoteTeacher" asp-route-id="@r.Id" method="post" class="d-inline"
-                                      onsubmit="return confirm('@string.Format(Localizer["Admin.Users.DemoteTeacherConfirm"].Value, r.UserName)');">
+                                      data-confirm="@string.Format(Localizer["Admin.Users.DemoteTeacherConfirm"].Value, r.UserName)"
+                                      onsubmit="return confirm(this.dataset.confirm);">
                                     <button class="btn btn-sm btn-outline-warning">@Localizer["Admin.Users.RemoveTeacher"]</button>
                                 </form>
                             }
                             @if (!r.IsAdmin)
                             {
                                 <form asp-action="PromoteAdmin" asp-route-id="@r.Id" method="post" class="d-inline"
-                                      onsubmit="return confirm('@string.Format(Localizer["Admin.Users.PromoteAdminConfirm"].Value, r.UserName)');">
+                                      data-confirm="@string.Format(Localizer["Admin.Users.PromoteAdminConfirm"].Value, r.UserName)"
+                                      onsubmit="return confirm(this.dataset.confirm);">
                                     <button class="btn btn-sm btn-outline-danger">@Localizer["Admin.Users.MakeAdmin"]</button>
                                 </form>
                             }
                             else
                             {
                                 <form asp-action="DemoteAdmin" asp-route-id="@r.Id" method="post" class="d-inline"
-                                      onsubmit="return confirm('@string.Format(Localizer["Admin.Users.DemoteAdminConfirm"].Value, r.UserName)');">
+                                      data-confirm="@string.Format(Localizer["Admin.Users.DemoteAdminConfirm"].Value, r.UserName)"
+                                      onsubmit="return confirm(this.dataset.confirm);">
                                     <button class="btn btn-sm btn-outline-danger">@Localizer["Admin.Users.RemoveAdmin"]</button>
                                 </form>
                             }
