@@ -43,6 +43,7 @@ jobs:
   e2e:
     name: E2E (Playwright)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     services:
       sql:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -98,16 +99,22 @@ jobs:
           dotnet restore AcademiaAuditiva.sln
           dotnet publish AcademiaAuditiva/AcademiaAuditiva.csproj --configuration Release --no-restore --output ./artifacts/app /p:UseAppHost=false
 
-      - name: Install audio tooling
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ffmpeg
+      # The synthetic samples never change, so they're cached and ffmpeg is only
+      # installed on a cache miss: when the runner's apt mirror is slow that install
+      # alone has taken over 10 minutes. Bump the key if the generation changes.
+      - name: Restore synthetic piano samples
+        id: piano-samples
+        uses: actions/cache@v6
+        with:
+          path: /tmp/piano-audio
+          key: piano-samples-${{ runner.os }}-v1
 
-      - name: Seed Azurite piano samples
+      - name: Generate synthetic piano samples
+        if: steps.piano-samples.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
-          az storage container create --name piano-audio --connection-string "$STORAGE_CONNECTION_STRING" --only-show-errors 1>/dev/null
-          az storage container create --name piano-audio-mixed --connection-string "$STORAGE_CONNECTION_STRING" --only-show-errors 1>/dev/null
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
           mkdir -p /tmp/piano-audio
           notes=(C Cs D Ds E F Fs G Gs A As B)
           idx=0
@@ -118,13 +125,23 @@ jobs:
               idx=$((idx + 1))
             done
           done
+
+      - name: Seed Azurite piano samples
+        run: |
+          set -euo pipefail
+          count=$(find /tmp/piano-audio -name '*.mp3' | wc -l)
+          if [ "$count" -ne 84 ]; then echo "Expected 84 piano samples, found $count" >&2; exit 1; fi
+          az storage container create --name piano-audio --connection-string "$STORAGE_CONNECTION_STRING" --only-show-errors 1>/dev/null
+          az storage container create --name piano-audio-mixed --connection-string "$STORAGE_CONNECTION_STRING" --only-show-errors 1>/dev/null
           az storage blob upload-batch --destination piano-audio --source /tmp/piano-audio --pattern '*.mp3' --content-type audio/mpeg --overwrite true --connection-string "$STORAGE_CONNECTION_STRING" --only-show-errors 1>/dev/null
 
+      # The runner image already has Chrome's system libraries; --with-deps would
+      # run apt-get again, which is slow whenever the mirror is.
       - name: Install Playwright
         working-directory: Tests/e2e
         run: |
           npm ci
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
 
       - name: Start app
         working-directory: ./artifacts/app
