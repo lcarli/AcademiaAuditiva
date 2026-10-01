@@ -37,7 +37,7 @@
             <ul class="aa-preset-list">
                 @foreach (var applied in appliedPresets)
                 {
-                    <li class="aa-badge-soft">@Localizer[applied.Group.Label]: @Localizer[applied.Option.Text]</li>
+                    <li class="aa-badge-soft">@Localizer["Common.LabelValue", Localizer[applied.Group.Label], Localizer[applied.Option.Text]]</li>
                 }
             </ul>
         </div>

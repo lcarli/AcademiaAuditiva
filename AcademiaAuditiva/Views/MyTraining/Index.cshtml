@@ -29,7 +29,7 @@
                     {
                         <li class="list-group-item bg-transparent">
                             <div class="fw-semibold text-body-emphasis">@c.Name</div>
-                            <small class="text-secondary">@Localizer["MyTraining.Teacher"]: @c.TeacherDisplay · @Localizer["MyTraining.Joined"] @c.JoinedAt.ToString("yyyy-MM-dd")</small>
+                            <small class="text-secondary">@Localizer["Common.LabelValue", Localizer["MyTraining.Teacher"], c.TeacherDisplay] · @Localizer["MyTraining.Joined"] @c.JoinedAt.ToString("yyyy-MM-dd")</small>
                         </li>
                     }
                 </ul>
@@ -82,8 +82,8 @@
                                                 @i.DisplayName
                                             </a>
                                             <span class="text-secondary text-nowrap">
-                                                @if (p.IsComplete) { <span class="visually-hidden">@Localizer["MyTraining.Complete"]: </span> }
-                                                @p.Done / @p.Target (@(p.Percent)%)
+                                                @if (p.IsComplete) { <span class="visually-hidden">@Localizer["Common.LabelValue", Localizer["MyTraining.Complete"], string.Empty]</span> }
+                                                @p.Done / @p.Target (@Localizer["Common.Percent", p.Percent])
                                             </span>
                                         </div>
                                         @if (i.AppliedFilters.Count > 0 || p.MinScore.HasValue)
@@ -91,7 +91,7 @@
                                             <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
                                                 @foreach (var f in i.AppliedFilters)
                                                 {
-                                                    <span class="aa-badge-soft">@Localizer[f.Group.Label]: @Localizer[f.Option.Text]</span>
+                                                    <span class="aa-badge-soft">@Localizer["Common.LabelValue", Localizer[f.Group.Label], Localizer[f.Option.Text]]</span>
                                                 }
                                                 @if (p.MinScore.HasValue)
                                                 {

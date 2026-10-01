@@ -34,7 +34,7 @@
     <div class="col-sm-6 col-lg-3">
         <div class="aa-card-flat h-100"><div class="card-body">
             <div class="text-secondary small">@Localizer["Teacher.Dashboard.Accuracy"]</div>
-            <div class="h3 mb-0">@Model.OverallAccuracy.ToString("F1")%</div>
+            <div class="h3 mb-0">@Localizer["Common.Percent", Model.OverallAccuracy.ToString("F1")]</div>
         </div></div>
     </div>
     <div class="col-sm-6 col-lg-3">
@@ -67,7 +67,7 @@
                 <tr>
                     <td>@r.ExerciseName</td>
                     <td class="text-end">@r.Attempts.ToString("N0")</td>
-                    <td class="text-end">@r.Accuracy.ToString("F1")%</td>
+                    <td class="text-end">@Localizer["Common.Percent", r.Accuracy.ToString("F1")]</td>
                     <td class="text-end">@r.BestScore</td>
                     <td>@r.LastActivity.ToString("yyyy-MM-dd HH:mm")</td>
                 </tr>
