@@ -142,7 +142,7 @@
     function updateSelectionStatus() {
       selectionDiv.textContent = selectedText();
       var label = paletteDiv.querySelector("[data-octave-status='true']");
-      if (label) label.textContent = octaveDisplayLabel + " " + octave + ". " + selectedText();
+      if (label) label.textContent = octaveDisplayLabel + " " + selectedOctave() + ". " + selectedText();
     }
 
     function selectNote(idx) {
@@ -162,15 +162,20 @@
         return String(Math.min(maxOctave, Math.max(minOctave, parseInt(octaveText, 10) + delta)));
       });
       userNotes[idx] = Object.assign({}, n, { note: changed });
+      octave = selectedOctaveForNote(changed);
       selectedIndex = idx;
       return true;
+    }
+
+    function selectedOctaveForNote(note) {
+      var m = String(note).match(/(-?\d+)$/);
+      return m ? parseInt(m[1], 10) : octave;
     }
 
     function selectedOctave() {
       var idx = selectedEditableIdx();
       var note = idx >= 0 ? userNotes[idx].note : String(octave);
-      var m = note.match(/(-?\d+)$/);
-      return m ? parseInt(m[1], 10) : octave;
+      return selectedOctaveForNote(note);
     }
 
     function restoreFocus(label) {
