@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
       restDurations: [],
       showBarline: false,
       totalSlots: 10,
-      minOctave: 2,
+      minOctave: 3,
       maxOctave: 6,
       octaveDisplayLabel: loc.octaveLabel,
       octaveDownLabel: loc.octaveDownLabel,

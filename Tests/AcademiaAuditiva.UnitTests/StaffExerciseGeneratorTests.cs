@@ -21,10 +21,17 @@ public class StaffExerciseGeneratorTests
         return JObject.FromObject(raw);
     }
 
-    private static void AssertEditorCanEnter(string answerString, int minOctave = 2, int maxOctave = 6)
+    private static void AssertEditorCanEnter(
+        string answerString,
+        IReadOnlySet<string> allowedDurations,
+        int totalSlots,
+        int minOctave = 3,
+        int maxOctave = 6,
+        bool accidentalsAvailableAfterFinalSlot = true)
     {
-        var durations = new HashSet<string> { "w", "h", "q", "8", "16", "wr", "hr", "qr", "8r", "16r" };
-        foreach (var token in answerString.Split('|', StringSplitOptions.RemoveEmptyEntries))
+        var tokens = answerString.Split('|', StringSplitOptions.RemoveEmptyEntries);
+        var placedNotes = 0;
+        foreach (var token in tokens)
         {
             if (token is "bar" or "barline")
             {
@@ -33,16 +40,23 @@ public class StaffExerciseGeneratorTests
 
             var parts = token.Split(':');
             parts.Length.Should().Be(2, $"token '{token}' must be note:duration");
-            durations.Should().Contain(parts[1], $"duration '{parts[1]}' must be available in the editor");
+            allowedDurations.Should().Contain(parts[1], $"duration '{parts[1]}' must be available in the editor");
             if (parts[0] == "rest" || parts[1].EndsWith('r'))
             {
                 continue;
             }
 
+            placedNotes++;
+            placedNotes.Should().BeLessThanOrEqualTo(totalSlots, "the editor enforces totalSlots before adding a note");
             var octave = int.Parse(parts[0][^1].ToString());
             octave.Should().BeInRange(minOctave, maxOctave, $"note '{parts[0]}' must be within editor octave controls");
-            parts[0].TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-                .Should().BeOneOf("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B");
+            var pitch = parts[0].TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+            pitch.Should().BeOneOf("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B");
+            if (pitch.Contains('#') || pitch.Contains('b'))
+            {
+                (placedNotes < totalSlots || accidentalsAvailableAfterFinalSlot).Should().BeTrue(
+                    $"the editor must expose accidentals after placing '{parts[0]}'");
+            }
         }
     }
 
@@ -73,7 +87,7 @@ public class StaffExerciseGeneratorTests
         {
             var json = GenerateJson("CompleteScale", new() { { "csRoot", root }, { "csScale", scale }, { "csOctave", octave } });
             json["error"].Should().BeNull($"filters {root}/{scale}/{octave} should be supported");
-            AssertEditorCanEnter(json.Value<string>("answerString")!);
+            AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: 10);
         }
     }
 
@@ -91,7 +105,7 @@ public class StaffExerciseGeneratorTests
         json.Value<string>("root").Should().NotBe("Db");
         json.Value<string>("scale").Should().BeOneOf("major", "minor", "majorPentatonic", "minorPentatonic");
         json.Value<int>("octave").Should().Be(4);
-        AssertEditorCanEnter(json.Value<string>("answerString")!);
+        AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: 10);
     }
 
     [Fact]

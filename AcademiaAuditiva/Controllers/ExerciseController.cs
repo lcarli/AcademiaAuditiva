@@ -83,6 +83,9 @@ namespace AcademiaAuditiva.Controllers
 		[RequestSizeLimit(8 * 1024)]
 		public async Task<IActionResult> RequestPlay([FromBody] PlayRequestDto request)
 		{
+			if (request is null)
+				return BadRequest();
+
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (string.IsNullOrEmpty(userId))
 				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
@@ -191,6 +194,9 @@ namespace AcademiaAuditiva.Controllers
 		[HttpPost]
 		public async Task<IActionResult> ValidateExercise([FromBody] ValidateExerciseDto dto)
 		{
+			if (dto is null)
+				return BadRequest();
+
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (string.IsNullOrEmpty(userId))
 				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value, isCorrect = false });

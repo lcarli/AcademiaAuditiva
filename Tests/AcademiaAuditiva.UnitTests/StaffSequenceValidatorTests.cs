@@ -35,6 +35,34 @@ public class StaffSequenceValidatorTests
         v.Validate("Bb4:w|Db5:q", json).IsCorrect.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("F5:w", "E#5:w")]
+    [InlineData("C5:w", "B#4:w")]
+    [InlineData("B4:w", "Cb5:w")]
+    [InlineData("E4:w", "Fb4:w")]
+    [InlineData("E#5:w", "F5:w")]
+    [InlineData("B#4:w", "C5:w")]
+    [InlineData("Cb5:w", "B4:w")]
+    [InlineData("Fb4:w", "E4:w")]
+    public void StaffSequence_OctaveCarryAccidentals_AreAccepted(string expected, string guess)
+    {
+        var v = new CompleteScaleValidator();
+        var json = $$"""{"answerString":"{{expected}}"}""";
+
+        v.Validate(guess, json).IsCorrect.Should().BeTrue();
+    }
+
+    [Fact]
+    public void StaffSequence_TextbookSharpMajorScales_AreAccepted()
+    {
+        var v = new CompleteScaleValidator();
+        var fSharpMajor = "{\"answerString\":\"G#4:w|A#4:w|B4:w|C#5:w|D#5:w|E#5:w|F#5:w\"}";
+        var cSharpMajor = "{\"answerString\":\"D#4:w|E#4:w|F#4:w|G#4:w|A#4:w|B#4:w|C#5:w\"}";
+
+        v.Validate("G#4:w|A#4:w|B4:w|C#5:w|D#5:w|F5:w|F#5:w", fSharpMajor).IsCorrect.Should().BeTrue();
+        v.Validate("D#4:w|F4:w|F#4:w|G#4:w|A#4:w|C5:w|C#5:w", cSharpMajor).IsCorrect.Should().BeTrue();
+    }
+
     [Fact]
     public void StaffSequence_EnharmonicMatch_StillRequiresMatchingDuration()
     {

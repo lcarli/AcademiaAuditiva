@@ -58,7 +58,7 @@
     var keySig = opts.keySignature || "C";
     var timeSig = opts.timeSignature || null;
     var octave = opts.octave || 4;
-    var minOctave = opts.minOctave || 2;
+    var minOctave = opts.minOctave || 3;
     var maxOctave = opts.maxOctave || 6;
     var octaveDownLabel = opts.octaveDownLabel || "Octave down";
     var octaveUpLabel = opts.octaveUpLabel || "Octave up";
@@ -150,25 +150,37 @@
         }
       }
 
-      // Note name buttons
-      if (canAddMore()) {
+      function updateOctaveControls(label, downBtn, upBtn) {
+        label.textContent = octaveDisplayLabel + " " + octave;
+        downBtn.disabled = octave <= minOctave;
+        upBtn.disabled = octave >= maxOctave;
+      }
+
+      function appendOctaveRow() {
         var octaveRow = document.createElement("div");
         octaveRow.className = "btn-group align-items-center";
-        octaveRow.appendChild(makeAriaBtn("−", octaveDownLabel, "btn-outline-secondary", function () {
-          octave = Math.max(minOctave, octave - 1);
-          buildPalette();
-        }));
         var label = document.createElement("span");
+        var downBtn = makeAriaBtn("−", octaveDownLabel, "btn-outline-secondary", function () {
+          octave = Math.max(minOctave, octave - 1);
+          updateOctaveControls(label, downBtn, upBtn);
+        });
+        octaveRow.appendChild(downBtn);
         label.className = "btn btn-sm btn-outline-secondary disabled";
         label.setAttribute("aria-live", "polite");
-        label.textContent = octaveDisplayLabel + " " + octave;
+        label.setAttribute("role", "status");
         octaveRow.appendChild(label);
-        octaveRow.appendChild(makeAriaBtn("+", octaveUpLabel, "btn-outline-secondary", function () {
+        var upBtn = makeAriaBtn("+", octaveUpLabel, "btn-outline-secondary", function () {
           octave = Math.min(maxOctave, octave + 1);
-          buildPalette();
-        }));
+          updateOctaveControls(label, downBtn, upBtn);
+        });
+        octaveRow.appendChild(upBtn);
+        updateOctaveControls(label, downBtn, upBtn);
         paletteDiv.appendChild(octaveRow);
+      }
 
+      // Note name buttons
+      if (canAddMore()) {
+        appendOctaveRow();
         var noteRow = document.createElement("div");
         noteRow.className = "btn-group";
         NOTE_NAMES.forEach(function (nn) {
@@ -178,8 +190,10 @@
           }));
         });
         paletteDiv.appendChild(noteRow);
+      }
 
-        // Accidentals (apply to last placed editable note)
+      // Accidentals (apply to last placed editable note, even when no slots remain).
+      if (lastEditableIdx() >= 0) {
         var accRow = document.createElement("div");
         accRow.className = "btn-group";
         ["#", "b", ""].forEach(function (acc) {
@@ -194,7 +208,6 @@
         });
         paletteDiv.appendChild(accRow);
       }
-
       // Undo / Clear
       if (userNotes.length > 0) {
         var ctrlRow = document.createElement("div");

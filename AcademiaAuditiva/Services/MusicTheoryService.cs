@@ -501,47 +501,43 @@ namespace AcademiaAuditiva.Services
         }
 
         /// <summary>
-        /// Converte o nome da nota (ex: "C#4") para o número MIDI correspondente.
+        /// Converte o nome da nota (ex: "C#4", "B#4", "Cb5") para o número MIDI correspondente.
         /// </summary>
         public static int? NoteToMidi(string note)
         {
             if (string.IsNullOrWhiteSpace(note))
                 return null;
 
-            // Mapeamento das notas para semitons a partir do C.
-            var noteMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            var match = Regex.Match(note.Trim(), @"^([A-Ga-g])([#b♯♭x]*)(-?\d+)$");
+            if (!match.Success)
+                return null;
+
+            var semitone = char.ToUpperInvariant(match.Groups[1].Value[0]) switch
             {
-                { "C", 0 }, { "C#", 1 }, { "Db", 1 },
-                { "D", 2 }, { "D#", 3 }, { "Eb", 3 },
-                { "E", 4 }, { "Fb", 4 },
-                { "F", 5 }, { "F#", 6 }, { "Gb", 6 },
-                { "G", 7 }, { "G#", 8 }, { "Ab", 8 },
-                { "A", 9 }, { "A#", 10 }, { "Bb", 10 },
-                { "B", 11 }, { "Cb", 11 }
+                'C' => 0,
+                'D' => 2,
+                'E' => 4,
+                'F' => 5,
+                'G' => 7,
+                'A' => 9,
+                'B' => 11,
+                _ => 0
             };
 
-            var pitchPart = "";
-            var octavePart = "";
-            for (int i = 0; i < note.Length; i++)
+            foreach (var accidental in match.Groups[2].Value)
             {
-                if (char.IsDigit(note[i]))
+                semitone += accidental switch
                 {
-                    pitchPart = note.Substring(0, i);
-                    octavePart = note.Substring(i);
-                    break;
-                }
+                    '#' or '♯' => 1,
+                    'b' or '♭' => -1,
+                    'x' => 2,
+                    _ => 0
+                };
             }
 
-            if (string.IsNullOrEmpty(pitchPart) || string.IsNullOrEmpty(octavePart))
+            if (!int.TryParse(match.Groups[3].Value, out var octave))
                 return null;
 
-            if (!noteMap.ContainsKey(pitchPart))
-                return null;
-
-            if (!int.TryParse(octavePart, out int octave))
-                return null;
-
-            var semitone = noteMap[pitchPart];
             // Fórmula: (octave + 1) * 12 + semitone
             // Ex: A4 => 69
             return (octave + 1) * 12 + semitone;
