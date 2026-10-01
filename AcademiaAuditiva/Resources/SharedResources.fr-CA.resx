@@ -2994,7 +2994,7 @@
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Prompt" xml:space="preserve">
-    <value>Complétez l’accord {{0}} au-dessus de {{1}}.</value>
+    <value>Complétez l’{{0}} au-dessus de {{1}}.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Subtitle" xml:space="preserve">
@@ -3131,6 +3131,14 @@
   </data>
   <data name="Exercise.StaffEditor.NoSelection" xml:space="preserve">
     <value>Aucune note sélectionnée</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.QualityMajor" xml:space="preserve">
+    <value>accord majeur</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.QualityMinor" xml:space="preserve">
+    <value>accord mineur</value>
     <comment />
   </data>
 </root>

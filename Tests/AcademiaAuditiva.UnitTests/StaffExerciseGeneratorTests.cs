@@ -62,7 +62,7 @@ public class StaffExerciseGeneratorTests
 
     private static void AssertRhythmEditorCanEnter(string answerString)
     {
-        var durations = new HashSet<string> { "w", "h", "q", "8", "16", "wr", "hr", "qr", "8r", "16r" };
+        var durations = new HashSet<string> { "w", "h", "q", "8", "wr", "hr", "qr", "8r" };
         foreach (var token in answerString.Split('|', StringSplitOptions.RemoveEmptyEntries))
         {
             if (token is "bar" or "barline")
@@ -145,7 +145,7 @@ public class StaffExerciseGeneratorTests
 
             json["error"].Should().BeNull($"filters {quality}/{octave} should be supported");
             json.Value<string>("quality").Should().BeOneOf("major", "minor");
-            AssertEditorCanEnter(json.Value<string>("answerString")!);
+            AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: 4);
         }
     }
 
@@ -156,7 +156,7 @@ public class StaffExerciseGeneratorTests
 
         json["error"].Should().BeNull();
         json.Value<int>("octave").Should().Be(4);
-        AssertEditorCanEnter(json.Value<string>("answerString")!);
+        AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: 4);
     }
 
     [Fact]
@@ -178,12 +178,39 @@ public class StaffExerciseGeneratorTests
     {
         foreach (var root in new[] { "any", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" })
         foreach (var scale in new[] { "major", "minor" })
+        for (var attempt = 0; attempt < 25; attempt++)
         {
             var json = GenerateJson("TransposeScale", new() { { "tsRoot", root }, { "tsScale", scale } });
 
             json["error"].Should().BeNull($"filters {root}/{scale} should be supported");
-            AssertEditorCanEnter(json.Value<string>("answerString")!);
+            AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "q" }, totalSlots: 8);
         }
+    }
+
+    [Fact]
+    public void TransposeScale_FinalSharpTarget_IsEnterableBecauseAccidentalsRemainAvailableAfterFinalSlot()
+    {
+        JObject? sharpTarget = null;
+        for (var attempt = 0; attempt < 500 && sharpTarget is null; attempt++)
+        {
+            var json = GenerateJson("TransposeScale", new() { { "tsRoot", "C" }, { "tsScale", "major" } });
+            if (json.Value<string>("targetRoot")!.Contains('#'))
+            {
+                sharpTarget = json;
+            }
+        }
+
+        sharpTarget.Should().NotBeNull("random transposition should produce a sharp target within many rounds");
+        var answer = sharpTarget!.Value<string>("answerString")!;
+        answer.Split('|').Last().Should().Contain("#5");
+
+        var oldEditorCheck = () => AssertEditorCanEnter(
+            answer,
+            new HashSet<string> { "q" },
+            totalSlots: 8,
+            accidentalsAvailableAfterFinalSlot: false);
+        oldEditorCheck.Should().Throw<Exception>("the old palette hid accidentals after the 8th TransposeScale note");
+        AssertEditorCanEnter(answer, new HashSet<string> { "q" }, totalSlots: 8);
     }
 
     [Fact]
@@ -194,7 +221,7 @@ public class StaffExerciseGeneratorTests
         json["error"].Should().BeNull();
         json.Value<string>("scale").Should().Be("major");
         json.Value<int>("octave").Should().Be(4);
-        AssertEditorCanEnter(json.Value<string>("answerString")!);
+        AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "q" }, totalSlots: 8);
     }
 
     [Fact]
@@ -229,7 +256,10 @@ public class StaffExerciseGeneratorTests
             json["error"].Should().BeNull($"filters {level}/{measures} should be supported");
             json.Value<string>("firstNote").Should().NotBeNullOrWhiteSpace();
             json.Value<string>("firstDuration").Should().NotBeNullOrWhiteSpace();
-            AssertEditorCanEnter(json.Value<string>("answerString")!);
+            AssertEditorCanEnter(
+                json.Value<string>("answerString")!,
+                new HashSet<string> { "w", "h", "q", "8", "wr", "hr", "qr", "8r" },
+                totalSlots: 64);
         }
     }
 
@@ -260,7 +290,10 @@ public class StaffExerciseGeneratorTests
         json["error"].Should().BeNull();
         json.Value<int>("level").Should().Be(1);
         json.Value<int>("octave").Should().Be(4);
-        AssertEditorCanEnter(json.Value<string>("answerString")!);
+        AssertEditorCanEnter(
+            json.Value<string>("answerString")!,
+            new HashSet<string> { "w", "h", "q", "8", "wr", "hr", "qr", "8r" },
+            totalSlots: 64);
     }
 
     [Fact]

@@ -42,7 +42,7 @@
   function optionsFor(exerciseName, metadata) {
     const octave = Number(metadata.octave || 4);
     const labels = {
-      minOctave: 2,
+      minOctave: 3,
       maxOctave: 6,
       octaveDisplayLabel: AAi18n.localizer().octaveLabel,
       octaveDownLabel: AAi18n.localizer().octaveDownLabel,
