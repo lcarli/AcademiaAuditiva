@@ -1,35 +1,16 @@
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Services;
 using AcademiaAuditiva.ViewModels;
 using Microsoft.Extensions.Localization;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AcademiaAuditiva.Extensions
 {
     public static class ExerciseExtensions
     {
+        // The filter selects are rendered (and HTML-encoded) by _ExerciseFilters.cshtml;
+        // the localizer parameter is kept so existing callers don't change.
         public static ExerciseViewModel ToViewModel(this Exercise exercise, IStringLocalizer localizer)
         {
-            var filters = string.IsNullOrEmpty(exercise.FiltersJson) ? new List<FilterOptionGroup>() : JsonConvert.DeserializeObject<List<FilterOptionGroup>>(exercise.FiltersJson);
-
-            var filtersHtml = new StringBuilder();
-
-            foreach (var group in filters)
-            {
-                filtersHtml.AppendLine($@"
-                    <div class='mb-3'>
-                        <label for='{group.Name}' class='form-label'>{localizer[group.Label]}</label>
-                        <select id='{group.Name}' name='{group.Name}' class='form-select'>");
-
-                foreach (var opt in group.Options)
-                {
-                    filtersHtml.AppendLine($@"<option value='{opt.Value}'>{localizer[opt.Text]}</option>");
-                }
-
-                filtersHtml.AppendLine("</select></div>");
-            }
-
             return new ExerciseViewModel
             {
                 ExerciseId = exercise.ExerciseId,
@@ -43,7 +24,7 @@ namespace AcademiaAuditiva.Extensions
                 FeedbackType = null,
                 Filters = new ExerciseFiltersViewModel
                 {
-                    CustomFiltersHtml = filtersHtml.ToString()
+                    Groups = ExerciseFilterPresets.Groups(exercise.FiltersJson)
                 },
                 AudioButtons = exercise.AudioButtons,
                 AnswerButtons = exercise.AnswerButtons

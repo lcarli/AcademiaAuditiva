@@ -1,212 +1,118 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Initialise Audio
-    AcademiaAuditiva.init();
-    AudioEngine.setupWaveform();
+  AcademiaAuditiva.init();
+  AudioEngine.setupWaveform();
 
-    // Initialise Variables
-    const exerciseIdInput = document.getElementById("exerciseId");
-    const exerciseId = exerciseIdInput ? exerciseIdInput.value : null;
-    
-    const firstDegreeSelect = document.getElementById("firstDegreeSelect");
-    const lastDegreeSelect = document.getElementById("lastDegreeSelect");
-    const startIntervalSelect = document.getElementById("startIntervalSelect");
-    const endIntervalSelect = document.getElementById("endIntervalSelect");
+  const loc = AAi18n.localizer();
+  const exerciseId = document.getElementById("exerciseId")?.value;
+  const answerSelects = ["firstDegreeSelect", "lastDegreeSelect", "startIntervalSelect", "endIntervalSelect"]
+    .map((id) => document.getElementById(id));
 
-    let currentMelody = null;
-    let exerciseData = null;
-    const exerciseStartTime = Date.now();
+  // The melody is mixed on the server and addressed by an opaque token, so
+  // the browser never learns the notes (or the answer) before validating.
+  let playToken = null;
+  let roundId = null;
+  let roundStartedAt = Date.now();
 
-    const loc = AAi18n.localizer();
+  function resetSelections() {
+    answerSelects.forEach((select) => {
+      if (select) select.value = "";
+    });
+  }
 
-    // Play button event
-    const playBtn = document.getElementById("Play");
-    if (playBtn) {
-        playBtn.addEventListener("click", () => {
-            if (!exerciseId) return;
+  function showRequestError(err) {
+    console.error("IntervalMelodico request failed:", err);
+    Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: loc.validationErrorText });
+  }
 
-            // Get filter values
-            const keySelect = document.querySelector('[name="keySelect"]');
-            const scaleTypeSelect = document.querySelector('[name="scaleTypeSelect"]');
-            
-            const filters = {
-                keySelect: keySelect ? keySelect.value : "C",
-                scaleTypeSelect: scaleTypeSelect ? scaleTypeSelect.value : "major"
-            };
+  const playBtn = document.getElementById("Play");
+  if (playBtn) {
+    playBtn.addEventListener("click", () => {
+      if (!exerciseId) return;
 
-            fetch("/Exercise/RequestPlay", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    exerciseId: exerciseId,
-                    filters: filters
-                })
-            })
-            .then(resp => resp.json())
-            .then(data => {
-                if (data.error) {
-                    Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: data.error });
-                    return;
-                }
+      fetch("/Exercise/RequestPlay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exerciseId: exerciseId,
+          filters: {
+            keySelect: document.getElementById("keySelect")?.value || "C",
+            scaleTypeSelect: document.getElementById("scaleTypeSelect")?.value || "major",
+          },
+        }),
+      })
+        .then((resp) => resp.json())
+        .then((data) => {
+          if (AAi18n.serverError(data, loc)) return;
+          playToken = data.playToken;
+          roundId = data.roundId;
+          roundStartedAt = Date.now();
+          resetSelections();
+          if (playToken) AudioEngine.playToken(playToken);
+        })
+        .catch(showRequestError);
+    });
+  }
 
-                exerciseData = data;
-                currentMelody = data.melody;
-                
-                // Play melody
-                if (currentMelody && currentMelody.length > 0) {
-                    AudioEngine.playSequence(currentMelody, 0.8, 0.6);
-                }
+  const replayBtn = document.getElementById("Replay");
+  if (replayBtn) {
+    replayBtn.addEventListener("click", () => {
+      if (!playToken) {
+        AAi18n.noAudio(loc);
+        return;
+      }
+      AudioEngine.playToken(playToken);
+    });
+  }
 
-                // Display sheet music with VexFlow if available
-                displaySheetMusic(currentMelody);
-                
-                // Reset form
-                resetSelections();
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: loc.validationErrorText });
-            });
-        });
-    }
+  const validateBtn = document.getElementById("validateGuess");
+  if (validateBtn) {
+    validateBtn.addEventListener("click", () => {
+      if (!roundId) {
+        AAi18n.noAudio(loc);
+        return;
+      }
 
-    // Replay button event
-    const replayBtn = document.getElementById("Replay");
-    if (replayBtn) {
-        replayBtn.addEventListener("click", () => {
-            if (!currentMelody || currentMelody.length === 0) {
-                AAi18n.noAudio(loc);
-                return;
-            }
-            
-            AudioEngine.playSequence(currentMelody, 0.8, 0.6);
-        });
-    }
+      const parts = answerSelects.map((select) => (select ? select.value : ""));
+      if (parts.some((part) => !part)) {
+        AAi18n.incomplete(loc);
+        return;
+      }
 
-    // Validate button event
-    const validateBtn = document.getElementById("validateGuess");
-    if (validateBtn) {
-        validateBtn.addEventListener("click", () => {
-            if (!exerciseData) {
-                AAi18n.noAudio(loc);
-                return;
-            }
+      fetch("/Exercise/ValidateExercise", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exerciseId: exerciseId,
+          roundId: roundId,
+          userGuess: parts.join("|"),
+          timeSpentSeconds: Math.floor((Date.now() - roundStartedAt) / 1000),
+        }),
+      })
+        .then((resp) => resp.json())
+        .then((data) => {
+          if (AAi18n.serverError(data, loc)) return;
 
-            // Get user answers
-            const firstDegree = firstDegreeSelect.value;
-            const lastDegree = lastDegreeSelect.value;
-            const startInterval = startIntervalSelect.value;
-            const endInterval = endIntervalSelect.value;
+          const counter = document.getElementById(data.isCorrect ? "correctCount" : "errorCount");
+          if (counter) counter.innerText = parseInt(counter.innerText, 10) + 1;
 
-            // Validate all fields are filled
-            if (!firstDegree || !lastDegree || !startInterval || !endInterval) {
-                AAi18n.incomplete(loc);
-                return;
-            }
+          if (data.isCorrect) {
+            AAi18n.result(data, loc);
+          } else {
+            // Show each part of the correct answer with its localized option label.
+            const correct = String(data.answer || "").split("|");
+            const answer = correct.length >= 4 && loc.answerFormat
+              ? correct.slice(0, 4).reduce(
+                  (text, part, i) => text.replace(`{${i}}`, AAi18n.answerLabel(part)),
+                  loc.answerFormat)
+              : data.answer;
+            AAi18n.result({ ...data, answer }, loc);
+          }
 
-            // Prepare user guess in format: "firstDegree|lastDegree|startInterval|endInterval"
-            const userGuess = `${firstDegree}|${lastDegree}|${startInterval}|${endInterval}`;
-
-            fetch("/Exercise/ValidateExercise", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ExerciseId: exerciseId,
-                    UserGuess: userGuess,
-                    TimeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
-                })
-            })
-            .then(resp => resp.json())
-            .then(data => {
-                if (AAi18n.serverError(data, loc)) return;
-                const correctCountEl = document.getElementById("correctCount");
-                const errorCountEl = document.getElementById("errorCount");
-                
-                if (data.isCorrect) {
-                    if (correctCountEl) {
-                        correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-                    }
-                    AAi18n.result(data, loc);
-                } else {
-                    if (errorCountEl) {
-                        errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-                    }
-                    
-                    // Show each part of the correct answer with its localized option label.
-                    const correctAnswers = data.answer.split('|');
-                    const correctText = correctAnswers.length >= 4 && loc.answerFormat ?
-                        correctAnswers.slice(0, 4).reduce(
-                            (text, part, i) => text.replace(`{${i}}`, AAi18n.answerLabel(part)),
-                            loc.answerFormat) :
-                        data.answer;
-                    
-                    AAi18n.result({ ...data, answer: correctText }, loc);
-                }
-
-                // Reset form after validation
-                resetSelections();
-                currentMelody = null;
-                exerciseData = null;
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: loc.validationErrorText });
-            });
-        });
-    }
-
-    // Helper functions
-    function resetSelections() {
-        if (firstDegreeSelect) firstDegreeSelect.value = "";
-        if (lastDegreeSelect) lastDegreeSelect.value = "";
-        if (startIntervalSelect) startIntervalSelect.value = "";
-        if (endIntervalSelect) endIntervalSelect.value = "";
-    }
-
-    function displaySheetMusic(melody) {
-        const outputElement = document.getElementById("output-sheet");
-        if (!outputElement || !melody || !window.Vex) return;
-
-        try {
-            // Clear previous content
-            outputElement.innerHTML = "";
-            
-            const VF = Vex.Flow;
-            const renderer = new VF.Renderer(outputElement, VF.Renderer.Backends.SVG);
-            renderer.resize(500, 120);
-            const context = renderer.getContext();
-            
-            const stave = new VF.Stave(10, 10, 480);
-            stave.addClef("treble").setContext(context).draw();
-            
-            const notes = melody.map((note, index) => {
-                // Convert note to VexFlow format
-                const vexNote = convertToVexFlowNote(note);
-                return new VF.StaveNote({
-                    clef: "treble",
-                    keys: [vexNote],
-                    duration: "q"
-                });
-            });
-            
-            if (notes.length > 0) {
-                const voice = new VF.Voice({ num_beats: notes.length, beat_value: 4 });
-                voice.addTickables(notes);
-                
-                const formatter = new VF.Formatter().joinVoices([voice]).format([voice], 400);
-                voice.draw(context, stave);
-            }
-        } catch (error) {
-            console.error("Error displaying sheet music:", error);
-        }
-    }
-
-    function convertToVexFlowNote(note) {
-        // Convert note format (e.g., "C4", "F#4") to VexFlow format (e.g., "c/4", "f#/4")
-        if (!note || note === "rest") return "b/4"; // Default to B4 for invalid notes
-        
-        const noteName = note.replace(/\d/, "").toLowerCase();
-        const octave = note.match(/\d/)?.[0] || "4";
-        
-        return `${noteName}/${octave}`;
-    }
+          resetSelections();
+          playToken = null;
+          roundId = null;
+        })
+        .catch(showRequestError);
+    });
+  }
 });

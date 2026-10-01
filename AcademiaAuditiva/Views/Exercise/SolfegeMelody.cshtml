@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = Localizer[Model.Title].Value;
     ViewData["FiltersPartial"] = "_ExerciseFilters";
+    // Pitch classes C..B, in the order SolfegeMelody.js indexes them.
+    var noteNames = string.Join("|", new[] { "C", "CSharp", "D", "DSharp", "E", "F", "FSharp", "G", "GSharp", "A", "ASharp", "B" }
+        .Select(name => Localizer["Exercise.Note." + name].Value));
 }
 
 @await Html.PartialAsync("_ExerciseHeader", Model)
@@ -14,8 +17,11 @@
 
             <div class="aa-audio-row justify-content-center">
                 @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
-                @* SolfegeMelody.js swaps the record button's innerHTML while recording, so both keep a bi icon. *@
-                <button type="button" id="recordAudio" class="aa-audio-pill">
+                <button type="button" id="playStartingNote" class="aa-audio-pill">
+                    <i class="bi bi-music-note" aria-hidden="true"></i> @Localizer["Exercise.Solfege.StartingNote"]
+                </button>
+                @* SolfegeMelody.js rebuilds the record button's content while recording, so both states keep a bi icon. *@
+                <button type="button" id="recordAudio" class="aa-audio-pill" aria-pressed="false">
                     <i class="bi bi-mic" aria-hidden="true"></i> @Localizer["Exercise.RecordAudio"]
                 </button>
                 <button type="button" id="listenAudio" class="aa-audio-pill">
@@ -41,20 +47,24 @@
      data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
      data-incomplete-text="@Localizer["Exercise.Solfege.NoRecordingText"]"
 
-     data-no-audio-title="@Localizer["Exercise.NoAudioTitle"]"
-     data-no-audio-text="@Localizer["Exercise.NoAudioText"]"
+     data-no-audio-title="@Localizer["Exercise.Solfege.NoMelodyTitle"]"
+     data-no-audio-text="@Localizer["Exercise.Solfege.NoMelodyText"]"
      data-validation-error-title="@Localizer["Exercise.ValidationErrorTitle"]"
      data-validation-error-text="@Localizer["Exercise.ValidationErrorText"]"
      data-correct-message="@Localizer["Exercise.CorrectMessage"]"
      data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
      data-wrong-message="@Localizer["Exercise.WrongMessage"]"
      data-wrong-message-text="@Localizer["Exercise.WrongNoteMessageText"]"
+     data-heard-text="@Localizer["Exercise.DetectedNoteText"]"
+     data-analyzing-text="@Localizer["Exercise.Solfege.Analyzing"]"
+     data-analysis-error-text="@Localizer["Exercise.Solfege.AnalysisError"]"
+     data-nothing-heard-title="@Localizer["Exercise.Solfege.NothingHeardTitle"]"
+     data-nothing-heard-text="@Localizer["Exercise.Solfege.NothingHeardText"]"
+     data-note-names="@noteNames"
      data-record-start-text="@Localizer["Exercise.RecordAudio"]"
      data-record-stop-text="@Localizer["Exercise.StopRecording"]"
      data-microphone-unsupported-text="@Localizer["Exercise.MicrophoneUnsupported"]"
-     data-microphone-access-error-text="@Localizer["Exercise.MicrophoneAccessError"]"
-     data-detected-note-title="@Localizer["Exercise.DetectedNoteTitle"]"
-     data-detected-note-text="@Localizer["Exercise.DetectedNoteText"]">
+     data-microphone-access-error-text="@Localizer["Exercise.MicrophoneAccessError"]">
 </div>
 
 @section Scripts {

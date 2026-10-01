@@ -278,7 +278,7 @@
     <comment />
   </data>
   <data name="AccessDenied.Header" xml:space="preserve">
-    <value> Access Denied</value>
+    <value>Access Denied</value>
     <comment />
   </data>
   <data name="AccessDenied.Text" xml:space="preserve">
@@ -382,7 +382,7 @@
     <comment />
   </data>
   <data name="Exercise.TypeChord" xml:space="preserve">
-    <value>Chord Type</value>
+    <value>Chord type</value>
     <comment />
   </data>
   <data name="Exercise.TypeChordMajeurMineur" xml:space="preserve">
@@ -414,7 +414,7 @@
     <comment />
   </data>
   <data name="Exercise.CorrectMessageText" xml:space="preserve">
-    <value>You got right!</value>
+    <value>You got it right!</value>
     <comment />
   </data>
   <data name="Exercise.WrongMessageText" xml:space="preserve">
@@ -682,13 +682,28 @@
     <value>Start Exercise</value>
   </data>
   <data name="Exercise.Scale" xml:space="preserve">
-    <value>Select the Scale</value>
+    <value>Scale</value>
+  </data>
+  <data name="Exercise.ScaleMajor" xml:space="preserve">
+    <value>Major</value>
+  </data>
+  <data name="Exercise.ScaleMinor" xml:space="preserve">
+    <value>Minor</value>
+  </data>
+  <data name="Exercise.ScaleBoth" xml:space="preserve">
+    <value>Major and minor</value>
+  </data>
+  <data name="Exercise.Preset.Title" xml:space="preserve">
+    <value>Settings from your routine</value>
+  </data>
+  <data name="Exercise.Preset.Change" xml:space="preserve">
+    <value>Change</value>
   </data>
   <data name="Exercise.All" xml:space="preserve">
     <value>All</value>
   </data>
   <data name="Exercise.Key" xml:space="preserve">
-    <value>Select the Key</value>
+    <value>Key</value>
   </data>
   <data name="Exercise.Direction" xml:space="preserve">
     <value>Direction</value>
@@ -703,10 +718,10 @@
     <value>Both</value>
   </data>
   <data name="Exercise.MelodyLength" xml:space="preserve">
-    <value>Melody Length</value>
+    <value>Melody length</value>
   </data>
   <data name="Exercise.Quality.ChordGroup" xml:space="preserve">
-    <value>Chord Type</value>
+    <value>Chord type</value>
   </data>
   <data name="GuessMissingNote" xml:space="preserve">
     <value>Compare 2 melodies</value>
@@ -778,10 +793,10 @@
     <value>Sing the displayed melody</value>
   </data>
   <data name="Exercise.RecordAudio" xml:space="preserve">
-    <value>Record Audio</value>
+    <value>Record</value>
   </data>
   <data name="Exercise.ListenAudio" xml:space="preserve">
-    <value>Listen Recording</value>
+    <value>Play recording</value>
   </data>
   <data name="Exercise.IntervalMelodicoText" xml:space="preserve">
     <value>Listen to the melody and identify the degrees and intervals</value>
@@ -1068,6 +1083,21 @@
   <data name="MyTraining.Teacher" xml:space="preserve">
     <value>teacher</value>
   </data>
+  <data name="MyTraining.Source.Classroom" xml:space="preserve">
+    <value>Classroom: {0}</value>
+  </data>
+  <data name="MyTraining.Source.Personal" xml:space="preserve">
+    <value>Personal</value>
+  </data>
+  <data name="MyTraining.Complete" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+  <data name="MyTraining.AccuracyMin" xml:space="preserve">
+    <value>Accuracy {0}% (min. {1}%)</value>
+  </data>
+  <data name="MyTraining.MinAccuracy" xml:space="preserve">
+    <value>Minimum accuracy: {0}%</value>
+  </data>
   <data name="MyTraining.Joined" xml:space="preserve">
     <value>joined</value>
   </data>
@@ -1315,7 +1345,7 @@
     <value>Use scales as a reference for the degrees.</value>
   </data>
   <data name="Exercise.SolfegeMelody.Instructions" xml:space="preserve">
-    <value>Read the melody on screen and try to sing it correctly.</value>
+    <value>Click “New melody” and read the melody on the staff. Listen to the starting note, click “Record” and sing the melody, then click “Validate”. Any octave is fine.</value>
   </data>
   <data name="Exercise.SolfegeMelody.Tip1" xml:space="preserve">
     <value>Look carefully at the pitches on the staff.</value>
@@ -1325,6 +1355,9 @@
   </data>
   <data name="Exercise.SolfegeMelody.Tip3" xml:space="preserve">
     <value>If needed, practice the scale before attempting.</value>
+  </data>
+  <data name="Exercise.SolfegeMelody.Tip4" xml:space="preserve">
+    <value>Your recording is analyzed in your browser and never leaves your device.</value>
   </data>
   <data name="Exercise.GuessQuality.Subtitle" xml:space="preserve">
     <value>Guess the chord quality.</value>
@@ -1378,7 +1411,7 @@
     <value>No exercises yet.</value>
   </data>
   <data name="Teacher.Routines.MinScore" xml:space="preserve">
-    <value>min score</value>
+    <value>min. accuracy</value>
   </data>
   <data name="Teacher.Classrooms.Remove" xml:space="preserve">
     <value>Remove</value>
@@ -1409,9 +1442,6 @@
   </data>
   <data name="Toast.ClassroomCreated" xml:space="preserve">
     <value>Classroom created.</value>
-  </data>
-  <data name="Teacher.Routines.CustomFilter" xml:space="preserve">
-    <value>custom filter</value>
   </data>
   <data name="Teacher.Routines.Back" xml:space="preserve">
     <value>Back</value>
@@ -1505,6 +1535,12 @@
   </data>
   <data name="Toast.RoutineActiveAssignments" xml:space="preserve">
     <value>Routine has active assignments. Remove them first.</value>
+  </data>
+  <data name="Toast.OverridesSaved" xml:space="preserve">
+    <value>Adjustments saved.</value>
+  </data>
+  <data name="Toast.OverridesCleared" xml:space="preserve">
+    <value>Adjustments removed.</value>
   </data>
   <data name="Toast.MemberRemoved" xml:space="preserve">
     <value>Member removed.</value>
@@ -2259,11 +2295,8 @@
   <data name="Exercise.NoRecordingText" xml:space="preserve">
     <value>Record audio before continuing.</value>
   </data>
-  <data name="Exercise.DetectedNoteTitle" xml:space="preserve">
-    <value>Detected note</value>
-  </data>
   <data name="Exercise.DetectedNoteText" xml:space="preserve">
-    <value>Detected note: {{0}}</value>
+    <value>Notes we heard: {{0}}</value>
   </data>
   <data name="Exercise.Note.C" xml:space="preserve">
     <value>C</value>
@@ -2367,9 +2400,6 @@
   <data name="Teacher.Routines.EditExercise" xml:space="preserve">
     <value>Edit exercise</value>
   </data>
-  <data name="Teacher.Routines.FilterJsonHelp" xml:space="preserve">
-    <value>Optional. Same format as the exercise filters (JSON).</value>
-  </data>
   <data name="Teacher.Routines.AddToRoutine" xml:space="preserve">
     <value>Add to routine</value>
   </data>
@@ -2377,10 +2407,55 @@
     <value>Target count</value>
   </data>
   <data name="Teacher.Routines.MinimumScore" xml:space="preserve">
-    <value>Minimum score</value>
+    <value>Minimum accuracy (%)</value>
   </data>
-  <data name="Teacher.Routines.FilterJson" xml:space="preserve">
-    <value>Filter JSON</value>
+  <data name="Teacher.Routines.Filters.Help" xml:space="preserve">
+    <value>Optional. The exercise opens with these settings when students start it from My Training. “Student chooses” leaves the setting up to them.</value>
+  </data>
+  <data name="Teacher.Routines.Filters.StudentChooses" xml:space="preserve">
+    <value>Student chooses</value>
+  </data>
+  <data name="Teacher.Routines.Filters.None" xml:space="preserve">
+    <value>This exercise has no settings to choose.</value>
+  </data>
+  <data name="Teacher.Routines.SelectExercise" xml:space="preserve">
+    <value>Select an exercise.</value>
+  </data>
+  <data name="Teacher.Overrides.Title" xml:space="preserve">
+    <value>Per-student adjustments</value>
+  </data>
+  <data name="Teacher.Overrides.Intro" xml:space="preserve">
+    <value>Adapt this routine for individual students: skip an exercise, change the target count or choose other settings. Anything left blank follows the routine.</value>
+  </data>
+  <data name="Teacher.Overrides.Students" xml:space="preserve">
+    <value>Students</value>
+  </data>
+  <data name="Teacher.Overrides.ItemsCustomized" xml:space="preserve">
+    <value>Adjusted: {0}</value>
+  </data>
+  <data name="Teacher.Overrides.StudentsCustomized" xml:space="preserve">
+    <value>students with adjustments: {0}</value>
+  </data>
+  <data name="Teacher.Overrides.ChooseStudent" xml:space="preserve">
+    <value>Choose a student to adapt this routine for them.</value>
+  </data>
+  <data name="Teacher.Overrides.NoStudents" xml:space="preserve">
+    <value>This classroom has no students yet.</value>
+  </data>
+  <data name="Teacher.Overrides.For" xml:space="preserve">
+    <value>Adjustments for {0}</value>
+  </data>
+  <data name="Teacher.Overrides.Exclude" xml:space="preserve">
+    <value>Skip this exercise for this student</value>
+  </data>
+  <data name="Teacher.Overrides.RoutineSetting" xml:space="preserve">
+    <value>Routine: {0}</value>
+  </data>
+  <data name="Teacher.Overrides.Clear" xml:space="preserve">
+    <value>Remove this student's adjustments</value>
+  </data>
+  <data name="Teacher.Overrides.ClearConfirm" xml:space="preserve">
+    <value>Remove all adjustments for this student? They will follow the routine again.</value>
   </data>
   <data name="Teacher.Routines.DueDate" xml:space="preserve">
     <value>Due date</value>
@@ -2500,7 +2575,28 @@
     <value>It can show sensitive exception details to users. For local debugging, set {0} to {1} and restart the app.</value>
   </data>
   <data name="Exercise.Solfege.NoRecordingText" xml:space="preserve">
-    <value>Record audio before continuing.</value>
+    <value>Record yourself singing the melody first.</value>
+  </data>
+  <data name="Exercise.Solfege.StartingNote" xml:space="preserve">
+    <value>Starting note</value>
+  </data>
+  <data name="Exercise.Solfege.NoMelodyTitle" xml:space="preserve">
+    <value>No melody yet</value>
+  </data>
+  <data name="Exercise.Solfege.NoMelodyText" xml:space="preserve">
+    <value>Click “New melody” to get a melody to sing.</value>
+  </data>
+  <data name="Exercise.Solfege.Analyzing" xml:space="preserve">
+    <value>Analyzing your recording…</value>
+  </data>
+  <data name="Exercise.Solfege.AnalysisError" xml:space="preserve">
+    <value>We couldn't analyze this recording. Please record again.</value>
+  </data>
+  <data name="Exercise.Solfege.NothingHeardTitle" xml:space="preserve">
+    <value>No notes detected</value>
+  </data>
+  <data name="Exercise.Solfege.NothingHeardText" xml:space="preserve">
+    <value>We couldn't hear any notes. Sing a little louder, close to the microphone, and record again.</value>
   </data>
   <data name="Lockout.Header" xml:space="preserve">
     <value>Locked out</value>

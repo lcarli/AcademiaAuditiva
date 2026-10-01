@@ -5,7 +5,7 @@
 
 @{
     var currentUiCulture = CultureInfo.CurrentUICulture;
-    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}{Context.Request.QueryString.Value}";
     var cultures = LocOptions.Value.SupportedUICultures ?? new List<CultureInfo>();
 
     static string DisplayName(CultureInfo culture) =>

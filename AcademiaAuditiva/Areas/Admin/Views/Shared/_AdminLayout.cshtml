@@ -19,18 +19,7 @@
         </div>
     </aside>
     <div class="col-lg-9 col-xl-10">
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success" role="alert">
-                <i class="bi bi-check-circle me-2" aria-hidden="true"></i>@TempData["Success"]
-            </div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger" role="alert">
-                <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>@TempData["Error"]
-            </div>
-        }
+        <partial name="_TempDataAlerts" />
         @RenderBody()
     </div>
 </div>

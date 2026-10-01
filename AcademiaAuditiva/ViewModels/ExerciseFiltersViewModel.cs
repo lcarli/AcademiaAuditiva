@@ -4,6 +4,8 @@ namespace AcademiaAuditiva.ViewModels
     {
         public string Instrument { get; set; }
         public string Range { get; set; } // Ex: C3-C4
-        public string CustomFiltersHtml { get; set; }
+
+        /// <summary>The exercise-specific filter selects declared in <c>Exercise.FiltersJson</c>.</summary>
+        public IReadOnlyList<FilterOptionGroup> Groups { get; set; } = Array.Empty<FilterOptionGroup>();
     }
 }

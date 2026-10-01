@@ -126,7 +126,7 @@
     <comment />
   </data>
   <data name="Dashboard.Title" xml:space="preserve">
-    <value>Dashboard de Evolução</value>
+    <value>Painel de evolução</value>
     <comment />
   </data>
   <data name="Dashboard.Subtitle" xml:space="preserve">
@@ -146,15 +146,15 @@
     <comment />
   </data>
   <data name="Exercise.Title" xml:space="preserve">
-    <value>Exercícios Disponíveis</value>
+    <value>Exercícios disponíveis</value>
     <comment />
   </data>
   <data name="Exercise.Tab1.Level" xml:space="preserve">
-    <value>Por Nível</value>
+    <value>Por nível</value>
     <comment />
   </data>
   <data name="Exercise.Tab2.Type" xml:space="preserve">
-    <value>Por Tipo</value>
+    <value>Por tipo</value>
     <comment />
   </data>
   <data name="Exercise.Beginner" xml:space="preserve">
@@ -238,7 +238,7 @@
     <comment />
   </data>
   <data name="Register.PasswordConfirmation" xml:space="preserve">
-    <value>Confirme a Senha</value>
+    <value>Confirme a senha</value>
     <comment />
   </data>
   <data name="Register.Text" xml:space="preserve">
@@ -258,7 +258,7 @@
     <comment />
   </data>
   <data name="Confirmation.Header" xml:space="preserve">
-    <value>Confirmação de Registro</value>
+    <value>Confirmação de cadastro</value>
     <comment />
   </data>
   <data name="ForgotPassword.Header" xml:space="preserve">
@@ -278,7 +278,7 @@
     <comment />
   </data>
   <data name="AccessDenied.Header" xml:space="preserve">
-    <value>Accesso Negado</value>
+    <value>Acesso negado</value>
     <comment />
   </data>
   <data name="AccessDenied.Text" xml:space="preserve">
@@ -382,11 +382,11 @@
     <comment />
   </data>
   <data name="Exercise.TypeChord" xml:space="preserve">
-    <value>Tipo de Acorde</value>
+    <value>Tipo de acorde</value>
     <comment />
   </data>
   <data name="Exercise.TypeChordMajeurMineur" xml:space="preserve">
-    <value>Maiores e Menores</value>
+    <value>Maiores e menores</value>
     <comment />
   </data>
   <data name="Exercise.TypeChordMajeur" xml:space="preserve">
@@ -414,7 +414,7 @@
     <comment />
   </data>
   <data name="Exercise.CorrectMessageText" xml:space="preserve">
-    <value>Você acertou o acorde!</value>
+    <value>Você acertou!</value>
     <comment />
   </data>
   <data name="Exercise.WrongMessageText" xml:space="preserve">
@@ -530,15 +530,15 @@
     <comment />
   </data>
   <data name="Dashboard.TotalExercises" xml:space="preserve">
-    <value>Total de Exercícios</value>
+    <value>Total de exercícios</value>
     <comment />
   </data>
   <data name="Dashboard.BestScore" xml:space="preserve">
-    <value>Melhor Pontuação</value>
+    <value>Melhor pontuação</value>
     <comment />
   </data>
   <data name="Dashboard.TotalTime" xml:space="preserve">
-    <value>Tempo Total</value>
+    <value>Tempo total</value>
     <comment />
   </data>
   <data name="ExerciseType.NoteRecognition" xml:space="preserve">
@@ -679,16 +679,31 @@
     <value>Ajuda</value>
   </data>
   <data name="Exercise.Start" xml:space="preserve">
-    <value>Iniciar Exercício</value>
+    <value>Iniciar exercício</value>
   </data>
   <data name="Exercise.Scale" xml:space="preserve">
-    <value>Selecione a Escala</value>
+    <value>Escala</value>
+  </data>
+  <data name="Exercise.ScaleMajor" xml:space="preserve">
+    <value>Maior</value>
+  </data>
+  <data name="Exercise.ScaleMinor" xml:space="preserve">
+    <value>Menor</value>
+  </data>
+  <data name="Exercise.ScaleBoth" xml:space="preserve">
+    <value>Maior e menor</value>
+  </data>
+  <data name="Exercise.Preset.Title" xml:space="preserve">
+    <value>Configurações da sua rotina</value>
+  </data>
+  <data name="Exercise.Preset.Change" xml:space="preserve">
+    <value>Alterar</value>
   </data>
   <data name="Exercise.All" xml:space="preserve">
     <value>Todos</value>
   </data>
   <data name="Exercise.Key" xml:space="preserve">
-    <value>Selecione o Tom</value>
+    <value>Tom</value>
   </data>
   <data name="Exercise.Direction" xml:space="preserve">
     <value>Direção</value>
@@ -703,10 +718,10 @@
     <value>Ambos</value>
   </data>
   <data name="Exercise.MelodyLength" xml:space="preserve">
-    <value>Tamanho da Melodia</value>
+    <value>Tamanho da melodia</value>
   </data>
   <data name="Exercise.Quality.ChordGroup" xml:space="preserve">
-    <value>Tipo de Acordes</value>
+    <value>Tipo de acorde</value>
   </data>
   <data name="GuessMissingNote" xml:space="preserve">
     <value>Compare 2 melodias</value>
@@ -730,7 +745,7 @@
     <value>Desempenho por dificuldade</value>
   </data>
   <data name="Dashboard.RecentSessions" xml:space="preserve">
-    <value>Sessões Recentes</value>
+    <value>Sessões recentes</value>
   </data>
   <data name="Dashboard.Exercise" xml:space="preserve">
     <value>Exercício</value>
@@ -751,28 +766,28 @@
     <value>Pontuação</value>
   </data>
   <data name="Dashboard.MostMissedItems" xml:space="preserve">
-    <value>Maiores Dificuldades</value>
+    <value>Maiores dificuldades</value>
   </data>
   <data name="Dashboard.Recommendations" xml:space="preserve">
-    <value>Minhas Recomendações</value>
+    <value>Minhas recomendações</value>
   </data>
   <data name="Dashboard.TechnicalSkills" xml:space="preserve">
-    <value>Habilidades Técnicas</value>
+    <value>Habilidades técnicas</value>
   </data>
   <data name="Dashboard.PedagogicalCategories" xml:space="preserve">
-    <value>Categorias Pedagógicas</value>
+    <value>Categorias pedagógicas</value>
   </data>
   <data name="Dashboard.ChartProgress" xml:space="preserve">
     <value>Progresso</value>
   </data>
   <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve">
-    <value>Precisão por Tipo Técnico</value>
+    <value>Precisão por tipo técnico</value>
   </data>
   <data name="Dashboard.ChartAccuracyByCategory" xml:space="preserve">
-    <value>Precisão por Categoria Pedagógica</value>
+    <value>Precisão por categoria pedagógica</value>
   </data>
   <data name="Dashboard.ChartAccuracyByDifficulty" xml:space="preserve">
-    <value>Precisão por Dificuldade</value>
+    <value>Precisão por dificuldade</value>
   </data>
   <data name="Exercise.IntervalMelodicoText" xml:space="preserve">
     <value>Escute a melodia e identifique os graus e intervalos</value>
@@ -817,10 +832,10 @@
     <value>Cante a melodia apresentada</value>
   </data>
   <data name="Exercise.RecordAudio" xml:space="preserve">
-    <value>Gravar Áudio</value>
+    <value>Gravar</value>
   </data>
   <data name="Exercise.ListenAudio" xml:space="preserve">
-    <value>Ouvir Gravação</value>
+    <value>Ouvir gravação</value>
   </data>
   <data name="Exercise.NotFound" xml:space="preserve">
     <value>Exercício não encontrado.</value>
@@ -844,7 +859,7 @@
     <value>Pontuação da sessão salva com sucesso.</value>
   </data>
   <data name="Header.MyTraining" xml:space="preserve">
-    <value>Meu Treino</value>
+    <value>Meu treino</value>
   </data>
   <data name="Header.Teacher" xml:space="preserve">
     <value>Professor</value>
@@ -1054,7 +1069,7 @@
     <value>Iniciar treino</value>
   </data>
   <data name="MyTraining.Title" xml:space="preserve">
-    <value>Meu Treino</value>
+    <value>Meu treino</value>
   </data>
   <data name="MyTraining.Subtitle" xml:space="preserve">
     <value>Suas turmas e rotinas ativas.</value>
@@ -1067,6 +1082,21 @@
   </data>
   <data name="MyTraining.Teacher" xml:space="preserve">
     <value>professor</value>
+  </data>
+  <data name="MyTraining.Source.Classroom" xml:space="preserve">
+    <value>Turma: {0}</value>
+  </data>
+  <data name="MyTraining.Source.Personal" xml:space="preserve">
+    <value>Pessoal</value>
+  </data>
+  <data name="MyTraining.Complete" xml:space="preserve">
+    <value>Concluído</value>
+  </data>
+  <data name="MyTraining.AccuracyMin" xml:space="preserve">
+    <value>Precisão {0}% (mín. {1}%)</value>
+  </data>
+  <data name="MyTraining.MinAccuracy" xml:space="preserve">
+    <value>Precisão mínima: {0}%</value>
   </data>
   <data name="MyTraining.Joined" xml:space="preserve">
     <value>entrou em</value>
@@ -1315,7 +1345,7 @@
     <value>Use as escalas como referência para os graus.</value>
   </data>
   <data name="Exercise.SolfegeMelody.Instructions" xml:space="preserve">
-    <value>Leia a melodia exibida e tente cantá-la corretamente.</value>
+    <value>Clique em “Nova melodia” e leia a melodia na pauta. Ouça a nota inicial, clique em “Gravar” e cante a melodia; depois clique em “Validar”. Pode cantar em qualquer oitava.</value>
   </data>
   <data name="Exercise.SolfegeMelody.Tip1" xml:space="preserve">
     <value>Observe atentamente as alturas das notas na partitura.</value>
@@ -1325,6 +1355,9 @@
   </data>
   <data name="Exercise.SolfegeMelody.Tip3" xml:space="preserve">
     <value>Se necessário, pratique com escalas antes de tentar.</value>
+  </data>
+  <data name="Exercise.SolfegeMelody.Tip4" xml:space="preserve">
+    <value>Sua gravação é analisada no seu navegador e nunca sai do seu dispositivo.</value>
   </data>
   <data name="Exercise.GuessQuality.Subtitle" xml:space="preserve">
     <value>Adivinhe a qualidade do acorde tocado.</value>
@@ -1378,7 +1411,7 @@
     <value>Nenhum exercício ainda.</value>
   </data>
   <data name="Teacher.Routines.MinScore" xml:space="preserve">
-    <value>pontuação mínima</value>
+    <value>precisão mín.</value>
   </data>
   <data name="Teacher.Classrooms.Remove" xml:space="preserve">
     <value>Remover</value>
@@ -1409,9 +1442,6 @@
   </data>
   <data name="Toast.ClassroomCreated" xml:space="preserve">
     <value>Turma criada.</value>
-  </data>
-  <data name="Teacher.Routines.CustomFilter" xml:space="preserve">
-    <value>filtro personalizado</value>
   </data>
   <data name="Teacher.Routines.Back" xml:space="preserve">
     <value>Voltar</value>
@@ -1505,6 +1535,12 @@
   </data>
   <data name="Toast.RoutineActiveAssignments" xml:space="preserve">
     <value>A rotina possui atribuições ativas. Remova-as primeiro.</value>
+  </data>
+  <data name="Toast.OverridesSaved" xml:space="preserve">
+    <value>Ajustes salvos.</value>
+  </data>
+  <data name="Toast.OverridesCleared" xml:space="preserve">
+    <value>Ajustes removidos.</value>
   </data>
   <data name="Toast.MemberRemoved" xml:space="preserve">
     <value>Membro removido.</value>
@@ -2259,11 +2295,8 @@
   <data name="Exercise.NoRecordingText" xml:space="preserve">
     <value>Grave um áudio antes de continuar.</value>
   </data>
-  <data name="Exercise.DetectedNoteTitle" xml:space="preserve">
-    <value>Nota identificada</value>
-  </data>
   <data name="Exercise.DetectedNoteText" xml:space="preserve">
-    <value>Nota identificada: {{0}}</value>
+    <value>Notas que ouvimos: {{0}}</value>
   </data>
   <data name="Exercise.Note.C" xml:space="preserve">
     <value>Dó</value>
@@ -2367,9 +2400,6 @@
   <data name="Teacher.Routines.EditExercise" xml:space="preserve">
     <value>Editar exercício</value>
   </data>
-  <data name="Teacher.Routines.FilterJsonHelp" xml:space="preserve">
-    <value>Opcional. Mesmo formato dos filtros do exercício (JSON).</value>
-  </data>
   <data name="Teacher.Routines.AddToRoutine" xml:space="preserve">
     <value>Adicionar à rotina</value>
   </data>
@@ -2377,10 +2407,55 @@
     <value>Quantidade alvo</value>
   </data>
   <data name="Teacher.Routines.MinimumScore" xml:space="preserve">
-    <value>Pontuação mínima</value>
+    <value>Precisão mínima (%)</value>
   </data>
-  <data name="Teacher.Routines.FilterJson" xml:space="preserve">
-    <value>JSON dos filtros</value>
+  <data name="Teacher.Routines.Filters.Help" xml:space="preserve">
+    <value>Opcional. O exercício abre com estas configurações quando o aluno o inicia em Meu treino. “O aluno escolhe” deixa a configuração a critério dele.</value>
+  </data>
+  <data name="Teacher.Routines.Filters.StudentChooses" xml:space="preserve">
+    <value>O aluno escolhe</value>
+  </data>
+  <data name="Teacher.Routines.Filters.None" xml:space="preserve">
+    <value>Este exercício não tem configurações para escolher.</value>
+  </data>
+  <data name="Teacher.Routines.SelectExercise" xml:space="preserve">
+    <value>Selecione um exercício.</value>
+  </data>
+  <data name="Teacher.Overrides.Title" xml:space="preserve">
+    <value>Ajustes por aluno</value>
+  </data>
+  <data name="Teacher.Overrides.Intro" xml:space="preserve">
+    <value>Adapte esta rotina para alunos específicos: dispense um exercício, mude a quantidade alvo ou escolha outras configurações. O que ficar em branco segue a rotina.</value>
+  </data>
+  <data name="Teacher.Overrides.Students" xml:space="preserve">
+    <value>Alunos</value>
+  </data>
+  <data name="Teacher.Overrides.ItemsCustomized" xml:space="preserve">
+    <value>Ajustes: {0}</value>
+  </data>
+  <data name="Teacher.Overrides.StudentsCustomized" xml:space="preserve">
+    <value>alunos com ajustes: {0}</value>
+  </data>
+  <data name="Teacher.Overrides.ChooseStudent" xml:space="preserve">
+    <value>Escolha um aluno para adaptar esta rotina para ele.</value>
+  </data>
+  <data name="Teacher.Overrides.NoStudents" xml:space="preserve">
+    <value>Esta turma ainda não tem alunos.</value>
+  </data>
+  <data name="Teacher.Overrides.For" xml:space="preserve">
+    <value>Ajustes para {0}</value>
+  </data>
+  <data name="Teacher.Overrides.Exclude" xml:space="preserve">
+    <value>Dispensar este exercício para este aluno</value>
+  </data>
+  <data name="Teacher.Overrides.RoutineSetting" xml:space="preserve">
+    <value>Rotina: {0}</value>
+  </data>
+  <data name="Teacher.Overrides.Clear" xml:space="preserve">
+    <value>Remover os ajustes deste aluno</value>
+  </data>
+  <data name="Teacher.Overrides.ClearConfirm" xml:space="preserve">
+    <value>Remover todos os ajustes deste aluno? Ele voltará a seguir a rotina.</value>
   </data>
   <data name="Teacher.Routines.DueDate" xml:space="preserve">
     <value>Data de vencimento</value>
@@ -2500,7 +2575,28 @@
     <value>Ele pode mostrar detalhes sensíveis de exceções aos usuários. Para depuração local, defina {0} como {1} e reinicie o aplicativo.</value>
   </data>
   <data name="Exercise.Solfege.NoRecordingText" xml:space="preserve">
-    <value>Grave um áudio antes de continuar.</value>
+    <value>Grave-se cantando a melodia primeiro.</value>
+  </data>
+  <data name="Exercise.Solfege.StartingNote" xml:space="preserve">
+    <value>Nota inicial</value>
+  </data>
+  <data name="Exercise.Solfege.NoMelodyTitle" xml:space="preserve">
+    <value>Nenhuma melodia ainda</value>
+  </data>
+  <data name="Exercise.Solfege.NoMelodyText" xml:space="preserve">
+    <value>Clique em “Nova melodia” para receber uma melodia para cantar.</value>
+  </data>
+  <data name="Exercise.Solfege.Analyzing" xml:space="preserve">
+    <value>Analisando sua gravação…</value>
+  </data>
+  <data name="Exercise.Solfege.AnalysisError" xml:space="preserve">
+    <value>Não foi possível analisar esta gravação. Grave novamente.</value>
+  </data>
+  <data name="Exercise.Solfege.NothingHeardTitle" xml:space="preserve">
+    <value>Nenhuma nota detectada</value>
+  </data>
+  <data name="Exercise.Solfege.NothingHeardText" xml:space="preserve">
+    <value>Não conseguimos ouvir nenhuma nota. Cante um pouco mais alto, perto do microfone, e grave novamente.</value>
   </data>
   <data name="Lockout.Header" xml:space="preserve">
     <value>Conta bloqueada</value>

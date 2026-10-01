@@ -20,9 +20,23 @@
         </div>
     </div>
 
-    @if (!string.IsNullOrWhiteSpace(Model.CustomFiltersHtml))
+    @if (Model.Groups.Count > 0)
     {
+        var presets = AcademiaAuditiva.Services.ExerciseFilterPresets.FromQuery(Context.Request.Query, Model.Groups);
         <hr class="my-4" />
-        @Html.Raw(Model.CustomFiltersHtml)
+        @* The exercise scripts read these selects by id/name, so both stay equal to the group name. *@
+        @foreach (var group in Model.Groups)
+        {
+            presets.TryGetValue(group.Name, out var preset);
+            <div class="mb-3">
+                <label for="@group.Name" class="form-label">@Localizer[group.Label]</label>
+                <select id="@group.Name" name="@group.Name" class="form-select">
+                    @foreach (var opt in group.Options)
+                    {
+                        <option value="@opt.Value" selected="@(opt.Value == preset)">@Localizer[opt.Text]</option>
+                    }
+                </select>
+            </div>
+        }
     }
 </form>

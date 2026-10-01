@@ -91,11 +91,12 @@ public sealed class AudioController : ControllerBase
     }
 
     /// <summary>
-    /// Authenticated by-name access to the source piano samples. Used
-    /// only by the sheet-music exercises (SolfegeMelody, IntervalMelodico)
-    /// where the note names are intentionally visible to the learner —
-    /// hiding the URL would not add anti-cheat value. Requires login,
-    /// rejects path traversal, and only serves the source container.
+    /// Authenticated by-name access to the source piano samples. No
+    /// exercise page uses it (they all play round tokens); it lets
+    /// <c>scripts/local-audio.ps1 -DownloadFrom</c> copy the samples for
+    /// local development, since the storage account is reachable only
+    /// from the VNet. The samples carry no answer information. Requires
+    /// login, rejects path traversal, and only serves the source container.
     /// </summary>
     [HttpGet("{name}")]
     [ResponseCache(Duration = 31536000, Location = ResponseCacheLocation.Any)]

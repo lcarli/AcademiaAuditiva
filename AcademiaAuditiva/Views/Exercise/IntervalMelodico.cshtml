@@ -58,7 +58,7 @@
                     <label class="form-label" for="startIntervalSelect">@Localizer["Exercise.IntervalMelodico.StartInterval"]</label>
                     <select class="form-select" id="startIntervalSelect">
                         <option value="">@Localizer["Exercise.SelectOption"]</option>
-                        <option value="Unísono">@Localizer["Exercise.Interval.Unison"]</option>
+                        <option value="1J">@Localizer["Exercise.Interval.Unison"]</option>
                         @foreach (var interval in intervals)
                         {
                             <option value="@interval.Value">@Localizer[interval.Key]</option>
@@ -69,7 +69,7 @@
                     <label class="form-label" for="endIntervalSelect">@Localizer["Exercise.IntervalMelodico.EndInterval"]</label>
                     <select class="form-select" id="endIntervalSelect">
                         <option value="">@Localizer["Exercise.SelectOption"]</option>
-                        <option value="Unísono">@Localizer["Exercise.Interval.Unison"]</option>
+                        <option value="1J">@Localizer["Exercise.Interval.Unison"]</option>
                         @foreach (var interval in intervals)
                         {
                             <option value="@interval.Value">@Localizer[interval.Key]</option>

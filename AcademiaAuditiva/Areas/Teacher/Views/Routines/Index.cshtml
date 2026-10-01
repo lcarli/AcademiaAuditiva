@@ -7,9 +7,6 @@
     <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.NewBtn"]</a>
 </div>
 
-@if (TempData["Success"] is string s) { <div class="alert alert-success">@s</div> }
-@if (TempData["Error"] is string e) { <div class="alert alert-danger">@e</div> }
-
 @if (!Model.Any())
 {
     <div class="aa-card-flat p-4 text-center">

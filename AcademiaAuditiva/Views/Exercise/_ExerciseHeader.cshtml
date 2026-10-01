@@ -21,3 +21,28 @@
         </button>
     </div>
 </div>
+
+@{
+    // Routine links (My training) open the exercise with its filters in the query string.
+    var appliedPresets = AcademiaAuditiva.Services.ExerciseFilterPresets.Describe(
+        Model.Filters.Groups,
+        AcademiaAuditiva.Services.ExerciseFilterPresets.FromQuery(Context.Request.Query, Model.Filters.Groups));
+}
+@if (appliedPresets.Count > 0)
+{
+    <div class="aa-preset" role="note">
+        <i class="bi bi-bookmark-check" aria-hidden="true"></i>
+        <div class="aa-preset-body">
+            <strong>@Localizer["Exercise.Preset.Title"]</strong>
+            <ul class="aa-preset-list">
+                @foreach (var applied in appliedPresets)
+                {
+                    <li class="aa-badge-soft">@Localizer[applied.Group.Label]: @Localizer[applied.Option.Text]</li>
+                }
+            </ul>
+        </div>
+        <button type="button" class="btn btn-link btn-sm aa-preset-change" data-bs-toggle="modal" data-bs-target="#filtersModal">
+            @Localizer["Exercise.Preset.Change"]
+        </button>
+    </div>
+}
