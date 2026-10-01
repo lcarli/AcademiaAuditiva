@@ -64,5 +64,19 @@ public class PipelineSmokeTests : IClassFixture<TestWebApplicationFactory>
         var response = await client.PostAsync("/Exercise/ValidateExercise", new StringContent("{}", System.Text.Encoding.UTF8, "application/json"));
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Redirect, HttpStatusCode.Found, HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task LearningPath_RedirectsToLogin_WhenAnonymous()
+    {
+        var client = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        var response = await client.GetAsync("/LearningPath");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location!.AbsolutePath.Should().Be("/Identity/Account/Login");
+    }
 }
 

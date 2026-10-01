@@ -89,6 +89,7 @@ public sealed class GamificationSqlTests
             .Options);
         var service = new GamificationService(
             db,
+            new PracticeHistory(db),
             _fixture.Services.GetRequiredService<IStringLocalizer<SharedResources>>(),
             NullLogger<GamificationService>.Instance,
             TimeProvider.System);

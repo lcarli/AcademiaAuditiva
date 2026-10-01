@@ -2055,8 +2055,250 @@ a:focus-visible {
 }
 
 .aa-celebration-popup .aa-rank-lg,
-.aa-celebration-popup .aa-medal-disc {
+.aa-celebration-popup .aa-medal-disc,
+.aa-celebration-popup .aa-path-disc {
     animation: aa-pop-in .45s cubic-bezier(.2, .9, .3, 1.3) both;
+}
+
+/* ---------- Learning path ---------- */
+/* Overall progress: one segment per step, a wider gap where a unit starts. */
+.aa-path-track {
+    display: flex;
+    gap: 3px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.aa-path-track > li {
+    flex: 1 1 0;
+    height: .5rem;
+    border-radius: 999px;
+    background: var(--aa-line);
+}
+
+.aa-path-track > li.is-completed {
+    background: var(--aa-accent);
+}
+
+.aa-path-track > li.is-current {
+    background: color-mix(in srgb, var(--aa-accent) 35%, var(--aa-line));
+}
+
+.aa-path-track > li.aa-path-track-unit {
+    margin-inline-start: .45rem;
+}
+
+.aa-path-summary {
+    width: min(100%, 22rem);
+}
+
+/* Steps: a marker on a vertical line, then the step card. */
+.aa-path-steps {
+    display: grid;
+    gap: .75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.aa-path-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+/* Connector from this marker down to the next one. */
+.aa-path-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    top: 2.5rem;
+    bottom: -.75rem;
+    left: calc(1.25rem - 1px);
+    width: 2px;
+    background: var(--aa-line);
+}
+
+.aa-path-step.is-completed:not(:last-child)::before {
+    background: var(--aa-accent);
+}
+
+.aa-path-marker {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--aa-bg);
+    color: var(--aa-muted);
+    box-shadow: inset 0 0 0 2px var(--aa-line-strong);
+    font-family: var(--aa-font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.aa-path-step.is-completed .aa-path-marker {
+    background: var(--aa-accent);
+    color: var(--aa-on-accent);
+    box-shadow: none;
+}
+
+.aa-path-step.is-current .aa-path-marker {
+    background: var(--aa-accent-soft);
+    color: var(--aa-accent-text);
+    box-shadow: inset 0 0 0 2px var(--aa-accent), 0 0 0 4px color-mix(in srgb, var(--aa-accent) 15%, transparent);
+}
+
+.aa-path-step-body {
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--aa-line);
+    border-radius: var(--aa-radius-lg);
+    background: var(--aa-surface);
+}
+
+.aa-path-step.is-current .aa-path-step-body {
+    border-color: color-mix(in srgb, var(--aa-accent) 55%, var(--aa-line));
+    box-shadow: var(--aa-shadow-sm);
+}
+
+.aa-path-step.is-locked .aa-path-step-body {
+    border-style: dashed;
+    background: transparent;
+}
+
+.aa-path-step-number {
+    display: block;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--aa-muted);
+}
+
+.aa-path-step-title {
+    margin: .15rem 0 .25rem;
+    font-family: var(--aa-font-ui);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--aa-ink);
+}
+
+.aa-path-step-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.aa-path-step-title a:hover,
+.aa-path-step-title a:focus-visible {
+    color: var(--aa-accent-text);
+    text-decoration: underline;
+}
+
+.aa-path-step.is-locked .aa-path-step-title {
+    color: var(--aa-muted);
+}
+
+.aa-path-state {
+    display: inline-flex;
+    align-items: center;
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.aa-path-state.is-completed {
+    background: var(--aa-ok-bg);
+    color: var(--aa-ok);
+}
+
+.aa-path-state.is-current {
+    background: var(--aa-accent-soft);
+    color: var(--aa-accent-text);
+}
+
+.aa-path-state.is-locked {
+    background: var(--aa-hover-tint);
+    color: var(--aa-muted);
+}
+
+.aa-path-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin: .6rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.aa-path-step.is-locked .aa-path-presets .aa-badge-soft {
+    background: var(--aa-hover-tint);
+    color: var(--aa-muted);
+}
+
+/* Answer dialog footer with both rows: XP and learning path. */
+.aa-answer-footer {
+    display: grid;
+    gap: .6rem;
+    width: 100%;
+}
+
+.aa-path-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem .6rem;
+    width: 100%;
+    font-size: .875rem;
+    color: var(--aa-ink);
+}
+
+.aa-path-footer > .bi {
+    color: var(--aa-accent-text);
+}
+
+.aa-path-footer.is-complete > .bi {
+    color: var(--aa-ok);
+}
+
+.aa-path-footer .aa-xp-bar {
+    --bs-progress-height: .4rem;
+    flex: 1 1 5rem;
+    max-width: 7rem;
+}
+
+.aa-path-footer.is-complete .progress-bar {
+    background-color: var(--aa-ok);
+}
+
+/* Step complete dialog. */
+.aa-path-disc {
+    display: inline-grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    margin: .25rem auto 1rem;
+    border-radius: 50%;
+    background: var(--aa-accent-soft);
+    color: var(--aa-accent-text);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--aa-accent) 12%, transparent);
+    font-size: 2rem;
+}
+
+.aa-celebration-next {
+    margin: .4rem 0 0;
+    color: var(--aa-muted);
+}
+
+.aa-celebration > .aa-rank:not(.aa-rank-lg) {
+    margin: .6rem 0;
 }
 
 /* ---------- SweetAlert2 (v10) ----------

@@ -4,6 +4,7 @@ using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Gamification;
+using AcademiaAuditiva.Services.LearningPath;
 using AcademiaAuditiva.Services.Scoring;
 using AcademiaAuditiva.ViewModels;
 using AcademiaAuditiva.Interfaces;
@@ -35,6 +36,7 @@ namespace AcademiaAuditiva.Controllers
 		private readonly IAudioMixerService _audioMixer;
 		private readonly AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner _playbackPlanner;
 		private readonly IGamificationService _gamification;
+		private readonly ILearningPathService _learningPath;
 		private readonly ILogger<ExerciseController> _logger;
 		// Expected-answer entries live for one round (15 min) and are
 		// keyed per (user, exercise). The cache is a distributed abstraction
@@ -53,6 +55,7 @@ namespace AcademiaAuditiva.Controllers
 			IAudioMixerService audioMixer,
 			AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner playbackPlanner,
 			IGamificationService gamification,
+			ILearningPathService learningPath,
 			ILogger<ExerciseController> logger)
 		{
 			_context = context;
@@ -65,6 +68,7 @@ namespace AcademiaAuditiva.Controllers
 			_audioMixer = audioMixer;
 			_playbackPlanner = playbackPlanner;
 			_gamification = gamification;
+			_learningPath = learningPath;
 			_logger = logger;
 		}
 
@@ -361,6 +365,21 @@ namespace AcademiaAuditiva.Controllers
 				_logger.LogWarning(ex, "Could not update XP and badges after exercise {ExerciseId}.", exercise.ExerciseId);
 			}
 
+			// Learning path progress is a bonus too, and independent of the rewards.
+			object? path = null;
+			if (LearningPathCatalog.Steps.Any(s => s.Exercise == exercise.Name))
+			{
+				try
+				{
+					var progress = await _learningPath.GetProgressAsync(userId, HttpContext.RequestAborted);
+					path = BuildPathFeedback(progress, exercise.Name);
+				}
+				catch (Exception ex) when (ex is not OperationCanceledException)
+				{
+					_logger.LogWarning(ex, "Could not update the learning path after exercise {ExerciseId}.", exercise.ExerciseId);
+				}
+			}
+
 			return Json(new
 			{
 				success = true,
@@ -370,8 +389,54 @@ namespace AcademiaAuditiva.Controllers
 				bestScore,
 				answer = currentAnswer,
 				message = isCorrect ? _localizer["Exercise.CorrectAnswer"].Value : _localizer["Exercise.IncorrectAnswer"].Value,
-				rewards
+				rewards,
+				path
 			});
+		}
+
+		// Shape read by wwwroot/js/core/rewards.js. Null unless the answered exercise is
+		// the player's current step or the answer just completed its step.
+		private object? BuildPathFeedback(LearningPathProgress progress, string exerciseName)
+		{
+			var label = _localizer["LearningPath.Title"].Value;
+			var done = progress.JustCompleted;
+			if (done is not null && done.Exercise == exerciseName)
+			{
+				var next = progress.Current;
+				var (title, icon) = progress.IsComplete
+					? (_localizer["LearningPath.PathComplete.Title"].Value, "bi-trophy")
+					: progress.UnitOf(done).State == StepState.Completed
+						? (_localizer["LearningPath.UnitComplete.Title"].Value, "bi-flag")
+						: (_localizer["LearningPath.StepComplete.Title"].Value, "bi-check2-circle");
+				return new
+				{
+					label,
+					text = _localizer["LearningPath.StepComplete.Title"].Value,
+					percent = 100,
+					completed = true,
+					celebration = new
+					{
+						title,
+						icon,
+						text = _localizer["LearningPath.StepCompleteText", done.Number, _localizer.StepTitle(done)].Value,
+						nextText = next is null ? null : _localizer["LearningPath.NextStep", _localizer.StepTitle(next)].Value,
+						actionText = next is null ? _localizer["LearningPath.ViewPath"].Value : _localizer["LearningPath.GoToNext"].Value,
+						actionUrl = next is null ? Url.Action("Index", "LearningPath") : Url.StepUrl(next),
+						closeText = _localizer["Gamification.Continue"].Value
+					}
+				};
+			}
+
+			var current = progress.Current;
+			if (current is null || current.Exercise != exerciseName) return null;
+			return new
+			{
+				label,
+				text = _localizer["LearningPath.Progress", current.Correct, current.Required].Value,
+				percent = current.Percent,
+				completed = false,
+				celebration = (object?)null
+			};
 		}
 
 		// Shape read by wwwroot/js/core/rewards.js; every text is already localized.

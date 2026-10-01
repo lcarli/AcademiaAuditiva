@@ -117,6 +117,7 @@ public class GamificationServiceTests
             Options.Create(new LocalizationOptions()), NullLoggerFactory.Instance);
         return new GamificationService(
             db,
+            new PracticeHistory(db),
             new StringLocalizer<SharedResources>(localizerFactory),
             NullLogger<GamificationService>.Instance,
             new FixedClock(nowUtc));

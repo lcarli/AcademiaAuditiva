@@ -643,7 +643,7 @@
     <value>Majeure et mineure</value>
   </data>
   <data name="Exercise.Preset.Title" xml:space="preserve">
-    <value>Réglages de votre routine</value>
+    <value>Réglages suggérés</value>
   </data>
   <data name="Exercise.Preset.Change" xml:space="preserve">
     <value>Modifier</value>
@@ -3104,5 +3104,98 @@
   </data>
   <data name="Badge.badge_collector.Description" xml:space="preserve">
     <value>Obtenez 15 autres badges.</value>
+  </data>
+  <data name="Header.LearningPath" xml:space="preserve">
+    <value>Parcours</value>
+  </data>
+  <data name="LearningPath.Title" xml:space="preserve">
+    <value>Parcours d’apprentissage</value>
+  </data>
+  <data name="LearningPath.Subtitle" xml:space="preserve">
+    <value>Une suite guidée d’exercices, de la comparaison de deux notes aux dictées complètes. Terminez chaque étape pour débloquer la suivante.</value>
+  </data>
+  <data name="LearningPath.Start" xml:space="preserve">
+    <value>Commencer le parcours</value>
+  </data>
+  <data name="LearningPath.Continue" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="LearningPath.ViewPath" xml:space="preserve">
+    <value>Voir le parcours</value>
+  </data>
+  <data name="LearningPath.Unit.FirstSteps.Title" xml:space="preserve">
+    <value>Premiers pas</value>
+  </data>
+  <data name="LearningPath.Unit.FirstSteps.Description" xml:space="preserve">
+    <value>Entraînez votre oreille à comparer des notes, à entendre des intervalles et des accords, et à repérer les changements dans une mélodie.</value>
+  </data>
+  <data name="LearningPath.Unit.BuildingBlocks.Title" xml:space="preserve">
+    <value>Les fondations</value>
+  </data>
+  <data name="LearningPath.Unit.BuildingBlocks.Description" xml:space="preserve">
+    <value>Intervalles, qualités d’accords, gammes, fonctions harmoniques et rythme : les pièces de toute musique.</value>
+  </data>
+  <data name="LearningPath.Unit.Musicianship.Title" xml:space="preserve">
+    <value>Musicalité</value>
+  </data>
+  <data name="LearningPath.Unit.Musicianship.Description" xml:space="preserve">
+    <value>Intervalles complets, inversions, modes, cadences, dictées et reconnaissance des notes à l’oreille.</value>
+  </data>
+  <data name="LearningPath.State.Completed" xml:space="preserve">
+    <value>Terminée</value>
+  </data>
+  <data name="LearningPath.State.Current" xml:space="preserve">
+    <value>En cours</value>
+  </data>
+  <data name="LearningPath.State.Locked" xml:space="preserve">
+    <value>Verrouillée</value>
+  </data>
+  <data name="LearningPath.LockedHint" xml:space="preserve">
+    <value>Terminez l’étape précédente pour la débloquer.</value>
+  </data>
+  <data name="LearningPath.Done" xml:space="preserve">
+    <value>Vous avez terminé le parcours d’apprentissage !</value>
+  </data>
+  <data name="LearningPath.DoneText" xml:space="preserve">
+    <value>Toutes les étapes sont terminées. Continuez à pratiquer librement ou créez vos routines dans Mon entraînement.</value>
+  </data>
+  <data name="LearningPath.Empty" xml:space="preserve">
+    <value>Le parcours d’apprentissage n’est pas disponible pour le moment.</value>
+  </data>
+  <data name="LearningPath.StepComplete.Title" xml:space="preserve">
+    <value>Étape terminée !</value>
+  </data>
+  <data name="LearningPath.UnitComplete.Title" xml:space="preserve">
+    <value>Unité terminée !</value>
+  </data>
+  <data name="LearningPath.PathComplete.Title" xml:space="preserve">
+    <value>Parcours terminé !</value>
+  </data>
+  <data name="LearningPath.GoToNext" xml:space="preserve">
+    <value>Passer à l’étape suivante</value>
+  </data>
+  <data name="LearningPath.StepsCount" xml:space="preserve">
+    <value>{0} sur {1} étapes</value>
+  </data>
+  <data name="LearningPath.UnitNumber" xml:space="preserve">
+    <value>Unité {0}</value>
+  </data>
+  <data name="LearningPath.StepNumber" xml:space="preserve">
+    <value>Étape {0}</value>
+  </data>
+  <data name="LearningPath.StepOf" xml:space="preserve">
+    <value>Étape {0} sur {1}</value>
+  </data>
+  <data name="LearningPath.Goal" xml:space="preserve">
+    <value>Objectif : {0} bonnes réponses sur vos {1} dernières.</value>
+  </data>
+  <data name="LearningPath.Progress" xml:space="preserve">
+    <value>{0} sur {1} bonnes réponses</value>
+  </data>
+  <data name="LearningPath.StepCompleteText" xml:space="preserve">
+    <value>Vous avez terminé l’étape {0} : {1}.</value>
+  </data>
+  <data name="LearningPath.NextStep" xml:space="preserve">
+    <value>Prochaine étape : {0}</value>
   </data>
 </root>

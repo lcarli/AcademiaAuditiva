@@ -1,0 +1,137 @@
+@model AcademiaAuditiva.Services.LearningPath.LearningPathProgress
+@using AcademiaAuditiva.Services.LearningPath
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
+@{
+    ViewBag.Title = Localizer["LearningPath.Title"].Value;
+    var current = Model.Current;
+}
+
+<header class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+    <div class="aa-path-intro">
+        <a class="aa-eyebrow text-decoration-none" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>@Localizer["Dashboard.Title"]
+        </a>
+        <h1 class="display-6 mt-2 mb-1 text-body-emphasis">@Localizer["LearningPath.Title"]</h1>
+        <p class="text-secondary mb-0">@Localizer["LearningPath.Subtitle"]</p>
+    </div>
+    @if (Model.TotalSteps > 0)
+    {
+        <div class="aa-card aa-path-summary px-4 py-3">
+            <div class="d-flex align-items-baseline justify-content-between gap-3 mb-2">
+                <p class="h5 mb-0 text-body-emphasis">@Localizer["LearningPath.StepsCount", Model.CompletedSteps, Model.TotalSteps]</p>
+                <span class="small text-secondary">@Localizer["Common.Percent", Model.Percent]</span>
+            </div>
+            <partial name="_LearningPathTrack" model="Model" />
+            @if (current is not null)
+            {
+                <a class="btn btn-primary btn-sm mt-3" href="@Url.StepUrl(current)">
+                    <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer[Model.HasStarted ? "LearningPath.Continue" : "LearningPath.Start"]
+                </a>
+            }
+        </div>
+    }
+</header>
+
+@if (Model.TotalSteps == 0)
+{
+    <p class="text-secondary">@Localizer["LearningPath.Empty"]</p>
+}
+else if (Model.IsComplete)
+{
+    <div class="aa-card p-4 mb-5 d-flex align-items-center gap-3" role="status">
+        <span class="aa-icon-pill" aria-hidden="true"><i class="bi bi-trophy"></i></span>
+        <div>
+            <h2 class="h5 mb-1 text-body-emphasis">@Localizer["LearningPath.Done"]</h2>
+            <p class="text-secondary mb-0">@Localizer["LearningPath.DoneText"]</p>
+        </div>
+    </div>
+}
+
+@foreach (var unit in Model.Units)
+{
+    var unitId = "path-unit-" + unit.Number;
+    <section class="mb-5" aria-labelledby="@unitId">
+        <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-3">
+            <div>
+                <span class="aa-eyebrow">@Localizer["LearningPath.UnitNumber", unit.Number]</span>
+                <h2 id="@unitId" class="h4 mt-1 mb-1 text-body-emphasis">@Localizer[$"LearningPath.Unit.{unit.Key}.Title"]</h2>
+                <p class="small text-secondary mb-0">@Localizer[$"LearningPath.Unit.{unit.Key}.Description"]</p>
+            </div>
+            <span class="aa-badge-soft">
+                @if (unit.State == StepState.Completed)
+                {
+                    <i class="bi bi-check2" aria-hidden="true"></i>
+                }
+                @Localizer["LearningPath.StepsCount", unit.CompletedSteps, unit.Steps.Count]
+            </span>
+        </div>
+        <ol class="aa-path-steps">
+            @foreach (var step in unit.Steps)
+            {
+                var state = step.State.ToString().ToLowerInvariant();
+                <li class="aa-path-step is-@state" aria-current="@(step.State == StepState.Current ? "step" : null)">
+                    <span class="aa-path-marker" aria-hidden="true">
+                        @if (step.State == StepState.Completed)
+                        {
+                            <i class="bi bi-check-lg"></i>
+                        }
+                        else if (step.State == StepState.Locked)
+                        {
+                            <i class="bi bi-lock"></i>
+                        }
+                        else
+                        {
+                            @step.Number
+                        }
+                    </span>
+                    <div class="aa-path-step-body">
+                        <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+                            <div>
+                                <span class="aa-path-step-number">@Localizer["LearningPath.StepNumber", step.Number]</span>
+                                <h3 class="aa-path-step-title">
+                                    @if (step.State == StepState.Locked)
+                                    {
+                                        @S.StepTitle(step)
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.StepUrl(step)">@S.StepTitle(step)</a>
+                                    }
+                                </h3>
+                            </div>
+                            <span class="aa-path-state is-@state">@Localizer[$"LearningPath.State.{step.State}"]</span>
+                        </div>
+                        <p class="small text-secondary mb-0">@S.StepSubtitle(step)</p>
+                        @if (step.AppliedFilters.Count > 0)
+                        {
+                            <ul class="aa-path-presets">
+                                @foreach (var f in step.AppliedFilters)
+                                {
+                                    <li class="aa-badge-soft">@Localizer["Common.LabelValue", Localizer[f.Group.Label], Localizer[f.Option.Text]]</li>
+                                }
+                            </ul>
+                        }
+                        @if (step.State == StepState.Current)
+                        {
+                            <p class="small text-body-emphasis mt-3 mb-2">@Localizer["LearningPath.Goal", step.Required, step.Window]</p>
+                            <div class="d-flex flex-wrap align-items-center gap-2 gap-sm-3">
+                                <div class="progress aa-xp-bar flex-grow-1" role="progressbar"
+                                     aria-label="@S["LearningPath.Progress", step.Correct, step.Required]"
+                                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="@step.Percent">
+                                    <div class="progress-bar" style="width: @(step.Percent)%"></div>
+                                </div>
+                                <span class="small text-secondary text-nowrap">@Localizer["LearningPath.Progress", step.Correct, step.Required]</span>
+                            </div>
+                        }
+                        else if (step.State == StepState.Locked)
+                        {
+                            <p class="small text-secondary mt-2 mb-0">
+                                <i class="bi bi-lock me-1" aria-hidden="true"></i>@Localizer["LearningPath.LockedHint"]
+                            </p>
+                        }
+                    </div>
+                </li>
+            }
+        </ol>
+    </section>
+}

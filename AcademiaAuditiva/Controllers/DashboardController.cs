@@ -3,6 +3,7 @@ using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Gamification;
+using AcademiaAuditiva.Services.LearningPath;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -22,6 +23,7 @@ namespace AcademiaAuditiva.Controllers
         private readonly IStringLocalizer<SharedResources> _localizer;
         private readonly UserReportService _userReportService;
         private readonly IGamificationService _gamification;
+        private readonly ILearningPathService _learningPath;
         private readonly ILogger<DashboardController> _logger;
 
         public DashboardController(
@@ -30,6 +32,7 @@ namespace AcademiaAuditiva.Controllers
             IStringLocalizer<SharedResources> localizer,
             UserReportService userReportService,
             IGamificationService gamification,
+            ILearningPathService learningPath,
             ILogger<DashboardController> logger)
         {
             _context = context;
@@ -37,6 +40,7 @@ namespace AcademiaAuditiva.Controllers
             _localizer = localizer;
             _userReportService = userReportService;
             _gamification = gamification;
+            _learningPath = learningPath;
             _logger = logger;
         }
 
@@ -73,6 +77,16 @@ namespace AcademiaAuditiva.Controllers
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex, "Could not load the gamification profile for the dashboard.");
+            }
+
+            // So is the learning path card.
+            try
+            {
+                ViewBag.LearningPath = await _learningPath.GetProgressAsync(userId, HttpContext.RequestAborted);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogWarning(ex, "Could not load the learning path for the dashboard.");
             }
 
             return View(profile);
