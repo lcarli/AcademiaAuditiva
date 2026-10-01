@@ -45,7 +45,7 @@ var sqlConnectionString = 'Server=tcp:${sqlServerFqdn},1433;Initial Catalog=${sq
 
 var envVars = [
   { name: 'ASPNETCORE_ENVIRONMENT', value: 'Production' }
-  { name: 'ASPNETCORE_URLS', value: 'http://+:${targetPort}' }
+  { name: 'ASPNETCORE_HTTP_PORTS', value: string(targetPort) }
   { name: 'AzureKeyVault__Url', value: keyVaultUri }
   { name: 'ManagedIdentityClientId', value: managedIdentityClientId }
   { name: 'AZURE_CLIENT_ID', value: managedIdentityClientId }

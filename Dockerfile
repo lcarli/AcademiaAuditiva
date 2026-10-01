@@ -42,7 +42,9 @@ USER app
 
 COPY --from=build --chown=app:app /app/publish .
 
-ENV ASPNETCORE_URLS=http://+:8080 \
+# HTTP_PORTS, not URLS: the base image already sets HTTP_PORTS, and setting
+# both makes ASP.NET Core warn that URLS overrides it.
+ENV ASPNETCORE_HTTP_PORTS=8080 \
     ASPNETCORE_ENVIRONMENT=Production \
     APP_VERSION=$APP_VERSION \
     DOTNET_RUNNING_IN_CONTAINER=true \

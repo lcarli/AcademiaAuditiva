@@ -1,7 +1,7 @@
 # Smoke Test Manual — `feat/v2-layout-polish`
 
-App: http://localhost:5000
-Admin: `lucas.decarli.ca@gmail.com` / `Admin!LocalDev1`
+App: http://localhost:5063 (`dotnet run --project AcademiaAuditiva`)
+Admin: o usuário dos user-secrets `Admin:Email` / `Admin:InitialPassword` (veja `docs/Run-Locally.md`)
 
 > Marque `[x]` no que passa, anote `❌ <descrição>` no que falha.
 
