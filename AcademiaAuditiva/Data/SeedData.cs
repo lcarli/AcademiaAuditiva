@@ -313,15 +313,17 @@ public static class SeedData
                             new("C", "C"),
                             new("C#", "C#"),
                             new("D", "D"),
-                            new("D#", "D#"),
+                            new("Eb", "Eb"),
                             new("E", "E"),
                             new("F", "F"),
                             new("F#", "F#"),
                             new("G", "G"),
-                            new("G#", "G#"),
+                            new("Ab", "Ab"),
                             new("A", "A"),
-                            new("A#", "A#"),
-                            new("B", "B")
+                            new("Bb", "Bb"),
+                            new("B", "B"),
+                            new("Db", "Db"),
+                            new("Gb", "Gb")
                         }
                     },
                     new FilterOptionGroup

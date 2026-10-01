@@ -1150,7 +1150,7 @@ namespace AcademiaAuditiva.Services
 
                 case "CompleteChord":
                 {
-                    var ccAllNotes = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+                    var ccAllNotes = new[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B" };
                     var ccOctave = filters.TryGetValue("ccOctave", out var ccO)
                         && int.TryParse(ccO, out var ccOctP)
                         && (ccOctP == 3 || ccOctP == 4)
@@ -1189,7 +1189,7 @@ namespace AcademiaAuditiva.Services
 
                 case "TransposeScale":
                 {
-                    var tsAllNotes = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+                    var tsAllNotes = new[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "Db", "Gb" };
                     var tsScales = new[] { "major", "minor" };
                     var tsRoot = filters.TryGetValue("tsRoot", out var tsR) && tsAllNotes.Contains(tsR) ? tsR : tsAllNotes[random.Next(tsAllNotes.Length)];
                     var tsScale = filters.TryGetValue("tsScale", out var tsS) && tsScales.Contains(tsS) ? tsS : "major";
@@ -1239,7 +1239,7 @@ namespace AcademiaAuditiva.Services
 
                 case "MelodicDictation":
                 {
-                    var mdAllNotes = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+                    var mdAllNotes = new[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "Db", "Gb" };
                     var mdScales = new[] { "major", "minor" };
                     var mdRoot = filters.TryGetValue("mdRoot", out var mdR) && mdAllNotes.Contains(mdR) ? mdR : mdAllNotes[random.Next(mdAllNotes.Length)];
                     var mdScale = filters.TryGetValue("mdScale", out var mdS) && mdScales.Contains(mdS) ? mdS : "major";

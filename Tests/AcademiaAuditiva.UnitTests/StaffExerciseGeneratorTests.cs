@@ -176,7 +176,7 @@ public class StaffExerciseGeneratorTests
     [Fact]
     public void TransposeScale_OfferedFilters_AlwaysProduceEditorEnterableAnswers()
     {
-        foreach (var root in new[] { "any", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" })
+        foreach (var root in new[] { "any", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "Db", "Gb" })
         foreach (var scale in new[] { "major", "minor" })
         for (var attempt = 0; attempt < 25; attempt++)
         {
@@ -234,7 +234,7 @@ public class StaffExerciseGeneratorTests
     [Fact]
     public void TransposeScale_InvalidFilters_FallBackToValidRound()
     {
-        var json = GenerateJson("TransposeScale", new() { { "tsRoot", "Db" }, { "tsScale", "x" }, { "tsOctave", "9" } });
+        var json = GenerateJson("TransposeScale", new() { { "tsRoot", "H" }, { "tsScale", "x" }, { "tsOctave", "9" } });
 
         json["error"].Should().BeNull();
         json.Value<string>("scale").Should().Be("major");
