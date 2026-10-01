@@ -27,7 +27,7 @@
             <header class="aa-legal-head">
                 <span class="aa-eyebrow">Your data</span>
                 <h1 class="aa-section-title">Privacy Policy</h1>
-                <p class="aa-legal-meta">Last updated: September 30, 2026</p>
+                <p class="aa-legal-meta">Last updated: October 1, 2026</p>
                 <p class="lead mb-0">Academia Auditiva helps you train your ear. This policy explains, in plain language, what personal data we collect, why we collect it, who can see it and how you stay in control of it.</p>
             </header>
 
@@ -53,6 +53,7 @@
                 <ul>
                     <li>Each answer you give in an exercise: the exercise, your answer, the correct answer, whether you got it right, how long you took and when.</li>
                     <li>Your totals and best score for each exercise, and the badges you earn.</li>
+                    <li>Your level, XP and practice streak, which we calculate from your answers and badges. To count your practice days in your own time zone, your browser sends us its time zone in a cookie (see below). We don't save it with your account.</li>
                 </ul>
 
                 <h3>Classrooms and routines</h3>
@@ -144,6 +145,11 @@
                             <tr>
                                 <td><code>.AspNetCore.Culture</code></td>
                                 <td>Remembers the language you choose.</td>
+                                <td>1 year</td>
+                            </tr>
+                            <tr>
+                                <td><code>aa_tz</code></td>
+                                <td>Tells the site your time zone, so your practice streak follows your local days. Only set when you're signed in.</td>
                                 <td>1 year</td>
                             </tr>
                         </tbody>

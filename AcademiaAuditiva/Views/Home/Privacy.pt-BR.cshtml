@@ -27,7 +27,7 @@
             <header class="aa-legal-head">
                 <span class="aa-eyebrow">Seus dados</span>
                 <h1 class="aa-section-title">Política de Privacidade</h1>
-                <p class="aa-legal-meta">Última atualização: 30 de setembro de 2026</p>
+                <p class="aa-legal-meta">Última atualização: 1º de outubro de 2026</p>
                 <p class="lead mb-0">A Academia Auditiva ajuda você a treinar o ouvido. Esta política explica, em linguagem simples, quais dados pessoais coletamos, por que os coletamos, quem pode vê-los e como você mantém o controle sobre eles.</p>
             </header>
 
@@ -53,6 +53,7 @@
                 <ul>
                     <li>Cada resposta que você dá em um exercício: o exercício, a sua resposta, a resposta correta, se você acertou, quanto tempo levou e quando.</li>
                     <li>Seus totais e sua melhor pontuação em cada exercício, e as conquistas que você obtém.</li>
+                    <li>Seu nível, seu XP e sua sequência de prática, que calculamos a partir das suas respostas e conquistas. Para contar os dias de prática no seu fuso horário, o navegador nos envia o fuso dele em um cookie (veja abaixo). Não o salvamos na sua conta.</li>
                 </ul>
 
                 <h3>Turmas e rotinas</h3>
@@ -144,6 +145,11 @@
                             <tr>
                                 <td><code>.AspNetCore.Culture</code></td>
                                 <td>Lembra o idioma que você escolheu.</td>
+                                <td>1 ano</td>
+                            </tr>
+                            <tr>
+                                <td><code>aa_tz</code></td>
+                                <td>Informa o seu fuso horário ao site, para que a sequência de prática siga os dias no seu horário local. Só é criado quando você está conectado.</td>
                                 <td>1 ano</td>
                             </tr>
                         </tbody>

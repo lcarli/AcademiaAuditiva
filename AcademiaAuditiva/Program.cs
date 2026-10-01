@@ -2,6 +2,7 @@ using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Gamification;
 using AcademiaAuditiva.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
@@ -217,6 +219,8 @@ builder.Services.AddSingleton<IExerciseValidatorRegistry, AcademiaAuditiva.Servi
 //Inject UserReportService
 builder.Services.AddScoped<UserReportService>();
 builder.Services.AddScoped<PersonalDataService>();
+builder.Services.TryAddSingleton(TimeProvider.System);
+builder.Services.AddScoped<IGamificationService, GamificationService>();
 
 
 // Facebook login (external auth). Credentials come from configuration:

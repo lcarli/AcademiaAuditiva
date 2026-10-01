@@ -27,5 +27,6 @@ public class PrivacyPageTests : IClassFixture<TestWebApplicationFactory>
         html.Should().Contain($"<h1 class=\"aa-section-title\">{title}</h1>");
         html.Should().Contain("href=\"mailto:contato@academiaauditiva.com\"");
         html.Should().Contain("<section id=\"cookies\">");
+        html.Should().Contain("<code>aa_tz</code>", "the time zone cookie is disclosed");
     }
 }

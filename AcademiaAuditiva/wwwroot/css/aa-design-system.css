@@ -1827,6 +1827,238 @@ a:focus-visible {
     height: auto !important;
 }
 
+/* ---------- Gamification: level, streak, badges ---------- */
+/* The rank is a dynamics marking (pp … fff), set like one in the display serif. */
+.aa-rank {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    min-width: 3.5rem;
+    height: 3.5rem;
+    padding-inline: .6rem;
+    border-radius: 999px;
+    background: var(--aa-accent-soft);
+    color: var(--aa-accent-text);
+    font-family: var(--aa-font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -.04em;
+    line-height: 1;
+}
+
+.aa-rank-sm {
+    min-width: 1.9rem;
+    height: 1.9rem;
+    padding-inline: .4rem;
+    font-size: .95rem;
+}
+
+.aa-rank-lg {
+    min-width: 5.5rem;
+    height: 5.5rem;
+    margin: .25rem auto 1rem;
+    font-size: 2.4rem;
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--aa-accent) 12%, transparent);
+}
+
+.aa-xp-bar {
+    --bs-progress-height: .5rem;
+}
+
+.aa-icon-pill-warm {
+    background: var(--aa-warn-bg);
+    color: var(--aa-warn);
+}
+
+/* One hue per badge group, inherited by the discs inside. */
+.aa-medal-dedication { --aa-medal: var(--aa-warn); }
+.aa-medal-mastery { --aa-medal: var(--aa-accent); }
+.aa-medal-progress { --aa-medal: var(--aa-ok); }
+.aa-medal-fun { --aa-medal: color-mix(in srgb, var(--aa-accent) 55%, var(--aa-err)); }
+
+.aa-medal-disc {
+    --aa-medal-ink: var(--aa-medal, var(--aa-accent));
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--aa-medal-ink) 14%, var(--aa-bg));
+    color: var(--aa-medal-ink);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--aa-medal-ink) 40%, transparent);
+    font-size: 1.3rem;
+}
+
+.aa-medal-disc.is-new::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: .65rem;
+    height: .65rem;
+    border-radius: 50%;
+    background: var(--aa-accent);
+    box-shadow: 0 0 0 2px var(--aa-surface);
+}
+
+.aa-medal-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.aa-medal-row .aa-medal-disc {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.1rem;
+}
+
+.aa-medal {
+    display: flex;
+    align-items: flex-start;
+    gap: .9rem;
+    height: 100%;
+    padding: 1rem;
+    border: 1px solid var(--aa-line);
+    border-radius: var(--aa-radius-lg);
+    background: var(--aa-surface);
+}
+
+.aa-medal.is-new {
+    border-color: color-mix(in srgb, var(--aa-medal, var(--aa-accent)) 50%, var(--aa-line));
+}
+
+.aa-medal-title {
+    margin: 0 0 .2rem;
+    font-family: var(--aa-font-ui);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--aa-ink);
+}
+
+.aa-medal-desc {
+    margin: 0;
+    font-size: .875rem;
+    color: var(--aa-muted);
+}
+
+.aa-medal-meta {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    margin: .5rem 0 0;
+    font-size: .78rem;
+    color: var(--aa-muted);
+}
+
+.aa-medal.is-locked .aa-medal-disc {
+    background: transparent;
+    color: var(--aa-muted);
+    box-shadow: inset 0 0 0 2px var(--aa-line-strong);
+}
+
+.aa-medal.is-locked .aa-medal-title {
+    color: var(--aa-muted);
+}
+
+/* Answer dialog footer: XP gained, level, progress to the next level. */
+.aa-reward-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem .75rem;
+    width: 100%;
+    font-size: .9rem;
+}
+
+.aa-xp-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: .25rem .65rem;
+    border-radius: 999px;
+    background: var(--aa-accent-soft);
+    color: var(--aa-accent-text);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.aa-reward-level {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    color: var(--aa-ink);
+    font-weight: 600;
+}
+
+.aa-reward-footer .aa-xp-bar {
+    --bs-progress-height: .4rem;
+    flex: 1 1 6rem;
+    max-width: 9rem;
+}
+
+/* Level-up / new badge dialog. */
+.aa-celebration-text {
+    margin: 0;
+    color: var(--aa-ink);
+    font-weight: 500;
+}
+
+.aa-celebration-heading {
+    margin: 1.25rem 0 0;
+    color: var(--aa-ink);
+    font-weight: 600;
+}
+
+.aa-reward-medals {
+    display: grid;
+    gap: .6rem;
+    margin: .75rem 0 0;
+    padding: 0;
+    list-style: none;
+    text-align: start;
+}
+
+.aa-reward-medal {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .75rem .9rem;
+    border: 1px solid var(--aa-line);
+    border-radius: var(--aa-radius);
+    background: var(--aa-surface);
+}
+
+.aa-reward-medal-body {
+    display: grid;
+    gap: .1rem;
+}
+
+.aa-reward-medal-body > strong {
+    color: var(--aa-ink);
+}
+
+.aa-reward-medal-body > span {
+    font-size: .875rem;
+    color: var(--aa-muted);
+}
+
+@keyframes aa-pop-in {
+    from { opacity: 0; transform: scale(.6); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.aa-celebration-popup .aa-rank-lg,
+.aa-celebration-popup .aa-medal-disc {
+    animation: aa-pop-in .45s cubic-bezier(.2, .9, .3, 1.3) both;
+}
+
 /* ---------- SweetAlert2 (v10) ----------
    The "all" build injects its stylesheet at runtime, after this file, so every
    override is prefixed with body to win on specificity. */

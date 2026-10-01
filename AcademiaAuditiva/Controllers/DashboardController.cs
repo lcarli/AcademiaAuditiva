@@ -2,6 +2,7 @@
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Gamification;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -20,21 +21,31 @@ namespace AcademiaAuditiva.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IStringLocalizer<SharedResources> _localizer;
         private readonly UserReportService _userReportService;
+        private readonly IGamificationService _gamification;
+        private readonly ILogger<DashboardController> _logger;
 
-        public DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IStringLocalizer<SharedResources> localizer, UserReportService userReportService)
+        public DashboardController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            IStringLocalizer<SharedResources> localizer,
+            UserReportService userReportService,
+            IGamificationService gamification,
+            ILogger<DashboardController> logger)
         {
             _context = context;
             _userManager = userManager;
             _localizer = localizer;
             _userReportService = userReportService;
+            _gamification = gamification;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
-            var userId = _userManager.GetUserId(User);
+            var userId = _userManager.GetUserId(User)!;
             var user = await _userManager.FindByIdAsync(userId);
 
-            ViewBag.FirstName = user.FirstName;
+            ViewBag.FirstName = user?.FirstName;
 
             var userScores = _context.Scores
                 .Where(s => s.UserId == userId)
@@ -53,7 +64,28 @@ namespace AcademiaAuditiva.Controllers
             ViewBag.BestScore = bestScore;
             ViewBag.TotalTime = totalTimeMinutes;
 
-            return View();
+            // The progress row is optional: the rest of the dashboard still renders without it.
+            GamificationProfile? profile = null;
+            try
+            {
+                profile = await _gamification.GetProfileAsync(userId, UserTimeZone.FromRequest(Request), HttpContext.RequestAborted);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogWarning(ex, "Could not load the gamification profile for the dashboard.");
+            }
+
+            return View(profile);
+        }
+
+        public async Task<IActionResult> Achievements()
+        {
+            var userId = _userManager.GetUserId(User)!;
+            var profile = await _gamification.GetProfileAsync(userId, UserTimeZone.FromRequest(Request), HttpContext.RequestAborted);
+
+            // The model keeps IsNew so this visit can still highlight what was just unlocked.
+            await _gamification.MarkBadgesSeenAsync(userId, HttpContext.RequestAborted);
+            return View(profile);
         }
 
         [AllowAnonymous]

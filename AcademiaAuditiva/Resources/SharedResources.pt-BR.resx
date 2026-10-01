@@ -2880,4 +2880,229 @@
     <value>acorde menor</value>
     <comment />
   </data>
+  <data name="Gamification.Title" xml:space="preserve">
+    <value>Conquistas</value>
+  </data>
+  <data name="Gamification.Subtitle" xml:space="preserve">
+    <value>Cada resposta rende XP. As conquistas celebram os marcos da sua prática.</value>
+  </data>
+  <data name="Gamification.ProgressTitle" xml:space="preserve">
+    <value>Seu progresso</value>
+  </data>
+  <data name="Gamification.Level" xml:space="preserve">
+    <value>Nível {0}</value>
+  </data>
+  <data name="Gamification.XpToNext" xml:space="preserve">
+    <value>{0} XP para o nível {1}</value>
+  </data>
+  <data name="Gamification.XpGained" xml:space="preserve">
+    <value>+{0} XP</value>
+  </data>
+  <data name="Gamification.Streak" xml:space="preserve">
+    <value>Sequência de prática</value>
+  </data>
+  <data name="Gamification.StreakDaysOne" xml:space="preserve">
+    <value>{0} dia</value>
+  </data>
+  <data name="Gamification.StreakDaysOther" xml:space="preserve">
+    <value>{0} dias</value>
+  </data>
+  <data name="Gamification.BestStreak" xml:space="preserve">
+    <value>Recorde: {0}</value>
+  </data>
+  <data name="Gamification.StreakHint" xml:space="preserve">
+    <value>Pratique hoje para manter a sequência.</value>
+  </data>
+  <data name="Gamification.StreakStart" xml:space="preserve">
+    <value>Pratique hoje para começar uma nova sequência.</value>
+  </data>
+  <data name="Gamification.PracticedToday" xml:space="preserve">
+    <value>Você já praticou hoje. Até amanhã!</value>
+  </data>
+  <data name="Gamification.BadgesCount" xml:space="preserve">
+    <value>{0} de {1}</value>
+  </data>
+  <data name="Gamification.NoBadgesYet" xml:space="preserve">
+    <value>Responda ao seu primeiro exercício para ganhar uma conquista.</value>
+  </data>
+  <data name="Gamification.ViewAll" xml:space="preserve">
+    <value>Ver todas as conquistas</value>
+  </data>
+  <data name="Gamification.New" xml:space="preserve">
+    <value>Nova</value>
+  </data>
+  <data name="Gamification.EarnedOn" xml:space="preserve">
+    <value>Conquistada em {0}</value>
+  </data>
+  <data name="Gamification.Locked" xml:space="preserve">
+    <value>Ainda não conquistada</value>
+  </data>
+  <data name="Gamification.Group.Dedication" xml:space="preserve">
+    <value>Constância</value>
+  </data>
+  <data name="Gamification.Group.Mastery" xml:space="preserve">
+    <value>Domínio</value>
+  </data>
+  <data name="Gamification.Group.Progress" xml:space="preserve">
+    <value>Evolução</value>
+  </data>
+  <data name="Gamification.Group.Fun" xml:space="preserve">
+    <value>Diversão</value>
+  </data>
+  <data name="Gamification.XpRulesTitle" xml:space="preserve">
+    <value>Como funciona</value>
+  </data>
+  <data name="Gamification.XpRules" xml:space="preserve">
+    <value>Uma resposta certa vale {0} XP, uma errada ainda vale {1} XP pela prática e cada conquista soma {2} XP. Cada nível pede mais XP que o anterior.</value>
+  </data>
+  <data name="Gamification.RankHint" xml:space="preserve">
+    <value>Sua dinâmica acompanha o nível: vai de pp (pianíssimo) a fff (fortississimo) conforme você avança.</value>
+  </data>
+  <data name="Gamification.SessionRule" xml:space="preserve">
+    <value>Uma sessão de prática é uma sequência de pelo menos 5 respostas sem pausas de mais de 30 minutos. A sequência de dias conta os dias em que você pratica, no seu fuso horário.</value>
+  </data>
+  <data name="Gamification.LevelUpTitle" xml:space="preserve">
+    <value>Você subiu de nível!</value>
+  </data>
+  <data name="Gamification.LevelUpText" xml:space="preserve">
+    <value>Agora você está no nível {0} ({1}).</value>
+  </data>
+  <data name="Gamification.BadgeEarnedTitle" xml:space="preserve">
+    <value>Nova conquista!</value>
+  </data>
+  <data name="Gamification.BadgesEarnedTitle" xml:space="preserve">
+    <value>{0} novas conquistas!</value>
+  </data>
+  <data name="Gamification.Continue" xml:space="preserve">
+    <value>Continuar praticando</value>
+  </data>
+  <data name="Gamification.Rank.pp" xml:space="preserve">
+    <value>Pianíssimo</value>
+  </data>
+  <data name="Gamification.Rank.p" xml:space="preserve">
+    <value>Piano</value>
+  </data>
+  <data name="Gamification.Rank.mp" xml:space="preserve">
+    <value>Mezzo-piano</value>
+  </data>
+  <data name="Gamification.Rank.mf" xml:space="preserve">
+    <value>Mezzo-forte</value>
+  </data>
+  <data name="Gamification.Rank.f" xml:space="preserve">
+    <value>Forte</value>
+  </data>
+  <data name="Gamification.Rank.ff" xml:space="preserve">
+    <value>Fortíssimo</value>
+  </data>
+  <data name="Gamification.Rank.fff" xml:space="preserve">
+    <value>Fortississimo</value>
+  </data>
+  <data name="Badge.first_session.Title" xml:space="preserve">
+    <value>Primeiras notas</value>
+  </data>
+  <data name="Badge.first_session.Description" xml:space="preserve">
+    <value>Responda ao seu primeiro exercício.</value>
+  </data>
+  <data name="Badge.3_days.Title" xml:space="preserve">
+    <value>3 dias seguidos</value>
+  </data>
+  <data name="Badge.3_days.Description" xml:space="preserve">
+    <value>Pratique 3 dias seguidos.</value>
+  </data>
+  <data name="Badge.5_days.Title" xml:space="preserve">
+    <value>5 dias seguidos</value>
+  </data>
+  <data name="Badge.5_days.Description" xml:space="preserve">
+    <value>Pratique 5 dias seguidos.</value>
+  </data>
+  <data name="Badge.marathon_20min.Title" xml:space="preserve">
+    <value>Maratona de 20 minutos</value>
+  </data>
+  <data name="Badge.marathon_20min.Description" xml:space="preserve">
+    <value>Pratique por 20 minutos sem pausas de mais de 5 minutos.</value>
+  </data>
+  <data name="Badge.faithful_practitioner.Title" xml:space="preserve">
+    <value>Praticante fiel</value>
+  </data>
+  <data name="Badge.faithful_practitioner.Description" xml:space="preserve">
+    <value>Complete 30 sessões de prática.</value>
+  </data>
+  <data name="Badge.10_sessions_week.Title" xml:space="preserve">
+    <value>10 sessões em uma semana</value>
+  </data>
+  <data name="Badge.10_sessions_week.Description" xml:space="preserve">
+    <value>Complete 10 sessões de prática em 7 dias.</value>
+  </data>
+  <data name="Badge.master_chords.Title" xml:space="preserve">
+    <value>Mestre dos acordes</value>
+  </data>
+  <data name="Badge.master_chords.Description" xml:space="preserve">
+    <value>Em 3 exercícios de acordes, acerte pelo menos 18 de 20 respostas consecutivas.</value>
+  </data>
+  <data name="Badge.sharp_listener.Title" xml:space="preserve">
+    <value>Ouvido afiado</value>
+  </data>
+  <data name="Badge.sharp_listener.Description" xml:space="preserve">
+    <value>Em 3 exercícios de percepção, acerte pelo menos 18 de 20 respostas consecutivas.</value>
+  </data>
+  <data name="Badge.rhythm_maestro.Title" xml:space="preserve">
+    <value>Maestro do ritmo</value>
+  </data>
+  <data name="Badge.rhythm_maestro.Description" xml:space="preserve">
+    <value>Termine 2 sessões de ritmo sem nenhum erro.</value>
+  </data>
+  <data name="Badge.melody_explorer.Title" xml:space="preserve">
+    <value>Explorador melódico</value>
+  </data>
+  <data name="Badge.melody_explorer.Description" xml:space="preserve">
+    <value>Em todos os exercícios de melodia, acerte pelo menos 8 de 10 respostas consecutivas.</value>
+  </data>
+  <data name="Badge.scale_climber.Title" xml:space="preserve">
+    <value>Escalador de tons</value>
+  </data>
+  <data name="Badge.scale_climber.Description" xml:space="preserve">
+    <value>Acerte 5 respostas em cada exercício de escalas.</value>
+  </data>
+  <data name="Badge.comeback_kid.Title" xml:space="preserve">
+    <value>Deu a volta por cima</value>
+  </data>
+  <data name="Badge.comeback_kid.Description" xml:space="preserve">
+    <value>Erre pelo menos 3 das 5 primeiras respostas de um exercício e depois acerte pelo menos 8 de 10 respostas consecutivas.</value>
+  </data>
+  <data name="Badge.advanced_conqueror.Title" xml:space="preserve">
+    <value>Conquistador avançado</value>
+  </data>
+  <data name="Badge.advanced_conqueror.Description" xml:space="preserve">
+    <value>Em 5 exercícios avançados, acerte pelo menos 7 de 10 respostas consecutivas.</value>
+  </data>
+  <data name="Badge.persistent_student.Title" xml:space="preserve">
+    <value>Aluno persistente</value>
+  </data>
+  <data name="Badge.persistent_student.Description" xml:space="preserve">
+    <value>Melhore sua precisão em um exercício por 3 sessões seguidas.</value>
+  </data>
+  <data name="Badge.notable_progress.Title" xml:space="preserve">
+    <value>Evolução notável</value>
+  </data>
+  <data name="Badge.notable_progress.Description" xml:space="preserve">
+    <value>Nos últimos 30 dias, supere a sua precisão dos 30 dias anteriores em todas as categorias que você pratica (pelo menos 2).</value>
+  </data>
+  <data name="Badge.resilient_ear.Title" xml:space="preserve">
+    <value>Ouvido resiliente</value>
+  </data>
+  <data name="Badge.resilient_ear.Description" xml:space="preserve">
+    <value>Acerte logo depois de errar 3 vezes seguidas no mesmo exercício.</value>
+  </data>
+  <data name="Badge.interval_tamer.Title" xml:space="preserve">
+    <value>Domador de intervalos</value>
+  </data>
+  <data name="Badge.interval_tamer.Description" xml:space="preserve">
+    <value>Complete 10 sessões de intervalos com pelo menos 80% de acertos.</value>
+  </data>
+  <data name="Badge.badge_collector.Title" xml:space="preserve">
+    <value>Colecionador de conquistas</value>
+  </data>
+  <data name="Badge.badge_collector.Description" xml:space="preserve">
+    <value>Ganhe 15 outras conquistas.</value>
+  </data>
 </root>

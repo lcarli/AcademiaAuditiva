@@ -1,0 +1,63 @@
+@model AcademiaAuditiva.Services.Gamification.GamificationProfile
+@using AcademiaAuditiva.Services.Gamification
+@{
+    ViewBag.Title = Localizer["Gamification.Title"].Value;
+    var progress = Model.Progress;
+}
+
+<header class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+    <div>
+        <a class="aa-eyebrow text-decoration-none" asp-action="Index">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>@Localizer["Dashboard.Title"]
+        </a>
+        <h1 class="display-6 mt-2 mb-1 text-body-emphasis">@Localizer["Gamification.Title"]</h1>
+        <p class="text-secondary mb-0">@Localizer["Gamification.Subtitle"]</p>
+    </div>
+    <div class="aa-card d-flex align-items-center gap-3 px-4 py-3">
+        <span class="aa-rank" aria-hidden="true">@progress.Rank</span>
+        <div>
+            <p class="h5 mb-0 text-body-emphasis">
+                @Localizer["Gamification.Level", progress.Level]
+                <span class="text-secondary fw-normal">· @Localizer[$"Gamification.Rank.{progress.Rank}"]</span>
+            </p>
+            <p class="small text-secondary mb-0">
+                @progress.Xp XP · @Localizer["Gamification.BadgesCount", Model.EarnedCount, Model.Badges.Count]
+            </p>
+        </div>
+    </div>
+</header>
+
+@foreach (var group in BadgeCatalog.Groups)
+{
+    var badges = Model.Badges.Where(b => b.Group == group).ToList();
+    if (badges.Count == 0)
+    {
+        continue;
+    }
+    var groupId = "badges-" + group.ToString().ToLowerInvariant();
+    <section class="mb-5" aria-labelledby="@groupId">
+        <h2 id="@groupId" class="h4 mb-3 text-body-emphasis">
+            @Localizer[$"Gamification.Group.{group}"]
+            <span class="fs-6 fw-normal text-secondary ms-1">@Localizer["Gamification.BadgesCount", badges.Count(b => b.IsEarned), badges.Count]</span>
+        </h2>
+        <ul class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 list-unstyled">
+            @foreach (var badge in badges)
+            {
+                <li class="col">
+                    <partial name="_BadgeMedal" model="badge" />
+                </li>
+            }
+        </ul>
+    </section>
+}
+
+<aside class="aa-card-flat p-4" aria-labelledby="xp-rules-title">
+    <h2 id="xp-rules-title" class="h6 mb-3 d-flex align-items-center gap-2 text-body-emphasis">
+        <i class="bi bi-info-circle text-primary" aria-hidden="true"></i>@Localizer["Gamification.XpRulesTitle"]
+    </h2>
+    <ul class="aa-note-list small text-secondary">
+        <li>@Localizer["Gamification.XpRules", Leveling.XpPerCorrectAnswer, Leveling.XpPerWrongAnswer, Leveling.XpPerBadge]</li>
+        <li>@Localizer["Gamification.RankHint"]</li>
+        <li>@Localizer["Gamification.SessionRule"]</li>
+    </ul>
+</aside>
