@@ -415,7 +415,17 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Only Kestrel's own HTTPS endpoint (local "https" launch profile) needs this.
+// In Azure Container Apps the ingress terminates TLS and redirects http -> https;
+// the container listens on plain HTTP, so the middleware would never find an
+// HTTPS port and would just log a warning.
+var serverUrls = app.Configuration[WebHostDefaults.ServerUrlsKey] ?? string.Empty;
+if (serverUrls.Contains("https://", StringComparison.OrdinalIgnoreCase)
+    || !string.IsNullOrEmpty(app.Configuration[WebHostDefaults.HttpsPortsKey])
+    || !string.IsNullOrEmpty(app.Configuration["HTTPS_PORT"]))
+{
+    app.UseHttpsRedirection();
+}
 app.UseStaticFiles();
 
 if (!app.Environment.IsEnvironment("Testing"))

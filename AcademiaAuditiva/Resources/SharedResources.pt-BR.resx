@@ -2360,9 +2360,6 @@
   <data name="Identity.Status.ExternalLoginConfirmationLoadError" xml:space="preserve">
     <value>Erro ao carregar as informações do login externo durante a confirmação.</value>
   </data>
-  <data name="Identity.Status.ExternalProviderError" xml:space="preserve">
-    <value>Erro do provedor externo: {0}</value>
-  </data>
   <data name="Identity.Email.Confirm.Subject" xml:space="preserve">
     <value>Confirme seu email</value>
   </data>

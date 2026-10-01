@@ -100,7 +100,9 @@ after `docker rm aa-azurite`). To go back to no audio, run
 dotnet run --project AcademiaAuditiva
 ```
 
-Open <https://localhost:5001> (or the port shown in the console).
+Open <http://localhost:5063> (the `http` launch profile that `dotnet run` uses).
+`--launch-profile https` also serves <https://localhost:7253>, and the VS Code
+F5 configuration listens on <http://localhost:5000>.
 The bootstrap admin user will be created on first launch — sign in with
 the credentials you set under `Admin:*`.
 
@@ -153,7 +155,7 @@ admin login, registration, and a real-audio GuessNote round.
 | `Connection string 'DefaultConnection' not found` | Run `dotnet user-secrets set "ConnectionStrings:DefaultConnection" "..."` |
 | `A network-related or instance-specific error...` | LocalDB not running. `sqllocaldb start MSSQLLocalDB` |
 | Login timeout / connection refused with the Docker container | `localhost` can resolve to IPv6 (`::1`) first; use `Server=127.0.0.1,1433` and check `docker ps` shows `aa-sql` running |
-| Port already in use | Set `ASPNETCORE_URLS=http://localhost:5050` before `dotnet run` |
+| Port already in use | `dotnet run --project AcademiaAuditiva -- --urls http://localhost:5050` (the launch profile overrides `ASPNETCORE_URLS`) |
 | Facebook button missing | `Facebook:AppId` / `Facebook:AppSecret` not set — expected for local dev |
 | Emails not sent | Same — `Smtp:*` is optional. Check the Console log for the warning. |
 | *Play* spins for ~20 s and no sound plays | No audio storage configured: run `./scripts/local-audio.ps1` (step 3) |

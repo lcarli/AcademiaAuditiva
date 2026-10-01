@@ -9,7 +9,8 @@
 <p>@Localizer["Identity.TwoFactor.Intro"]</p>
 <div class="row">
     <div class="col-md-4">
-        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+        <form method="post">
+            <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
             <input asp-for="RememberMe" type="hidden" />
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
@@ -31,7 +32,7 @@
 </div>
 <p>
     @Localizer["Identity.TwoFactor.NoDeviceAccess"]
-    <a id="recovery-code-login" asp-page="./LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl">@Localizer["Identity.TwoFactor.UseRecoveryCode"]</a>.
+    <a id="recovery-code-login" href="@Url.Page("./LoginWithRecoveryCode", new { returnUrl = Model.ReturnUrl })">@Localizer["Identity.TwoFactor.UseRecoveryCode"]</a>.
 </p>
 
 @section Scripts {
