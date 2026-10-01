@@ -27,6 +27,7 @@ RUN dotnet publish "AcademiaAuditiva.csproj" \
     /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION}-alpine AS runtime
+ARG APP_VERSION=dev
 WORKDIR /app
 
 # ICU is required because we run with globalization enabled (PT-BR / FR-CA
@@ -43,6 +44,7 @@ COPY --from=build --chown=app:app /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:8080 \
     ASPNETCORE_ENVIRONMENT=Production \
+    APP_VERSION=$APP_VERSION \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 

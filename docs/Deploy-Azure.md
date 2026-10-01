@@ -157,7 +157,7 @@ CD does this on every push to `master`. By hand:
 
 ```powershell
 az acr login --name <containerRegistryLoginServer>
-docker build -t <containerRegistryLoginServer>/academiaauditiva:v1 .
+docker build --build-arg APP_VERSION=<git-sha-or-version> -t <containerRegistryLoginServer>/academiaauditiva:v1 .
 docker push <containerRegistryLoginServer>/academiaauditiva:v1
 ```
 
@@ -167,14 +167,15 @@ docker push <containerRegistryLoginServer>/academiaauditiva:v1
 az containerapp update `
   --name ca-aa-prd `
   --resource-group rg-aa-prd `
-  --image <containerRegistryLoginServer>/academiaauditiva:v1
+  --image <containerRegistryLoginServer>/academiaauditiva:v1 `
+  --set-env-vars APP_VERSION=<git-sha-or-version>
 ```
 
 ## 9. Smoke test
 
 ```powershell
-curl https://<containerAppFqdn>/health/live   # 200 OK
-curl https://<containerAppFqdn>/health/ready  # 200 OK once SQL is reachable
+curl https://<containerAppFqdn>/health/live   # 200 OK, JSON includes version
+curl https://<containerAppFqdn>/health/ready  # 200 OK once SQL is reachable, JSON includes version
 ```
 
 Then open the FQDN in a browser, sign in with the bootstrap admin email,
@@ -214,9 +215,14 @@ place.
 
 Once the manual deploy works, automate it with the workflow under
 `.github/workflows/cd.yml`. On pushes to `master` that touch the app,
-infra, or build files, it first runs the CI workflow (build, tests, Bicep)
-and deploys only if CI passes. It builds the image, pushes it to ACR and
-rolls the container app to it; infrastructure changes are deployed with
+infra, or build files, it first runs the CI workflow (build, xUnit tests
+including real SQL Server tests, Playwright E2E against SQL Server + Azurite,
+Bicep validation, and report-only Trivy SARIF upload) and deploys only if CI
+passes. It builds the image with the git SHA as `APP_VERSION`, pushes it to
+ACR, updates the Container App image and `APP_VERSION`, waits until
+`latestReadyRevisionName == latestRevisionName` with the new image and 100%
+traffic, then smoke-tests `/health/live` and `/health/ready` and verifies the
+JSON version matches the SHA. Infrastructure changes are deployed with
 `deploy-infra.ps1`. It uses **OIDC**
 federation to authenticate to Azure without storing secrets — see
 [Configure Federated Identity](#configure-federated-identity-one-time)

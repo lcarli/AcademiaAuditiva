@@ -16,6 +16,7 @@ on:
 permissions:
   id-token: write
   contents: read
+  security-events: write
 
 # One deployment at a time; a newer push replaces any run still waiting.
 concurrency:
@@ -34,6 +35,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
     permissions:
       contents: read
+      security-events: write
 
   build-and-deploy:
     name: Build image, push, deploy
@@ -56,7 +58,7 @@ jobs:
       - name: Build and push image
         run: |
           IMAGE_TAG="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          docker build -t "$IMAGE_TAG" .
+          docker build --build-arg APP_VERSION=${{ github.sha }} -t "$IMAGE_TAG" .
           docker push "$IMAGE_TAG"
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
@@ -65,15 +67,61 @@ jobs:
           az containerapp update \
             --name ${{ env.CONTAINER_APP }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image "$IMAGE_TAG"
+            --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
+            --image "$IMAGE_TAG" \
+            --set-env-vars APP_VERSION=${{ github.sha }}
+
+      - name: Wait for latest revision
+        run: |
+          set -euo pipefail
+          deadline=$((SECONDS + 600))
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            app=$(az containerapp show \
+              --name ${{ env.CONTAINER_APP }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
+              -o json)
+            latest=$(jq -r '.properties.latestRevisionName // ""' <<< "$app")
+            ready=$(jq -r '.properties.latestReadyRevisionName // ""' <<< "$app")
+            image=$(jq -r '.properties.template.containers[0].image // ""' <<< "$app")
+            traffic=$(jq -r '[.properties.configuration.ingress.traffic[]? | select((.latestRevision == true or .revisionName == "'"$latest"'") and .weight == 100)] | length' <<< "$app")
+
+            revision=$(az containerapp revision list \
+              --name ${{ env.CONTAINER_APP }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
+              --query "[?name=='$latest'] | [0]" \
+              -o json)
+            provisioning=$(jq -r '.properties.provisioningState // "unknown"' <<< "$revision")
+            running=$(jq -r '.properties.runningState // "unknown"' <<< "$revision")
+            health=$(jq -r '.properties.healthState // "unknown"' <<< "$revision")
+
+            echo "latest=$latest ready=$ready provisioning=$provisioning running=$running health=$health image=$image traffic100=$traffic"
+            if [ "$provisioning" = "Failed" ] || [ "$running" = "Failed" ]; then
+              echo "Latest revision failed to provision or run."
+              exit 1
+            fi
+            if [ -n "$latest" ] && [ "$latest" = "$ready" ] && [ "$image" = "$IMAGE_TAG" ] && [ "$traffic" = "1" ]; then
+              echo "Latest revision is ready on the new image with 100% traffic."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Timed out waiting for the latest revision to become ready on $IMAGE_TAG."
+          exit 1
 
       - name: Smoke test
         run: |
-          FQDN=$(az containerapp show -n ${{ env.CONTAINER_APP }} -g ${{ env.RESOURCE_GROUP }} --query properties.configuration.ingress.fqdn -o tsv)
+          FQDN=$(az containerapp show -n ${{ env.CONTAINER_APP }} -g ${{ env.RESOURCE_GROUP }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --query properties.configuration.ingress.fqdn -o tsv)
           for i in {1..30}; do
-            if curl -fsS "https://$FQDN/health/live" >/dev/null; then
-              echo "Live OK"; break
+            live=$(curl -fsS "https://$FQDN/health/live" || true)
+            version=$(jq -r '.version // empty' <<< "$live" 2>/dev/null || true)
+            if [ "$version" = "${{ github.sha }}" ]; then
+              echo "Live OK on version $version"; break
             fi
+            echo "Waiting for live endpoint to serve ${{ github.sha }} (got '${version:-none}')"
             sleep 5
           done
-          curl -fsS "https://$FQDN/health/ready" || (echo "Readiness failed"; exit 1)
+          ready=$(curl -fsS "https://$FQDN/health/ready") || (echo "Readiness failed"; exit 1)
+          ready_version=$(jq -r '.version // empty' <<< "$ready" 2>/dev/null || true)
+          test "$ready_version" = "${{ github.sha }}" || (echo "Readiness returned the wrong version '${ready_version:-none}'"; exit 1)

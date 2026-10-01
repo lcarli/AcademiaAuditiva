@@ -29,11 +29,6 @@ updates:
       # FluentAssertions 8+ requires a commercial license.
       - dependency-name: "FluentAssertions"
         versions: [">= 8.0.0"]
-      # Moving to the OpenTelemetry-based Application Insights SDK is a planned migration.
-      - dependency-name: "Microsoft.ApplicationInsights.AspNetCore"
-        versions: [">= 3.0.0"]
-      - dependency-name: "Serilog.Sinks.ApplicationInsights"
-        versions: [">= 5.0.0"]
 
   - package-ecosystem: github-actions
     directory: /

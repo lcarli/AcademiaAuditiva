@@ -20,8 +20,8 @@ localization (en-US / pt-BR / fr-CA).
   invite students by email, and assign training routines
 - ❤️‍🩹 **Health endpoints** — `/health/live` and `/health/ready` wired
   into Container App probes
-- 📈 **Application Insights** auto-instrumentation
-- ✅ **Test projects** — `Tests/UnitTests` and `Tests/IntegrationTests`
+- 📈 **Azure Monitor OpenTelemetry** to Application Insights
+- ✅ **Test projects** — unit, integration, real SQL Server, and Playwright E2E checks
 
 ## 📚 Documentation
 
@@ -58,7 +58,7 @@ az login --tenant <tenant>
 ```
 AcademiaAuditiva/        ASP.NET Core MVC app
 infra/                   Bicep IaC (subscription scope) + helper scripts
-Tests/                   xUnit unit and integration test projects
+Tests/                   xUnit unit/integration tests plus Playwright E2E
 docs/                    Operator + architecture docs (this README links to)
 .github/workflows/       CI (build, tests, Bicep), CD gated on CI, CodeQL, Gitleaks
 Directory.*.props        Shared build settings + central NuGet package versions
@@ -68,8 +68,8 @@ global.json              Pinned .NET SDK
 ## 🤝 Contributing
 
 1. Fork & clone, create a feature branch
-2. Run tests: `dotnet test`
-3. Open a PR to `master` — CI runs `dotnet build` + `dotnet test`
+2. Run tests: `dotnet test`; set `AA_TEST_SQL_CONNECTION` to include the focused SQL Server integration checks locally
+3. Open a PR to `master` — CI runs build, xUnit, Playwright E2E, Bicep validation, and Trivy image scanning
 
 ## License
 

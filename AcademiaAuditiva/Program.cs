@@ -9,17 +9,20 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 using Azure.Identity;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Security.KeyVault.Secrets;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
+using OpenTelemetry;
 using Serilog;
-using Serilog.Events;
+using System.Text.Json;
 
 // Bootstrap logger — captures startup errors before host is built.
 // Guard against re-initialization: WebApplicationFactory invokes the entry
@@ -37,6 +40,7 @@ if (Log.Logger.GetType().FullName == "Serilog.Core.Pipeline.SilentLogger")
 try
 {
 var builder = WebApplication.CreateBuilder(args);
+var appVersion = builder.Configuration["APP_VERSION"] ?? builder.Configuration["AppVersion"] ?? "dev";
 
 // Wire Azure Key Vault BEFORE reading any configuration so KV-backed values
 // (Facebook, SMTP, Admin, ConnectionStrings) are available below. In Azure
@@ -59,7 +63,13 @@ if (!string.IsNullOrWhiteSpace(keyVaultUrl))
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    options.UseSqlServer(connectionString);
+    // EF's startup migration safety check can flag custom SQL-only
+    // migrations (dbo.AppCache) even when the model snapshot is current.
+    // MigrationsTests and real SQL tests still assert HasPendingModelChanges.
+    options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+});
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -84,13 +94,23 @@ builder.Services.AddAuthorization(options =>
                                       AcademiaAuditiva.Models.RoleNames.Student));
 });
 
-// Application Insights (no-op locally when ConnectionString is empty).
-builder.Services.AddApplicationInsightsTelemetry(options =>
+// Azure Monitor OpenTelemetry distro. Application Insights is still the
+// backend, but local/dev/test runs stay silent unless a connection string is
+// configured. Serilog below writes through MEL providers so app logs share
+// the same OTel pipeline without a second AI-specific sink.
+var appInsightsConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+if (!string.IsNullOrWhiteSpace(appInsightsConnectionString) && !builder.Environment.IsEnvironment("Testing"))
 {
-    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
-});
+    builder.Services.AddOpenTelemetry()
+        .UseAzureMonitor(options =>
+        {
+            options.ConnectionString = appInsightsConnectionString;
+        });
+}
 
-// Serilog — Console (always) + Application Insights (when configured).
+// Serilog — structured events routed once through Microsoft.Extensions.Logging
+// providers. The default Console provider keeps stdout logs, and Azure Monitor
+// OpenTelemetry exports them when configured.
 // Replaces the default ASP.NET Core logger so we get structured logs end-to-end.
 // Skipped under the Testing environment because WebApplicationFactory invokes
 // the entry point repeatedly per test and Serilog's static logger cannot be
@@ -104,16 +124,14 @@ if (!builder.Environment.IsEnvironment("Testing"))
            .Enrich.FromLogContext()
            .Enrich.WithProperty("Application", "AcademiaAuditiva")
            .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
-           .WriteTo.Console(
-               outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj} {Properties:j}{NewLine}{Exception}");
+           .Enrich.WithProperty("AppVersion", appVersion);
+    }, writeToProviders: true);
 
-        var aiConn = ctx.Configuration["ApplicationInsights:ConnectionString"];
-        if (!string.IsNullOrWhiteSpace(aiConn))
-        {
-            var telemetryConfig = services.GetRequiredService<TelemetryConfiguration>();
-            cfg.WriteTo.ApplicationInsights(telemetryConfig, TelemetryConverter.Traces);
-        }
-    });
+    // Register after Azure Monitor OpenTelemetry so its exporter hosted
+    // service starts first. This keeps migration/seed/bootstrap logs and
+    // startup failures exportable while still failing fast before Kestrel
+    // serves traffic if database bootstrap fails.
+    builder.Services.AddHostedService<StartupBootstrapHostedService>();
 }
 
 // Health checks: liveness ("is the process up?") and readiness ("can it
@@ -226,12 +244,23 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "RequestVerificationToken";
 });
 
-// Distributed cache for short-lived per-user state (e.g. the "expected
-// answer" for an exercise round). Using IDistributedCache instead of
-// HttpContext.Session means scale-out is safe: today the in-memory
-// implementation matches single-replica production; swapping to a Redis
-// instance is a one-line change (AddStackExchangeRedisCache).
-builder.Services.AddDistributedMemoryCache();
+// Distributed cache for short-lived per-user state (exercise expected
+// answers and audio tokens). Production stores it in SQL Server so multiple
+// replicas share round state; Testing keeps the in-memory provider to avoid
+// external dependencies in ordinary integration tests.
+if (builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddDistributedMemoryCache();
+}
+else
+{
+    builder.Services.AddDistributedSqlServerCache(options =>
+    {
+        options.ConnectionString = connectionString;
+        options.SchemaName = "dbo";
+        options.TableName = "AppCache";
+    });
+}
 
 // Audio anti-cheat: opaque per-round tokens replace plaintext note names
 // in the RequestPlay → /audio/token → ValidateExercise flow. The token
@@ -400,36 +429,27 @@ app.MapRazorPages();
 
 // Health endpoints. /health/live always returns 200 if the host is up.
 // /health/ready returns 200 only if every check tagged "ready" passes.
-app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+static Task WriteHealthResponse(HttpContext context, Microsoft.Extensions.Diagnostics.HealthChecks.HealthReport report)
 {
-    Predicate = _ => false
-});
-app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("ready")
-});
-
-//seed
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<ApplicationDbContext>();
-
-    // Tests use the InMemory EF provider, which doesn't support Migrate().
-    // Skip schema bootstrap/seed/admin-bootstrap in the Testing environment;
-    // tests that need data seed it explicitly via the WebApplicationFactory.
-    if (!app.Environment.IsEnvironment("Testing"))
+    context.Response.ContentType = "application/json";
+    context.Response.Headers["X-App-Version"] = context.RequestServices.GetRequiredService<IConfiguration>()["APP_VERSION"] ?? "dev";
+    return JsonSerializer.SerializeAsync(context.Response.Body, new
     {
-        // Apply pending EF migrations on startup so a fresh DB (e.g. first
-        // deploy in a new tenant) is brought up to schema before seed/bootstrap.
-        context.Database.Migrate();
-
-        SeedData.SeedExercises(context);
-
-        var bootstrapper = services.GetRequiredService<IdentityBootstrapper>();
-        await bootstrapper.RunAsync();
-    }
+        status = report.Status.ToString(),
+        version = context.Response.Headers["X-App-Version"].ToString()
+    });
 }
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false,
+    ResponseWriter = WriteHealthResponse
+});
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+    ResponseWriter = WriteHealthResponse
+});
 
 app.Run();
 }
@@ -442,6 +462,7 @@ catch (Exception ex) when (ex is not HostAbortedException
     && !(ex.GetType().FullName?.Contains("StopTheHost") ?? false))
 {
     Log.Fatal(ex, "Host terminated unexpectedly");
+    Environment.ExitCode = 1;
 }
 finally
 {
@@ -451,3 +472,43 @@ finally
 // Exposes the implicit Program class to WebApplicationFactory<Program>
 // in the integration test project.
 public partial class Program { }
+
+internal sealed class StartupBootstrapHostedService : IHostedService
+{
+    private readonly IServiceProvider _services;
+    private readonly ILogger<StartupBootstrapHostedService> _logger;
+
+    public StartupBootstrapHostedService(
+        IServiceProvider services,
+        ILogger<StartupBootstrapHostedService> logger)
+    {
+        _services = services;
+        _logger = logger;
+    }
+
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation("Starting database migration, exercise seed and admin bootstrap.");
+
+            using var scope = _services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await context.Database.MigrateAsync(cancellationToken);
+
+            SeedData.SeedExercises(context);
+
+            var bootstrapper = scope.ServiceProvider.GetRequiredService<IdentityBootstrapper>();
+            await bootstrapper.RunAsync();
+
+            _logger.LogInformation("Database migration, exercise seed and admin bootstrap completed.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, "Database migration, exercise seed or admin bootstrap failed.");
+            throw;
+        }
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+}
