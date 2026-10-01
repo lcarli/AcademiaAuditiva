@@ -358,8 +358,8 @@ document.addEventListener("DOMContentLoaded", () => {
     await closed;
   }
 
-  function showWrongAnswer(answer, sung) {
-    const expected = String(answer || "").split("|").map(parseNote).filter(Boolean);
+  function showWrongAnswer(data, sung) {
+    const expected = String(data.answer || "").split("|").map(parseNote).filter(Boolean);
     const correct = document.createElement("p");
     correct.textContent = fill(loc.wrongMessageText, expected.map((note) => displayName(note.midi)).join(" "));
     const heard = document.createElement("p");
@@ -367,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
     heard.textContent = fill(loc.heardText, sung.map(displayName).join(" "));
     const body = document.createElement("div");
     body.append(correct, heard);
-    Swal.fire({ icon: "error", title: loc.wrongMessage, html: body });
+    Swal.fire(AAi18n.withRewards({ icon: "error", title: loc.wrongMessage, html: body }, data));
   }
 
   // ---------- Buttons ----------
@@ -479,7 +479,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.isCorrect) {
         AAi18n.result(data, loc);
       } else {
-        showWrongAnswer(data.answer, sung);
+        showWrongAnswer(data, sung);
       }
     } catch (err) {
       console.error("SolfegeMelody validation failed:", err);

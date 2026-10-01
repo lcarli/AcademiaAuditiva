@@ -43,6 +43,22 @@
             } catch (e) { document.documentElement.setAttribute('data-bs-theme', 'light'); }
         })();
     </script>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <script>
+            // Practice streaks count the player's calendar days, so the server needs the
+            // browser's time zone (read by UserTimeZone; listed in the privacy policy).
+            (function () {
+                try {
+                    var zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    if (!zone) return;
+                    var cookie = '@(AcademiaAuditiva.Services.Gamification.UserTimeZone.CookieName)=' + encodeURIComponent(zone);
+                    if (document.cookie.split('; ').indexOf(cookie) !== -1) return;
+                    document.cookie = cookie + '; path=/; max-age=31536000; samesite=lax' + (location.protocol === 'https:' ? '; secure' : '');
+                } catch (e) { }
+            })();
+        </script>
+    }
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css"
           integrity="sha512-Z/def5z5u2aR89OuzYcxmDJ0Bnd5V1cKqBEbvLOiUNWdg9PQeXVvXLI90SE4QOHGlfLqUnDNVAYyZi8UwUTmWQ=="
@@ -197,7 +213,8 @@
             integrity="sha384-GjzHyTYR8FCw50srE7hggd4Tlqw3oq9apyk/Gtq815HMWyf38e1yZ7A4KvtL71Xw"
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/js/core/audio-engine.js" asp-append-version="true"></script>
-    <script src="/js/core/i18n.js?v=1.0.0"></script>
+    <script src="~/js/core/i18n.js" asp-append-version="true"></script>
+    <script src="~/js/core/rewards.js" asp-append-version="true"></script>
     <script src="~/js/core/alerts.js" asp-append-version="true"></script>
     <script src="/js/games/game-engine.js?v=1.0.2"></script>
     <script src="/js/main/academia-auditiva.js?v=1.0.2"></script>

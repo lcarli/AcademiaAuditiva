@@ -34,6 +34,11 @@
     return String(text || "").replace("{0}", value);
   }
 
+  // Adds the XP/badge feedback from ValidateExercise (rewards.js) to dialog options.
+  function withRewards(options, data) {
+    return window.AARewards ? window.AARewards.decorate(options, data) : options;
+  }
+
   window.AAi18n = {
     localizer,
     answerLabel,
@@ -61,22 +66,21 @@
       });
       return true;
     },
+    // Shows the answer dialog; returns the SweetAlert2 promise.
     result(data, loc) {
-      if (data.isCorrect) {
-        Swal.fire(
-          message(loc, "correctMessage", "Correct!"),
-          message(loc, "correctMessageText", "You got it right!"),
-          "success"
-        );
-        return;
-      }
-
-      const answer = answerLabel(data.answer);
-      Swal.fire(
-        message(loc, "wrongMessage", "Wrong!"),
-        format(message(loc, "wrongMessageText", "The correct answer was {0}."), answer),
-        "error"
-      );
-    }
+      const options = data.isCorrect
+        ? {
+            icon: "success",
+            title: message(loc, "correctMessage", "Correct!"),
+            text: message(loc, "correctMessageText", "You got it right!")
+          }
+        : {
+            icon: "error",
+            title: message(loc, "wrongMessage", "Wrong!"),
+            text: format(message(loc, "wrongMessageText", "The correct answer was {0}."), answerLabel(data.answer))
+          };
+      return Swal.fire(withRewards(options, data));
+    },
+    withRewards
   };
 })(window, document);

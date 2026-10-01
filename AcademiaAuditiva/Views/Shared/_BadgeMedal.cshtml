@@ -1,0 +1,29 @@
+@model AcademiaAuditiva.Services.Gamification.BadgeView
+@{
+    var state = Model.IsEarned ? (Model.IsNew ? "is-new" : null) : "is-locked";
+}
+<article class="aa-medal aa-medal-@Model.Group.ToString().ToLowerInvariant() @state">
+    <span class="aa-medal-disc" aria-hidden="true"><i class="bi @Model.Icon"></i></span>
+    <div>
+        <h3 class="aa-medal-title">
+            @Model.Title
+            @if (Model.IsNew)
+            {
+                <span class="aa-badge-soft ms-1 align-middle">@Localizer["Gamification.New"]</span>
+            }
+        </h3>
+        <p class="aa-medal-desc">@Model.Description</p>
+        <p class="aa-medal-meta">
+            @if (Model.EarnedOn is { } earnedOn)
+            {
+                <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                @Localizer["Gamification.EarnedOn", earnedOn.ToString("d", System.Globalization.CultureInfo.CurrentCulture)]
+            }
+            else
+            {
+                <i class="bi bi-lock" aria-hidden="true"></i>
+                @Localizer["Gamification.Locked"]
+            }
+        </p>
+    </div>
+</article>

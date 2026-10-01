@@ -3,6 +3,7 @@ using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Gamification;
 using AcademiaAuditiva.Services.Scoring;
 using AcademiaAuditiva.ViewModels;
 using AcademiaAuditiva.Interfaces;
@@ -33,7 +34,8 @@ namespace AcademiaAuditiva.Controllers
 		private readonly IAudioTokenService _audioTokens;
 		private readonly IAudioMixerService _audioMixer;
 		private readonly AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner _playbackPlanner;
-
+		private readonly IGamificationService _gamification;
+		private readonly ILogger<ExerciseController> _logger;
 		// Expected-answer entries live for one round (15 min) and are
 		// keyed per (user, exercise). The cache is a distributed abstraction
 		// so scale-out works once Redis is wired in.
@@ -49,7 +51,9 @@ namespace AcademiaAuditiva.Controllers
 			IDistributedCache cache,
 			IAudioTokenService audioTokens,
 			IAudioMixerService audioMixer,
-			AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner playbackPlanner)
+			AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner playbackPlanner,
+			IGamificationService gamification,
+			ILogger<ExerciseController> logger)
 		{
 			_context = context;
 			_localizer = localizer;
@@ -60,6 +64,8 @@ namespace AcademiaAuditiva.Controllers
 			_audioTokens = audioTokens;
 			_audioMixer = audioMixer;
 			_playbackPlanner = playbackPlanner;
+			_gamification = gamification;
+			_logger = logger;
 		}
 
 		private static string ExpectedAnswerCacheKey(string userId, int exerciseId)
@@ -341,6 +347,20 @@ namespace AcademiaAuditiva.Controllers
 				}
 			});
 
+			// XP, level and badges are a bonus: a failure here must not lose the
+			// answer that was already scored above.
+			object? rewards = null;
+			try
+			{
+				var attempt = await _gamification.RecordAttemptAsync(
+					userId, isCorrect, UserTimeZone.FromRequest(Request), HttpContext.RequestAborted);
+				rewards = BuildRewards(attempt);
+			}
+			catch (Exception ex) when (ex is not OperationCanceledException)
+			{
+				_logger.LogWarning(ex, "Could not update XP and badges after exercise {ExerciseId}.", exercise.ExerciseId);
+			}
+
 			return Json(new
 			{
 				success = true,
@@ -349,8 +369,59 @@ namespace AcademiaAuditiva.Controllers
 				newErrorCount = errorCount,
 				bestScore,
 				answer = currentAnswer,
-				message = isCorrect ? _localizer["Exercise.CorrectAnswer"].Value : _localizer["Exercise.IncorrectAnswer"].Value
+				message = isCorrect ? _localizer["Exercise.CorrectAnswer"].Value : _localizer["Exercise.IncorrectAnswer"].Value,
+				rewards
 			});
+		}
+
+		// Shape read by wwwroot/js/core/rewards.js; every text is already localized.
+		private object BuildRewards(AttemptRewards attempt)
+		{
+			var progress = attempt.Progress;
+			var rankName = _localizer[$"Gamification.Rank.{progress.Rank}"].Value;
+			var badges = attempt.NewBadges.Select(b => new
+			{
+				key = b.Key,
+				title = b.Title,
+				description = b.Description,
+				icon = b.Icon,
+				group = b.Group.ToString().ToLowerInvariant()
+			}).ToList();
+
+			string? badgesTitle = badges.Count switch
+			{
+				0 => null,
+				1 => _localizer["Gamification.BadgeEarnedTitle"].Value,
+				_ => _localizer["Gamification.BadgesEarnedTitle", badges.Count].Value
+			};
+
+			object? celebration = null;
+			if (attempt.LevelUp || badges.Count > 0)
+			{
+				celebration = new
+				{
+					title = attempt.LevelUp ? _localizer["Gamification.LevelUpTitle"].Value : badgesTitle,
+					text = attempt.LevelUp ? _localizer["Gamification.LevelUpText", progress.Level, rankName].Value : null,
+					badgesHeading = attempt.LevelUp ? badgesTitle : null,
+					viewAllText = _localizer["Gamification.ViewAll"].Value,
+					viewAllUrl = Url.Action("Achievements", "Dashboard"),
+					closeText = _localizer["Gamification.Continue"].Value
+				};
+			}
+
+			return new
+			{
+				xp = progress.Xp,
+				xpGained = attempt.XpGained,
+				xpGainedText = _localizer["Gamification.XpGained", attempt.XpGained].Value,
+				level = progress.Level,
+				levelText = _localizer["Gamification.Level", progress.Level].Value,
+				levelPercent = progress.LevelPercent,
+				levelUp = attempt.LevelUp,
+				rank = new { symbol = progress.Rank, name = rankName },
+				badges,
+				celebration
+			};
 		}
 
 		#endregion
