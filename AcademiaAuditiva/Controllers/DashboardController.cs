@@ -68,6 +68,14 @@ namespace AcademiaAuditiva.Controllers
             ViewBag.BestScore = bestScore;
             ViewBag.TotalTime = totalTimeMinutes;
 
+            // The history and most-missed lists load later and name exercises by identifier
+            // (GuessNote); the page shows them through this map of the whole catalogue.
+            var exerciseNames = await _context.Exercises
+                .Select(e => e.Name)
+                .Distinct()
+                .ToListAsync(HttpContext.RequestAborted);
+            ViewBag.ExerciseNames = exerciseNames.ToDictionary(name => name, name => _localizer[name].Value);
+
             // The progress row is optional: the rest of the dashboard still renders without it.
             GamificationProfile? profile = null;
             try
@@ -176,22 +184,6 @@ namespace AcademiaAuditiva.Controllers
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var recs = _userReportService.GetRecommendations(userId);
             return Json(recs);
-        }
-
-        [HttpGet]
-        public IActionResult GetExerciseTranslations()
-        {
-            var exerciseNames = _context.Exercises
-                .Select(e => e.Name)
-                .Distinct()
-                .ToList();
-
-            var translations = exerciseNames.ToDictionary(
-                name => name,
-                name => _localizer[$"{name}"].Value
-            );
-
-            return Json(translations);
         }
     }
 }

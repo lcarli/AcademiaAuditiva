@@ -258,11 +258,10 @@
 @{
     var skillNames = new[] { "NoteRecognition", "ChordRecognition", "IntervalRecognition", "FunctionRecognition", "MelodyReproduction", "RhythmPatterns", "HarmonicField", "ScaleRecognition" };
     var categoryNames = new[] { "Harmony", "Melody", "Rhythm", "EarTraining", "Scales", "Games", "Misc" };
-    var exerciseNames = new[] { "GuessNote", "GuessChords", "GuessInterval", "GuessQuality", "GuessFunction", "GuessFullInterval", "GuessMissingNote", "IntervalMelodico", "SolfegeMelody" };
     var i18nMap = new {
         skills = skillNames.ToDictionary(n => n, n => S["ExerciseType." + n].Value),
         categories = categoryNames.ToDictionary(n => n, n => S["ExerciseCategory." + n].Value),
-        exercises = exerciseNames.ToDictionary(n => n, n => S[n].Value)
+        exercises = ViewBag.ExerciseNames as IReadOnlyDictionary<string, string> ?? new Dictionary<string, string>()
     };
     var i18nJson = System.Text.Json.JsonSerializer.Serialize(i18nMap, new System.Text.Json.JsonSerializerOptions {
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
@@ -276,16 +275,14 @@
             integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        let exerciseTranslations = {};
         let aaI18n = { skills: {}, categories: {}, exercises: {} };
         try {
             const raw = document.getElementById('aa-i18n-map')?.textContent;
             if (raw) aaI18n = JSON.parse(raw);
-            exerciseTranslations = aaI18n.exercises || {};
         } catch (e) { console.warn('aa-i18n-map parse failed', e); }
         const tSkill = k => aaI18n.skills[k] || k;
         const tCat = k => aaI18n.categories[k] || k;
-        const tExercise = k => aaI18n.exercises[k] || exerciseTranslations[k] || k;
+        const tExercise = k => aaI18n.exercises[k] || k;
 
         // Charts take their colours from the design-system CSS variables and are
         // rebuilt when the theme changes, so they always match light/dark mode.
@@ -357,15 +354,6 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const loc = document.getElementById("localizer")?.dataset;
-
-            // Override exerciseTranslations from server endpoint (if it returns more keys),
-            // but keep our pre-translated map as fallback for any missing entries.
-            fetch("/Dashboard/GetExerciseTranslations")
-                .then(res => res.json())
-                .then(data => {
-                    exerciseTranslations = Object.assign({}, aaI18n.exercises || {}, data || {});
-                })
-                .catch(() => {});
 
             fetch("/Dashboard/GetUserTimeline")
                 .then(res => res.json())
