@@ -199,9 +199,46 @@ public class MusicTheoryServiceTests
     [InlineData("D4", "minor", "D4,F4,A4")]
     [InlineData("Bb3", "major", "Bb3,D4,F4")]
     [InlineData("Eb4", "minor", "Eb4,Gb4,Bb4")]
+    [InlineData("C4", "major7", "C4,E4,G4,B4")]
+    [InlineData("C4", "dominant7", "C4,E4,G4,Bb4")]
+    [InlineData("C4", "minor7", "C4,Eb4,G4,Bb4")]
+    [InlineData("B3", "halfDiminished", "B3,D4,F4,A4")]
+    [InlineData("C4", "halfDiminished", "C4,Eb4,Gb4,Bb4")]
+    [InlineData("B3", "diminished7", "B3,D4,F4,Ab4")]
+    [InlineData("E4", "diminished7", "E4,G4,Bb4,Db5")]
+    [InlineData("C4", "diminished7", "C4,Eb4,Gb4,Bbb4")]   // the diminished seventh sits on B, not A
     public void GetChordNotes_UsesStackedThirdSpelling(string root, string quality, string expected)
     {
         MusicTheoryService.GetChordNotes(root, quality).Should().Equal(expected.Split(','));
+    }
+
+    public static TheoryData<string, int[]> TextbookChords()
+    {
+        var data = new TheoryData<string, int[]>();
+        data.Add("major", [0, 4, 7]);
+        data.Add("minor", [0, 3, 7]);
+        data.Add("diminished", [0, 3, 6]);
+        data.Add("augmented", [0, 4, 8]);
+        data.Add("major7", [0, 4, 7, 11]);
+        data.Add("dominant7", [0, 4, 7, 10]);
+        data.Add("minor7", [0, 3, 7, 10]);
+        data.Add("halfDiminished", [0, 3, 6, 10]);
+        data.Add("diminished7", [0, 3, 6, 9]);
+        return data;
+    }
+
+    [Theory]
+    [MemberData(nameof(TextbookChords))]
+    public void GetChordNotes_StacksTheTextbookIntervals_OnEveryRoot(string quality, int[] semitones)
+    {
+        foreach (var root in MusicTheoryService.GetAllNotes([3, 4]))
+        {
+            var rootMidi = MusicTheoryService.NoteToMidi(root)!.Value;
+
+            MusicTheoryService.GetChordNotes(root, quality)
+                .Select(note => MusicTheoryService.NoteToMidi(note)!.Value - rootMidi)
+                .Should().Equal(semitones, $"{root} {quality}");
+        }
     }
 
     [Theory]

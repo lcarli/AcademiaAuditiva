@@ -43,8 +43,8 @@ namespace AcademiaAuditiva.Services
             { "major7",          (new List<int>{ 4, 3 }, 4) },
             { "minor7",          (new List<int>{ 3, 4 }, 3) },
             { "dominant7",       (new List<int>{ 4, 3 }, 3) },
-            { "halfDiminished",  (new List<int>{ 3, 3 }, 3) },
-            { "diminished7",     (new List<int>{ 3, 3 }, 2) },
+            { "halfDiminished",  (new List<int>{ 3, 3 }, 4) },
+            { "diminished7",     (new List<int>{ 3, 3 }, 3) },
             { "ninth",           (new List<int>{ 4, 3, 7 }, null) },
             { "diminishedMinor", (new List<int>{ 3, 3, 3 }, null) },
             { "diminishedMajor", (new List<int>{ 3, 3, 4 }, null) }
