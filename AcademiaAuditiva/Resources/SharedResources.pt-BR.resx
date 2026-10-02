@@ -3288,4 +3288,106 @@
   <data name="Tutorial.Exercise.Replay.Text" xml:space="preserve">
     <value>Abra este tour de novo quando quiser, por aqui.</value>
   </data>
+  <data name="Header.Explore" xml:space="preserve">
+    <value>Explorar</value>
+  </data>
+  <data name="Explore.Eyebrow" xml:space="preserve">
+    <value>Laboratório de escuta</value>
+  </data>
+  <data name="Explore.Title" xml:space="preserve">
+    <value>Explore os sons</value>
+  </data>
+  <data name="Explore.Lead" xml:space="preserve">
+    <value>Escolha uma nota, um intervalo, um acorde ou uma escala para ouvir na hora e ver no teclado e na pauta. Nada aqui vale pontos.</value>
+  </data>
+  <data name="Explore.Tabs" xml:space="preserve">
+    <value>O que explorar</value>
+  </data>
+  <data name="Explore.Tab.Note" xml:space="preserve">
+    <value>Notas</value>
+  </data>
+  <data name="Explore.Tab.Interval" xml:space="preserve">
+    <value>Intervalos</value>
+  </data>
+  <data name="Explore.Tab.Chord" xml:space="preserve">
+    <value>Acordes</value>
+  </data>
+  <data name="Explore.Tab.Scale" xml:space="preserve">
+    <value>Escalas</value>
+  </data>
+  <data name="Explore.Root.Note" xml:space="preserve">
+    <value>Nota</value>
+  </data>
+  <data name="Explore.Root.Interval" xml:space="preserve">
+    <value>Nota de partida</value>
+  </data>
+  <data name="Explore.Root.Chord" xml:space="preserve">
+    <value>Fundamental</value>
+  </data>
+  <data name="Explore.Root.Scale" xml:space="preserve">
+    <value>Tônica</value>
+  </data>
+  <data name="Explore.Interval" xml:space="preserve">
+    <value>Intervalo</value>
+  </data>
+  <data name="Explore.Direction.Harmonic" xml:space="preserve">
+    <value>Harmônico</value>
+  </data>
+  <data name="Explore.Inversion" xml:space="preserve">
+    <value>Inversão</value>
+  </data>
+  <data name="Explore.Style" xml:space="preserve">
+    <value>Estilo</value>
+  </data>
+  <data name="Explore.Style.Block" xml:space="preserve">
+    <value>Em bloco</value>
+  </data>
+  <data name="Explore.Style.Arpeggio" xml:space="preserve">
+    <value>Arpejo</value>
+  </data>
+  <data name="Explore.Scale" xml:space="preserve">
+    <value>Escala</value>
+  </data>
+  <data name="Explore.ScaleGroup.Scales" xml:space="preserve">
+    <value>Escalas</value>
+  </data>
+  <data name="Explore.ScaleGroup.Modes" xml:space="preserve">
+    <value>Modos</value>
+  </data>
+  <data name="Explore.NotesLabel" xml:space="preserve">
+    <value>Notas</value>
+  </data>
+  <data name="Explore.Keyboard" xml:space="preserve">
+    <value>Teclado de piano</value>
+  </data>
+  <data name="Explore.KeyboardHint.Note" xml:space="preserve">
+    <value>Clique numa tecla para ouvi-la. As setas percorrem o teclado.</value>
+  </data>
+  <data name="Explore.KeyboardHint.Root" xml:space="preserve">
+    <value>Clique numa tecla para começar por ela.</value>
+  </data>
+  <data name="Explore.StaffLabel" xml:space="preserve">
+    <value>Pauta: {0}</value>
+  </data>
+  <data name="Explore.Error" xml:space="preserve">
+    <value>Não foi possível carregar este som. Tente de novo.</value>
+  </data>
+  <data name="Explore.RateLimited" xml:space="preserve">
+    <value>Muitos sons em pouco tempo. Espere um instante e tente de novo.</value>
+  </data>
+  <data name="Exercise.ChordQuality.Dominant7" xml:space="preserve">
+    <value>Dominante 7</value>
+  </data>
+  <data name="Exercise.ChordQuality.HalfDiminished" xml:space="preserve">
+    <value>Meio-diminuto</value>
+  </data>
+  <data name="Exercise.ChordQuality.Sus2" xml:space="preserve">
+    <value>Sus2</value>
+  </data>
+  <data name="Exercise.ChordQuality.Sus4" xml:space="preserve">
+    <value>Sus4</value>
+  </data>
+  <data name="Exercise.InversionThird" xml:space="preserve">
+    <value>3ª inversão</value>
+  </data>
 </root>

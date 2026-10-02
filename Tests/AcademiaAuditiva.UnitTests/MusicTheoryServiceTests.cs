@@ -203,4 +203,24 @@ public class MusicTheoryServiceTests
     {
         MusicTheoryService.GetChordNotes(root, quality).Should().Equal(expected.Split(','));
     }
+
+    [Theory]
+    [InlineData("C4", 3, 2, "Eb4")]        // a minor third is E flat, not D sharp
+    [InlineData("C4", -4, -2, "Ab3")]      // a major third below
+    [InlineData("B3", 1, 1, "C4")]         // the octave number changes at C
+    [InlineData("D#4", 4, 2, "F##4")]
+    [InlineData("F#4", 6, 3, "B#4")]       // augmented fourth
+    [InlineData("Gb4", 6, 3, "C5")]
+    [InlineData("Ab4", -9, -5, "Cb4")]     // a major sixth below
+    [InlineData("C4", 6, 1, "F#4")]        // no second spans six semitones: falls back to the sharp name
+    public void SpellInterval_WritesTheNoteOnTheIntervalsLetter(string root, int semitones, int letterSteps, string expected)
+    {
+        MusicTheoryService.SpellInterval(root, semitones, letterSteps).Should().Be(expected);
+    }
+
+    [Fact]
+    public void SpellInterval_RefusesAnUnreadableRoot()
+    {
+        MusicTheoryService.SpellInterval("H4", 1, 1).Should().BeNull();
+    }
 }

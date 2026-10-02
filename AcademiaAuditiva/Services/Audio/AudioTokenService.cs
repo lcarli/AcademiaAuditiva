@@ -67,6 +67,23 @@ public sealed class AudioTokenService : IAudioTokenService
         return new AudioRound(roundId, expectedAnswerJson, tokens, tokenToBlob);
     }
 
+    public async Task<string> IssueTokenAsync(
+        string userId,
+        string address,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(userId);
+        ArgumentException.ThrowIfNullOrEmpty(address);
+
+        var token = Guid.NewGuid().ToString("N");
+        await _cache.SetStringAsync(
+            TokenCacheKey(userId, token),
+            JsonConvert.SerializeObject(new TokenPointer(RoundId: null, ExerciseId: 0, Address: address)),
+            RoundTtl,
+            cancellationToken);
+        return token;
+    }
+
     public async Task<string?> ResolveTokenAsync(
         string userId,
         string token,
@@ -93,6 +110,16 @@ public sealed class AudioTokenService : IAudioTokenService
             return null;
         }
         if (pointer is null)
+        {
+            return null;
+        }
+
+        if (pointer.Address is not null)
+        {
+            return pointer.Address;
+        }
+
+        if (string.IsNullOrEmpty(pointer.RoundId))
         {
             return null;
         }
@@ -179,5 +206,7 @@ public sealed class AudioTokenService : IAudioTokenService
         string ExpectedAnswerJson,
         Dictionary<string, string> TokenToBlob);
 
-    private sealed record TokenPointer(string RoundId, int ExerciseId);
+    // Round tokens point at their round; standalone tokens (IssueTokenAsync)
+    // carry the clip address themselves.
+    private sealed record TokenPointer(string? RoundId, int ExerciseId, string? Address = null);
 }

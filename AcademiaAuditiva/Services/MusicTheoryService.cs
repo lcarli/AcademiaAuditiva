@@ -517,6 +517,24 @@ namespace AcademiaAuditiva.Services
         }
 
         /// <summary>
+        /// Spells the note <paramref name="semitones"/> above <paramref name="root"/> (below when
+        /// negative) on the letter <paramref name="letterSteps"/> steps away, so the interval keeps
+        /// its name: ("C4", 3, 2) is Eb4, a minor third, and ("C4", -4, -2) is Ab3, a major third
+        /// below. Falls back to the sharp name when the letter would need more than a double
+        /// accidental. Returns <c>null</c> for an unreadable root.
+        /// </summary>
+        public static string? SpellInterval(string root, int semitones, int letterSteps)
+        {
+            var rootMidi = NoteToMidi(root);
+            if (!rootMidi.HasValue || !TryParseNoteParts(root, out var rootLetter, out _, out var rootOctave))
+                return null;
+
+            var target = rootMidi.Value + semitones;
+            var spelled = SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, semitones, letterSteps);
+            return NoteToMidi(spelled) == target ? spelled : MidiToNote(target);
+        }
+
+        /// <summary>
         /// Retorna as notas de um acorde a partir da nota raíz (<paramref name="root"/>) e da qualidade (<paramref name="quality"/>).
         /// </summary>
         public static List<string> GetChordNotes(string root, string quality)

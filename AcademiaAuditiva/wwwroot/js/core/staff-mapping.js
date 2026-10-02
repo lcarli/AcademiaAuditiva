@@ -1,23 +1,39 @@
 /**
  * Helpers for translating AA's note format ("C4", "Eb5", "F#3") to
- * VexFlow 5's key format ("c/4", "eb/5", "f#/3"). Centralised here so
- * both StaffRenderer and StaffEditor agree on encoding.
+ * VexFlow's key format ("c/4", "e/5", "f/3") plus the accidental drawn
+ * next to it. Centralised here so both StaffRenderer and StaffEditor
+ * agree on encoding.
  */
 (function (root) {
   "use strict";
 
+  var NOTE_PATTERN = /^([A-Ga-g])(##|bb|#|b)?(-?\d+)$/;
+
   /**
-   * Convert an AA note name to a VexFlow key string.
-   * "C4"  -> "c/4"
-   * "F#3" -> "f#/3"
-   * "Eb5" -> "eb/5"
+   * Convert an AA note name to a VexFlow key string. The accidental is
+   * left out: StaffRenderer draws it as a modifier (see accidentalOf).
+   * "C4"   -> "c/4"
+   * "F#3"  -> "f/3"
+   * "Bbb3" -> "b/3"
    * Returns null for unparseable input.
    */
   function noteToVexKey(note) {
     if (!note || typeof note !== "string") return null;
-    var m = note.match(/^([A-Ga-g])([#b]?)(-?\d+)$/);
+    var m = note.match(NOTE_PATTERN);
     if (!m) return null;
     return m[1].toLowerCase() + "/" + m[3];
+  }
+
+  /**
+   * The accidental of an AA note name, in VexFlow's spelling:
+   * "F#3" -> "#", "F##3" -> "##", "Eb5" -> "b", "Bbb3" -> "bb", "C4" -> "".
+   * Returns null for unparseable input.
+   */
+  function accidentalOf(note) {
+    if (!note || typeof note !== "string") return null;
+    var m = note.match(NOTE_PATTERN);
+    if (!m) return null;
+    return m[2] || "";
   }
 
   /**
@@ -46,6 +62,7 @@
 
   root.StaffMapping = {
     noteToVexKey: noteToVexKey,
+    accidentalOf: accidentalOf,
     isRestLabel: isRestLabel,
     stripRest: stripRest,
     isDottedLabel: isDottedLabel,

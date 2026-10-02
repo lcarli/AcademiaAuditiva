@@ -1,0 +1,200 @@
+@using AcademiaAuditiva.Services.Audio
+@{
+    ViewData["Title"] = Localizer["Explore.Title"].Value;
+
+    string[] kinds = [ExploreSoundBuilder.NoteKind, ExploreSoundBuilder.IntervalKind, ExploreSoundBuilder.ChordKind, ExploreSoundBuilder.ScaleKind];
+    var octaves = kinds.ToDictionary(kind => kind, kind =>
+    {
+        var (min, max) = ExploreSoundBuilder.OctavesFor(kind);
+        return new[] { min, max };
+    });
+    string[] inversions = ["Root", "First", "Second", "Third"];
+}
+@functions {
+    // Black keys are listed under both names, e.g. "C♯ / D♭".
+    private static readonly Dictionary<string, string> FlatLetter = new()
+    {
+        ["C#"] = "D",
+        ["D#"] = "E",
+        ["F#"] = "G",
+        ["G#"] = "A",
+        ["A#"] = "B",
+    };
+
+    private static string Pascal(string code) => char.ToUpperInvariant(code[0]) + code[1..];
+
+    private string RootLabel(string root) => FlatLetter.TryGetValue(root, out var flat)
+        ? $"{Localizer[$"Exercise.Note.{root[0]}Sharp"].Value} / {Localizer[$"Exercise.Note.{flat}"].Value}♭"
+        : Localizer[$"Exercise.Note.{root}"].Value;
+}
+
+<div id="explore" data-play-url="@Url.Action("Play", "Explore")" data-octaves="@System.Text.Json.JsonSerializer.Serialize(octaves)">
+    <header class="mb-4">
+        <span class="aa-eyebrow">@Localizer["Explore.Eyebrow"]</span>
+        <h1 class="display-6 mt-2 mb-1 text-body-emphasis">@Localizer["Explore.Title"]</h1>
+        <p class="text-secondary mb-0">@Localizer["Explore.Lead"]</p>
+    </header>
+
+    @* Clicks and key presses anywhere in the panel unlock audio, since sounds play after a fetch. *@
+    <section class="aa-panel aa-explore" data-aa-audio-unlock>
+        <div class="aa-pill-tab aa-explore-tabs" role="tablist" aria-label="@Localizer["Explore.Tabs"].Value">
+            @foreach (var kind in kinds)
+            {
+                var selected = kind == ExploreSoundBuilder.NoteKind;
+                <button type="button" role="tab" id="explore-tab-@kind" data-kind="@kind" aria-controls="explore-panel"
+                        aria-selected="@(selected ? "true" : "false")" tabindex="@(selected ? "0" : "-1")">
+                    @Localizer[$"Explore.Tab.{Pascal(kind)}"]
+                </button>
+            }
+        </div>
+
+        <div id="explore-panel" role="tabpanel" aria-labelledby="explore-tab-note">
+            <div class="aa-explore-controls">
+                <div class="aa-explore-field">
+                    <label class="aa-explore-label" id="exploreRootLabel" for="exploreRoot">@Localizer["Explore.Root.Note"]</label>
+                    <select class="form-select" id="exploreRoot">
+                        @foreach (var root in ExploreSoundBuilder.Roots)
+                        {
+                            <option value="@root" selected="@(root == "C")">@RootLabel(root)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="aa-explore-field aa-explore-field-auto">
+                    <span class="aa-explore-label" id="exploreOctaveLabel">@Localizer["Exercise.Octave"]</span>
+                    <div class="aa-stepper" role="group" aria-labelledby="exploreOctaveLabel">
+                        <button type="button" class="aa-stepper-btn" data-octave-step="-1" aria-label="@Localizer["Exercise.OctaveDown"].Value">
+                            <i class="bi bi-dash-lg" aria-hidden="true"></i>
+                        </button>
+                        <output id="exploreOctave" class="aa-stepper-value" aria-live="polite">4</output>
+                        <button type="button" class="aa-stepper-btn" data-octave-step="1" aria-label="@Localizer["Exercise.OctaveUp"].Value">
+                            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="aa-explore-field" data-kinds="interval" hidden>
+                    <label class="aa-explore-label" for="exploreInterval">@Localizer["Explore.Interval"]</label>
+                    <select class="form-select" id="exploreInterval">
+                        @foreach (var code in ExploreSoundBuilder.IntervalCodes)
+                        {
+                            <option value="@code" selected="@(code == "5J")">@Localizer[$"Exercise.Interval.{code}"]</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="aa-explore-field aa-explore-field-auto" data-kinds="interval" hidden>
+                    <span class="aa-explore-label" id="exploreDirectionLabel">@Localizer["Exercise.Direction"]</span>
+                    <div class="aa-pill-tab aa-explore-toggle" role="group" aria-labelledby="exploreDirectionLabel" data-state="direction">
+                        <button type="button" value="ascending" aria-pressed="true">@Localizer["Exercise.Direction.Asc"]</button>
+                        <button type="button" value="descending" aria-pressed="false">@Localizer["Exercise.Direction.Desc"]</button>
+                        <button type="button" value="harmonic" aria-pressed="false">@Localizer["Explore.Direction.Harmonic"]</button>
+                    </div>
+                </div>
+
+                <div class="aa-explore-field" data-kinds="chord" hidden>
+                    <label class="aa-explore-label" for="exploreQuality">@Localizer["Exercise.Quality.ChordGroup"]</label>
+                    <select class="form-select" id="exploreQuality">
+                        @foreach (var (code, tones) in ExploreSoundBuilder.ChordQualities)
+                        {
+                            <option value="@code" data-tones="@tones" selected="@(code == "major")">@Localizer[$"Exercise.ChordQuality.{Pascal(code)}"]</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="aa-explore-field" data-kinds="chord" hidden>
+                    <label class="aa-explore-label" for="exploreInversion">@Localizer["Explore.Inversion"]</label>
+                    <select class="form-select" id="exploreInversion">
+                        @for (var i = 0; i < inversions.Length; i++)
+                        {
+                            @* Triads have no 3rd inversion; the script enables it for seventh chords. *@
+                            <option value="@i" selected="@(i == 0)" disabled="@(i == 3)">@Localizer[$"Exercise.Inversion{inversions[i]}"]</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="aa-explore-field aa-explore-field-auto" data-kinds="chord" hidden>
+                    <span class="aa-explore-label" id="exploreStyleLabel">@Localizer["Explore.Style"]</span>
+                    <div class="aa-pill-tab aa-explore-toggle" role="group" aria-labelledby="exploreStyleLabel" data-state="style">
+                        <button type="button" value="block" aria-pressed="true">@Localizer["Explore.Style.Block"]</button>
+                        <button type="button" value="arpeggio" aria-pressed="false">@Localizer["Explore.Style.Arpeggio"]</button>
+                    </div>
+                </div>
+
+                <div class="aa-explore-field" data-kinds="scale" hidden>
+                    <label class="aa-explore-label" for="exploreScale">@Localizer["Explore.Scale"]</label>
+                    <select class="form-select" id="exploreScale">
+                        <optgroup label="@Localizer["Explore.ScaleGroup.Scales"].Value">
+                            @foreach (var code in ExploreSoundBuilder.ScaleNames)
+                            {
+                                <option value="@code" selected="@(code == "major")">@Localizer[$"Exercise.ScaleType{Pascal(code)}"]</option>
+                            }
+                        </optgroup>
+                        <optgroup label="@Localizer["Explore.ScaleGroup.Modes"].Value">
+                            @foreach (var code in ExploreSoundBuilder.ModeNames)
+                            {
+                                <option value="@code">@Localizer[$"Exercise.Mode{Pascal(code)}"]</option>
+                            }
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="aa-explore-field aa-explore-field-auto" data-kinds="scale" hidden>
+                    <span class="aa-explore-label" id="exploreScaleDirectionLabel">@Localizer["Exercise.Direction"]</span>
+                    <div class="aa-pill-tab aa-explore-toggle" role="group" aria-labelledby="exploreScaleDirectionLabel" data-state="scaleDirection">
+                        <button type="button" value="ascending" aria-pressed="true">@Localizer["Exercise.Direction.Asc"]</button>
+                        <button type="button" value="descending" aria-pressed="false">@Localizer["Exercise.Direction.Desc"]</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="aa-explore-stage">
+                <div class="aa-audio-row">
+                    <button type="button" id="Play" class="aa-play" title="@Localizer["Exercise.Audio.Play"].Value" aria-label="@Localizer["Exercise.Audio.Play"].Value">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 4l14 8-14 8z" fill="currentColor" /></svg>
+                    </button>
+                    <div id="waveform" class="aa-wave" aria-hidden="true"></div>
+                </div>
+
+                <div id="exploreResult" class="aa-explore-result" aria-live="polite" aria-atomic="true">
+                    <p id="exploreName" class="aa-explore-name"></p>
+                    <ul id="exploreNotes" class="aa-chips aa-explore-notes" aria-label="@Localizer["Explore.NotesLabel"].Value" hidden></ul>
+                </div>
+                <p id="exploreError" class="aa-explore-error" role="alert"></p>
+            </div>
+
+            <div class="aa-explore-keyboard">
+                <div id="exploreKeys" class="aa-explore-keys" role="toolbar" aria-label="@Localizer["Explore.Keyboard"].Value" aria-describedby="exploreHint"></div>
+            </div>
+            <p id="exploreHint" class="aa-explore-hint">@Localizer["Explore.KeyboardHint.Note"]</p>
+
+            <div id="exploreStaff" class="aa-sheet aa-explore-staff" role="img"></div>
+        </div>
+    </section>
+</div>
+
+<div id="localizer" hidden
+     data-note-c="@Localizer["Exercise.Note.C"].Value"
+     data-note-d="@Localizer["Exercise.Note.D"].Value"
+     data-note-e="@Localizer["Exercise.Note.E"].Value"
+     data-note-f="@Localizer["Exercise.Note.F"].Value"
+     data-note-g="@Localizer["Exercise.Note.G"].Value"
+     data-note-a="@Localizer["Exercise.Note.A"].Value"
+     data-note-b="@Localizer["Exercise.Note.B"].Value"
+     data-root-note="@Localizer["Explore.Root.Note"].Value"
+     data-root-interval="@Localizer["Explore.Root.Interval"].Value"
+     data-root-chord="@Localizer["Explore.Root.Chord"].Value"
+     data-root-scale="@Localizer["Explore.Root.Scale"].Value"
+     data-hint-note="@Localizer["Explore.KeyboardHint.Note"].Value"
+     data-hint-root="@Localizer["Explore.KeyboardHint.Root"].Value"
+     data-staff-label="@Localizer["Explore.StaffLabel"].Value"
+     data-error="@Localizer["Explore.Error"].Value"
+     data-rate-limited="@Localizer["Explore.RateLimited"].Value">
+</div>
+
+@section Scripts {
+    <script src="~/js/vexflow.js" asp-append-version="true"></script>
+    <script src="~/js/core/staff-mapping.js" asp-append-version="true"></script>
+    <script src="~/js/core/staff-renderer.js" asp-append-version="true"></script>
+    <script src="~/js/Explore/explore.js" asp-append-version="true"></script>
+}

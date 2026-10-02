@@ -27,6 +27,17 @@ public interface IAudioTokenService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Issues a token for a clip that belongs to no exercise round (the
+    /// Explore page, where the learner picks what to hear). It resolves
+    /// like a round token for the same 15 min, but there is no expected
+    /// answer behind it.
+    /// </summary>
+    Task<string> IssueTokenAsync(
+        string userId,
+        string address,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Resolves a token to the underlying blob name, if it is still valid
     /// and was issued to <paramref name="userId"/>. Returns <c>null</c>
     /// when the token is unknown, expired, or belongs to another user.

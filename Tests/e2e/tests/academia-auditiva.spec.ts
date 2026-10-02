@@ -89,6 +89,32 @@ test('one real-audio GuessNote round returns playable audio and validates', asyn
   expect(result.success).toBe(true);
 });
 
+test('explore plays the chosen chord and shows its notes', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Explore`, { waitUntil: 'networkidle' });
+
+  const chordResponse = page.waitForResponse(response =>
+    response.url().includes('/Explore/Play') && (response.request().postData() ?? '').includes('"kind":"chord"'));
+  await page.click('#explore-tab-chord');
+  const chord = await chordResponse;
+  expect(chord.status()).toBe(200);
+  const sound = await chord.json();
+  expect(sound.token).toMatch(/^[0-9a-f]{32}$/);
+  expect(sound).toMatchObject({ root: 'C', notes: ['C4', 'E4', 'G4'], simultaneous: true });
+
+  await expect(page.locator('#exploreName')).toHaveText('C Major');
+  await expect(page.locator('#exploreNotes li')).toHaveText(['C4', 'E4', 'G4']);
+  await expect(page.locator('#exploreStaff svg')).toBeVisible();
+
+  // The chord's token is reused, so Play goes straight to the audio.
+  const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+  await page.click('#Play');
+  const audio = await audioResponse;
+  expect(audio.url()).toContain(sound.token);
+  expect(audio.headers()['content-type']).toContain('audio/');
+  expect((await audio.body()).length).toBeGreaterThan(1000);
+});
+
 test('dashboard tour starts until closed and can be replayed to the end', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Dashboard`, { waitUntil: 'networkidle' });

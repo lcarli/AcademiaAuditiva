@@ -6,9 +6,12 @@
 // Playback uses the native Web Audio API.
 //
 // Public API:
-//   AudioEngine.playToken(token)  → Promise that resolves when the clip
-//                                   finishes playing or is stopped
-//   AudioEngine.stop()            → interrupts the currently playing clip
+//   AudioEngine.playToken(token[, { overlap }])
+//                                 → Promise that resolves when the clip
+//                                   finishes playing or is stopped; with
+//                                   overlap: true the clips already playing
+//                                   keep ringing (Explore's piano keys)
+//   AudioEngine.stop()            → interrupts every clip still playing
 //   AudioEngine.preload(token)    → optional hint to fetch the buffer
 //                                   without playing yet
 //   AudioEngine.setupWaveform(id) → live waveform over a staff, themed via CSS
@@ -23,7 +26,7 @@ const AudioEngine = (() => {
     let context = null;
     let output = null;
     let analyser = null;
-    let currentSource = null;
+    const playing = new Set();
 
     // Created on first use so pages don't open an audio device before the
     // learner asks for sound. Clips play through one gain node, which the
@@ -51,10 +54,15 @@ const AudioEngine = (() => {
 
     // Safari only starts audio from inside a user gesture, but the Play
     // buttons fetch the round before calling playToken. Resuming on the
-    // click itself keeps the context unlocked for that later call.
-    document.addEventListener("click", (event) => {
-        if (Context && event.target.closest?.("#Play, #Replay, #Melody1, #Melody2")) resume();
-    }, true);
+    // click (or key press) itself keeps the context unlocked for that later
+    // call. Pages whose controls play after a fetch mark them with
+    // data-aa-audio-unlock.
+    const UNLOCK_SELECTOR = "#Play, #Replay, #Melody1, #Melody2, [data-aa-audio-unlock]";
+    for (const type of ["click", "keydown"]) {
+        document.addEventListener(type, (event) => {
+            if (Context && event.target.closest?.(UNLOCK_SELECTOR)) resume();
+        }, true);
+    }
 
     // Caches the pending decode, so a preload and a play of the same token
     // share one request.
@@ -90,30 +98,30 @@ const AudioEngine = (() => {
     }
 
     function stop() {
-        if (currentSource) {
-            try { currentSource.stop(); } catch { /* already stopped */ }
-            currentSource = null;
+        for (const source of playing) {
+            try { source.stop(); } catch { /* already stopped */ }
         }
+        playing.clear();
     }
 
-    async function playToken(token) {
+    async function playToken(token, { overlap = false } = {}) {
         if (!token) return;
         // Resume before the fetch so a direct click handler still counts as
         // the user gesture.
         const audio = resume();
         const buffer = await loadBuffer(token);
 
-        stop();
+        if (!overlap) stop();
 
         const source = audio.createBufferSource();
         source.buffer = buffer;
         source.connect(output);
-        currentSource = source;
+        playing.add(source);
 
         return new Promise((resolve) => {
             source.onended = () => {
                 source.disconnect();
-                if (currentSource === source) currentSource = null;
+                playing.delete(source);
                 resolve();
             };
             source.start();
