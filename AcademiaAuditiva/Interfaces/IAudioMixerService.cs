@@ -10,15 +10,11 @@ namespace AcademiaAuditiva.Interfaces;
 public interface IAudioMixerService
 {
     /// <summary>
-    /// Mixes <paramref name="inputs"/> into a single audio asset and
-    /// returns a string of the form <c>{container}/{blobName}</c>
-    /// understood by the audio streaming endpoint.
-    ///
-    /// Two well-known optimizations:
-    /// 1. A single input with <c>StartTime == 0</c> short-circuits to
-    ///    the original source blob (GuessNote).
-    /// 2. Identical input sets reuse a cached mixed blob (replays are
-    ///    free; the blob name is a SHA-256 of the input plan).
+    /// Mixes <paramref name="inputs"/> into a single 16-bit PCM WAV and
+    /// returns its address, understood by the audio streaming endpoint.
+    /// Every plan is mixed, even a single note: the endpoint varies each
+    /// clip it streams and needs PCM to do it. Identical input sets reuse
+    /// a cached mixed blob (the blob name is a SHA-256 of the input plan).
     /// </summary>
     Task<MixedAudio> MixAsync(
         IReadOnlyList<MixInput> inputs,
@@ -41,7 +37,7 @@ public sealed record MixInput(
     double? DurationSeconds = null);
 
 /// <summary>
-/// Address of a mixed (or pass-through) audio asset.
+/// Address of a mixed audio asset.
 /// </summary>
 /// <param name="Container">Container holding the blob.</param>
 /// <param name="BlobName">Blob name inside <paramref name="Container"/>.</param>

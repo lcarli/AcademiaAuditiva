@@ -46,13 +46,8 @@ public sealed class AudioMixerService : IAudioMixerService
             throw new ArgumentException("At least one input is required.", nameof(inputs));
         }
 
-        // No-op shortcut: 1 input, no offset, no trim → stream the source
-        // directly. The token still hides the blob name from the user.
-        if (inputs.Count == 1 && inputs[0].StartTimeSeconds == 0 && inputs[0].DurationSeconds is null)
-        {
-            return new MixedAudio(SourceContainerName, inputs[0].BlobName);
-        }
-
+        // Even a single untrimmed note is mixed: the audio endpoint varies
+        // every clip it streams (ClipVariation) and needs PCM WAV to do it.
         var planHash = ComputePlanHash(inputs);
         if (_planToMix.TryGetValue(planHash, out var memoized))
         {
