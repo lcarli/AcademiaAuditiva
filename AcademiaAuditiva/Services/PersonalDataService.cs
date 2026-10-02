@@ -124,6 +124,11 @@ public class PersonalDataService
         => await _db.Classrooms.AnyAsync(c => c.OwnerId == userId, ct)
             || await _db.Routines.AnyAsync(r => r.OwnerId == userId, ct);
 
+    /// <summary>How many classes and routines the user owns, which <see cref="DeleteAccountAsync"/> removes too.</summary>
+    public async Task<(int Classrooms, int Routines)> CountTeachingDataAsync(string userId, CancellationToken ct = default)
+        => (await _db.Classrooms.CountAsync(c => c.OwnerId == userId, ct),
+            await _db.Routines.CountAsync(r => r.OwnerId == userId, ct));
+
     /// <summary>
     /// Serialises everything stored about the user as indented JSON. Other
     /// people's data (a teacher's students and invitees) is only counted.

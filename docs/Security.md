@@ -12,6 +12,7 @@
 | XSS in user content | Razor encoding by default; no `Html.Raw` on untrusted input |
 | CSRF | ASP.NET Core anti-forgery on POST forms |
 | Brute-force login | Identity lockout enabled (`LockoutEnabled = true`) |
+| Abusive or compromised account | An admin can lock the account (no sign-in until unlocked) or delete it in **Admin › Users**; the sign-in cookie is re-checked against the account every minute (`SecurityStampValidatorOptions.ValidationInterval`), and a locked account fails that check and can't refresh its sign-in (`LockoutAwareSignInManager`), so open sessions end within a minute. Admins can't lock or delete their own account here, and other admins must lose the Admin role first |
 | Forged scores | Scores are only recorded by `ValidateExercise` against the server-held answer of a one-shot round; no endpoint accepts client-supplied counts |
 | DoS via exercise filters | `noteRange` is parsed defensively and clamped to C1–C6; `RequestPlay` bodies are capped at 8 KB and rate-limited |
 | Cookie keys lost on deploy / not shared across replicas | Data Protection key ring persisted in blob container `dataprotection-keys`, wrapped by Key Vault key `dataprotection` |

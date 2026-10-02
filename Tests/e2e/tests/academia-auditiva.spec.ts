@@ -1,20 +1,9 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Browser, type Page } from '@playwright/test';
 
 const cultures = ['en-US', 'pt-BR', 'fr-CA'] as const;
 
 test.beforeEach(async ({ page }) => {
-  const errors: string[] = [];
-  page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
-  page.on('console', message => {
-    if (message.type() === 'error') errors.push(`console: ${message.text()}`);
-  });
-  page.on('response', response => {
-    const url = response.url();
-    if (response.status() >= 400 && !url.includes('/favicon')) {
-      errors.push(`HTTP ${response.status()} ${url}`);
-    }
-  });
-  (page as Page & { _aaErrors?: string[] })._aaErrors = errors;
+  (page as Page & { _aaErrors?: string[] })._aaErrors = collectErrors(page, []);
 });
 
 test.afterEach(async ({ page }) => {
@@ -61,6 +50,74 @@ test('register page works and bootstrapped admin can log in', async ({ page, bas
 
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await expect(page).not.toHaveURL(/\/Identity\/Account\/Login/);
+});
+
+test('an admin can lock, unlock and delete an account', async ({ page, baseURL, browser }) => {
+  const errors = (page as Page & { _aaErrors?: string[] })._aaErrors!;
+  const stamp = Date.now().toString(36);
+  const email = `e2e-lock-${stamp}@example.test`;
+  const password = `E2e!${stamp}Aa1`;
+  await page.goto(`${baseURL}/Identity/Account/Register`, { waitUntil: 'networkidle' });
+  await page.fill('#Input_FirstName', 'E2E');
+  await page.fill('#Input_LastName', 'Locked');
+  await page.fill('#Input_Email', email);
+  await page.fill('#Input_Password', password);
+  await page.fill('#Input_ConfirmPassword', password);
+  await Promise.all([
+    page.waitForURL(/RegisterConfirmation/),
+    page.click('#registerSubmit')
+  ]);
+  await Promise.all([
+    page.waitForURL(/ConfirmEmail/),
+    page.click('#confirm-link')
+  ]);
+
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  const account = page.locator('tbody tr', { hasText: email });
+  const showAccount = () => page.goto(`${baseURL}/Admin/Users?q=${encodeURIComponent(email)}`, { waitUntil: 'networkidle' });
+  // Clicks one of the account's buttons, agrees to what it asks and returns the question.
+  const clickAndConfirm = async (button: string) => {
+    let question = '';
+    page.once('dialog', dialog => { question = dialog.message(); void dialog.accept(); });
+    await account.getByRole('button', { name: button, exact: true }).click();
+    return question;
+  };
+
+  await showAccount();
+  expect(await clickAndConfirm('Lock')).toContain(email);
+  await expect(page.locator('.alert-success')).toContainText(`Account ${email} locked.`);
+  await showAccount();
+  await expect(account.getByText('locked', { exact: true })).toBeVisible();
+  await expect(account.getByRole('button', { name: 'Lock', exact: true })).toHaveCount(0);
+  await signInElsewhere(browser, errors, baseURL!, email, password, async owner => {
+    await expect(owner).toHaveURL(/\/Identity\/Account\/Lockout/);
+    await expect(owner.locator('main')).toContainText("This account is locked and can't sign in right now.");
+    await expect(owner.locator('main a[href="mailto:contato@academiaauditiva.com"]')).toBeVisible();
+  });
+
+  expect(await clickAndConfirm('Unlock')).toContain(email);
+  await expect(page.locator('.alert-success')).toContainText(`Account ${email} unlocked.`);
+  await showAccount();
+  await expect(account.getByText('locked', { exact: true })).toHaveCount(0);
+  await expect(account.getByRole('button', { name: 'Lock', exact: true })).toBeVisible();
+  await signInElsewhere(browser, errors, baseURL!, email, password, async owner => {
+    await expect(owner).toHaveURL(/\/Dashboard/);
+  });
+
+  await Promise.all([
+    page.waitForURL(/\/Admin\/Users\/Delete\//),
+    account.getByRole('link', { name: 'Delete', exact: true }).click()
+  ]);
+  await expect(page.locator('main')).toContainText(email);
+  await expect(page.locator('main .alert-danger')).toContainText("It can't be undone.");
+  await expect(page.locator('main .alert-danger')).not.toContainText('classrooms and routines');
+  await page.getByRole('button', { name: 'Delete account permanently' }).click();
+  await expect(page.locator('.alert-success')).toContainText(`Account ${email} deleted.`);
+  await showAccount();
+  await expect(page.locator('tbody')).toContainText('No users match.');
+  await signInElsewhere(browser, errors, baseURL!, email, password, async owner => {
+    await expect(owner.locator('.validation-summary-errors')).toContainText('Invalid login attempt.');
+  });
 });
 
 test('one real-audio GuessNote round returns playable audio and validates', async ({ page, baseURL }) => {
@@ -346,6 +403,37 @@ function pitchClass(note: string) {
   const sharps: Record<string, string> = { Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#' };
   const name = note.replace(/\d+$/, '');
   return sharps[name] ?? name;
+}
+
+// Notes what goes wrong on a page (script errors, console errors, failed
+// requests) for the check after each test.
+function collectErrors(page: Page, errors: string[]) {
+  page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
+  page.on('console', message => {
+    if (message.type() === 'error') errors.push(`console: ${message.text()}`);
+  });
+  page.on('response', response => {
+    const url = response.url();
+    if (response.status() >= 400 && !url.includes('/favicon')) {
+      errors.push(`HTTP ${response.status()} ${url}`);
+    }
+  });
+  return errors;
+}
+
+// Signs in from a browser of its own, as the account's owner would, and runs
+// the checks on where that left them.
+async function signInElsewhere(browser: Browser, errors: string[], baseURL: string, email: string, password: string, check: (page: Page) => Promise<void>) {
+  const context = await browser.newContext({ locale: 'en-US' });
+  try {
+    const page = await context.newPage();
+    collectErrors(page, errors);
+    await login(page, baseURL, email, password);
+    await check(page);
+    await page.waitForLoadState('networkidle');
+  } finally {
+    await context.close();
+  }
 }
 
 async function login(page: Page, baseURL: string, email: string, password: string) {

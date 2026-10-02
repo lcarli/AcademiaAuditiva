@@ -278,7 +278,7 @@
     <comment />
   </data>
   <data name="Lockout.Text" xml:space="preserve">
-    <value>Esta conta foi bloqueada, por favor tente novamente mais tarde.</value>
+    <value>Esta conta está bloqueada e não pode entrar agora. Tente novamente mais tarde.</value>
     <comment />
   </data>
   <data name="Exercise.Major" xml:space="preserve">
@@ -3416,5 +3416,62 @@
   </data>
   <data name="Exercise.InversionThird" xml:space="preserve">
     <value>3ª inversão</value>
+  </data>
+  <data name="Admin.Users.Lock" xml:space="preserve">
+    <value>Bloquear</value>
+  </data>
+  <data name="Admin.Users.Unlock" xml:space="preserve">
+    <value>Desbloquear</value>
+  </data>
+  <data name="Admin.Users.Delete" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="Admin.Users.LockConfirm" xml:space="preserve">
+    <value>Bloquear {0}? A pessoa sairá da conta em até um minuto e só poderá entrar de novo quando você desbloquear a conta.</value>
+  </data>
+  <data name="Admin.Users.UnlockConfirm" xml:space="preserve">
+    <value>Desbloquear {0}? A pessoa poderá entrar novamente.</value>
+  </data>
+  <data name="Admin.Users.LockedUser" xml:space="preserve">
+    <value>Conta {0} bloqueada.</value>
+  </data>
+  <data name="Admin.Users.UnlockedUser" xml:space="preserve">
+    <value>Conta {0} desbloqueada.</value>
+  </data>
+  <data name="Admin.Users.DeletedUser" xml:space="preserve">
+    <value>Conta {0} excluída.</value>
+  </data>
+  <data name="Admin.Users.CannotLockSelf" xml:space="preserve">
+    <value>Você não pode bloquear a sua própria conta.</value>
+  </data>
+  <data name="Admin.Users.CannotLockAdmin" xml:space="preserve">
+    <value>Não é possível bloquear um Admin. Remova o papel de Admin primeiro.</value>
+  </data>
+  <data name="Admin.Users.CannotDeleteSelf" xml:space="preserve">
+    <value>Para excluir a sua própria conta, use Gerenciar conta › Dados pessoais.</value>
+  </data>
+  <data name="Admin.Users.CannotDeleteAdmin" xml:space="preserve">
+    <value>Não é possível excluir um Admin. Remova o papel de Admin primeiro.</value>
+  </data>
+  <data name="Admin.Users.UpdateFailed" xml:space="preserve">
+    <value>Não foi possível atualizar {0}. Tente novamente.</value>
+  </data>
+  <data name="Admin.Users.DeleteFailed" xml:space="preserve">
+    <value>Não foi possível excluir {0}. Tente novamente.</value>
+  </data>
+  <data name="Admin.Users.Delete.Title" xml:space="preserve">
+    <value>Excluir conta</value>
+  </data>
+  <data name="Admin.Users.Delete.Warning" xml:space="preserve">
+    <value>Isso exclui permanentemente a conta e tudo o que está guardado com ela, como o histórico de prática e o progresso. Não é possível desfazer.</value>
+  </data>
+  <data name="Admin.Users.Delete.TeachingWarning" xml:space="preserve">
+    <value>As turmas e rotinas dessa pessoa também serão excluídas, e os alunos dela perderão o acesso a elas.</value>
+  </data>
+  <data name="Admin.Users.Delete.Submit" xml:space="preserve">
+    <value>Excluir conta permanentemente</value>
+  </data>
+  <data name="Lockout.Contact" xml:space="preserve">
+    <value>Se continuar bloqueada, escreva para nós:</value>
   </data>
 </root>

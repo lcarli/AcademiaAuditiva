@@ -278,7 +278,7 @@
     <comment />
   </data>
   <data name="Lockout.Text" xml:space="preserve">
-    <value>This account has been locked, please try again later.</value>
+    <value>This account is locked and can't sign in right now. Please try again later.</value>
     <comment />
   </data>
   <data name="Exercise.Major" xml:space="preserve">
@@ -3416,5 +3416,62 @@
   </data>
   <data name="Exercise.InversionThird" xml:space="preserve">
     <value>3rd inversion</value>
+  </data>
+  <data name="Admin.Users.Lock" xml:space="preserve">
+    <value>Lock</value>
+  </data>
+  <data name="Admin.Users.Unlock" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="Admin.Users.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Admin.Users.LockConfirm" xml:space="preserve">
+    <value>Lock {0}? They'll be signed out within a minute and can't sign in again until you unlock the account.</value>
+  </data>
+  <data name="Admin.Users.UnlockConfirm" xml:space="preserve">
+    <value>Unlock {0}? They'll be able to sign in again.</value>
+  </data>
+  <data name="Admin.Users.LockedUser" xml:space="preserve">
+    <value>Account {0} locked.</value>
+  </data>
+  <data name="Admin.Users.UnlockedUser" xml:space="preserve">
+    <value>Account {0} unlocked.</value>
+  </data>
+  <data name="Admin.Users.DeletedUser" xml:space="preserve">
+    <value>Account {0} deleted.</value>
+  </data>
+  <data name="Admin.Users.CannotLockSelf" xml:space="preserve">
+    <value>You can't lock your own account.</value>
+  </data>
+  <data name="Admin.Users.CannotLockAdmin" xml:space="preserve">
+    <value>Admins can't be locked. Remove the Admin role first.</value>
+  </data>
+  <data name="Admin.Users.CannotDeleteSelf" xml:space="preserve">
+    <value>To delete your own account, use Manage account › Personal data.</value>
+  </data>
+  <data name="Admin.Users.CannotDeleteAdmin" xml:space="preserve">
+    <value>Admins can't be deleted. Remove the Admin role first.</value>
+  </data>
+  <data name="Admin.Users.UpdateFailed" xml:space="preserve">
+    <value>Couldn't update {0}. Please try again.</value>
+  </data>
+  <data name="Admin.Users.DeleteFailed" xml:space="preserve">
+    <value>Couldn't delete {0}. Please try again.</value>
+  </data>
+  <data name="Admin.Users.Delete.Title" xml:space="preserve">
+    <value>Delete account</value>
+  </data>
+  <data name="Admin.Users.Delete.Warning" xml:space="preserve">
+    <value>This permanently deletes the account and everything stored with it, such as practice history and progress. It can't be undone.</value>
+  </data>
+  <data name="Admin.Users.Delete.TeachingWarning" xml:space="preserve">
+    <value>The classrooms and routines this person owns will be deleted too, and their students will lose access to them.</value>
+  </data>
+  <data name="Admin.Users.Delete.Submit" xml:space="preserve">
+    <value>Delete account permanently</value>
+  </data>
+  <data name="Lockout.Contact" xml:space="preserve">
+    <value>If it stays locked, write to us:</value>
   </data>
 </root>

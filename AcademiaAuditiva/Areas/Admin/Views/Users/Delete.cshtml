@@ -1,0 +1,36 @@
+@model DeleteUserViewModel
+@{
+    ViewData["Title"] = Localizer["Admin.Users.Delete.Title"].Value;
+}
+<h1 class="h3 mb-3 text-body-emphasis">@ViewData["Title"]</h1>
+
+<div class="aa-card-flat p-4 col-lg-8">
+    <div class="mb-3">
+        <div><strong>@Model.UserName</strong></div>
+        <small class="text-secondary">@Model.Email</small>
+        @if (Model.IsTeacher || Model.IsStudent)
+        {
+            <div class="mt-2">
+                @if (Model.IsTeacher) { <span class="badge bg-primary me-1">@Localizer["Role.Teacher"]</span> }
+                @if (Model.IsStudent) { <span class="badge bg-secondary me-1">@Localizer["Role.Student"]</span> }
+            </div>
+        }
+    </div>
+
+    <div class="alert alert-danger" role="alert">
+        <p class="mb-0"><strong>@Localizer["Admin.Users.Delete.Warning"]</strong></p>
+        @if (Model.ClassroomCount > 0 || Model.RoutineCount > 0)
+        {
+            <p class="mb-0 mt-2">@Localizer["Admin.Users.Delete.TeachingWarning"]</p>
+            <ul class="mb-0 mt-2">
+                <li>@Localizer["Common.LabelValue", Localizer["Admin.Classrooms"], Model.ClassroomCount]</li>
+                <li>@Localizer["Common.LabelValue", Localizer["Admin.Routines"], Model.RoutineCount]</li>
+            </ul>
+        }
+    </div>
+
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1" aria-hidden="true"></i>@Localizer["Admin.Users.Delete.Submit"]</button>
+        <a class="btn btn-link" asp-action="Index">@Localizer["Common.Cancel"]</a>
+    </form>
+</div>

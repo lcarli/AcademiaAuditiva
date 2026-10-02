@@ -79,7 +79,14 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddSignInManager<LockoutAwareSignInManager>();
+
+// Sign-in cookies are checked against the account every minute instead of
+// Identity's default 30: a session ends soon after an admin locks (see
+// LockoutAwareSignInManager) or deletes the account, and role changes apply quickly.
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+    options.ValidationInterval = TimeSpan.FromMinutes(1));
 
 builder.Services.Configure<AdminBootstrapOptions>(builder.Configuration.GetSection("Admin"));
 builder.Services.AddScoped<IdentityBootstrapper>();
