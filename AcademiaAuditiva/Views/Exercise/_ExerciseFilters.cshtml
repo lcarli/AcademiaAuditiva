@@ -1,11 +1,15 @@
+@using AcademiaAuditiva.Services
 @using AcademiaAuditiva.Services.Audio
 @model AcademiaAuditiva.ViewModels.ExerciseFiltersViewModel
 @{
-    // Exercises about chords leave out the instruments that don't play them, and start the
-    // note range where the instrument plays chords (the guitar on its open chords).
+    // Exercises about chords leave out the instruments that don't play them. When the exercise
+    // plays chords, the guitar plays them where on the neck the student picks: the position
+    // then replaces the note range.
     var instruments = Instrument.Offered(Model.IsChordExercise);
     var activeInstrument = Instrument.FromName(Context.Request.Cookies["instrument"], Model.IsChordExercise);
-    var startOctave = activeInstrument.StartOctave(Model.IsChordExercise);
+    var onTheNeck = Model.PlaysChords && activeInstrument.Chords == ChordStyle.Strummed;
+    var activePosition = GuitarVoicing.PositionFromName(Context.Request.Cookies["guitarPosition"]);
+    var startOctave = MusicTheoryService.DefaultRangeOctave;
 }
 
 <form>
@@ -18,19 +22,35 @@
                         data-instrument="@instrument.Name"
                         data-lowest-octave="@instrument.LowestOctave"
                         data-highest-octave="@instrument.HighestOctave"
-                        data-start-octave="@instrument.StartOctave(Model.IsChordExercise)"
+                        data-lowest-note="@instrument.LowestNote"
+                        data-strummed="@(instrument.Chords == ChordStyle.Strummed ? "true" : "false")"
                         aria-pressed="@(instrument == activeInstrument ? "true" : "false")">@Localizer[instrument.LabelKey]</button>
             }
         </div>
     </div>
 
-    <div class="mb-3">
+    @if (Model.PlaysChords)
+    {
+        <div class="mb-3" id="positionFilter" hidden="@(!onTheNeck)">
+            <div class="form-label" id="positionLabel">@Localizer["GuitarPosition"]</div>
+            <div class="aa-pill-tab" role="group" id="positionButtons" aria-labelledby="positionLabel">
+                @foreach (var position in Enum.GetValues<GuitarPosition>())
+                {
+                    <button type="button"
+                            data-guitar-position="@position"
+                            aria-pressed="@(position == activePosition ? "true" : "false")">@Localizer["GuitarPosition." + position]</button>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="mb-3" id="rangeFilter" hidden="@onTheNeck">
         <div class="form-label" id="rangeLabel">@Localizer["Range"]</div>
         <div class="d-flex align-items-center gap-3">
-            <span id="rangeStartLabel" class="fw-semibold">C@(startOctave)</span>
+            <span id="rangeStartLabel" class="fw-semibold">@activeInstrument.OctaveLabel(startOctave)</span>
             <input type="range" class="form-range" id="rangeStart" min="@activeInstrument.LowestOctave" max="@activeInstrument.HighestOctave" value="@startOctave" step="1" aria-labelledby="rangeLabel">
             <input type="range" class="form-range" id="rangeEnd" min="@activeInstrument.LowestOctave" max="@activeInstrument.HighestOctave" value="@startOctave" step="1" aria-labelledby="rangeLabel">
-            <span id="rangeEndLabel" class="fw-semibold">C@(startOctave)</span>
+            <span id="rangeEndLabel" class="fw-semibold">@activeInstrument.OctaveLabel(startOctave)</span>
         </div>
     </div>
 

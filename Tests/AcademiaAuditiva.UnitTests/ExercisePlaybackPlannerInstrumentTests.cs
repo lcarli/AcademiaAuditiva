@@ -90,32 +90,53 @@ public class ExercisePlaybackPlannerInstrumentTests
     }
 
     [Fact]
-    public void TheViolin_NeverPlaysBelowItsRange()
+    public void TheViolin_NeverPlaysBelowItsGString()
     {
         var exercise = new Exercise { ExerciseId = 1, Name = "GuessNote" };
 
         for (var round = 0; round < 30; round++)
         {
+            // Octaves 1 and 2 are below the violin: it plays its lowest one, from its G string up.
             var plan = _planner.Plan(exercise, new() { ["instrument"] = "Violin", ["noteRange"] = "C1-C2" });
 
             plan.PlaybackPlans.Should().ContainSingle().Which.Should().ContainSingle()
-                .Which.SampleName.Should().MatchRegex(@"^violin/[A-G]s?4\.mp3$");
-            JObject.Parse(plan.ExpectedAnswerJson).Value<string>("note").Should().EndWith("4",
-                "the answer is the note that is played");
+                .Which.SampleName.Should().MatchRegex(@"^violin/(G|Gs|A|As|B)3\.mp3$");
+            JObject.Parse(plan.ExpectedAnswerJson).Value<string>("note").Should().BeOneOf(
+                new[] { "G3", "G#3", "A3", "A#3", "B3" }, "the answer is the note that is played");
         }
     }
 
     [Fact]
-    public void HigherOrLower_OnTheGuitar_ComparesNotesUpToItsHighestOctave()
+    public void GuessNote_OnTheGuitar_PlaysOnlyTheNotesOfItsNeck()
     {
+        var exercise = new Exercise { ExerciseId = 1, Name = "GuessNote" };
+
+        for (var round = 0; round < 30; round++)
+        {
+            // The neck has no C2 to D#2: its lowest note is the low E string.
+            var plan = _planner.Plan(exercise, new() { ["instrument"] = "Guitar", ["noteRange"] = "C2-C2" });
+
+            var note = JObject.Parse(plan.ExpectedAnswerJson).Value<string>("note")!;
+            Midi(note).Should().BeInRange(Midi("E2"), Midi("B2"));
+            plan.PlaybackPlans.Should().ContainSingle().Which.Should().ContainSingle()
+                .Which.SampleName.Should().Be(Instrument.Guitar.SampleFor(note), "the answer is the note that is played");
+        }
+    }
+
+    [Theory]
+    [InlineData("C1-C2", "E2", "B3")]
+    [InlineData("C6-C6", "C4", "B5")]
+    public void HigherOrLower_OnTheGuitar_ComparesNotesOfItsNeck(string noteRange, string lowest, string highest)
+    {
+        // One octave is widened to the next one up, or down from the highest: the neck goes from E2 to B5.
         var exercise = new Exercise { ExerciseId = 1, Name = "HigherOrLower" };
 
         for (var round = 0; round < 30; round++)
         {
-            var plan = _planner.Plan(exercise, new() { ["instrument"] = "Guitar", ["noteRange"] = "C6-C6" });
+            var plan = _planner.Plan(exercise, new() { ["instrument"] = "Guitar", ["noteRange"] = noteRange });
 
             plan.PlaybackPlans.Should().ContainSingle().Which.Should().HaveCount(2)
-                .And.AllSatisfy(input => input.SampleName.Should().MatchRegex(@"^guitar/[A-G]s?[45]\.mp3$"));
+                .And.AllSatisfy(input => GuitarNotes[input.SampleName].Should().BeInRange(Midi(lowest), Midi(highest)));
         }
     }
 
@@ -164,23 +185,29 @@ public class ExercisePlaybackPlannerInstrumentTests
     {
         var exercise = new Exercise { ExerciseId = 1, Name = exerciseName };
 
-        for (var round = 0; round < 30; round++)
+        foreach (var position in Enum.GetNames<GuitarPosition>())
         {
-            var plan = _planner.Plan(exercise, new() { ["instrument"] = "Guitar", ["chordType"] = "all" });
+            for (var round = 0; round < 15; round++)
+            {
+                var plan = _planner.Plan(exercise, new() { ["instrument"] = "Guitar", ["chordType"] = "all", ["guitarPosition"] = position });
 
-            var chord = Midis(JObject.Parse(plan.ExpectedAnswerJson)["notes"]!);
-            ShouldStrum(plan.PlaybackPlans.Should().ContainSingle().Subject, chord, startTime: 0.0, seconds: 1.5);
+                var chord = Midis(JObject.Parse(plan.ExpectedAnswerJson)["notes"]!);
+                ShouldStrum(plan.PlaybackPlans.Should().ContainSingle().Subject, chord, startTime: 0.0, seconds: 1.5);
+            }
         }
     }
 
-    [Fact]
-    public void Cadences_OnTheGuitar_StrumEveryChordInTurn()
+    [Theory]
+    [InlineData("Open")]
+    [InlineData("Barre")]
+    [InlineData("High")]
+    public void Cadences_OnTheGuitar_StrumEveryChordInTurn(string position)
     {
         var exercise = new Exercise { ExerciseId = 1, Name = "GuessCadence" };
 
         for (var round = 0; round < 20; round++)
         {
-            var plan = _planner.Plan(exercise, new() { ["instrument"] = "Guitar" });
+            var plan = _planner.Plan(exercise, new() { ["instrument"] = "Guitar", ["guitarPosition"] = position });
 
             var chords = JObject.Parse(plan.ExpectedAnswerJson)["chords"]!.Select(Midis).ToList();
             var strums = plan.PlaybackPlans.Should().ContainSingle().Subject
@@ -210,7 +237,7 @@ public class ExercisePlaybackPlannerInstrumentTests
 
         for (var round = 0; round < 20; round++)
         {
-            // Without a note range, as when the student hasn't moved the sliders.
+            // Without a position, as when the student hasn't picked one.
             var plan = _planner.Plan(exercise, new() { ["instrument"] = "Guitar", ["cadenceRoot"] = "A" });
 
             var chords = JObject.Parse(plan.ExpectedAnswerJson)["chords"]!.Select(Midis).ToList();
@@ -227,34 +254,51 @@ public class ExercisePlaybackPlannerInstrumentTests
     }
 
     [Theory]
-    [InlineData("GuessChords", null, 40, 51)]
-    [InlineData("GuessChords", "C2-C2", 40, 51)]
-    [InlineData("GuessChords", "C3-C3", 48, 59)]
-    [InlineData("GuessFunction", null, 40, 51)]
-    [InlineData("GuessFunction", "C3-C3", 48, 59)]
-    [InlineData("GuessQuality", null, 40, 51)]
-    [InlineData("GuessQuality", "C3-C3", 48, 59)]
-    [InlineData("GuessInversion", null, 40, 51)]
-    [InlineData("GuessInversion", "C3-C3", 48, 59)]
-    [InlineData("GuessCadence", null, 40, 51)]
-    [InlineData("GuessCadence", "C3-C3", 48, 59)]
-    public void Chords_OnTheGuitar_HaveTheBassInTheOctaveOfTheRange(
-        string exerciseName, string? noteRange, int lowestBass, int highestBass)
+    [InlineData("GuessChords", null, GuitarPosition.Open)]
+    [InlineData("GuessChords", "Open", GuitarPosition.Open)]
+    [InlineData("GuessChords", "Barre", GuitarPosition.Barre)]
+    [InlineData("GuessChords", "high", GuitarPosition.High)]
+    [InlineData("GuessChords", "Drums", GuitarPosition.Open)]
+    [InlineData("GuessFunction", "Barre", GuitarPosition.Barre)]
+    [InlineData("GuessFunction", "High", GuitarPosition.High)]
+    [InlineData("GuessQuality", "Barre", GuitarPosition.Barre)]
+    [InlineData("GuessQuality", "High", GuitarPosition.High)]
+    [InlineData("GuessInversion", "Barre", GuitarPosition.Barre)]
+    [InlineData("GuessInversion", "High", GuitarPosition.High)]
+    [InlineData("GuessCadence", null, GuitarPosition.Open)]
+    [InlineData("GuessCadence", "Barre", GuitarPosition.Barre)]
+    [InlineData("GuessCadence", "High", GuitarPosition.High)]
+    public void Chords_OnTheGuitar_ArePlayedWhereOnTheNeckTheStudentPicked(
+        string exerciseName, string? guitarPosition, GuitarPosition position)
     {
-        // Octave 2 has the basses of the open chords, from E2 (the low E string) to the D#3 of
-        // x68886: the neck has no C2 to D#2. Without a range the guitar starts there.
         var exercise = new Exercise { ExerciseId = 1, Name = exerciseName };
-        var filters = new Dictionary<string, string> { ["instrument"] = "Guitar", ["chordType"] = "all" };
-        if (noteRange is not null)
-            filters["noteRange"] = noteRange;
 
-        for (var round = 0; round < 30; round++)
+        // The shape sets the octaves of the strings, whatever the note range.
+        foreach (var noteRange in new[] { "C1-C1", "C6-C6" })
         {
-            var strums = _planner.Plan(exercise, filters).PlaybackPlans.Should().ContainSingle().Subject
-                .GroupBy(input => (int)Math.Floor(input.StartTimeSeconds / 1.25 + 1e-9));
+            var filters = new Dictionary<string, string> { ["instrument"] = "Guitar", ["chordType"] = "all", ["noteRange"] = noteRange };
+            if (guitarPosition is not null)
+                filters["guitarPosition"] = guitarPosition;
 
-            strums.Should().AllSatisfy(strum => strum.Min(input => GuitarNotes[input.SampleName]).Should()
-                .BeInRange(lowestBass, highestBass, "the bass of {0} follows the note range", exerciseName));
+            for (var round = 0; round < 15; round++)
+            {
+                var plan = _planner.Plan(exercise, filters);
+
+                var answer = JObject.Parse(plan.ExpectedAnswerJson);
+                List<List<int>> chords = exerciseName == "GuessCadence"
+                    ? [.. answer["chords"]!.Select(Midis)]
+                    : [Midis(answer["notes"]!)];
+                var strums = plan.PlaybackPlans.Should().ContainSingle().Subject
+                    .GroupBy(input => (int)Math.Floor(input.StartTimeSeconds / 1.25 + 1e-9))
+                    .Select(strum => strum.Select(input => GuitarNotes[input.SampleName]).ToList())
+                    .ToList();
+                strums.Should().HaveSameCount(chords);
+                for (var k = 0; k < chords.Count; k++)
+                {
+                    strums[k].Should().Equal(GuitarVoicing.Find(chords[k], position)!.Notes,
+                        "{0} is strummed on its {1} shape with the note range {2}", exerciseName, position, noteRange);
+                }
+            }
         }
     }
 
@@ -271,6 +315,8 @@ public class ExercisePlaybackPlannerInstrumentTests
         // CompleteChord plays the root of a chord for the student to complete it.
         ExercisePlaybackPlanner.IsChordExercise(exerciseName).Should().Be(notesTogether || exerciseName == "CompleteChord",
             "the exercises about chords leave out the violin");
+        ExercisePlaybackPlanner.PlaysChords(exerciseName).Should().Be(notesTogether,
+            "on the guitar the student picks where on the neck to play the chords");
     }
 
     /// <summary>

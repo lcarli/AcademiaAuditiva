@@ -5,30 +5,31 @@ namespace AcademiaAuditiva.Services.Audio;
 /// <summary>
 /// An instrument the exercises can be played on. Every instrument has a sample
 /// for each semitone the piano has (C1 to B7, see <see cref="PianoSamples"/>),
-/// but the octaves a student can pick for the note range stay where the
-/// instrument sounds natural, and start where it plays the exercise
-/// (<see cref="StartOctave"/>).
+/// but the notes a student can pick with the note range stay where the
+/// instrument sounds natural, from <see cref="LowestNote"/> to
+/// <see cref="HighestNote"/>.
 /// </summary>
 /// <param name="Name">Value of the <c>instrument</c> cookie and filter.</param>
 /// <param name="Folder">
 /// Folder of the samples that ship with the app (<see cref="BundledSamples"/>),
 /// or <c>null</c> for the piano, whose samples are in the <c>piano-audio</c> container.
 /// </param>
-/// <param name="LowestOctave">Lowest octave of the note range.</param>
-/// <param name="HighestOctave">Highest octave of the note range.</param>
+/// <param name="LowestNote">Lowest note of the note range (<c>E2</c>).</param>
+/// <param name="HighestNote">Highest note of the note range (<c>B5</c>).</param>
 /// <param name="Chords">How the instrument plays the notes of a chord.</param>
-public sealed record Instrument(string Name, string? Folder, int LowestOctave, int HighestOctave, ChordStyle Chords)
+public sealed record Instrument(string Name, string? Folder, string LowestNote, string HighestNote, ChordStyle Chords)
 {
-    public static readonly Instrument Piano = new("Piano", null, MusicTheoryService.MinRangeOctave, MusicTheoryService.MaxRangeOctave, ChordStyle.Together);
+    /// <summary>Piano, over every octave of the note range sliders.</summary>
+    public static readonly Instrument Piano = new("Piano", null, "C1", "B6", ChordStyle.Together);
 
     /// <summary>
-    /// Nylon-string guitar, whose lowest note is E2. Its chords start in octave 2, the
-    /// octave of the bass of the open chords (<see cref="GuitarVoicing"/>).
+    /// Nylon-string guitar, from its low E string (E2) to the 19th fret of its high E string
+    /// (B5). It plays the chords where on the neck the student picks (<see cref="GuitarPosition"/>).
     /// </summary>
-    public static readonly Instrument Guitar = new("Guitar", "guitar", 2, 5, ChordStyle.Strummed) { ChordOctave = 2 };
+    public static readonly Instrument Guitar = new("Guitar", "guitar", "E2", "B5", ChordStyle.Strummed);
 
-    /// <summary>Violin, whose lowest note is G3.</summary>
-    public static readonly Instrument Violin = new("Violin", "violin", 4, 6, ChordStyle.None);
+    /// <summary>Violin, from its G string (G3) to the top of the note range sliders.</summary>
+    public static readonly Instrument Violin = new("Violin", "violin", "G3", "B6", ChordStyle.None);
 
     /// <summary>Every instrument, in the order the filters offer them.</summary>
     public static IReadOnlyList<Instrument> All { get; } = [Piano, Guitar, Violin];
@@ -44,14 +45,17 @@ public sealed record Instrument(string Name, string? Folder, int LowestOctave, i
     /// <summary>Whether the instrument plays chords: the violin plays one note at a time.</summary>
     public bool PlaysChords => Chords != ChordStyle.None;
 
-    /// <summary>Octave the note range starts on in the exercises about chords.</summary>
-    public int ChordOctave { get; init; } = MusicTheoryService.DefaultRangeOctave;
+    /// <summary>MIDI note of <see cref="LowestNote"/>.</summary>
+    public int LowestMidi => Midi(LowestNote);
 
-    /// <summary>
-    /// Octave the note range starts on, before the student moves the sliders, in an exercise
-    /// about <paramref name="chords"/> (<see cref="ChordOctave"/>) or not.
-    /// </summary>
-    public int StartOctave(bool chords) => chords ? ChordOctave : MusicTheoryService.DefaultRangeOctave;
+    /// <summary>MIDI note of <see cref="HighestNote"/>.</summary>
+    public int HighestMidi => Midi(HighestNote);
+
+    /// <summary>Lowest octave the note range sliders offer: the octave of <see cref="LowestNote"/>.</summary>
+    public int LowestOctave => LowestMidi / 12 - 1;
+
+    /// <summary>Highest octave the note range sliders offer: the octave of <see cref="HighestNote"/>.</summary>
+    public int HighestOctave => HighestMidi / 12 - 1;
 
     /// <summary>
     /// The instruments an exercise offers, in the order of <see cref="All"/>: when it plays
@@ -91,16 +95,39 @@ public sealed record Instrument(string Name, string? Folder, int LowestOctave, i
     /// <summary>
     /// <paramref name="noteRange"/> (<c>C3-C5</c>, read like
     /// <see cref="MusicTheoryService.ParseOctaveRange"/>) kept within this instrument's octaves:
-    /// when there is none, or it is malformed, the octave the range
-    /// <see cref="StartOctave">starts on</see> in an exercise about <paramref name="chords"/> or not.
+    /// when there is none, or it is malformed, the octave the sliders start on
+    /// (<see cref="MusicTheoryService.DefaultRangeOctave"/>).
     /// </summary>
-    public string ClampRange(string? noteRange, bool chords = false)
+    public string ClampRange(string? noteRange)
     {
-        var octaves = MusicTheoryService.ParseOctaveRange(noteRange, StartOctave(chords));
+        var octaves = MusicTheoryService.ParseOctaveRange(noteRange);
         var lowest = Math.Clamp(octaves[0], LowestOctave, HighestOctave);
         var highest = Math.Clamp(octaves[^1], LowestOctave, HighestOctave);
         return string.Create(CultureInfo.InvariantCulture, $"C{lowest}-C{highest}");
     }
+
+    /// <summary>The octaves of <paramref name="noteRange"/>, kept within this instrument's (<see cref="ClampRange"/>).</summary>
+    public List<int> Octaves(string? noteRange) => MusicTheoryService.ParseOctaveRange(ClampRange(noteRange));
+
+    /// <summary>Whether <paramref name="note"/> (<c>C#4</c>) is in the instrument's note range.</summary>
+    public bool Has(string note) =>
+        MusicTheoryService.NoteToMidi(note) is { } midi && midi >= LowestMidi && midi <= HighestMidi;
+
+    /// <summary>
+    /// The notes of <paramref name="octaves"/> that the instrument has, from the lowest up:
+    /// octave 2 of the guitar goes from E2 to B2.
+    /// </summary>
+    public List<string> NotesIn(IEnumerable<int> octaves) => [.. MusicTheoryService.GetAllNotes([.. octaves]).Where(Has)];
+
+    /// <summary>
+    /// How the note range sliders name <paramref name="octave"/>: by its first note that the
+    /// instrument has, so C except in the lowest octave (E2 on the guitar, G3 on the violin).
+    /// </summary>
+    public string OctaveLabel(int octave) =>
+        octave == LowestOctave ? LowestNote : string.Create(CultureInfo.InvariantCulture, $"C{octave}");
+
+    private static int Midi(string note) =>
+        MusicTheoryService.NoteToMidi(note) ?? throw new InvalidOperationException($"Invalid note name '{note}'.");
 }
 
 /// <summary>How an <see cref="Instrument"/> plays the notes of a chord.</summary>

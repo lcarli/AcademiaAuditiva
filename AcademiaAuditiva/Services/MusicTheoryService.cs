@@ -748,21 +748,21 @@ namespace AcademiaAuditiva.Services
 
 
         #region Métodos de geração de som por exercicio
-        /// <param name="highestOctave">
-        /// Highest octave of the instrument the exercise is played on: HigherOrLower widens a
-        /// one-octave <c>noteRange</c> to the next octave up, or down when this is the top.
+        /// <param name="instrument">
+        /// Instrument the exercise is played on (the piano when <c>null</c>). The notes drawn one
+        /// at a time stay in its note range, and HigherOrLower widens a one-octave
+        /// <c>noteRange</c> to its next octave up, or down when this is its top one.
         /// </param>
-        public static object GenerateNoteForExercise(Exercise exercise, Dictionary<string, string> filters, int highestOctave = MaxRangeOctave)
+        public static object GenerateNoteForExercise(Exercise exercise, Dictionary<string, string> filters, Instrument? instrument = null)
         {
             var random = new Random();
             filters.TryGetValue("noteRange", out var noteRange);
+            instrument ??= Instrument.Piano;
 
             switch (exercise.Name)
             {
                 case "GuessNote":
-                    var octaveList = ParseOctaveRange(noteRange);
-
-                    var allNotes = GetAllNotes(octaveList);
+                    var allNotes = instrument.NotesIn(instrument.Octaves(noteRange));
                     var selectedNote = allNotes[random.Next(allNotes.Count)];
                     return new { note = selectedNote };
 
@@ -803,16 +803,16 @@ namespace AcademiaAuditiva.Services
                     };
 
                 case "HigherOrLower":
-                    var hlOctaves = ParseOctaveRange(noteRange);
+                    var hlOctaves = instrument.Octaves(noteRange);
 
                     if (hlOctaves.Count < 2)
                     {
                         var octave = hlOctaves[0];
-                        hlOctaves.Add(octave < highestOctave ? octave + 1 : octave - 1);
+                        hlOctaves.Add(octave < instrument.HighestOctave ? octave + 1 : octave - 1);
                         hlOctaves.Sort();
                     }
 
-                    var hlAllNotes = GetAllNotes(hlOctaves);
+                    var hlAllNotes = instrument.NotesIn(hlOctaves);
                     if (hlAllNotes.Count < 2)
                         return new { error = "Not enough notes to compare." };
 

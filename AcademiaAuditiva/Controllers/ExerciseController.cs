@@ -112,7 +112,10 @@ namespace AcademiaAuditiva.Controllers
 			if (!filters.ContainsKey("instrument"))
 				filters["instrument"] = instrument;
 
-			// With no range, the planner starts it where the instrument plays the exercise.
+			if (!filters.ContainsKey("guitarPosition") && Request.Cookies["guitarPosition"] is { } guitarPosition)
+				filters["guitarPosition"] = guitarPosition;
+
+			// With no range, the planner plays the octave the sliders start on.
 			if (!filters.ContainsKey("noteRange") && noteRange is not null)
 				filters["noteRange"] = noteRange;
 

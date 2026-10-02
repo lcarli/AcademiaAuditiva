@@ -76,8 +76,8 @@ public class InstrumentTests
     [InlineData("Guitar", "C1-C6", "C2-C5")]
     [InlineData("Guitar", "C6-C6", "C5-C5")]
     [InlineData("Guitar", null, "C4-C4")]
-    [InlineData("Violin", "C2-C3", "C4-C4")]
-    [InlineData("Violin", "C3-C5", "C4-C5")]
+    [InlineData("Violin", "C2-C3", "C3-C3")]
+    [InlineData("Violin", "C3-C5", "C3-C5")]
     [InlineData("Violin", "not-a-range", "C4-C4")]
     public void ClampRange_KeepsTheRange_WhereTheInstrumentSoundsNatural(string instrument, string? noteRange, string expected)
     {
@@ -85,23 +85,66 @@ public class InstrumentTests
     }
 
     [Theory]
-    [InlineData("Guitar", null, "C2-C2")]
-    [InlineData("Guitar", "not-a-range", "C2-C2")]
-    [InlineData("Guitar", "C3-C4", "C3-C4")]
-    [InlineData("Guitar", "C1-C6", "C2-C5")]
-    [InlineData("Piano", null, "C4-C4")]
-    [InlineData("Piano", "C1-C2", "C1-C2")]
-    public void ClampRange_ForChords_StartsWhereTheInstrumentPlaysThem(string instrument, string? noteRange, string expected)
+    [InlineData("Piano", "C1", "B6", 24, 95, 1, 6)]
+    [InlineData("Guitar", "E2", "B5", 40, 83, 2, 5)]
+    [InlineData("Violin", "G3", "B6", 55, 95, 3, 6)]
+    public void EveryInstrument_PlaysTheNotesWhereItSoundsNatural(
+        string instrument, string lowestNote, string highestNote, int lowestMidi, int highestMidi, int lowestOctave, int highestOctave)
     {
-        Instrument.FromName(instrument).ClampRange(noteRange, chords: true).Should().Be(expected);
+        // The guitar from its low E string to the 19th fret of its high E string, the violin from its G string.
+        var i = Instrument.FromName(instrument);
+
+        (i.LowestNote, i.HighestNote).Should().Be((lowestNote, highestNote));
+        (i.LowestMidi, i.HighestMidi).Should().Be((lowestMidi, highestMidi));
+        (i.LowestOctave, i.HighestOctave).Should().Be((lowestOctave, highestOctave), "the sliders offer the octaves of those notes");
+    }
+
+    [Theory]
+    [InlineData("Guitar", "E2", true)]
+    [InlineData("Guitar", "Fb2", true)]
+    [InlineData("Guitar", "D#2", false)]
+    [InlineData("Guitar", "B5", true)]
+    [InlineData("Guitar", "C6", false)]
+    [InlineData("Violin", "G3", true)]
+    [InlineData("Violin", "F#3", false)]
+    [InlineData("Piano", "C1", true)]
+    [InlineData("Piano", "C7", false)]
+    [InlineData("Piano", "not-a-note", false)]
+    public void Has_TheNotesOfItsRange(string instrument, string note, bool has)
+    {
+        Instrument.FromName(instrument).Has(note).Should().Be(has);
     }
 
     [Fact]
-    public void TheRange_StartsOnOctave4_AndOnTheOpenChordsOfTheGuitar()
+    public void NotesIn_LeavesOutTheNotesTheInstrumentDoesNotHave()
     {
-        Instrument.All.Should().AllSatisfy(i => i.StartOctave(chords: false).Should().Be(MusicTheoryService.DefaultRangeOctave));
-        Instrument.Piano.StartOctave(chords: true).Should().Be(4);
-        Instrument.Guitar.StartOctave(chords: true).Should().Be(2, "the basses of the open chords are in octave 2");
+        Instrument.Guitar.NotesIn([2]).Should().Equal("E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2");
+        Instrument.Violin.NotesIn([3, 4]).Should().HaveCount(5 + 12).And.StartWith(["G3", "G#3", "A3", "A#3", "B3", "C4"]);
+        Instrument.Piano.NotesIn([1, 2, 3, 4, 5, 6]).Should().Equal(MusicTheoryService.GetAllNotes([1, 2, 3, 4, 5, 6]));
+    }
+
+    [Theory]
+    [InlineData("Guitar", "C1-C6", new[] { 2, 3, 4, 5 })]
+    [InlineData("Guitar", "C2-C2", new[] { 2 })]
+    [InlineData("Violin", "C1-C2", new[] { 3 })]
+    [InlineData("Violin", null, new[] { 4 })]
+    [InlineData("Piano", "C6-C1", new[] { 1, 2, 3, 4, 5, 6 })]
+    public void Octaves_AreTheOctavesOfTheRange_KeptWithinTheInstrumentOnes(string instrument, string? noteRange, int[] octaves)
+    {
+        Instrument.FromName(instrument).Octaves(noteRange).Should().Equal(octaves);
+    }
+
+    [Theory]
+    [InlineData("Guitar", 2, "E2")]
+    [InlineData("Guitar", 3, "C3")]
+    [InlineData("Guitar", 5, "C5")]
+    [InlineData("Violin", 3, "G3")]
+    [InlineData("Violin", 4, "C4")]
+    [InlineData("Piano", 1, "C1")]
+    [InlineData("Piano", 4, "C4")]
+    public void OctaveLabel_NamesTheOctave_ByItsFirstNoteTheInstrumentHas(string instrument, int octave, string label)
+    {
+        Instrument.FromName(instrument).OctaveLabel(octave).Should().Be(label);
     }
 
     [Theory]
@@ -129,8 +172,9 @@ public class InstrumentTests
         {
             i.LowestOctave.Should().BeInRange(MusicTheoryService.MinRangeOctave, i.HighestOctave);
             i.HighestOctave.Should().BeLessThanOrEqualTo(MusicTheoryService.MaxRangeOctave);
-            i.StartOctave(chords: false).Should().BeInRange(i.LowestOctave, i.HighestOctave, "the sliders start on it");
-            i.StartOctave(chords: true).Should().BeInRange(i.LowestOctave, i.HighestOctave, "the sliders start on it");
+            i.LowestMidi.Should().BeInRange(PianoSamples.LowestMidi, i.HighestMidi, "every note has a sample");
+            i.HighestMidi.Should().BeLessThanOrEqualTo(PianoSamples.HighestMidi, "every note has a sample");
+            MusicTheoryService.DefaultRangeOctave.Should().BeInRange(i.LowestOctave, i.HighestOctave, "the sliders start on it");
         });
     }
 }

@@ -1905,6 +1905,18 @@
   <data name="Instrument.Violin" xml:space="preserve">
     <value>Violon</value>
   </data>
+  <data name="GuitarPosition" xml:space="preserve">
+    <value>Position sur le manche</value>
+  </data>
+  <data name="GuitarPosition.Open" xml:space="preserve">
+    <value>Ouverts</value>
+  </data>
+  <data name="GuitarPosition.Barre" xml:space="preserve">
+    <value>Barrés</value>
+  </data>
+  <data name="GuitarPosition.High" xml:space="preserve">
+    <value>Haut du manche</value>
+  </data>
   <data name="Exercise.AnswerLayout" xml:space="preserve">
     <value>Format de réponse</value>
   </data>
