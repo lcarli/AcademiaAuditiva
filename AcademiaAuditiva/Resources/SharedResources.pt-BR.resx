@@ -3198,4 +3198,94 @@
   <data name="LearningPath.NextStep" xml:space="preserve">
     <value>Próxima etapa: {0}</value>
   </data>
+  <data name="Tutorial.Next" xml:space="preserve">
+    <value>Próximo</value>
+  </data>
+  <data name="Tutorial.Back" xml:space="preserve">
+    <value>Voltar</value>
+  </data>
+  <data name="Tutorial.Skip" xml:space="preserve">
+    <value>Pular tour</value>
+  </data>
+  <data name="Tutorial.Done" xml:space="preserve">
+    <value>Concluir</value>
+  </data>
+  <data name="Tutorial.StepOf" xml:space="preserve">
+    <value>Passo {0} de {1}</value>
+  </data>
+  <data name="Tutorial.Replay" xml:space="preserve">
+    <value>Como funciona</value>
+  </data>
+  <data name="Tutorial.Dashboard.Welcome.Title" xml:space="preserve">
+    <value>Boas-vindas à Academia Auditiva</value>
+  </data>
+  <data name="Tutorial.Dashboard.Welcome.Text" xml:space="preserve">
+    <value>Treine seu ouvido com exercícios curtos de escuta. Este tour rápido mostra onde fica cada coisa.</value>
+  </data>
+  <data name="Tutorial.Dashboard.Path.Title" xml:space="preserve">
+    <value>Sua trilha de aprendizado</value>
+  </data>
+  <data name="Tutorial.Dashboard.Path.Text" xml:space="preserve">
+    <value>Uma sequência guiada de exercícios, uma etapa de cada vez. Cada etapa abre o exercício certo, e atingir a meta desbloqueia a próxima.</value>
+  </data>
+  <data name="Tutorial.Dashboard.Progress.Title" xml:space="preserve">
+    <value>Seu progresso</value>
+  </data>
+  <data name="Tutorial.Dashboard.Progress.Text" xml:space="preserve">
+    <value>Cada resposta vale XP. Aqui você vê seu nível, sua sequência de prática e suas conquistas mais recentes.</value>
+  </data>
+  <data name="Tutorial.Dashboard.Practice.Title" xml:space="preserve">
+    <value>Pratique à vontade</value>
+  </data>
+  <data name="Tutorial.Dashboard.Practice.Text" xml:space="preserve">
+    <value>Abra a lista de exercícios para praticar o que quiser: notas, intervalos, acordes, escalas, ritmo e muito mais.</value>
+  </data>
+  <data name="Tutorial.Dashboard.Training.Title" xml:space="preserve">
+    <value>Meu treino</value>
+  </data>
+  <data name="Tutorial.Dashboard.Training.Text" xml:space="preserve">
+    <value>As rotinas dos seus professores aparecem aqui, com o seu progresso em cada uma.</value>
+  </data>
+  <data name="Tutorial.Dashboard.Replay.Title" xml:space="preserve">
+    <value>Quer rever?</value>
+  </data>
+  <data name="Tutorial.Dashboard.Replay.Text" xml:space="preserve">
+    <value>Abra este tour de novo quando quiser, por aqui.</value>
+  </data>
+  <data name="Tutorial.Exercise.Listen.Title" xml:space="preserve">
+    <value>Ouça</value>
+  </data>
+  <data name="Tutorial.Exercise.Listen.Text" xml:space="preserve">
+    <value>Toque o som e ouça com atenção. Você pode repeti-lo quantas vezes precisar.</value>
+  </data>
+  <data name="Tutorial.Exercise.Answer.Title" xml:space="preserve">
+    <value>Responda</value>
+  </data>
+  <data name="Tutorial.Exercise.Answer.Text" xml:space="preserve">
+    <value>Escolha o que você ouviu. Dependendo do exercício, você responde com botões, um teclado, a pauta ou a sua voz.</value>
+  </data>
+  <data name="Tutorial.Exercise.Check.Title" xml:space="preserve">
+    <value>Confira sua resposta</value>
+  </data>
+  <data name="Tutorial.Exercise.Check.Text" xml:space="preserve">
+    <value>Confirme sua resposta para saber se acertou. Toda resposta vale XP, e as certas valem mais.</value>
+  </data>
+  <data name="Tutorial.Exercise.Score.Title" xml:space="preserve">
+    <value>Placar e filtros</value>
+  </data>
+  <data name="Tutorial.Exercise.Score.Text" xml:space="preserve">
+    <value>Seus acertos e erros são somados aqui. Os filtros deixam você escolher exatamente o que praticar.</value>
+  </data>
+  <data name="Tutorial.Exercise.Instructions.Title" xml:space="preserve">
+    <value>Instruções e dicas</value>
+  </data>
+  <data name="Tutorial.Exercise.Instructions.Text" xml:space="preserve">
+    <value>Ficou com dúvida? Leia como o exercício funciona e dicas para melhorar.</value>
+  </data>
+  <data name="Tutorial.Exercise.Replay.Title" xml:space="preserve">
+    <value>Quer rever?</value>
+  </data>
+  <data name="Tutorial.Exercise.Replay.Text" xml:space="preserve">
+    <value>Abra este tour de novo quando quiser, por aqui.</value>
+  </data>
 </root>

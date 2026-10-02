@@ -78,5 +78,22 @@ public class PipelineSmokeTests : IClassFixture<TestWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
         response.Headers.Location!.AbsolutePath.Should().Be("/Identity/Account/Login");
     }
+
+    [Fact]
+    public async Task TutorialSeen_RedirectsToLogin_WhenAnonymous()
+    {
+        var client = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        var response = await client.PostAsync("/Tutorial/Seen", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["key"] = "Dashboard"
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location!.AbsolutePath.Should().Be("/Identity/Account/Login");
+    }
 }
 

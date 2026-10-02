@@ -4,6 +4,7 @@ using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Gamification;
 using AcademiaAuditiva.Services.LearningPath;
+using AcademiaAuditiva.Services.Tutorials;
 using AcademiaAuditiva.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -224,6 +225,7 @@ builder.Services.TryAddSingleton(TimeProvider.System);
 builder.Services.AddScoped<PracticeHistory>();
 builder.Services.AddScoped<IGamificationService, GamificationService>();
 builder.Services.AddScoped<ILearningPathService, LearningPathService>();
+builder.Services.AddScoped<ITutorialService, TutorialService>();
 
 
 // Facebook login (external auth). Credentials come from configuration:

@@ -2301,6 +2301,110 @@ a:focus-visible {
     margin: .6rem 0;
 }
 
+/* ---------- Guided tour (js/core/tutorial.js) ----------
+   Above Bootstrap modals, SweetAlert and tooltips; below the skip link. The
+   highlight's wide shadow dims the rest of the page. */
+.aa-tour {
+    position: fixed;
+    inset: 0;
+    z-index: 1090;
+    animation: aa-tour-in .2s ease-out;
+}
+
+.aa-tour.is-centered {
+    background: rgba(5, 6, 11, .55);
+}
+
+.aa-tour-spot {
+    position: absolute;
+    border-radius: var(--aa-radius-lg);
+    box-shadow: 0 0 0 2px var(--aa-accent), 0 0 0 200vmax rgba(5, 6, 11, .55);
+    pointer-events: none;
+}
+
+.aa-tour.is-centered .aa-tour-spot {
+    display: none;
+}
+
+.aa-tour-pop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: min(360px, calc(100vw - 24px));
+    padding: 1.1rem 1.15rem .9rem;
+    border: 1px solid var(--aa-line-strong);
+    border-radius: var(--aa-radius-lg);
+    background: var(--aa-raised);
+    color: var(--aa-ink);
+    box-shadow: var(--aa-shadow-md);
+}
+
+/* Only a click on its text focuses the popover itself (tabindex -1). */
+.aa-tour-pop:focus {
+    outline: 0;
+}
+
+.aa-tour-count {
+    margin: 0 0 .4rem;
+    color: var(--aa-accent-text);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.aa-tour-title {
+    margin: 0 0 .35rem;
+    color: var(--aa-ink);
+    font-family: var(--aa-font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.aa-tour-text {
+    margin: 0;
+    color: var(--aa-muted);
+    font-size: .925rem;
+    line-height: 1.5;
+}
+
+.aa-tour-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 1rem;
+}
+
+.aa-tour .aa-tour-skip {
+    --bs-btn-color: var(--aa-muted);
+    --bs-btn-hover-color: var(--aa-ink);
+    --bs-btn-active-color: var(--aa-ink);
+    margin-left: -.75rem;
+    text-decoration: none;
+}
+
+.aa-tour .aa-tour-skip:hover {
+    text-decoration: underline;
+}
+
+.aa-tour-nav {
+    display: flex;
+    gap: .5rem;
+    margin-left: auto;
+}
+
+@keyframes aa-tour-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
 /* ---------- SweetAlert2 (v10) ----------
    The "all" build injects its stylesheet at runtime, after this file, so every
    override is prefixed with body to win on specificity. */

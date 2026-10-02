@@ -169,6 +169,12 @@ public class PersonalDataService
             .Select(b => new { Badge = b.BadgeKey, b.EarnedDate })
             .ToListAsync(ct);
 
+        var tutorials = await _db.UserTutorials.AsNoTracking()
+            .Where(t => t.UserId == userId)
+            .OrderBy(t => t.SeenAt)
+            .Select(t => new { Tutorial = t.TutorialKey, t.SeenAt, t.Finished })
+            .ToListAsync(ct);
+
         var subscriptions = await _db.Subscriptions.AsNoTracking()
             .Where(s => s.UserId == userId)
             .Select(s => new { s.Plan, s.Status, s.StartDate, s.EndDate, s.Gateway })
@@ -239,6 +245,7 @@ public class PersonalDataService
                 AttemptLogs = await _analytics.GetAttemptsAsync(userId)
             },
             ["badges"] = badges,
+            ["tutorials"] = tutorials,
             ["subscriptions"] = subscriptions,
             ["student"] = new
             {

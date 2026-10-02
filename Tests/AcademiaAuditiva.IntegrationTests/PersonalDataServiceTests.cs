@@ -184,7 +184,8 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
             db.AddRange(
                 new ClassroomMember { ClassroomId = classroom.Id, StudentId = student.Id },
                 NewInvite(classroom.Id, student.Email!, teacher.Id),
-                new ScoreAggregate { UserId = student.Id, ExerciseId = exerciseId, CorrectCount = 3, ErrorCount = 1, BestScore = 3 });
+                new ScoreAggregate { UserId = student.Id, ExerciseId = exerciseId, CorrectCount = 3, ErrorCount = 1, BestScore = 3 },
+                new UserTutorial { UserId = student.Id, TutorialKey = "Dashboard", SeenAt = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc), Finished = true });
             await db.SaveChangesAsync();
         }
 
@@ -200,6 +201,11 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
             totals.GetArrayLength().Should().Be(1);
             totals[0].GetProperty("exercise").GetString().Should().Be(ExerciseName);
             totals[0].GetProperty("correctCount").GetInt32().Should().Be(3);
+
+            var tutorials = root.GetProperty("tutorials");
+            tutorials.GetArrayLength().Should().Be(1);
+            tutorials[0].GetProperty("tutorial").GetString().Should().Be("Dashboard");
+            tutorials[0].GetProperty("finished").GetBoolean().Should().BeTrue();
 
             var studentSection = root.GetProperty("student");
             studentSection.GetProperty("classrooms")[0].GetProperty("classroom").GetString().Should().Be("Chorale 5e année");

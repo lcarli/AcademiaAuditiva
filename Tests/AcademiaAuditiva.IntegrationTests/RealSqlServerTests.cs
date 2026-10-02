@@ -101,7 +101,8 @@ public sealed class RealSqlServerTests
                 new ClassroomInvite { ClassroomId = classroom.Id, Email = student.Email!.ToLowerInvariant(), CreatedById = teacher.Id, Token = Guid.NewGuid().ToString("N") },
                 new Score { UserId = student.Id, ExerciseId = exerciseId, CorrectCount = 1, ErrorCount = 0, BestScore = 1, Timestamp = DateTime.UtcNow },
                 new ScoreSnapshot { UserId = student.Id, ExerciseId = exerciseId, IsCorrect = true, TimeSpentSeconds = 3 },
-                new ScoreAggregate { UserId = student.Id, ExerciseId = exerciseId, CorrectCount = 1, ErrorCount = 0, BestScore = 1, LastAttemptAt = DateTime.UtcNow });
+                new ScoreAggregate { UserId = student.Id, ExerciseId = exerciseId, CorrectCount = 1, ErrorCount = 0, BestScore = 1, LastAttemptAt = DateTime.UtcNow },
+                new UserTutorial { UserId = student.Id, TutorialKey = "Dashboard", Finished = true });
             await db.SaveChangesAsync();
             assignmentId = assignment.Id;
         }
@@ -124,6 +125,7 @@ public sealed class RealSqlServerTests
             (await db.Scores.AnyAsync(s => s.UserId == student.Id)).Should().BeFalse();
             (await db.ScoreSnapshots.AnyAsync(s => s.UserId == student.Id)).Should().BeFalse();
             (await db.ScoreAggregates.AnyAsync(s => s.UserId == student.Id)).Should().BeFalse();
+            (await db.UserTutorials.AnyAsync(t => t.UserId == student.Id)).Should().BeFalse();
             (await db.ClassroomMembers.AnyAsync(m => m.StudentId == student.Id)).Should().BeFalse();
             (await db.RoutineAssignments.AnyAsync(a => a.Id == assignmentId)).Should().BeFalse();
 

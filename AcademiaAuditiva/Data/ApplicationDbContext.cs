@@ -25,6 +25,19 @@ namespace AcademiaAuditiva.Data
 
             ConfigureTeachingDomain(modelBuilder);
             ConfigureBadges(modelBuilder);
+            ConfigureTutorials(modelBuilder);
+        }
+
+        // The unique index keeps one row per user and tour when two tabs close it at once.
+        private static void ConfigureTutorials(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserTutorial>(b =>
+            {
+                b.Property(t => t.TutorialKey).HasMaxLength(32);
+                b.HasIndex(t => new { t.UserId, t.TutorialKey }).IsUnique();
+                b.HasOne(t => t.User).WithMany().HasForeignKey(t => t.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
 
         // BadgeKey is the foreign key to Badge (EF had added a shadow BadgeKey1
@@ -166,6 +179,7 @@ namespace AcademiaAuditiva.Data
         public DbSet<ExerciseCategory> ExerciseCategories { get; set; }
         public DbSet<DifficultyLevel> DifficultyLevels { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<UserTutorial> UserTutorials => Set<UserTutorial>();
 
         // Teaching domain
         public DbSet<Classroom> Classrooms => Set<Classroom>();

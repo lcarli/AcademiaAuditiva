@@ -5,22 +5,29 @@
 
     <div class="aa-chips" role="group" aria-label="@Localizer["Score"]">
         @* The exercise scripts increment these counters through innerText, so they hold only the number. *@
-        <span class="aa-chip aa-chip-ok">
+        <span class="aa-chip aa-chip-ok" data-tour="score">
             <i class="bi bi-check-lg" aria-hidden="true"></i>
             <span class="visually-hidden">@Localizer["Exercise.CorrectAnswers"]</span>
             <strong id="correctCount">@Model.Score</strong>
         </span>
-        <span class="aa-chip aa-chip-err">
+        <span class="aa-chip aa-chip-err" data-tour="score">
             <i class="bi bi-x-lg" aria-hidden="true"></i>
             <span class="visually-hidden">@Localizer["Exercise.ErrorAnswers"]</span>
             <strong id="errorCount">@Model.Attempts</strong>
         </span>
-        <button type="button" class="aa-chip aa-chip-btn" data-bs-toggle="modal" data-bs-target="#filtersModal">
+        <button type="button" class="aa-chip aa-chip-btn" data-bs-toggle="modal" data-bs-target="#filtersModal" data-tour="score">
             <i class="bi bi-sliders" aria-hidden="true"></i>
             @Localizer["Filters"]
         </button>
+        @* tutorial.js shows the button once it can run the tour. *@
+        <button type="button" class="aa-chip aa-chip-btn" data-aa-tour-start hidden>
+            <i class="bi bi-question-circle" aria-hidden="true"></i>
+            @Localizer["Tutorial.Replay"]
+        </button>
     </div>
 </div>
+
+@await Component.InvokeAsync("Tutorial", new { key = AcademiaAuditiva.Services.Tutorials.TutorialCatalog.Exercise })
 
 @{
     // Routine links (My training) and learning path steps open the exercise with its filters in the query string.

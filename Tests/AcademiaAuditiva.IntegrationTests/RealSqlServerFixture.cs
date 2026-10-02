@@ -4,6 +4,7 @@ using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Gamification;
+using AcademiaAuditiva.Services.Tutorials;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +85,7 @@ public sealed class RealSqlServerFixture : IAsyncLifetime
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<PracticeHistory>();
         services.AddScoped<IGamificationService, GamificationService>();
+        services.AddScoped<ITutorialService, TutorialService>();
         _services = services.BuildServiceProvider(validateScopes: true);
     }
 
