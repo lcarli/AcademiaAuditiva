@@ -75,12 +75,33 @@ public class InstrumentTests
     [InlineData("Piano", null, "C4-C4")]
     [InlineData("Guitar", "C1-C6", "C2-C5")]
     [InlineData("Guitar", "C6-C6", "C5-C5")]
+    [InlineData("Guitar", null, "C4-C4")]
     [InlineData("Violin", "C2-C3", "C4-C4")]
     [InlineData("Violin", "C3-C5", "C4-C5")]
     [InlineData("Violin", "not-a-range", "C4-C4")]
     public void ClampRange_KeepsTheRange_WhereTheInstrumentSoundsNatural(string instrument, string? noteRange, string expected)
     {
         Instrument.FromName(instrument).ClampRange(noteRange).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("Guitar", null, "C2-C2")]
+    [InlineData("Guitar", "not-a-range", "C2-C2")]
+    [InlineData("Guitar", "C3-C4", "C3-C4")]
+    [InlineData("Guitar", "C1-C6", "C2-C5")]
+    [InlineData("Piano", null, "C4-C4")]
+    [InlineData("Piano", "C1-C2", "C1-C2")]
+    public void ClampRange_ForChords_StartsWhereTheInstrumentPlaysThem(string instrument, string? noteRange, string expected)
+    {
+        Instrument.FromName(instrument).ClampRange(noteRange, chords: true).Should().Be(expected);
+    }
+
+    [Fact]
+    public void TheRange_StartsOnOctave4_AndOnTheOpenChordsOfTheGuitar()
+    {
+        Instrument.All.Should().AllSatisfy(i => i.StartOctave(chords: false).Should().Be(MusicTheoryService.DefaultRangeOctave));
+        Instrument.Piano.StartOctave(chords: true).Should().Be(4);
+        Instrument.Guitar.StartOctave(chords: true).Should().Be(2, "the basses of the open chords are in octave 2");
     }
 
     [Theory]
@@ -108,8 +129,8 @@ public class InstrumentTests
         {
             i.LowestOctave.Should().BeInRange(MusicTheoryService.MinRangeOctave, i.HighestOctave);
             i.HighestOctave.Should().BeLessThanOrEqualTo(MusicTheoryService.MaxRangeOctave);
-            i.LowestOctave.Should().BeLessThanOrEqualTo(4, "the sliders start on octave 4");
-            i.HighestOctave.Should().BeGreaterThanOrEqualTo(4, "the sliders start on octave 4");
+            i.StartOctave(chords: false).Should().BeInRange(i.LowestOctave, i.HighestOctave, "the sliders start on it");
+            i.StartOctave(chords: true).Should().BeInRange(i.LowestOctave, i.HighestOctave, "the sliders start on it");
         });
     }
 }

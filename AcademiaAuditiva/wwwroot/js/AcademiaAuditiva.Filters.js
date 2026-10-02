@@ -20,12 +20,19 @@ document.addEventListener("DOMContentLoaded", () => {
 		document.cookie = `noteRange=${window.AcademiaAuditiva.noteRange}; path=/`;
 	}
 
+	// Until the student moves the sliders, the range starts where the chosen instrument plays
+	// the exercise: the guitar starts the exercises about chords on its open chords.
+	let rangeMoved = false;
+
 	// The sliders only offer the octaves where the chosen instrument sounds natural.
 	function applyInstrumentRange(button) {
 		const lowest = parseInt(button.dataset.lowestOctave);
 		const highest = parseInt(button.dataset.highestOctave);
+		const start = parseInt(button.dataset.startOctave);
 		for (const slider of [startSlider, endSlider]) {
-			const value = Math.min(Math.max(parseInt(slider.value), lowest), highest);
+			const value = rangeMoved || Number.isNaN(start)
+				? Math.min(Math.max(parseInt(slider.value), lowest), highest)
+				: start;
 			slider.min = lowest;
 			slider.max = highest;
 			slider.value = value;
@@ -49,8 +56,12 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	if (startSlider && endSlider) {
-		startSlider.addEventListener("input", updateRangeLabels);
-		endSlider.addEventListener("input", updateRangeLabels);
+		for (const slider of [startSlider, endSlider]) {
+			slider.addEventListener("input", () => {
+				rangeMoved = true;
+				updateRangeLabels();
+			});
+		}
 
 		updateRangeLabels();
 	}

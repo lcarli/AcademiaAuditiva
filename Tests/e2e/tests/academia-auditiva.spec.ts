@@ -177,6 +177,49 @@ test('the chosen instrument plays the round and is remembered', async ({ page, b
   await expect(filters.locator('#rangeStart')).toHaveAttribute('min', '4');
 });
 
+test('the guitar starts the chords on its open chords until the student moves the range', async ({ page, baseURL, context }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessChords`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  const filters = page.locator('#filtersModal');
+  const piano = filters.locator('[data-instrument="Piano"]');
+  const guitar = filters.locator('[data-instrument="Guitar"]');
+  const rangeStart = filters.locator('#rangeStart');
+  const rangeEnd = filters.locator('#rangeEnd');
+  const noteRange = async () => (await context.cookies()).find(cookie => cookie.name === 'noteRange')?.value;
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  // A violin plays one note at a time.
+  await expect(filters.locator('[data-instrument="Violin"]')).toHaveCount(0);
+  await expect(piano).toHaveAttribute('aria-pressed', 'true');
+  await expect(rangeStart).toHaveValue('4');
+
+  await guitar.click();
+  await expect(rangeStart).toHaveValue('2');
+  await expect(rangeEnd).toHaveValue('2');
+  await expect(filters.locator('#rangeStartLabel')).toHaveText('C2');
+  expect(await noteRange()).toBe('C2-C2');
+
+  // Once moved, the range stays where the student put it.
+  await rangeEnd.fill('3');
+  await expect(filters.locator('#rangeEndLabel')).toHaveText('C3');
+  await piano.click();
+  await expect(rangeStart).toHaveValue('2');
+  await expect(rangeEnd).toHaveValue('3');
+  await guitar.click();
+  await expect(rangeStart).toHaveValue('2');
+  await expect(rangeEnd).toHaveValue('3');
+  expect(await noteRange()).toBe('C2-C3');
+  await filters.locator('.btn-close').click();
+  await expect(filters).toBeHidden();
+
+  const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+  await page.click('#Play');
+  const audio = await audioResponse;
+  expect(audio.headers()['content-type']).toContain('audio/');
+  expect((await audio.body()).length).toBeGreaterThan(1000);
+});
+
 test('free practice shows the answer and checks it without scoring', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessNote`, { waitUntil: 'networkidle' });
