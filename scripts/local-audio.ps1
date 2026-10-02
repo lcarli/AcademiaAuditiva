@@ -8,9 +8,9 @@
     `piano-audio` blob container (network access limited to the VNet). This
     script makes them available to a local run of the app:
 
-      1. (optional, -DownloadFrom) signs in to a running deployment with any
-         account and downloads the 84 samples (C1..B7) through /audio/{name}
-         into .local/audio/piano-audio (git-ignored);
+      1. (optional, -DownloadFrom) signs in to a running deployment with an
+         Admin account and downloads the 84 samples (C1..B7) through
+         /audio/{name} into .local/audio/piano-audio (git-ignored);
       2. starts the Azurite blob emulator in Docker (container `aa-azurite`,
          bound to 127.0.0.1:10000, restarts with Docker, data kept in the
          `aa-azurite-data` volume);
@@ -29,8 +29,9 @@
     -SourceDir.
 
 .PARAMETER Credential
-    Account used to sign in to -DownloadFrom. Prompted for when omitted.
-    Accounts with two-factor authentication are not supported.
+    Admin account used to sign in to -DownloadFrom (/audio/{name} is
+    admin-only). Prompted for when omitted. Accounts with two-factor
+    authentication are not supported.
 
 .PARAMETER SourceDir
     Folder holding the .mp3 samples. Defaults to .local/audio/piano-audio at
@@ -110,7 +111,7 @@ function Get-SignedInSession([string]$BaseUrl, [pscredential]$Credential) {
 if ($DownloadFrom) {
     $baseUrl = $DownloadFrom.TrimEnd('/')
     if (-not $Credential) {
-        $Credential = Get-Credential -Message "Sign in to $baseUrl (any account can download the samples)"
+        $Credential = Get-Credential -Message "Sign in to $baseUrl with an Admin account (only admins can download the samples)"
     }
     New-Item -ItemType Directory -Path $SourceDir -Force | Out-Null
 
@@ -123,11 +124,24 @@ if ($DownloadFrom) {
         if ((Test-Path $target) -and -not $Force) { continue }
 
         $temp = "$target.part"
-        $response = Invoke-WebRequest -Uri "$baseUrl/audio/$name" -WebSession $session -OutFile $temp -PassThru -UseBasicParsing
+        try {
+            $response = Invoke-WebRequest -Uri "$baseUrl/audio/$name" -WebSession $session -OutFile $temp -PassThru -UseBasicParsing
+        }
+        catch {
+            Remove-Item $temp -ErrorAction SilentlyContinue
+            $status = $_.Exception.Response.StatusCode
+            if ($status -and [int]$status -eq 403) {
+                throw "$($Credential.UserName) is not an Admin on $baseUrl; only admins can download the samples."
+            }
+            if ($status -and [int]$status -eq 401) {
+                throw "The session on $baseUrl is no longer signed in."
+            }
+            throw
+        }
         $contentType = "$($response.Headers['Content-Type'])"
         if ($contentType -notlike 'audio/*') {
             Remove-Item $temp -ErrorAction SilentlyContinue
-            throw "Unexpected response for $name (Content-Type '$contentType'). Is the session still signed in?"
+            throw "Unexpected response for $name (Content-Type '$contentType'). Is the account an Admin, and is the session still signed in?"
         }
         Move-Item $temp $target -Force
         $downloaded++

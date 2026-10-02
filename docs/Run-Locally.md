@@ -73,7 +73,7 @@ in the private `piano-audio` blob container. Locally they are served by
 the Azure Storage emulator. Without it, *Play* hangs for ~20 s and fails.
 
 Run once (downloads the 84 samples from the live site into the git-ignored
-`.local/audio/piano-audio` folder — sign in with any account):
+`.local/audio/piano-audio` folder — sign in with an Admin account):
 
 ```powershell
 ./scripts/local-audio.ps1 -DownloadFrom https://academiaauditiva.com
