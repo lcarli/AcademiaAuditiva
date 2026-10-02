@@ -89,6 +89,37 @@ test('one real-audio GuessNote round returns playable audio and validates', asyn
   expect(result.success).toBe(true);
 });
 
+test('the chosen instrument plays the round and is remembered', async ({ page, baseURL, context }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessNote`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  const filters = page.locator('#filtersModal');
+  const violin = filters.locator('[data-instrument="Violin"]');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await expect(filters.locator('[data-instrument="Piano"]')).toHaveAttribute('aria-pressed', 'true');
+  await violin.click();
+  await expect(violin).toHaveAttribute('aria-pressed', 'true');
+  await expect(filters.locator('[data-instrument="Piano"]')).toHaveAttribute('aria-pressed', 'false');
+  await expect(filters.locator('#rangeStart')).toHaveAttribute('min', '4');
+  await expect(filters.locator('#rangeEnd')).toHaveAttribute('max', '6');
+  expect((await context.cookies()).find(cookie => cookie.name === 'instrument')?.value).toBe('Violin');
+  await filters.locator('.btn-close').click();
+  await expect(filters).toBeHidden();
+
+  const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+  await page.click('#Play');
+  const audio = await audioResponse;
+  expect(audio.headers()['content-type']).toContain('audio/');
+  expect((await audio.body()).length).toBeGreaterThan(1000);
+
+  // The page is rendered with the instrument the cookie remembers.
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await expect(violin).toHaveAttribute('aria-pressed', 'true');
+  await expect(filters.locator('#rangeStart')).toHaveAttribute('min', '4');
+});
+
 test('free practice shows the answer and checks it without scoring', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessNote`, { waitUntil: 'networkidle' });

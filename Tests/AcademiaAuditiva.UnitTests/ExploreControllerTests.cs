@@ -44,7 +44,7 @@ public class ExploreControllerTests
 
         var json = result.Should().BeOfType<JsonResult>().Subject;
         JsonSerializer.Serialize(json.Value).Should().Be("""{"token":"token-1","root":"Db","notes":["Db4","F4","Ab4"],"simultaneous":true}""");
-        plan!.Select(i => i.BlobName).Should().Equal("Cs4.mp3", "F4.mp3", "Gs4.mp3");
+        plan!.Select(i => i.SampleName).Should().Equal("Cs4.mp3", "F4.mp3", "Gs4.mp3");
         _tokens.Verify(t => t.IssueTokenAsync(UserId, Clip, It.IsAny<CancellationToken>()), Times.Once);
     }
 

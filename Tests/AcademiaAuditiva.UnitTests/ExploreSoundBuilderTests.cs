@@ -32,7 +32,7 @@ public class ExploreSoundBuilderTests
             sound.Should().NotBeNull(because);
             var midis = sound!.Notes.Select(MusicTheoryService.NoteToMidi).ToList();
             midis.Should().NotBeEmpty(because).And.OnlyContain(m => m.HasValue && PianoSamples.Covers(m.Value), because);
-            sound.Plan.Select(i => i.BlobName).Should().Equal(midis.Select(m => PianoSamples.BlobName(m!.Value)), because);
+            sound.Plan.Select(i => i.SampleName).Should().Equal(midis.Select(m => PianoSamples.BlobName(m!.Value)), because);
         }
     }
 
@@ -45,7 +45,7 @@ public class ExploreSoundBuilderTests
         var choices = AllChoices().ToList();
         var mixes = choices
             .Select(request => string.Join('|', _builder.Build(request)!.Plan.Select(i =>
-                FormattableString.Invariant($"{i.BlobName}@{i.StartTimeSeconds:F4}/{i.DurationSeconds:F4}"))))
+                FormattableString.Invariant($"{i.SampleName}@{i.StartTimeSeconds:F4}/{i.DurationSeconds:F4}"))))
             .ToHashSet();
 
         _output.WriteLine($"{choices.Count} choices, {mixes.Count} distinct mixes");
@@ -117,7 +117,7 @@ public class ExploreSoundBuilderTests
 
         sound.Simultaneous.Should().BeFalse();
         sound.Notes.Should().Equal("C4", "E4", "G4", "B4");
-        sound.Plan.Select(i => i.BlobName).Should().Equal("C4.mp3", "E4.mp3", "G4.mp3", "B4.mp3");
+        sound.Plan.Select(i => i.SampleName).Should().Equal("C4.mp3", "E4.mp3", "G4.mp3", "B4.mp3");
         sound.Plan.Select(i => i.StartTimeSeconds).Should().Equal(new[] { 0.0, 0.4, 0.8, 1.2 }, Close);
         sound.Plan.Select(i => i.StartTimeSeconds + i.DurationSeconds!.Value).Should().AllSatisfy(end => end.Should().BeApproximately(3.2, Tolerance));
     }

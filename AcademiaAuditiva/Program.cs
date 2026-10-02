@@ -139,8 +139,9 @@ if (!builder.Environment.IsEnvironment("Testing"))
 }
 
 // Health checks: liveness ("is the process up?") and readiness ("can it
-// reach SQL?"). The Bicep startup/liveness probes hit /health/live;
-// /health/ready may be used by future external dependency dashboards.
+// reach SQL, and did the image ship every instrument sample?"). The Bicep
+// startup/liveness probes hit /health/live and the readiness probe
+// /health/ready, so a revision only gets traffic once it is ready.
 var hcBuilder = builder.Services.AddHealthChecks();
 if (!string.IsNullOrWhiteSpace(connectionString))
 {
@@ -149,6 +150,13 @@ if (!string.IsNullOrWhiteSpace(connectionString))
         name: "sql",
         tags: new[] { "ready" });
 }
+
+builder.Services.AddSingleton(new AcademiaAuditiva.Services.Audio.BundledSamples(
+    Path.Combine(builder.Environment.ContentRootPath, "Audio", "Instruments")));
+builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.InstrumentSamplesHealthCheck>();
+hcBuilder.AddCheck<AcademiaAuditiva.Services.Audio.InstrumentSamplesHealthCheck>(
+    "instrument-samples",
+    tags: new[] { "ready" });
 
 builder.Services.AddLocalization();
 
@@ -290,7 +298,8 @@ builder.Services.AddSingleton<AcademiaAuditiva.Interfaces.IAudioTokenService,
     AcademiaAuditiva.Services.Audio.AudioTokenService>();
 
 // Single BlobServiceClient shared by AudioController (read piano-audio)
-// and AudioMixerService (read piano-audio + write piano-audio-mixed).
+// and AudioMixerService (read piano-audio + write piano-audio-mixed; the
+// samples of the other instruments ship with the app, see BundledSamples).
 // Both containers live in the same storage account; one client with
 // the app's managed identity is enough.
 //

@@ -1,7 +1,10 @@
+using System.Buffers.Binary;
 using System.Globalization;
+using System.Text;
 using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Services.Audio;
 using Azure;
+using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,11 +16,13 @@ namespace AcademiaAuditiva.UnitTests;
 /// Storage deletes a mixed clip about a day after its last write, while the app can
 /// run for days. The mixer must therefore never hand out the name of a clip that may
 /// be gone: it rechecks, and touches, any mix it has not written for half a day.
+/// When it does mix, the samples of the other instruments come from the app itself.
 /// </summary>
 public class AudioMixerServiceTests
 {
     private const string MixedContainer = "piano-audio-mixed";
-    private const string FifthMix = "mix-9439502e4f803f0295133c785731098ec8c69ef42c8f53e0fa4d1e46db53e340.wav";
+    private const string FifthMix = "mix-5ef716d444d62c7197b41e1997f63d9b183699d6ad9bcf61edd5e1cadcd7bba7.wav";
+    private const int SampleRate = 44100;
 
     private static readonly DateTimeOffset Start = new(2026, 5, 1, 12, 0, 0, TimeSpan.Zero);
     private static readonly MixInput[] Fifth = [new("C4.mp3", 0, 1.5), new("G4.mp3", 1.75, 2.0)];
@@ -48,7 +53,8 @@ public class AudioMixerServiceTests
         var blobService = new Mock<BlobServiceClient>();
         blobService.Setup(s => s.GetBlobContainerClient(MixedContainer)).Returns(_mixedContainer.Object);
         blobService.Setup(s => s.GetBlobContainerClient("piano-audio")).Returns(sourceContainer.Object);
-        _mixer = new AudioMixerService(blobService.Object, _clock, NullLogger<AudioMixerService>.Instance);
+        _mixer = new AudioMixerService(
+            blobService.Object, new BundledSamples(BundledSamplesTests.Root), _clock, NullLogger<AudioMixerService>.Instance);
     }
 
     [Fact]
@@ -99,7 +105,7 @@ public class AudioMixerServiceTests
     [Fact]
     public async Task DeletedMix_IsMixedAgain()
     {
-        StorageAnswers(new RequestFailedException(404, "The specified blob does not exist.", "BlobNotFound", null));
+        StorageAnswers(NotFound());
 
         await FluentActions.Awaiting(() => _mixer.MixAsync(Fifth)).Should().ThrowAsync<MixingStarted>();
 
@@ -141,6 +147,79 @@ public class AudioMixerServiceTests
         _mixedContainer.Verify(c => c.GetBlobClient(FifthMix), Times.Once);
     }
 
+    [Fact]
+    public async Task GuitarNote_IsReadFromTheApp_AndFadesOutInsteadOfClicking()
+    {
+        StorageAnswers(NotFound());
+        var uploaded = CaptureUploads();
+
+        await _mixer.MixAsync([new("guitar/C4.mp3", 0, 1.5)]);
+
+        _downloads.Should().BeEmpty("the guitar samples ship with the app");
+        var mix = Wav.Parse(uploaded());
+        mix.SampleRate.Should().Be(SampleRate);
+        mix.Channels.Should().Be(1);
+        mix.Samples.Should().HaveCount((int)(1.5 * SampleRate));
+        Peak(mix.Samples.Take(SampleRate / 2)).Should().BeGreaterThan(0.05f, "the note is heard");
+        Peak(mix.Samples.TakeLast(10)).Should().BeLessThan(0.01f, "the note is cut short: it fades out over its last 25 ms");
+    }
+
+    [Fact]
+    public async Task NotesAddingUpPastFullScale_AreScaledDown_InsteadOfClipped()
+    {
+        StorageAnswers(NotFound());
+        var uploaded = CaptureUploads();
+        await _mixer.MixAsync([new("violin/C5.mp3", 0, 1.5)]);
+        var single = Wav.Parse(uploaded()).Samples;
+
+        await _mixer.MixAsync([.. Enumerable.Repeat(new MixInput("violin/C5.mp3", 0, 1.5), 4)]);
+        var loud = Wav.Parse(uploaded()).Samples;
+
+        (Peak(single) * 4).Should().BeGreaterThan(0.98f, "four of these notes add up past full scale");
+        Peak(loud).Should().BeApproximately(0.98f, 0.0005f);
+        var scale = 0.98f / Peak(single);
+        loud.Zip(single, (l, s) => Math.Abs(l - s * scale)).Max()
+            .Should().BeLessThan(0.0005f, "the whole mix is scaled down, so the notes keep their shape");
+        _downloads.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("../appsettings.json")]
+    [InlineData("guitar/../../appsettings.json")]
+    [InlineData("drums/C4.mp3")]
+    public async Task OnlyInstrumentSamples_AreReadFromTheApp(string sampleName)
+    {
+        StorageAnswers(NotFound());
+
+        await FluentActions.Awaiting(() => _mixer.MixAsync([new(sampleName, 0, 1)])).Should().ThrowAsync<ArgumentException>();
+
+        _downloads.Should().BeEmpty();
+    }
+
+    private static RequestFailedException NotFound() =>
+        new(404, "The specified blob does not exist.", "BlobNotFound", null);
+
+    private static float Peak(IEnumerable<float> samples) => samples.Max(Math.Abs);
+
+    /// <summary>Returns the last WAV the mixer uploaded.</summary>
+    private Func<byte[]> CaptureUploads()
+    {
+        byte[]? uploaded = null;
+        _mixedBlob.Setup(b => b.UploadAsync(
+                It.IsAny<Stream>(), It.IsAny<BlobHttpHeaders>(), It.IsAny<IDictionary<string, string>>(),
+                It.IsAny<BlobRequestConditions>(), It.IsAny<IProgress<long>>(), It.IsAny<AccessTier?>(),
+                It.IsAny<StorageTransferOptions>(), It.IsAny<CancellationToken>()))
+            .Callback((Stream content, BlobHttpHeaders _, IDictionary<string, string> _, BlobRequestConditions _,
+                IProgress<long> _, AccessTier? _, StorageTransferOptions _, CancellationToken _) =>
+            {
+                using var copy = new MemoryStream();
+                content.CopyTo(copy);
+                uploaded = copy.ToArray();
+            })
+            .ReturnsAsync(Mock.Of<Response<BlobContentInfo>>());
+        return () => uploaded ?? throw new InvalidOperationException("Nothing was uploaded.");
+    }
+
     private void StoredMixWrittenAt(DateTimeOffset lastModified) =>
         _mixedBlob.Setup(b => b.GetPropertiesAsync(It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Response.FromValue(BlobsModelFactory.BlobProperties(lastModified: lastModified), Mock.Of<Response>()));
@@ -168,4 +247,29 @@ public class AudioMixerServiceTests
     }
 
     private sealed class MixingStarted : Exception;
+
+    /// <summary>The 16-bit PCM WAV the mixer writes, with its samples back in [-1, 1].</summary>
+    private sealed record Wav(int SampleRate, int Channels, float[] Samples)
+    {
+        public static Wav Parse(byte[] bytes)
+        {
+            Encoding.ASCII.GetString(bytes, 0, 4).Should().Be("RIFF");
+            Encoding.ASCII.GetString(bytes, 8, 4).Should().Be("WAVE");
+            BinaryPrimitives.ReadInt16LittleEndian(bytes.AsSpan(34, 2)).Should().Be(16, "the mix is 16-bit PCM");
+            Encoding.ASCII.GetString(bytes, 36, 4).Should().Be("data");
+            var dataSize = BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(40, 4));
+            dataSize.Should().Be(bytes.Length - 44);
+
+            var samples = new float[dataSize / 2];
+            for (var i = 0; i < samples.Length; i++)
+            {
+                samples[i] = BinaryPrimitives.ReadInt16LittleEndian(bytes.AsSpan(44 + i * 2, 2)) / 32767f;
+            }
+
+            return new Wav(
+                BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(24, 4)),
+                BinaryPrimitives.ReadInt16LittleEndian(bytes.AsSpan(22, 2)),
+                samples);
+        }
+    }
 }

@@ -1,10 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
-	const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+	const startSlider = document.getElementById("rangeStart");
+	const endSlider = document.getElementById("rangeEnd");
+	const instrumentButtons = document.querySelectorAll("#instrumentButtons [data-instrument]");
 
 	function updateRangeLabels() {
-		const startSlider = document.getElementById("rangeStart");
-		const endSlider = document.getElementById("rangeEnd");
-
 		let start = parseInt(startSlider.value);
 		let end = parseInt(endSlider.value);
 
@@ -21,15 +20,35 @@ document.addEventListener("DOMContentLoaded", () => {
 		document.cookie = `noteRange=${window.AcademiaAuditiva.noteRange}; path=/`;
 	}
 
-	const startSlider = document.getElementById("rangeStart");
-	const endSlider = document.getElementById("rangeEnd");
+	// The sliders only offer the octaves where the chosen instrument sounds natural.
+	function applyInstrumentRange(button) {
+		const lowest = parseInt(button.dataset.lowestOctave);
+		const highest = parseInt(button.dataset.highestOctave);
+		for (const slider of [startSlider, endSlider]) {
+			const value = Math.min(Math.max(parseInt(slider.value), lowest), highest);
+			slider.min = lowest;
+			slider.max = highest;
+			slider.value = value;
+		}
+	}
+
+	// The server reads the instrument cookie when it plays a round (listed in the privacy policy).
+	instrumentButtons.forEach((button) => {
+		button.addEventListener("click", () => {
+			instrumentButtons.forEach((other) => {
+				other.setAttribute("aria-pressed", other === button ? "true" : "false");
+			});
+			document.cookie = "instrument=" + encodeURIComponent(button.dataset.instrument)
+				+ "; path=/; max-age=31536000; samesite=lax" + (location.protocol === "https:" ? "; secure" : "");
+
+			if (startSlider && endSlider) {
+				applyInstrumentRange(button);
+				updateRangeLabels();
+			}
+		});
+	});
 
 	if (startSlider && endSlider) {
-		startSlider.min = 1;
-		startSlider.max = 6;
-		endSlider.min = 1;
-		endSlider.max = 6;
-
 		startSlider.addEventListener("input", updateRangeLabels);
 		endSlider.addEventListener("input", updateRangeLabels);
 

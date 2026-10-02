@@ -63,7 +63,15 @@ public sealed class ExercisePlaybackPlanner
         ArgumentNullException.ThrowIfNull(exercise);
         ArgumentNullException.ThrowIfNull(filters);
 
-        var raw = MusicTheoryService.GenerateNoteForExercise(exercise, filters);
+        // The note range comes from a cookie or the request: keep it where the
+        // instrument sounds natural, without touching the caller's filters.
+        var instrument = Instrument.FromName(filters.GetValueOrDefault("instrument"));
+        var instrumentFilters = new Dictionary<string, string>(filters, filters.Comparer)
+        {
+            ["noteRange"] = instrument.ClampRange(filters.GetValueOrDefault("noteRange")),
+        };
+
+        var raw = MusicTheoryService.GenerateNoteForExercise(exercise, instrumentFilters, instrument.HighestOctave);
         var expectedJson = JsonConvert.SerializeObject(raw);
         var token = JObject.Parse(expectedJson);
 
@@ -71,20 +79,20 @@ public sealed class ExercisePlaybackPlanner
         switch (exercise.Name)
         {
             case "GuessNote":
-                plans.Add(new[] { Note(token.Value<string>("note") ?? throw Bad("note")) });
+                plans.Add(new[] { Note(instrument, token.Value<string>("note") ?? throw Bad("note")) });
                 break;
 
             case "GuessChords":
             case "GuessFunction":
             case "GuessQuality":
             case "GuessInversion":
-                plans.Add(NotesAtOnce(StringArray(token, "notes")));
+                plans.Add(NotesAtOnce(instrument, StringArray(token, "notes")));
                 break;
 
             case "HigherOrLower":
             case "GuessInterval":
             case "GuessFullInterval":
-                plans.Add(NotesInSequence(new[]
+                plans.Add(NotesInSequence(instrument, new[]
                 {
                     token.Value<string>("note1") ?? throw Bad("note1"),
                     token.Value<string>("note2") ?? throw Bad("note2"),
@@ -94,6 +102,7 @@ public sealed class ExercisePlaybackPlanner
             case "GuessScaleType":
             case "GuessGreekMode":
                 plans.Add(NotesInSequence(
+                    instrument,
                     StringArray(token, "notes"),
                     ScaleNoteClipSeconds,
                     ScaleNoteGapSeconds));
@@ -101,18 +110,19 @@ public sealed class ExercisePlaybackPlanner
 
             case "GuessCadence":
                 plans.Add(ChordsInSequence(
+                    instrument,
                     ChordArray(token, "chords"),
                     CadenceChordSeconds,
                     CadenceChordGapSeconds));
                 break;
 
             case "GuessMissingNote":
-                plans.Add(MelodyPlan(token["melody1"] as JArray ?? throw Bad("melody1")));
-                plans.Add(MelodyPlan(token["melody2"] as JArray ?? throw Bad("melody2")));
+                plans.Add(MelodyPlan(instrument, token["melody1"] as JArray ?? throw Bad("melody1")));
+                plans.Add(MelodyPlan(instrument, token["melody2"] as JArray ?? throw Bad("melody2")));
                 break;
 
             case "IntervalMelodico":
-                plans.Add(EvenMelody(StringArray(token, "melody")));
+                plans.Add(EvenMelody(instrument, StringArray(token, "melody")));
                 break;
 
             case "SolfegeMelody":
@@ -127,7 +137,7 @@ public sealed class ExercisePlaybackPlanner
                 // Staff-based exercises share a unified melody contract:
                 // ExpectedAnswerJson contains a `melody` JArray with
                 // entries { type, note, durationBeats, durationLabel }.
-                plans.Add(MelodyPlan(token["melody"] as JArray ?? throw Bad("melody")));
+                plans.Add(MelodyPlan(instrument, token["melody"] as JArray ?? throw Bad("melody")));
                 break;
 
             default:
@@ -138,23 +148,24 @@ public sealed class ExercisePlaybackPlanner
         return new ExercisePlan(expectedJson, plans);
     }
 
-    private static MixInput Note(string note, double startTime = 0.0) =>
-        new(NoteToBlob(note), startTime, NoteClipSeconds);
+    private static MixInput Note(Instrument instrument, string note, double startTime = 0.0) =>
+        new(instrument.SampleFor(note), startTime, NoteClipSeconds);
 
-    private static IReadOnlyList<MixInput> NotesAtOnce(IReadOnlyList<string> notes)
+    private static IReadOnlyList<MixInput> NotesAtOnce(Instrument instrument, IReadOnlyList<string> notes)
     {
         var plan = new MixInput[notes.Count];
         for (var i = 0; i < notes.Count; i++)
         {
-            plan[i] = Note(notes[i]);
+            plan[i] = Note(instrument, notes[i]);
         }
         return plan;
     }
 
-    private static IReadOnlyList<MixInput> NotesInSequence(IReadOnlyList<string> notes)
-        => NotesInSequence(notes, NoteClipSeconds, IntervalGapSeconds);
+    private static IReadOnlyList<MixInput> NotesInSequence(Instrument instrument, IReadOnlyList<string> notes)
+        => NotesInSequence(instrument, notes, NoteClipSeconds, IntervalGapSeconds);
 
     private static IReadOnlyList<MixInput> NotesInSequence(
+        Instrument instrument,
         IReadOnlyList<string> notes,
         double clipSeconds,
         double gapSeconds)
@@ -163,7 +174,7 @@ public sealed class ExercisePlaybackPlanner
         var t = 0.0;
         for (var i = 0; i < notes.Count; i++)
         {
-            plan[i] = new MixInput(NoteToBlob(notes[i]), t, clipSeconds);
+            plan[i] = new MixInput(instrument.SampleFor(notes[i]), t, clipSeconds);
             t += gapSeconds + clipSeconds;
         }
         return plan;
@@ -176,6 +187,7 @@ public sealed class ExercisePlaybackPlanner
     /// the four chords play sequentially as a single audio mix.
     /// </summary>
     private static IReadOnlyList<MixInput> ChordsInSequence(
+        Instrument instrument,
         IReadOnlyList<IReadOnlyList<string>> chords,
         double chordSeconds,
         double gapSeconds)
@@ -186,24 +198,24 @@ public sealed class ExercisePlaybackPlanner
         {
             foreach (var note in chord)
             {
-                plan.Add(new MixInput(NoteToBlob(note), t, chordSeconds));
+                plan.Add(new MixInput(instrument.SampleFor(note), t, chordSeconds));
             }
             t += chordSeconds + gapSeconds;
         }
         return plan;
     }
 
-    private static IReadOnlyList<MixInput> EvenMelody(IReadOnlyList<string> notes)
+    private static IReadOnlyList<MixInput> EvenMelody(Instrument instrument, IReadOnlyList<string> notes)
     {
         var plan = new MixInput[notes.Count];
         for (var i = 0; i < notes.Count; i++)
         {
-            plan[i] = new MixInput(NoteToBlob(notes[i]), i * MelodyStepSeconds, MelodyNoteSeconds);
+            plan[i] = new MixInput(instrument.SampleFor(notes[i]), i * MelodyStepSeconds, MelodyNoteSeconds);
         }
         return plan;
     }
 
-    private static IReadOnlyList<MixInput> MelodyPlan(JArray melody)
+    private static IReadOnlyList<MixInput> MelodyPlan(Instrument instrument, JArray melody)
     {
         var plan = new List<MixInput>();
         var t = 0.0;
@@ -217,7 +229,7 @@ public sealed class ExercisePlaybackPlanner
 
             if (type == "note" && !string.IsNullOrEmpty(note) && note != "rest")
             {
-                plan.Add(new MixInput(NoteToBlob(note), t, seconds));
+                plan.Add(new MixInput(instrument.SampleFor(note), t, seconds));
             }
             // rests advance the cursor without emitting an input.
             t += seconds;
@@ -263,29 +275,6 @@ public sealed class ExercisePlaybackPlanner
             chords[i] = notes;
         }
         return chords;
-    }
-
-    /// <summary>
-    /// Converts a music-theoretic note name (e.g. <c>C#4</c>, <c>Db5</c>)
-    /// to the blob filename in the <c>piano-audio</c> container. The
-    /// existing samples use <c>s</c> in place of <c>#</c> (e.g.
-    /// <c>Cs4.mp3</c>) and don't ship flat-named files — flats are
-    /// rewritten to their enharmonic sharp.
-    /// </summary>
-    private static string NoteToBlob(string note)
-    {
-        if (string.IsNullOrWhiteSpace(note))
-        {
-            throw new ArgumentException("Note name must not be empty.", nameof(note));
-        }
-
-        var midi = MusicTheoryService.NoteToMidi(note);
-        if (!midi.HasValue)
-        {
-            throw new ArgumentException($"Invalid note name '{note}'.", nameof(note));
-        }
-
-        return PianoSamples.BlobName(midi.Value);
     }
 
     private static InvalidOperationException Bad(string field) =>

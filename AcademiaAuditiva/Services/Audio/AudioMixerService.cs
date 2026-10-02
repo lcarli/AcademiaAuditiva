@@ -23,6 +23,18 @@ public sealed class AudioMixerService : IAudioMixerService
     // if upstream plumbing ever sends a bad plan.
     private const double MaxMixDurationSeconds = 30.0;
 
+    // Every note fades out over its last 25 ms: a note cut short by the
+    // plan (or a guitar string still ringing) would otherwise end in a click.
+    private const double FadeOutSeconds = 0.025;
+
+    // Notes that add up past this peak scale the whole mix down instead of
+    // clipping: the louder samples of other instruments would distort chords.
+    private const float MaxPeak = 0.98f;
+
+    // Part of every mix name. Change it whenever the same plan starts to
+    // sound different, so stored mixes made the old way are not reused.
+    private const string MixVersion = "v2";
+
     /// <summary>
     /// How long a mixed blob may go without a write before its name is
     /// handed out again unchecked. The storage lifecycle rule deletes mixed
@@ -33,6 +45,7 @@ public sealed class AudioMixerService : IAudioMixerService
     internal static readonly TimeSpan FreshFor = TimeSpan.FromHours(12);
 
     private readonly BlobServiceClient _blobServiceClient;
+    private readonly BundledSamples _bundledSamples;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<AudioMixerService> _logger;
 
@@ -41,9 +54,14 @@ public sealed class AudioMixerService : IAudioMixerService
     // need to HEAD the storage account while the blob is fresh.
     private readonly ConcurrentDictionary<string, MixMemo> _planToMix = new();
 
-    public AudioMixerService(BlobServiceClient blobServiceClient, TimeProvider timeProvider, ILogger<AudioMixerService> logger)
+    public AudioMixerService(
+        BlobServiceClient blobServiceClient,
+        BundledSamples bundledSamples,
+        TimeProvider timeProvider,
+        ILogger<AudioMixerService> logger)
     {
         _blobServiceClient = blobServiceClient;
+        _bundledSamples = bundledSamples;
         _timeProvider = timeProvider;
         _logger = logger;
     }
@@ -89,14 +107,14 @@ public sealed class AudioMixerService : IAudioMixerService
         int? channels = null;
         foreach (var input in inputs)
         {
-            var sample = await DecodeAsync(sourceContainer, input.BlobName, cancellationToken).ConfigureAwait(false);
+            var sample = await DecodeAsync(sourceContainer, input.SampleName, cancellationToken).ConfigureAwait(false);
             sampleRate ??= sample.SampleRate;
             channels ??= sample.Channels;
             if (sample.SampleRate != sampleRate.Value || sample.Channels != channels.Value)
             {
                 throw new InvalidOperationException(
-                    $"Source '{input.BlobName}' has format {sample.SampleRate}Hz/{sample.Channels}ch but the mix " +
-                    $"uses {sampleRate.Value}Hz/{channels.Value}ch. All piano-audio sources must share one format.");
+                    $"Source '{input.SampleName}' has format {sample.SampleRate}Hz/{sample.Channels}ch but the mix " +
+                    $"uses {sampleRate.Value}Hz/{channels.Value}ch. All samples must share one format.");
             }
             decoded.Add(sample);
         }
@@ -124,8 +142,9 @@ public sealed class AudioMixerService : IAudioMixerService
                 $"Refusing to mix {totalLengthSamples / (double)sr:F1}s of audio (cap is {MaxMixDurationSeconds}s).");
         }
 
-        // 3) Sum into a float accumulator, then clip to int16.
+        // 3) Sum into a float accumulator, fading every note out.
         var accum = new float[totalLengthSamples * ch];
+        var fadeLength = (int)Math.Round(FadeOutSeconds * sr);
         for (var i = 0; i < inputs.Count; i++)
         {
             var src = decoded[i].Samples;
@@ -135,22 +154,43 @@ public sealed class AudioMixerService : IAudioMixerService
                 ? (int)Math.Round(d * sr)
                 : srcFrames;
             var useFrames = Math.Min(srcFrames, maxFrames);
+            var fadeFrames = Math.Min(fadeLength, useFrames);
+            var fadeStart = useFrames - fadeFrames;
 
             var dstOffset = startFrame * ch;
-            var copyLength = useFrames * ch;
-            for (var k = 0; k < copyLength; k++)
+            for (var f = 0; f < useFrames; f++)
             {
-                accum[dstOffset + k] += src[k];
+                var gain = f < fadeStart ? 1f : (useFrames - f) / (float)fadeFrames;
+                for (var c = 0; c < ch; c++)
+                {
+                    var k = f * ch + c;
+                    accum[dstOffset + k] += src[k] * gain;
+                }
             }
         }
 
-        // 4) Encode WAV (RIFF/PCM int16).
+        // 4) Scale the mix down when the notes add up past full scale.
+        var peak = 0f;
+        foreach (var s in accum)
+        {
+            peak = Math.Max(peak, Math.Abs(s));
+        }
+        if (peak > MaxPeak)
+        {
+            var scale = MaxPeak / peak;
+            for (var k = 0; k < accum.Length; k++)
+            {
+                accum[k] *= scale;
+            }
+        }
+
+        // 5) Encode WAV (RIFF/PCM int16).
         using var wavStream = new MemoryStream(44 + accum.Length * 2);
         WriteWavHeader(wavStream, sr, ch, accum.Length);
         WritePcm16(wavStream, accum);
         wavStream.Position = 0;
 
-        // 5) Upload, overwriting any copy that is about to expire. These
+        // 6) Upload, overwriting any copy that is about to expire. These
         //    blobs are short-lived; the lifecycle rule on the container
         //    deletes them, so the default tier is right.
         try
@@ -199,14 +239,22 @@ public sealed class AudioMixerService : IAudioMixerService
         }
     }
 
-    private static async Task<DecodedSample> DecodeAsync(
+    private async Task<DecodedSample> DecodeAsync(
         BlobContainerClient sourceContainer,
-        string blobName,
+        string sampleName,
         CancellationToken cancellationToken)
     {
-        var blobClient = sourceContainer.GetBlobClient(blobName);
         using var ms = new MemoryStream();
-        await blobClient.DownloadToAsync(ms, cancellationToken).ConfigureAwait(false);
+        if (BundledSamples.IsBundled(sampleName))
+        {
+            await using var file = _bundledSamples.Open(sampleName);
+            await file.CopyToAsync(ms, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            var blobClient = sourceContainer.GetBlobClient(sampleName);
+            await blobClient.DownloadToAsync(ms, cancellationToken).ConfigureAwait(false);
+        }
         ms.Position = 0;
 
         // NLayer is a fully managed mp3 decoder — works on Linux/Alpine.
@@ -254,10 +302,8 @@ public sealed class AudioMixerService : IAudioMixerService
 
     private static void WritePcm16(Stream stream, float[] floatSamples)
     {
-        // Soft-clip with simple saturation. NLayer outputs in roughly
-        // [-1, 1]; summing N notes can exceed that. We accept a small
-        // amount of clipping for simplicity — acceptable for practice
-        // playback at moderate volumes.
+        // The mix is already within ±MaxPeak; the clamp only guards the
+        // conversion against rounding.
         var pcmBuffer = new byte[floatSamples.Length * 2];
         for (var i = 0; i < floatSamples.Length; i++)
         {
@@ -274,9 +320,9 @@ public sealed class AudioMixerService : IAudioMixerService
     {
         // Invariant, so a plan maps to the same blob whatever the request culture
         // (pt-BR and fr-CA would otherwise write "0,4000").
-        var canonical = string.Join("|", inputs
+        var canonical = MixVersion + ":" + string.Join("|", inputs
             .Select(i => string.Create(CultureInfo.InvariantCulture,
-                $"{i.BlobName}@{i.StartTimeSeconds:F4}/{i.DurationSeconds?.ToString("F4", CultureInfo.InvariantCulture) ?? "*"}")));
+                $"{i.SampleName}@{i.StartTimeSeconds:F4}/{i.DurationSeconds?.ToString("F4", CultureInfo.InvariantCulture) ?? "*"}")));
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
         return Convert.ToHexString(bytes).ToLowerInvariant();
     }

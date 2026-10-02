@@ -1,0 +1,73 @@
+using System.Globalization;
+
+namespace AcademiaAuditiva.Services.Audio;
+
+/// <summary>
+/// An instrument the exercises can be played on. Every instrument has a sample
+/// for each semitone the piano has (C1 to B7, see <see cref="PianoSamples"/>),
+/// but the octaves a student can pick for the note range stay where the
+/// instrument sounds natural.
+/// </summary>
+/// <param name="Name">Value of the <c>instrument</c> cookie and filter.</param>
+/// <param name="Folder">
+/// Folder of the samples that ship with the app (<see cref="BundledSamples"/>),
+/// or <c>null</c> for the piano, whose samples are in the <c>piano-audio</c> container.
+/// </param>
+/// <param name="LowestOctave">Lowest octave of the note range.</param>
+/// <param name="HighestOctave">Highest octave of the note range.</param>
+public sealed record Instrument(string Name, string? Folder, int LowestOctave, int HighestOctave)
+{
+    public static readonly Instrument Piano = new("Piano", null, MusicTheoryService.MinRangeOctave, MusicTheoryService.MaxRangeOctave);
+
+    /// <summary>Nylon-string guitar, whose lowest note is E2.</summary>
+    public static readonly Instrument Guitar = new("Guitar", "guitar", 2, 5);
+
+    /// <summary>Violin, whose lowest note is G3.</summary>
+    public static readonly Instrument Violin = new("Violin", "violin", 4, 6);
+
+    /// <summary>Every instrument, in the order the filters offer them.</summary>
+    public static IReadOnlyList<Instrument> All { get; } = [Piano, Guitar, Violin];
+
+    /// <summary>The instruments whose samples ship with the app.</summary>
+    public static IReadOnlyList<Instrument> Bundled { get; } = [.. All.Where(i => i.Folder is not null)];
+
+    /// <summary>Resource key of the instrument's name.</summary>
+    public string LabelKey => "Instrument." + Name;
+
+    /// <summary>
+    /// The instrument called <paramref name="name"/> in any case (it comes from a
+    /// cookie or a request), or the piano when there is no such instrument.
+    /// </summary>
+    public static Instrument FromName(string? name) =>
+        All.FirstOrDefault(i => string.Equals(i.Name, name?.Trim(), StringComparison.OrdinalIgnoreCase)) ?? Piano;
+
+    /// <summary>The sample the mixer plays for MIDI note <paramref name="midi"/>.</summary>
+    public string SampleName(int midi) =>
+        Folder is null ? PianoSamples.BlobName(midi) : $"{Folder}/{PianoSamples.BlobName(midi)}";
+
+    /// <summary>
+    /// The sample for <paramref name="note"/> (<c>C#4</c>, <c>Db4</c>, <c>B#3</c>…):
+    /// every spelling of a pitch plays the same sample.
+    /// </summary>
+    public string SampleFor(string note)
+    {
+        if (string.IsNullOrWhiteSpace(note))
+            throw new ArgumentException("Note name must not be empty.", nameof(note));
+
+        var midi = MusicTheoryService.NoteToMidi(note)
+            ?? throw new ArgumentException($"Invalid note name '{note}'.", nameof(note));
+        return SampleName(midi);
+    }
+
+    /// <summary>
+    /// <paramref name="noteRange"/> (<c>C3-C5</c>, read like
+    /// <see cref="MusicTheoryService.ParseOctaveRange"/>) kept within this instrument's octaves.
+    /// </summary>
+    public string ClampRange(string? noteRange)
+    {
+        var octaves = MusicTheoryService.ParseOctaveRange(noteRange);
+        var lowest = Math.Clamp(octaves[0], LowestOctave, HighestOctave);
+        var highest = Math.Clamp(octaves[^1], LowestOctave, HighestOctave);
+        return string.Create(CultureInfo.InvariantCulture, $"C{lowest}-C{highest}");
+    }
+}

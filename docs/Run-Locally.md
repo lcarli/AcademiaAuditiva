@@ -94,6 +94,13 @@ Later runs without `-DownloadFrom` just re-upload the local samples (e.g.
 after `docker rm aa-azurite`). To go back to no audio, run
 `dotnet user-secrets remove "Storage:ConnectionString" --project AcademiaAuditiva`.
 
+The guitar and violin samples (the *Instrument* choice in the exercise
+filters) **are** in git, under `AcademiaAuditiva/Audio/Instruments`, and are
+read from disk. They still need Azurite, because every mix is stored in the
+`piano-audio-mixed` container. Their sources and licenses are in
+`AcademiaAuditiva/Audio/Instruments/LICENSE.txt`;
+`scripts/build-instrument-samples.ps1` (PowerShell 7 and `ffmpeg`) rebuilds them.
+
 ## 4. Run the app
 
 ```powershell
