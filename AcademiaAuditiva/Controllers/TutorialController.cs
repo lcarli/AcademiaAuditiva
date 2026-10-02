@@ -20,7 +20,7 @@ public class TutorialController : Controller
     }
 
     /// <param name="finished">True when the user reached the last step, false when they skipped the tour.</param>
-    [HttpPost]
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Seen(string? key, bool finished)
     {
         if (!TutorialCatalog.TryGet(key, out var tutorial)) return BadRequest();
