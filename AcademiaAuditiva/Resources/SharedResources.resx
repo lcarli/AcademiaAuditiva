@@ -648,6 +648,27 @@
   <data name="Exercise.Preset.Change" xml:space="preserve">
     <value>Change</value>
   </data>
+  <data name="Exercise.Free.Toggle" xml:space="preserve">
+    <value>Free practice</value>
+  </data>
+  <data name="Exercise.Free.Title" xml:space="preserve">
+    <value>Free practice is on</value>
+  </data>
+  <data name="Exercise.Free.Text" xml:space="preserve">
+    <value>Nothing here is saved: your answers don’t count toward your score, XP or progress. Show the answer whenever you like.</value>
+  </data>
+  <data name="Exercise.Free.Tally" xml:space="preserve">
+    <value>Free practice tally</value>
+  </data>
+  <data name="Exercise.Free.Reveal" xml:space="preserve">
+    <value>Show answer</value>
+  </data>
+  <data name="Exercise.Free.RevealTitle" xml:space="preserve">
+    <value>Answer</value>
+  </data>
+  <data name="Exercise.Free.ResultNote" xml:space="preserve">
+    <value>Free practice: this answer wasn’t saved.</value>
+  </data>
   <data name="Exercise.All" xml:space="preserve">
     <value>All</value>
   </data>
@@ -3275,6 +3296,12 @@
   </data>
   <data name="Tutorial.Exercise.Score.Text" xml:space="preserve">
     <value>Your right and wrong answers add up here. Filters let you choose exactly what to practice.</value>
+  </data>
+  <data name="Tutorial.Exercise.Free.Title" xml:space="preserve">
+    <value>Free practice</value>
+  </data>
+  <data name="Tutorial.Exercise.Free.Text" xml:space="preserve">
+    <value>Turn this on to practice without pressure. Your answers won’t count toward your score or XP, and you can show the answer whenever you like.</value>
   </data>
   <data name="Tutorial.Exercise.Instructions.Title" xml:space="preserve">
     <value>Instructions and tips</value>

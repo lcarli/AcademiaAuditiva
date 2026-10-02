@@ -24,23 +24,40 @@ document.addEventListener("DOMContentLoaded", () => {
     Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: loc.validationErrorText });
   }
 
+  // Each part of the answer with its localized option label.
+  function formatAnswer(answer) {
+    const correct = String(answer || "").split("|");
+    return correct.length >= 4 && loc.answerFormat
+      ? correct.slice(0, 4).reduce(
+          (text, part, i) => text.replace(`{${i}}`, AAi18n.answerLabel(part)),
+          loc.answerFormat)
+      : answer;
+  }
+
+  // The format is written to follow "The correct answer was"; alone in the dialog it starts a sentence.
+  AAPractice.setAnswerView((answer) => {
+    const text = AAi18n.answerLabel(formatAnswer(answer));
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  });
+
+  // Turning free practice on or off drops the round on screen.
+  AAPractice.onReset(() => {
+    playToken = null;
+    roundId = null;
+  });
+
   const playBtn = document.getElementById("Play");
   if (playBtn) {
     playBtn.addEventListener("click", () => {
       if (!exerciseId) return;
 
-      fetch("/Exercise/RequestPlay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exerciseId: exerciseId,
-          filters: {
-            keySelect: document.getElementById("keySelect")?.value || "C",
-            scaleTypeSelect: document.getElementById("scaleTypeSelect")?.value || "major",
-          },
-        }),
+      AAPractice.play({
+        exerciseId: exerciseId,
+        filters: {
+          keySelect: document.getElementById("keySelect")?.value || "C",
+          scaleTypeSelect: document.getElementById("scaleTypeSelect")?.value || "major",
+        },
       })
-        .then((resp) => resp.json())
         .then((data) => {
           if (AAi18n.serverError(data, loc)) return;
           playToken = data.playToken;
@@ -78,34 +95,19 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      fetch("/Exercise/ValidateExercise", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exerciseId: exerciseId,
-          roundId: roundId,
-          userGuess: parts.join("|"),
-          timeSpentSeconds: Math.floor((Date.now() - roundStartedAt) / 1000),
-        }),
+      AAPractice.validate({
+        exerciseId: exerciseId,
+        roundId: roundId,
+        userGuess: parts.join("|"),
+        timeSpentSeconds: Math.floor((Date.now() - roundStartedAt) / 1000),
       })
-        .then((resp) => resp.json())
         .then((data) => {
           if (AAi18n.serverError(data, loc)) return;
-
-          const counter = document.getElementById(data.isCorrect ? "correctCount" : "errorCount");
-          if (counter) counter.innerText = parseInt(counter.innerText, 10) + 1;
 
           if (data.isCorrect) {
             AAi18n.result(data, loc);
           } else {
-            // Show each part of the correct answer with its localized option label.
-            const correct = String(data.answer || "").split("|");
-            const answer = correct.length >= 4 && loc.answerFormat
-              ? correct.slice(0, 4).reduce(
-                  (text, part, i) => text.replace(`{${i}}`, AAi18n.answerLabel(part)),
-                  loc.answerFormat)
-              : data.answer;
-            AAi18n.result({ ...data, answer }, loc);
+            AAi18n.result({ ...data, answer: formatAnswer(data.answer) }, loc);
           }
 
           resetSelections();

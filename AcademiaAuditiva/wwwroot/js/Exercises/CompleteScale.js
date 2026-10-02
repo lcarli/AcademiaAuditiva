@@ -4,8 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loc = AAi18n.localizer();
   const exerciseId = document.getElementById("exerciseId")?.value;
+  const prompt = document.getElementById("staffPrompt");
+  const initialPrompt = prompt ? prompt.textContent : "";
   let playToken = null;
   let roundId = null;
+  let metadata = null;
   let staffInstance = null;
   const exerciseStartTime = Date.now();
 
@@ -23,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setPrompt(metadata) {
-    const prompt = document.getElementById("staffPrompt");
     if (!prompt) return;
     prompt.textContent = String(loc.completeScalePrompt || "").replace("{{0}}", scaleLabel(metadata.scale));
   }
@@ -50,28 +52,51 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  window.StaffRenderer.render("#staffEditor", {
-    clef: "treble",
-    keySignature: "C",
-    notes: [],
+  function drawEmptyStaff() {
+    window.StaffRenderer.render("#staffEditor", {
+      clef: "treble",
+      keySignature: "C",
+      notes: [],
+    });
+  }
+
+  drawEmptyStaff();
+
+  // The answer leaves out the root, which the editor shows in gray.
+  AAPractice.setAnswerView((answer) => {
+    const root = metadata?.promptNotes?.[0];
+    return {
+      staff: {
+        clef: "treble",
+        keySignature: "C",
+        notes: (root ? [{ note: root, duration: "w", prefilled: true }] : []).concat(AAPractice.staffNotes(answer)),
+      },
+    };
+  });
+
+  // Turning free practice on or off drops the round on screen.
+  AAPractice.onReset(() => {
+    playToken = null;
+    roundId = null;
+    metadata = null;
+    if (staffInstance) staffInstance.destroy();
+    staffInstance = null;
+    if (prompt) prompt.textContent = initialPrompt;
+    drawEmptyStaff();
   });
 
   document.getElementById("Play")?.addEventListener("click", () => {
     if (!exerciseId) return;
-    fetch("/Exercise/RequestPlay", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ exerciseId, filters: filterValues() }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        playToken = data.playToken;
-        roundId = data.roundId;
-        const promptRoot = data.metadata?.promptNotes?.[0];
-        setPrompt(data.metadata || {});
-        if (promptRoot) mountEditor(promptRoot);
-        if (playToken) AudioEngine.playToken(playToken);
-      });
+    AAPractice.play({ exerciseId, filters: filterValues() }).then((data) => {
+      if (AAi18n.serverError(data, loc)) return;
+      playToken = data.playToken;
+      roundId = data.roundId;
+      metadata = data.metadata || {};
+      const promptRoot = metadata.promptNotes?.[0];
+      setPrompt(metadata);
+      if (promptRoot) mountEditor(promptRoot);
+      if (playToken) AudioEngine.playToken(playToken);
+    });
   });
 
   document.getElementById("Replay")?.addEventListener("click", () => {
@@ -93,25 +118,17 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    fetch("/Exercise/ValidateExercise", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ExerciseId: exerciseId,
-        RoundId: roundId,
-        userGuess: userAnswer,
-        timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
-      }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (AAi18n.serverError(data, loc)) return;
-        const counter = document.getElementById(data.isCorrect ? "correctCount" : "errorCount");
-        if (counter) counter.innerText = parseInt(counter.innerText) + 1;
-        AAi18n.result(data, loc);
-        staffInstance.clear();
-        playToken = null;
-        roundId = null;
-      });
+    AAPractice.validate({
+      ExerciseId: exerciseId,
+      RoundId: roundId,
+      userGuess: userAnswer,
+      timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
+    }).then((data) => {
+      if (AAi18n.serverError(data, loc)) return;
+      AAi18n.result(data, loc);
+      staffInstance?.clear();
+      playToken = null;
+      roundId = null;
+    });
   });
 });

@@ -100,34 +100,60 @@
       const loc = AAi18n.localizer();
       const exerciseId = document.getElementById("exerciseId")?.value;
       const exerciseName = document.getElementById("staffExerciseName")?.value;
+      const prompt = document.getElementById("staffPrompt");
+      const initialPrompt = prompt ? prompt.textContent : "";
       let playToken = null;
       let roundId = null;
+      let metadata = null;
       let staffInstance = null;
       const exerciseStartTime = Date.now();
 
-      window.StaffRenderer.render("#staffEditor", {
-        clef: "treble",
-        keySignature: "C",
-        notes: [],
+      function drawEmptyStaff() {
+        window.StaffRenderer.render("#staffEditor", {
+          clef: "treble",
+          keySignature: "C",
+          notes: [],
+        });
+      }
+
+      drawEmptyStaff();
+
+      // The answer leaves out the notes the editor gives (in gray); rhythms are drawn on C5.
+      AAPractice.setAnswerView((answer) => {
+        const options = optionsFor(exerciseName, metadata || {});
+        const given = (options.prefilledNotes || []).map((note) => ({ ...note, prefilled: true }));
+        return {
+          staff: {
+            clef: options.clef,
+            keySignature: options.keySignature,
+            timeSignature: options.timeSignature,
+            notes: given.concat(AAPractice.staffNotes(answer, exerciseName === "RhythmDictation" ? "C5" : null)),
+          },
+        };
+      });
+
+      // Turning free practice on or off drops the round on screen.
+      AAPractice.onReset(() => {
+        playToken = null;
+        roundId = null;
+        metadata = null;
+        if (staffInstance) staffInstance.destroy();
+        staffInstance = null;
+        if (prompt) prompt.textContent = initialPrompt;
+        drawEmptyStaff();
       });
 
       document.getElementById("Play")?.addEventListener("click", () => {
         if (!exerciseId || !exerciseName) return;
-        fetch("/Exercise/RequestPlay", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ exerciseId, filters: filterValues() }),
-        })
-          .then((r) => r.json())
-          .then((data) => {
-            playToken = data.playToken;
-            roundId = data.roundId;
-            const metadata = data.metadata || {};
-            const prompt = document.getElementById("staffPrompt");
-            if (prompt) prompt.textContent = promptFor(exerciseName, loc, metadata);
-            staffInstance = window.StaffEditor.attach("#staffEditor", optionsFor(exerciseName, metadata));
-            if (playToken) AudioEngine.playToken(playToken);
-          });
+        AAPractice.play({ exerciseId, filters: filterValues() }).then((data) => {
+          if (AAi18n.serverError(data, loc)) return;
+          playToken = data.playToken;
+          roundId = data.roundId;
+          metadata = data.metadata || {};
+          if (prompt) prompt.textContent = promptFor(exerciseName, loc, metadata);
+          staffInstance = window.StaffEditor.attach("#staffEditor", optionsFor(exerciseName, metadata));
+          if (playToken) AudioEngine.playToken(playToken);
+        });
       });
 
       document.getElementById("Replay")?.addEventListener("click", () => {
@@ -148,26 +174,18 @@
           AAi18n.incomplete(loc);
           return;
         }
-        fetch("/Exercise/ValidateExercise", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ExerciseId: exerciseId,
-            RoundId: roundId,
-            userGuess: userAnswer,
-            timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
-          }),
-        })
-          .then((r) => r.json())
-          .then((data) => {
-            if (AAi18n.serverError(data, loc)) return;
-            const counter = document.getElementById(data.isCorrect ? "correctCount" : "errorCount");
-            if (counter) counter.innerText = parseInt(counter.innerText) + 1;
-            AAi18n.result(data, loc);
-            staffInstance.clear();
-            playToken = null;
-            roundId = null;
-          });
+        AAPractice.validate({
+          ExerciseId: exerciseId,
+          RoundId: roundId,
+          userGuess: userAnswer,
+          timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
+        }).then((data) => {
+          if (AAi18n.serverError(data, loc)) return;
+          AAi18n.result(data, loc);
+          staffInstance?.clear();
+          playToken = null;
+          roundId = null;
+        });
       });
     },
   };

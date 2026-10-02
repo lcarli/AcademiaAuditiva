@@ -123,7 +123,7 @@ namespace AcademiaAuditiva.Controllers
 			// clear text for the staff renderer.
 			if (plan.PlaybackPlans.Count == 0)
 			{
-				var sessionData = new ExerciseSessionData { ExpectedAnswer = plan.ExpectedAnswerJson };
+				var sessionData = new ExerciseSessionData { ExpectedAnswer = plan.ExpectedAnswerJson, Free = request.Free };
 				await _cache.SetStringAsync(
 					ExpectedAnswerCacheKey(userId, request.ExerciseId),
 					JsonConvert.SerializeObject(sessionData),
@@ -148,7 +148,8 @@ namespace AcademiaAuditiva.Controllers
 				request.ExerciseId,
 				plan.ExpectedAnswerJson,
 				mixedAddresses,
-				HttpContext.RequestAborted);
+				free: request.Free,
+				cancellationToken: HttpContext.RequestAborted);
 
 			// Uniform response: most exercises ship one play token; only
 			// GuessMissingNote ships two (melody1Token, melody2Token).
@@ -228,9 +229,12 @@ namespace AcademiaAuditiva.Controllers
 
 			// Resolve the expected answer either from the round (modern
 			// audio-token flow) or, for sheet-music exercises that don't
-			// produce a token, from the legacy session-key cache.
+			// produce a token, from the legacy session-key cache. The
+			// round also says whether it is a free practice round: the
+			// mode is fixed by RequestPlay, never by this request.
 			string expectedAnswer = null;
 			bool roundConsumed = false;
+			bool free = false;
 
 			if (!string.IsNullOrEmpty(dto.RoundId))
 			{
@@ -239,6 +243,7 @@ namespace AcademiaAuditiva.Controllers
 				{
 					expectedAnswer = round.ExpectedAnswerJson;
 					roundConsumed = true;
+					free = round.Free;
 				}
 			}
 
@@ -250,6 +255,7 @@ namespace AcademiaAuditiva.Controllers
 					return Json(new { success = false, message = _localizer["Exercise.SessionExpired"].Value, isCorrect = false });
 				var legacy = JsonConvert.DeserializeObject<ExerciseSessionData>(json);
 				expectedAnswer = legacy.ExpectedAnswer;
+				free = legacy.Free;
 			}
 
 			var validator = _validators.Get(exercise.Name);
@@ -261,6 +267,34 @@ namespace AcademiaAuditiva.Controllers
 			var validation = validator.Validate(dto.UserGuess, expectedAnswer);
 			var isCorrect = validation.IsCorrect;
 			var currentAnswer = validation.CanonicalAnswer;
+
+			// One-shot semantics. Drop both the modern round (so the same
+			// audio tokens can't be replayed against the just-checked
+			// answer) and the legacy expected-answer key (used by the
+			// sheet-music exercises that don't get a round).
+			async Task ForgetRoundAsync()
+			{
+				if (roundConsumed)
+				{
+					await _audioTokens.RemoveRoundAsync(userId, dto.ExerciseId, dto.RoundId, HttpContext.RequestAborted);
+				}
+				await _cache.RemoveAsync(legacyKey);
+			}
+
+			// Free practice is checked and forgotten: no score, attempt log,
+			// XP, badge, learning path or routine progress.
+			if (free)
+			{
+				await ForgetRoundAsync();
+				return Json(new
+				{
+					success = true,
+					free = true,
+					isCorrect,
+					answer = currentAnswer,
+					message = isCorrect ? _localizer["Exercise.CorrectAnswer"].Value : _localizer["Exercise.IncorrectAnswer"].Value
+				});
+			}
 
 			var existingScore = await _context.Scores
 				.Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
@@ -326,15 +360,7 @@ namespace AcademiaAuditiva.Controllers
 
 			await _context.SaveChangesAsync();
 
-			// One-shot semantics. Drop both the modern round (so the same
-			// audio tokens can't be replayed against the just-scored
-			// answer) and the legacy expected-answer key (used by the
-			// sheet-music exercises that don't get a round).
-			if (roundConsumed)
-			{
-				await _audioTokens.RemoveRoundAsync(userId, dto.ExerciseId, dto.RoundId, HttpContext.RequestAborted);
-			}
-			await _cache.RemoveAsync(legacyKey);
+			await ForgetRoundAsync();
 			
 			await _analyticsService.SaveAttemptAsync(new ExerciseAttemptLog
 			{
@@ -392,6 +418,42 @@ namespace AcademiaAuditiva.Controllers
 				rewards,
 				path
 			});
+		}
+
+		/// <summary>
+		/// Shows the answer of a free practice round without using the round up,
+		/// so the student can listen again knowing what to hear, then answer it.
+		/// A scored round never shows its answer before it is answered.
+		/// </summary>
+		[HttpPost]
+		// Shares the RequestPlay budget: a reveal follows a play.
+		[EnableRateLimiting("RequestPlay")]
+		[RequestSizeLimit(8 * 1024)]
+		public async Task<IActionResult> RevealAnswer([FromBody] RevealAnswerDto request)
+		{
+			if (request is null || string.IsNullOrEmpty(request.RoundId))
+				return BadRequest();
+
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (string.IsNullOrEmpty(userId))
+				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
+
+			var exercise = await _context.Exercises.FirstOrDefaultAsync(e => e.ExerciseId == request.ExerciseId);
+			if (exercise == null)
+				return NotFound(_localizer["Exercise.NotFound"].Value);
+
+			var round = await _audioTokens.GetRoundAsync(userId, request.ExerciseId, request.RoundId, HttpContext.RequestAborted);
+			if (round is null)
+				return Json(new { success = false, message = _localizer["Exercise.SessionExpired"].Value });
+
+			if (!round.Free)
+				return StatusCode(StatusCodes.Status403Forbidden);
+
+			var validator = _validators.Get(exercise.Name);
+			if (validator == null)
+				return Json(new { success = false, message = _localizer["Exercise.NoValidator", exercise.Name].Value });
+
+			return Json(new { success = true, answer = validator.AnswerOf(round.ExpectedAnswerJson) });
 		}
 
 		// Shape read by wwwroot/js/core/rewards.js. Null unless the answered exercise is

@@ -372,17 +372,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- Buttons ----------
 
+  // Turning free practice on or off drops the round on screen. An answer
+  // being checked ends its round anyway, so it is left to finish.
+  AAPractice.onReset(() => {
+    if (busy) return;
+    round = null;
+    drawStaff([]);
+    stopRecording().then(discardRecording);
+  });
+
   generateBtn?.addEventListener("click", async () => {
     if (!exerciseId || busy) return;
     unlockAudio();
     generateBtn.disabled = true;
     try {
-      const response = await fetch("/Exercise/RequestPlay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ exerciseId }),
-      });
-      const data = await response.json();
+      const data = await AAPractice.play({ exerciseId });
       if (AAi18n.serverError(data, loc)) return;
       if (!Array.isArray(data.melody) || melodyNotes(data.melody).length === 0) {
         throw new Error("The response has no melody.");
@@ -458,23 +462,15 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const response = await fetch("/Exercise/ValidateExercise", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exerciseId,
-          userGuess: sung.map(midiToName).join("|"),
-          timeSpentSeconds: Math.floor((Date.now() - round.startedAt) / 1000),
-        }),
+      const data = await AAPractice.validate({
+        exerciseId,
+        userGuess: sung.map(midiToName).join("|"),
+        timeSpentSeconds: Math.floor((Date.now() - round.startedAt) / 1000),
       });
-      const data = await response.json();
       // The server forgets the expected answer after one attempt.
       round = null;
       await hideAnalyzing();
       if (AAi18n.serverError(data, loc)) return;
-
-      const counter = document.getElementById(data.isCorrect ? "correctCount" : "errorCount");
-      if (counter) counter.innerText = parseInt(counter.innerText, 10) + 1;
 
       if (data.isCorrect) {
         AAi18n.result(data, loc);
