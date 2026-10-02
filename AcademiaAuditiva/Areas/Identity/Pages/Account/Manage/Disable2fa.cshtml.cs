@@ -15,13 +15,16 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
     public class Disable2faModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<Disable2faModel> _logger;
 
         public Disable2faModel(
             UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<Disable2faModel> logger)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _logger = logger;
         }
 
@@ -61,6 +64,10 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
             {
                 throw new InvalidOperationException($"Unexpected error occurred disabling 2FA.");
             }
+
+            // Turning two-factor off changes the security stamp: keep this session signed in
+            // (the account's other sessions end at their next stamp check).
+            await _signInManager.RefreshSignInAsync(user);
 
             _logger.LogInformation("User with ID '{UserId}' has disabled 2fa.", _userManager.GetUserId(User));
             StatusMessage = "Identity.Status.TwoFactorDisabled";
