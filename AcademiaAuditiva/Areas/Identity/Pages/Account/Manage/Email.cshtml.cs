@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
+using AcademiaAuditiva.Services;
 using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
@@ -129,12 +130,12 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
                     pageHandler: null,
                     values: new { area = "Identity", userId = userId, email = Input.NewEmail, code = code },
                     protocol: Request.Scheme);
-                await _emailSender.SendEmailAsync(
+                var sent = await _emailSender.TrySendEmailAsync(
                     Input.NewEmail,
                     _localizer["Identity.Email.ChangeEmail.Subject"],
                     _localizer["Identity.Email.ChangeEmail.Body", HtmlEncoder.Default.Encode(callbackUrl)]);
 
-                StatusMessage = "Identity.Status.EmailChangeLinkSent";
+                StatusMessage = sent ? "Identity.Status.EmailChangeLinkSent" : "Error:Identity.Status.EmailSendFailed";
                 return RedirectToPage();
             }
 
@@ -165,12 +166,12 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
                 pageHandler: null,
                 values: new { area = "Identity", userId = userId, code = code },
                 protocol: Request.Scheme);
-            await _emailSender.SendEmailAsync(
+            var sent = await _emailSender.TrySendEmailAsync(
                 email,
                 _localizer["Identity.Email.Confirm.Subject"],
                 _localizer["Identity.Email.Confirm.Body", HtmlEncoder.Default.Encode(callbackUrl)]);
 
-            StatusMessage = "Identity.Status.VerificationEmailSent";
+            StatusMessage = sent ? "Identity.Status.VerificationEmailSent" : "Error:Identity.Status.EmailSendFailed";
             return RedirectToPage();
         }
     }
