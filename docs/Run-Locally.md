@@ -30,7 +30,7 @@ so credentials never land in `appsettings.json`:
 ```powershell
 cd AcademiaAuditiva
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" `
-    "Server=(localdb)\\mssqllocaldb;Database=AcademiaAuditiva-dev;Trusted_Connection=True;TrustServerCertificate=True"
+    "Server=(localdb)\mssqllocaldb;Database=AcademiaAuditiva-dev;Trusted_Connection=True;TrustServerCertificate=True"
 
 # Or, with the Docker container from the prerequisites (use 127.0.0.1, not localhost — see Troubleshooting)
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" `
