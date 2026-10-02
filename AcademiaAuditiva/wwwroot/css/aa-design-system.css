@@ -730,6 +730,7 @@ a:focus-visible {
 
 .aa-navbar .navbar-nav .nav-link {
     font-weight: 500;
+    white-space: nowrap;
     border-radius: var(--aa-radius-sm);
     transition: color .15s ease, background-color .15s ease;
 }
@@ -747,6 +748,37 @@ a:focus-visible {
 
 .aa-navbar .navbar-toggler:focus {
     box-shadow: 0 0 0 .25rem var(--aa-focus-ring);
+}
+
+/* Up to seven menu items share one row with the brand and the account buttons. */
+@media (min-width: 992px) {
+    .aa-navbar {
+        --bs-navbar-nav-link-padding-x: .6rem;
+    }
+
+    /* A translation too long for the row wraps whole items, never a label. */
+    .aa-navbar .navbar-nav {
+        flex-wrap: wrap;
+    }
+
+    .aa-navbar .navbar-nav .nav-link {
+        font-size: .9375rem;
+    }
+}
+
+/* Below 1200 px a signed-in menu needs the brand's room: the logo stays, the name is still read out. */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .aa-navbar:has(.navbar-nav) .aa-brand-text {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
 }
 
 .aa-theme-toggle,
@@ -2402,6 +2434,316 @@ a:focus-visible {
 
     to {
         opacity: 1;
+    }
+}
+
+/* ---------- Explore (Views/Explore, js/Explore/explore.js) ---------- */
+.aa-explore-tabs {
+    display: flex;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 1.5rem;
+}
+
+.aa-explore-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem 1.25rem;
+}
+
+.aa-explore-field {
+    display: flex;
+    flex: 1 1 12rem;
+    flex-direction: column;
+    gap: .4rem;
+    min-width: 0;
+    max-width: 18rem;
+}
+
+.aa-explore-field-auto {
+    flex: 0 1 auto;
+    max-width: none;
+}
+
+.aa-explore-label {
+    color: var(--aa-muted);
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+/* As tall as the selects and the stepper beside it, so the labels line up. */
+.aa-explore-toggle {
+    align-self: flex-start;
+    height: 38px;
+}
+
+.aa-explore-toggle > button {
+    padding: 0 .85rem;
+}
+
+.aa-stepper {
+    display: inline-flex;
+    align-items: stretch;
+    align-self: flex-start;
+    height: 38px;
+    overflow: hidden;
+    border: 1px solid var(--aa-line-strong);
+    border-radius: var(--aa-radius);
+    background: var(--aa-bg);
+}
+
+.aa-stepper-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 38px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--aa-muted);
+    transition: color .15s ease, background-color .15s ease;
+}
+
+.aa-stepper-btn:hover {
+    background: var(--aa-hover-tint);
+    color: var(--aa-ink);
+}
+
+.aa-stepper-btn:focus-visible {
+    outline: 0;
+    box-shadow: inset 0 0 0 .2rem var(--aa-focus-ring);
+}
+
+.aa-stepper-btn[aria-disabled="true"] {
+    background: transparent;
+    color: var(--aa-line-strong);
+    cursor: not-allowed;
+}
+
+.aa-stepper-value {
+    display: grid;
+    place-items: center;
+    min-width: 2.5rem;
+    border-inline: 1px solid var(--aa-line);
+    color: var(--aa-ink);
+    font-family: var(--aa-font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.aa-explore-stage {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--aa-line);
+}
+
+.aa-explore-result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem 1rem;
+    min-height: 2.5rem;
+    margin-top: 1.25rem;
+    transition: opacity .15s ease;
+}
+
+.aa-explore-result[aria-busy="true"] {
+    opacity: .55;
+}
+
+.aa-explore-name {
+    margin: 0;
+    color: var(--aa-ink);
+    font-family: var(--aa-font-display);
+    font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+}
+
+.aa-explore-notes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.aa-explore-notes > .aa-chip {
+    color: var(--aa-ink);
+    font-size: .85rem;
+}
+
+/* Stays in the accessibility tree while empty, so the alert is announced when filled. */
+.aa-explore-error {
+    margin: 0;
+    color: var(--aa-err);
+    font-weight: 600;
+}
+
+.aa-explore-error:not(:empty) {
+    margin-top: .75rem;
+}
+
+/* Seven octaves (C1-B7) scroll sideways; offsetLeft of the keys is measured from here. */
+.aa-explore-keyboard {
+    position: relative;
+    margin-top: 1.5rem;
+    padding: .75rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    border: 1px solid var(--aa-line);
+    border-radius: var(--aa-radius);
+    background: var(--aa-bg);
+    scrollbar-width: thin;
+}
+
+.aa-explore-keys {
+    --aa-explore-col: 17px;
+    display: grid;
+    grid-template-columns: repeat(98, var(--aa-explore-col));
+    grid-template-rows: 3fr 2fr;
+    width: max-content;
+    height: 150px;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.aa-explore-key {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .3rem;
+    min-width: 0;
+    padding: 0 0 .5rem;
+    cursor: pointer;
+    transition: background-color .12s ease, color .12s ease, box-shadow .12s ease;
+}
+
+.aa-explore-key-white {
+    grid-row: 1 / 3;
+    z-index: 1;
+    border: 1px solid var(--aa-key-edge);
+    border-right-width: 0;
+    border-radius: 0 0 7px 7px;
+    background: var(--aa-key-white);
+    color: #5A5F75;
+}
+
+.aa-explore-key-white:last-child {
+    border-right-width: 1px;
+}
+
+.aa-explore-key-black {
+    grid-row: 1 / 2;
+    justify-self: center;
+    z-index: 2;
+    width: 62%;
+    padding-bottom: .35rem;
+    border: 1px solid var(--aa-key-black);
+    border-top: 0;
+    border-radius: 0 0 5px 5px;
+    background: var(--aa-key-black);
+}
+
+.aa-explore-key-label {
+    font-size: .68rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.aa-explore-key-white:hover {
+    background: color-mix(in srgb, var(--aa-key-accent) 6%, var(--aa-key-white));
+}
+
+.aa-explore-key-black:hover {
+    background: color-mix(in srgb, var(--aa-accent) 25%, var(--aa-key-black));
+}
+
+.aa-explore-key-white.is-on {
+    background: var(--aa-key-selected-bg);
+    color: var(--aa-key-selected-label);
+    box-shadow: inset 0 0 0 1px var(--aa-key-accent), inset 0 -4px 0 var(--aa-key-accent);
+}
+
+.aa-explore-key-black.is-on {
+    border-color: var(--aa-accent);
+    background: var(--aa-accent);
+}
+
+/* The root of an interval, chord or scale carries a dot. */
+.aa-explore-key.is-root::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--aa-key-accent);
+}
+
+.aa-explore-key-black.is-root::before {
+    background: var(--aa-on-accent);
+}
+
+.aa-explore-key:focus-visible {
+    outline: 2px solid var(--aa-key-accent);
+    outline-offset: -4px;
+}
+
+.aa-explore-key-black:focus-visible {
+    outline-offset: 2px;
+}
+
+.aa-explore-hint {
+    margin: .5rem 0 0;
+    color: var(--aa-muted);
+    font-size: .85rem;
+}
+
+.aa-explore-staff {
+    margin-top: 1.25rem;
+    text-align: center;
+}
+
+@media (max-width: 575.98px) {
+    .aa-explore-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        border-radius: var(--aa-radius-lg);
+    }
+
+    .aa-explore-tabs > button {
+        border-radius: var(--aa-radius);
+    }
+
+    .aa-explore-field,
+    .aa-explore-field-auto {
+        flex-basis: 100%;
+        max-width: none;
+    }
+
+    .aa-explore-toggle {
+        align-self: stretch;
+    }
+
+    .aa-explore-toggle > button {
+        flex: 1 1 0;
+        padding: 0 .5rem;
+        font-size: .82rem;
+    }
+
+    .aa-explore-keys {
+        --aa-explore-col: 15px;
+        height: 132px;
+    }
+}
+
+@media (max-width: 399.98px) {
+    .aa-explore-toggle > button {
+        padding: 0 .45rem;
+        font-size: .78rem;
     }
 }
 

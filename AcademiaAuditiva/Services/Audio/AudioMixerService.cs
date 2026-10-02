@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using AcademiaAuditiva.Interfaces;
@@ -22,17 +23,28 @@ public sealed class AudioMixerService : IAudioMixerService
     // if upstream plumbing ever sends a bad plan.
     private const double MaxMixDurationSeconds = 30.0;
 
+    /// <summary>
+    /// How long a mixed blob may go without a write before its name is
+    /// handed out again unchecked. The storage lifecycle rule deletes mixed
+    /// blobs about a day after their last write (storage.bicep), while a
+    /// replica can run for days, so older mixes are checked and touched
+    /// first. Half a day keeps every token's 15 min far from deletion.
+    /// </summary>
+    internal static readonly TimeSpan FreshFor = TimeSpan.FromHours(12);
+
     private readonly BlobServiceClient _blobServiceClient;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<AudioMixerService> _logger;
 
     // Process-local memo: once we've mixed a given (sorted) input plan,
-    // we keep the resulting blob name in memory so replays during the
-    // same round don't even need to HEAD the storage account.
-    private readonly ConcurrentDictionary<string, MixedAudio> _planToMix = new();
+    // we keep the resulting blob name in memory so replays don't even
+    // need to HEAD the storage account while the blob is fresh.
+    private readonly ConcurrentDictionary<string, MixMemo> _planToMix = new();
 
-    public AudioMixerService(BlobServiceClient blobServiceClient, ILogger<AudioMixerService> logger)
+    public AudioMixerService(BlobServiceClient blobServiceClient, TimeProvider timeProvider, ILogger<AudioMixerService> logger)
     {
         _blobServiceClient = blobServiceClient;
+        _timeProvider = timeProvider;
         _logger = logger;
     }
 
@@ -49,23 +61,24 @@ public sealed class AudioMixerService : IAudioMixerService
         // Even a single untrimmed note is mixed: the audio endpoint varies
         // every clip it streams (ClipVariation) and needs PCM WAV to do it.
         var planHash = ComputePlanHash(inputs);
-        if (_planToMix.TryGetValue(planHash, out var memoized))
+        if (_planToMix.TryGetValue(planHash, out var memo)
+            && _timeProvider.GetUtcNow() - memo.WrittenAt < FreshFor)
         {
-            return memoized;
+            return memo.Mix;
         }
 
         var mixedBlobName = $"mix-{planHash}.wav";
+        var result = new MixedAudio(MixedContainerName, mixedBlobName);
         var sourceContainer = _blobServiceClient.GetBlobContainerClient(SourceContainerName);
         var mixedContainer = _blobServiceClient.GetBlobContainerClient(MixedContainerName);
         var mixedBlob = mixedContainer.GetBlobClient(mixedBlobName);
 
-        // If a previous request already produced this exact mix it is
-        // still in storage (lifecycle: 1h). Skip the work.
-        if (await mixedBlob.ExistsAsync(cancellationToken).ConfigureAwait(false))
+        // If a previous request (or replica) already produced this exact
+        // mix and the lifecycle rule hasn't deleted it, skip the work.
+        if (await KeepExistingAsync(mixedBlob, cancellationToken).ConfigureAwait(false) is { } writtenAt)
         {
-            var memo = new MixedAudio(MixedContainerName, mixedBlobName);
-            _planToMix[planHash] = memo;
-            return memo;
+            _planToMix[planHash] = new MixMemo(result, writtenAt);
+            return result;
         }
 
         // 1) Decode every source mp3 into float PCM. Honour the first
@@ -137,8 +150,9 @@ public sealed class AudioMixerService : IAudioMixerService
         WritePcm16(wavStream, accum);
         wavStream.Position = 0;
 
-        // 5) Upload. AccessTier.Cool would be wrong (these blobs live <1h);
-        //    just rely on the lifecycle rule on the container.
+        // 5) Upload, overwriting any copy that is about to expire. These
+        //    blobs are short-lived; the lifecycle rule on the container
+        //    deletes them, so the default tier is right.
         try
         {
             await mixedBlob.UploadAsync(
@@ -152,11 +166,37 @@ public sealed class AudioMixerService : IAudioMixerService
             // Both blobs would be byte-equivalent; nothing to do.
         }
 
-        var result = new MixedAudio(MixedContainerName, mixedBlobName);
-        _planToMix[planHash] = result;
+        _planToMix[planHash] = new MixMemo(result, _timeProvider.GetUtcNow());
         _logger.LogDebug("Mixed {InputCount} sources → {Container}/{Blob} ({Duration:F2}s)",
             inputs.Count, result.Container, result.BlobName, totalLengthSamples / (double)sr);
         return result;
+    }
+
+    /// <summary>
+    /// Returns when the stored mix was last written, touching it first when
+    /// it is no longer fresh, or <c>null</c> when it has to be mixed again.
+    /// </summary>
+    private async Task<DateTimeOffset?> KeepExistingAsync(BlobClient mixedBlob, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var properties = await mixedBlob.GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            var now = _timeProvider.GetUtcNow();
+            if (now - properties.Value.LastModified < FreshFor)
+            {
+                return properties.Value.LastModified;
+            }
+
+            // Any write moves Last-Modified, which is what the lifecycle rule reads.
+            await mixedBlob.SetMetadataAsync(
+                new Dictionary<string, string> { ["touched"] = now.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture) },
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+            return now;
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            return null;
+        }
     }
 
     private static async Task<DecodedSample> DecodeAsync(
@@ -232,11 +272,16 @@ public sealed class AudioMixerService : IAudioMixerService
 
     private static string ComputePlanHash(IReadOnlyList<MixInput> inputs)
     {
+        // Invariant, so a plan maps to the same blob whatever the request culture
+        // (pt-BR and fr-CA would otherwise write "0,4000").
         var canonical = string.Join("|", inputs
-            .Select(i => $"{i.BlobName}@{i.StartTimeSeconds:F4}/{i.DurationSeconds?.ToString("F4") ?? "*"}"));
+            .Select(i => string.Create(CultureInfo.InvariantCulture,
+                $"{i.BlobName}@{i.StartTimeSeconds:F4}/{i.DurationSeconds?.ToString("F4", CultureInfo.InvariantCulture) ?? "*"}")));
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
         return Convert.ToHexString(bytes).ToLowerInvariant();
     }
 
     private sealed record DecodedSample(int SampleRate, int Channels, float[] Samples);
+
+    private sealed record MixMemo(MixedAudio Mix, DateTimeOffset WrittenAt);
 }

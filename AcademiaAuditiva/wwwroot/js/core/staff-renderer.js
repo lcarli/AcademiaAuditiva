@@ -23,6 +23,12 @@
  * - `note: 'barline'` inserts a VexFlow BarNote.
  * - `note: 'rest'` OR `duration: '<x>r'` renders a rest of base duration.
  * - Dots: any duration ending in `.` (e.g. 'h.') renders a dotted note.
+ * - `chord: ['C4', 'E4', 'G4']` (instead of `note`) stacks the notes on
+ *   one stem; double sharps and flats ('F##4', 'Bbb3') are drawn too.
+ * - `clefAnnotation: '8va'` (treble) or `'8vb'` (treble or bass) marks
+ *   the clef and draws every note an octave lower or higher than the
+ *   pitch given, so very high or low notes need fewer ledger lines.
+ * - `autoStem: true` points each stem away from the middle line.
  */
 (function (root) {
   "use strict";
@@ -33,7 +39,30 @@
     wr: 4, hr: 2, qr: 1, "8r": 0.5, "16r": 0.25, "8tr": 1 / 3,
   };
 
-  function buildVexNote(VexFlow, n, clef) {
+  // VexFlow lowers the drawn note by octave_shift octaves.
+  var OCTAVE_SHIFT = { "8va": 1, "8vb": -1 };
+
+  var HEIGHT = 150;
+
+  // A flat on a note far above the staff reaches past the top of the box;
+  // grow the box to show it rather than clip it. Normal staves keep 150 px.
+  function fitHeight(div, width) {
+    var svg = div.querySelector("svg");
+    if (!svg || typeof svg.getBBox !== "function") return;
+    var box;
+    try { box = svg.getBBox(); } catch (e) { return; }
+    // A hidden staff has no layout to measure.
+    if (!box.width && !box.height) return;
+    var top = Math.min(0, Math.floor(box.y) - 2);
+    var bottom = Math.max(HEIGHT, Math.ceil(box.y + box.height) + 2);
+    if (top === 0 && bottom === HEIGHT) return;
+    var height = bottom - top;
+    svg.setAttribute("viewBox", "0 " + top + " " + width + " " + height);
+    svg.setAttribute("height", String(height));
+    svg.style.height = height + "px";
+  }
+
+  function buildVexNote(VexFlow, n, clef, opts) {
     var StaveNote = VexFlow.StaveNote;
     var Accidental = VexFlow.Accidental;
     var Dot = VexFlow.Dot;
@@ -44,36 +73,39 @@
     var isDotted = Mapping.isDottedLabel(rawDur);
     var baseDur = Mapping.baseDuration(rawDur);
 
-    var key;
+    var names = [];
+    var keys;
     var vexDuration = baseDur;
     if (isRest) {
       // VexFlow rest keys: pick a reasonable middle pitch per clef.
-      key = clef === "bass" ? "d/3" : "b/4";
+      keys = [clef === "bass" ? "d/3" : "b/4"];
       vexDuration = baseDur + "r";
     } else {
-      key = Mapping.noteToVexKey(n.note);
-      if (!key) throw new Error("StaffRenderer: bad note " + n.note);
+      names = Array.isArray(n.chord) ? n.chord : [n.note];
+      keys = names.map(function (name) {
+        var key = Mapping.noteToVexKey(name);
+        if (!key) throw new Error("StaffRenderer: bad note " + name);
+        return key;
+      });
     }
 
     var staveNote = new StaveNote({
-      keys: [key],
+      keys: keys,
       duration: vexDuration,
       clef: clef,
       dots: isDotted ? 1 : 0,
+      octave_shift: isRest ? 0 : OCTAVE_SHIFT[opts.clefAnnotation] || 0,
+      auto_stem: !!opts.autoStem,
     });
 
     if (isDotted) {
       Dot.buildAndAttach([staveNote], { all: true });
     }
 
-    if (!isRest) {
-      var pure = String(n.note).replace(/\d/g, "");
-      if (pure.indexOf("#") !== -1) {
-        staveNote.addModifier(new Accidental("#"), 0);
-      } else if (pure.length > 1 && pure.indexOf("b") !== -1) {
-        staveNote.addModifier(new Accidental("b"), 0);
-      }
-    }
+    names.forEach(function (name, index) {
+      var accidental = Mapping.accidentalOf(name);
+      if (accidental) staveNote.addModifier(new Accidental(accidental), index);
+    });
 
     if (n.prefilled) {
       staveNote.setStyle({ fillStyle: "#888", strokeStyle: "#888" });
@@ -119,12 +151,13 @@
     var totalWidth = Math.max(widthHint, playable.length * 50 + barCount * 22 + 110);
 
     var renderer = new Renderer(div, Renderer.Backends.SVG);
-    renderer.resize(totalWidth, 150);
+    renderer.resize(totalWidth, HEIGHT);
     var ctx = renderer.getContext();
     ctx.setFont("Arial", 10);
 
     var stave = new Stave(10, 20, totalWidth - 20);
-    stave.addClef(clef).addKeySignature(keySig);
+    stave.addClef(clef, undefined, OCTAVE_SHIFT[opts.clefAnnotation] ? opts.clefAnnotation : undefined)
+      .addKeySignature(keySig);
     if (timeSig) stave.addTimeSignature(timeSig);
     stave.setContext(ctx).draw();
 
@@ -137,7 +170,7 @@
       if (n.note === "barline") {
         tickables.push(new BarNote());
       } else {
-        var vn = buildVexNote(VexFlow, n, clef);
+        var vn = buildVexNote(VexFlow, n, clef, opts);
         tickables.push(vn);
         var rawDur = n.duration || "q";
         totalBeats += BEAT_MAP[rawDur] != null ? BEAT_MAP[rawDur] : 1;
@@ -152,6 +185,7 @@
 
     new Formatter().joinVoices([voice]).format([voice], totalWidth - 100);
     voice.draw(ctx, stave);
+    fitHeight(div, totalWidth);
   }
 
   root.StaffRenderer = { render: render };

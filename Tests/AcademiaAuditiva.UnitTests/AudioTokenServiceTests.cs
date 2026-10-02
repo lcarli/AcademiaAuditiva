@@ -1,0 +1,95 @@
+using AcademiaAuditiva.Services.Audio;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using Moq;
+
+namespace AcademiaAuditiva.UnitTests;
+
+/// <summary>
+/// Audio tokens are the only way to fetch a clip. An Explore token points straight at
+/// the clip the learner picked; a round token points at an exercise round, whose answer
+/// stays on the server.
+/// </summary>
+public class AudioTokenServiceTests
+{
+    private const string Clip = "piano-audio-mixed/mix-abc.wav";
+
+    private readonly AudioTokenService _service =
+        new(new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())));
+
+    [Fact]
+    public async Task IssuedToken_ResolvesToItsClip_OnlyForItsUser()
+    {
+        var token = await _service.IssueTokenAsync("alice", Clip);
+
+        token.Should().MatchRegex("^[0-9a-f]{32}$");
+        (await _service.ResolveTokenAsync("alice", token)).Should().Be(Clip);
+        (await _service.ResolveTokenAsync("bob", token)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task EveryPlay_GetsItsOwnToken()
+    {
+        var first = await _service.IssueTokenAsync("alice", Clip);
+        var second = await _service.IssueTokenAsync("alice", Clip);
+
+        second.Should().NotBe(first);
+        (await _service.ResolveTokenAsync("alice", first)).Should().Be(Clip);
+        (await _service.ResolveTokenAsync("alice", second)).Should().Be(Clip);
+    }
+
+    [Fact]
+    public async Task IssuedToken_ExpiresFifteenMinutesAfterItIsIssued_EvenIfUsed()
+    {
+        var cache = new Mock<IDistributedCache>();
+        var token = await new AudioTokenService(cache.Object).IssueTokenAsync("alice", Clip);
+
+        cache.Verify(c => c.SetAsync(
+            $"AudioToken:alice:{token}",
+            It.IsAny<byte[]>(),
+            It.Is<DistributedCacheEntryOptions>(o =>
+                o.AbsoluteExpirationRelativeToNow == TimeSpan.FromMinutes(15)
+                && o.AbsoluteExpiration == null
+                && o.SlidingExpiration == null),
+            It.IsAny<CancellationToken>()), Times.Once);
+        cache.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task IssuedToken_CannotStandInForARound()
+    {
+        var token = await _service.IssueTokenAsync("alice", Clip);
+
+        (await _service.GetRoundAsync("alice", 0, token)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RoundTokens_ResolveToTheirClips_UntilTheRoundIsRemoved()
+    {
+        var round = await _service.CreateRoundAsync("alice", 7, """{"note":"C4"}""", ["C4.mp3", "G4.mp3"]);
+
+        round.Tokens.Should().HaveCount(2).And.OnlyHaveUniqueItems();
+        (await _service.ResolveTokenAsync("alice", round.Tokens[0])).Should().Be("C4.mp3");
+        (await _service.ResolveTokenAsync("alice", round.Tokens[1])).Should().Be("G4.mp3");
+        (await _service.ResolveTokenAsync("bob", round.Tokens[0])).Should().BeNull();
+        (await _service.GetRoundAsync("alice", 7, round.RoundId))!.ExpectedAnswerJson.Should().Be("""{"note":"C4"}""");
+
+        await _service.RemoveRoundAsync("alice", 7, round.RoundId);
+
+        (await _service.ResolveTokenAsync("alice", round.Tokens[0])).Should().BeNull();
+        (await _service.ResolveTokenAsync("alice", round.Tokens[1])).Should().BeNull();
+        (await _service.GetRoundAsync("alice", 7, round.RoundId)).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(null, Clip)]
+    [InlineData("", Clip)]
+    [InlineData("alice", null)]
+    [InlineData("alice", "")]
+    public async Task IssueToken_NeedsAUserAndAClip(string? userId, string? address)
+    {
+        await FluentActions.Awaiting(() => _service.IssueTokenAsync(userId!, address!))
+            .Should().ThrowAsync<ArgumentException>();
+    }
+}

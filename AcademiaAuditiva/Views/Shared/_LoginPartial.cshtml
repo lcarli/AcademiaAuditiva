@@ -15,9 +15,10 @@
         : (User.Identity?.Name ?? string.Empty);
     <div class="dropdown">
         <button class="btn btn-sm aa-ghost-btn dropdown-toggle d-inline-flex align-items-center gap-2"
-                type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="@displayName">
+                type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="@displayName" title="@displayName">
             <i class="bi bi-person" aria-hidden="true"></i>
-            <span class="d-none d-md-inline">@displayName</span>
+            @* Between 992 and 1399 px the menu needs the room; the button keeps its name for screen readers. *@
+            <span class="d-none d-md-inline d-lg-none d-xxl-inline">@displayName</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
             <li class="px-3 py-2 text-secondary small">@Localizer["Login.Hello"], <strong class="text-body-emphasis">@displayName</strong></li>

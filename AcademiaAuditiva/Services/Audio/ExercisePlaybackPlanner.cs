@@ -285,7 +285,7 @@ public sealed class ExercisePlaybackPlanner
             throw new ArgumentException($"Invalid note name '{note}'.", nameof(note));
         }
 
-        return MusicTheoryService.MidiToNote(midi.Value).Replace("#", "s") + ".mp3";
+        return PianoSamples.BlobName(midi.Value);
     }
 
     private static InvalidOperationException Bad(string field) =>

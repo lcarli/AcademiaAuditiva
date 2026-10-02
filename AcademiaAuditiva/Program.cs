@@ -357,8 +357,11 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 // Stateless — singleton is fine.
 builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner>();
 
-// Rate limiting for the audio anti-cheat surface. Two named policies,
-// both partitioned per authenticated user (falls back to remote IP for
+// Turns Explore page choices into spelled notes and mixer plans. Pure — singleton.
+builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.ExploreSoundBuilder>();
+
+// Rate limiting for the audio anti-cheat surface. Named policies, all
+// partitioned per authenticated user (falls back to remote IP for
 // anonymous traffic — those callers will fail authorization anyway, but
 // partitioning prevents one IP from starving the bucket for everyone).
 //
@@ -394,6 +397,23 @@ builder.Services.AddRateLimiter(options =>
             new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
             {
                 PermitLimit = 600,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+
+    // Explore plays a sound on every change of its controls, and the page
+    // caches tokens it already has, so twice the round limit is plenty.
+    options.AddPolicy("Explore", httpContext =>
+    {
+        var key = httpContext.User?.Identity?.IsAuthenticated == true
+            ? httpContext.User.Identity!.Name ?? "anon"
+            : httpContext.Connection.RemoteIpAddress?.ToString() ?? "anon";
+        return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(key, _ =>
+            new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 120,
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0,
                 AutoReplenishment = true
