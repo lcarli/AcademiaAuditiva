@@ -849,6 +849,9 @@
   <data name="Layout.Privacy" xml:space="preserve">
     <value>Confidentialité</value>
   </data>
+  <data name="Layout.Credits" xml:space="preserve">
+    <value>Crédits</value>
+  </data>
   <data name="Login.ManageAccount" xml:space="preserve">
     <value>Gérer le compte</value>
   </data>
@@ -1886,9 +1889,6 @@
   </data>
   <data name="Range" xml:space="preserve">
     <value>Plage d'octaves</value>
-  </data>
-  <data name="ComingSoon" xml:space="preserve">
-    <value>bientôt</value>
   </data>
   <data name="NoFiltersAvailable" xml:space="preserve">
     <value>Cet exercice n'a pas de filtres.</value>

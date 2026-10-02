@@ -739,7 +739,11 @@ namespace AcademiaAuditiva.Services
 
 
         #region Métodos de geração de som por exercicio
-        public static object GenerateNoteForExercise(Exercise exercise, Dictionary<string, string> filters)
+        /// <param name="highestOctave">
+        /// Highest octave of the instrument the exercise is played on: HigherOrLower widens a
+        /// one-octave <c>noteRange</c> to the next octave up, or down when this is the top.
+        /// </param>
+        public static object GenerateNoteForExercise(Exercise exercise, Dictionary<string, string> filters, int highestOctave = MaxRangeOctave)
         {
             var random = new Random();
             filters.TryGetValue("noteRange", out var noteRange);
@@ -795,7 +799,7 @@ namespace AcademiaAuditiva.Services
                     if (hlOctaves.Count < 2)
                     {
                         var octave = hlOctaves[0];
-                        hlOctaves.Add(octave < MaxRangeOctave ? octave + 1 : octave - 1);
+                        hlOctaves.Add(octave < highestOctave ? octave + 1 : octave - 1);
                         hlOctaves.Sort();
                     }
 

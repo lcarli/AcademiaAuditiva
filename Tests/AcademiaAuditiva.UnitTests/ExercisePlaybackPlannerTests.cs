@@ -25,7 +25,7 @@ public class ExercisePlaybackPlannerTests
         inputs.Should().HaveCount(melody.Count);
         for (var i = 0; i < inputs.Count; i++)
         {
-            inputs[i].BlobName.Should().Be(melody[i]!.Replace("#", "s") + ".mp3");
+            inputs[i].SampleName.Should().Be(melody[i]!.Replace("#", "s") + ".mp3");
             inputs[i].StartTimeSeconds.Should().BeApproximately(i * 0.6, 1e-9);
             inputs[i].DurationSeconds.Should().Be(0.8);
         }

@@ -1,8 +1,10 @@
 namespace AcademiaAuditiva.Interfaces;
 
 /// <summary>
-/// Composes one playable audio file from a list of source notes drawn
-/// from the <c>piano-audio</c> container. The result is uploaded to a
+/// Composes one playable audio file from a list of source notes: piano
+/// samples from the <c>piano-audio</c> container, or samples of another
+/// instrument that ship with the app
+/// (<see cref="AcademiaAuditiva.Services.Audio.BundledSamples"/>). The result is uploaded to a
 /// short-lived container and addressed by an opaque hash-based name —
 /// the front-end only ever sees the token issued by
 /// <see cref="IAudioTokenService"/>, never the mixed blob name.
@@ -24,7 +26,10 @@ public interface IAudioMixerService
 /// <summary>
 /// One source note placed at a specific offset on the mixer timeline.
 /// </summary>
-/// <param name="BlobName">Filename in the source container (e.g. <c>C4.mp3</c>).</param>
+/// <param name="SampleName">
+/// A piano sample in the <c>piano-audio</c> container (<c>C4.mp3</c>) or a
+/// bundled sample of another instrument (<c>guitar/C4.mp3</c>).
+/// </param>
 /// <param name="StartTimeSeconds">Offset from the start of the mix.</param>
 /// <param name="DurationSeconds">
 /// Optional cap on how much of the source to consume; <c>null</c> means
@@ -32,7 +37,7 @@ public interface IAudioMixerService
 /// melodies.
 /// </param>
 public sealed record MixInput(
-    string BlobName,
+    string SampleName,
     double StartTimeSeconds,
     double? DurationSeconds = null);
 

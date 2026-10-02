@@ -66,7 +66,7 @@ $SourceDir = [IO.Path]::GetFullPath($SourceDir)
 $connectionString = 'UseDevelopmentStorage=true'
 $azuriteName = 'aa-azurite'
 
-# Same naming as ExercisePlaybackPlanner.NoteToBlob: sharps use "s" (Cs4.mp3), no flats.
+# Same naming as PianoSamples.BlobName: sharps use "s" (Cs4.mp3), no flats.
 $notes = 'C', 'Cs', 'D', 'Ds', 'E', 'F', 'Fs', 'G', 'Gs', 'A', 'As', 'B'
 $sampleNames = foreach ($octave in 1..7) { foreach ($note in $notes) { "$note$octave.mp3" } }
 

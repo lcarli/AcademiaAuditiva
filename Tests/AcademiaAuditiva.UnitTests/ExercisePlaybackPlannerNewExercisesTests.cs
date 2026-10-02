@@ -7,14 +7,6 @@ public class ExercisePlaybackPlannerNewExercisesTests
 {
     private static Exercise Exercise(string name) => new() { ExerciseId = 800, Name = name };
 
-    private static string NoteToBlob(string note)
-    {
-        var method = typeof(ExercisePlaybackPlanner).GetMethod("NoteToBlob",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-        method.Should().NotBeNull();
-        return (string)method!.Invoke(null, new object[] { note })!;
-    }
-
     [Theory]
     [InlineData("C4", "C4.mp3")]
     [InlineData("F#4", "Fs4.mp3")]
@@ -24,9 +16,9 @@ public class ExercisePlaybackPlannerNewExercisesTests
     [InlineData("Fb4", "E4.mp3")]
     [InlineData("Bb3", "As3.mp3")]
     [InlineData("C##4", "D4.mp3")]
-    public void NoteToBlob_NormalizesSpellingThroughMidi(string note, string expectedBlob)
+    public void PianoSample_NormalizesSpellingThroughMidi(string note, string expectedBlob)
     {
-        NoteToBlob(note).Should().Be(expectedBlob);
+        Instrument.Piano.SampleFor(note).Should().Be(expectedBlob);
     }
 
     [Fact]

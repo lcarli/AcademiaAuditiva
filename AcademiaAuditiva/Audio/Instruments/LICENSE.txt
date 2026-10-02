@@ -1,0 +1,55 @@
+Instrument samples
+==================
+
+The samples in guitar/ and violin/ were made from the nylon-string guitar
+(acoustic_guitar_nylon) and violin renderings of the FluidR3_GM SoundFont
+published by the midi-js-soundfonts project, at commit
+044fab8e1456bfafc5776e86dfd6bb8697149aef:
+
+  https://github.com/gleitz/midi-js-soundfonts/tree/044fab8e1456bfafc5776e86dfd6bb8697149aef/FluidR3_GM
+
+midi-js-soundfonts releases its FluidR3_GM renderings under the Creative
+Commons Attribution 3.0 license:
+
+  https://creativecommons.org/licenses/by/3.0/us/
+
+Changes: scripts/build-instrument-samples.ps1 mixed every note down to mono,
+set its loudness to that of the piano samples and encoded it as a 44.1 kHz,
+96 kbps MP3. The violin rendering has no sound for A#6 and F#7 to B7; those
+notes were made by resampling the nearest violin note below to their pitch.
+
+
+FluidR3_GM SoundFont
+--------------------
+
+Copyright (C) 2000-2002, 2008 Frank Wen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+midi-js-soundfonts
+------------------
+
+Copyright (C) 2012 Benjamin Gleitzman (gleitz@mit.edu)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

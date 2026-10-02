@@ -171,6 +171,8 @@
                     <small class="d-block mb-1">&copy; @DateTime.Now.Year Academia Auditiva</small>
                     <small>
                         <a asp-area="" asp-controller="Home" asp-action="Privacy">@Localizer["Layout.Privacy"]</a>
+                        <span class="mx-1" aria-hidden="true">·</span>
+                        <a asp-area="" asp-controller="Home" asp-action="Credits">@Localizer["Layout.Credits"]</a>
                     </small>
                 </div>
             </div>
@@ -227,7 +229,7 @@
     <script src="~/js/core/alerts.js" asp-append-version="true"></script>
     <script src="/js/games/game-engine.js?v=1.0.2"></script>
     <script src="/js/main/academia-auditiva.js?v=1.0.2"></script>
-    <script src="/js/AcademiaAuditiva.Filters.js?v=1.0.2"></script>
+    <script src="~/js/AcademiaAuditiva.Filters.js" asp-append-version="true"></script>
     <script>
         // Theme toggle: persists choice in localStorage, follows system if no choice saved.
         (function () {
