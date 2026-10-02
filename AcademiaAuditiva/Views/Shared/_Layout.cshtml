@@ -86,8 +86,9 @@
     <a href="#mainContent" class="aa-skip-link">@Localizer["Layout.SkipToMain"]</a>
     <div id="htmx-progress" class="htmx-indicator aa-htmx-progress" aria-hidden="true"></div>
 
-    <header>
-        <nav class="navbar navbar-expand-lg aa-navbar sticky-top">
+    @* Stays on top while the page scrolls on wide screens. On small ones it scrolls away, since the open menu can be taller than the screen. *@
+    <header class="aa-site-header sticky-lg-top">
+        <nav class="navbar navbar-expand-lg aa-navbar">
             <div class="container-xl">
                 <a class="navbar-brand aa-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     <partial name="_Logo" />
@@ -140,7 +141,7 @@
                         </ul>
                     }
 
-                    <div class="d-flex ms-auto align-items-center gap-2 flex-wrap">
+                    <div class="aa-navbar-tools d-flex ms-auto align-items-center gap-2 flex-wrap">
                         @await Html.PartialAsync("_SelectLanguagePartial")
                         <button id="themeToggle" type="button" class="aa-theme-toggle" aria-label="@Localizer["Layout.ToggleTheme"]" title="@Localizer["Layout.ToggleTheme"]">
                             <i class="bi bi-moon-stars" aria-hidden="true"></i>

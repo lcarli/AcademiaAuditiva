@@ -212,6 +212,90 @@ test('dashboard tour starts until closed and can be replayed to the end', async 
   expect((await seen).postData()).toContain('finished=true');
 });
 
+test('the header stays on top of wide pages and links land below it', async ({ page, baseURL }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(`${baseURL}/Home/Privacy`, { waitUntil: 'networkidle' });
+  const header = page.locator('.aa-site-header');
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+  await expect(header).toBeInViewport({ ratio: 1 });
+
+  await page.locator('.aa-side-sticky a[href="#cookies"]').click();
+  await expect(page).toHaveURL(/#cookies$/);
+  const [sectionTop, headerBottom] = await page.evaluate(() => [
+    document.getElementById('cookies')!.getBoundingClientRect().top,
+    document.querySelector('.aa-site-header')!.getBoundingClientRect().bottom
+  ]);
+  expect(sectionTop).toBeGreaterThanOrEqual(headerBottom);
+
+  // On a phone it scrolls away: the open menu can be taller than the screen.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => window.scrollTo({ top: 1500, behavior: 'instant' }));
+  await expect(header).not.toBeInViewport();
+});
+
+test('on a phone the header menus open over the page and stay on screen', async ({ page, baseURL }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto(`${baseURL}/Identity/Account/Login`, { waitUntil: 'networkidle' });
+  await expectHeaderMenuUsable(page, '.aa-lang-btn');
+
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Admin`, { waitUntil: 'networkidle' });
+  await expectHeaderMenuUsable(page, '.aa-lang-btn');
+  await expectHeaderMenuUsable(page, '.aa-site-header .dropdown-toggle.aa-ghost-btn');
+});
+
+test('each tour step brings its element out from under the header', async ({ page, baseURL }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 1024, height: 600 });
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Dashboard`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  await page.locator('[data-aa-tour-start]:visible').first().click();
+  await expect(page.locator('.aa-tour')).toBeVisible();
+  // The tour leaves out steps whose elements this screen doesn't show.
+  const targets = await page.evaluate(() => {
+    const steps: { target?: string }[] = JSON.parse(document.getElementById('aa-tour-data')!.textContent!).steps;
+    const shown = (node: Element) => node.getClientRects().length > 0 && getComputedStyle(node).visibility !== 'hidden';
+    return steps.filter(s => !s.target || [...document.querySelectorAll(s.target)].some(shown)).map(s => s.target ?? null);
+  });
+
+  let hidden = 0;
+  for (let step = 1; step < targets.length; step++) {
+    // Scrolls the next step's elements under the header before moving to it.
+    hidden += await page.evaluate(target => {
+      const header = document.querySelector('.aa-site-header')!;
+      const nodes = target ? [...document.querySelectorAll(target)].filter(n => n.getClientRects().length && !header.contains(n)) : [];
+      if (!nodes.length) return 0;
+      const top = () => Math.min(...nodes.map(n => n.getBoundingClientRect().top));
+      window.scrollBy({ top: top() - 10, behavior: 'instant' });
+      return top() < header.getBoundingClientRect().bottom ? 1 : 0;
+    }, targets[step]);
+    await page.keyboard.press('ArrowRight');
+    await expect(page.locator('.aa-tour-count')).toHaveText(`Step ${step + 1} of ${targets.length}`);
+
+    const spot = await page.evaluate(target => new Promise<{ top: number; headerBottom: number; inHeader: boolean }>(resolve =>
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const header = document.querySelector('.aa-site-header')!;
+        const nodes = target ? [...document.querySelectorAll(target)].filter(n => n.getClientRects().length) : [];
+        resolve({
+          top: document.querySelector('.aa-tour-spot')!.getBoundingClientRect().top,
+          headerBottom: header.getBoundingClientRect().bottom,
+          inHeader: nodes.length > 0 && nodes.every(n => header.contains(n))
+        });
+      }))), targets[step]);
+    if (targets[step] && !spot.inHeader) {
+      expect(spot.top, `step ${step + 1} clears the header`).toBeGreaterThanOrEqual(spot.headerBottom - 0.5);
+    }
+  }
+  expect(hidden, 'steps that started under the header').toBeGreaterThan(0);
+
+  const seen = page.waitForResponse(response => response.url().includes('/Tutorial/Seen'));
+  await page.keyboard.press('Escape');
+  expect((await seen).status()).toBe(204);
+});
+
 // A page's guided tour starts over it on the first visit; close it as a student
 // would (Esc) and wait until the server remembers it.
 async function closeTourIfStarted(page: Page) {
@@ -223,6 +307,38 @@ async function closeTourIfStarted(page: Page) {
   await page.keyboard.press('Escape');
   expect((await seen).status()).toBe(204);
   await expect(page.locator('.aa-tour')).toHaveCount(0);
+}
+
+// Opens one of the header's menus on a small screen: it must fit the screen and
+// each item must be the element a tap on it reaches.
+async function expectHeaderMenuUsable(page: Page, toggle: string) {
+  const collapse = page.locator('#mainNavbar');
+  if (!await collapse.evaluate(node => node.classList.contains('show'))) {
+    await page.locator('.navbar-toggler').click();
+    await expect(collapse).toHaveClass(/\bshow\b/);
+  }
+  await page.locator(toggle).click();
+  const menu = page.locator('.aa-site-header .dropdown-menu.show');
+  await expect(menu).toBeVisible();
+  const { left, right, screen, items } = await menu.evaluate(node => {
+    const box = node.getBoundingClientRect();
+    return {
+      left: box.left,
+      right: box.right,
+      screen: document.documentElement.clientWidth,
+      items: [...node.querySelectorAll('.dropdown-item')].map(item => {
+        const r = item.getBoundingClientRect();
+        const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        return { text: item.textContent!.trim(), onTop: !!hit && item.contains(hit) };
+      })
+    };
+  });
+  expect(left, `${toggle} menu starts on screen`).toBeGreaterThanOrEqual(0);
+  expect(right, `${toggle} menu ends on screen`).toBeLessThanOrEqual(screen);
+  expect(items.length).toBeGreaterThan(0);
+  for (const item of items) expect(item.onTop, `"${item.text}" is on top`).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
 }
 
 // "Db4" as the answer button that plays it ("C#"): the buttons name pitch classes in sharps.

@@ -76,24 +76,36 @@
     return { width: document.documentElement.clientWidth, height: window.innerHeight };
   }
 
+  // Where the screen starts below the site header, which stays on top of wide
+  // pages as they scroll. Steps that point into the header ignore it.
+  function headerBottom(nodes) {
+    const header = document.querySelector(".aa-site-header");
+    if (!header || nodes.some((node) => header.contains(node))) return 0;
+    const position = window.getComputedStyle(header).position;
+    if (position !== "sticky" && position !== "fixed") return 0;
+    return Math.max(0, header.getBoundingClientRect().bottom);
+  }
+
   // Scrolls the step's elements on screen, with the popover too when both fit.
   // Nothing moves when they are already in view.
   function reveal(run, nodes) {
     if (!nodes.length) return;
     const view = viewport();
+    const top = headerBottom(nodes);
     const spot = spotRect(nodes);
     const popHeight = run.pop.offsetHeight;
-    const onScreen = spot.top >= 0 && spot.bottom <= view.height;
+    const onScreen = spot.top >= top && spot.bottom <= view.height;
     const popFits = spot.bottom + GAP + popHeight <= view.height - MARGIN || spot.top - GAP - popHeight >= MARGIN;
     if (onScreen && popFits) return;
 
-    const room = view.height - 2 * MARGIN;
+    const height = view.height - top;
+    const room = height - 2 * MARGIN;
     const both = spot.height + GAP + popHeight;
     let delta;
-    if (both <= room) delta = spot.top - (view.height - both) / 2;
+    if (both <= room) delta = spot.top - top - (height - both) / 2;
     else if (onScreen) return;
-    else if (spot.height <= room) delta = spot.top - (view.height - spot.height) / 2;
-    else delta = spot.top - MARGIN;
+    else if (spot.height <= room) delta = spot.top - top - (height - spot.height) / 2;
+    else delta = spot.top - top - MARGIN;
 
     window.scrollBy({ top: delta, behavior: reducedMotion && reducedMotion.matches ? "auto" : "smooth" });
   }
