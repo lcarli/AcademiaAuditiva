@@ -24,6 +24,7 @@ public sealed class AudioTokenService : IAudioTokenService
         int exerciseId,
         string expectedAnswerJson,
         IReadOnlyList<string> blobNames,
+        bool free = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(userId);
@@ -41,7 +42,7 @@ public sealed class AudioTokenService : IAudioTokenService
             tokenToBlob[token] = blobNames[i];
         }
 
-        var round = new RoundEnvelope(roundId, expectedAnswerJson, tokenToBlob);
+        var round = new RoundEnvelope(roundId, expectedAnswerJson, tokenToBlob, free);
         var roundJson = JsonConvert.SerializeObject(round);
 
         // Persist the round itself (lookup by user+exercise+round)…
@@ -64,7 +65,7 @@ public sealed class AudioTokenService : IAudioTokenService
                 cancellationToken);
         }
 
-        return new AudioRound(roundId, expectedAnswerJson, tokens, tokenToBlob);
+        return new AudioRound(roundId, expectedAnswerJson, tokens, tokenToBlob, free);
     }
 
     public async Task<string> IssueTokenAsync(
@@ -147,7 +148,7 @@ public sealed class AudioTokenService : IAudioTokenService
         var envelope = await LoadRoundAsync(userId, exerciseId, roundId, cancellationToken);
         return envelope is null
             ? null
-            : new AudioRound(envelope.RoundId, envelope.ExpectedAnswerJson, envelope.TokenToBlob.Keys.ToArray(), envelope.TokenToBlob);
+            : new AudioRound(envelope.RoundId, envelope.ExpectedAnswerJson, envelope.TokenToBlob.Keys.ToArray(), envelope.TokenToBlob, envelope.Free);
     }
 
     public async Task RemoveRoundAsync(
@@ -201,10 +202,12 @@ public sealed class AudioTokenService : IAudioTokenService
     private static string TokenCacheKey(string userId, string token)
         => $"AudioToken:{userId}:{token}";
 
+    // Rounds cached before free practice existed have no Free field and stay scored.
     private sealed record RoundEnvelope(
         string RoundId,
         string ExpectedAnswerJson,
-        Dictionary<string, string> TokenToBlob);
+        Dictionary<string, string> TokenToBlob,
+        bool Free = false);
 
     // Round tokens point at their round; standalone tokens (IssueTokenAsync)
     // carry the clip address themselves.

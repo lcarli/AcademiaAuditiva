@@ -18,19 +18,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Turning free practice on or off drops the round on screen.
+  AAPractice.onReset(() => {
+    playToken = null;
+    roundId = null;
+  });
+
   document.getElementById("Play")?.addEventListener("click", () => {
     if (!exerciseId) return;
-    fetch("/Exercise/RequestPlay", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ exerciseId }),
-    })
-      .then((resp) => resp.json())
-      .then((data) => {
-        playToken = data.playToken;
-        roundId = data.roundId;
-        if (playToken) AudioEngine.playToken(playToken);
-      });
+    AAPractice.play({ exerciseId }).then((data) => {
+      if (AAi18n.serverError(data, loc)) return;
+      playToken = data.playToken;
+      roundId = data.roundId;
+      if (playToken) AudioEngine.playToken(playToken);
+    });
   });
 
   document.getElementById("Replay")?.addEventListener("click", () => {
@@ -46,28 +47,18 @@ document.addEventListener("DOMContentLoaded", () => {
       AAi18n.incomplete(loc);
       return;
     }
-
-    fetch("/Exercise/ValidateExercise", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ExerciseId: exerciseId,
-        RoundId: roundId,
-        userGuess: selectedGuess,
-        timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
-      }),
-    })
-      .then((resp) => resp.json())
-      .then((data) => {
-        if (AAi18n.serverError(data, loc)) return;
-        const counter = document.getElementById(data.isCorrect ? "correctCount" : "errorCount");
-        if (counter) counter.innerText = parseInt(counter.innerText) + 1;
-        AAi18n.result(data, loc);
-
-        selectedGuess = "";
-        playToken = null;
-        roundId = null;
-        guessButtons.forEach((btn) => btn.classList.remove("selected"));
-      });
+    AAPractice.validate({
+      ExerciseId: exerciseId,
+      RoundId: roundId,
+      userGuess: selectedGuess,
+      timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
+    }).then((data) => {
+      if (AAi18n.serverError(data, loc)) return;
+      AAi18n.result(data, loc);
+      selectedGuess = "";
+      playToken = null;
+      roundId = null;
+      guessButtons.forEach((btn) => btn.classList.remove("selected"));
+    });
   });
 });

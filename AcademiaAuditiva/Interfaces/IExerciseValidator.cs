@@ -27,6 +27,13 @@ namespace AcademiaAuditiva.Interfaces
         string ExerciseName { get; }
 
         ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson);
+
+        /// <summary>
+        /// The expected answer in the form <see cref="Validate"/> reports it
+        /// (<see cref="ExerciseValidationResult.CanonicalAnswer"/>), for showing
+        /// the answer of a free practice round before it is answered.
+        /// </summary>
+        string AnswerOf(string expectedAnswerJson) => Validate(string.Empty, expectedAnswerJson).CanonicalAnswer;
     }
 
     /// <summary>

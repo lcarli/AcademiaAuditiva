@@ -17,13 +17,16 @@ public interface IAudioTokenService
     /// Creates a new round for the given user/exercise, persists the
     /// expected answer JSON and the playback token map, and returns the
     /// round identifier together with the issued tokens (parallel to the
-    /// supplied <paramref name="blobNames"/>).
+    /// supplied <paramref name="blobNames"/>). A <paramref name="free"/>
+    /// round (free practice) is checked but never scored, and its answer
+    /// may be revealed before it is answered.
     /// </summary>
     Task<AudioRound> CreateRoundAsync(
         string userId,
         int exerciseId,
         string expectedAnswerJson,
         IReadOnlyList<string> blobNames,
+        bool free = false,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -71,9 +74,11 @@ public interface IAudioTokenService
 
 /// <summary>
 /// Snapshot of a single exercise round, returned by <see cref="IAudioTokenService"/>.
+/// <paramref name="Free"/> marks a free practice round.
 /// </summary>
 public sealed record AudioRound(
     string RoundId,
     string ExpectedAnswerJson,
     IReadOnlyList<string> Tokens,
-    IReadOnlyDictionary<string, string> TokenToBlob);
+    IReadOnlyDictionary<string, string> TokenToBlob,
+    bool Free = false);

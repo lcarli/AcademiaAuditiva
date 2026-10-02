@@ -49,6 +49,7 @@ public static class TutorialCatalog
             new("Check", "#validateGuess"),
             // The counters and the filters button; the replay button has its own step.
             new("Score", "[data-tour=score]"),
+            new("Free", "[data-tour=free-practice]"),
             new("Instructions", "[data-tour=instructions]"),
             new("Replay", ReplayButton),
         ]),

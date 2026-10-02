@@ -89,6 +89,50 @@ test('one real-audio GuessNote round returns playable audio and validates', asyn
   expect(result.success).toBe(true);
 });
 
+test('free practice shows the answer and checks it without scoring', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessNote`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  const scoredCorrect = await page.locator('#correctCount').textContent();
+  const banner = page.locator('#aaFreeNote');
+  await expect(banner).toBeHidden();
+  await page.locator('#aaFreePractice').check();
+  await expect(banner).toBeVisible();
+  await expect(page).toHaveURL(/[?&]practice=free(&|$)/);
+
+  const reveal = page.locator('[data-aa-reveal]');
+  await expect(reveal).toBeHidden();
+  const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  await page.click('#Play');
+  const play = await playResponse;
+  expect(JSON.parse(play.request().postData() ?? '{}').free).toBe(true);
+  expect((await play.json()).roundId).toMatch(/^[0-9a-f]{32}$/);
+
+  await expect(reveal).toBeVisible();
+  const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+  await reveal.click();
+  const shown = await (await revealResponse).json();
+  expect(shown.success).toBe(true);
+  expect(shown.answer).toMatch(/^[A-G][#b]?\d$/);
+  const dialog = page.locator('.swal2-popup');
+  await expect(dialog.locator('.swal2-title')).toHaveText('Answer');
+  await page.click('.swal2-confirm');
+  await expect(dialog).toBeHidden();
+
+  await page.locator(`.aa-answer:visible[value="${pitchClass(shown.answer)}"]`).click();
+  const validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+  await page.click('#validateGuess');
+  const result = await (await validateResponse).json();
+  expect(result).toMatchObject({ success: true, free: true, isCorrect: true, answer: shown.answer });
+  await expect(dialog.locator('.aa-free-footer')).toBeVisible();
+  await page.click('.swal2-confirm');
+
+  await expect(page.locator('#aaFreeCorrect')).toHaveText('1');
+  await expect(page.locator('#correctCount')).toHaveText(scoredCorrect ?? '0');
+  await expect(reveal).toBeHidden();
+});
+
 test('explore plays the chosen chord and shows its notes', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Explore`, { waitUntil: 'networkidle' });
@@ -148,6 +192,13 @@ async function closeTourIfStarted(page: Page) {
   await page.keyboard.press('Escape');
   expect((await seen).status()).toBe(204);
   await expect(page.locator('.aa-tour')).toHaveCount(0);
+}
+
+// "Db4" as the answer button that plays it ("C#"): the buttons name pitch classes in sharps.
+function pitchClass(note: string) {
+  const sharps: Record<string, string> = { Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#' };
+  const name = note.replace(/\d+$/, '');
+  return sharps[name] ?? name;
 }
 
 async function login(page: Page, baseURL: string, email: string, password: string) {

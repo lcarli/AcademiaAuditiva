@@ -82,6 +82,33 @@ public class AudioTokenServiceTests
         (await _service.GetRoundAsync("alice", 7, round.RoundId)).Should().BeNull();
     }
 
+    [Fact]
+    public async Task Rounds_RememberWhetherTheyAreFreePractice()
+    {
+        var scored = await _service.CreateRoundAsync("alice", 7, "{}", ["C4.mp3"]);
+        var free = await _service.CreateRoundAsync("alice", 7, "{}", ["C4.mp3"], free: true);
+
+        scored.Free.Should().BeFalse();
+        free.Free.Should().BeTrue();
+        (await _service.GetRoundAsync("alice", 7, scored.RoundId))!.Free.Should().BeFalse();
+        (await _service.GetRoundAsync("alice", 7, free.RoundId))!.Free.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RoundsCachedBeforeFreePractice_StayScored()
+    {
+        var cache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
+        await cache.SetStringAsync("ExerciseRound:alice:7:abc",
+            """{"RoundId":"abc","ExpectedAnswerJson":"{\"note\":\"C4\"}","TokenToBlob":{"t1":"C4.mp3"}}""");
+
+        var round = await new AudioTokenService(cache).GetRoundAsync("alice", 7, "abc");
+
+        round.Should().NotBeNull();
+        round!.Free.Should().BeFalse();
+        round.ExpectedAnswerJson.Should().Be("""{"note":"C4"}""");
+        round.Tokens.Should().Equal("t1");
+    }
+
     [Theory]
     [InlineData(null, Clip)]
     [InlineData("", Clip)]

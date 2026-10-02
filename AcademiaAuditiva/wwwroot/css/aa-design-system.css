@@ -1499,6 +1499,53 @@ a:focus-visible {
     font-weight: 600;
 }
 
+/* Free practice switch: a chip holding a Bootstrap switch (Views/Exercise/_ExerciseHeader). */
+.aa-chip.aa-chip-switch {
+    gap: .5rem;
+    margin: 0;
+    padding: .3rem .8rem;
+    cursor: pointer;
+    transition: color .15s ease, background-color .15s ease, border-color .15s ease;
+}
+
+.aa-chip-switch:hover {
+    color: var(--aa-ink);
+    border-color: var(--aa-line-strong);
+}
+
+.aa-chip-switch.form-switch .form-check-input {
+    flex-shrink: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* practice.js holds the switch while a round loads; a quick round shouldn't make it flicker. */
+.aa-chip-switch.form-switch .form-check-input:disabled {
+    opacity: 1;
+}
+
+.aa-chip-switch:has(.form-check-input:disabled) {
+    cursor: progress;
+}
+
+.aa-chip-switch:has(.form-check-input:checked) {
+    border-color: var(--aa-accent);
+    background: var(--aa-accent-soft);
+    color: var(--aa-accent-text);
+}
+
+/* The saved score doesn't move during free practice: its chips go dashed, the numbers stay readable. */
+.aa-exercise-head.is-free .aa-chip-ok,
+.aa-exercise-head.is-free .aa-chip-err {
+    border-style: dashed;
+    border-color: var(--aa-line-strong);
+}
+
+.aa-free {
+    border-color: var(--aa-accent);
+    background: var(--aa-accent-soft);
+}
+
 .aa-panel {
     padding: clamp(1rem, 2.5vw, 1.5rem);
     border: 1px solid var(--aa-line);
@@ -1655,7 +1702,9 @@ a:focus-visible {
 
 .aa-validate {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    gap: .5rem;
     margin-top: 1.5rem;
 }
 
@@ -1859,6 +1908,11 @@ a:focus-visible {
     height: auto !important;
 }
 
+/* Answer of a free practice round drawn in the dialog (practice.js). */
+.aa-reveal-staff {
+    margin-top: 0;
+}
+
 /* ---------- Gamification: level, streak, badges ---------- */
 /* The rank is a dynamics marking (pp … fff), set like one in the display serif. */
 .aa-rank {
@@ -2007,6 +2061,18 @@ a:focus-visible {
     justify-content: center;
     gap: .5rem .75rem;
     width: 100%;
+    font-size: .9rem;
+}
+
+/* Answer dialog footer of a free practice round, which earns nothing. */
+.aa-free-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    color: var(--aa-muted);
     font-size: .9rem;
 }
 

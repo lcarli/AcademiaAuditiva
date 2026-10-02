@@ -32,21 +32,23 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.style.display = "none";
     });
 
+    // Turning free practice on or off drops the round on screen.
+    AAPractice.onReset(() => {
+        playToken = null;
+        roundId = null;
+    });
+
     const playBtn = document.getElementById("Play");
     if (playBtn) {
         playBtn.addEventListener("click", () => {
             if (!exerciseId) return;
 
-            fetch("/Exercise/RequestPlay", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    exerciseId: exerciseId,
-                    filters: { chordType: chordType }
-                })
+            AAPractice.play({
+                exerciseId: exerciseId,
+                filters: { chordType: chordType }
             })
-            .then(resp => resp.json())
             .then(data => {
+                if (AAi18n.serverError(data, loc)) return;
                 playToken = data.playToken;
                 roundId = data.roundId;
                 if (playToken) AudioEngine.playToken(playToken);
@@ -74,32 +76,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
             }
-            fetch("/Exercise/ValidateExercise", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ExerciseId: exerciseId,
-                    RoundId: roundId,
-                    UserGuess: userRoot + "|" + userQuality,
-                    TimeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
-                })
+            AAPractice.validate({
+                ExerciseId: exerciseId,
+                RoundId: roundId,
+                UserGuess: userRoot + "|" + userQuality,
+                TimeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
             })
-            .then(resp => resp.json())
             .then(data => {
                 if (AAi18n.serverError(data, loc)) return;
-                const correctCountEl = document.getElementById("correctCount");
-                const errorCountEl = document.getElementById("errorCount");
-                if (data.isCorrect) {
-                    if (correctCountEl) {
-                        correctCountEl.innerText = parseInt(correctCountEl.innerText) + 1;
-                    }
-                    AAi18n.result(data, loc);
-                } else {
-                    if (errorCountEl) {
-                        errorCountEl.innerText = parseInt(errorCountEl.innerText) + 1;
-                    }
-                    AAi18n.result(data, loc);
-                }
+                AAi18n.result(data, loc);
 
                 userRoot = "";
                 playToken = null;

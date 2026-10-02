@@ -7,19 +7,26 @@
     return (loc && loc[key]) || fallback;
   }
 
-  function labelFor(value) {
-    const raw = String(value || "");
-    if (!raw) return "";
-
+  function labelIn(raw) {
     const button = Array.from(document.querySelectorAll(".guessAnswer, .guessQuality"))
       .find((btn) => btn.value === raw);
     if (button) return button.textContent.trim();
 
     const option = Array.from(document.querySelectorAll("option"))
       .find((opt) => opt.value === raw);
-    if (option) return option.textContent.trim();
+    return option ? option.textContent.trim() : null;
+  }
 
-    return raw;
+  function labelFor(value) {
+    const raw = String(value || "");
+    if (!raw) return "";
+
+    const label = labelIn(raw);
+    if (label) return label;
+
+    // Notes come with their octave ("C#4"); the answer buttons hold the note name only.
+    const pitch = /^([A-G][#b]?)\d+$/.exec(raw);
+    return (pitch && labelIn(pitch[1])) || raw;
   }
 
   function answerLabel(answer) {
@@ -35,7 +42,9 @@
   }
 
   // Adds the XP/badge feedback from ValidateExercise (rewards.js) to dialog options.
+  // A free practice round earns nothing, so its dialog says so instead (practice.js).
   function withRewards(options, data) {
+    if (data && data.free && window.AAPractice) return window.AAPractice.decorate(options, data);
     return window.AARewards ? window.AARewards.decorate(options, data) : options;
   }
 

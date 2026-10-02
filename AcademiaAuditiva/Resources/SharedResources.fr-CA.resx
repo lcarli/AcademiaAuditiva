@@ -648,6 +648,27 @@
   <data name="Exercise.Preset.Change" xml:space="preserve">
     <value>Modifier</value>
   </data>
+  <data name="Exercise.Free.Toggle" xml:space="preserve">
+    <value>Pratique libre</value>
+  </data>
+  <data name="Exercise.Free.Title" xml:space="preserve">
+    <value>Pratique libre activée</value>
+  </data>
+  <data name="Exercise.Free.Text" xml:space="preserve">
+    <value>Rien n’est enregistré ici : vos réponses ne comptent ni pour le pointage, ni pour les XP, ni pour votre progression. Affichez la réponse quand vous voulez.</value>
+  </data>
+  <data name="Exercise.Free.Tally" xml:space="preserve">
+    <value>Pointage de la pratique libre</value>
+  </data>
+  <data name="Exercise.Free.Reveal" xml:space="preserve">
+    <value>Afficher la réponse</value>
+  </data>
+  <data name="Exercise.Free.RevealTitle" xml:space="preserve">
+    <value>Réponse</value>
+  </data>
+  <data name="Exercise.Free.ResultNote" xml:space="preserve">
+    <value>Pratique libre : cette réponse n’a pas été enregistrée.</value>
+  </data>
   <data name="Exercise.All" xml:space="preserve">
     <value>Toutes</value>
   </data>
@@ -3275,6 +3296,12 @@
   </data>
   <data name="Tutorial.Exercise.Score.Text" xml:space="preserve">
     <value>Vos bonnes et mauvaises réponses s’additionnent ici. Les filtres vous permettent de choisir exactement quoi pratiquer.</value>
+  </data>
+  <data name="Tutorial.Exercise.Free.Title" xml:space="preserve">
+    <value>Pratique libre</value>
+  </data>
+  <data name="Tutorial.Exercise.Free.Text" xml:space="preserve">
+    <value>Activez-la pour pratiquer sans pression. Vos réponses ne compteront ni pour le pointage ni pour les XP, et vous pourrez afficher la réponse quand vous voulez.</value>
   </data>
   <data name="Tutorial.Exercise.Instructions.Title" xml:space="preserve">
     <value>Consignes et conseils</value>
