@@ -722,6 +722,8 @@ a:focus-visible {
     -webkit-backdrop-filter: saturate(180%) blur(12px);
     backdrop-filter: saturate(180%) blur(12px);
     border-bottom: 1px solid var(--aa-line);
+    /* Its open menus stay over the page, also on small screens where the header scrolls away. */
+    z-index: 1020;
 }
 
 .aa-navbar .navbar-nav {
@@ -778,6 +780,24 @@ a:focus-visible {
         clip: rect(0, 0, 0, 0);
         white-space: nowrap;
         border: 0;
+    }
+}
+
+/* Below 992 px the language and account buttons sit at the left of the open menu:
+   their menus open under that row, from its left edge, so they never run off the screen. */
+@media (max-width: 991.98px) {
+    .aa-navbar-tools {
+        position: relative;
+    }
+
+    .aa-navbar-tools .dropdown {
+        position: static;
+    }
+
+    .aa-navbar-tools .dropdown-menu[data-bs-popper] {
+        right: auto;
+        left: 0;
+        max-width: 100%;
     }
 }
 
