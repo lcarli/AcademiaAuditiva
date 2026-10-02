@@ -15,15 +15,16 @@ namespace AcademiaAuditiva.Services.Audio;
 /// </param>
 /// <param name="LowestOctave">Lowest octave of the note range.</param>
 /// <param name="HighestOctave">Highest octave of the note range.</param>
-public sealed record Instrument(string Name, string? Folder, int LowestOctave, int HighestOctave)
+/// <param name="Chords">How the instrument plays the notes of a chord.</param>
+public sealed record Instrument(string Name, string? Folder, int LowestOctave, int HighestOctave, ChordStyle Chords)
 {
-    public static readonly Instrument Piano = new("Piano", null, MusicTheoryService.MinRangeOctave, MusicTheoryService.MaxRangeOctave);
+    public static readonly Instrument Piano = new("Piano", null, MusicTheoryService.MinRangeOctave, MusicTheoryService.MaxRangeOctave, ChordStyle.Together);
 
     /// <summary>Nylon-string guitar, whose lowest note is E2.</summary>
-    public static readonly Instrument Guitar = new("Guitar", "guitar", 2, 5);
+    public static readonly Instrument Guitar = new("Guitar", "guitar", 2, 5, ChordStyle.Strummed);
 
     /// <summary>Violin, whose lowest note is G3.</summary>
-    public static readonly Instrument Violin = new("Violin", "violin", 4, 6);
+    public static readonly Instrument Violin = new("Violin", "violin", 4, 6, ChordStyle.None);
 
     /// <summary>Every instrument, in the order the filters offer them.</summary>
     public static IReadOnlyList<Instrument> All { get; } = [Piano, Guitar, Violin];
@@ -31,15 +32,30 @@ public sealed record Instrument(string Name, string? Folder, int LowestOctave, i
     /// <summary>The instruments whose samples ship with the app.</summary>
     public static IReadOnlyList<Instrument> Bundled { get; } = [.. All.Where(i => i.Folder is not null)];
 
+    private static readonly IReadOnlyList<Instrument> ChordInstruments = [.. All.Where(i => i.PlaysChords)];
+
     /// <summary>Resource key of the instrument's name.</summary>
     public string LabelKey => "Instrument." + Name;
 
+    /// <summary>Whether the instrument plays chords: the violin plays one note at a time.</summary>
+    public bool PlaysChords => Chords != ChordStyle.None;
+
+    /// <summary>
+    /// The instruments an exercise offers, in the order of <see cref="All"/>: when it plays
+    /// <paramref name="chords"/>, only those that play them.
+    /// </summary>
+    public static IReadOnlyList<Instrument> Offered(bool chords) => chords ? ChordInstruments : All;
+
     /// <summary>
     /// The instrument called <paramref name="name"/> in any case (it comes from a
-    /// cookie or a request), or the piano when there is no such instrument.
+    /// cookie or a request), or the piano when there is no such instrument, or when
+    /// the exercise plays <paramref name="chords"/> and the instrument doesn't.
     /// </summary>
-    public static Instrument FromName(string? name) =>
-        All.FirstOrDefault(i => string.Equals(i.Name, name?.Trim(), StringComparison.OrdinalIgnoreCase)) ?? Piano;
+    public static Instrument FromName(string? name, bool chords = false)
+    {
+        var instrument = All.FirstOrDefault(i => string.Equals(i.Name, name?.Trim(), StringComparison.OrdinalIgnoreCase)) ?? Piano;
+        return chords && !instrument.PlaysChords ? Piano : instrument;
+    }
 
     /// <summary>The sample the mixer plays for MIDI note <paramref name="midi"/>.</summary>
     public string SampleName(int midi) =>
@@ -70,4 +86,17 @@ public sealed record Instrument(string Name, string? Folder, int LowestOctave, i
         var highest = Math.Clamp(octaves[^1], LowestOctave, HighestOctave);
         return string.Create(CultureInfo.InvariantCulture, $"C{lowest}-C{highest}");
     }
+}
+
+/// <summary>How an <see cref="Instrument"/> plays the notes of a chord.</summary>
+public enum ChordStyle
+{
+    /// <summary>It doesn't: exercises that play chords leave it out and play on the piano.</summary>
+    None,
+
+    /// <summary>All the notes at once, as the exercise spells them.</summary>
+    Together,
+
+    /// <summary>Strummed from the low string up, on a chord shape of the neck (<see cref="GuitarVoicing"/>).</summary>
+    Strummed,
 }
