@@ -73,9 +73,9 @@ public class GuessCadenceExerciseTests
             var json = JObject.FromObject(raw);
             var firstChord = ((JArray)json["chords"]!)[0] as JArray;
             firstChord.Should().NotBeNull();
-            // I in A minor = A-C-E
-            ((string?)firstChord![0]).Should().Be("A3");
-            ((string?)firstChord![1]).Should().Be("C4");
+            // I in A minor = A-C-E, in octave 4 without a note range (where the slider starts)
+            ((string?)firstChord![0]).Should().Be("A4");
+            ((string?)firstChord![1]).Should().Be("C5");
             sawMinorIChord = true;
         }
         sawMinorIChord.Should().BeTrue();

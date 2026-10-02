@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Services.Audio;
 
 namespace AcademiaAuditiva.Services
 {
@@ -175,22 +176,23 @@ namespace AcademiaAuditiva.Services
         /// <summary>Highest octave a client-supplied <c>noteRange</c> may select (matches the UI slider).</summary>
         public const int MaxRangeOctave = 6;
 
-        private const int DefaultRangeOctave = 4;
+        /// <summary>Octave of a missing or malformed <c>noteRange</c>, and where the UI sliders start.</summary>
+        public const int DefaultRangeOctave = 4;
 
         /// <summary>
         /// Parses a <c>noteRange</c> filter such as <c>C3-C5</c> into the list of octaves it spans.
-        /// The value comes from the request body/cookie, so malformed input falls back to the default
-        /// octave and bounds are clamped to [<see cref="MinRangeOctave"/>, <see cref="MaxRangeOctave"/>]
-        /// to keep the generated note list small.
+        /// The value comes from the request body/cookie, so malformed input falls back to
+        /// <paramref name="defaultOctave"/> and bounds are clamped to [<see cref="MinRangeOctave"/>,
+        /// <see cref="MaxRangeOctave"/>] to keep the generated note list small.
         /// </summary>
-        public static List<int> ParseOctaveRange(string? noteRange)
+        public static List<int> ParseOctaveRange(string? noteRange, int defaultOctave = DefaultRangeOctave)
         {
             var parts = noteRange?.Split('-');
             if (parts is not { Length: 2 }
                 || !TryParseRangeOctave(parts[0], out var start)
                 || !TryParseRangeOctave(parts[1], out var end))
             {
-                return new List<int> { DefaultRangeOctave };
+                return new List<int> { defaultOctave };
             }
 
             if (start > end)
@@ -208,6 +210,13 @@ namespace AcademiaAuditiva.Services
                 && char.IsLetter(bound[0])
                 && int.TryParse(bound.AsSpan(1), NumberStyles.None, CultureInfo.InvariantCulture, out octave);
         }
+
+        /// <summary>
+        /// Whether a note of <paramref name="notes"/> is higher than the highest sample (B7): chords
+        /// built up from a root in the top octave of the range are then played an octave lower.
+        /// </summary>
+        private static bool AboveTheSamples(IEnumerable<string> notes) =>
+            notes.Any(note => NoteToMidi(note) > PianoSamples.HighestMidi);
 
         /// <summary>
         /// Retorna todos os acordes com base nos filtros de notas raíz e tipos de acorde.
@@ -880,9 +889,14 @@ namespace AcademiaAuditiva.Services
                         };
 
                     var cadChosen = cadOptions[random.Next(cadOptions.Length)];
-                    var cadChords = cadChosen.Funcs
-                        .Select(fn => GetChordFromFunction(cadRoot + "3", cadScale, fn))
+                    var cadOctaves = ParseOctaveRange(noteRange);
+                    var cadOctave = cadOctaves[random.Next(cadOctaves.Count)];
+                    Func<int, List<List<string>>> cadChordsIn = octave => cadChosen.Funcs
+                        .Select(fn => GetChordFromFunction(cadRoot + octave, cadScale, fn))
                         .ToList();
+                    var cadChords = cadChordsIn(cadOctave);
+                    if (cadChords.Any(AboveTheSamples))
+                        cadChords = cadChordsIn(cadOctave - 1);
 
                     if (cadChords.Any(c => c.Count < 2))
                         return new { error = "Cadência não pôde ser gerada." };
@@ -894,7 +908,6 @@ namespace AcademiaAuditiva.Services
                     };
 
                 case "GuessInversion":
-                    var invOctave = filters.TryGetValue("invOctave", out var invOct) && int.TryParse(invOct, out var invOctParsed) ? invOctParsed : 4;
                     var invQualityFilter = filters.TryGetValue("invQuality", out var invQf) ? invQf : "both";
                     List<string> invQualities = invQualityFilter switch
                     {
@@ -903,7 +916,7 @@ namespace AcademiaAuditiva.Services
                         _ => new List<string> { "major", "minor" }
                     };
 
-                    var invRootNotes = GetAllNotes(new List<int> { invOctave });
+                    var invRootNotes = GetAllNotes(ParseOctaveRange(noteRange));
                     var invRoot = invRootNotes[random.Next(invRootNotes.Count)];
                     var invQuality = invQualities[random.Next(invQualities.Count)];
                     var invChordNotes = GetChordNotes(invRoot, invQuality);
@@ -928,6 +941,10 @@ namespace AcademiaAuditiva.Services
                             invMidis.Sort();
                             break;
                     }
+
+                    // An inversion raises notes an octave: in the top octave that can go past the samples.
+                    if (invMidis[^1] > PianoSamples.HighestMidi)
+                        invMidis = invMidis.Select(midi => midi - 12).ToList();
 
                     var invFinalNotes = invMidis.Select(MidiToNote).Where(n => n != null).Cast<string>().ToList();
 
@@ -1031,7 +1048,11 @@ namespace AcademiaAuditiva.Services
                     var functionList = scaleFunc == "minor" ? minorFunctions : majorFunctions;
                     var selectedFunction = functionList[random.Next(functionList.Count)];
 
-                    var chordFunc = GetChordFromFunction(keyRoot + "3", scaleFunc, selectedFunction);
+                    var functionOctaves = ParseOctaveRange(noteRange);
+                    var functionOctave = functionOctaves[random.Next(functionOctaves.Count)];
+                    var chordFunc = GetChordFromFunction(keyRoot + functionOctave, scaleFunc, selectedFunction);
+                    if (AboveTheSamples(chordFunc))
+                        chordFunc = GetChordFromFunction(keyRoot + (functionOctave - 1), scaleFunc, selectedFunction);
 
                     return new
                     {
@@ -1047,7 +1068,7 @@ namespace AcademiaAuditiva.Services
                         _ => new List<string> { "major", "major7", "minor", "minor7", "diminished", "diminished7", "augmented" }
                     };
 
-                    var rootNotesQ = GetAllNotes(new List<int> { 3, 4 });
+                    var rootNotesQ = GetAllNotes(ParseOctaveRange(noteRange));
                     var allChordsQ = GetAllChords(rootNotesQ, allowedQualities);
                     var chordQ = allChordsQ[random.Next(allChordsQ.Count)];
 

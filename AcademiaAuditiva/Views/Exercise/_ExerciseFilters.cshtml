@@ -1,9 +1,11 @@
 @using AcademiaAuditiva.Services.Audio
 @model AcademiaAuditiva.ViewModels.ExerciseFiltersViewModel
 @{
-    // Exercises that play chords leave out the instruments that don't play them.
-    var instruments = Instrument.Offered(Model.PlaysChords);
-    var activeInstrument = Instrument.FromName(Context.Request.Cookies["instrument"], Model.PlaysChords);
+    // Exercises about chords leave out the instruments that don't play them, and start the
+    // note range where the instrument plays chords (the guitar on its open chords).
+    var instruments = Instrument.Offered(Model.IsChordExercise);
+    var activeInstrument = Instrument.FromName(Context.Request.Cookies["instrument"], Model.IsChordExercise);
+    var startOctave = activeInstrument.StartOctave(Model.IsChordExercise);
 }
 
 <form>
@@ -16,6 +18,7 @@
                         data-instrument="@instrument.Name"
                         data-lowest-octave="@instrument.LowestOctave"
                         data-highest-octave="@instrument.HighestOctave"
+                        data-start-octave="@instrument.StartOctave(Model.IsChordExercise)"
                         aria-pressed="@(instrument == activeInstrument ? "true" : "false")">@Localizer[instrument.LabelKey]</button>
             }
         </div>
@@ -24,10 +27,10 @@
     <div class="mb-3">
         <div class="form-label" id="rangeLabel">@Localizer["Range"]</div>
         <div class="d-flex align-items-center gap-3">
-            <span id="rangeStartLabel" class="fw-semibold">C4</span>
-            <input type="range" class="form-range" id="rangeStart" min="@activeInstrument.LowestOctave" max="@activeInstrument.HighestOctave" value="4" step="1" aria-labelledby="rangeLabel">
-            <input type="range" class="form-range" id="rangeEnd" min="@activeInstrument.LowestOctave" max="@activeInstrument.HighestOctave" value="4" step="1" aria-labelledby="rangeLabel">
-            <span id="rangeEndLabel" class="fw-semibold">C4</span>
+            <span id="rangeStartLabel" class="fw-semibold">C@(startOctave)</span>
+            <input type="range" class="form-range" id="rangeStart" min="@activeInstrument.LowestOctave" max="@activeInstrument.HighestOctave" value="@startOctave" step="1" aria-labelledby="rangeLabel">
+            <input type="range" class="form-range" id="rangeEnd" min="@activeInstrument.LowestOctave" max="@activeInstrument.HighestOctave" value="@startOctave" step="1" aria-labelledby="rangeLabel">
+            <span id="rangeEndLabel" class="fw-semibold">C@(startOctave)</span>
         </div>
     </div>
 

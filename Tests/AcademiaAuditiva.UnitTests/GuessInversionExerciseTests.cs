@@ -49,7 +49,7 @@ public class GuessInversionExerciseTests
         var planner = new ExercisePlaybackPlanner();
         var plan = planner.Plan(
             NewExercise(),
-            new Dictionary<string, string> { { "invQuality", "major" }, { "invOctave", "4" } });
+            new Dictionary<string, string> { { "invQuality", "major" }, { "noteRange", "C4-C4" } });
 
         plan.PlaybackPlans.Should().HaveCount(1);
         var chord = plan.PlaybackPlans[0];

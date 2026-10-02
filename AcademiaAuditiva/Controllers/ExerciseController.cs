@@ -107,12 +107,13 @@ namespace AcademiaAuditiva.Controllers
 			var filters = request.Filters ?? new Dictionary<string, string>();
 
 			var instrument = Request.Cookies["instrument"] ?? "Piano";
-			var noteRange = Request.Cookies["noteRange"] ?? "C4-C4";
+			var noteRange = Request.Cookies["noteRange"];
 
 			if (!filters.ContainsKey("instrument"))
 				filters["instrument"] = instrument;
 
-			if (!filters.ContainsKey("noteRange"))
+			// With no range, the planner starts it where the instrument plays the exercise.
+			if (!filters.ContainsKey("noteRange") && noteRange is not null)
 				filters["noteRange"] = noteRange;
 
 			var plan = _playbackPlanner.Plan(exercise, filters);

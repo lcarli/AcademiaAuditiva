@@ -70,8 +70,8 @@ public class ExercisePlaybackPlannerInstrumentTests
     [MemberData(nameof(SeededExercisesOnEveryInstrument))]
     public void EveryExercise_PlaysANoteSampleOfTheInstrument(string exerciseName, string instrumentName)
     {
-        // Exercises that play chords play them on the piano when the instrument doesn't.
-        var instrument = Instrument.FromName(instrumentName, ExercisePlaybackPlanner.PlaysChords(exerciseName));
+        // Exercises about chords play them on the piano when the instrument doesn't.
+        var instrument = Instrument.FromName(instrumentName, ExercisePlaybackPlanner.IsChordExercise(exerciseName));
         var folder = instrument.Folder is null ? "" : instrument.Folder + "/";
         var exercise = new Exercise { ExerciseId = 1, Name = exerciseName };
 
@@ -144,14 +144,15 @@ public class ExercisePlaybackPlannerInstrumentTests
     [InlineData("GuessQuality")]
     [InlineData("GuessInversion")]
     [InlineData("GuessCadence")]
+    [InlineData("CompleteChord")]
     public void ChordExercises_OnTheViolin_ArePlayedOnThePiano(string exerciseName)
     {
         var plan = _planner.Plan(new Exercise { ExerciseId = 1, Name = exerciseName }, new() { ["instrument"] = "Violin" });
 
-        ExercisePlaybackPlanner.PlaysChords(exerciseName).Should().BeTrue();
+        ExercisePlaybackPlanner.IsChordExercise(exerciseName).Should().BeTrue();
         plan.PlaybackPlans.Should().ContainSingle().Which.Should().NotBeEmpty()
             .And.AllSatisfy(input => input.SampleName.Should().MatchRegex(@"^[A-G]s?\d\.mp3$",
-                "a violin plays one note at a time"));
+                "the exercises about chords leave out the violin, which plays one note at a time"));
     }
 
     [Theory]
@@ -194,9 +195,72 @@ public class ExercisePlaybackPlannerInstrumentTests
         }
     }
 
+    [Fact]
+    public void Cadences_OnTheGuitar_StartOnTheOpenChords()
+    {
+        // In A major: A, D, E and F#m, as a guitarist plays them in the first frets.
+        var openChords = new Dictionary<int, string>
+        {
+            [PitchClass(Midi("A2"))] = "x02220",
+            [PitchClass(Midi("D3"))] = "xx0232",
+            [PitchClass(Midi("E2"))] = "022100",
+            [PitchClass(Midi("F#2"))] = "244222",
+        };
+        var exercise = new Exercise { ExerciseId = 1, Name = "GuessCadence" };
+
+        for (var round = 0; round < 20; round++)
+        {
+            // Without a note range, as when the student hasn't moved the sliders.
+            var plan = _planner.Plan(exercise, new() { ["instrument"] = "Guitar", ["cadenceRoot"] = "A" });
+
+            var chords = JObject.Parse(plan.ExpectedAnswerJson)["chords"]!.Select(Midis).ToList();
+            var strums = plan.PlaybackPlans.Should().ContainSingle().Subject
+                .GroupBy(input => (int)Math.Floor(input.StartTimeSeconds / 1.25 + 1e-9))
+                .ToList();
+            strums.Should().HaveSameCount(chords);
+            for (var k = 0; k < chords.Count; k++)
+            {
+                strums[k].Select(input => GuitarNotes[input.SampleName]).Should()
+                    .Equal(ShapeNotes(openChords[PitchClass(chords[k][0])]));
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData("GuessChords", null, 40, 51)]
+    [InlineData("GuessChords", "C2-C2", 40, 51)]
+    [InlineData("GuessChords", "C3-C3", 48, 59)]
+    [InlineData("GuessFunction", null, 40, 51)]
+    [InlineData("GuessFunction", "C3-C3", 48, 59)]
+    [InlineData("GuessQuality", null, 40, 51)]
+    [InlineData("GuessQuality", "C3-C3", 48, 59)]
+    [InlineData("GuessInversion", null, 40, 51)]
+    [InlineData("GuessInversion", "C3-C3", 48, 59)]
+    [InlineData("GuessCadence", null, 40, 51)]
+    [InlineData("GuessCadence", "C3-C3", 48, 59)]
+    public void Chords_OnTheGuitar_HaveTheBassInTheOctaveOfTheRange(
+        string exerciseName, string? noteRange, int lowestBass, int highestBass)
+    {
+        // Octave 2 has the basses of the open chords, from E2 (the low E string) to the D#3 of
+        // x68886: the neck has no C2 to D#2. Without a range the guitar starts there.
+        var exercise = new Exercise { ExerciseId = 1, Name = exerciseName };
+        var filters = new Dictionary<string, string> { ["instrument"] = "Guitar", ["chordType"] = "all" };
+        if (noteRange is not null)
+            filters["noteRange"] = noteRange;
+
+        for (var round = 0; round < 30; round++)
+        {
+            var strums = _planner.Plan(exercise, filters).PlaybackPlans.Should().ContainSingle().Subject
+                .GroupBy(input => (int)Math.Floor(input.StartTimeSeconds / 1.25 + 1e-9));
+
+            strums.Should().AllSatisfy(strum => strum.Min(input => GuitarNotes[input.SampleName]).Should()
+                .BeInRange(lowestBass, highestBass, "the bass of {0} follows the note range", exerciseName));
+        }
+    }
+
     [Theory]
     [MemberData(nameof(SeededExercises))]
-    public void PlaysChords_ExactlyForTheExercisesThatPlayNotesTogether(string exerciseName)
+    public void IsChordExercise_ForEveryExerciseThatPlaysNotesTogether(string exerciseName)
     {
         var exercise = new Exercise { ExerciseId = 1, Name = exerciseName };
 
@@ -204,8 +268,9 @@ public class ExercisePlaybackPlannerInstrumentTests
             .SelectMany(_ => _planner.Plan(exercise, new() { ["instrument"] = "Piano" }).PlaybackPlans)
             .Any(plan => plan.GroupBy(input => input.StartTimeSeconds).Any(notes => notes.Count() > 1));
 
-        ExercisePlaybackPlanner.PlaysChords(exerciseName).Should().Be(notesTogether,
-            "the exercises that play chords on the piano leave out the violin");
+        // CompleteChord plays the root of a chord for the student to complete it.
+        ExercisePlaybackPlanner.IsChordExercise(exerciseName).Should().Be(notesTogether || exerciseName == "CompleteChord",
+            "the exercises about chords leave out the violin");
     }
 
     /// <summary>
@@ -232,8 +297,13 @@ public class ExercisePlaybackPlannerInstrumentTests
         }
     }
 
-    private static List<int> Midis(JToken notes) =>
-        [.. notes.Values<string>().Select(note => MusicTheoryService.NoteToMidi(note!) ?? throw new ArgumentException(note))];
+    private static List<int> Midis(JToken notes) => [.. notes.Values<string>().Select(note => Midi(note!))];
+
+    private static int Midi(string note) => MusicTheoryService.NoteToMidi(note) ?? throw new ArgumentException(note);
+
+    /// <summary>The MIDI notes a chord chart (<c>x02220</c>) strums, from the low string up.</summary>
+    private static IReadOnlyList<int> ShapeNotes(string chart) =>
+        new GuitarShape([.. chart.Select(fret => fret == 'x' ? (int?)null : fret - '0')]).Notes;
 
     private static int PitchClass(int midi) => midi % 12;
 }

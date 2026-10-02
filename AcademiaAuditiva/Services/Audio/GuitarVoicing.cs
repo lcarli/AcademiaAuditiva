@@ -45,9 +45,11 @@ public sealed class GuitarShape
 /// barre chord <c>133211</c>.
 /// </summary>
 /// <remarks>
-/// Every shape that sounds the chord and that a hand can hold is tried, and the easiest wins:
-/// near the nut, with few fingers, a small stretch, and as many strings as the bass allows.
-/// Those costs make the common open and barre chords come out (see <c>GuitarVoicingTests</c>).
+/// Every shape that sounds the chord and that a hand can hold is tried. The bass goes in the
+/// octave asked for, or as near it as the neck allows, and then the easiest shape wins: near
+/// the nut, with few fingers, a small stretch, and as many strings as the bass allows. In
+/// octave 2 those costs make the common open and barre chords come out; higher octaves move
+/// the shapes up the neck (see <c>GuitarVoicingTests</c>).
 /// </remarks>
 public static class GuitarVoicing
 {
@@ -70,14 +72,17 @@ public static class GuitarVoicing
     private const double FourFingersWithoutBarreCost = 1.5;
     private const double StretchCost = 0.5;
 
+    // The pitch classes of a chord and the MIDI note its bass should be.
     private static readonly ConcurrentDictionary<(int PitchClasses, int Bass), GuitarShape?> Shapes = new();
 
     /// <summary>
     /// The easiest shape that plays the notes of <paramref name="midiNotes"/>, in any octave,
     /// with the lowest of them in the bass (so an inversion stays one), or <c>null</c> when no
-    /// shape plays them.
+    /// shape plays them. The bass is in <paramref name="bassOctave"/> when a shape has it there,
+    /// or else in the nearest octave one does: the basses of the neck go from E2 to D4, so C
+    /// major is <c>x32010</c> (C3) in octaves 2 and 3, and <c>xx(10)988</c> (C4) in octave 4.
     /// </summary>
-    public static GuitarShape? Find(IEnumerable<int> midiNotes)
+    public static GuitarShape? Find(IEnumerable<int> midiNotes, int bassOctave)
     {
         ArgumentNullException.ThrowIfNull(midiNotes);
 
@@ -91,7 +96,8 @@ public static class GuitarVoicing
         if (pitchClasses == 0)
             return null;
 
-        return Shapes.GetOrAdd((pitchClasses, PitchClass(lowest)), key => Search(key.PitchClasses, key.Bass));
+        var bass = (bassOctave + 1) * 12 + PitchClass(lowest);
+        return Shapes.GetOrAdd((pitchClasses, bass), key => Search(key.PitchClasses, key.Bass));
     }
 
     private static int PitchClass(int midi) => (midi % 12 + 12) % 12;
@@ -114,7 +120,7 @@ public static class GuitarVoicing
 
         var frets = new int?[strings];
         int?[]? best = null;
-        var bestScore = (Cost: double.MaxValue, Position: 0, FretSum: 0);
+        var bestScore = (Distance: int.MaxValue, Cost: double.MaxValue, Position: 0, FretSum: 0);
         Try(0);
         return best is null ? null : new GuitarShape(best);
 
@@ -122,7 +128,8 @@ public static class GuitarVoicing
         {
             if (s == strings)
             {
-                // Ties go to the shape nearer the nut, then to the one found first.
+                // The nearest bass wins, then the easiest shape; ties go to the shape
+                // nearer the nut, then to the one found first.
                 if (Score(frets, pitchClasses, bass) is { } score && score.CompareTo(bestScore) < 0)
                 {
                     bestScore = score;
@@ -139,10 +146,11 @@ public static class GuitarVoicing
     }
 
     /// <summary>
-    /// How hard <paramref name="frets"/> is to play, or <c>null</c> when it can't be strummed
-    /// as the chord or held by one hand.
+    /// How far the bass of <paramref name="frets"/> is from <paramref name="bass"/> and how hard
+    /// the shape is to play, or <c>null</c> when it can't be strummed as the chord, with the
+    /// bass's pitch class in the bass, or held by one hand.
     /// </summary>
-    private static (double Cost, int Position, int FretSum)? Score(int?[] frets, int pitchClasses, int bass)
+    private static (int Distance, double Cost, int Position, int FretSum)? Score(int?[] frets, int pitchClasses, int bass)
     {
         var first = Array.FindIndex(frets, fret => fret is not null);
         var last = Array.FindLastIndex(frets, fret => fret is not null);
@@ -183,7 +191,7 @@ public static class GuitarVoicing
             }
         }
 
-        if (sounded != pitchClasses || PitchClass(lowestNote) != bass)
+        if (sounded != pitchClasses || PitchClass(lowestNote) != PitchClass(bass))
             return null;
 
         var position = highestFret == 0 ? 0 : lowestFret;
@@ -201,7 +209,7 @@ public static class GuitarVoicing
             + fingers
             + (fingers == Fingers && !barre ? FourFingersWithoutBarreCost : 0)
             + StretchCost * stretch * stretch;
-        return (cost, position, fretSum);
+        return (Math.Abs(lowestNote - bass), cost, position, fretSum);
     }
 
     /// <summary>

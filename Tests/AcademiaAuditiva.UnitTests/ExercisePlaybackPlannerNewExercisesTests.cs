@@ -54,7 +54,7 @@ public class ExercisePlaybackPlannerNewExercisesTests
     {
         var plan = new ExercisePlaybackPlanner().Plan(
             Exercise("GuessInversion"),
-            new Dictionary<string, string> { ["invQuality"] = "major", ["invOctave"] = "4" });
+            new Dictionary<string, string> { ["invQuality"] = "major", ["noteRange"] = "C4-C4" });
 
         plan.PlaybackPlans.Should().HaveCount(1);
         plan.PlaybackPlans[0].Should().HaveCount(3);

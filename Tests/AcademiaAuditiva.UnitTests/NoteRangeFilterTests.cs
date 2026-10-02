@@ -43,6 +43,15 @@ public class NoteRangeFilterTests
         MusicTheoryService.ParseOctaveRange(noteRange).Should().Equal(4);
     }
 
+    [Theory]
+    [InlineData(null, 2, new[] { 2 })]
+    [InlineData("garbage", 2, new[] { 2 })]
+    [InlineData("C3-C5", 2, new[] { 3, 4, 5 })]
+    public void ParseOctaveRange_WithADefaultOctave_FallsBackToIt(string? noteRange, int defaultOctave, int[] expected)
+    {
+        MusicTheoryService.ParseOctaveRange(noteRange, defaultOctave).Should().Equal(expected);
+    }
+
     [Fact]
     public void GenerateNoteForExercise_GuessNote_HugeRange_StaysWithinSliderOctaves()
     {
