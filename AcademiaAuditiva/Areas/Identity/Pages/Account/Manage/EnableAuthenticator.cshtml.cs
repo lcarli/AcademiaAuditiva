@@ -22,6 +22,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
     public class EnableAuthenticatorModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<EnableAuthenticatorModel> _logger;
         private readonly UrlEncoder _urlEncoder;
         private readonly IStringLocalizer<SharedResources> _localizer;
@@ -30,11 +31,13 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
 
         public EnableAuthenticatorModel(
             UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<EnableAuthenticatorModel> logger,
             UrlEncoder urlEncoder,
             IStringLocalizer<SharedResources> localizer)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _logger = logger;
             _urlEncoder = urlEncoder;
             _localizer = localizer;
@@ -131,6 +134,9 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
             }
 
             await _userManager.SetTwoFactorEnabledAsync(user, true);
+            // Turning two-factor on changes the security stamp: keep this session signed in
+            // (the account's other sessions end at their next stamp check).
+            await _signInManager.RefreshSignInAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);
             _logger.LogInformation("User with ID '{UserId}' has enabled 2FA with an authenticator app.", userId);
 
@@ -155,6 +161,9 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
             if (string.IsNullOrEmpty(unformattedKey))
             {
                 await _userManager.ResetAuthenticatorKeyAsync(user);
+                // Creating the key changes the security stamp too; without a new cookie this
+                // session would be signed out while the user scans the QR code.
+                await _signInManager.RefreshSignInAsync(user);
                 unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
             }
 

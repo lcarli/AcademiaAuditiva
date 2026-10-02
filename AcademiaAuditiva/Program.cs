@@ -85,6 +85,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 // Sign-in cookies are checked against the account every minute instead of
 // Identity's default 30: a session ends soon after an admin locks (see
 // LockoutAwareSignInManager) or deletes the account, and role changes apply quickly.
+// A page that changes the security stamp of the signed-in account must call
+// RefreshSignInAsync, or that session ends at its next check, a minute later.
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
     options.ValidationInterval = TimeSpan.FromMinutes(1));
 
