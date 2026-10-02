@@ -8,9 +8,11 @@ public class RoutineFormViewModel
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Validation.Required"), StringLength(120, ErrorMessage = "Validation.MaxLength")]
+    [Display(Name = "Common.Name")]
     public string Name { get; set; } = string.Empty;
 
     [StringLength(1000, ErrorMessage = "Validation.MaxLength")]
+    [Display(Name = "Common.Description")]
     public string? Description { get; set; }
 }
 

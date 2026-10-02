@@ -1830,6 +1830,9 @@
   <data name="Manage.Index.UsernamePlaceholder" xml:space="preserve">
     <value>Escolha seu nome de usuário.</value>
   </data>
+  <data name="Manage.Index.Username" xml:space="preserve">
+    <value>Nome de usuário</value>
+  </data>
   <data name="Layout.Language" xml:space="preserve">
     <value>Idioma</value>
   </data>

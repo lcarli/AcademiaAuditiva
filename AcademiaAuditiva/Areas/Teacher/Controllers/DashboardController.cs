@@ -1,9 +1,11 @@
 using AcademiaAuditiva.Areas.Teacher.Models;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Teacher.Controllers;
 
@@ -11,11 +13,13 @@ public class DashboardController : TeacherAreaController
 {
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _users;
+    private readonly IStringLocalizer<SharedResources> _l;
 
-    public DashboardController(ApplicationDbContext db, UserManager<ApplicationUser> users)
+    public DashboardController(ApplicationDbContext db, UserManager<ApplicationUser> users, IStringLocalizer<SharedResources> localizer)
     {
         _db = db;
         _users = users;
+        _l = localizer;
     }
 
     private string TeacherId => _users.GetUserId(User)!;
@@ -116,7 +120,7 @@ public class DashboardController : TeacherAreaController
                 var att = a.CorrectCount + a.ErrorCount;
                 return new StudentExerciseRow
                 {
-                    ExerciseName = a.Exercise?.Name ?? "?",
+                    ExerciseName = a.Exercise is null ? "?" : _l[a.Exercise.Name].Value,
                     Attempts = att,
                     Accuracy = att == 0 ? 0 : Math.Round(100.0 * a.CorrectCount / att, 1),
                     BestScore = a.BestScore,
