@@ -1,5 +1,6 @@
 @* Flash messages set by controllers through TempData["Success"] / TempData["Error"].
-   Rendered once by the area layouts (and pages outside an area that redirect with a message). *@
+   Rendered once by the area layouts (and pages outside an area that redirect with a message),
+   never by _Layout as well, or every message shows twice. *@
 @if (TempData["Success"] is string success && !string.IsNullOrEmpty(success))
 {
     <div class="alert alert-success alert-dismissible fade show d-flex align-items-start gap-2" role="status" data-aa-autodismiss="6000">

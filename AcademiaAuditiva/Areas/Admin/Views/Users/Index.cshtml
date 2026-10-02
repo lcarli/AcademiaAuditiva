@@ -42,7 +42,7 @@
                             <div><strong>@r.UserName</strong></div>
                             <small class="text-secondary">@r.Email</small>
                             @if (!r.EmailConfirmed) { <span class="badge bg-warning-subtle text-warning-emphasis ms-2">@Localizer["Admin.Users.Unconfirmed"]</span> }
-                            @if (r.LockoutEndUtc.HasValue && r.LockoutEndUtc.Value > DateTime.UtcNow) { <span class="badge bg-danger ms-2">@Localizer["Admin.Users.Locked"]</span> }
+                            @if (r.IsLockedOut) { <span class="badge bg-danger ms-2">@Localizer["Admin.Users.Locked"]</span> }
                         </td>
                         <td>
                             @if (r.IsAdmin) { <span class="badge bg-danger me-1">@Localizer["Role.Admin"]</span> }
@@ -50,38 +50,61 @@
                             @if (r.IsStudent) { <span class="badge bg-secondary me-1">@Localizer["Role.Student"]</span> }
                         </td>
                         <td class="text-end">
-                            @if (!r.IsTeacher)
-                            {
-                                <form asp-action="PromoteTeacher" asp-route-id="@r.Id" method="post" class="d-inline"
-                                      data-confirm="@string.Format(Localizer["Admin.Users.PromoteTeacherConfirm"].Value, r.UserName)"
-                                      onsubmit="return confirm(this.dataset.confirm);">
-                                    <button class="btn btn-sm btn-outline-primary">@Localizer["Admin.Users.MakeTeacher"]</button>
-                                </form>
-                            }
-                            else
-                            {
-                                <form asp-action="DemoteTeacher" asp-route-id="@r.Id" method="post" class="d-inline"
-                                      data-confirm="@string.Format(Localizer["Admin.Users.DemoteTeacherConfirm"].Value, r.UserName)"
-                                      onsubmit="return confirm(this.dataset.confirm);">
-                                    <button class="btn btn-sm btn-outline-warning">@Localizer["Admin.Users.RemoveTeacher"]</button>
-                                </form>
-                            }
-                            @if (!r.IsAdmin)
-                            {
-                                <form asp-action="PromoteAdmin" asp-route-id="@r.Id" method="post" class="d-inline"
-                                      data-confirm="@string.Format(Localizer["Admin.Users.PromoteAdminConfirm"].Value, r.UserName)"
-                                      onsubmit="return confirm(this.dataset.confirm);">
-                                    <button class="btn btn-sm btn-outline-danger">@Localizer["Admin.Users.MakeAdmin"]</button>
-                                </form>
-                            }
-                            else
-                            {
-                                <form asp-action="DemoteAdmin" asp-route-id="@r.Id" method="post" class="d-inline"
-                                      data-confirm="@string.Format(Localizer["Admin.Users.DemoteAdminConfirm"].Value, r.UserName)"
-                                      onsubmit="return confirm(this.dataset.confirm);">
-                                    <button class="btn btn-sm btn-outline-danger">@Localizer["Admin.Users.RemoveAdmin"]</button>
-                                </form>
-                            }
+                            <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                @if (!r.IsTeacher)
+                                {
+                                    <form asp-action="PromoteTeacher" asp-route-id="@r.Id" method="post" class="d-inline"
+                                          data-confirm="@string.Format(Localizer["Admin.Users.PromoteTeacherConfirm"].Value, r.UserName)"
+                                          onsubmit="return confirm(this.dataset.confirm);">
+                                        <button class="btn btn-sm btn-outline-primary">@Localizer["Admin.Users.MakeTeacher"]</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="DemoteTeacher" asp-route-id="@r.Id" method="post" class="d-inline"
+                                          data-confirm="@string.Format(Localizer["Admin.Users.DemoteTeacherConfirm"].Value, r.UserName)"
+                                          onsubmit="return confirm(this.dataset.confirm);">
+                                        <button class="btn btn-sm btn-outline-warning">@Localizer["Admin.Users.RemoveTeacher"]</button>
+                                    </form>
+                                }
+                                @if (!r.IsAdmin)
+                                {
+                                    <form asp-action="PromoteAdmin" asp-route-id="@r.Id" method="post" class="d-inline"
+                                          data-confirm="@string.Format(Localizer["Admin.Users.PromoteAdminConfirm"].Value, r.UserName)"
+                                          onsubmit="return confirm(this.dataset.confirm);">
+                                        <button class="btn btn-sm btn-outline-danger">@Localizer["Admin.Users.MakeAdmin"]</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="DemoteAdmin" asp-route-id="@r.Id" method="post" class="d-inline"
+                                          data-confirm="@string.Format(Localizer["Admin.Users.DemoteAdminConfirm"].Value, r.UserName)"
+                                          onsubmit="return confirm(this.dataset.confirm);">
+                                        <button class="btn btn-sm btn-outline-danger">@Localizer["Admin.Users.RemoveAdmin"]</button>
+                                    </form>
+                                }
+                                @* Admins can't be locked or deleted (remove the role first), but can be unlocked. *@
+                                @if (r.IsLockedOut)
+                                {
+                                    <form asp-action="Unlock" asp-route-id="@r.Id" method="post" class="d-inline"
+                                          data-confirm="@string.Format(Localizer["Admin.Users.UnlockConfirm"].Value, r.UserName)"
+                                          onsubmit="return confirm(this.dataset.confirm);">
+                                        <button class="btn btn-sm btn-outline-success"><i class="bi bi-unlock me-1" aria-hidden="true"></i>@Localizer["Admin.Users.Unlock"]</button>
+                                    </form>
+                                }
+                                else if (!r.IsAdmin)
+                                {
+                                    <form asp-action="Lock" asp-route-id="@r.Id" method="post" class="d-inline"
+                                          data-confirm="@string.Format(Localizer["Admin.Users.LockConfirm"].Value, r.UserName)"
+                                          onsubmit="return confirm(this.dataset.confirm);">
+                                        <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock me-1" aria-hidden="true"></i>@Localizer["Admin.Users.Lock"]</button>
+                                    </form>
+                                }
+                                @if (!r.IsAdmin)
+                                {
+                                    <a asp-action="Delete" asp-route-id="@r.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1" aria-hidden="true"></i>@Localizer["Admin.Users.Delete"]</a>
+                                }
+                            </div>
                         </td>
                     </tr>
                 }

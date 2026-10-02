@@ -38,7 +38,7 @@ secrets in Key Vault and pulled by the app's user-assigned Managed Identity.
 
 | Role | Self-assigned? | Capabilities |
 |---|---|---|
-| **Admin** | No (only one initial admin via `Admin:Email`) | Everything; promote/demote Teacher; manage users |
+| **Admin** | No (only one initial admin via `Admin:Email`) | Everything; promote/demote Teacher and Admin; lock, unlock and delete accounts |
 | **Teacher** | No (granted by Admin) | CRUD classrooms, invite students, build training routines, dashboards |
 | **Student** | Yes (default for new sign-ups) | Practice exercises, view progress, view assigned routines |
 

@@ -8,7 +8,7 @@ public class UserListRow
     public bool IsAdmin { get; set; }
     public bool IsTeacher { get; set; }
     public bool IsStudent { get; set; }
-    public DateTime? LockoutEndUtc { get; set; }
+    public bool IsLockedOut { get; set; }
     public bool EmailConfirmed { get; set; }
 }
 
@@ -18,4 +18,15 @@ public class UserListViewModel
     public string? Query { get; set; }
     public string? Role { get; set; } // "Admin" | "Teacher" | "Student" | null
     public int Total { get; set; }
+}
+
+public class DeleteUserViewModel
+{
+    public string Id { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public bool IsTeacher { get; set; }
+    public bool IsStudent { get; set; }
+    public int ClassroomCount { get; set; }
+    public int RoutineCount { get; set; }
 }

@@ -278,7 +278,7 @@
     <comment />
   </data>
   <data name="Lockout.Text" xml:space="preserve">
-    <value>Ce compte a été bloqué, veuillez réessayer plus tard.</value>
+    <value>Ce compte est verrouillé et ne peut pas se connecter pour le moment. Veuillez réessayer plus tard.</value>
     <comment />
   </data>
   <data name="Exercise.Major" xml:space="preserve">
@@ -3416,5 +3416,62 @@
   </data>
   <data name="Exercise.InversionThird" xml:space="preserve">
     <value>3e renversement</value>
+  </data>
+  <data name="Admin.Users.Lock" xml:space="preserve">
+    <value>Verrouiller</value>
+  </data>
+  <data name="Admin.Users.Unlock" xml:space="preserve">
+    <value>Déverrouiller</value>
+  </data>
+  <data name="Admin.Users.Delete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Admin.Users.LockConfirm" xml:space="preserve">
+    <value>Verrouiller {0} ? La personne sera déconnectée d’ici une minute et ne pourra plus se connecter tant que vous n’aurez pas déverrouillé le compte.</value>
+  </data>
+  <data name="Admin.Users.UnlockConfirm" xml:space="preserve">
+    <value>Déverrouiller {0} ? La personne pourra se connecter de nouveau.</value>
+  </data>
+  <data name="Admin.Users.LockedUser" xml:space="preserve">
+    <value>Compte {0} verrouillé.</value>
+  </data>
+  <data name="Admin.Users.UnlockedUser" xml:space="preserve">
+    <value>Compte {0} déverrouillé.</value>
+  </data>
+  <data name="Admin.Users.DeletedUser" xml:space="preserve">
+    <value>Compte {0} supprimé.</value>
+  </data>
+  <data name="Admin.Users.CannotLockSelf" xml:space="preserve">
+    <value>Vous ne pouvez pas verrouiller votre propre compte.</value>
+  </data>
+  <data name="Admin.Users.CannotLockAdmin" xml:space="preserve">
+    <value>Impossible de verrouiller un admin. Retirez d’abord le rôle Admin.</value>
+  </data>
+  <data name="Admin.Users.CannotDeleteSelf" xml:space="preserve">
+    <value>Pour supprimer votre propre compte, utilisez Gérer le compte › Données personnelles.</value>
+  </data>
+  <data name="Admin.Users.CannotDeleteAdmin" xml:space="preserve">
+    <value>Impossible de supprimer un admin. Retirez d’abord le rôle Admin.</value>
+  </data>
+  <data name="Admin.Users.UpdateFailed" xml:space="preserve">
+    <value>Impossible de mettre à jour {0}. Veuillez réessayer.</value>
+  </data>
+  <data name="Admin.Users.DeleteFailed" xml:space="preserve">
+    <value>Impossible de supprimer {0}. Veuillez réessayer.</value>
+  </data>
+  <data name="Admin.Users.Delete.Title" xml:space="preserve">
+    <value>Supprimer le compte</value>
+  </data>
+  <data name="Admin.Users.Delete.Warning" xml:space="preserve">
+    <value>Cette action supprime définitivement le compte et tout ce qui y est associé, comme l’historique de pratique et la progression. Elle est irréversible.</value>
+  </data>
+  <data name="Admin.Users.Delete.TeachingWarning" xml:space="preserve">
+    <value>Les classes et les routines de cette personne seront aussi supprimées, et ses élèves n’y auront plus accès.</value>
+  </data>
+  <data name="Admin.Users.Delete.Submit" xml:space="preserve">
+    <value>Supprimer définitivement le compte</value>
+  </data>
+  <data name="Lockout.Contact" xml:space="preserve">
+    <value>S’il reste verrouillé, écrivez-nous :</value>
   </data>
 </root>
