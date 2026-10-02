@@ -1,14 +1,16 @@
 @using AcademiaAuditiva.Services.Audio
 @model AcademiaAuditiva.ViewModels.ExerciseFiltersViewModel
 @{
-    var activeInstrument = Instrument.FromName(Context.Request.Cookies["instrument"]);
+    // Exercises that play chords leave out the instruments that don't play them.
+    var instruments = Instrument.Offered(Model.PlaysChords);
+    var activeInstrument = Instrument.FromName(Context.Request.Cookies["instrument"], Model.PlaysChords);
 }
 
 <form>
     <div class="mb-4">
         <div class="form-label" id="instrumentLabel">@Localizer["Instrument"]</div>
         <div class="aa-pill-tab" role="group" id="instrumentButtons" aria-labelledby="instrumentLabel">
-            @foreach (var instrument in Instrument.All)
+            @foreach (var instrument in instruments)
             {
                 <button type="button"
                         data-instrument="@instrument.Name"

@@ -9,7 +9,8 @@ namespace AcademiaAuditiva.IntegrationTests;
 
 /// <summary>
 /// The instrument picked in the exercise filters is kept in the <c>instrument</c> cookie:
-/// the exercise page offers its octaves, and every round is mixed from its samples.
+/// the exercise page offers its octaves, and every round is mixed from its samples. The
+/// exercises that play chords leave out the violin, which plays one note at a time.
 /// </summary>
 public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactory>
 {
@@ -68,6 +69,48 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
         Buttons(html).Where(button => button.Pressed == "true").Should().ContainSingle()
             .Which.Should().Be(new Button("Piano", "true", "1", "6", "Piano"));
         html.Should().Contain("id=\"rangeStart\" min=\"1\" max=\"6\" value=\"4\"");
+    }
+
+    [Fact]
+    public async Task ChordExercisePage_LeavesOutTheViolin()
+    {
+        ExerciseId("GuessChords");
+        var client = await ClientAsync(("instrument", "Violin"));
+
+        var html = await client.GetStringAsync("/Exercise/GuessChords");
+
+        Buttons(html).Should().Equal(
+            new Button("Piano", "true", "1", "6", "Piano"),
+            new Button("Guitar", "false", "2", "5", "Guitar"));
+        html.Should().Contain("id=\"rangeStart\" min=\"1\" max=\"6\" value=\"4\"");
+    }
+
+    [Fact]
+    public async Task ChordRound_OnTheViolin_IsPlayedOnThePiano()
+    {
+        var exerciseId = ExerciseId("GuessChords");
+        var client = await ClientAsync(("instrument", "Violin"));
+
+        var play = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new { exerciseId }));
+
+        play.GetProperty("playToken").GetString().Should().NotBeNullOrEmpty();
+        _factory.Mixer.Plans.Should().ContainSingle().Which.Should().NotBeEmpty()
+            .And.AllSatisfy(input => input.SampleName.Should().MatchRegex(@"^[A-G]s?\d\.mp3$"));
+    }
+
+    [Fact]
+    public async Task ChordRound_OnTheGuitar_IsStrummed()
+    {
+        var exerciseId = ExerciseId("GuessChords");
+        var client = await ClientAsync(("instrument", "Guitar"));
+
+        var play = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new { exerciseId }));
+
+        play.GetProperty("playToken").GetString().Should().NotBeNullOrEmpty();
+        var strum = _factory.Mixer.Plans.Should().ContainSingle().Subject;
+        strum.Should().HaveCountGreaterThanOrEqualTo(4)
+            .And.AllSatisfy(input => input.SampleName.Should().MatchRegex(@"^guitar/[A-G]s?\d\.mp3$"));
+        strum.Select(input => input.StartTimeSeconds).Should().BeInAscendingOrder().And.OnlyHaveUniqueItems();
     }
 
     private sealed record Button(string Instrument, string Pressed, string Lowest, string Highest, string Text);

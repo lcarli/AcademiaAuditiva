@@ -1,5 +1,6 @@
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Audio;
 using AcademiaAuditiva.ViewModels;
 using Microsoft.Extensions.Localization;
 
@@ -24,7 +25,8 @@ namespace AcademiaAuditiva.Extensions
                 FeedbackType = null,
                 Filters = new ExerciseFiltersViewModel
                 {
-                    Groups = ExerciseFilterPresets.Groups(exercise.FiltersJson)
+                    Groups = ExerciseFilterPresets.Groups(exercise.FiltersJson),
+                    PlaysChords = ExercisePlaybackPlanner.PlaysChords(exercise.Name),
                 },
                 AudioButtons = exercise.AudioButtons,
                 AnswerButtons = exercise.AnswerButtons

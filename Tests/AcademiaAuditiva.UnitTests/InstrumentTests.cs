@@ -24,6 +24,28 @@ public class InstrumentTests
     }
 
     [Theory]
+    [InlineData("Piano", "Piano")]
+    [InlineData("guitar", "Guitar")]
+    [InlineData("Violin", "Piano")]
+    [InlineData(" violin ", "Piano")]
+    [InlineData(null, "Piano")]
+    [InlineData("Drums", "Piano")]
+    public void FromName_ForChords_FallsBackToThePiano_WhenTheInstrumentPlaysNone(string? name, string expected)
+    {
+        Instrument.FromName(name, chords: true).Name.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ExercisesThatPlayChords_OfferOnlyTheInstrumentsThatPlayThem()
+    {
+        Instrument.Piano.Chords.Should().Be(ChordStyle.Together);
+        Instrument.Guitar.Chords.Should().Be(ChordStyle.Strummed);
+        Instrument.Violin.PlaysChords.Should().BeFalse("a violin plays one note at a time");
+        Instrument.Offered(chords: true).Should().Equal(Instrument.Piano, Instrument.Guitar);
+        Instrument.Offered(chords: false).Should().Equal(Instrument.All);
+    }
+
+    [Theory]
     [InlineData("Piano", "C4", "C4.mp3")]
     [InlineData("Guitar", "C#4", "guitar/Cs4.mp3")]
     [InlineData("Guitar", "Db4", "guitar/Cs4.mp3")]

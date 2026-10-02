@@ -18,7 +18,9 @@ fr-CA). It runs at <https://academiaauditiva.com>.
   scale or a chord, transpose a scale) and sight-singing. Filters choose the
   key, scale, octave, level and more.
 - 🎸 **Piano, guitar or violin**: every exercise with audio plays on the
-  instrument the student picks.
+  instrument the student picks. The guitar strums chords on the shapes a
+  guitarist plays on the neck, and the exercises that play chords leave out
+  the violin, which plays one note at a time.
 - 🧭 **Learning path**: 18 steps in 3 units, from *Higher or Lower* to
   *Guess Note*, with progress and celebrations.
 - 🏆 **Gamification**: XP, levels, practice streaks and badges.

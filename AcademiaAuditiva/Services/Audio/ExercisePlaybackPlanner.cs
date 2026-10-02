@@ -19,6 +19,12 @@ namespace AcademiaAuditiva.Services.Audio;
 ///   - 0 plans for SolfegeMelody (the melody is shown as sheet music for
 ///     the student to sing, so there is nothing to hide; the caller
 ///     short-circuits by not invoking the mixer).
+///
+/// Every plan is played on the instrument the student picked (the
+/// <c>instrument</c> filter): the piano plays a chord's notes together, the
+/// guitar strums it on a chord shape of its neck (<see cref="GuitarVoicing"/>),
+/// and the exercises that play chords are played on the piano instead of the
+/// violin, which plays one note at a time.
 /// </summary>
 public sealed class ExercisePlaybackPlanner
 {
@@ -51,6 +57,19 @@ public sealed class ExercisePlaybackPlanner
     private const double CadenceChordSeconds = 1.2;
     private const double CadenceChordGapSeconds = 0.05;
 
+    // A guitar strum sweeps the strings from the low one up, one every 15 ms.
+    private const double StrumStepSeconds = 0.015;
+
+    // The exercises that play notes together, which the violin can't play.
+    private static readonly HashSet<string> ChordExercises =
+        ["GuessChords", "GuessFunction", "GuessQuality", "GuessInversion", "GuessCadence"];
+
+    /// <summary>
+    /// Whether <paramref name="exerciseName"/> plays chords: it is then only played on (and
+    /// only offers) the instruments that play them, see <see cref="Instrument.Offered"/>.
+    /// </summary>
+    public static bool PlaysChords(string exerciseName) => ChordExercises.Contains(exerciseName);
+
     /// <summary>
     /// Returns the JSON to cache as <c>ExpectedAnswer</c> together with
     /// the playback plans that need to be mixed and tokenized. An empty
@@ -65,7 +84,8 @@ public sealed class ExercisePlaybackPlanner
 
         // The note range comes from a cookie or the request: keep it where the
         // instrument sounds natural, without touching the caller's filters.
-        var instrument = Instrument.FromName(filters.GetValueOrDefault("instrument"));
+        // Chords the instrument can't play are played on the piano.
+        var instrument = Instrument.FromName(filters.GetValueOrDefault("instrument"), PlaysChords(exercise.Name));
         var instrumentFilters = new Dictionary<string, string>(filters, filters.Comparer)
         {
             ["noteRange"] = instrument.ClampRange(filters.GetValueOrDefault("noteRange")),
@@ -86,7 +106,7 @@ public sealed class ExercisePlaybackPlanner
             case "GuessFunction":
             case "GuessQuality":
             case "GuessInversion":
-                plans.Add(NotesAtOnce(instrument, StringArray(token, "notes")));
+                plans.Add([.. Chord(instrument, StringArray(token, "notes"), 0.0, NoteClipSeconds)]);
                 break;
 
             case "HigherOrLower":
@@ -151,14 +171,23 @@ public sealed class ExercisePlaybackPlanner
     private static MixInput Note(Instrument instrument, string note, double startTime = 0.0) =>
         new(instrument.SampleFor(note), startTime, NoteClipSeconds);
 
-    private static IReadOnlyList<MixInput> NotesAtOnce(Instrument instrument, IReadOnlyList<string> notes)
+    /// <summary>
+    /// One chord, starting at <paramref name="startTime"/> and ringing for
+    /// <paramref name="seconds"/>. The piano plays its notes together; the guitar
+    /// strums them on a chord shape of its neck (<see cref="GuitarVoicing"/>), from
+    /// the low string up, and every string rings until the chord ends.
+    /// </summary>
+    private static IEnumerable<MixInput> Chord(Instrument instrument, IReadOnlyList<string> notes, double startTime, double seconds)
     {
-        var plan = new MixInput[notes.Count];
-        for (var i = 0; i < notes.Count; i++)
-        {
-            plan[i] = Note(instrument, notes[i]);
-        }
-        return plan;
+        if (instrument.Chords != ChordStyle.Strummed)
+            return notes.Select(note => new MixInput(instrument.SampleFor(note), startTime, seconds));
+
+        var midis = notes.Select(Midi).ToList();
+        var strings = GuitarVoicing.Find(midis)?.Notes ?? [.. midis.Order()];
+        return strings.Select((midi, i) => new MixInput(
+            instrument.SampleName(midi),
+            startTime + i * StrumStepSeconds,
+            seconds - i * StrumStepSeconds));
     }
 
     private static IReadOnlyList<MixInput> NotesInSequence(Instrument instrument, IReadOnlyList<string> notes)
@@ -181,10 +210,10 @@ public sealed class ExercisePlaybackPlanner
     }
 
     /// <summary>
-    /// Stacks several chords into a single playback plan: every note in
-    /// chord <c>i</c> starts at the same time, the next chord starts
-    /// after <c>chordSeconds + gapSeconds</c>. Used by GuessCadence so
-    /// the four chords play sequentially as a single audio mix.
+    /// Stacks several chords into a single playback plan: chord <c>i</c> starts
+    /// (see <see cref="Chord"/>) after <c>chordSeconds + gapSeconds</c> times
+    /// <c>i</c>. Used by GuessCadence so the four chords play sequentially as
+    /// a single audio mix.
     /// </summary>
     private static IReadOnlyList<MixInput> ChordsInSequence(
         Instrument instrument,
@@ -196,10 +225,7 @@ public sealed class ExercisePlaybackPlanner
         var t = 0.0;
         foreach (var chord in chords)
         {
-            foreach (var note in chord)
-            {
-                plan.Add(new MixInput(instrument.SampleFor(note), t, chordSeconds));
-            }
+            plan.AddRange(Chord(instrument, chord, t, chordSeconds));
             t += chordSeconds + gapSeconds;
         }
         return plan;
@@ -279,6 +305,10 @@ public sealed class ExercisePlaybackPlanner
 
     private static InvalidOperationException Bad(string field) =>
         new($"Generated exercise data is missing field '{field}'.");
+
+    private static int Midi(string note) =>
+        MusicTheoryService.NoteToMidi(note)
+        ?? throw new InvalidOperationException($"Generated exercise data has an invalid note '{note}'.");
 }
 
 /// <summary>
