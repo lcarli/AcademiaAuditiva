@@ -33,8 +33,9 @@
                 <div id="waveform" class="aa-wave" aria-hidden="true"></div>
             </div>
 
+            @* The tour frames the fields together: the row's gutter would leave a gap above them. *@
             <div class="row g-3 mt-2">
-                <div class="col-md-6">
+                <div class="col-md-6" data-tour="answer">
                     <label class="form-label" for="firstDegreeSelect">@Localizer["Exercise.IntervalMelodico.FirstDegree"]</label>
                     <select class="form-select" id="firstDegreeSelect">
                         <option value="">@Localizer["Exercise.SelectOption"]</option>
@@ -44,7 +45,7 @@
                         }
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" data-tour="answer">
                     <label class="form-label" for="lastDegreeSelect">@Localizer["Exercise.IntervalMelodico.LastDegree"]</label>
                     <select class="form-select" id="lastDegreeSelect">
                         <option value="">@Localizer["Exercise.SelectOption"]</option>
@@ -54,7 +55,7 @@
                         }
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" data-tour="answer">
                     <label class="form-label" for="startIntervalSelect">@Localizer["Exercise.IntervalMelodico.StartInterval"]</label>
                     <select class="form-select" id="startIntervalSelect">
                         <option value="">@Localizer["Exercise.SelectOption"]</option>
@@ -65,7 +66,7 @@
                         }
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" data-tour="answer">
                     <label class="form-label" for="endIntervalSelect">@Localizer["Exercise.IntervalMelodico.EndInterval"]</label>
                     <select class="form-select" id="endIntervalSelect">
                         <option value="">@Localizer["Exercise.SelectOption"]</option>

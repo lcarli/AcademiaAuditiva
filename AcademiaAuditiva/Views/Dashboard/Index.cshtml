@@ -22,10 +22,18 @@
         </h1>
         <p class="text-secondary mb-0">@Localizer["Dashboard.Subtitle"]</p>
     </div>
-    <a class="btn btn-primary" asp-controller="Exercise" asp-action="Index">
-        <i class="bi bi-play-circle me-2" aria-hidden="true"></i>@Localizer["Dashboard.StartTraining"]
-    </a>
+    <div class="d-flex flex-wrap gap-2">
+        @* tutorial.js shows the button once it can run the tour. *@
+        <button type="button" class="btn btn-outline-secondary" data-aa-tour-start hidden>
+            <i class="bi bi-question-circle me-2" aria-hidden="true"></i>@Localizer["Tutorial.Replay"]
+        </button>
+        <a class="btn btn-primary" asp-controller="Exercise" asp-action="Index">
+            <i class="bi bi-play-circle me-2" aria-hidden="true"></i>@Localizer["Dashboard.StartTraining"]
+        </a>
+    </div>
 </header>
+
+@await Component.InvokeAsync("Tutorial", new { key = AcademiaAuditiva.Services.Tutorials.TutorialCatalog.Dashboard })
 
 @if (ViewBag.LearningPath is AcademiaAuditiva.Services.LearningPath.LearningPathProgress { TotalSteps: > 0 } learningPath)
 {
@@ -39,9 +47,10 @@
     var latestBadges = profile.LatestEarned(6);
     <section class="mb-4" aria-labelledby="aa-progress-title">
         <h2 id="aa-progress-title" class="visually-hidden">@Localizer["Gamification.ProgressTitle"]</h2>
+        @* The tour frames the cards together: the row's gutter would leave a gap above them. *@
         <div class="row row-cols-1 row-cols-lg-3 g-4">
             <div class="col">
-                <div class="aa-card p-4 h-100">
+                <div class="aa-card p-4 h-100" data-tour="progress">
                     <div class="d-flex align-items-center gap-3">
                         <span class="aa-rank" aria-hidden="true">@progress.Rank</span>
                         <div>
@@ -61,7 +70,7 @@
                 </div>
             </div>
             <div class="col">
-                <div class="aa-card p-4 h-100">
+                <div class="aa-card p-4 h-100" data-tour="progress">
                     <div class="d-flex align-items-center gap-3">
                         <span class="aa-icon-pill aa-icon-pill-warm" aria-hidden="true"><i class="bi bi-fire"></i></span>
                         <div>
@@ -83,7 +92,7 @@
                 </div>
             </div>
             <div class="col">
-                <div class="aa-card p-4 h-100 d-flex flex-column">
+                <div class="aa-card p-4 h-100 d-flex flex-column" data-tour="progress">
                     <div class="d-flex align-items-center gap-3">
                         <span class="aa-icon-pill" aria-hidden="true"><i class="bi bi-award"></i></span>
                         <div>

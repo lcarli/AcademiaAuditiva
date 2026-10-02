@@ -1,0 +1,4 @@
+@model Microsoft.AspNetCore.Html.HtmlString
+@* TutorialViewComponent escapes <, > and & in the JSON, so it cannot end this element. *@
+<script type="application/json" id="aa-tour-data">@Model</script>
+<script src="~/js/core/tutorial.js" asp-append-version="true" defer></script>

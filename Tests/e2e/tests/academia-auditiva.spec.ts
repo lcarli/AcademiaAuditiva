@@ -66,6 +66,7 @@ test('register page works and bootstrapped admin can log in', async ({ page, bas
 test('one real-audio GuessNote round returns playable audio and validates', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessNote`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
 
   const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
   const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
@@ -87,6 +88,41 @@ test('one real-audio GuessNote round returns playable audio and validates', asyn
   const result = await validate.json();
   expect(result.success).toBe(true);
 });
+
+test('dashboard tour starts until closed and can be replayed to the end', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Dashboard`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  await page.reload({ waitUntil: 'networkidle' });
+  const tour = page.locator('.aa-tour');
+  await expect(tour).toHaveCount(0);
+
+  await page.locator('[data-aa-tour-start]:visible').first().click();
+  const dialog = page.getByRole('dialog', { name: 'Welcome to Academia Auditiva' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('.aa-tour-count')).toHaveText(/^Step 1 of \d+$/);
+
+  const seen = page.waitForRequest(request => request.url().includes('/Tutorial/Seen'));
+  for (let step = 1; await tour.count() > 0; step++) {
+    expect(step, 'the tour ends').toBeLessThan(10);
+    await page.locator('.aa-tour-pop .btn-primary').click();
+  }
+  expect((await seen).postData()).toContain('finished=true');
+});
+
+// A page's guided tour starts over it on the first visit; close it as a student
+// would (Esc) and wait until the server remembers it.
+async function closeTourIfStarted(page: Page) {
+  const data = page.locator('#aa-tour-data');
+  if (await data.count() === 0 || !JSON.parse(await data.textContent() ?? '{}').autoStart) return;
+
+  await expect(page.locator('.aa-tour')).toBeVisible();
+  const seen = page.waitForResponse(response => response.url().includes('/Tutorial/Seen'));
+  await page.keyboard.press('Escape');
+  expect((await seen).status()).toBe(204);
+  await expect(page.locator('.aa-tour')).toHaveCount(0);
+}
 
 async function login(page: Page, baseURL: string, email: string, password: string) {
   expect(email, 'AA_EMAIL').toBeTruthy();

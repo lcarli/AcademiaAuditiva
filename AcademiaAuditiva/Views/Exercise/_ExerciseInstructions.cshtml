@@ -16,7 +16,7 @@
     var tips = localizedTips.Count > 0 ? localizedTips : (Model.Tips ?? new List<string>());
 }
 
-<aside class="aa-card-flat p-3 p-lg-4">
+<aside class="aa-card-flat p-3 p-lg-4" data-tour="instructions">
     @if (!string.IsNullOrEmpty(instructions))
     {
         <h2 class="h5 mb-2 d-flex align-items-center gap-2">
