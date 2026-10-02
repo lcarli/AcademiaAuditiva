@@ -40,11 +40,12 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" `
 dotnet user-secrets set "Facebook:AppId" "<your-test-app-id>"
 dotnet user-secrets set "Facebook:AppSecret" "<your-test-app-secret>"
 
-# Optional: only needed if you want emails to actually be sent
-dotnet user-secrets set "Smtp:Host" "smtp.gmail.com"
+# Optional: only needed if you want emails to actually be sent (Resend, as in production)
+dotnet user-secrets set "Smtp:Host" "smtp.resend.com"
 dotnet user-secrets set "Smtp:Port" "465"
-dotnet user-secrets set "Smtp:User" "your-email@example.com"
-dotnet user-secrets set "Smtp:Password" "your-app-password"
+dotnet user-secrets set "Smtp:User" "resend"
+dotnet user-secrets set "Smtp:Password" "<a Resend API key with sending access>"
+dotnet user-secrets set "Smtp:FromAddress" "no-reply@academiaauditiva.com"
 
 # Bootstrap admin (first-run admin account)
 dotnet user-secrets set "Admin:Email" "you@example.com"
@@ -53,7 +54,13 @@ dotnet user-secrets set "Admin:InitialPassword" "Some!Strong-Password1"
 
 > **No SMTP, no Facebook? No problem.** The app boots either way:
 > Facebook auth simply won't appear, and emails are skipped with a
-> warning log instead of throwing.
+> warning log instead of throwing. Registration then shows the confirmation
+> link on screen.
+>
+> With email on, register test accounts with Resend's test addresses, such as
+> `delivered+anything@resend.dev`. They are accepted but reach no real inbox.
+> Mail to made-up addresses such as `@example.test` bounces, which hurts the
+> sending domain's reputation.
 
 ## 2. Apply EF migrations (or let startup do it)
 
@@ -155,6 +162,10 @@ npm test
 The suite checks localized home/catalog/privacy pages, health endpoints,
 admin login, registration, and a real-audio GuessNote round.
 
+Run it against an app without `Smtp:*` settings, as CI does, and never against
+production. It registers `@example.test` accounts and follows the confirmation
+link that registration shows only while email is off.
+
 ## Troubleshooting
 
 | Symptom | Fix |
@@ -164,7 +175,7 @@ admin login, registration, and a real-audio GuessNote round.
 | Login timeout / connection refused with the Docker container | `localhost` can resolve to IPv6 (`::1`) first; use `Server=127.0.0.1,1433` and check `docker ps` shows `aa-sql` running |
 | Port already in use | `dotnet run --project AcademiaAuditiva -- --urls http://localhost:5050` (the launch profile overrides `ASPNETCORE_URLS`) |
 | Facebook button missing | `Facebook:AppId` / `Facebook:AppSecret` not set — expected for local dev |
-| Emails not sent | Same — `Smtp:*` is optional. Check the Console log for the warning. |
+| Emails not sent | `Smtp:*` is optional; the Console log's warning lists the settings it needs. With Resend, `Smtp:FromAddress` is required, because the user is `resend`. A failed send logs `Failed to send email` and the page carries on. |
 | *Play* spins for ~20 s and no sound plays | No audio storage configured: run `./scripts/local-audio.ps1` (step 3) |
 | *Play* stopped working (Azurite container stopped) | `docker start aa-azurite` |
 | SQL Server integration tests are skipped | Set `AA_TEST_SQL_CONNECTION` in the same process running `dotnet test` |

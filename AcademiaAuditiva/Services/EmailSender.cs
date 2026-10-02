@@ -22,21 +22,17 @@ namespace AcademiaAuditiva.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            if (string.IsNullOrWhiteSpace(_options.Host) ||
-                string.IsNullOrWhiteSpace(_options.User) ||
-                string.IsNullOrWhiteSpace(_options.Password))
+            if (!_options.IsConfigured)
             {
                 _logger.LogWarning(
-                    "SMTP is not configured (Smtp:Host/User/Password missing). " +
-                    "Skipping email to {Email}. Subject: {Subject}",
+                    "SMTP is not configured (Smtp:Host, Smtp:User, Smtp:Password and a sender address " +
+                    "in Smtp:FromAddress are needed). Skipping email to {Email}. Subject: {Subject}",
                     LogSanitizer.HashEmail(email), LogSanitizer.Sanitize(subject));
                 return;
             }
 
-            var fromAddress = string.IsNullOrWhiteSpace(_options.FromAddress) ? _options.User : _options.FromAddress;
-
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_options.FromName, fromAddress));
+            message.From.Add(new MailboxAddress(_options.FromName, _options.SenderAddress));
             message.To.Add(new MailboxAddress(string.Empty, email));
             message.Subject = subject;
             message.Body = new BodyBuilder { HtmlBody = htmlMessage }.ToMessageBody();

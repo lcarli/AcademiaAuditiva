@@ -37,7 +37,7 @@ Every bug and improvement written down in [SMOKE_TEST.md](SMOKE_TEST.md):
 | Erro4: pending invites and member lists without margins | Fixed | #39 (`ae83e85`), #53 |
 | Erro4: the routine pages have the same problems (toasts, English text, layout) | Fixed | #39 (`ae83e85`), #53, #56, #64, #71, #82 |
 | Improvement: lock, unlock and delete users in Admin | Done | #80 |
-| Improvement: HTML e-mail templates (confirmation, password reset, …) | On hold ([backlog](../Backlog.md#on-hold-e-mail)) | |
+| Improvement: HTML e-mail templates (confirmation, password reset, …) | To do ([backlog](../Backlog.md#e-mail)) | |
 
 Before archiving, sections 1 to 8 were run again in en-US, pt-BR and fr-CA
 with an automated browser script. It found two more bugs:

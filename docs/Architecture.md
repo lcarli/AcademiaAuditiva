@@ -70,7 +70,7 @@ See [Deploy-Azure.md](Deploy-Azure.md) for the diagram and resource list.
    Key Vault (kv-aa-prd-…)  ◀── private endpoint, managed identity
        │  ConnectionStrings--DefaultConnection
        │  Facebook--AppId / AppSecret
-       │  Smtp--Host / Port / User / Password
+       │  Smtp--Host / Port / User / Password / FromAddress
        │  Admin--InitialPassword
        │
        │  (read at app start by the Key Vault configuration provider,

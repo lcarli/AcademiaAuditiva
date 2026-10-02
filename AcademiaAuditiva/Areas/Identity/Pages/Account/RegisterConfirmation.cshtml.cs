@@ -11,7 +11,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Services;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 {
@@ -20,18 +22,18 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _sender;
-        private readonly IConfiguration _configuration;
+        private readonly SmtpOptions _smtp;
         private readonly IWebHostEnvironment _environment;
 
         public RegisterConfirmationModel(
             UserManager<ApplicationUser> userManager,
             IEmailSender sender,
-            IConfiguration configuration,
+            IOptions<SmtpOptions> smtp,
             IWebHostEnvironment environment)
         {
             _userManager = userManager;
             _sender = sender;
-            _configuration = configuration;
+            _smtp = smtp.Value;
             _environment = environment;
         }
 
@@ -72,12 +74,10 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
             // In Development, or whenever SMTP is not configured, surface the
             // confirmation link directly on the page so the user is not
             // permanently stuck on "check your email". The default Identity
-            // scaffolding does this; we just plugged it back in.
-            var smtpConfigured =
-                !string.IsNullOrWhiteSpace(_configuration["Smtp:Host"]) &&
-                !string.IsNullOrWhiteSpace(_configuration["Smtp:User"]) &&
-                !string.IsNullOrWhiteSpace(_configuration["Smtp:Password"]);
-            DisplayConfirmAccountLink = _environment.IsDevelopment() || !smtpConfigured;
+            // scaffolding does this; we just plugged it back in. The sender
+            // uses the same check, so the link shows exactly when no e-mail
+            // goes out (or in Development).
+            DisplayConfirmAccountLink = _environment.IsDevelopment() || !_smtp.IsConfigured;
 
             if (DisplayConfirmAccountLink)
             {

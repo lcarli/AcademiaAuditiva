@@ -2109,6 +2109,9 @@
   <data name="Identity.Status.VerificationEmailSent" xml:space="preserve">
     <value>Verification email sent. Please check your email.</value>
   </data>
+  <data name="Identity.Status.EmailSendFailed" xml:space="preserve">
+    <value>The email could not be sent. Please try again in a few minutes.</value>
+  </data>
   <data name="Identity.Status.PhoneUpdateError" xml:space="preserve">
     <value>Unexpected error while setting phone number.</value>
   </data>

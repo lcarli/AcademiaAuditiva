@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
+using AcademiaAuditiva.Services;
 using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
@@ -180,7 +181,9 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
                             values: new { area = "Identity", userId = userId, code = code },
                             protocol: Request.Scheme);
 
-                        await _emailSender.SendEmailAsync(Input.Email, _localizer["Identity.Email.Confirm.Subject"],
+                        // The account exists now, so a mail outage must not
+                        // end sign-up on an error page.
+                        await _emailSender.TrySendEmailAsync(Input.Email, _localizer["Identity.Email.Confirm.Subject"],
                             _localizer["Identity.Email.Confirm.Body", HtmlEncoder.Default.Encode(callbackUrl)]);
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender

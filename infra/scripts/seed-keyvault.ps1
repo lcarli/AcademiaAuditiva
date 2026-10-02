@@ -67,11 +67,12 @@ Write-Host "`n— Facebook OAuth —" -ForegroundColor Yellow
 Set-Secret -Name 'Facebook--AppId' -Prompt 'Facebook AppId'
 Set-Secret -Name 'Facebook--AppSecret' -Prompt 'Facebook AppSecret' -Mask
 
-Write-Host "`n— SMTP (MailKit) —" -ForegroundColor Yellow
-Set-Secret -Name 'Smtp--Host' -Prompt 'SMTP host (e.g. smtp.gmail.com)'
+Write-Host "`n— E-mail (SMTP through Resend) —" -ForegroundColor Yellow
+Set-Secret -Name 'Smtp--Host' -Prompt 'SMTP host (e.g. smtp.resend.com)'
 Set-Secret -Name 'Smtp--Port' -Prompt 'SMTP port (e.g. 465)'
-Set-Secret -Name 'Smtp--User' -Prompt 'SMTP user (sender email)'
-Set-Secret -Name 'Smtp--Password' -Prompt 'SMTP password / app password' -Mask
+Set-Secret -Name 'Smtp--User' -Prompt 'SMTP user (e.g. resend)'
+Set-Secret -Name 'Smtp--Password' -Prompt 'SMTP password (a Resend API key with sending access)' -Mask
+Set-Secret -Name 'Smtp--FromAddress' -Prompt 'Sender address (e.g. no-reply@academiaauditiva.com)'
 
 Write-Host "`n— Bootstrap admin —" -ForegroundColor Yellow
 Write-Host "  Only used to create the Admin__Email account if it doesn't exist yet." -ForegroundColor DarkGray

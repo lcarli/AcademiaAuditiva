@@ -21,8 +21,9 @@ The modernization plan is done (#47 to #83):
 - **Accounts**: privacy policy, data export and deletion, and admin lock,
   unlock and delete (#57, #65, #80, #81).
 
-E-mail is [on hold](#on-hold-e-mail). There are no open pull requests and no
-open CodeQL or Dependabot alerts. The open issues are #16 and #31.
+E-mail is [on](#e-mail): production sends through Resend (#89). There are no
+open pull requests and no open CodeQL or Dependabot alerts. The open issues are
+#16 and #31.
 
 ## How we work
 
@@ -51,8 +52,10 @@ open CodeQL or Dependabot alerts. The open issues are #16 and #31.
 
 **Why.** Wrong passwords never count toward lockout: `Login.cshtml.cs:120`
 calls `PasswordSignInAsync(..., lockoutOnFailure: false)`. No rate-limit policy
-covers the account pages either. `docs/Security.md:14` says lockout protects
-against brute force, which is not true yet.
+covers the account pages either. Now that e-mail is on, Register,
+ForgotPassword and ResendEmailConfirmation send real mail, so anyone can make
+the site mail any address and use up the Resend quota. `docs/Security.md:14`
+says lockout protects against brute force, which is not true yet.
 
 **Where.**
 
@@ -97,6 +100,10 @@ Lockout page and that the limit returns 429. `AdminUsersTests` still pass, and
 
 ### 2. Show invite links while e-mail is off
 
+**Lower priority since #89.** Production now e-mails invites, and when sending
+fails the teacher already sees the link. This only matters where e-mail is off:
+locally, in CI, or if production turns it off again.
+
 **Why.** Without SMTP, the e-mail sender logs a warning and returns
 (`AcademiaAuditiva/Services/EmailSender.cs:25-34`). The teacher still sees
 "invite sent" (`AcademiaAuditiva/Areas/Teacher/Controllers/MembersController.cs:134`)
@@ -107,10 +114,10 @@ throws (`MembersController.cs:127-131`).
 
 **What.**
 
-- When SMTP is not configured, say so and show the accept link with a copy
+- When e-mail is off, say so and show the accept link with a copy
   button, both after inviting and in the pending list.
-  `RegisterConfirmation.cshtml.cs:76-80` already checks whether SMTP is
-  configured.
+  `SmtpOptions.IsConfigured` tells whether e-mail is on;
+  `RegisterConfirmation.cshtml.cs` already uses it.
 - Keep the e-mail path as it is.
 - Add the new texts in the three cultures.
 
@@ -171,42 +178,41 @@ doubt, ask someone qualified.
 gone and sight-singing still recognizes sung notes. Either way, the readme's
 third-party table matches.
 
-## On hold: e-mail
+## E-mail
 
-The owner put e-mail on hold while the site is a test site.
+**Today.** Production sends e-mail through Resend's SMTP server (#89). The five
+`Smtp--*` Key Vault secrets hold the settings (see the
+[inventory](Security.md#secret-inventory-production)). The password is a Resend
+API key with sending access to `academiaauditiva.com` only.
 
-**Today, without SMTP.** The sender (`AcademiaAuditiva/Services/EmailSender.cs`,
-registered at `Program.cs:208`) skips sending when `Smtp:Host`, `Smtp:User` or
-`Smtp:Password` is missing. The `Smtp--*` Key Vault secrets are placeholders.
-As a result:
+- DNS: DKIM (`resend._domainkey`) and the `send` and `rsend` CNAMEs (SPF and
+  bounces) are verified in Resend. DMARC is `p=none`.
+- Sign-up no longer shows the confirmation link on screen. Forgot password,
+  resend confirmation, change e-mail and teacher invites send real mail.
+- A failed send never breaks a page. The account pages answer as usual
+  (`EmailSenderExtensions.TrySendEmailAsync`), the account e-mail page says the
+  e-mail could not be sent, and an invite shows its link.
+- Without the settings (locally and in CI), the app skips sending and shows the
+  confirmation link, as before.
 
-- Registration shows the confirmation link on screen
-  (`AcademiaAuditiva/Areas/Identity/Pages/Account/RegisterConfirmation.cshtml.cs:76-80`),
-  so nobody proves they own the address. This stops by itself once SMTP is
-  configured.
-- Forgot password, resend confirmation and change e-mail send nothing, so
-  users cannot reset a forgotten password.
-- Teacher invites go nowhere (see [item 2](#2-show-invite-links-while-e-mail-is-off)).
+**Still to do.**
+
 - `contato@academiaauditiva.com` has no MX record, so mail to it bounces. It is
-  shown on the Lockout page and in the privacy policy.
-- `docs/Security.md:11` relies on e-mail: confirmation, and the forgot-password
-  reset of the bootstrap admin.
-
-**When it resumes.**
-
-- Pick a provider: Azure Communication Services Email or an SMTP service. The
-  current sender speaks SMTP (MailKit). Store the settings with
-  `infra/scripts/seed-keyvault.ps1`.
-- DNS: SPF, DKIM and DMARC for the sending domain, plus MX or forwarding for
-  `contato@`. The zone lives in another tenant; `infra/scripts/configure-dns.ps1`
-  updates it.
+  shown on the Lockout page and in the privacy policy. It needs a mailbox or
+  forwarding. The zone lives in another tenant;
+  `infra/scripts/configure-dns.ps1` updates it.
 - HTML templates for confirmation, password reset and invites, in the three
-  cultures.
-- External sign-in also sends a confirmation e-mail (`RequireConfirmedAccount`,
-  `Program.cs:79`).
+  cultures. Today each e-mail is a short localized text with a link.
+- Add a DMARC report address (`rua=`), and once the reports are clean, move
+  from `p=none` to `quarantine`.
+- **Owner decision.** The privacy policy says the data is stored in Canada and
+  mentions only "an email delivery provider". Resend sends from the United
+  States (`us-east-1`) and keeps a log of each e-mail. Decide whether the policy
+  should name Resend and that transfer; if so, change the three privacy views
+  and their date.
 
-**Done when.** Confirmation, reset and invite e-mails reach a test inbox in
-each culture, SPF and DKIM pass, and `contato@` receives mail.
+**Done when.** `contato@` receives mail, and the templated e-mails reach a test
+inbox in each culture.
 
 ## Later, or needs a decision
 
@@ -267,7 +273,7 @@ handles local accounts, two-factor, the admin lock, and data export and
 deletion.
 
 - **Gains.** Moving would bring hosted e-mail verification, MFA and social
-  sign-in, which covers much of the e-mail and Facebook work.
+  sign-in, which covers much of the Facebook work.
 - **Costs.** It would touch `Areas/Identity`, `LockoutAwareSignInManager`, the
   admin users page and the personal-data code. Existing accounts would need a
   migration plan.
@@ -283,7 +289,9 @@ These are outside the repo:
 - Review who holds the Admin role.
 - Confirm the Facebook App Secret was reset (see
   [Facebook sign-in](#facebook-sign-in-off-in-production)).
-- Set up the `contato@` mailbox, together with e-mail.
+- Set up the `contato@` mailbox or forwarding (see [E-mail](#e-mail)).
+- Keep only the Resend API keys still in use. Production has its own key with
+  sending access to `academiaauditiva.com` only.
 
 ## Watch
 
@@ -294,3 +302,6 @@ These are outside the repo:
   - If it fails again, look at the new finding before allowlisting its
     fingerprint.
 - Merge Dependabot pull requests through the same cycle.
+- Resend → Emails: bounces and spam complaints hurt the domain's reputation.
+  Once the plan's sending quota runs out, sign-ups stop getting their
+  confirmation e-mail.

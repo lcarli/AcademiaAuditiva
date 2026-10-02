@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
+using AcademiaAuditiva.Services;
 using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
@@ -76,7 +77,9 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
                     values: new { area = "Identity", code },
                     protocol: Request.Scheme);
 
-                await _emailSender.SendEmailAsync(
+                // Answer the same way when sending fails, so a mail outage
+                // doesn't reveal which addresses have accounts.
+                await _emailSender.TrySendEmailAsync(
                     Input.Email,
                     _localizer["Identity.Email.ResetPassword.Subject"],
                     _localizer["Identity.Email.ResetPassword.Body", HtmlEncoder.Default.Encode(callbackUrl)]);

@@ -2109,6 +2109,9 @@
   <data name="Identity.Status.VerificationEmailSent" xml:space="preserve">
     <value>Email de verificação enviado. Verifique seu email.</value>
   </data>
+  <data name="Identity.Status.EmailSendFailed" xml:space="preserve">
+    <value>Não foi possível enviar o email. Tente novamente em alguns minutos.</value>
+  </data>
   <data name="Identity.Status.PhoneUpdateError" xml:space="preserve">
     <value>Erro inesperado ao definir o telefone.</value>
   </data>

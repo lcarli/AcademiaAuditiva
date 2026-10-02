@@ -34,10 +34,11 @@ provider, through the vault's private endpoint. The provider maps `--` to
 | `ConnectionStrings--DefaultConnection` | `ConnectionStrings:DefaultConnection` | Written by the Bicep deployment from the SQL FQDN, DB name and MI client id; auth is AAD (`Authentication=Active Directory Default`) |
 | `Facebook--AppId` | `Facebook:AppId` | Facebook for Developers → App → Settings → Basic |
 | `Facebook--AppSecret` | `Facebook:AppSecret` | same — *Show* the App Secret |
-| `Smtp--Host` | `Smtp:Host` | `smtp.gmail.com` |
-| `Smtp--Port` | `Smtp:Port` | `587` |
-| `Smtp--User` | `Smtp:User` | Gmail address that owns the App Password |
-| `Smtp--Password` | `Smtp:Password` | Google → Security → 2FA → App passwords |
+| `Smtp--Host` | `Smtp:Host` | `smtp.resend.com` |
+| `Smtp--Port` | `Smtp:Port` | `465` (TLS from the start, as `Smtp:UseSsl` defaults to `true`) |
+| `Smtp--User` | `Smtp:User` | `resend` |
+| `Smtp--Password` | `Smtp:Password` | Resend → API Keys: a key with *Sending access* to `academiaauditiva.com` only |
+| `Smtp--FromAddress` | `Smtp:FromAddress` | `no-reply@academiaauditiva.com`, on the domain verified in Resend |
 | `Admin--InitialPassword` | `Admin:InitialPassword` | Operator; only used to create the `Admin__Email` account if it doesn't exist |
 
 The vault's data plane only answers inside the VNet, so list the inventory
@@ -68,12 +69,16 @@ az containerapp revision restart --name ca-aa-prd --resource-group rg-aa-prd `
 2. Update KV: `Facebook--AppSecret`.
 3. Restart the Container App revision.
 
-### Rotate Gmail / SMTP app password
+### Rotate the Resend API key
 
-1. Google account → Security → 2-Step Verification → App passwords.
-2. Generate a new password; revoke the old one immediately.
-3. Update KV: `Smtp--Password`.
-4. Restart the Container App revision.
+1. Resend → API Keys → Create API key, with *Sending access* and the
+   `academiaauditiva.com` domain only.
+2. Update KV: `Smtp--Password` (run `seed-keyvault.ps1` and leave the other
+   prompts empty).
+3. Restart the Container App revision.
+4. Request a password reset for your own account and check that Resend →
+   Emails lists it as *Delivered*.
+5. Delete the old key in Resend.
 
 ### Rotate SQL credentials
 
