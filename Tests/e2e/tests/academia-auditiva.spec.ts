@@ -158,8 +158,11 @@ test('the chosen instrument plays the round and is remembered', async ({ page, b
   await violin.click();
   await expect(violin).toHaveAttribute('aria-pressed', 'true');
   await expect(filters.locator('[data-instrument="Piano"]')).toHaveAttribute('aria-pressed', 'false');
-  await expect(filters.locator('#rangeStart')).toHaveAttribute('min', '4');
+  await expect(filters.locator('#rangeStart')).toHaveAttribute('min', '3');
   await expect(filters.locator('#rangeEnd')).toHaveAttribute('max', '6');
+  // The lowest octave starts at the violin's G string.
+  await filters.locator('#rangeStart').fill('3');
+  await expect(filters.locator('#rangeStartLabel')).toHaveText('G3');
   expect((await context.cookies()).find(cookie => cookie.name === 'instrument')?.value).toBe('Violin');
   await filters.locator('.btn-close').click();
   await expect(filters).toBeHidden();
@@ -174,10 +177,10 @@ test('the chosen instrument plays the round and is remembered', async ({ page, b
   await page.reload({ waitUntil: 'networkidle' });
   await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
   await expect(violin).toHaveAttribute('aria-pressed', 'true');
-  await expect(filters.locator('#rangeStart')).toHaveAttribute('min', '4');
+  await expect(filters.locator('#rangeStart')).toHaveAttribute('min', '3');
 });
 
-test('the guitar starts the chords on its open chords until the student moves the range', async ({ page, baseURL, context }) => {
+test('the guitar plays the chords where on the neck the student picks', async ({ page, baseURL, context }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessChords`, { waitUntil: 'networkidle' });
   await closeTourIfStarted(page);
@@ -185,31 +188,26 @@ test('the guitar starts the chords on its open chords until the student moves th
   const filters = page.locator('#filtersModal');
   const piano = filters.locator('[data-instrument="Piano"]');
   const guitar = filters.locator('[data-instrument="Guitar"]');
-  const rangeStart = filters.locator('#rangeStart');
-  const rangeEnd = filters.locator('#rangeEnd');
-  const noteRange = async () => (await context.cookies()).find(cookie => cookie.name === 'noteRange')?.value;
+  const positions = filters.locator('#positionFilter');
+  const range = filters.locator('#rangeFilter');
+  const open = filters.locator('[data-guitar-position="Open"]');
+  const high = filters.locator('[data-guitar-position="High"]');
   await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
   // A violin plays one note at a time.
   await expect(filters.locator('[data-instrument="Violin"]')).toHaveCount(0);
   await expect(piano).toHaveAttribute('aria-pressed', 'true');
-  await expect(rangeStart).toHaveValue('4');
+  await expect(positions).toBeHidden();
+  await expect(range).toBeVisible();
 
+  // On the guitar, where on the neck to play replaces the note range: the open chords first.
   await guitar.click();
-  await expect(rangeStart).toHaveValue('2');
-  await expect(rangeEnd).toHaveValue('2');
-  await expect(filters.locator('#rangeStartLabel')).toHaveText('C2');
-  expect(await noteRange()).toBe('C2-C2');
-
-  // Once moved, the range stays where the student put it.
-  await rangeEnd.fill('3');
-  await expect(filters.locator('#rangeEndLabel')).toHaveText('C3');
-  await piano.click();
-  await expect(rangeStart).toHaveValue('2');
-  await expect(rangeEnd).toHaveValue('3');
-  await guitar.click();
-  await expect(rangeStart).toHaveValue('2');
-  await expect(rangeEnd).toHaveValue('3');
-  expect(await noteRange()).toBe('C2-C3');
+  await expect(positions).toBeVisible();
+  await expect(range).toBeHidden();
+  await expect(open).toHaveAttribute('aria-pressed', 'true');
+  await high.click();
+  await expect(high).toHaveAttribute('aria-pressed', 'true');
+  await expect(open).toHaveAttribute('aria-pressed', 'false');
+  expect((await context.cookies()).find(cookie => cookie.name === 'guitarPosition')?.value).toBe('High');
   await filters.locator('.btn-close').click();
   await expect(filters).toBeHidden();
 
@@ -218,6 +216,16 @@ test('the guitar starts the chords on its open chords until the student moves th
   const audio = await audioResponse;
   expect(audio.headers()['content-type']).toContain('audio/');
   expect((await audio.body()).length).toBeGreaterThan(1000);
+
+  // The page is rendered with the position the cookie remembers, and the piano brings the range back.
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await expect(high).toHaveAttribute('aria-pressed', 'true');
+  await expect(positions).toBeVisible();
+  await expect(range).toBeHidden();
+  await piano.click();
+  await expect(positions).toBeHidden();
+  await expect(range).toBeVisible();
 });
 
 test('free practice shows the answer and checks it without scoring', async ({ page, baseURL }) => {

@@ -38,6 +38,30 @@ public sealed class GuitarShape
     }));
 }
 
+/// <summary>Where on the neck the guitar plays the chords of an exercise.</summary>
+public enum GuitarPosition
+{
+    /// <summary>
+    /// The chords of the first frets, as a guitarist learns them first (the default): open
+    /// chords, where open strings ring, and barre chords for the others. C is <c>x32010</c>,
+    /// F <c>133211</c>.
+    /// </summary>
+    Open,
+
+    /// <summary>
+    /// Barre chords: every string that is played is fretted, as near the nut as the chord
+    /// allows. C is <c>x35553</c>, G <c>355433</c>.
+    /// </summary>
+    Barre,
+
+    /// <summary>
+    /// High on the neck, from the 7th fret up, on the highest strings. C is <c>xx(10)988</c>,
+    /// G <c>x(10)(12)(12)(12)(10)</c>. The few chords a hand can't hold up there are played as
+    /// near the 7th fret as it can.
+    /// </summary>
+    High,
+}
+
 /// <summary>
 /// Plays a chord the way a guitarist does: rather than the close stack of notes the piano
 /// plays, a shape on the neck that strums four to six strings, doubling notes in the
@@ -45,11 +69,11 @@ public sealed class GuitarShape
 /// barre chord <c>133211</c>.
 /// </summary>
 /// <remarks>
-/// Every shape that sounds the chord and that a hand can hold is tried. The bass goes in the
-/// octave asked for, or as near it as the neck allows, and then the easiest shape wins: near
-/// the nut, with few fingers, a small stretch, and as many strings as the bass allows. In
-/// octave 2 those costs make the common open and barre chords come out; higher octaves move
-/// the shapes up the neck (see <c>GuitarVoicingTests</c>).
+/// Every shape in the <see cref="GuitarPosition"/> asked for that sounds the chord and that a
+/// hand can hold is tried, and the easiest one wins: near the nut, with few fingers, a small
+/// stretch, and as many strings as the bass allows (high on the neck, the highest strings
+/// are enough). The open chords also keep the bass in octave 2, as low as the neck has it.
+/// Those costs make the common open and barre chords come out (see <c>GuitarVoicingTests</c>).
 /// </remarks>
 public static class GuitarVoicing
 {
@@ -65,6 +89,13 @@ public static class GuitarVoicing
     // Open strings ring along only with chords played near the nut.
     private const int HighestFretWithOpenStrings = 4;
 
+    // The basses of the open chords: from the low E string (E2), or in octave 3 for the notes
+    // the neck has no lower (C3 to D#3).
+    private const int OpenChordsBassOctave = 2;
+
+    // The position high on the neck starts at the 7th fret.
+    private const int HighPositionFret = 7;
+
     // Costs of what makes a shape harder to play or thinner to hear; each finger costs 1.
     private const double PositionCost = 0.5;
     private const double LowStringNotPlayedCost = 1.5;
@@ -72,17 +103,16 @@ public static class GuitarVoicing
     private const double FourFingersWithoutBarreCost = 1.5;
     private const double StretchCost = 0.5;
 
-    // The pitch classes of a chord and the MIDI note its bass should be.
-    private static readonly ConcurrentDictionary<(int PitchClasses, int Bass), GuitarShape?> Shapes = new();
+    // The pitch classes of a chord, the pitch class of its bass, and the position on the neck.
+    private static readonly ConcurrentDictionary<(int PitchClasses, int Bass, GuitarPosition Position), GuitarShape?> Shapes = new();
 
     /// <summary>
-    /// The easiest shape that plays the notes of <paramref name="midiNotes"/>, in any octave,
-    /// with the lowest of them in the bass (so an inversion stays one), or <c>null</c> when no
-    /// shape plays them. The bass is in <paramref name="bassOctave"/> when a shape has it there,
-    /// or else in the nearest octave one does: the basses of the neck go from E2 to D4, so C
-    /// major is <c>x32010</c> (C3) in octaves 2 and 3, and <c>xx(10)988</c> (C4) in octave 4.
+    /// The easiest shape in <paramref name="position"/> that plays the notes of
+    /// <paramref name="midiNotes"/>, in any octave, with the lowest of them in the bass (so an
+    /// inversion stays one), or <c>null</c> when no shape plays them. A chord the position has
+    /// no shape for is played on the open chords.
     /// </summary>
-    public static GuitarShape? Find(IEnumerable<int> midiNotes, int bassOctave)
+    public static GuitarShape? Find(IEnumerable<int> midiNotes, GuitarPosition position = GuitarPosition.Open)
     {
         ArgumentNullException.ThrowIfNull(midiNotes);
 
@@ -96,13 +126,56 @@ public static class GuitarVoicing
         if (pitchClasses == 0)
             return null;
 
-        var bass = (bassOctave + 1) * 12 + PitchClass(lowest);
-        return Shapes.GetOrAdd((pitchClasses, bass), key => Search(key.PitchClasses, key.Bass));
+        return Shapes.GetOrAdd((pitchClasses, PitchClass(lowest), position), key =>
+            Search(key.PitchClasses, key.Bass, key.Position)
+            ?? (key.Position == GuitarPosition.Open ? null : Search(key.PitchClasses, key.Bass, GuitarPosition.Open)));
+    }
+
+    /// <summary>
+    /// The position called <paramref name="name"/> in any case (it comes from a cookie or a
+    /// request), or <see cref="GuitarPosition.Open"/> when there is no such position.
+    /// </summary>
+    public static GuitarPosition PositionFromName(string? name)
+    {
+        foreach (var position in Enum.GetValues<GuitarPosition>())
+        {
+            if (string.Equals(position.ToString(), name?.Trim(), StringComparison.OrdinalIgnoreCase))
+                return position;
+        }
+        return GuitarPosition.Open;
     }
 
     private static int PitchClass(int midi) => (midi % 12 + 12) % 12;
 
-    private static GuitarShape? Search(int pitchClasses, int bass)
+    private static GuitarShape? Search(int pitchClasses, int bass, GuitarPosition position)
+    {
+        switch (position)
+        {
+            case GuitarPosition.Open:
+                return Search(pitchClasses, bass, 0, (OpenChordsBassOctave + 1) * 12 + bass, LowStringNotPlayedCost);
+
+            // Barre chords fret every string they play.
+            case GuitarPosition.Barre:
+                return Search(pitchClasses, bass, 1, null, LowStringNotPlayedCost);
+
+            // High on the neck, the highest strings are enough; a chord a hand can't hold from
+            // the 7th fret up comes down a fret at a time.
+            default:
+                for (var lowestFret = HighPositionFret; lowestFret >= 1; lowestFret--)
+                {
+                    if (Search(pitchClasses, bass, lowestFret, null, 0.0) is { } shape)
+                        return shape;
+                }
+                return null;
+        }
+    }
+
+    /// <summary>
+    /// The easiest shape that plays <paramref name="pitchClasses"/> with <paramref name="bass"/>
+    /// in the bass, fretting no string below <paramref name="lowestFret"/> (0 lets the open
+    /// strings ring), with the bass nearest <paramref name="bassNote"/> when there is one.
+    /// </summary>
+    private static GuitarShape? Search(int pitchClasses, int bass, int lowestFret, int? bassNote, double lowStringNotPlayedCost)
     {
         var strings = GuitarShape.OpenStrings.Count;
 
@@ -111,7 +184,7 @@ public static class GuitarVoicing
         for (var s = 0; s < strings; s++)
         {
             choices[s] = [null];
-            for (var fret = 0; fret <= HighestFret; fret++)
+            for (var fret = lowestFret; fret <= HighestFret; fret++)
             {
                 if ((pitchClasses & 1 << PitchClass(GuitarShape.OpenStrings[s] + fret)) != 0)
                     choices[s].Add(fret);
@@ -130,7 +203,8 @@ public static class GuitarVoicing
             {
                 // The nearest bass wins, then the easiest shape; ties go to the shape
                 // nearer the nut, then to the one found first.
-                if (Score(frets, pitchClasses, bass) is { } score && score.CompareTo(bestScore) < 0)
+                if (Score(frets, pitchClasses, bass, bassNote, lowStringNotPlayedCost) is { } score
+                    && score.CompareTo(bestScore) < 0)
                 {
                     bestScore = score;
                     best = (int?[])frets.Clone();
@@ -146,11 +220,13 @@ public static class GuitarVoicing
     }
 
     /// <summary>
-    /// How far the bass of <paramref name="frets"/> is from <paramref name="bass"/> and how hard
-    /// the shape is to play, or <c>null</c> when it can't be strummed as the chord, with the
-    /// bass's pitch class in the bass, or held by one hand.
+    /// How far the bass of <paramref name="frets"/> is from <paramref name="bassNote"/> (0 when
+    /// any octave will do) and how hard the shape is to play, or <c>null</c> when it can't be
+    /// strummed as the chord, with the pitch class <paramref name="bass"/> in the bass, or held
+    /// by one hand.
     /// </summary>
-    private static (int Distance, double Cost, int Position, int FretSum)? Score(int?[] frets, int pitchClasses, int bass)
+    private static (int Distance, double Cost, int Position, int FretSum)? Score(
+        int?[] frets, int pitchClasses, int bass, int? bassNote, double lowStringNotPlayedCost)
     {
         var first = Array.FindIndex(frets, fret => fret is not null);
         var last = Array.FindLastIndex(frets, fret => fret is not null);
@@ -191,7 +267,7 @@ public static class GuitarVoicing
             }
         }
 
-        if (sounded != pitchClasses || PitchClass(lowestNote) != PitchClass(bass))
+        if (sounded != pitchClasses || PitchClass(lowestNote) != bass)
             return null;
 
         var position = highestFret == 0 ? 0 : lowestFret;
@@ -204,12 +280,12 @@ public static class GuitarVoicing
             return null;
 
         var cost = PositionCost * position
-            + LowStringNotPlayedCost * first
+            + lowStringNotPlayedCost * first
             + HighStringNotPlayedCost * (frets.Length - 1 - last)
             + fingers
             + (fingers == Fingers && !barre ? FourFingersWithoutBarreCost : 0)
             + StretchCost * stretch * stretch;
-        return (Math.Abs(lowestNote - bass), cost, position, fretSum);
+        return (bassNote is { } target ? Math.Abs(lowestNote - target) : 0, cost, position, fretSum);
     }
 
     /// <summary>

@@ -23,9 +23,9 @@ namespace AcademiaAuditiva.Services.Audio;
 /// Every plan is played on the instrument the student picked (the
 /// <c>instrument</c> filter): the piano plays a chord's notes together, the
 /// guitar strums it on a chord shape of its neck (<see cref="GuitarVoicing"/>)
-/// with the bass in the octaves of the note range, and the exercises about
-/// chords are played on the piano instead of the violin, which plays one note
-/// at a time.
+/// where the student picked (the <c>guitarPosition</c> filter), and the
+/// exercises about chords are played on the piano instead of the violin,
+/// which plays one note at a time.
 /// </summary>
 public sealed class ExercisePlaybackPlanner
 {
@@ -61,17 +61,26 @@ public sealed class ExercisePlaybackPlanner
     // A guitar strum sweeps the strings from the low one up, one every 15 ms.
     private const double StrumStepSeconds = 0.015;
 
-    // The exercises about chords. All but CompleteChord, which plays the root of a chord
-    // for the student to complete, play notes together, which the violin can't.
-    private static readonly HashSet<string> ChordExercises =
-        ["GuessChords", "GuessFunction", "GuessQuality", "GuessInversion", "GuessCadence", "CompleteChord"];
+    // The exercises that play chords, which the violin can't.
+    private static readonly HashSet<string> ChordsPlayed =
+        ["GuessChords", "GuessFunction", "GuessQuality", "GuessInversion", "GuessCadence"];
+
+    // The exercises about chords: those that play them, and CompleteChord, which plays
+    // the root of a chord for the student to complete it.
+    private static readonly HashSet<string> ChordExercises = [.. ChordsPlayed, "CompleteChord"];
 
     /// <summary>
     /// Whether <paramref name="exerciseName"/> is about chords: it is then only played on (and
-    /// only offers) the instruments that play them, see <see cref="Instrument.Offered"/>, and its
-    /// note range starts where they play chords, see <see cref="Instrument.StartOctave"/>.
+    /// only offers) the instruments that play them, see <see cref="Instrument.Offered"/>.
     /// </summary>
     public static bool IsChordExercise(string exerciseName) => ChordExercises.Contains(exerciseName);
+
+    /// <summary>
+    /// Whether <paramref name="exerciseName"/> plays chords. On the guitar, the student then
+    /// picks where on the neck to play them (<see cref="GuitarPosition"/>), which sets their
+    /// octaves instead of the note range.
+    /// </summary>
+    public static bool PlaysChords(string exerciseName) => ChordsPlayed.Contains(exerciseName);
 
     /// <summary>
     /// Returns the JSON to cache as <c>ExpectedAnswer</c> together with
@@ -86,19 +95,17 @@ public sealed class ExercisePlaybackPlanner
         ArgumentNullException.ThrowIfNull(filters);
 
         // The note range comes from a cookie or the request: keep it where the
-        // instrument sounds natural, without touching the caller's filters, and
-        // start it where the instrument plays the exercise when there is none.
-        // Chords the instrument can't play are played on the piano.
-        var chords = IsChordExercise(exercise.Name);
-        var instrument = Instrument.FromName(filters.GetValueOrDefault("instrument"), chords);
-        var noteRange = instrument.ClampRange(filters.GetValueOrDefault("noteRange"), chords);
-        var octaves = MusicTheoryService.ParseOctaveRange(noteRange);
+        // instrument sounds natural, without touching the caller's filters.
+        // Chords the instrument can't play are played on the piano, and the
+        // guitar plays them where on the neck the student picked.
+        var instrument = Instrument.FromName(filters.GetValueOrDefault("instrument"), IsChordExercise(exercise.Name));
+        var position = GuitarVoicing.PositionFromName(filters.GetValueOrDefault("guitarPosition"));
         var instrumentFilters = new Dictionary<string, string>(filters, filters.Comparer)
         {
-            ["noteRange"] = noteRange,
+            ["noteRange"] = instrument.ClampRange(filters.GetValueOrDefault("noteRange")),
         };
 
-        var raw = MusicTheoryService.GenerateNoteForExercise(exercise, instrumentFilters, instrument.HighestOctave);
+        var raw = MusicTheoryService.GenerateNoteForExercise(exercise, instrumentFilters, instrument);
         var expectedJson = JsonConvert.SerializeObject(raw);
         var token = JObject.Parse(expectedJson);
 
@@ -113,7 +120,7 @@ public sealed class ExercisePlaybackPlanner
             case "GuessFunction":
             case "GuessQuality":
             case "GuessInversion":
-                plans.Add([.. Chord(instrument, StringArray(token, "notes"), octaves, 0.0, NoteClipSeconds)]);
+                plans.Add([.. Chord(instrument, StringArray(token, "notes"), position, 0.0, NoteClipSeconds)]);
                 break;
 
             case "HigherOrLower":
@@ -139,7 +146,7 @@ public sealed class ExercisePlaybackPlanner
                 plans.Add(ChordsInSequence(
                     instrument,
                     ChordArray(token, "chords"),
-                    octaves,
+                    position,
                     CadenceChordSeconds,
                     CadenceChordGapSeconds));
                 break;
@@ -182,16 +189,14 @@ public sealed class ExercisePlaybackPlanner
     /// <summary>
     /// One chord, starting at <paramref name="startTime"/> and ringing for
     /// <paramref name="seconds"/>. The piano plays its notes together; the guitar
-    /// strums them on a chord shape of its neck (<see cref="GuitarVoicing"/>), from
-    /// the low string up, and every string rings until the chord ends. The bass of
-    /// the shape is in the octave of the chord's lowest note, kept within the
-    /// <paramref name="octaves"/> of the note range: in octave 2 every chord of a
-    /// progression is an open or barre chord of the first frets.
+    /// strums them on a chord shape in <paramref name="position"/> on its neck
+    /// (<see cref="GuitarVoicing"/>), from the low string up, and every string rings
+    /// until the chord ends. The shape, not the note range, sets the octaves of the strings.
     /// </summary>
     private static IEnumerable<MixInput> Chord(
         Instrument instrument,
         IReadOnlyList<string> notes,
-        IReadOnlyList<int> octaves,
+        GuitarPosition position,
         double startTime,
         double seconds)
     {
@@ -199,11 +204,7 @@ public sealed class ExercisePlaybackPlanner
             return notes.Select(note => new MixInput(instrument.SampleFor(note), startTime, seconds));
 
         var midis = notes.Select(Midi).ToList();
-        if (midis.Count == 0)
-            return [];
-
-        var bassOctave = Math.Clamp(midis.Min() / 12 - 1, octaves[0], octaves[^1]);
-        var strings = GuitarVoicing.Find(midis, bassOctave)?.Notes ?? [.. midis.Order()];
+        var strings = GuitarVoicing.Find(midis, position)?.Notes ?? [.. midis.Order()];
         return strings.Select((midi, i) => new MixInput(
             instrument.SampleName(midi),
             startTime + i * StrumStepSeconds,
@@ -238,7 +239,7 @@ public sealed class ExercisePlaybackPlanner
     private static IReadOnlyList<MixInput> ChordsInSequence(
         Instrument instrument,
         IReadOnlyList<IReadOnlyList<string>> chords,
-        IReadOnlyList<int> octaves,
+        GuitarPosition position,
         double chordSeconds,
         double gapSeconds)
     {
@@ -246,7 +247,7 @@ public sealed class ExercisePlaybackPlanner
         var t = 0.0;
         foreach (var chord in chords)
         {
-            plan.AddRange(Chord(instrument, chord, octaves, t, chordSeconds));
+            plan.AddRange(Chord(instrument, chord, position, t, chordSeconds));
             t += chordSeconds + gapSeconds;
         }
         return plan;

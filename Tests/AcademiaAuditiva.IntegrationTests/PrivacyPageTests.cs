@@ -29,6 +29,7 @@ public class PrivacyPageTests : IClassFixture<TestWebApplicationFactory>
         html.Should().Contain("<section id=\"cookies\">");
         html.Should().Contain("<code>aa_tz</code>", "the time zone cookie is disclosed");
         html.Should().Contain("<code>instrument</code>", "the instrument cookie is disclosed")
+            .And.Contain("<code>guitarPosition</code>", "the guitar position cookie is disclosed")
             .And.Contain("<code>noteRange</code>", "the note range cookie is disclosed");
         html.Should().Contain("<code>aa-theme</code>", "the theme choice in local storage is disclosed")
             .And.Contain("<code>aa-answer-layout</code>", "the answer layout in local storage is disclosed");

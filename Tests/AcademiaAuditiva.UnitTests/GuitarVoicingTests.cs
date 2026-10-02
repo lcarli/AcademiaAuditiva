@@ -4,17 +4,16 @@ namespace AcademiaAuditiva.UnitTests;
 
 /// <summary>
 /// The guitar plays a chord the way a guitarist does: a shape of the neck that one hand can
-/// hold, strumming four to six strings from the chord's bass up, with the bass in the octave
-/// the note range asks for, or as near it as the neck goes.
+/// hold, strumming four to six strings from the chord's bass up, where on the neck the student
+/// picks (<see cref="GuitarPosition"/>): the open chords, barre chords, or high on the neck.
 /// </summary>
 public class GuitarVoicingTests
 {
-    // The octave of the basses of the open chords, where the guitar starts the exercises about chords.
-    private const int OpenChords = 2;
-
-    // The basses of the neck: from the low E string (E2) to the D string at the 12th fret (D4).
+    // The basses of the open chords: from the low E string (E2) up to D#3, as low as the neck has them.
     private const int LowestBass = 40;
-    private const int HighestBass = 62;
+    private const int HighestOpenChordBass = 51;
+
+    private const int HighPositionFret = 7;
 
     private static readonly string[] Roots = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -104,48 +103,123 @@ public class GuitarVoicingTests
     [InlineData("F", "dominant7", 0, "131211")]
     [InlineData("G", "dominant7", 0, "320001")]
     [InlineData("A", "dominant7", 0, "x02020")]
-    public void Find_InOctave2_PlaysTheShapeGuitaristsPlay(string root, string quality, int inversion, string shape)
+    public void Find_OnTheOpenChords_PlaysTheShapeGuitaristsPlay(string root, string quality, int inversion, string shape)
     {
-        (GuitarVoicing.Find(Chord(root, quality, inversion), OpenChords)?.ToString()).Should().Be(shape);
+        var chord = Chord(root, quality, inversion);
+
+        (GuitarVoicing.Find(chord, GuitarPosition.Open)?.ToString()).Should().Be(shape);
+        (GuitarVoicing.Find(chord)?.ToString()).Should().Be(shape, "the guitar plays the open chords unless the student picks another position");
     }
 
     [Theory]
-    // Up the neck as the octave goes up.
-    [InlineData("G", "major", 0, 2, "320003")]
-    [InlineData("G", "major", 0, 3, "xx5433")]
-    [InlineData("E", "major", 0, 2, "022100")]
-    [InlineData("E", "major", 0, 3, "xx2100")]
-    [InlineData("C", "major", 0, 3, "x32010")]
-    [InlineData("C", "major", 0, 4, "xx(10)988")]
-    [InlineData("D", "major", 0, 4, "xx(12)(11)(10)(10)")]
-    [InlineData("C", "major", 1, 3, "xx2010")]
-    [InlineData("C#", "minor", 1, 3, "xx2120")]
-    // The neck has no C2, no bass above D4, and no Dm7 with D4 in the bass: the nearest octave it has.
-    [InlineData("C", "major", 0, 2, "x32010")]
-    [InlineData("G", "major", 0, 4, "xx5433")]
-    [InlineData("D", "major", 0, 5, "xx(12)(11)(10)(10)")]
-    [InlineData("D", "minor7", 0, 4, "xx0211")]
-    public void Find_PutsTheBassInTheOctaveAskedFor_OrTheNearestOneTheNeckHas(
-        string root, string quality, int inversion, int octave, string shape)
+    // The E-shape and A-shape barre chords, as near the nut as the chord allows.
+    [InlineData("C", "major", 0, "x35553")]
+    [InlineData("C#", "major", 0, "x46664")]
+    [InlineData("D", "major", 0, "x57775")]
+    [InlineData("D#", "major", 0, "x68886")]
+    [InlineData("E", "major", 0, "x79997")]
+    [InlineData("F", "major", 0, "133211")]
+    [InlineData("F#", "major", 0, "244322")]
+    [InlineData("G", "major", 0, "355433")]
+    [InlineData("G#", "major", 0, "466544")]
+    [InlineData("A", "major", 0, "577655")]
+    [InlineData("A#", "major", 0, "x13331")]
+    [InlineData("B", "major", 0, "x24442")]
+    [InlineData("C", "minor", 0, "x35543")]
+    [InlineData("C#", "minor", 0, "x46654")]
+    [InlineData("D", "minor", 0, "x57765")]
+    [InlineData("D#", "minor", 0, "x68876")]
+    [InlineData("E", "minor", 0, "x79987")]
+    [InlineData("F", "minor", 0, "133111")]
+    [InlineData("F#", "minor", 0, "244222")]
+    [InlineData("G", "minor", 0, "355333")]
+    [InlineData("G#", "minor", 0, "466444")]
+    [InlineData("A", "minor", 0, "577555")]
+    [InlineData("A#", "minor", 0, "x13321")]
+    [InlineData("B", "minor", 0, "x24432")]
+    // Inversions: C/G, D/A, E/B, G/D, A/E, Am/E.
+    [InlineData("C", "major", 2, "335553")]
+    [InlineData("D", "major", 2, "557775")]
+    [InlineData("E", "major", 2, "779997")]
+    [InlineData("G", "major", 2, "x55433")]
+    [InlineData("A", "major", 2, "x77655")]
+    [InlineData("A", "minor", 2, "x77555")]
+    // Diminished and seventh chords.
+    [InlineData("C", "diminished", 0, "x3454x")]
+    [InlineData("D", "diminished", 0, "x5676x")]
+    [InlineData("B", "diminished", 0, "x2343x")]
+    [InlineData("C", "major7", 0, "x35453")]
+    [InlineData("G", "major7", 0, "354433")]
+    [InlineData("A", "major7", 0, "576655")]
+    [InlineData("A", "minor7", 0, "575555")]
+    [InlineData("B", "minor7", 0, "x24232")]
+    [InlineData("C", "dominant7", 0, "x35353")]
+    [InlineData("D", "dominant7", 0, "x57575")]
+    [InlineData("E", "dominant7", 0, "x79797")]
+    [InlineData("G", "dominant7", 0, "353433")]
+    [InlineData("A", "dominant7", 0, "575655")]
+    public void Find_AsBarreChords_PlaysTheShapeGuitaristsPlay(string root, string quality, int inversion, string shape)
     {
-        (GuitarVoicing.Find(Chord(root, quality, inversion), octave)?.ToString()).Should().Be(shape);
+        (GuitarVoicing.Find(Chord(root, quality, inversion), GuitarPosition.Barre)?.ToString()).Should().Be(shape);
     }
 
-    // Every chord in every octave of the guitar's note range.
-    public static TheoryData<string, string, int, int> EveryChord
+    [Theory]
+    // From the 7th fret up, on the highest strings.
+    [InlineData("C", "major", 0, "xx(10)988")]
+    [InlineData("C#", "major", 0, "xx(11)(10)99")]
+    [InlineData("D", "major", 0, "xx(12)(11)(10)(10)")]
+    [InlineData("D#", "major", 0, "(11)(10)888(11)")]
+    [InlineData("E", "major", 0, "x79997")]
+    [InlineData("F", "major", 0, "x8(10)(10)(10)8")]
+    [InlineData("F#", "major", 0, "x9(11)(11)(11)9")]
+    [InlineData("G", "major", 0, "x(10)(12)(12)(12)(10)")]
+    [InlineData("G#", "major", 0, "x(11)(10)898")]
+    [InlineData("A", "major", 0, "x(12)(11)9(10)9")]
+    [InlineData("A#", "major", 0, "xx8(10)(11)(10)")]
+    [InlineData("B", "major", 0, "xx9877")]
+    [InlineData("C", "minor", 0, "xx(10)888")]
+    [InlineData("D", "minor", 0, "xx(12)(10)(10)(10)")]
+    [InlineData("E", "minor", 0, "x79987")]
+    [InlineData("F", "minor", 0, "x8(10)(10)98")]
+    [InlineData("G", "minor", 0, "x(10)(12)(12)(11)(10)")]
+    [InlineData("A", "minor", 0, "xx79(10)8")]
+    [InlineData("B", "minor", 0, "xx9777")]
+    // Inversions: C/G, D/F#, A/C#, Am/C.
+    [InlineData("C", "major", 2, "x(10)(10)988")]
+    [InlineData("D", "major", 1, "x9777x")]
+    [InlineData("A", "major", 1, "xx(11)9(10)9")]
+    [InlineData("A", "minor", 1, "xx(10)9(10)8")]
+    // Seventh chords.
+    [InlineData("C", "major7", 0, "8(10)9988")]
+    [InlineData("A", "minor7", 0, "xx7988")]
+    [InlineData("B", "minor7", 0, "797777")]
+    [InlineData("C", "dominant7", 0, "8(10)8988")]
+    [InlineData("G", "dominant7", 0, "x(10)(12)(10)(12)(10)")]
+    [InlineData("A", "dominant7", 0, "xx7989")]
+    // The few chords a hand can't hold from the 7th fret up come down as little as they need.
+    [InlineData("D#", "diminished", 0, "x6787x")]
+    [InlineData("G#", "dominant7", 0, "xx6878")]
+    [InlineData("E", "diminished7", 0, "x78686")]
+    public void Find_HighOnTheNeck_PlaysTheShapeGuitaristsPlay(string root, string quality, int inversion, string shape)
+    {
+        (GuitarVoicing.Find(Chord(root, quality, inversion), GuitarPosition.High)?.ToString()).Should().Be(shape);
+    }
+
+    // Every chord in every position on the neck.
+    public static TheoryData<string, string, int, GuitarPosition> EveryChord
     {
         get
         {
-            var data = new TheoryData<string, string, int, int>();
+            var data = new TheoryData<string, string, int, GuitarPosition>();
             foreach (var root in Roots)
             {
                 foreach (var (quality, semitones) in Qualities)
                 {
                     for (var inversion = 0; inversion < semitones.Length; inversion++)
                     {
-                        foreach (var octave in GuitarOctaves())
+                        foreach (var position in Enum.GetValues<GuitarPosition>())
                         {
-                            data.Add(root, quality, inversion, octave);
+                            data.Add(root, quality, inversion, position);
                         }
                     }
                 }
@@ -156,11 +230,12 @@ public class GuitarVoicingTests
 
     [Theory]
     [MemberData(nameof(EveryChord))]
-    public void Find_PlaysEveryChord_OnAShapeOneHandCanHold(string root, string quality, int inversion, int octave)
+    public void Find_PlaysEveryChord_InEveryPosition_OnAShapeOneHandCanHold(
+        string root, string quality, int inversion, GuitarPosition position)
     {
         var chord = Chord(root, quality, inversion);
 
-        var shape = GuitarVoicing.Find(chord, octave);
+        var shape = GuitarVoicing.Find(chord, position);
 
         shape.Should().NotBeNull();
         var strings = Enumerable.Range(0, 6).Where(s => shape!.Frets[s] is not null).ToList();
@@ -177,63 +252,64 @@ public class GuitarVoicingTests
         if (fretted.Count > 0)
             (fretted.Max() - fretted.Min()).Should().BeLessThanOrEqualTo(3, "a hand spans four frets");
 
-        var bass = Bass(chord, octave);
-        GuitarOctaves().Select(other => GuitarVoicing.Find(chord, other)!.Notes[0]).Should().AllSatisfy(otherBass =>
-            Math.Abs(otherBass - bass).Should().BeGreaterThanOrEqualTo(Math.Abs(shape.Notes[0] - bass),
-                "the bass is in the octave asked for, or the nearest one a shape of the chord has it in"));
+        if (position != GuitarPosition.Open)
+            shape.Frets.Should().NotContain(0, "only the open chords let open strings ring");
     }
 
     // The triads of the exercises: every inversion of the major and minor ones (GuessInversion),
     // and the diminished and augmented ones (GuessChords, GuessQuality, GuessFunction).
-    public static TheoryData<string, string, int, int> ExerciseTriads
-    {
-        get
-        {
-            var data = new TheoryData<string, string, int, int>();
-            foreach (var root in Roots)
-            {
-                foreach (var quality in new[] { "major", "minor", "diminished", "augmented" })
-                {
-                    var inversions = quality is "major" or "minor" ? 3 : 1;
-                    for (var inversion = 0; inversion < inversions; inversion++)
-                    {
-                        foreach (var octave in GuitarOctaves())
-                        {
-                            data.Add(root, quality, inversion, octave);
-                        }
-                    }
-                }
-            }
-            return data;
-        }
-    }
+    public static TheoryData<string, string, int> ExerciseTriads => Triads("diminished", "augmented");
+
+    // The same but the diminished ones, two of which a hand can't hold from the 7th fret up.
+    public static TheoryData<string, string, int> ExerciseTriadsButTheDiminishedOnes => Triads("augmented");
 
     [Theory]
     [MemberData(nameof(ExerciseTriads))]
-    public void Find_PlaysTheTriadsOfTheExercises_WithTheBassInTheOctaveAskedFor_OrTheNearestOneOfTheNeck(
-        string root, string quality, int inversion, int octave)
+    public void Find_OnTheOpenChords_PlaysTheTriadsOfTheExercises_WithTheBassAsLowAsTheNeckHasIt(
+        string root, string quality, int inversion)
     {
-        var chord = Chord(root, quality, inversion);
-        var bass = Bass(chord, octave);
-        var nearestOnTheNeck = Enumerable.Range(LowestBass, HighestBass - LowestBass + 1)
-            .Where(note => PitchClass(note) == PitchClass(bass))
-            .MinBy(note => Math.Abs(note - bass));
+        GuitarVoicing.Find(Chord(root, quality, inversion), GuitarPosition.Open)!.Notes[0]
+            .Should().BeInRange(LowestBass, HighestOpenChordBass, "the neck has a shape of each of them with its bass from E2 to D#3");
+    }
 
-        GuitarVoicing.Find(chord, octave)!.Notes[0].Should().Be(nearestOnTheNeck,
-            "the neck has a shape of each of these triads with any bass from E2 to D4");
+    [Theory]
+    [MemberData(nameof(ExerciseTriadsButTheDiminishedOnes))]
+    public void Find_HighOnTheNeck_PlaysTheTriadsOfTheExercises_FromThe7thFretUp(string root, string quality, int inversion)
+    {
+        GuitarVoicing.Find(Chord(root, quality, inversion), GuitarPosition.High)!.Frets
+            .Should().AllSatisfy(fret => (fret ?? HighPositionFret).Should().BeGreaterThanOrEqualTo(HighPositionFret));
     }
 
     [Fact]
     public void Find_PutsTheLowestNoteInTheBass_WhateverTheOrderOfTheNotes()
     {
-        (GuitarVoicing.Find([76, 36, 91], OpenChords)?.ToString()).Should().Be("x32010", "C is the lowest note");
-        (GuitarVoicing.Find([72, 64, 67], OpenChords)?.ToString()).Should().Be("032010", "E is the lowest note");
+        (GuitarVoicing.Find([76, 36, 91])?.ToString()).Should().Be("x32010", "C is the lowest note");
+        (GuitarVoicing.Find([72, 64, 67])?.ToString()).Should().Be("032010", "E is the lowest note");
+        (GuitarVoicing.Find([72, 64, 67], GuitarPosition.Barre)?.ToString()).Should().Be("x7555x", "E is the lowest note");
     }
 
-    [Fact]
-    public void Find_PlaysNothing_WithoutNotes()
+    [Theory]
+    [InlineData(GuitarPosition.Open)]
+    [InlineData(GuitarPosition.Barre)]
+    [InlineData(GuitarPosition.High)]
+    public void Find_PlaysNothing_WithoutNotes(GuitarPosition position)
     {
-        GuitarVoicing.Find([], OpenChords).Should().BeNull();
+        GuitarVoicing.Find([], position).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("Open", GuitarPosition.Open)]
+    [InlineData("Barre", GuitarPosition.Barre)]
+    [InlineData("High", GuitarPosition.High)]
+    [InlineData("barre", GuitarPosition.Barre)]
+    [InlineData(" HIGH ", GuitarPosition.High)]
+    [InlineData(null, GuitarPosition.Open)]
+    [InlineData("", GuitarPosition.Open)]
+    [InlineData("Sideways", GuitarPosition.Open)]
+    [InlineData("1", GuitarPosition.Open)]
+    public void PositionFromName_ReadsTheCookie_AndOtherwisePlaysTheOpenChords(string? name, GuitarPosition position)
+    {
+        GuitarVoicing.PositionFromName(name).Should().Be(position);
     }
 
     [Fact]
@@ -261,11 +337,27 @@ public class GuitarVoicingTests
         return notes;
     }
 
-    /// <summary>The MIDI note of the bass of <paramref name="chord"/>, its lowest note, in <paramref name="octave"/>.</summary>
-    private static int Bass(IEnumerable<int> chord, int octave) => (octave + 1) * 12 + PitchClass(chord.Min());
-
-    private static IEnumerable<int> GuitarOctaves() =>
-        Enumerable.Range(Instrument.Guitar.LowestOctave, Instrument.Guitar.HighestOctave - Instrument.Guitar.LowestOctave + 1);
+    /// <summary>
+    /// Every root and inversion of the major and minor triads, and the root position of the
+    /// <paramref name="rootPositionQualities"/> triads.
+    /// </summary>
+    private static TheoryData<string, string, int> Triads(params string[] rootPositionQualities)
+    {
+        var data = new TheoryData<string, string, int>();
+        foreach (var root in Roots)
+        {
+            for (var inversion = 0; inversion < 3; inversion++)
+            {
+                data.Add(root, "major", inversion);
+                data.Add(root, "minor", inversion);
+            }
+            foreach (var quality in rootPositionQualities)
+            {
+                data.Add(root, quality, 0);
+            }
+        }
+        return data;
+    }
 
     private static int PitchClass(int midi) => midi % 12;
 }
