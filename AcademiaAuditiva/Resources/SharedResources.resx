@@ -278,7 +278,7 @@
     <comment />
   </data>
   <data name="Lockout.Text" xml:space="preserve">
-    <value>This account is locked and can't sign in right now. Please try again later.</value>
+    <value>This account is locked and can't sign in right now.</value>
     <comment />
   </data>
   <data name="Exercise.Major" xml:space="preserve">
@@ -3536,5 +3536,20 @@
   </data>
   <data name="Lockout.Contact" xml:space="preserve">
     <value>If it stays locked, write to us:</value>
+  </data>
+  <data name="Lockout.Wait" xml:space="preserve">
+    <value>After too many wrong passwords or codes, an account unlocks by itself after {0} minutes, or as soon as its password is reset.</value>
+  </data>
+  <data name="Admin.Users.LockedFor" xml:space="preserve">
+    <value>locked for {0} more min (failed sign-ins)</value>
+  </data>
+  <data name="RateLimit.Account.Title" xml:space="preserve">
+    <value>Too many attempts</value>
+  </data>
+  <data name="RateLimit.Account.Text" xml:space="preserve">
+    <value>There have been too many attempts from your network. Wait a minute, then try again.</value>
+  </data>
+  <data name="RateLimit.Account.Back" xml:space="preserve">
+    <value>Back</value>
   </data>
 </root>

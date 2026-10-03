@@ -278,7 +278,7 @@
     <comment />
   </data>
   <data name="Lockout.Text" xml:space="preserve">
-    <value>Ce compte est verrouillé et ne peut pas se connecter pour le moment. Veuillez réessayer plus tard.</value>
+    <value>Ce compte est verrouillé et ne peut pas se connecter pour le moment.</value>
     <comment />
   </data>
   <data name="Exercise.Major" xml:space="preserve">
@@ -3536,5 +3536,20 @@
   </data>
   <data name="Lockout.Contact" xml:space="preserve">
     <value>S’il reste verrouillé, écrivez-nous :</value>
+  </data>
+  <data name="Lockout.Wait" xml:space="preserve">
+    <value>Après trop de mots de passe ou de codes erronés, un compte se déverrouille de lui-même après {0} minutes, ou dès que son mot de passe est réinitialisé.</value>
+  </data>
+  <data name="Admin.Users.LockedFor" xml:space="preserve">
+    <value>verrouillé encore {0} min (échecs de connexion)</value>
+  </data>
+  <data name="RateLimit.Account.Title" xml:space="preserve">
+    <value>Trop de tentatives</value>
+  </data>
+  <data name="RateLimit.Account.Text" xml:space="preserve">
+    <value>Il y a eu trop de tentatives depuis votre réseau. Attendez une minute, puis réessayez.</value>
+  </data>
+  <data name="RateLimit.Account.Back" xml:space="preserve">
+    <value>Retour</value>
   </data>
 </root>

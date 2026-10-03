@@ -2,7 +2,7 @@
 
 What is left to do on Academia Auditiva, in priority order. Written on
 2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`; line
-numbers refer to `07d6776` (`ef42bfa` in item 5). Each item says why it
+numbers refer to `07d6776` (`ef42bfa` in item 4). Each item says why it
 matters, where to look, what to do and when it is done. New ideas go to GitHub
 issues.
 
@@ -19,8 +19,9 @@ The modernization plan is done (#47 to #83):
   free practice (#58, #60, #75 to #78).
 - **Engagement**: XP, levels, streaks, 18 badges, the learning path and the
   tutorial (#72 to #74).
-- **Accounts**: privacy policy, data export and deletion, and admin lock,
-  unlock and delete (#57, #65, #80, #81).
+- **Accounts**: privacy policy, data export and deletion, admin lock, unlock
+  and delete, and lockout after failed sign-ins with a rate limit on the
+  account forms (#57, #65, #80, #81, #93).
 
 E-mail is [on](#e-mail): production sends through Resend (#89), and every
 e-mail has the site's layout and a plain-text version (#92). There are no open
@@ -50,57 +51,7 @@ and #31.
 
 ## Next up
 
-### 1. Lock accounts after failed sign-ins and rate-limit the account pages
-
-**Why.** Wrong passwords never count toward lockout: `Login.cshtml.cs:120`
-calls `PasswordSignInAsync(..., lockoutOnFailure: false)`. No rate-limit policy
-covers the account pages either. Now that e-mail is on, Register,
-ForgotPassword and ResendEmailConfirmation send real mail, so anyone can make
-the site mail any address and use up the Resend quota. `docs/Security.md:14`
-says lockout protects against brute force, which is not true yet.
-
-**Where.**
-
-- `AcademiaAuditiva/Areas/Identity/Pages/Account/Login.cshtml.cs:120`. Also
-  check `LoginWith2fa` and `LoginWithRecoveryCode`.
-- `AcademiaAuditiva/Program.cs:79`: Identity options. Lockout runs on the
-  defaults (5 failures, 5 minutes).
-- `AcademiaAuditiva/Program.cs:390-440`: the rate-limit policies
-  (`RequestPlay`, `AudioToken`, `Explore`).
-- `AcademiaAuditiva/Services/LockoutAwareSignInManager.cs`, and
-  `AcademiaAuditiva/Areas/Admin/Controllers/UsersController.cs:58`, `:163-168`
-  and `:188`.
-
-**What.**
-
-- Count failures (`lockoutOnFailure: true`) and set `options.Lockout`
-  explicitly.
-- Add a per-client-IP policy for the POSTs of Login, LoginWith2fa,
-  LoginWithRecoveryCode, Register, ForgotPassword and ResendEmailConfirmation.
-  - Make the limit configurable. The integration tests sign in through the
-    real form, and every test-server request lands in the same partition. The
-    Playwright suite also signs in several times from one IP.
-  - Limits live in each replica's memory (production runs up to 3 replicas).
-    The lockout, stored in the database, is the real cap.
-- Settle how temporary lockouts and the admin lock interact:
-  - An admin lock sets `LockoutEnd` to `DateTimeOffset.MaxValue`
-    (`UsersController.cs:168`). A temporary lockout would also show as locked
-    in **Admin › Users** (`UsersController.cs:58`), and Unlock clears both
-    (`UsersController.cs:188`).
-  - `LockoutAwareSignInManager` signs a locked account out of all its sessions
-    within a minute. With lockout on, five wrong guesses by anyone would end
-    the real user's sessions. Consider applying that only to admin locks.
-  - Accounts with `LockoutEnabled = false` never lock
-    (`UsersController.cs:163`). Check the existing users.
-- Keep the `LockoutAwareSignInManager` overrides and the `AdminUsersTests`
-  that pin them.
-- Correct `docs/Security.md:14`.
-
-**Done when.** Integration tests show that repeated wrong passwords lead to the
-Lockout page and that the limit returns 429. `AdminUsersTests` still pass, and
-`docs/Security.md` matches the code.
-
-### 2. Show invite links while e-mail is off
+### 1. Show invite links while e-mail is off
 
 **Lower priority since #89.** Production now e-mails invites, and when sending
 fails the teacher already sees the link. This only matters where e-mail is off:
@@ -126,7 +77,7 @@ throws (`MembersController.cs:127-131`).
 **Done when.** Without SMTP, a teacher copies the link and the student joins.
 Integration tests cover both modes.
 
-### 3. Fix the inflated practice time
+### 2. Fix the inflated practice time
 
 **Why.** Each exercise script sets `exerciseStartTime` once, when the page
 loads (for example `AcademiaAuditiva/wwwroot/js/Exercises/GuessNote.js:14`).
@@ -150,7 +101,7 @@ and `:530` average or sum the same field.
 **Done when.** Tests show per-round times, and the dashboard total matches real
 practice time.
 
-### 4. Settle the Essentia.js license (AGPL-3.0)
+### 3. Settle the Essentia.js license (AGPL-3.0)
 
 **Why.** Sight-singing (`SolfegeMelody`) detects the sung pitch with
 Essentia.js. Its files carry the AGPL-3.0 notice, while the app is MIT. The
@@ -180,21 +131,23 @@ doubt, ask someone qualified.
 gone and sight-singing still recognizes sung notes. Either way, the readme's
 third-party table matches.
 
-### 5. Create the contato@ inbox
+### 4. Create the contato@ inbox
 
 **Why.** `contato@academiaauditiva.com` is the only address the site gives for
 reaching us, but the domain has no MX record, so mail to it bounces.
 
 - The privacy policy sends every privacy request there and promises an answer
   within the time limits set by law.
-- The Lockout page sends locked-out users there. Once item 1 is done, wrong
-  passwords will lock accounts too.
+- The Lockout page sends locked-out users there. Since #93, wrong passwords and
+  authenticator codes lock accounts too, for 15 minutes; the page also offers a
+  password reset, which ends that lockout but not an admin's lock.
 
 **Where.**
 
 - `AcademiaAuditiva/Views/Home/Privacy.cshtml:37`, `:208` and `:226`, and the
   same lines of `Privacy.pt-BR.cshtml` and `Privacy.fr-CA.cshtml`.
-- `AcademiaAuditiva/Areas/Identity/Pages/Account/Lockout.cshtml:10`.
+- `AcademiaAuditiva/Areas/Identity/Pages/Account/Lockout.cshtml`, on the
+  `Lockout.Contact` line.
 - `Tests/AcademiaAuditiva.IntegrationTests/PrivacyPageTests.cs:28` and
   `Tests/e2e/tests/academia-auditiva.spec.ts:95` check the address.
 - DNS: the `academiaauditiva.com` zone is in another tenant, and the apex has
@@ -235,6 +188,10 @@ API key with sending access to `academiaauditiva.com` only.
 - A failed send never breaks a page. The account pages answer as usual
   (`EmailSenderExtensions.TrySendEmailAsync`), the account e-mail page says the
   e-mail could not be sent, and an invite shows its link.
+- Register, forgot password and resend confirmation share the per-IP limit on
+  the account forms (#93). It slows a flood from one address but doesn't cap
+  how much mail goes out in a day, so keep an eye on the quota (see
+  [Watch](#watch)).
 - Every e-mail has one layout (#92): the logo, a button, the link written out,
   and a footer that says why it was sent. `EmailComposer` renders
   `Services/Email/EmailLayout.razor` with `HtmlRenderer` and writes the same
@@ -245,7 +202,7 @@ API key with sending access to `academiaauditiva.com` only.
 
 **Still to do.**
 
-- The `contato@` inbox ([item 5](#5-create-the-contato-inbox)).
+- The `contato@` inbox ([item 4](#4-create-the-contato-inbox)).
 - Add a DMARC report address (`rua=`), and once the reports are clean, move
   from `p=none` to `quarantine`.
 
@@ -327,7 +284,7 @@ These are outside the repo:
 - Confirm the Facebook App Secret was reset (see
   [Facebook sign-in](#facebook-sign-in-off-in-production)).
 - Choose and create the `contato@` inbox, and add its DNS records (see
-  [item 5](#5-create-the-contato-inbox)).
+  [item 4](#4-create-the-contato-inbox)).
 
 ## Watch
 

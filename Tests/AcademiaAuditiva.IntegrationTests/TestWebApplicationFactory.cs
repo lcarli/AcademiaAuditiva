@@ -18,6 +18,8 @@ namespace AcademiaAuditiva.IntegrationTests;
 ///    registration with an InMemory one (each test gets its own DB).
 /// 3. Provide a placeholder DefaultConnection so the configuration check
 ///    in Program.cs doesn't throw before Configure runs.
+/// 4. Raise the account forms' rate limit: tests sign in through the real
+///    forms, and every test-server request comes from the same address.
 ///
 /// Subclasses can set <see cref="UseInMemoryDatabase"/> to false to keep
 /// the app's own SQL Server registration (never connected to) when a test
@@ -39,7 +41,8 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             {
                 ["ConnectionStrings:DefaultConnection"] = "Server=test;Database=test;",
                 ["AzureKeyVault:Url"] = "",
-                ["ApplicationInsights:ConnectionString"] = ""
+                ["ApplicationInsights:ConnectionString"] = "",
+                ["RateLimiting:AccountForms:PermitLimit"] = "1000"
             });
         });
 

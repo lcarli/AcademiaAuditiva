@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
@@ -17,6 +18,7 @@ using AcademiaAuditiva.Services.Email;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 {
+    [EnableRateLimiting(AccountFormsRateLimitPolicy.Name)]
     public class ForgotPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;

@@ -278,7 +278,7 @@
     <comment />
   </data>
   <data name="Lockout.Text" xml:space="preserve">
-    <value>Esta conta está bloqueada e não pode entrar agora. Tente novamente mais tarde.</value>
+    <value>Esta conta está bloqueada e não pode entrar agora.</value>
     <comment />
   </data>
   <data name="Exercise.Major" xml:space="preserve">
@@ -3536,5 +3536,20 @@
   </data>
   <data name="Lockout.Contact" xml:space="preserve">
     <value>Se continuar bloqueada, escreva para nós:</value>
+  </data>
+  <data name="Lockout.Wait" xml:space="preserve">
+    <value>Depois de muitas senhas ou códigos errados, a conta se desbloqueia sozinha após {0} minutos, ou assim que a senha for redefinida.</value>
+  </data>
+  <data name="Admin.Users.LockedFor" xml:space="preserve">
+    <value>bloqueado por mais {0} min (falhas ao entrar)</value>
+  </data>
+  <data name="RateLimit.Account.Title" xml:space="preserve">
+    <value>Muitas tentativas</value>
+  </data>
+  <data name="RateLimit.Account.Text" xml:space="preserve">
+    <value>Houve tentativas demais a partir da sua rede. Aguarde um minuto e tente novamente.</value>
+  </data>
+  <data name="RateLimit.Account.Back" xml:space="preserve">
+    <value>Voltar</value>
   </data>
 </root>

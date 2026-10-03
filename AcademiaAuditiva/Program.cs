@@ -76,7 +76,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = true;
+        // Wrong passwords and two-factor codes count toward a lockout: after five
+        // in a row the account can't sign in for 15 minutes, or until its password
+        // is reset. An admin's lock (AdminLock) lasts until an admin unlocks it.
+        options.Lockout.AllowedForNewUsers = true;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    })
     .AddRoles<IdentityRole>()
     .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -381,10 +390,17 @@ builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.ExercisePlaybackPl
 // Turns Explore page choices into spelled notes and mixer plans. Pure — singleton.
 builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.ExploreSoundBuilder>();
 
+builder.Services.AddOptions<AccountFormsRateLimitOptions>()
+    .Bind(builder.Configuration.GetSection(AccountFormsRateLimitOptions.SectionName))
+    .Validate(o => o.PermitLimit > 0 && o.Window > TimeSpan.Zero,
+        $"{AccountFormsRateLimitOptions.SectionName} needs a PermitLimit and a Window above zero.")
+    .ValidateOnStart();
+
 // Rate limiting for the audio anti-cheat surface. Named policies, all
 // partitioned per authenticated user (falls back to remote IP for
 // anonymous traffic — those callers will fail authorization anyway, but
 // partitioning prevents one IP from starving the bucket for everyone).
+// The account forms have their own policy, per client IP.
 //
 // Limits are deliberately generous for legitimate practice (a student
 // rarely fires more than a handful of rounds per minute) but tight
@@ -440,6 +456,10 @@ builder.Services.AddRateLimiter(options =>
                 AutoReplenishment = true
             });
     });
+
+    // The sign-in, two-factor, registration and e-mail forms ([EnableRateLimiting]
+    // on their page models), which check passwords and codes or send mail.
+    options.AddPolicy<string, AccountFormsRateLimitPolicy>(AccountFormsRateLimitPolicy.Name);
 });
 
 

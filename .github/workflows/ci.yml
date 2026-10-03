@@ -154,6 +154,8 @@ jobs:
           Admin__Email: ${{ env.AA_EMAIL }}
           Admin__InitialPassword: ${{ env.SQL_PASSWORD }}
           ApplicationInsights__ConnectionString: ""
+          # Every Playwright sign-in comes from this one address.
+          RateLimiting__AccountForms__PermitLimit: "1000"
         run: |
           dotnet AcademiaAuditiva.dll > ../app.log 2>&1 &
           echo $! > ../app.pid

@@ -9,6 +9,9 @@ public class UserListRow
     public bool IsTeacher { get; set; }
     public bool IsStudent { get; set; }
     public bool IsLockedOut { get; set; }
+    // Locked by an admin, until unlocked; otherwise a lockout after wrong sign-ins.
+    public bool IsLockedByAdmin { get; set; }
+    public int LockoutMinutesLeft { get; set; }
     public bool EmailConfirmed { get; set; }
 }
 
