@@ -2,8 +2,9 @@
 
 What is left to do on Academia Auditiva, in priority order. Written on
 2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`; line
-numbers refer to `07d6776`. Each item says why it matters, where to look, what
-to do and when it is done. New ideas go to GitHub issues.
+numbers refer to `07d6776` (`ef42bfa` in items 5 and 6). Each item says why it
+matters, where to look, what to do and when it is done. New ideas go to GitHub
+issues.
 
 ## Where things stand
 
@@ -178,6 +179,95 @@ doubt, ask someone qualified.
 gone and sight-singing still recognizes sung notes. Either way, the readme's
 third-party table matches.
 
+### 5. Create the contato@ inbox
+
+**Why.** `contato@academiaauditiva.com` is the only address the site gives for
+reaching us, but the domain has no MX record, so mail to it bounces.
+
+- The privacy policy sends every privacy request there and promises an answer
+  within the time limits set by law.
+- The Lockout page sends locked-out users there. Once item 1 is done, wrong
+  passwords will lock accounts too.
+
+**Where.**
+
+- `AcademiaAuditiva/Views/Home/Privacy.cshtml:37`, `:208` and `:226`, and the
+  same lines of `Privacy.pt-BR.cshtml` and `Privacy.fr-CA.cshtml`.
+- `AcademiaAuditiva/Areas/Identity/Pages/Account/Lockout.cshtml:10`.
+- `Tests/AcademiaAuditiva.IntegrationTests/PrivacyPageTests.cs:28` and
+  `Tests/e2e/tests/academia-auditiva.spec.ts:95` check the address.
+- DNS: the `academiaauditiva.com` zone is in another tenant, and the apex has
+  no MX or TXT record. `infra/scripts/configure-dns.ps1` writes only the
+  custom-domain records (`A/@`, `CNAME/www` and their `asuid` TXT records); no
+  script holds the Resend records.
+
+**What.**
+
+- **Owner:** choose where the mail goes. Either:
+  - a mailbox at an e-mail host (for example Microsoft 365, Google Workspace or
+    Zoho Mail), which can also reply as `contato@`;
+  - or forwarding to an inbox you already read (for example ImprovMX or Forward
+    Email). Gmail can then reply as `contato@` through "Send mail as", with
+    Resend's SMTP server and a Resend key of its own.
+- Add the host's MX records at the apex, and the verification record it asks
+  for. If it sends as `contato@`, add its SPF and DKIM records too: without
+  them its mail fails DMARC, and once the policy is `quarantine` (see
+  [E-mail](#e-mail)) that mail goes to spam.
+- Leave the Resend records (`send`, `rsend`, `resend._domainkey`) and `_dmarc`
+  as they are.
+- If you pick another address, change the views and tests above.
+
+**Done when.** Mail from an outside address reaches the inbox. If the inbox
+replies as `contato@`, its replies pass DMARC.
+
+### 6. HTML templates for the e-mails
+
+**Why.** The e-mails are short localized texts with a "click here" link, for
+example "Please confirm your account by clicking here." They have no name, logo
+or footer, and do not say what to do if you did not ask for them. They go out
+as HTML only, with no plain-text version. Bare messages like these, from a new
+domain, look less trustworthy to people and to some spam filters.
+
+**Where.**
+
+- The texts: `Identity.Email.Confirm.*`, `Identity.Email.ChangeEmail.*`,
+  `Identity.Email.ResetPassword.*` and `Invite.Email.*` in the three
+  `AcademiaAuditiva/Resources/SharedResources*.resx`.
+- The callers, under `AcademiaAuditiva/Areas/Identity/Pages/Account/`:
+  - account confirmation: `Register.cshtml.cs:158`,
+    `ExternalLogin.cshtml.cs:186`, `ResendEmailConfirmation.cshtml.cs:88` and
+    `Manage/Email.cshtml.cs:169`;
+  - e-mail change: `Manage/Email.cshtml.cs:133`;
+  - password reset: `ForgotPassword.cshtml.cs:82`.
+- The classroom invite:
+  `AcademiaAuditiva/Areas/Teacher/Controllers/MembersController.cs:116-121`.
+- `AcademiaAuditiva/Services/EmailSender.cs:38` sets the HTML body.
+  `IEmailSender.SendEmailAsync` takes only an HTML string.
+
+**What.**
+
+- One layout for every e-mail:
+  - the Academia Auditiva name or logo, the text, and a button that says what
+    it does ("Confirm my email", "Reset my password", "Accept the
+    invitation"), with the link also written out;
+  - a footer that says why the person got the e-mail, and that they can
+    ignore it if they did not ask for it.
+- Build it for e-mail clients: tables, inline styles, no scripts or web fonts,
+  and images, if any, from absolute `https://academiaauditiva.com` URLs. Set
+  `lang` to the culture.
+- Render it on the server, for example with a Razor component and
+  `HtmlRenderer`. HTML-encode the values (links, teacher and classroom names),
+  as the pages do today.
+- Send a plain-text version too (`BodyBuilder.TextBody`), so `EmailSender`
+  needs a way to receive both. Keep `TrySendEmailAsync`, and keep the invite
+  showing its link when sending throws.
+- Keep every text in the three `.resx` files.
+
+**Done when.** The confirmation, e-mail change, password reset and invite
+e-mails use the layout and carry a plain-text version, in en-US, pt-BR and
+fr-CA. Tests render each e-mail in each culture and check its link and
+encoding. Sent to a real inbox, they look right in Gmail and Outlook.
+
 ## E-mail
 
 **Today.** Production sends e-mail through Resend's SMTP server (#89). The five
@@ -197,22 +287,12 @@ API key with sending access to `academiaauditiva.com` only.
 
 **Still to do.**
 
-- `contato@academiaauditiva.com` has no MX record, so mail to it bounces. It is
-  shown on the Lockout page and in the privacy policy. It needs a mailbox or
-  forwarding. The zone lives in another tenant;
-  `infra/scripts/configure-dns.ps1` updates it.
-- HTML templates for confirmation, password reset and invites, in the three
-  cultures. Today each e-mail is a short localized text with a link.
+- The `contato@` inbox ([item 5](#5-create-the-contato-inbox)) and the HTML
+  templates ([item 6](#6-html-templates-for-the-e-mails)).
 - Add a DMARC report address (`rua=`), and once the reports are clean, move
   from `p=none` to `quarantine`.
-- **Owner decision.** The privacy policy says the data is stored in Canada and
-  mentions only "an email delivery provider". Resend sends from the United
-  States (`us-east-1`) and keeps a log of each e-mail. Decide whether the policy
-  should name Resend and that transfer; if so, change the three privacy views
-  and their date.
 
-**Done when.** `contato@` receives mail, and the templated e-mails reach a test
-inbox in each culture.
+**Done when.** DMARC reports arrive and the policy is `quarantine`.
 
 ## Later, or needs a decision
 
@@ -289,9 +369,8 @@ These are outside the repo:
 - Review who holds the Admin role.
 - Confirm the Facebook App Secret was reset (see
   [Facebook sign-in](#facebook-sign-in-off-in-production)).
-- Set up the `contato@` mailbox or forwarding (see [E-mail](#e-mail)).
-- Keep only the Resend API keys still in use. Production has its own key with
-  sending access to `academiaauditiva.com` only.
+- Choose and create the `contato@` inbox, and add its DNS records (see
+  [item 5](#5-create-the-contato-inbox)).
 
 ## Watch
 
