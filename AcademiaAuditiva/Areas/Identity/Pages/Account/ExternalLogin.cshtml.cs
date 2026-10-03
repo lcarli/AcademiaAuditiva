@@ -6,13 +6,11 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
@@ -20,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Email;
 using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
@@ -31,7 +30,8 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
-        private readonly Microsoft.AspNetCore.Identity.UI.Services.IEmailSender _emailSender;
+        private readonly IEmailMessageSender _emailSender;
+        private readonly EmailComposer _emailComposer;
         private readonly ILogger<ExternalLoginModel> _logger;
         private readonly IStringLocalizer<SharedResources> _localizer;
 
@@ -40,7 +40,8 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             ILogger<ExternalLoginModel> logger,
-            Microsoft.AspNetCore.Identity.UI.Services.IEmailSender emailSender,
+            IEmailMessageSender emailSender,
+            EmailComposer emailComposer,
             IStringLocalizer<SharedResources> localizer)
         {
             _signInManager = signInManager;
@@ -49,6 +50,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
             _emailStore = GetEmailStore();
             _logger = logger;
             _emailSender = emailSender;
+            _emailComposer = emailComposer;
             _localizer = localizer;
         }
 
@@ -183,8 +185,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 
                         // The account exists now, so a mail outage must not
                         // end sign-up on an error page.
-                        await _emailSender.TrySendEmailAsync(Input.Email, _localizer["Identity.Email.Confirm.Subject"],
-                            _localizer["Identity.Email.Confirm.Body", HtmlEncoder.Default.Encode(callbackUrl)]);
+                        await _emailSender.TrySendEmailAsync(Input.Email, await _emailComposer.ConfirmAccountAsync(callbackUrl));
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)

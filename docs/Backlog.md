@@ -2,7 +2,7 @@
 
 What is left to do on Academia Auditiva, in priority order. Written on
 2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`; line
-numbers refer to `07d6776` (`ef42bfa` in items 5 and 6). Each item says why it
+numbers refer to `07d6776` (`ef42bfa` in item 5). Each item says why it
 matters, where to look, what to do and when it is done. New ideas go to GitHub
 issues.
 
@@ -22,9 +22,10 @@ The modernization plan is done (#47 to #83):
 - **Accounts**: privacy policy, data export and deletion, and admin lock,
   unlock and delete (#57, #65, #80, #81).
 
-E-mail is [on](#e-mail): production sends through Resend (#89). There are no
-open pull requests and no open CodeQL or Dependabot alerts. The open issues are
-#16 and #31.
+E-mail is [on](#e-mail): production sends through Resend (#89), and every
+e-mail has the site's layout and a plain-text version (#92). There are no open
+pull requests and no open CodeQL or Dependabot alerts. The open issues are #16
+and #31.
 
 ## How we work
 
@@ -220,54 +221,6 @@ reaching us, but the domain has no MX record, so mail to it bounces.
 **Done when.** Mail from an outside address reaches the inbox. If the inbox
 replies as `contato@`, its replies pass DMARC.
 
-### 6. HTML templates for the e-mails
-
-**Why.** The e-mails are short localized texts with a "click here" link, for
-example "Please confirm your account by clicking here." They have no name, logo
-or footer, and do not say what to do if you did not ask for them. They go out
-as HTML only, with no plain-text version. Bare messages like these, from a new
-domain, look less trustworthy to people and to some spam filters.
-
-**Where.**
-
-- The texts: `Identity.Email.Confirm.*`, `Identity.Email.ChangeEmail.*`,
-  `Identity.Email.ResetPassword.*` and `Invite.Email.*` in the three
-  `AcademiaAuditiva/Resources/SharedResources*.resx`.
-- The callers, under `AcademiaAuditiva/Areas/Identity/Pages/Account/`:
-  - account confirmation: `Register.cshtml.cs:158`,
-    `ExternalLogin.cshtml.cs:186`, `ResendEmailConfirmation.cshtml.cs:88` and
-    `Manage/Email.cshtml.cs:169`;
-  - e-mail change: `Manage/Email.cshtml.cs:133`;
-  - password reset: `ForgotPassword.cshtml.cs:82`.
-- The classroom invite:
-  `AcademiaAuditiva/Areas/Teacher/Controllers/MembersController.cs:116-121`.
-- `AcademiaAuditiva/Services/EmailSender.cs:38` sets the HTML body.
-  `IEmailSender.SendEmailAsync` takes only an HTML string.
-
-**What.**
-
-- One layout for every e-mail:
-  - the Academia Auditiva name or logo, the text, and a button that says what
-    it does ("Confirm my email", "Reset my password", "Accept the
-    invitation"), with the link also written out;
-  - a footer that says why the person got the e-mail, and that they can
-    ignore it if they did not ask for it.
-- Build it for e-mail clients: tables, inline styles, no scripts or web fonts,
-  and images, if any, from absolute `https://academiaauditiva.com` URLs. Set
-  `lang` to the culture.
-- Render it on the server, for example with a Razor component and
-  `HtmlRenderer`. HTML-encode the values (links, teacher and classroom names),
-  as the pages do today.
-- Send a plain-text version too (`BodyBuilder.TextBody`), so `EmailSender`
-  needs a way to receive both. Keep `TrySendEmailAsync`, and keep the invite
-  showing its link when sending throws.
-- Keep every text in the three `.resx` files.
-
-**Done when.** The confirmation, e-mail change, password reset and invite
-e-mails use the layout and carry a plain-text version, in en-US, pt-BR and
-fr-CA. Tests render each e-mail in each culture and check its link and
-encoding. Sent to a real inbox, they look right in Gmail and Outlook.
-
 ## E-mail
 
 **Today.** Production sends e-mail through Resend's SMTP server (#89). The five
@@ -282,13 +235,17 @@ API key with sending access to `academiaauditiva.com` only.
 - A failed send never breaks a page. The account pages answer as usual
   (`EmailSenderExtensions.TrySendEmailAsync`), the account e-mail page says the
   e-mail could not be sent, and an invite shows its link.
+- Every e-mail has one layout (#92): the logo, a button, the link written out,
+  and a footer that says why it was sent. `EmailComposer` renders
+  `Services/Email/EmailLayout.razor` with `HtmlRenderer` and writes the same
+  texts as the plain-text version, in the culture of the page that sends it.
+  A new e-mail gets a method there and its texts in the three `.resx` files.
 - Without the settings (locally and in CI), the app skips sending and shows the
   confirmation link, as before.
 
 **Still to do.**
 
-- The `contato@` inbox ([item 5](#5-create-the-contato-inbox)) and the HTML
-  templates ([item 6](#6-html-templates-for-the-e-mails)).
+- The `contato@` inbox ([item 5](#5-create-the-contato-inbox)).
 - Add a DMARC report address (`rua=`), and once the reports are clean, move
   from `p=none` to `quarantine`.
 

@@ -2151,23 +2151,53 @@
   <data name="Identity.Status.ExternalLoginConfirmationLoadError" xml:space="preserve">
     <value>Error loading external login information during confirmation.</value>
   </data>
+  <data name="Email.LinkHint" xml:space="preserve">
+    <value>If the button doesn't work, copy and paste this link into your browser:</value>
+  </data>
   <data name="Identity.Email.Confirm.Subject" xml:space="preserve">
     <value>Confirm your email</value>
   </data>
-  <data name="Identity.Email.Confirm.Body" xml:space="preserve">
-    <value>Please confirm your account by &lt;a href='{0}'&gt;clicking here&lt;/a&gt;.</value>
+  <data name="Identity.Email.Confirm.Title" xml:space="preserve">
+    <value>Confirm your email address</value>
+  </data>
+  <data name="Identity.Email.Confirm.Intro" xml:space="preserve">
+    <value>Welcome to Academia Auditiva! Confirm that this address is yours to activate your account and start training your ear.</value>
+  </data>
+  <data name="Identity.Email.Confirm.Button" xml:space="preserve">
+    <value>Confirm my email</value>
+  </data>
+  <data name="Identity.Email.Confirm.Reason" xml:space="preserve">
+    <value>You received this email because this address was used to create an account on Academia Auditiva. If it wasn't you, just ignore this email.</value>
   </data>
   <data name="Identity.Email.ResetPassword.Subject" xml:space="preserve">
     <value>Reset password</value>
   </data>
-  <data name="Identity.Email.ResetPassword.Body" xml:space="preserve">
-    <value>Please reset your password by &lt;a href='{0}'&gt;clicking here&lt;/a&gt;.</value>
+  <data name="Identity.Email.ResetPassword.Title" xml:space="preserve">
+    <value>Reset your password</value>
+  </data>
+  <data name="Identity.Email.ResetPassword.Intro" xml:space="preserve">
+    <value>We received a request to reset the password of your Academia Auditiva account. Choose a new password to get back to training.</value>
+  </data>
+  <data name="Identity.Email.ResetPassword.Button" xml:space="preserve">
+    <value>Reset my password</value>
+  </data>
+  <data name="Identity.Email.ResetPassword.Reason" xml:space="preserve">
+    <value>You received this email because someone asked to reset the password of the Academia Auditiva account linked to this address. If it wasn't you, ignore this email and your password will stay the same.</value>
   </data>
   <data name="Identity.Email.ChangeEmail.Subject" xml:space="preserve">
     <value>Confirm your email change</value>
   </data>
-  <data name="Identity.Email.ChangeEmail.Body" xml:space="preserve">
-    <value>Please confirm your email change by &lt;a href='{0}'&gt;clicking here&lt;/a&gt;.</value>
+  <data name="Identity.Email.ChangeEmail.Title" xml:space="preserve">
+    <value>Confirm your new email address</value>
+  </data>
+  <data name="Identity.Email.ChangeEmail.Intro" xml:space="preserve">
+    <value>We received a request to use this address for an Academia Auditiva account. Confirm the change to sign in with it from now on.</value>
+  </data>
+  <data name="Identity.Email.ChangeEmail.Button" xml:space="preserve">
+    <value>Confirm the new email</value>
+  </data>
+  <data name="Identity.Email.ChangeEmail.Reason" xml:space="preserve">
+    <value>You received this email because someone asked to change the email address of an Academia Auditiva account to this one. If it wasn't you, ignore this email and nothing will change.</value>
   </data>
   <data name="Identity.Error.Default" xml:space="preserve">
     <value>An unknown error occurred.</value>
@@ -2610,8 +2640,23 @@
   <data name="Invite.Email.Subject" xml:space="preserve">
     <value>You've been invited to {0} on Academia Auditiva</value>
   </data>
-  <data name="Invite.Email.Body" xml:space="preserve">
-    <value>&lt;p&gt;Hi,&lt;/p&gt;&lt;p&gt;{0} has invited you to join the classroom &lt;strong&gt;{1}&lt;/strong&gt; on Academia Auditiva.&lt;/p&gt;&lt;p&gt;&lt;a href='{2}'&gt;Click here to accept the invitation&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;This link expires on {3}.&lt;/p&gt;</value>
+  <data name="Invite.Email.Title" xml:space="preserve">
+    <value>You're invited to a classroom</value>
+  </data>
+  <data name="Invite.Email.Intro" xml:space="preserve">
+    <value>{0} invited you to join this classroom on Academia Auditiva:</value>
+  </data>
+  <data name="Invite.Email.Button" xml:space="preserve">
+    <value>Accept the invitation</value>
+  </data>
+  <data name="Invite.Email.Expires" xml:space="preserve">
+    <value>This invitation expires on {0}.</value>
+  </data>
+  <data name="Invite.Email.NoAccount" xml:space="preserve">
+    <value>Don't have an account yet? You can create one when you accept.</value>
+  </data>
+  <data name="Invite.Email.Reason" xml:space="preserve">
+    <value>You received this email because this address was invited to a classroom on Academia Auditiva. If you don't want to join, just ignore this email.</value>
   </data>
   <data name="Manage.DeletePersonal.TeacherWarning" xml:space="preserve">
     <value>Your classrooms and routines will be deleted too, and your students will lose access to them.</value>

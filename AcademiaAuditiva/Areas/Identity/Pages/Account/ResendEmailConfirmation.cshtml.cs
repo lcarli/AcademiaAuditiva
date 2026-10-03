@@ -5,17 +5,16 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Email;
 using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
@@ -24,13 +23,15 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
     public class ResendEmailConfirmationModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailMessageSender _emailSender;
+        private readonly EmailComposer _emailComposer;
         private readonly IStringLocalizer<SharedResources> _localizer;
 
-        public ResendEmailConfirmationModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender, IStringLocalizer<SharedResources> localizer)
+        public ResendEmailConfirmationModel(UserManager<ApplicationUser> userManager, IEmailMessageSender emailSender, EmailComposer emailComposer, IStringLocalizer<SharedResources> localizer)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            _emailComposer = emailComposer;
             _localizer = localizer;
         }
 
@@ -85,10 +86,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
                 protocol: Request.Scheme);
             // Answer the same way when sending fails, so a mail outage
             // doesn't reveal which addresses have accounts.
-            await _emailSender.TrySendEmailAsync(
-                Input.Email,
-                _localizer["Identity.Email.Confirm.Subject"],
-                _localizer["Identity.Email.Confirm.Body", HtmlEncoder.Default.Encode(callbackUrl)]);
+            await _emailSender.TrySendEmailAsync(Input.Email, await _emailComposer.ConfirmAccountAsync(callbackUrl));
 
             ModelState.AddModelError(string.Empty, _localizer["Identity.Status.VerificationEmailSent"]);
             return Page();

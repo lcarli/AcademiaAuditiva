@@ -43,6 +43,10 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="AcademiaAuditiva.UnitTests" />
+  </ItemGroup>
+
   <!-- Samples of the instruments other than the piano (see BundledSamples), kept out of wwwroot: no page serves them. -->
   <ItemGroup>
     <None Update="Audio\Instruments\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />

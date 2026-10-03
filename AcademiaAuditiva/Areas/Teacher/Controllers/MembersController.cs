@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text.Encodings.Web;
 using AcademiaAuditiva.Areas.Teacher.Models;
 using AcademiaAuditiva.Areas.Teacher.Services;
 using AcademiaAuditiva.Data;
@@ -7,8 +5,9 @@ using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
 using AcademiaAuditiva.Resources;
+using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Email;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -19,7 +18,8 @@ public class MembersController : TeacherAreaController
 {
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _users;
-    private readonly IEmailSender _email;
+    private readonly IEmailMessageSender _email;
+    private readonly EmailComposer _emailComposer;
     private readonly ILogger<MembersController> _logger;
     private readonly IStringLocalizer<SharedResources> _l;
     private static readonly TimeSpan InviteLifetime = TimeSpan.FromDays(14);
@@ -27,13 +27,15 @@ public class MembersController : TeacherAreaController
     public MembersController(
         ApplicationDbContext db,
         UserManager<ApplicationUser> users,
-        IEmailSender email,
+        IEmailMessageSender email,
+        EmailComposer emailComposer,
         ILogger<MembersController> logger,
         IStringLocalizer<SharedResources> localizer)
     {
         _db = db;
         _users = users;
         _email = email;
+        _emailComposer = emailComposer;
         _logger = logger;
         _l = localizer;
     }
@@ -113,16 +115,12 @@ public class MembersController : TeacherAreaController
 
         var acceptUrl = Url.Action("Accept", "Invites", new { area = "", token = invite.Token },
             Request.Scheme) ?? "";
-        var subject = _l["Invite.Email.Subject", classroom.Name].Value;
-        var body = _l["Invite.Email.Body",
-            HtmlEncoder.Default.Encode(User.Identity?.Name ?? ""),
-            HtmlEncoder.Default.Encode(classroom.Name),
-            HtmlEncoder.Default.Encode(acceptUrl),
-            HtmlEncoder.Default.Encode(invite.ExpiresAt.ToString("D", CultureInfo.CurrentCulture))].Value;
 
         try
         {
-            await _email.SendEmailAsync(email, subject, body);
+            var invitedBy = DescribeTeacher(await _users.GetUserAsync(User));
+            await _email.SendEmailAsync(email,
+                await _emailComposer.ClassroomInviteAsync(invitedBy, classroom.Name, acceptUrl, invite.ExpiresAt));
         }
         catch (Exception ex)
         {
@@ -133,6 +131,15 @@ public class MembersController : TeacherAreaController
 
         TempData["Success"] = _l["Toast.InviteSent", email].Value;
         return RedirectToAction("Details", "Classrooms", new { id = classroom.Id });
+    }
+
+    // Name and address together: a student may know only one of them.
+    private string DescribeTeacher(ApplicationUser? teacher)
+    {
+        var address = teacher?.Email ?? User.Identity?.Name ?? "";
+        var name = $"{teacher?.FirstName} {teacher?.LastName}".Trim();
+        if (name.Length == 0) return address;
+        return address.Length == 0 ? name : $"{name} ({address})";
     }
 
     [HttpPost, ValidateAntiForgeryToken]

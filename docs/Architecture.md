@@ -25,6 +25,7 @@ secrets in Key Vault and pulled by the app's user-assigned Managed Identity.
 │   • IMusicTheoryService   — note/interval theory   │
 │   • UserReportService     — score aggregations     │
 │   • AudioTokenService     — one-shot audio rounds  │
+│   • EmailComposer         — localized HTML + text  │
 │   • EmailSender (MailKit) — invites + notifications│
 └────────────────────────────┬───────────────────────┘
                              │
