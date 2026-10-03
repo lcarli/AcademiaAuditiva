@@ -155,8 +155,8 @@ const AudioEngine = (() => {
         function readColors() {
             const style = getComputedStyle(container);
             return {
-                line: style.getPropertyValue("--aa-wave-line").trim() || "#4F46E5",
-                staff: style.getPropertyValue("--aa-wave-staff").trim() || "#D9DCEA"
+                line: style.getPropertyValue("--aa-wave-line").trim() || "#6650FC",
+                staff: style.getPropertyValue("--aa-wave-staff").trim() || "#D5DCE8"
             };
         }
 

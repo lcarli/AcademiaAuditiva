@@ -111,7 +111,7 @@ Third-party files in this repository keep their own licenses:
 | Component | Where | License |
 |---|---|---|
 | Guitar and violin samples (FluidR3_GM, rendered by midi-js-soundfonts) | `AcademiaAuditiva/Audio/Instruments/` | CC BY 3.0, see its `LICENSE.txt` |
-| Inter and Fraunces fonts | `AcademiaAuditiva/wwwroot/fonts/` | SIL Open Font License 1.1 |
+| Inter and Figtree fonts | `AcademiaAuditiva/wwwroot/fonts/` | SIL Open Font License 1.1 |
 | Bootstrap, jQuery, jQuery Validation, jQuery Validation Unobtrusive | `AcademiaAuditiva/wwwroot/lib/` | MIT, see each folder |
 | VexFlow | `AcademiaAuditiva/wwwroot/js/vexflow.js` | MIT |
 | Essentia.js (pitch detection in the sight-singing exercise) | `AcademiaAuditiva/wwwroot/js/dist/` | AGPL-3.0 |

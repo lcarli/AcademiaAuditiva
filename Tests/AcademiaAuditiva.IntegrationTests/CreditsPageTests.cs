@@ -32,7 +32,7 @@ public class CreditsPageTests : IClassFixture<TestWebApplicationFactory>
             .And.Contain("href=\"https://github.com/lcarli/AcademiaAuditiva/blob/master/AcademiaAuditiva/Audio/Instruments/LICENSE.txt\"")
             .And.Contain("<section id=\"fonts\">")
             .And.Contain("href=\"/fonts/Inter-OFL.txt\"")
-            .And.Contain("href=\"/fonts/Fraunces-OFL.txt\"");
+            .And.Contain("href=\"/fonts/Figtree-OFL.txt\"");
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class CreditsPageTests : IClassFixture<TestWebApplicationFactory>
 
     [Theory]
     [InlineData("/fonts/Inter-OFL.txt")]
-    [InlineData("/fonts/Fraunces-OFL.txt")]
+    [InlineData("/fonts/Figtree-OFL.txt")]
     public async Task FontLicenses_AreServed(string url)
     {
         var response = await _factory.CreateClient().GetAsync(url);
