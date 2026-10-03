@@ -7,10 +7,10 @@ using AcademiaAuditiva.Resources;
 namespace AcademiaAuditiva.UnitTests;
 
 /// <summary>
-/// Texts of the admin lock, unlock and delete actions and of the lockout page,
-/// in every culture. Views render them through IHtmlLocalizer, which runs
-/// string.Format even without arguments, so only keys always given the user
-/// name may hold braces.
+/// Texts of the admin lock, unlock and delete actions, of the lockout page and of the
+/// page refusing too many account forms, in every culture. Views render them through
+/// IHtmlLocalizer, which runs string.Format even without arguments, so only keys
+/// always given the user name or a number of minutes may hold braces.
 /// </summary>
 public class AdminUsersResourcesTests
 {
@@ -23,12 +23,16 @@ public class AdminUsersResourcesTests
         "Admin.Users.DeletedUser", "Admin.Users.UpdateFailed", "Admin.Users.DeleteFailed",
     ];
 
+    // Given the minutes a lockout after wrong sign-ins lasts, by Users/Index.cshtml and the lockout page.
+    private static readonly string[] MinuteKeys = ["Admin.Users.LockedFor", "Lockout.Wait"];
+
     private static readonly string[] PlainKeys =
     [
         "Admin.Users.Lock", "Admin.Users.Unlock", "Admin.Users.Delete", "Admin.Users.CannotLockSelf",
         "Admin.Users.CannotLockAdmin", "Admin.Users.CannotDeleteSelf", "Admin.Users.CannotDeleteAdmin",
         "Admin.Users.Delete.Title", "Admin.Users.Delete.Warning", "Admin.Users.Delete.TeachingWarning",
         "Admin.Users.Delete.Submit", "Lockout.Text", "Lockout.Contact",
+        "RateLimit.Account.Title", "RateLimit.Account.Text", "RateLimit.Account.Back",
     ];
 
     [Theory]
@@ -61,6 +65,21 @@ public class AdminUsersResourcesTests
     }
 
     [Theory]
+    [MemberData(nameof(Cultures))]
+    public void TextsWithMinutes_UseThem(string culture)
+    {
+        var resources = Resources(culture);
+
+        foreach (var key in MinuteKeys)
+        {
+            resources.Should().ContainKey(key);
+            Regex.Matches(resources[key], @"\{[^{}]*\}|[{}]").Select(m => m.Value).Should().Equal(["{0}"],
+                "{0} shows the minutes once and nothing else", key);
+            string.Format(CultureInfo.InvariantCulture, resources[key], 15).Should().Contain("15");
+        }
+    }
+
+    [Theory]
     [InlineData("pt-BR")]
     [InlineData("fr-CA")]
     public void EveryText_IsTranslated(string culture)
@@ -68,7 +87,7 @@ public class AdminUsersResourcesTests
         var english = Resources("");
         var translated = Resources(culture);
 
-        foreach (var key in PlainKeys.Concat(FormattedKeys))
+        foreach (var key in AllKeys)
         {
             translated[key].Should().NotBe(english[key], "{0} needs a {1} text", key, culture);
         }
@@ -89,12 +108,14 @@ public class AdminUsersResourcesTests
     {
         var resources = Resources("fr-CA");
 
-        foreach (var key in PlainKeys.Concat(FormattedKeys))
+        foreach (var key in AllKeys)
         {
             resources[key].Should().NotMatchRegex(@"[ \S][:!?]", "{0} needs a no-break space before : ! ?", key)
                 .And.NotContain("'", "{0} uses typographic apostrophes", key);
         }
     }
+
+    private static IEnumerable<string> AllKeys => PlainKeys.Concat(FormattedKeys).Concat(MinuteKeys);
 
     private static Dictionary<string, string> Resources(string culture)
     {

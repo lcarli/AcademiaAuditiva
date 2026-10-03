@@ -47,6 +47,8 @@ public class UsersController : AdminAreaController
         foreach (var u in users)
         {
             var roles = await _users.GetRolesAsync(u);
+            var lockedOut = await _users.IsLockedOutAsync(u);
+            var lockedByAdmin = lockedOut && await AdminLock.AppliesAsync(_users, u);
             var row = new UserListRow
             {
                 Id = u.Id,
@@ -55,7 +57,9 @@ public class UsersController : AdminAreaController
                 IsAdmin = roles.Contains(RoleNames.Admin),
                 IsTeacher = roles.Contains(RoleNames.Teacher),
                 IsStudent = roles.Contains(RoleNames.Student),
-                IsLockedOut = await _users.IsLockedOutAsync(u),
+                IsLockedOut = lockedOut,
+                IsLockedByAdmin = lockedByAdmin,
+                LockoutMinutesLeft = lockedOut && !lockedByAdmin ? MinutesLeft(u.LockoutEnd!.Value) : 0,
                 EmailConfirmed = u.EmailConfirmed
             };
             if (!string.IsNullOrEmpty(role))
@@ -163,9 +167,10 @@ public class UsersController : AdminAreaController
         // Identity ignores LockoutEnd unless lockout is enabled for the account.
         // Open sessions end at their next cookie check (LockoutAwareSignInManager);
         // the new security stamp also voids links already sent, like password resets.
+        // Locking an account that wrong sign-ins locked for a while makes the lock last.
         var result = IdentityResult.Success;
         if (!await _users.GetLockoutEnabledAsync(u)) result = await _users.SetLockoutEnabledAsync(u, true);
-        if (result.Succeeded) result = await _users.SetLockoutEndDateAsync(u, DateTimeOffset.MaxValue);
+        if (result.Succeeded) result = await _users.SetLockoutEndDateAsync(u, AdminLock.End);
         if (result.Succeeded) result = await _users.UpdateSecurityStampAsync(u);
         if (!result.Succeeded)
         {
@@ -184,6 +189,7 @@ public class UsersController : AdminAreaController
         var u = await _users.FindByIdAsync(id);
         if (u == null) return NotFound();
 
+        // Ends an admin's lock or a lockout after wrong sign-ins alike.
         var result = IdentityResult.Success;
         if (await _users.IsLockedOutAsync(u)) result = await _users.SetLockoutEndDateAsync(u, null);
         if (result.Succeeded) result = await _users.ResetAccessFailedCountAsync(u);
@@ -256,4 +262,8 @@ public class UsersController : AdminAreaController
     }
 
     private static string DisplayName(ApplicationUser u) => u.UserName ?? u.Email ?? u.Id;
+
+    // Rounded up, so the list never says 0 while the account is still locked.
+    private static int MinutesLeft(DateTimeOffset lockoutEnd) =>
+        Math.Max(1, (int)Math.Ceiling((lockoutEnd - DateTimeOffset.UtcNow).TotalMinutes));
 }

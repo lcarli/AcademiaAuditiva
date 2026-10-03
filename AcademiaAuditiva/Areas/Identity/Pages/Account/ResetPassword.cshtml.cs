@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Services;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 {
@@ -106,6 +107,13 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {
+                // The e-mailed link proves the account is theirs, so a lockout after wrong
+                // passwords or codes ends here. An admin's lock stays.
+                if (await _userManager.IsLockedOutAsync(user) && !await AdminLock.AppliesAsync(_userManager, user))
+                {
+                    await _userManager.SetLockoutEndDateAsync(user, null);
+                }
+                await _userManager.ResetAccessFailedCountAsync(user);
                 return RedirectToPage("./ResetPasswordConfirmation");
             }
 

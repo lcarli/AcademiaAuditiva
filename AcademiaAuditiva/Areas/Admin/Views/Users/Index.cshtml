@@ -42,7 +42,8 @@
                             <div><strong>@r.UserName</strong></div>
                             <small class="text-secondary">@r.Email</small>
                             @if (!r.EmailConfirmed) { <span class="badge bg-warning-subtle text-warning-emphasis ms-2">@Localizer["Admin.Users.Unconfirmed"]</span> }
-                            @if (r.IsLockedOut) { <span class="badge bg-danger ms-2">@Localizer["Admin.Users.Locked"]</span> }
+                            @if (r.IsLockedByAdmin) { <span class="badge bg-danger ms-2">@Localizer["Admin.Users.Locked"]</span> }
+                            else if (r.IsLockedOut) { <span class="badge bg-danger-subtle text-danger-emphasis ms-2">@Localizer["Admin.Users.LockedFor", r.LockoutMinutesLeft]</span> }
                         </td>
                         <td>
                             @if (r.IsAdmin) { <span class="badge bg-danger me-1">@Localizer["Role.Admin"]</span> }
@@ -83,7 +84,8 @@
                                         <button class="btn btn-sm btn-outline-danger">@Localizer["Admin.Users.RemoveAdmin"]</button>
                                     </form>
                                 }
-                                @* Admins can't be locked or deleted (remove the role first), but can be unlocked. *@
+                                @* Admins can't be locked or deleted (remove the role first), but can be unlocked.
+                                   A lockout after wrong sign-ins can be ended early, or made to last with Lock. *@
                                 @if (r.IsLockedOut)
                                 {
                                     <form asp-action="Unlock" asp-route-id="@r.Id" method="post" class="d-inline"
@@ -92,7 +94,7 @@
                                         <button class="btn btn-sm btn-outline-success"><i class="bi bi-unlock me-1" aria-hidden="true"></i>@Localizer["Admin.Users.Unlock"]</button>
                                     </form>
                                 }
-                                else if (!r.IsAdmin)
+                                @if (!r.IsAdmin && !r.IsLockedByAdmin)
                                 {
                                     <form asp-action="Lock" asp-route-id="@r.Id" method="post" class="d-inline"
                                           data-confirm="@string.Format(Localizer["Admin.Users.LockConfirm"].Value, r.UserName)"

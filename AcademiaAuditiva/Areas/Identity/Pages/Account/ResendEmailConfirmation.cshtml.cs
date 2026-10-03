@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
@@ -20,6 +21,7 @@ using Microsoft.Extensions.Localization;
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
+    [EnableRateLimiting(AccountFormsRateLimitPolicy.Name)]
     public class ResendEmailConfirmationModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;

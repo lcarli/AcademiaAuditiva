@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
+using AcademiaAuditiva.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
@@ -85,16 +86,16 @@ public class AdminUsersTests : IClassFixture<ClockedWebApplicationFactory>
     }
 
     [Fact]
-    public async Task ALockedAccount_FailsTheNextCookieCheck_EvenWithTheSameSecurityStamp()
+    public async Task AnAdminsLock_FailsTheNextCookieCheck_EvenWithTheSameSecurityStamp()
     {
         var student = await CreateUserAsync(RoleNames.Student);
         var studentClient = await SignedInClientAsync(student);
         using (var scope = _factory.Services.CreateScope())
         {
-            // Identity locks this way, keeping the stamp, after too many wrong two-factor codes.
+            // Locked as Admin › Users does, but keeping the security stamp.
             var users = Users(scope);
             var user = await users.FindByIdAsync(student.Id);
-            (await users.SetLockoutEndDateAsync(user!, DateTimeOffset.UtcNow.AddMinutes(5))).Succeeded.Should().BeTrue();
+            (await users.SetLockoutEndDateAsync(user!, AdminLock.End)).Succeeded.Should().BeTrue();
         }
 
         (await studentClient.GetAsync(SignedInPage)).StatusCode.Should().Be(HttpStatusCode.OK);
@@ -333,7 +334,7 @@ public class AdminUsersTests : IClassFixture<ClockedWebApplicationFactory>
         var student = await CreateUserAsync(RoleNames.Student);
         using (var scope = _factory.Services.CreateScope())
         {
-            // As after too many wrong two-factor codes.
+            // As after too many wrong passwords or codes.
             var users = Users(scope);
             var user = await users.FindByIdAsync(lockedAdmin.Id);
             (await users.SetLockoutEndDateAsync(user!, DateTimeOffset.UtcNow.AddMinutes(5))).Succeeded.Should().BeTrue();
@@ -354,6 +355,38 @@ public class AdminUsersTests : IClassFixture<ClockedWebApplicationFactory>
 
         ExpectRedirect(await PostAsync(client, $"/Admin/Users/Unlock/{lockedAdmin.Id}"), "/Admin/Users");
         (await IsLockedOutAsync(lockedAdmin.Id)).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task UsersList_ShowsALockoutAfterWrongSignIns_AndLockMakesItLast()
+    {
+        var admin = await CreateUserAsync(RoleNames.Admin);
+        var student = await CreateUserAsync(RoleNames.Student);
+        using (var scope = _factory.Services.CreateScope())
+        {
+            // As after five wrong passwords.
+            var users = Users(scope);
+            var user = await users.FindByIdAsync(student.Id);
+            (await users.SetLockoutEndDateAsync(user!, DateTimeOffset.UtcNow.AddMinutes(15))).Succeeded.Should().BeTrue();
+        }
+        var client = await SignedInClientAsync(admin);
+        var list = "/Admin/Users?q=" + Uri.EscapeDataString(student.Email!);
+
+        (await PageTextAsync(client, list)).Should().Contain("locked for 15 more min (failed sign-ins)")
+            .And.NotContain(">locked</span>")
+            .And.Contain($"action=\"/Admin/Users/Unlock/{student.Id}\"")
+            .And.Contain($"action=\"/Admin/Users/Lock/{student.Id}\"");
+
+        ExpectRedirect(await PostAsync(client, $"/Admin/Users/Lock/{student.Id}"), "/Admin/Users");
+
+        (await PageTextAsync(client, list)).Should().Contain(">locked</span>")
+            .And.NotContain("failed sign-ins")
+            .And.Contain($"action=\"/Admin/Users/Unlock/{student.Id}\"")
+            .And.NotContain($"action=\"/Admin/Users/Lock/{student.Id}\"");
+        using (var scope = _factory.Services.CreateScope())
+        {
+            (await Users(scope).FindByIdAsync(student.Id))!.LockoutEnd.Should().Be(AdminLock.End);
+        }
     }
 
     private async Task<ApplicationUser> CreateUserAsync(string role)

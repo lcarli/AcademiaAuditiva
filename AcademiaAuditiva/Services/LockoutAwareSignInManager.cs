@@ -6,14 +6,16 @@ using Microsoft.Extensions.Options;
 namespace AcademiaAuditiva.Services;
 
 /// <summary>
-/// Keeps locked accounts out. Identity refuses them a password, authenticator or
-/// external sign-in, but its cookie check compares the security stamp alone, and
-/// refreshing a sign-in (saving the profile, accepting an invite) issues a cookie
-/// with the current stamp: a locked user who did that within the check interval
-/// kept their session for good. A recovery code also still finished a sign-in
-/// begun before the lock. Here a locked account fails the cookie check, refreshing
-/// its own sign-in signs it out, and a recovery code gets the checks an
-/// authenticator code gets.
+/// Keeps accounts an admin locked (<see cref="AdminLock"/>) out. Identity refuses
+/// locked accounts a password, authenticator or external sign-in, but its cookie
+/// check compares the security stamp alone, and refreshing a sign-in (saving the
+/// profile, accepting an invite) issues a cookie with the current stamp: a locked
+/// user who did that within the check interval kept their session for good. Here
+/// an admin-locked account fails the cookie check, and refreshing its own sign-in
+/// signs it out. A lockout after wrong passwords or codes leaves open sessions
+/// alone, because anyone who knows the address can cause one. A recovery code gets
+/// the checks an authenticator code gets, so it can't finish a sign-in begun before
+/// either kind of lock.
 /// </summary>
 public sealed class LockoutAwareSignInManager : SignInManager<ApplicationUser>
 {
@@ -30,13 +32,13 @@ public sealed class LockoutAwareSignInManager : SignInManager<ApplicationUser>
     }
 
     public override async Task<bool> ValidateSecurityStampAsync(ApplicationUser? user, string? securityStamp)
-        => await base.ValidateSecurityStampAsync(user, securityStamp) && !await IsLockedOut(user!);
+        => await base.ValidateSecurityStampAsync(user, securityStamp) && !await AdminLock.AppliesAsync(UserManager, user!);
 
     public override async Task RefreshSignInAsync(ApplicationUser user)
     {
         // Only the user's own session: like the base refresh, which leaves anyone
         // else's alone (an email change link may be opened in another session).
-        if (await IsLockedOut(user) && await IsSignedInAsAsync(user))
+        if (await AdminLock.AppliesAsync(UserManager, user) && await IsSignedInAsAsync(user))
         {
             await SignOutAsync();
             return;
