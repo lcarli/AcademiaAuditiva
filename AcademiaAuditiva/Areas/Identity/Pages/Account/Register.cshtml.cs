@@ -7,21 +7,18 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using AcademiaAuditiva.Models;
-using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
-using Microsoft.Extensions.Localization;
+using AcademiaAuditiva.Services.Email;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 {
@@ -32,16 +29,16 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
-        private readonly IStringLocalizer<SharedResources> _localizer;
+        private readonly IEmailMessageSender _emailSender;
+        private readonly EmailComposer _emailComposer;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender,
-            IStringLocalizer<SharedResources> localizer)
+            IEmailMessageSender emailSender,
+            EmailComposer emailComposer)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -49,7 +46,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
-            _localizer = localizer;
+            _emailComposer = emailComposer;
         }
 
         /// <summary>
@@ -155,8 +152,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
                     // The account exists now, so a mail outage must not end
                     // sign-up on an error page. The login page links to
                     // "resend confirmation".
-                    await _emailSender.TrySendEmailAsync(Input.Email, _localizer["Identity.Email.Confirm.Subject"],
-                        _localizer["Identity.Email.Confirm.Body", HtmlEncoder.Default.Encode(callbackUrl)]);
+                    await _emailSender.TrySendEmailAsync(Input.Email, await _emailComposer.ConfirmAccountAsync(callbackUrl));
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

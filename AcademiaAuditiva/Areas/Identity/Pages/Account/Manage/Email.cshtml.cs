@@ -5,17 +5,14 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using AcademiaAuditiva.Models;
-using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
-using Microsoft.Extensions.Localization;
+using AcademiaAuditiva.Services.Email;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
 {
@@ -23,19 +20,19 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IEmailSender _emailSender;
-        private readonly IStringLocalizer<SharedResources> _localizer;
+        private readonly IEmailMessageSender _emailSender;
+        private readonly EmailComposer _emailComposer;
 
         public EmailModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender,
-            IStringLocalizer<SharedResources> localizer)
+            IEmailMessageSender emailSender,
+            EmailComposer emailComposer)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
-            _localizer = localizer;
+            _emailComposer = emailComposer;
         }
 
         /// <summary>
@@ -131,9 +128,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
                     values: new { area = "Identity", userId = userId, email = Input.NewEmail, code = code },
                     protocol: Request.Scheme);
                 var sent = await _emailSender.TrySendEmailAsync(
-                    Input.NewEmail,
-                    _localizer["Identity.Email.ChangeEmail.Subject"],
-                    _localizer["Identity.Email.ChangeEmail.Body", HtmlEncoder.Default.Encode(callbackUrl)]);
+                    Input.NewEmail, await _emailComposer.ConfirmEmailChangeAsync(callbackUrl));
 
                 StatusMessage = sent ? "Identity.Status.EmailChangeLinkSent" : "Error:Identity.Status.EmailSendFailed";
                 return RedirectToPage();
@@ -166,10 +161,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
                 pageHandler: null,
                 values: new { area = "Identity", userId = userId, code = code },
                 protocol: Request.Scheme);
-            var sent = await _emailSender.TrySendEmailAsync(
-                email,
-                _localizer["Identity.Email.Confirm.Subject"],
-                _localizer["Identity.Email.Confirm.Body", HtmlEncoder.Default.Encode(callbackUrl)]);
+            var sent = await _emailSender.TrySendEmailAsync(email, await _emailComposer.ConfirmAccountAsync(callbackUrl));
 
             StatusMessage = sent ? "Identity.Status.VerificationEmailSent" : "Error:Identity.Status.EmailSendFailed";
             return RedirectToPage();

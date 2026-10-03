@@ -5,32 +5,29 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using AcademiaAuditiva.Models;
-using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
-using Microsoft.Extensions.Localization;
+using AcademiaAuditiva.Services.Email;
 
 namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 {
     public class ForgotPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailSender _emailSender;
-        private readonly IStringLocalizer<SharedResources> _localizer;
+        private readonly IEmailMessageSender _emailSender;
+        private readonly EmailComposer _emailComposer;
 
-        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender, IStringLocalizer<SharedResources> localizer)
+        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailMessageSender emailSender, EmailComposer emailComposer)
         {
             _userManager = userManager;
             _emailSender = emailSender;
-            _localizer = localizer;
+            _emailComposer = emailComposer;
         }
 
         /// <summary>
@@ -79,10 +76,7 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
 
                 // Answer the same way when sending fails, so a mail outage
                 // doesn't reveal which addresses have accounts.
-                await _emailSender.TrySendEmailAsync(
-                    Input.Email,
-                    _localizer["Identity.Email.ResetPassword.Subject"],
-                    _localizer["Identity.Email.ResetPassword.Body", HtmlEncoder.Default.Encode(callbackUrl)]);
+                await _emailSender.TrySendEmailAsync(Input.Email, await _emailComposer.ResetPasswordAsync(callbackUrl));
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

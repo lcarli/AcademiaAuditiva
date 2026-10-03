@@ -205,7 +205,10 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 //Inject EmailSender
 builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddTransient<IEmailMessageSender, EmailSender>();
+// Identity's default UI would otherwise fall back to its no-op sender.
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddScoped<AcademiaAuditiva.Services.Email.EmailComposer>();
 
 //Inject AnalyticsService
 builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>();

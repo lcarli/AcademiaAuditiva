@@ -1,7 +1,10 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Text.RegularExpressions;
+using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Models.Teaching;
+using AcademiaAuditiva.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -16,11 +19,15 @@ namespace AcademiaAuditiva.IntegrationTests;
 /// <summary>
 /// The account pages with e-mail on (production sends through Resend's SMTP
 /// server) and off. Sign-up shows its confirmation link only while no e-mail
-/// can go out, and a failed send never turns an account page into an error.
+/// can go out, a failed send never turns an account page into an error, and
+/// every e-mail carries its link in the HTML and in the plain text.
 /// </summary>
 public class EmailPagesTests : IClassFixture<TestWebApplicationFactory>
 {
     private const string Password = "Email-Pages!Pass1";
+
+    // Typed by teachers, shown as text.
+    private const string ClassroomName = "Ear & <Rhythm> \"A\"";
 
     private static readonly Dictionary<string, string?> Resend = new()
     {
@@ -85,6 +92,7 @@ public class EmailPagesTests : IClassFixture<TestWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
         response.Headers.Location!.OriginalString.Should().StartWith("/Identity/Account/RegisterConfirmation?");
         sender.Recipients.Should().Equal(email);
+        ShouldLinkTo(sender.Sent.Single().Message, "/Identity/Account/ConfirmEmail");
     }
 
     [Fact]
@@ -102,6 +110,26 @@ public class EmailPagesTests : IClassFixture<TestWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
         response.Headers.Location!.OriginalString.Should().Be("/Identity/Account/ForgotPasswordConfirmation");
         sender.Recipients.Should().Equal(email);
+        ShouldLinkTo(sender.Sent.Single().Message, "/Identity/Account/ResetPassword");
+    }
+
+    [Fact]
+    public async Task Emails_SpeakTheLanguageOfThePage()
+    {
+        var sender = new RecordingEmailSender(fail: false);
+        await using var app = App(Resend, sender);
+        var email = await CreateUserAsync(app, confirmed: true);
+        var client = Client(app);
+
+        var page = await client.GetStringAsync("/Identity/Account/ForgotPassword?culture=pt-BR");
+        await client.PostAsync("/Identity/Account/ForgotPassword?culture=pt-BR",
+            Form(page, new() { ["Input.Email"] = email }));
+
+        var message = sender.Sent.Should().ContainSingle().Subject.Message;
+        message.Subject.Should().Be("Redefinir senha");
+        message.HtmlBody.Should().Contain("<html lang=\"pt-BR\"");
+        WebUtility.HtmlDecode(message.HtmlBody).Should().Contain(">Redefina sua senha</h1>");
+        message.TextBody.Should().StartWith("Redefina sua senha\n");
     }
 
     [Fact]
@@ -119,6 +147,7 @@ public class EmailPagesTests : IClassFixture<TestWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         (await response.Content.ReadAsStringAsync()).Should().Contain("Verification email sent. Please check your email.");
         sender.Recipients.Should().Equal(email);
+        ShouldLinkTo(sender.Sent.Single().Message, "/Identity/Account/ConfirmEmail");
     }
 
     [Theory]
@@ -144,6 +173,44 @@ public class EmailPagesTests : IClassFixture<TestWebApplicationFactory>
         after.Should().Contain($"alert alert-{(fail ? "danger" : "success")} alert-dismissible");
         after.Should().Contain(message);
         sender.Recipients.Should().Equal(handler == "ChangeEmail" ? newEmail : email);
+        ShouldLinkTo(sender.Sent.Single().Message,
+            handler == "ChangeEmail" ? "/Identity/Account/ConfirmEmailChange" : "/Identity/Account/ConfirmEmail");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ClassroomInvite_SendsTheLink_OrShowsItToTheTeacherWhenTheEmailFails(bool fail)
+    {
+        var sender = new RecordingEmailSender(fail);
+        await using var app = App(Resend, sender);
+        var (teacher, classroomId) = await CreateTeacherWithClassroomAsync(app);
+        var client = Client(app);
+        await SignInAsync(client, teacher);
+        var student = $"student-{Guid.NewGuid():N}@example.test";
+
+        var page = await client.GetStringAsync($"/Teacher/Members/Invite?classroomId={classroomId}");
+        var response = await client.PostAsync("/Teacher/Members/Invite",
+            Form(page, new() { ["Email"] = student, ["ClassroomId"] = classroomId.ToString() }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        var (to, message) = sender.Sent.Should().ContainSingle().Subject;
+        to.Should().Be(student);
+        var link = ShouldLinkTo(message, "/invite/accept");
+        message.Subject.Should().Contain(ClassroomName);
+        WebUtility.HtmlDecode(message.HtmlBody).Should().Contain(ClassroomName)
+            .And.Contain($"Email Pages ({teacher})", "students recognize the teacher by name or address");
+        message.TextBody.Should().Contain(ClassroomName).And.Contain($"Email Pages ({teacher})");
+
+        var details = WebUtility.HtmlDecode(await client.GetStringAsync(response.Headers.Location!.OriginalString));
+        if (fail)
+        {
+            details.Should().Contain(link, "the teacher can pass the link on");
+        }
+        else
+        {
+            details.Should().Contain(student).And.NotContain(link);
+        }
     }
 
     // The fixture's app with these settings on top, sending through a fake
@@ -154,10 +221,26 @@ public class EmailPagesTests : IClassFixture<TestWebApplicationFactory>
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(settings));
             builder.ConfigureTestServices(services =>
             {
+                var fake = sender ?? new RecordingEmailSender(fail: false);
+                services.RemoveAll<IEmailMessageSender>();
                 services.RemoveAll<IEmailSender>();
-                services.AddSingleton<IEmailSender>(sender ?? new RecordingEmailSender(fail: false));
+                services.AddSingleton<IEmailMessageSender>(fake);
+                services.AddSingleton<IEmailSender>(fake);
             });
         });
+
+    // The button and the copyable link in the HTML lead to one page, which the text gives too.
+    private static string ShouldLinkTo(EmailMessage message, string path)
+    {
+        var links = Regex.Matches(message.HtmlBody, "\\shref=\"([^\"]*)\"")
+            .Select(m => WebUtility.HtmlDecode(m.Groups[1].Value))
+            .Where(href => href != "https://academiaauditiva.com")
+            .ToList();
+        links.Should().HaveCount(2).And.AllBeEquivalentTo(links[0]);
+        new Uri(links[0]).AbsolutePath.Should().Be(path);
+        message.TextBody.Should().Contain(links[0]);
+        return links[0];
+    }
 
     private static HttpClient Client(WebApplicationFactory<Program> app) =>
         app.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
@@ -209,6 +292,21 @@ public class EmailPagesTests : IClassFixture<TestWebApplicationFactory>
         }
     }
 
+    private static async Task<(string Email, int ClassroomId)> CreateTeacherWithClassroomAsync(WebApplicationFactory<Program> app)
+    {
+        var email = await CreateUserAsync(app, confirmed: true);
+        await EnsureRoleAsync(app, RoleNames.Teacher);
+        using var scope = app.Services.CreateScope();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var teacher = await users.FindByEmailAsync(email);
+        (await users.AddToRoleAsync(teacher!, RoleNames.Teacher)).Succeeded.Should().BeTrue();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var classroom = new Classroom { Name = ClassroomName, OwnerId = teacher!.Id };
+        db.Classrooms.Add(classroom);
+        await db.SaveChangesAsync();
+        return (email, classroom.Id);
+    }
+
     private static FormUrlEncodedContent Form(string page, Dictionary<string, string> fields)
     {
         var token = Regex.Match(page, "name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"");
@@ -217,14 +315,20 @@ public class EmailPagesTests : IClassFixture<TestWebApplicationFactory>
         return new FormUrlEncodedContent(fields);
     }
 
-    private sealed class RecordingEmailSender(bool fail) : IEmailSender
+    private sealed class RecordingEmailSender(bool fail) : IEmailMessageSender, IEmailSender
     {
-        public ConcurrentQueue<string> Recipients { get; } = new();
+        public ConcurrentQueue<(string To, EmailMessage Message)> Sent { get; } = new();
 
-        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public IEnumerable<string> Recipients => Sent.Select(s => s.To);
+
+        public Task SendEmailAsync(string email, EmailMessage message)
         {
-            Recipients.Enqueue(email);
+            Sent.Enqueue((email, message));
             return fail ? Task.FromException(new InvalidOperationException("SMTP is down")) : Task.CompletedTask;
         }
+
+        // Only Identity's own pages send bare HTML, and the site replaces every one that sends e-mail.
+        public Task SendEmailAsync(string email, string subject, string htmlMessage) =>
+            throw new InvalidOperationException("The site's pages send composed messages.");
     }
 }

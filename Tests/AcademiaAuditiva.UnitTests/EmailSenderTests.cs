@@ -1,13 +1,15 @@
 using AcademiaAuditiva.Services;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using MimeKit;
 using Moq;
 
 namespace AcademiaAuditiva.UnitTests;
 
 public class EmailSenderTests
 {
+    private static readonly EmailMessage Message = new("Subject", "<p>Body</p>", "Body\n");
+
     // Production's shape: Resend signs in as "resend" with an API key.
     private static SmtpOptions Resend(string fromAddress = "no-reply@academiaauditiva.com") => new()
     {
@@ -68,29 +70,45 @@ public class EmailSenderTests
         options.Host = "smtp.invalid";
         var sender = new EmailSender(Options.Create(options), NullLogger<EmailSender>.Instance);
 
-        var send = () => sender.SendEmailAsync("student@example.test", "Subject", "<p>Body</p>");
+        await sender.Invoking(s => s.SendEmailAsync("student@example.test", Message)).Should().NotThrowAsync();
+        await sender.Invoking(s => s.SendEmailAsync("student@example.test", "Subject", "<p>Body</p>"))
+            .Should().NotThrowAsync("Identity's default UI sends through IEmailSender");
+    }
 
-        await send.Should().NotThrowAsync();
+    [Fact]
+    public void Messages_CarryTheHtmlAndThePlainText()
+    {
+        var sender = new EmailSender(Options.Create(Resend()), NullLogger<EmailSender>.Instance);
+
+        var mime = sender.CreateMessage("student@example.test", Message);
+
+        mime.Body.Should().BeOfType<MultipartAlternative>("mail programs pick the HTML or the text");
+        mime.HtmlBody.Should().Be("<p>Body</p>");
+        mime.TextBody.ReplaceLineEndings("\n").Should().Be("Body\n", "MIME sends lines ending in CRLF");
+        mime.Subject.Should().Be("Subject");
+        mime.From.Mailboxes.Should().ContainSingle().Which.Should()
+            .BeEquivalentTo(new { Name = "Academia Auditiva", Address = "no-reply@academiaauditiva.com" });
+        mime.To.Mailboxes.Should().ContainSingle().Which.Address.Should().Be("student@example.test");
     }
 
     [Fact]
     public async Task TrySendEmailAsync_ReportsAFailedSend_WithoutThrowing()
     {
-        var sender = new Mock<IEmailSender>();
-        sender.Setup(s => s.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+        var sender = new Mock<IEmailMessageSender>();
+        sender.Setup(s => s.SendEmailAsync(It.IsAny<string>(), It.IsAny<EmailMessage>()))
             .ThrowsAsync(new InvalidOperationException("SMTP is down"));
 
-        (await sender.Object.TrySendEmailAsync("student@example.test", "Subject", "<p>Body</p>")).Should().BeFalse();
+        (await sender.Object.TrySendEmailAsync("student@example.test", Message)).Should().BeFalse();
     }
 
     [Fact]
     public async Task TrySendEmailAsync_ReportsASuccessfulSend()
     {
-        var sender = new Mock<IEmailSender>();
-        sender.Setup(s => s.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+        var sender = new Mock<IEmailMessageSender>();
+        sender.Setup(s => s.SendEmailAsync(It.IsAny<string>(), It.IsAny<EmailMessage>()))
             .Returns(Task.CompletedTask);
 
-        (await sender.Object.TrySendEmailAsync("student@example.test", "Subject", "<p>Body</p>")).Should().BeTrue();
-        sender.Verify(s => s.SendEmailAsync("student@example.test", "Subject", "<p>Body</p>"), Times.Once);
+        (await sender.Object.TrySendEmailAsync("student@example.test", Message)).Should().BeTrue();
+        sender.Verify(s => s.SendEmailAsync("student@example.test", Message), Times.Once);
     }
 }

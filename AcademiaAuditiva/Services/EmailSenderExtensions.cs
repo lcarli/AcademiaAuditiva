@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Identity.UI.Services;
-
 namespace AcademiaAuditiva.Services;
 
 public static class EmailSenderExtensions
@@ -11,11 +9,11 @@ public static class EmailSenderExtensions
     /// accounts. <see cref="EmailSender"/> logs the failure.
     /// </summary>
     /// <returns>False when sending failed.</returns>
-    public static async Task<bool> TrySendEmailAsync(this IEmailSender sender, string email, string subject, string htmlMessage)
+    public static async Task<bool> TrySendEmailAsync(this IEmailMessageSender sender, string email, EmailMessage message)
     {
         try
         {
-            await sender.SendEmailAsync(email, subject, htmlMessage);
+            await sender.SendEmailAsync(email, message);
             return true;
         }
         catch (Exception)

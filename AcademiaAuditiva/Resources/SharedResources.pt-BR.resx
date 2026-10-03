@@ -2151,23 +2151,53 @@
   <data name="Identity.Status.ExternalLoginConfirmationLoadError" xml:space="preserve">
     <value>Erro ao carregar as informações do login externo durante a confirmação.</value>
   </data>
+  <data name="Email.LinkHint" xml:space="preserve">
+    <value>Se o botão não funcionar, copie e cole este link no seu navegador:</value>
+  </data>
   <data name="Identity.Email.Confirm.Subject" xml:space="preserve">
     <value>Confirme seu email</value>
   </data>
-  <data name="Identity.Email.Confirm.Body" xml:space="preserve">
-    <value>Confirme sua conta &lt;a href='{0}'&gt;clicando aqui&lt;/a&gt;.</value>
+  <data name="Identity.Email.Confirm.Title" xml:space="preserve">
+    <value>Confirme seu endereço de email</value>
+  </data>
+  <data name="Identity.Email.Confirm.Intro" xml:space="preserve">
+    <value>Boas-vindas à Academia Auditiva! Confirme que este endereço é seu para ativar sua conta e começar a treinar seu ouvido.</value>
+  </data>
+  <data name="Identity.Email.Confirm.Button" xml:space="preserve">
+    <value>Confirmar meu email</value>
+  </data>
+  <data name="Identity.Email.Confirm.Reason" xml:space="preserve">
+    <value>Você recebeu este email porque este endereço foi usado para criar uma conta na Academia Auditiva. Se não foi você, é só ignorar este email.</value>
   </data>
   <data name="Identity.Email.ResetPassword.Subject" xml:space="preserve">
     <value>Redefinir senha</value>
   </data>
-  <data name="Identity.Email.ResetPassword.Body" xml:space="preserve">
-    <value>Redefina sua senha &lt;a href='{0}'&gt;clicando aqui&lt;/a&gt;.</value>
+  <data name="Identity.Email.ResetPassword.Title" xml:space="preserve">
+    <value>Redefina sua senha</value>
+  </data>
+  <data name="Identity.Email.ResetPassword.Intro" xml:space="preserve">
+    <value>Recebemos um pedido para redefinir a senha da sua conta na Academia Auditiva. Escolha uma nova senha para voltar a treinar.</value>
+  </data>
+  <data name="Identity.Email.ResetPassword.Button" xml:space="preserve">
+    <value>Redefinir minha senha</value>
+  </data>
+  <data name="Identity.Email.ResetPassword.Reason" xml:space="preserve">
+    <value>Você recebeu este email porque alguém pediu para redefinir a senha da conta da Academia Auditiva ligada a este endereço. Se não foi você, ignore este email e sua senha continuará a mesma.</value>
   </data>
   <data name="Identity.Email.ChangeEmail.Subject" xml:space="preserve">
     <value>Confirme a alteração de email</value>
   </data>
-  <data name="Identity.Email.ChangeEmail.Body" xml:space="preserve">
-    <value>Confirme a alteração de email &lt;a href='{0}'&gt;clicando aqui&lt;/a&gt;.</value>
+  <data name="Identity.Email.ChangeEmail.Title" xml:space="preserve">
+    <value>Confirme seu novo endereço de email</value>
+  </data>
+  <data name="Identity.Email.ChangeEmail.Intro" xml:space="preserve">
+    <value>Recebemos um pedido para usar este endereço em uma conta da Academia Auditiva. Confirme a alteração para entrar com ele daqui em diante.</value>
+  </data>
+  <data name="Identity.Email.ChangeEmail.Button" xml:space="preserve">
+    <value>Confirmar o novo email</value>
+  </data>
+  <data name="Identity.Email.ChangeEmail.Reason" xml:space="preserve">
+    <value>Você recebeu este email porque alguém pediu para trocar o email de uma conta da Academia Auditiva por este endereço. Se não foi você, ignore este email e nada vai mudar.</value>
   </data>
   <data name="Identity.Error.Default" xml:space="preserve">
     <value>Ocorreu um erro desconhecido.</value>
@@ -2610,8 +2640,23 @@
   <data name="Invite.Email.Subject" xml:space="preserve">
     <value>Você recebeu um convite para a turma {0} na Academia Auditiva</value>
   </data>
-  <data name="Invite.Email.Body" xml:space="preserve">
-    <value>&lt;p&gt;Olá,&lt;/p&gt;&lt;p&gt;{0} convidou você para participar da turma &lt;strong&gt;{1}&lt;/strong&gt; na Academia Auditiva.&lt;/p&gt;&lt;p&gt;&lt;a href='{2}'&gt;Clique aqui para aceitar o convite&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Este link expira em {3}.&lt;/p&gt;</value>
+  <data name="Invite.Email.Title" xml:space="preserve">
+    <value>Você recebeu um convite para uma turma</value>
+  </data>
+  <data name="Invite.Email.Intro" xml:space="preserve">
+    <value>{0} convidou você para participar desta turma na Academia Auditiva:</value>
+  </data>
+  <data name="Invite.Email.Button" xml:space="preserve">
+    <value>Aceitar o convite</value>
+  </data>
+  <data name="Invite.Email.Expires" xml:space="preserve">
+    <value>Este convite expira em {0}.</value>
+  </data>
+  <data name="Invite.Email.NoAccount" xml:space="preserve">
+    <value>Ainda não tem conta? Você poderá criar uma ao aceitar.</value>
+  </data>
+  <data name="Invite.Email.Reason" xml:space="preserve">
+    <value>Você recebeu este email porque este endereço foi convidado para uma turma na Academia Auditiva. Se não quiser participar, é só ignorar este email.</value>
   </data>
   <data name="Manage.DeletePersonal.TeacherWarning" xml:space="preserve">
     <value>Suas turmas e rotinas também serão excluídas, e seus alunos perderão o acesso a elas.</value>

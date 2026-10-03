@@ -1,0 +1,138 @@
+@*
+    The one layout of every e-mail the site sends (see EmailComposer).
+    E-mail programs need tables, inline styles and absolute image URLs; no
+    scripts, no web fonts. Razor drops HTML comments, so the comments that
+    only classic Outlook reads are written as MarkupString.
+*@
+<!DOCTYPE html>
+<html lang="@Content.Language" dir="ltr" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="x-apple-disable-message-reformatting" />
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no" />
+<meta name="color-scheme" content="light dark" />
+<meta name="supported-color-schemes" content="light dark" />
+<title>@Content.Subject</title>
+@((MarkupString)OutlookHead)
+<style>
+:root { color-scheme: light dark; supported-color-schemes: light dark; }
+body { margin: 0; padding: 0; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+table { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+@@media (max-width: 600px) {
+  .aa-shell { padding: 16px 8px !important; }
+  .aa-card { padding: 24px !important; }
+}
+@@media (prefers-color-scheme: dark) {
+  .aa-page { background-color: #0B1220 !important; }
+  .aa-card { background-color: #101A2B !important; border-color: #22304A !important; }
+  .aa-ink { color: #EEF2FA !important; }
+  .aa-muted { color: #9EAAC0 !important; }
+  .aa-link { color: #ADA2FF !important; }
+  .aa-divider { border-color: #22304A !important; }
+  .aa-highlight { background-color: #1E1C48 !important; border-color: #8F80FF !important; }
+  .aa-button { background-color: #8F80FF !important; }
+  .aa-button-link { color: #0B1220 !important; }
+}
+</style>
+</head>
+<body class="aa-page" style="margin:0;padding:0;width:100%;background-color:#F5F7FB;">
+<div role="article" aria-roledescription="email" aria-label="@Content.Subject" lang="@Content.Language" dir="ltr">
+<table role="presentation" class="aa-page" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F5F7FB" style="width:100%;background-color:#F5F7FB;">
+<tr>
+<td class="aa-shell" align="center" style="padding:32px 16px;">
+@((MarkupString)OutlookColumnStart)
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:560px;">
+<tr>
+<td style="padding:0 0 20px 0;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td style="padding:0 12px 0 0;vertical-align:middle;"><img src="@EmailComposer.LogoUrl" width="40" height="40" alt="@string.Empty" style="display:block;width:40px;height:40px;border:0;border-radius:10px;" /></td>
+<td class="aa-ink" style="vertical-align:middle;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:18px;line-height:24px;font-weight:700;color:#0B1A33;">Academia Auditiva</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td class="aa-card" bgcolor="#FFFFFF" style="padding:32px;background-color:#FFFFFF;border:1px solid #E2E7F0;border-radius:12px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td style="padding:0 0 16px 0;"><h1 class="aa-ink" style="margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;color:#0B1A33;">@Content.Title</h1></td>
+</tr>
+<tr>
+<td class="aa-ink" style="padding:0 0 24px 0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#0B1A33;">@Content.Intro</td>
+</tr>
+@if (Content.Highlight is not null)
+{
+<tr>
+<td style="padding:0 0 24px 0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="aa-highlight aa-ink" bgcolor="#EFEDFF" style="padding:14px 16px;background-color:#EFEDFF;border-left:4px solid #6650FC;border-radius:0 8px 8px 0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:18px;line-height:24px;font-weight:700;color:#0B1A33;">@Content.Highlight</td>
+</tr>
+</table>
+</td>
+</tr>
+}
+<tr>
+<td style="padding:0 0 24px 0;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="aa-button" align="center" bgcolor="#6650FC" style="border-radius:8px;background-color:#6650FC;mso-padding-alt:14px 28px;"><a class="aa-button-link" href="@Content.ActionUrl" style="display:inline-block;padding:14px 28px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:20px;font-weight:700;color:#FFFFFF;text-decoration:none;border-radius:8px;">@Content.ActionText</a></td>
+</tr>
+</table>
+</td>
+</tr>
+@if (Content.Notes.Count > 0)
+{
+<tr>
+<td style="padding:0 0 16px 0;">
+@foreach (var note in Content.Notes)
+{
+<p class="aa-muted" style="margin:0 0 8px 0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:20px;color:#53607A;">@note</p>
+}
+</td>
+</tr>
+}
+<tr>
+<td class="aa-divider" style="padding:20px 0 0 0;border-top:1px solid #E2E7F0;">
+<p class="aa-muted" style="margin:0 0 4px 0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#53607A;">@Content.LinkHint</p>
+<p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;word-break:break-all;"><a class="aa-link" href="@Content.ActionUrl" style="color:#5236E6;text-decoration:underline;word-break:break-all;">@Content.ActionUrl</a></p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td style="padding:24px 4px 0 4px;">
+<p class="aa-muted" style="margin:0 0 8px 0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#53607A;">@Content.Reason</p>
+<p class="aa-muted" style="margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#53607A;"><a class="aa-muted" href="@EmailComposer.SiteUrl" style="color:#53607A;font-weight:700;text-decoration:underline;">Academia Auditiva</a> · @Content.Tagline</p>
+</td>
+</tr>
+</table>
+@((MarkupString)OutlookColumnEnd)
+</td>
+</tr>
+</table>
+</div>
+</body>
+</html>
+
+@code {
+    [Parameter, EditorRequired]
+    public EmailContent Content { get; set; } = default!;
+
+    // Classic Outlook draws with Word: images at 96 dpi, and Times New Roman
+    // when the first font of a list is one it doesn't have.
+    private const string OutlookHead =
+        "<!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>" +
+        "<style>td,p,a,h1{font-family:'Segoe UI',Arial,sans-serif !important;}</style><![endif]-->";
+
+    // Classic Outlook ignores max-width, so a fixed-width table holds the column.
+    private const string OutlookColumnStart =
+        "<!--[if mso]><table role=\"presentation\" align=\"center\" width=\"560\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td><![endif]-->";
+
+    private const string OutlookColumnEnd = "<!--[if mso]></td></tr></table><![endif]-->";
+}
