@@ -258,8 +258,7 @@ app can award them yet:
 Each of them also needs its art. [badges.md](../badges.md) has the style guide
 and a prompt for every badge, the hidden ones included, and explains how
 `scripts/export-badge-art.py` puts an approved image in
-`AcademiaAuditiva/wwwroot/img/badges`. It also has a clearer prompt for
-`scale_climber`, whose steps are hard to read at 40 px.
+`AcademiaAuditiva/wwwroot/img/badges`.
 
 **Done when.** Each badge has a rule, tests, texts in the three cultures and its
 art, and its `IsAvailable: false` is gone (`BadgeArtTests` then requires the

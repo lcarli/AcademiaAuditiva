@@ -31,13 +31,13 @@ All 18 badges players can earn are in the app. The file in brackets is the origi
 | 2 | `3_days` | 3 dias seguidos | Dedication | Approved (`Golden Flame Achievement Badge 3.png`) |
 | 3 | `5_days` | 5 dias seguidos | Dedication | Approved (`Glossy Gold Flame Badge with Number 5.png`) |
 | 4 | `marathon_20min` | Maratona de 20 minutos | Dedication | Approved (`Glossy Golden Stopwatch Badge.png`) |
-| 5 | `faithful_practitioner` | Praticante fiel | Dedication | Approved; optional tweak below (`Golden Metronome Achievement Badge.png`) |
+| 5 | `faithful_practitioner` | Praticante fiel | Dedication | Approved, redone with the follow-up prompt below (`Golden Heart Metronome Badge.png`) |
 | 6 | `10_sessions_week` | 10 sessões em uma semana | Dedication | Approved (`Golden Calendar Lightning Badge.png`) |
 | 7 | `master_chords` | Mestre dos acordes | Mastery | Approved, violet reference (`Crowned Triple Note Badge.png`) |
 | 8 | `sharp_listener` | Ouvido afiado | Mastery | Approved (`Ear Tuning Purple Badge.png`) |
 | 9 | `rhythm_maestro` | Maestro do ritmo | Mastery | Approved (`Purple Snare Drum Achievement Badge.png`) |
-| 10 | `melody_explorer` | Explorador melódico | Mastery | Approved; optional tweak below (`Violet Compass Music Badge.png`) |
-| 11 | `scale_climber` | Escalador de tons | Mastery | In the app, but hard to read at 40 px: redo recommended, prompt below (`Musical Steps Achievement Badge.png`) |
+| 10 | `melody_explorer` | Explorador melódico | Mastery | Approved, redone with the follow-up prompt below (`Glossy Purple Compass Music Badge.png`) |
+| 11 | `scale_climber` | Escalador de tons | Mastery | Approved, redone with the follow-up prompt below (`Glossy Purple Musical Achievement Badge.png`) |
 | 12 | `comeback_kid` | Deu a volta por cima | Progress | Approved, green reference (`Emerald Recovery Arrow Badge.png`) |
 | 13 | `advanced_conqueror` | Conquistador avançado | Progress | Approved (`Emerald Trophy Music Badge.png`) |
 | 14 | `persistent_student` | Aluno persistente | Progress | Approved (`Emerald Sprout Music Badge.png`) |
@@ -134,7 +134,8 @@ Emblem: a classic pyramid-shaped metronome in off-white, seen straight from the 
 No scale markings, no numerals, no text.
 ```
 
-Optional tweak. At 40 px the heart turns into a dot:
+The art in the app is a second version, because the first one's heart turned into a dot at 40 px. Attach the first
+version and send:
 
 ```
 Same badge, same composition and style, only two changes: make the amber heart about twice as large so it stays readable when the badge is shrunk to 40 px, and make the off-white walls of the metronome a bit thicker. Keep everything else identical. Transparent background.
@@ -194,10 +195,11 @@ Emblem: a chunky off-white pocket compass seen from the front (round case, small
 No letters (no N, S, E, W), no numerals, no text. Transparent background.
 ```
 
-Optional tweak. At 40 px the small needle makes it look like a pocket watch:
+The art in the app is a second version, because at 40 px the first one's small needle and top ring made it look like
+a pocket watch. Attach the first version and send:
 
 ```
-Same badge, same frame and style, only two changes: make the diamond needle much larger, so that it fills most of the dial and clearly reads as a compass needle, and make the off-white case thinner so that the dial gets bigger. Keep the small eighth note at the top of the dial and everything else identical. Transparent background.
+Same badge, same frame and style, only three changes: make the diamond needle much larger, so that it fills most of the dial and clearly reads as a compass needle; make the off-white case thinner so that the dial gets bigger; and remove the small ring on top of the case, so that it no longer looks like a stopwatch. Keep the small eighth note at the top of the dial and everything else identical. Transparent background.
 ```
 
 ### 11. `scale_climber`: Escalador de tons
@@ -210,7 +212,8 @@ Emblem: a staircase of five chunky off-white steps rising from the lower left to
 No text. Transparent background.
 ```
 
-Redo recommended. At 40 px the thin steps and the small noteheads blur together:
+The art in the app is a second version, because at 40 px the first one's thin steps and small noteheads blurred
+together. Attach the first version and send:
 
 ```
 Same badge, same frame and style. Make the staircase one solid, chunky off-white block of four tall steps rising from the lower left to the upper right (filling about 60% of the medal), with a larger round violet notehead on each step and a larger violet pennant flag on the top step. Keep everything else identical. Transparent background.
@@ -494,7 +497,7 @@ The app shows each badge from `AcademiaAuditiva/wwwroot/img/badges/{key}.webp`, 
 To add or replace a badge, export its approved PNG and open a pull request with the new `.webp`:
 
 ```
-python scripts/export-badge-art.py scale_climber "C:\path\to\Musical Steps Achievement Badge.png"
+python scripts/export-badge-art.py scale_climber "C:\path\to\Glossy Purple Musical Achievement Badge.png"
 ```
 
 The script needs Pillow (`pip install pillow`). It checks that the key exists in `BadgeCatalog`, clears the faint noise
