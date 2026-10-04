@@ -12,7 +12,6 @@ namespace AcademiaAuditiva.Services.Gamification;
 public sealed record BadgeView(
     string Key,
     BadgeGroup Group,
-    string Icon,
     string Title,
     string Description,
     bool IsEarned,
@@ -195,7 +194,6 @@ public sealed class GamificationService : IGamificationService
     private BadgeView ToView(BadgeDefinition badge, EarnedBadge? earned, TimeZoneInfo timeZone) => new(
         badge.Key,
         badge.Group,
-        badge.Icon,
         _localizer[$"Badge.{badge.Key}.Title"].Value,
         _localizer[$"Badge.{badge.Key}.Description"].Value,
         IsEarned: earned is not null,

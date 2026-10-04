@@ -1,4 +1,5 @@
-@model AcademiaAuditiva.Services.Gamification.GamificationProfile?
+@using AcademiaAuditiva.Services.Gamification
+@model GamificationProfile?
 @inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
 @{
     ViewBag.Title = Localizer["Dashboard.Title"].Value;
@@ -107,7 +108,7 @@
                             {
                                 <li>
                                     <span class="aa-medal-disc aa-medal-@badge.Group.ToString().ToLowerInvariant() @(badge.IsNew ? "is-new" : null)" title="@badge.Title">
-                                        <i class="bi @badge.Icon" aria-hidden="true"></i>
+                                        <img src="@Url.BadgeImage(badge.Key)" alt="" />
                                         <span class="visually-hidden">@badge.Title</span>
                                         @if (badge.IsNew)
                                         {

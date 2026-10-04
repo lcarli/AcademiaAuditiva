@@ -8,10 +8,9 @@ public enum BadgeGroup
     Fun
 }
 
-/// <param name="Key">Primary key in the Badges table.</param>
-/// <param name="Icon">Bootstrap Icons class.</param>
+/// <param name="Key">Primary key in the Badges table, and the name of the medal art (see <see cref="BadgeDisplay"/>).</param>
 /// <param name="IsAvailable">False when the badge is seeded but no rule awards it yet; players never see it.</param>
-public sealed record BadgeDefinition(string Key, BadgeGroup Group, string Icon, bool IsAvailable = true);
+public sealed record BadgeDefinition(string Key, BadgeGroup Group, bool IsAvailable = true);
 
 public static class BadgeKeys
 {
@@ -55,38 +54,38 @@ public static class BadgeCatalog
 {
     public static IReadOnlyList<BadgeDefinition> All { get; } =
     [
-        new(BadgeKeys.FirstSession, BadgeGroup.Dedication, "bi-music-note-beamed"),
-        new(BadgeKeys.ThreeDays, BadgeGroup.Dedication, "bi-calendar-check"),
-        new(BadgeKeys.FiveDays, BadgeGroup.Dedication, "bi-calendar-week"),
-        new(BadgeKeys.Marathon20Min, BadgeGroup.Dedication, "bi-stopwatch"),
-        new(BadgeKeys.FaithfulPractitioner, BadgeGroup.Dedication, "bi-journal-check"),
-        new(BadgeKeys.TenSessionsWeek, BadgeGroup.Dedication, "bi-lightning-charge"),
+        new(BadgeKeys.FirstSession, BadgeGroup.Dedication),
+        new(BadgeKeys.ThreeDays, BadgeGroup.Dedication),
+        new(BadgeKeys.FiveDays, BadgeGroup.Dedication),
+        new(BadgeKeys.Marathon20Min, BadgeGroup.Dedication),
+        new(BadgeKeys.FaithfulPractitioner, BadgeGroup.Dedication),
+        new(BadgeKeys.TenSessionsWeek, BadgeGroup.Dedication),
 
-        new(BadgeKeys.MasterChords, BadgeGroup.Mastery, "bi-stack"),
-        new(BadgeKeys.SharpListener, BadgeGroup.Mastery, "bi-ear"),
-        new(BadgeKeys.RhythmMaestro, BadgeGroup.Mastery, "bi-soundwave"),
-        new(BadgeKeys.MelodyExplorer, BadgeGroup.Mastery, "bi-music-note-list"),
-        new(BadgeKeys.ScaleClimber, BadgeGroup.Mastery, "bi-bar-chart-steps"),
+        new(BadgeKeys.MasterChords, BadgeGroup.Mastery),
+        new(BadgeKeys.SharpListener, BadgeGroup.Mastery),
+        new(BadgeKeys.RhythmMaestro, BadgeGroup.Mastery),
+        new(BadgeKeys.MelodyExplorer, BadgeGroup.Mastery),
+        new(BadgeKeys.ScaleClimber, BadgeGroup.Mastery),
 
-        new(BadgeKeys.ComebackKid, BadgeGroup.Progress, "bi-arrow-repeat"),
-        new(BadgeKeys.AdvancedConqueror, BadgeGroup.Progress, "bi-trophy"),
-        new(BadgeKeys.PersistentStudent, BadgeGroup.Progress, "bi-graph-up-arrow"),
-        new(BadgeKeys.NotableProgress, BadgeGroup.Progress, "bi-bar-chart-line"),
-        new(BadgeKeys.ResilientEar, BadgeGroup.Progress, "bi-shield-check"),
-        new(BadgeKeys.IntervalTamer, BadgeGroup.Progress, "bi-arrows-expand"),
+        new(BadgeKeys.ComebackKid, BadgeGroup.Progress),
+        new(BadgeKeys.AdvancedConqueror, BadgeGroup.Progress),
+        new(BadgeKeys.PersistentStudent, BadgeGroup.Progress),
+        new(BadgeKeys.NotableProgress, BadgeGroup.Progress),
+        new(BadgeKeys.ResilientEar, BadgeGroup.Progress),
+        new(BadgeKeys.IntervalTamer, BadgeGroup.Progress),
 
-        new(BadgeKeys.BadgeCollector, BadgeGroup.Fun, "bi-gem"),
+        new(BadgeKeys.BadgeCollector, BadgeGroup.Fun),
 
         // These need features the app doesn't have yet (filter tracking, daily
         // challenges, missions, speed tests, random mode).
-        new(BadgeKeys.Explorer, BadgeGroup.Dedication, "bi-compass", IsAvailable: false),
-        new(BadgeKeys.FilterNinja, BadgeGroup.Dedication, "bi-funnel", IsAvailable: false),
-        new(BadgeKeys.DailyChallengeComplete, BadgeGroup.Dedication, "bi-calendar-event", IsAvailable: false),
-        new(BadgeKeys.TotalMastery, BadgeGroup.Progress, "bi-star", IsAvailable: false),
-        new(BadgeKeys.MissionAddict, BadgeGroup.Fun, "bi-flag", IsAvailable: false),
-        new(BadgeKeys.Speedster, BadgeGroup.Fun, "bi-speedometer2", IsAvailable: false),
-        new(BadgeKeys.MysteryListener, BadgeGroup.Fun, "bi-question-circle", IsAvailable: false),
-        new(BadgeKeys.ImpossibleMelody, BadgeGroup.Fun, "bi-music-note", IsAvailable: false),
+        new(BadgeKeys.Explorer, BadgeGroup.Dedication, IsAvailable: false),
+        new(BadgeKeys.FilterNinja, BadgeGroup.Dedication, IsAvailable: false),
+        new(BadgeKeys.DailyChallengeComplete, BadgeGroup.Dedication, IsAvailable: false),
+        new(BadgeKeys.TotalMastery, BadgeGroup.Progress, IsAvailable: false),
+        new(BadgeKeys.MissionAddict, BadgeGroup.Fun, IsAvailable: false),
+        new(BadgeKeys.Speedster, BadgeGroup.Fun, IsAvailable: false),
+        new(BadgeKeys.MysteryListener, BadgeGroup.Fun, IsAvailable: false),
+        new(BadgeKeys.ImpossibleMelody, BadgeGroup.Fun, IsAvailable: false),
     ];
 
     public static IReadOnlyList<BadgeDefinition> Available { get; } = All.Where(b => b.IsAvailable).ToArray();

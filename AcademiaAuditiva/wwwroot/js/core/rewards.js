@@ -70,11 +70,25 @@
     const group = GROUPS.includes(badge.group) ? badge.group : "mastery";
     const item = el("li", "aa-reward-medal aa-medal-" + group);
     const disc = el("span", "aa-medal-disc");
-    disc.append(icon(badge.icon));
+    const src = localPath(badge.image);
+    if (src) {
+      const art = el("img");
+      art.src = src;
+      art.alt = "";
+      disc.append(art);
+    }
     const body = el("div", "aa-reward-medal-body");
     body.append(el("strong", null, badge.title), el("span", null, badge.description));
     item.append(disc, body);
     return item;
+  }
+
+  // Fetched while the answer dialog is open, so the celebration shows the art at once.
+  function preloadArt(badges) {
+    badges.forEach((badge) => {
+      const src = localPath(badge.image);
+      if (src) new Image().src = src;
+    });
   }
 
   // Only same-site paths: the URL comes from the server, but never navigate elsewhere.
@@ -160,6 +174,7 @@
       }
 
       if ((r && r.celebration) || (p && p.celebration)) {
+        if (r && Array.isArray(r.badges)) preloadArt(r.badges);
         const didClose = options.didClose;
         options.didClose = function () {
           if (typeof didClose === "function") didClose.apply(this, arguments);

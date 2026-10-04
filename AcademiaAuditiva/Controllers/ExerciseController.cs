@@ -515,7 +515,7 @@ namespace AcademiaAuditiva.Controllers
 				key = b.Key,
 				title = b.Title,
 				description = b.Description,
-				icon = b.Icon,
+				image = Url.BadgeImage(b.Key),
 				group = b.Group.ToString().ToLowerInvariant()
 			}).ToList();
 
