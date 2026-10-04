@@ -1,9 +1,10 @@
-@model AcademiaAuditiva.Services.Gamification.BadgeView
+@using AcademiaAuditiva.Services.Gamification
+@model BadgeView
 @{
     var state = Model.IsEarned ? (Model.IsNew ? "is-new" : null) : "is-locked";
 }
 <article class="aa-medal aa-medal-@Model.Group.ToString().ToLowerInvariant() @state">
-    <span class="aa-medal-disc" aria-hidden="true"><i class="bi @Model.Icon"></i></span>
+    <span class="aa-medal-disc" aria-hidden="true"><img src="@Url.BadgeImage(Model.Key)" alt="" loading="lazy" decoding="async" /></span>
     <div>
         <h3 class="aa-medal-title">
             @Model.Title

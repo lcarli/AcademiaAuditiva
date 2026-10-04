@@ -17,8 +17,8 @@ The modernization plan is done (#47 to #83):
   (#53, #56, #70, #82).
 - **Exercises**: 19 exercises on piano, guitar and violin, plus Explore and
   free practice (#58, #60, #75 to #78).
-- **Engagement**: XP, levels, streaks, 18 badges, the learning path and the
-  tutorial (#72 to #74).
+- **Engagement**: XP, levels, streaks, 18 badges with their own medal art, the
+  learning path and the tutorial (#72 to #74, #94).
 - **Accounts**: privacy policy, data export and deletion, admin lock, unlock
   and delete, and lockout after failed sign-ins with a rate limit on the
   account forms (#57, #65, #80, #81, #93).
@@ -239,8 +239,8 @@ If #31 goes ahead, Entra External ID could provide social sign-in instead.
 
 ### #16: the remaining badges and their artwork
 
-#72 shipped 18 badges as icon medals. Eight more are seeded but hidden
-(`IsAvailable: false` in
+#72 shipped 18 badges, and #94 replaced their icons with medal art. Eight more
+are seeded but hidden (`IsAvailable: false` in
 `AcademiaAuditiva/Services/Gamification/BadgeCatalog.cs:82-89`). Nothing in the
 app can award them yet:
 
@@ -255,10 +255,15 @@ app can award them yet:
 | `mystery_listener` | Got an "impossible" question right in a fully random mode (:997) | A fully random mode |
 | `impossible_melody` | Got an altered melody with a hidden rest right (:998) | That melody variant |
 
-The issue also asks for custom artwork instead of the icons.
+Each of them also needs its art. [badges.md](../badges.md) has the style guide
+and a prompt for every badge, the hidden ones included, and explains how
+`scripts/export-badge-art.py` puts an approved image in
+`AcademiaAuditiva/wwwroot/img/badges`. It also has a clearer prompt for
+`scale_climber`, whose steps are hard to read at 40 px.
 
-**Done when.** Each badge has a rule, tests and texts in the three cultures, and
-its `IsAvailable: false` is gone. The owner approves any artwork.
+**Done when.** Each badge has a rule, tests, texts in the three cultures and its
+art, and its `IsAvailable: false` is gone (`BadgeArtTests` then requires the
+art). The owner approves any artwork.
 
 ### #31: Microsoft Entra External ID
 

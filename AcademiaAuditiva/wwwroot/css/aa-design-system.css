@@ -1998,25 +1998,25 @@ a:focus-visible {
     color: var(--aa-warn);
 }
 
-/* One hue per badge group, inherited by the discs inside. */
+/* One hue per badge group: the border of a new badge's card. */
 .aa-medal-dedication { --aa-medal: var(--aa-warn); }
 .aa-medal-mastery { --aa-medal: var(--aa-accent); }
 .aa-medal-progress { --aa-medal: var(--aa-ok); }
 .aa-medal-fun { --aa-medal: color-mix(in srgb, var(--aa-accent) 55%, var(--aa-err)); }
 
+/* The medal art, wwwroot/img/badges/{key}.webp (scripts/export-badge-art.py). */
 .aa-medal-disc {
-    --aa-medal-ink: var(--aa-medal, var(--aa-accent));
     position: relative;
-    display: inline-grid;
-    place-items: center;
+    display: block;
     flex-shrink: 0;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--aa-medal-ink) 14%, var(--aa-bg));
-    color: var(--aa-medal-ink);
-    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--aa-medal-ink) 40%, transparent);
-    font-size: 1.3rem;
+    width: 4rem;
+    height: 4rem;
+}
+
+.aa-medal-disc > img {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .aa-medal-disc.is-new::after {
@@ -2043,7 +2043,6 @@ a:focus-visible {
 .aa-medal-row .aa-medal-disc {
     width: 2.5rem;
     height: 2.5rem;
-    font-size: 1.1rem;
 }
 
 .aa-medal {
@@ -2085,10 +2084,13 @@ a:focus-visible {
     color: var(--aa-muted);
 }
 
-.aa-medal.is-locked .aa-medal-disc {
-    background: transparent;
-    color: var(--aa-muted);
-    box-shadow: inset 0 0 0 2px var(--aa-line-strong);
+.aa-medal.is-locked .aa-medal-disc > img {
+    filter: grayscale(1);
+    opacity: .45;
+}
+
+[data-bs-theme="dark"] .aa-medal.is-locked .aa-medal-disc > img {
+    opacity: .55;
 }
 
 .aa-medal.is-locked .aa-medal-title {

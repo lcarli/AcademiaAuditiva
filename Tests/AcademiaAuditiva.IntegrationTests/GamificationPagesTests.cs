@@ -34,6 +34,7 @@ public class GamificationPagesTests : IClassFixture<SignedInWebApplicationFactor
             .And.Contain("You practiced today. See you tomorrow!")
             .And.Contain("1 of 18")
             .And.Contain("href=\"/Dashboard/Achievements\"");
+        html.Should().MatchRegex(@"<img src=""/img/badges/first_session\.webp\?v=[\w-]+""", "the latest badges show their art");
         html.Should().NotContain("Gamification.", "every text has a resource");
         html.Should().NotMatchRegex(@"Badge\.\w+\.(Title|Description)");
     }
@@ -46,6 +47,10 @@ public class GamificationPagesTests : IClassFixture<SignedInWebApplicationFactor
         var html = await GetPageAsync("/Dashboard/Achievements");
 
         Regex.Count(html, "<article class=\"aa-medal ").Should().Be(BadgeCatalog.Available.Count);
+        foreach (var badge in BadgeCatalog.Available)
+        {
+            html.Should().MatchRegex($@"<img src=""/img/badges/{Regex.Escape(badge.Key)}\.webp\?v=[\w-]+""", "every medal shows its art");
+        }
         ShouldHaveGroupHeadings(html, ("dedication", "Dedication"), ("mastery", "Mastery"), ("progress", "Progress"), ("fun", "Fun"));
         var earnedOn = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, Toronto)
             .ToString("d", CultureInfo.GetCultureInfo("en-US"));

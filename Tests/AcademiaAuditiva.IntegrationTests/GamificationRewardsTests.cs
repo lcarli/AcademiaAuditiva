@@ -41,7 +41,7 @@ public class GamificationRewardsTests : IClassFixture<SignedInWebApplicationFact
         badge.GetProperty("key").GetString().Should().Be("first_session");
         badge.GetProperty("title").GetString().Should().Be("First notes");
         badge.GetProperty("description").GetString().Should().Be("Answer your first exercise.");
-        badge.GetProperty("icon").GetString().Should().StartWith("bi-");
+        badge.GetProperty("image").GetString().Should().MatchRegex(@"^/img/badges/first_session\.webp\?v=[\w-]+$");
         badge.GetProperty("group").GetString().Should().Be("dedication");
         var celebration = rewards.GetProperty("celebration");
         celebration.GetProperty("title").GetString().Should().Be("New badge!");
