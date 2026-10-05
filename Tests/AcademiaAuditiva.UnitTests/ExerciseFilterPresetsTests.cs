@@ -1,12 +1,14 @@
+using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
 
 namespace AcademiaAuditiva.UnitTests;
 
 /// <summary>
 /// Tests for <see cref="ExerciseFilterPresets"/>, which reads, validates and
-/// merges the filter presets stored on routine items and student overrides.
+/// merges the filter presets stored on routine items, student overrides and answers.
 /// Older presets were typed by hand, so bad input must be ignored, never thrown.
 /// </summary>
 public class ExerciseFilterPresetsTests
@@ -192,5 +194,60 @@ public class ExerciseFilterPresetsTests
         });
 
         applied.Should().ContainSingle().Which.Option.Value.Should().Be("minor");
+    }
+
+    [Fact]
+    public void ForAnswer_KeepsOnlyTheExercisesOwnFilters_InKeyOrder()
+    {
+        var played = new Dictionary<string, string>
+        {
+            ["scaleTypeSelect"] = "minor",
+            ["keySelect"] = "D",
+            ["instrument"] = "Guitar",
+            ["guitarPosition"] = "Barre",
+            ["noteRange"] = "C3-C5",
+        };
+
+        ExerciseFilterPresets.ForAnswer(played, JsonConvert.SerializeObject(KeyAndScale))
+            .Should().Be("""{"keySelect":"D","scaleTypeSelect":"minor"}""");
+    }
+
+    [Fact]
+    public void ForAnswer_DropsValuesThatAreNotOptions()
+    {
+        var played = new Dictionary<string, string> { ["keySelect"] = "E", ["scaleTypeSelect"] = "minor" };
+
+        ExerciseFilterPresets.ForAnswer(played, JsonConvert.SerializeObject(KeyAndScale))
+            .Should().Be("""{"scaleTypeSelect":"minor"}""");
+    }
+
+    [Fact]
+    public void ForAnswer_IsNull_WhenNoExerciseFilterWasPlayed()
+    {
+        var keyAndScale = JsonConvert.SerializeObject(KeyAndScale);
+        var played = new Dictionary<string, string> { ["instrument"] = "Piano", ["keySelect"] = "C" };
+
+        ExerciseFilterPresets.ForAnswer(played, null).Should().BeNull("the exercise has no filters");
+        ExerciseFilterPresets.ForAnswer(played, "[]").Should().BeNull("the exercise has no filters");
+        ExerciseFilterPresets.ForAnswer(null, keyAndScale).Should().BeNull();
+        ExerciseFilterPresets.ForAnswer(new Dictionary<string, string> { ["keySelect"] = "" }, keyAndScale).Should().BeNull();
+    }
+
+    [Theory]
+    // {"long":"…"} is 11 characters plus the value.
+    [InlineData(ScoreSnapshot.FilterJsonMaxLength - 11, true)]
+    [InlineData(ScoreSnapshot.FilterJsonMaxLength - 10, false)]
+    public void ForAnswer_IsNull_WhenThePresetWouldNotFitTheColumn(int valueLength, bool fits)
+    {
+        var value = new string('x', valueLength);
+        var groups = JsonConvert.SerializeObject(new[]
+        {
+            new FilterOptionGroup { Name = "long", Label = "Long", Options = new() { new(value, value) } },
+        });
+
+        var json = ExerciseFilterPresets.ForAnswer(new Dictionary<string, string> { ["long"] = value }, groups);
+
+        if (fits) json.Should().HaveLength(ScoreSnapshot.FilterJsonMaxLength);
+        else json.Should().BeNull();
     }
 }

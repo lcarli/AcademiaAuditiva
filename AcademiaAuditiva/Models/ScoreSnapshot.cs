@@ -20,6 +20,16 @@ namespace AcademiaAuditiva.Models
         public bool IsCorrect { get; set; }
         public int TimeSpentSeconds { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// The exercise's own filters the answer was played with, as a preset
+        /// (<see cref="Services.ExerciseFilterPresets.ForAnswer"/>), e.g.
+        /// <c>{"keySelect":"D4","scaleTypeSelect":"minor"}</c>. Null when the
+        /// exercise has no filters, and on answers saved before they were recorded.
+        /// </summary>
+        public string? FilterJson { get; set; }
+
+        public const int FilterJsonMaxLength = 256;
     }
 
     /// <summary>

@@ -70,8 +70,9 @@ public class MyTrainingController : Controller
                 .ToListAsync();
 
         // Progress counts the attempts made since each routine was assigned,
-        // per exercise (attempts are not tagged with filters, so an item's
-        // preset is guidance, not a constraint on what counts).
+        // per exercise, whatever filters they were played with (older attempts
+        // don't record them), so an item's preset is guidance, not a constraint
+        // on what counts.
         var routineExerciseIds = assignments
             .SelectMany(a => a.Routine!.Items.Select(i => i.ExerciseId))
             .Distinct()

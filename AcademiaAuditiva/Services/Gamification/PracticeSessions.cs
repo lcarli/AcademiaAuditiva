@@ -1,7 +1,10 @@
 namespace AcademiaAuditiva.Services.Gamification;
 
-/// <summary>One graded answer from ScoreSnapshots. <see cref="Timestamp"/> is UTC.</summary>
-public readonly record struct PracticeAnswer(int ExerciseId, bool IsCorrect, DateTime Timestamp);
+/// <summary>
+/// One graded answer from ScoreSnapshots. <see cref="Timestamp"/> is UTC; <see cref="FilterJson"/> is the
+/// preset of exercise filters it was played with (ScoreSnapshot.FilterJson), null when there were none.
+/// </summary>
+public readonly record struct PracticeAnswer(int ExerciseId, bool IsCorrect, DateTime Timestamp, string? FilterJson = null);
 
 /// <summary>Taxonomy names of an exercise (ExerciseType, ExerciseCategory and DifficultyLevel names).</summary>
 public sealed record ExerciseInfo(int ExerciseId, string Type, string Category, string Difficulty);

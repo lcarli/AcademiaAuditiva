@@ -1,4 +1,5 @@
 using System.Globalization;
+using AcademiaAuditiva.Models;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -97,6 +98,21 @@ public static class ExerciseFilterPresets
             }
         }
         return result;
+    }
+
+    /// <summary>
+    /// The preset an answer is saved with (<c>ScoreSnapshot.FilterJson</c>): the values of the
+    /// exercise's own filters the round was played with, so settings such as the instrument are
+    /// left out. Null when there are none, or when they would not fit the column, so a long
+    /// preset never costs the answer.
+    /// </summary>
+    public static string? ForAnswer(IReadOnlyDictionary<string, string>? played, string? exerciseFiltersJson)
+    {
+        var preset = Sanitize(
+            played?.Select(kv => new KeyValuePair<string, string?>(kv.Key, kv.Value)),
+            Groups(exerciseFiltersJson));
+        var json = Serialize(preset);
+        return json is { Length: <= ScoreSnapshot.FilterJsonMaxLength } ? json : null;
     }
 
     /// <summary>Reads a preset from the exercise page's query string.</summary>

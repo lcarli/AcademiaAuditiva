@@ -105,8 +105,22 @@ public class AudioTokenServiceTests
 
         round.Should().NotBeNull();
         round!.Free.Should().BeFalse();
+        round.FilterJson.Should().BeNull("rounds cached before filters were saved have none");
         round.ExpectedAnswerJson.Should().Be("""{"note":"C4"}""");
         round.Tokens.Should().Equal("t1");
+    }
+
+    [Fact]
+    public async Task Rounds_RememberTheFiltersTheyWerePlayedWith()
+    {
+        const string filters = """{"keySelect":"D4","scaleTypeSelect":"minor"}""";
+        var withFilters = await _service.CreateRoundAsync("alice", 7, "{}", ["C4.mp3"], filterJson: filters);
+        var without = await _service.CreateRoundAsync("alice", 7, "{}", ["C4.mp3"]);
+
+        withFilters.FilterJson.Should().Be(filters);
+        without.FilterJson.Should().BeNull();
+        (await _service.GetRoundAsync("alice", 7, withFilters.RoundId))!.FilterJson.Should().Be(filters);
+        (await _service.GetRoundAsync("alice", 7, without.RoundId))!.FilterJson.Should().BeNull();
     }
 
     [Theory]
