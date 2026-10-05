@@ -1,0 +1,46 @@
+@model AcademiaAuditiva.Services.DailyChallenge.DailyChallengeProgress
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
+@{
+    // Exercise and category names fall back to their identifier, like the learning path's.
+    string Text(string key, string fallback)
+    {
+        var text = S[key];
+        return text.ResourceNotFound ? fallback : text.Value;
+    }
+}
+
+<section class="aa-card aa-challenge-card p-4 mb-4@(Model.IsComplete ? " is-complete" : null)" aria-labelledby="aa-challenge-card-title">
+    <div class="d-flex align-items-start gap-3 mb-4">
+        <span class="aa-icon-pill" aria-hidden="true"><i class="bi @(Model.IsComplete ? "bi-trophy" : "bi-calendar-check")"></i></span>
+        <div>
+            <h2 id="aa-challenge-card-title" class="h6 text-uppercase small text-secondary mb-1">@Localizer["DailyChallenge.Title"]</h2>
+            <p class="h4 fw-bold mb-1 text-body-emphasis">@Localizer[Model.IsComplete ? "DailyChallenge.Done" : "DailyChallenge.Heading"]</p>
+            <p class="small text-secondary mb-0">@Localizer[Model.IsComplete ? "DailyChallenge.DoneText" : "DailyChallenge.Text"]</p>
+        </div>
+    </div>
+    <ol class="aa-challenge-list">
+        @foreach (var item in Model.Items)
+        {
+            var answers = S["DailyChallenge.Answers", item.Answered, item.Target].Value;
+            var href = Url.Action(item.Exercise, "Exercise", new { area = "" }) ?? Url.Action("Index", "Exercise", new { area = "" });
+            <li class="aa-challenge-item@(item.Done ? " is-done" : null)">
+                @if (item.Category.Length > 0)
+                {
+                    <span class="aa-challenge-category">@Text($"ExerciseCategory.{item.Category}", item.Category)</span>
+                }
+                <a class="aa-challenge-title stretched-link" href="@href">@Text(item.Exercise, item.Exercise)</a>
+                <div class="d-flex align-items-center gap-2 mt-3 mb-1">
+                    <div class="progress aa-xp-bar flex-grow-1" role="progressbar" aria-label="@answers"
+                         aria-valuemin="0" aria-valuemax="100" aria-valuenow="@item.Percent">
+                        <div class="progress-bar" style="width: @(item.Percent)%"></div>
+                    </div>
+                    @if (item.Done)
+                    {
+                        <i class="bi bi-check-circle-fill aa-challenge-check" aria-hidden="true"></i>
+                    }
+                </div>
+                <span class="small text-secondary">@answers</span>
+            </li>
+        }
+    </ol>
+</section>

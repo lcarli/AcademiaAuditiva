@@ -3552,4 +3552,22 @@
   <data name="RateLimit.Account.Back" xml:space="preserve">
     <value>Back</value>
   </data>
+  <data name="DailyChallenge.Title" xml:space="preserve">
+    <value>Daily challenge</value>
+  </data>
+  <data name="DailyChallenge.Heading" xml:space="preserve">
+    <value>Complete today's exercises</value>
+  </data>
+  <data name="DailyChallenge.Text" xml:space="preserve">
+    <value>Every answer counts, right or wrong. A new challenge starts at midnight.</value>
+  </data>
+  <data name="DailyChallenge.Done" xml:space="preserve">
+    <value>Challenge complete!</value>
+  </data>
+  <data name="DailyChallenge.DoneText" xml:space="preserve">
+    <value>You finished today's challenge. Come back tomorrow for a new one.</value>
+  </data>
+  <data name="DailyChallenge.Answers" xml:space="preserve">
+    <value>{0} of {1} answers</value>
+  </data>
 </root>

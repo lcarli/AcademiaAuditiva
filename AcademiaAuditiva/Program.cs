@@ -2,6 +2,7 @@ using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.DailyChallenge;
 using AcademiaAuditiva.Services.Gamification;
 using AcademiaAuditiva.Services.LearningPath;
 using AcademiaAuditiva.Services.Tutorials;
@@ -254,6 +255,7 @@ builder.Services.TryAddSingleton(TimeProvider.System);
 builder.Services.AddScoped<PracticeHistory>();
 builder.Services.AddScoped<IGamificationService, GamificationService>();
 builder.Services.AddScoped<ILearningPathService, LearningPathService>();
+builder.Services.AddScoped<IDailyChallengeService, DailyChallengeService>();
 builder.Services.AddScoped<ITutorialService, TutorialService>();
 
 

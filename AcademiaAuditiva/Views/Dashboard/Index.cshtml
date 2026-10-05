@@ -41,6 +41,11 @@
     <partial name="_LearningPathCard" model="learningPath" />
 }
 
+@if (ViewBag.DailyChallenge is AcademiaAuditiva.Services.DailyChallenge.DailyChallengeProgress { Items.Count: > 0 } dailyChallenge)
+{
+    <partial name="_DailyChallengeCard" model="dailyChallenge" />
+}
+
 @if (Model is { } profile)
 {
     var progress = profile.Progress;
