@@ -3189,6 +3189,96 @@
   <data name="Badge.badge_collector.Description" xml:space="preserve">
     <value>Earn 15 other badges.</value>
   </data>
+  <data name="Badge.7_days.Title" xml:space="preserve">
+    <value>7-day streak</value>
+  </data>
+  <data name="Badge.7_days.Description" xml:space="preserve">
+    <value>Practice 7 days in a row.</value>
+  </data>
+  <data name="Badge.30_days.Title" xml:space="preserve">
+    <value>30-day streak</value>
+  </data>
+  <data name="Badge.30_days.Description" xml:space="preserve">
+    <value>Practice 30 days in a row.</value>
+  </data>
+  <data name="Badge.100_sessions.Title" xml:space="preserve">
+    <value>Gold record</value>
+  </data>
+  <data name="Badge.100_sessions.Description" xml:space="preserve">
+    <value>Complete 100 practice sessions.</value>
+  </data>
+  <data name="Badge.daily_challenge_complete.Title" xml:space="preserve">
+    <value>Daily challenge complete</value>
+  </data>
+  <data name="Badge.daily_challenge_complete.Description" xml:space="preserve">
+    <value>Complete a daily challenge.</value>
+  </data>
+  <data name="Badge.explorer.Title" xml:space="preserve">
+    <value>Explorer</value>
+  </data>
+  <data name="Badge.explorer.Description" xml:space="preserve">
+    <value>Answer every exercise at least once, except Solfege Melody.</value>
+  </data>
+  <data name="Badge.filter_ninja.Title" xml:space="preserve">
+    <value>Filter ninja</value>
+  </data>
+  <data name="Badge.filter_ninja.Description" xml:space="preserve">
+    <value>Practice with non-default filters in 5 sessions.</value>
+  </data>
+  <data name="Badge.perfect_session.Title" xml:space="preserve">
+    <value>Flawless session</value>
+  </data>
+  <data name="Badge.perfect_session.Description" xml:space="preserve">
+    <value>Finish a session of at least 10 answers without a single mistake.</value>
+  </data>
+  <data name="Badge.total_mastery.Title" xml:space="preserve">
+    <value>Total mastery</value>
+  </data>
+  <data name="Badge.total_mastery.Description" xml:space="preserve">
+    <value>Complete every step of the learning path.</value>
+  </data>
+  <data name="Badge.mission_addict.Title" xml:space="preserve">
+    <value>Challenge addict</value>
+  </data>
+  <data name="Badge.mission_addict.Description" xml:space="preserve">
+    <value>Complete 10 daily challenges.</value>
+  </data>
+  <data name="Badge.speedster.Title" xml:space="preserve">
+    <value>Speedster</value>
+  </data>
+  <data name="Badge.speedster.Description" xml:space="preserve">
+    <value>Get at least 18 of 20 consecutive answers right within 4 minutes.</value>
+  </data>
+  <data name="Badge.mystery_listener.Title" xml:space="preserve">
+    <value>Mystery listener</value>
+  </data>
+  <data name="Badge.mystery_listener.Description" xml:space="preserve">
+    <value>Get 5 answers in a row right in Guess Note.</value>
+  </data>
+  <data name="Badge.impossible_melody.Title" xml:space="preserve">
+    <value>Impossible melody</value>
+  </data>
+  <data name="Badge.impossible_melody.Description" xml:space="preserve">
+    <value>Get 3 answers in a row right in Melodic Dictation.</value>
+  </data>
+  <data name="Badge.all_rounder.Title" xml:space="preserve">
+    <value>All-rounder</value>
+  </data>
+  <data name="Badge.all_rounder.Description" xml:space="preserve">
+    <value>Give at least 10 answers in every exercise category.</value>
+  </data>
+  <data name="Badge.night_owl.Title" xml:space="preserve">
+    <value>Night owl</value>
+  </data>
+  <data name="Badge.night_owl.Description" xml:space="preserve">
+    <value>Start a practice session between 10 p.m. and 5 a.m.</value>
+  </data>
+  <data name="Badge.early_bird.Title" xml:space="preserve">
+    <value>Early bird</value>
+  </data>
+  <data name="Badge.early_bird.Description" xml:space="preserve">
+    <value>Start a practice session between 5 and 7 a.m.</value>
+  </data>
   <data name="Header.LearningPath" xml:space="preserve">
     <value>Learning Path</value>
   </data>

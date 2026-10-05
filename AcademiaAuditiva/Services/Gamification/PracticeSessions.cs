@@ -6,8 +6,18 @@ namespace AcademiaAuditiva.Services.Gamification;
 /// </summary>
 public readonly record struct PracticeAnswer(int ExerciseId, bool IsCorrect, DateTime Timestamp, string? FilterJson = null);
 
-/// <summary>Taxonomy names of an exercise (ExerciseType, ExerciseCategory and DifficultyLevel names).</summary>
-public sealed record ExerciseInfo(int ExerciseId, string Type, string Category, string Difficulty);
+/// <summary>
+/// An exercise as the badge rules see it: its name, the names of its ExerciseType, ExerciseCategory and
+/// DifficultyLevel, and the option each of its filter groups starts on.
+/// </summary>
+/// <param name="DefaultFilters">Filter group → its first option (<see cref="ExerciseFilterPresets.Defaults"/>).</param>
+public sealed record ExerciseInfo(
+    int ExerciseId,
+    string Name,
+    string Type,
+    string Category,
+    string Difficulty,
+    IReadOnlyDictionary<string, string> DefaultFilters);
 
 public static class PracticeSessions
 {

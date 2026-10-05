@@ -37,6 +37,20 @@ public static class ExerciseFilterPresets
     }
 
     /// <summary>
+    /// The option each group starts on: the first one, which the exercise page selects unless a
+    /// preset picks another. An answer played with any other option used custom filters.
+    /// </summary>
+    public static Dictionary<string, string> Defaults(IReadOnlyList<FilterOptionGroup> groups)
+    {
+        var result = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var group in groups)
+        {
+            if (group?.Name is { } name && group.Options is [{ Value: { } value }, ..]) result.TryAdd(name, value);
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Parses a stored preset. Anything that is not a flat JSON object of
     /// string (or integer) values is ignored rather than thrown, because older
     /// rows were typed by hand.

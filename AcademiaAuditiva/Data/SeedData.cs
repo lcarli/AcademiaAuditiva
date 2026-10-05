@@ -970,32 +970,39 @@ public static class SeedData
         new Badge { BadgeKey = "rhythm_maestro", Title = "Maestro do Ritmo", Description = "100% em 2 de ritmo" },
         new Badge { BadgeKey = "melody_explorer", Title = "Explorador Melódico", Description = "80% em todos os exercícios de melodia" },
         new Badge { BadgeKey = "scale_climber", Title = "Escalador de Tons", Description = "Usou todos os tipos de escalas" },
+        new Badge { BadgeKey = "perfect_session", Title = "Sessão Perfeita", Description = "Sessão de pelo menos 10 respostas sem nenhum erro" },
 
         // Esforço
         new Badge { BadgeKey = "3_days", Title = "3 Dias Seguidos", Description = "Praticou 3 dias consecutivos" },
         new Badge { BadgeKey = "5_days", Title = "5 Dias Seguidos", Description = "Praticou 5 dias consecutivos" },
+        new Badge { BadgeKey = "7_days", Title = "7 Dias Seguidos", Description = "Praticou 7 dias consecutivos" },
+        new Badge { BadgeKey = "30_days", Title = "30 Dias Seguidos", Description = "Praticou 30 dias consecutivos" },
         new Badge { BadgeKey = "marathon_20min", Title = "Maratona 20min", Description = "20 minutos sem parar" },
         new Badge { BadgeKey = "faithful_practitioner", Title = "Praticante Fiel", Description = "Completou 30 sessões" },
-        new Badge { BadgeKey = "explorer", Title = "Explorador", Description = "Usou todos os filtros uma vez" },
-        new Badge { BadgeKey = "filter_ninja", Title = "Filtro Ninja", Description = "Usou combinações personalizadas em 5 sessões" },
+        new Badge { BadgeKey = "100_sessions", Title = "Disco de Ouro", Description = "Completou 100 sessões" },
+        new Badge { BadgeKey = "explorer", Title = "Explorador", Description = "Respondeu a todos os exercícios (menos o solfejo)" },
+        new Badge { BadgeKey = "filter_ninja", Title = "Filtro Ninja", Description = "Usou filtros personalizados em 5 sessões" },
         new Badge { BadgeKey = "first_session", Title = "Iniciador de Jornada", Description = "Primeira sessão realizada" },
         new Badge { BadgeKey = "10_sessions_week", Title = "10 Sessões em 1 Semana", Description = "Alta frequência semanal" },
-        new Badge { BadgeKey = "daily_challenge_complete", Title = "Desafio Diário Completo", Description = "Completou todos os exercícios do dia" },
+        new Badge { BadgeKey = "daily_challenge_complete", Title = "Desafio Diário Completo", Description = "Completou um desafio do dia" },
 
         // Evolução
         new Badge { BadgeKey = "comeback_kid", Title = "Deu a Volta por Cima", Description = "Começou errando e depois passou de 80%" },
         new Badge { BadgeKey = "advanced_conqueror", Title = "Conquistador Avançado", Description = "5 exercícios de nível avançado" },
         new Badge { BadgeKey = "persistent_student", Title = "Aluno Persistente", Description = "Melhorou pontuação em 3 tentativas seguidas" },
-        new Badge { BadgeKey = "total_mastery", Title = "Domínio Total", Description = "100% em um exercício com filtros completos" },
+        new Badge { BadgeKey = "total_mastery", Title = "Domínio Total", Description = "Completou a trilha de aprendizado" },
         new Badge { BadgeKey = "notable_progress", Title = "Evolução Notável", Description = "Melhorou em todas as categorias em 1 mês" },
         new Badge { BadgeKey = "resilient_ear", Title = "Resiliência Auditiva", Description = "Acertou após 3 erros seguidos" },
         new Badge { BadgeKey = "interval_tamer", Title = "Domador de Intervalos", Description = "10 sessões de intervalos com +80%" },
 
         // Diversão
-        new Badge { BadgeKey = "mission_addict", Title = "Viciado em Missões", Description = "Completou 10 desafios mistos" },
-        new Badge { BadgeKey = "speedster", Title = "Speedster", Description = "90% de acerto em um SpeedTest" },
-        new Badge { BadgeKey = "mystery_listener", Title = "Ouvinte Misterioso", Description = "Acertou uma questão impossível (modo aleatório total)" },
-        new Badge { BadgeKey = "impossible_melody", Title = "Melodia Impossível", Description = "Acertou uma melodia alterada com pausa escondida" },
+        new Badge { BadgeKey = "mission_addict", Title = "Viciado em Desafios", Description = "Completou 10 desafios do dia" },
+        new Badge { BadgeKey = "speedster", Title = "Velocista", Description = "Acertou 18 de 20 respostas seguidas em até 4 minutos" },
+        new Badge { BadgeKey = "mystery_listener", Title = "Ouvinte Misterioso", Description = "Acertou 5 notas seguidas em Adivinhe a Nota" },
+        new Badge { BadgeKey = "impossible_melody", Title = "Melodia Impossível", Description = "Acertou 3 ditados melódicos seguidos" },
+        new Badge { BadgeKey = "all_rounder", Title = "Músico Completo", Description = "10 respostas em cada categoria de exercício" },
+        new Badge { BadgeKey = "night_owl", Title = "Coruja da Noite", Description = "Começou uma sessão entre 22h e 5h" },
+        new Badge { BadgeKey = "early_bird", Title = "Madrugador", Description = "Começou uma sessão entre 5h e 7h" },
         new Badge { BadgeKey = "badge_collector", Title = "Colecionador de Badges", Description = "Obteve 15 conquistas" },
     ];
 }

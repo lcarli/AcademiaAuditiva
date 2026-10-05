@@ -46,8 +46,8 @@ All 18 badges players can earn are in the app. The file in brackets is the origi
 | 17 | `interval_tamer` | Domador de intervalos | Progress | Approved (`Emerald Musical Notes Badge.png`) |
 | 18 | `badge_collector` | Colecionador de conquistas | Fun | Approved, magenta reference (`Gemstone Music Medal Badge.png`) |
 
-The [hidden badges](#hidden-badges) and the [proposed new badges](#proposed-new-badges) are at the end; none of
-them has art yet.
+The 15 [hidden badges](#hidden-badges) are at the end. Their rules are in the app; each one is released once its art
+is approved.
 
 ## Style guide
 
@@ -299,125 +299,40 @@ No text. Transparent background.
 
 ## Hidden badges
 
-These badges are in `BadgeCatalog` with `IsAvailable: false`, because the features behind them don't exist yet: filter
-tracking, daily challenges, missions, speed tests and random mode. Their art can be made now. The meanings come from
-`SeedData.cs` and may change once the features are designed.
+These 15 badges are in the app with their rules, tests and texts in the three languages, but `BadgeCatalog` keeps
+them hidden (`IsAvailable: false`) until their art is ready: no one earns them and players don't see them. Badges are
+awarded from the player's whole history, so once a badge is released, everyone who already meets its rule gets it with
+their next answer.
 
-| Key | Title (pt-BR) | Group | Meaning |
-|-----|---------------|-------|---------|
-| `explorer` | Explorador | Dedication | Used every filter once |
-| `filter_ninja` | Filtro Ninja | Dedication | Custom filter combinations in 5 sessions |
-| `daily_challenge_complete` | Desafio Diário Completo | Dedication | Completed all of the day's exercises |
-| `total_mastery` | Domínio Total | Progress | 100% in an exercise with every filter on |
-| `mission_addict` | Viciado em Missões | Fun | Completed 10 mixed challenges |
-| `speedster` | Speedster | Fun | 90% right in a speed test |
-| `mystery_listener` | Ouvinte Misterioso | Fun | Got an "impossible" question right (fully random mode) |
-| `impossible_melody` | Melodia Impossível | Fun | Got an altered melody with a hidden rest right |
+To release a badge:
 
-### `explorer`: Explorador
+1. Generate its art with the prompt below and export it (see [Using the images in the app](#using-the-images-in-the-app)).
+2. Remove its `IsAvailable: false` in `AcademiaAuditiva/Services/Gamification/BadgeCatalog.cs`.
 
-```
-Extra badge - explorer - group: Dedication (amber ring).
-Attached: the approved badge 1. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: an explorer: used every exercise filter at least once.
-Emblem: a pair of chunky off-white binoculars seen from the front, with two big round amber lenses.
-No text. Transparent background.
-```
+When they are all out, raise `BadgeRules.BadgeCollectorThreshold` from 15 to 20, and change the 15 in the
+`Badge.badge_collector.Description` texts (3 resx files), in its seed row (`SeedData.cs`) and in the badge 18 prompt.
 
-### `filter_ninja`: Filtro Ninja
+| Key | Title (pt-BR) | Group | Rule (`BadgeRules.cs`) |
+|-----|---------------|-------|------------------------|
+| `7_days` | 7 dias seguidos | Dedication | Best streak of at least 7 days |
+| `30_days` | 30 dias seguidos | Dedication | Best streak of at least 30 days |
+| `100_sessions` | Disco de ouro | Dedication | 100 sessions |
+| `daily_challenge_complete` | Desafio do dia completo | Dedication | A daily challenge completed |
+| `explorer` | Explorador | Dedication | An answer in every exercise except Solfege Melody, which needs a microphone |
+| `filter_ninja` | Filtro ninja | Dedication | 5 sessions with an answer played with some filter on another option than its first one |
+| `perfect_session` | Sessão perfeita | Mastery | A session of at least 10 answers, all right |
+| `total_mastery` | Domínio total | Progress | Every step of the learning path completed |
+| `mission_addict` | Viciado em desafios | Fun | 10 daily challenges completed |
+| `speedster` | Velocista | Fun | 18 of 20 answers in a row right, at most 4 minutes from the first to the last |
+| `mystery_listener` | Ouvinte misterioso | Fun | 5 answers in a row right in Guess Note |
+| `impossible_melody` | Melodia impossível | Fun | 3 answers in a row right in Melodic Dictation |
+| `all_rounder` | Músico completo | Fun | At least 10 answers in every exercise category (Harmony, Melody, Rhythm, EarTraining, Scales) |
+| `night_owl` | Coruja da noite | Fun | A session started between 22:00 and 04:59, local time |
+| `early_bird` | Madrugador | Fun | A session started between 05:00 and 06:59, local time |
 
-```
-Extra badge - filter_ninja - group: Dedication (amber ring).
-Attached: the approved badge 1. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: a filter ninja: used custom filter combinations in 5 sessions.
-Emblem: a chunky off-white funnel (the classic filter symbol) wearing an amber ninja headband tied at the side, with its two ribbon tails flying to the right.
-No text. Transparent background.
-```
-
-### `daily_challenge_complete`: Desafio Diário Completo
-
-```
-Extra badge - daily_challenge_complete - group: Dedication (amber ring).
-Attached: the approved badge 1. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: completed every exercise of the daily challenge.
-Emblem: an off-white clipboard with an amber clip at the top and three rows, each ticked with a bold amber check mark.
-No writing on the clipboard, no text. Transparent background.
-```
-
-### `total_mastery`: Domínio Total
-
-```
-Extra badge - total_mastery - group: Progress (green ring).
-Attached: the approved badge 12. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: total mastery: 100% in an exercise with every filter turned on.
-Emblem: a big, bold five-pointed star, off-white with soft green facets, framed by two green laurel branches curving around its lower half.
-No text. Transparent background.
-```
-
-### `mission_addict`: Viciado em Missões
-
-```
-Extra badge - mission_addict - group: Fun (magenta ring).
-Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: hooked on missions: completed 10 mixed challenges.
-Emblem: a round target of three thick concentric rings alternating off-white and magenta, with an off-white dart stuck in the bullseye.
-No text. Transparent background.
-```
-
-### `speedster`: Speedster
-
-```
-Extra badge - speedster - group: Fun (magenta ring).
-Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: a lightning-fast ear: 90% right in a speed test.
-Emblem: an off-white eighth note flying to the right, with a pair of small magenta wings on its stem and three bold magenta speed streaks trailing behind it.
-No text. Transparent background.
-```
-
-### `mystery_listener`: Ouvinte Misterioso
-
-```
-Extra badge - mystery_listener - group: Fun (magenta ring).
-Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: got an "impossible" question right in fully random mode.
-Emblem: a chunky off-white mystery box with its lid popping open and a big magenta question mark rising out of it.
-The question mark is the only symbol: no letters, no text. Transparent background.
-```
-
-### `impossible_melody`: Melodia Impossível
-
-```
-Extra badge - impossible_melody - group: Fun (magenta ring).
-Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: got an altered melody with a hidden rest right.
-Emblem: an impossible (Penrose) triangle built from thick off-white and magenta bars, with a small off-white eighth note in its centre.
-No text. Transparent background.
-```
-
-## Proposed new badges
-
-These badges are not in the catalog yet. They fill gaps in the set: longer-term goals for Dedication, and visible
-badges for Fun, which today has only one. Each one can be computed from data `BadgeRules` already receives: the
-answers with their UTC timestamps, each exercise's type, category and difficulty, and the player's time zone. So none
-of them needs new tracking.
-
-Shipping one means adding:
-- the key in `BadgeKeys`/`BadgeCatalog`;
-- the rule and its tests in `BadgeRules`;
-- the seed row in `SeedData.cs`;
-- `Badge.{key}.Title`/`Description` in the 3 resx files.
-
-Also consider raising `BadgeRules.BadgeCollectorThreshold` (15).
-
-| Key | Title (pt-BR / en) | Group | Rule |
-|-----|--------------------|-------|------|
-| `7_days` | 7 dias seguidos / 7-day streak | Dedication | Best streak of at least 7 days |
-| `30_days` | 30 dias seguidos / 30-day streak | Dedication | Best streak of at least 30 days |
-| `100_sessions` | Disco de ouro / Gold record | Dedication | 100 practice sessions |
-| `perfect_session` | Sessão perfeita / Flawless session | Mastery | A session of at least 10 answers, all right |
-| `all_rounder` | Músico completo / All-rounder | Fun | At least 10 answers in every category that has exercises (Harmony, Melody, Rhythm, EarTraining, Scales) |
-| `night_owl` | Coruja da noite / Night owl | Fun | A session started between 22:00 and 04:59, local time |
-| `early_bird` | Madrugador / Early bird | Fun | A session started between 05:00 and 06:59, local time |
+A session is a run of at least 5 answers with no pause longer than 30 minutes, across all exercises. The filters come
+from the answers (`ScoreSnapshot.FilterJson`); answers saved before #96 have none and never count. The completed daily
+challenges are worked out from the answers with the same draw as the dashboard (`DailyChallengeRules.CompletedDays`).
 
 ### `7_days`: 7 dias seguidos
 
@@ -449,6 +364,36 @@ Emblem: a gold-record award plaque seen from the front: a chunky off-white recta
 No text, no plaque inscription. Transparent background.
 ```
 
+### `daily_challenge_complete`: Desafio do dia completo
+
+```
+Extra badge - daily_challenge_complete - group: Dedication (amber ring).
+Attached: the approved badge 1. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
+Meaning: completed a daily challenge: the three exercises picked for the day.
+Emblem: an off-white clipboard with an amber clip at the top and three rows, each ticked with a bold amber check mark.
+No writing on the clipboard, no text. Transparent background.
+```
+
+### `explorer`: Explorador
+
+```
+Extra badge - explorer - group: Dedication (amber ring).
+Attached: the approved badge 1. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
+Meaning: an explorer: answered every exercise at least once.
+Emblem: a pair of chunky off-white binoculars seen from the front, with two big round amber lenses.
+No text. Transparent background.
+```
+
+### `filter_ninja`: Filtro ninja
+
+```
+Extra badge - filter_ninja - group: Dedication (amber ring).
+Attached: the approved badge 1. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
+Meaning: a filter ninja: practised with custom exercise filters in 5 sessions.
+Emblem: a chunky off-white funnel (the classic filter symbol) wearing an amber ninja headband tied at the side, with its two ribbon tails flying to the right.
+No text. Transparent background.
+```
+
 ### `perfect_session`: Sessão perfeita
 
 ```
@@ -459,12 +404,62 @@ Emblem: a bold off-white tuning fork standing upright in the centre, with two th
 No text. Transparent background.
 ```
 
+### `total_mastery`: Domínio total
+
+```
+Extra badge - total_mastery - group: Progress (green ring).
+Attached: the approved badge 12. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
+Meaning: total mastery: completed every step of the learning path.
+Emblem: a big, bold five-pointed star, off-white with soft green facets, framed by two green laurel branches curving around its lower half.
+No text. Transparent background.
+```
+
+### `mission_addict`: Viciado em desafios
+
+```
+Extra badge - mission_addict - group: Fun (magenta ring).
+Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
+Meaning: hooked on challenges: completed 10 daily challenges.
+Emblem: a round target of three thick concentric rings alternating off-white and magenta, with an off-white dart stuck in the bullseye.
+No text. Transparent background.
+```
+
+### `speedster`: Velocista
+
+```
+Extra badge - speedster - group: Fun (magenta ring).
+Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
+Meaning: a lightning-fast ear: 18 of 20 answers right in a row, in under 4 minutes.
+Emblem: an off-white eighth note flying to the right, with a pair of small magenta wings on its stem and three bold magenta speed streaks trailing behind it.
+No text. Transparent background.
+```
+
+### `mystery_listener`: Ouvinte misterioso
+
+```
+Extra badge - mystery_listener - group: Fun (magenta ring).
+Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
+Meaning: a mystery listener: named 5 notes in a row just by hearing them.
+Emblem: a chunky off-white mystery box with its lid popping open and a big magenta question mark rising out of it.
+The question mark is the only symbol: no letters, no text. Transparent background.
+```
+
+### `impossible_melody`: Melodia impossível
+
+```
+Extra badge - impossible_melody - group: Fun (magenta ring).
+Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
+Meaning: wrote down 3 melodies in a row by ear without a single mistake (melodic dictation).
+Emblem: an impossible (Penrose) triangle built from thick off-white and magenta bars, with a small off-white eighth note in its centre.
+No text. Transparent background.
+```
+
 ### `all_rounder`: Músico completo
 
 ```
 Extra badge - all_rounder - group: Fun (magenta ring).
 Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: an all-round musician: practised every category (harmony, melody, rhythm, ear training and scales).
+Meaning: an all-round musician: at least 10 answers in every category (harmony, melody, rhythm, ear training and scales).
 Emblem: a pentagon-shaped radar chart with five axes, completely filled in magenta, with a thick off-white outline, off-white dots at its five corners and a small off-white eighth note in the centre.
 No labels, no text. Transparent background.
 ```
@@ -474,7 +469,7 @@ No labels, no text. Transparent background.
 ```
 Extra badge - night_owl - group: Fun (magenta ring).
 Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: practised late at night.
+Meaning: started practising late at night, between 10 p.m. and 5 a.m.
 Emblem: a round, friendly off-white owl seen from the front, with big navy eyes, wearing magenta headphones, and a small off-white crescent moon at its upper right.
 No text. Transparent background.
 ```
@@ -484,7 +479,7 @@ No text. Transparent background.
 ```
 Extra badge - early_bird - group: Fun (magenta ring).
 Attached: the approved badge 18. Use it ONLY as the style reference (frame, ring, rim, navy face, glow, lighting, level of detail). Do not reuse its emblem.
-Meaning: practised early in the morning.
+Meaning: started practising early in the morning, between 5 and 7 a.m.
 Emblem: a small, round off-white songbird in profile, singing with its beak open, and a magenta eighth note floating out of its beak.
 No sun, no text. Transparent background.
 ```
@@ -511,4 +506,4 @@ the PNG the medal fills, which should be about 92%.
 - The images have `alt=""`, since the badge title is always shown or read next to them.
 - The locked state comes from CSS (grayscale and lower opacity), so no locked artwork is needed.
 - `BadgeArtTests` fails if a badge players can earn has no image, or if an image is not named after a badge. A hidden
-  badge can get its art before its rule ships.
+  badge can get its art first and be released later.

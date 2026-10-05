@@ -37,9 +37,6 @@ public static class DailyChallengeRules
     /// <summary>The same for an exercise answered on a staff, where each question takes longer.</summary>
     public const int AnswersPerStaffExercise = 3;
 
-    /// <summary>Solfege Melody needs a microphone, which not every player can use.</summary>
-    private static readonly HashSet<string> Excluded = new(StringComparer.Ordinal) { "SolfegeMelody" };
-
     private static readonly HashSet<string> StaffExercises = new(StringComparer.Ordinal)
     {
         "CompleteChord", "CompleteScale", "MelodicDictation", "RhythmDictation", "TransposeScale",
@@ -53,38 +50,8 @@ public static class DailyChallengeRules
     /// of each category not drawn yet is taken. With fewer categories than exercises per day, the
     /// rest of the shuffle fills the remaining places.
     /// </summary>
-    public static IReadOnlyList<ChallengeExercise> Pick(DateOnly date, IEnumerable<ChallengeExercise> exercises)
-    {
-        // One exercise per name (the lowest id, like the learning path), in a fixed order so the
-        // order of the database rows doesn't change the draw.
-        var pool = exercises
-            .Where(e => !Excluded.Contains(e.Name))
-            .GroupBy(e => e.Name, StringComparer.Ordinal)
-            .Select(g => g.MinBy(e => e.ExerciseId)!)
-            .OrderBy(e => e.Name, StringComparer.Ordinal)
-            .ToArray();
-
-        var state = (ulong)date.DayNumber;
-        for (var i = pool.Length - 1; i > 0; i--)
-        {
-            var j = (int)(NextRandom(ref state) % (ulong)(i + 1));
-            (pool[i], pool[j]) = (pool[j], pool[i]);
-        }
-
-        var picked = new List<ChallengeExercise>(ExercisesPerDay);
-        var categories = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var exercise in pool)
-        {
-            if (picked.Count == ExercisesPerDay) break;
-            if (categories.Add(exercise.Category)) picked.Add(exercise);
-        }
-        foreach (var exercise in pool)
-        {
-            if (picked.Count == ExercisesPerDay) break;
-            if (!picked.Contains(exercise)) picked.Add(exercise);
-        }
-        return picked;
-    }
+    public static IReadOnlyList<ChallengeExercise> Pick(DateOnly date, IEnumerable<ChallengeExercise> exercises) =>
+        Draw(date, Pool(exercises));
 
     /// <summary>The player's progress on the challenge of <paramref name="date"/>.</summary>
     /// <param name="answers">The player's answers, with UTC timestamps; only those on that local date count.</param>
@@ -94,19 +61,32 @@ public static class DailyChallengeRules
         IEnumerable<PracticeAnswer> answers,
         TimeZoneInfo timeZone)
     {
-        // An answer counts for its exercise's name, whichever row with that name it was saved under.
-        var names = exercises.ToDictionary(e => e.ExerciseId, e => e.Name);
-        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
-        foreach (var answer in answers)
-        {
-            if (names.TryGetValue(answer.ExerciseId, out var name)
-                && PracticeStreak.LocalDate(answer.Timestamp, timeZone) == date)
-            {
-                counts[name] = counts.GetValueOrDefault(name) + 1;
-            }
-        }
+        var answersThatDay = answers.Where(a => PracticeStreak.LocalDate(a.Timestamp, timeZone) == date);
+        return Progress(date, Pick(date, exercises), CountByName(Names(exercises), answersThatDay));
+    }
 
-        var items = Pick(date, exercises)
+    /// <summary>The local dates whose challenge the player completed, oldest first.</summary>
+    /// <param name="answers">The player's answers, with UTC timestamps.</param>
+    public static IReadOnlyList<DateOnly> CompletedDays(
+        IReadOnlyCollection<ChallengeExercise> exercises,
+        IEnumerable<PracticeAnswer> answers,
+        TimeZoneInfo timeZone)
+    {
+        var names = Names(exercises);
+        var pool = Pool(exercises);
+        return answers
+            .GroupBy(a => PracticeStreak.LocalDate(a.Timestamp, timeZone))
+            .Select(day => Progress(day.Key, Draw(day.Key, pool), CountByName(names, day)))
+            .Where(progress => progress.IsComplete)
+            .Select(progress => progress.Date)
+            .Order()
+            .ToList();
+    }
+
+    private static DailyChallengeProgress Progress(
+        DateOnly date, IReadOnlyList<ChallengeExercise> picked, Dictionary<string, int> counts)
+    {
+        var items = picked
             .Select(e =>
             {
                 var target = Target(e.Name);
@@ -114,6 +94,56 @@ public static class DailyChallengeRules
             })
             .ToList();
         return new DailyChallengeProgress(date, items);
+    }
+
+    private static Dictionary<int, string> Names(IEnumerable<ChallengeExercise> exercises) =>
+        exercises.ToDictionary(e => e.ExerciseId, e => e.Name);
+
+    // An answer counts for its exercise's name, whichever row with that name it was saved under.
+    private static Dictionary<string, int> CountByName(Dictionary<int, string> names, IEnumerable<PracticeAnswer> answers)
+    {
+        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var answer in answers)
+        {
+            if (names.TryGetValue(answer.ExerciseId, out var name)) counts[name] = counts.GetValueOrDefault(name) + 1;
+        }
+        return counts;
+    }
+
+    /// <summary>
+    /// One exercise per name (the lowest id, like the learning path), in a fixed order so the order of
+    /// the database rows doesn't change the draw.
+    /// </summary>
+    private static ChallengeExercise[] Pool(IEnumerable<ChallengeExercise> exercises) => exercises
+        .Where(e => !MicrophoneExercises.Contains(e.Name))
+        .GroupBy(e => e.Name, StringComparer.Ordinal)
+        .Select(g => g.MinBy(e => e.ExerciseId)!)
+        .OrderBy(e => e.Name, StringComparer.Ordinal)
+        .ToArray();
+
+    private static List<ChallengeExercise> Draw(DateOnly date, ChallengeExercise[] pool)
+    {
+        var shuffled = (ChallengeExercise[])pool.Clone();
+        var state = (ulong)date.DayNumber;
+        for (var i = shuffled.Length - 1; i > 0; i--)
+        {
+            var j = (int)(NextRandom(ref state) % (ulong)(i + 1));
+            (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+        }
+
+        var picked = new List<ChallengeExercise>(ExercisesPerDay);
+        var categories = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var exercise in shuffled)
+        {
+            if (picked.Count == ExercisesPerDay) break;
+            if (categories.Add(exercise.Category)) picked.Add(exercise);
+        }
+        foreach (var exercise in shuffled)
+        {
+            if (picked.Count == ExercisesPerDay) break;
+            if (!picked.Contains(exercise)) picked.Add(exercise);
+        }
+        return picked;
     }
 
     /// <summary>SplitMix64: unlike System.Random, the same sequence on every platform and .NET version.</summary>

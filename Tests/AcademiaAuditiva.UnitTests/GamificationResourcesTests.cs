@@ -41,7 +41,7 @@ public class GamificationResourcesTests
         "Gamification.LevelUpTitle", "Gamification.BadgeEarnedTitle", "Gamification.Continue",
     ];
 
-    private static IEnumerable<string> CatalogKeys => BadgeCatalog.Available
+    private static IEnumerable<string> CatalogKeys => BadgeCatalog.All
         .SelectMany(b => new[] { $"Badge.{b.Key}.Title", $"Badge.{b.Key}.Description" })
         .Concat(BadgeCatalog.Groups.Select(g => $"Gamification.Group.{g}"))
         .Concat(Leveling.Ranks.Select(r => $"Gamification.Rank.{r}"));

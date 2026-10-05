@@ -74,32 +74,39 @@
 - **Maestro do Ritmo** – 100% em 2 de ritmo
 - **Explorador Melódico** – 80% em todos os exercícios de melodia
 - **Escalador de Tons** – Usou todos os tipos de escalas
+- **Sessão Perfeita** – Sessão de pelo menos 10 respostas sem nenhum erro
 
 ### Por Esforço
 - **3 Dias Seguidos** – Praticou 3 dias consecutivos
 - **5 Dias Seguidos** – Praticou 5 dias consecutivos
+- **7 Dias Seguidos** – Praticou 7 dias consecutivos
+- **30 Dias Seguidos** – Praticou 30 dias consecutivos
 - **Maratona 20min** – 20 minutos sem parar
 - **Praticante Fiel** – Completou 30 sessões
-- **Explorador** – Usou todos os filtros uma vez
-- **Filtro Ninja** – Usou combinações personalizadas em 5 sessões
+- **Disco de Ouro** – Completou 100 sessões
+- **Explorador** – Respondeu a todos os exercícios (menos o solfejo)
+- **Filtro Ninja** – Usou filtros personalizados em 5 sessões
 - **Iniciador de Jornada** – Primeira sessão realizada
 - **10 Sessões em 1 Semana** – Alta frequência semanal
-- **Desafio Diário Completo** – Completou todos os exercícios do dia
+- **Desafio Diário Completo** – Completou um desafio do dia
 
 ### Por Evolução
 - **Deu a Volta por Cima** – Começou errando e depois passou de 80%
 - **Conquistador Avançado** – 5 exercícios de nível avançado
 - **Aluno Persistente** – Melhorou pontuação em 3 tentativas seguidas
-- **Domínio Total** – 100% em um exercício com filtros completos
+- **Domínio Total** – Completou a trilha de aprendizado
 - **Evolução Notável** – Melhorou em todas as categorias em 1 mês
 - **Resiliência Auditiva** – Acertou após 3 erros seguidos
 - **Domador de Intervalos** – 10 sessões de intervalos com +80%
 
 ### Diversão e Missões
-- **Viciado em Missões** – Completou 10 desafios mistos
-- **Speedster** – 90% de acerto em um SpeedTest
-- **Ouvinte Misterioso** – Acertou uma questão impossível (modo aleatório total)
-- **Melodia Impossível** – Acertou uma melodia alterada com pausa escondida
+- **Viciado em Desafios** – Completou 10 desafios do dia
+- **Velocista** – Acertou 18 de 20 respostas seguidas em até 4 minutos
+- **Ouvinte Misterioso** – Acertou 5 notas seguidas em Adivinhe a Nota
+- **Melodia Impossível** – Acertou 3 ditados melódicos seguidos
+- **Músico Completo** – 10 respostas em cada categoria de exercício
+- **Coruja da Noite** – Começou uma sessão entre 22h e 5h
+- **Madrugador** – Começou uma sessão entre 5h e 7h
 - **Colecionador de Badges** – Obteve 15 conquistas
 
 ---
