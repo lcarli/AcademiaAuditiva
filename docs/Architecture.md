@@ -23,7 +23,7 @@ secrets in Key Vault and pulled by the app's user-assigned Managed Identity.
 │   • IdentityBootstrapper  — seed roles + admin     │
 │   • IExerciseValidator    — strategy per exercise  │
 │   • IMusicTheoryService   — note/interval theory   │
-│   • UserReportService     — score aggregations     │
+│   • UserReportService     — student dashboard stats│
 │   • AudioTokenService     — one-shot audio rounds  │
 │   • EmailComposer         — localized HTML + text  │
 │   • EmailSender (MailKit) — invites + notifications│

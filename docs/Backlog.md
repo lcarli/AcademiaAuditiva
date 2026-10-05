@@ -16,8 +16,9 @@ The modernization plan is done (#47 to #83):
 - **Look and languages**: the visual identity, and full en-US, pt-BR and fr-CA
   (#53, #56, #70, #82).
 - **Exercises**: 19 exercises on piano, guitar and violin, plus Explore and
-  free practice (#58, #60, #75 to #78). The server times each answer, so the
-  dashboard shows real practice time (#99).
+  free practice (#58, #60, #75 to #78). The server times each answer, and the
+  dashboard works out every figure from the answers themselves, so it shows
+  real practice time and real error counts (#99, #100).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).

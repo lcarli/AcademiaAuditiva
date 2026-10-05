@@ -533,9 +533,8 @@
     <value>The correct answer was {{0}}.</value>
     <comment>.</comment>
   </data>
-  <data name="Dashboard.TotalExercises" xml:space="preserve">
-    <value>Total Exercises</value>
-    <comment />
+  <data name="Dashboard.TotalAnswers" xml:space="preserve">
+    <value>Total Answers</value>
   </data>
   <data name="Dashboard.BestScore" xml:space="preserve">
     <value>Best Score</value>
@@ -747,8 +746,11 @@
   <data name="Dashboard.PedagogicalCategories" xml:space="preserve">
     <value>Pedagogical Categories</value>
   </data>
-  <data name="Dashboard.ChartProgress" xml:space="preserve">
-    <value>Progress</value>
+  <data name="Dashboard.ChartDailyAccuracy" xml:space="preserve">
+    <value>Accuracy by Day</value>
+  </data>
+  <data name="Dashboard.MostMissedHint" xml:space="preserve">
+    <value>Share of wrong answers in your last {0} answers to each exercise</value>
   </data>
   <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve">
     <value>Accuracy by Technical Type</value>

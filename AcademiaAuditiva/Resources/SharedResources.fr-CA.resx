@@ -533,9 +533,8 @@
     <value>La bonne réponse était {{0}}.</value>
     <comment>.</comment>
   </data>
-  <data name="Dashboard.TotalExercises" xml:space="preserve">
-    <value>Total d'exercices</value>
-    <comment />
+  <data name="Dashboard.TotalAnswers" xml:space="preserve">
+    <value>Total des réponses</value>
   </data>
   <data name="Dashboard.BestScore" xml:space="preserve">
     <value>Meilleur score</value>
@@ -747,8 +746,11 @@
   <data name="Dashboard.PedagogicalCategories" xml:space="preserve">
     <value>Catégories pédagogiques</value>
   </data>
-  <data name="Dashboard.ChartProgress" xml:space="preserve">
-    <value>Progrès</value>
+  <data name="Dashboard.ChartDailyAccuracy" xml:space="preserve">
+    <value>Précision par jour</value>
+  </data>
+  <data name="Dashboard.MostMissedHint" xml:space="preserve">
+    <value>Proportion d’erreurs dans vos {0} dernières réponses à chaque exercice</value>
   </data>
   <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve">
     <value>Précision par type technique</value>
@@ -1348,13 +1350,13 @@
     <value>Continuez à pratiquer à votre niveau actuel.</value>
   </data>
   <data name="Report.ReviewExercise" xml:space="preserve">
-    <value>Révisez l'exercice : {0}</value>
+    <value>Révisez l’exercice : {0}</value>
   </data>
   <data name="Report.IncreaseDifficulty" xml:space="preserve">
     <value>Votre précision est élevée. Pensez à augmenter la difficulté.</value>
   </data>
   <data name="Report.KeepPracticing" xml:space="preserve">
-    <value>Continuez à pratiquer davantage d&apos;exercices pour améliorer vos performances.</value>
+    <value>Continuez à pratiquer davantage d’exercices pour améliorer vos performances.</value>
   </data>
   <data name="Teacher.Members.InviteHelp" xml:space="preserve">
     <value>Si l&apos;élève a déjà un compte, il sera ajouté à votre classe lors de l&apos;acceptation. Sinon, il recevra un lien pour finir de créer son compte.</value>

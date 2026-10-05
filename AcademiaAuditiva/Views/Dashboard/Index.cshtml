@@ -144,8 +144,8 @@
             <div class="d-flex align-items-center gap-3">
                 <span class="aa-icon-pill" aria-hidden="true"><i class="bi bi-music-note-list"></i></span>
                 <div>
-                    <h6 class="text-uppercase small text-secondary mb-1">@Localizer["Dashboard.TotalExercises"]</h6>
-                    <h3 class="fw-bold mb-0 text-body-emphasis">@ViewBag.TotalExercises</h3>
+                    <h6 class="text-uppercase small text-secondary mb-1">@Localizer["Dashboard.TotalAnswers"]</h6>
+                    <h3 class="fw-bold mb-0 text-body-emphasis">@ViewBag.TotalAnswers</h3>
                 </div>
             </div>
         </div>
@@ -239,6 +239,7 @@
             <h5 class="mb-3 d-flex align-items-center gap-2 text-body-emphasis">
                 <i class="bi bi-exclamation-triangle text-warning" aria-hidden="true"></i>@Localizer["Dashboard.MostMissedItems"]
             </h5>
+            <p class="small text-secondary mb-2">@Localizer["Dashboard.MostMissedHint", AcademiaAuditiva.Services.Dashboard.DashboardStats.RecentAnswers]</p>
             <ul class="list-group list-group-flush" id="mostMissedList"></ul>
         </div>
     </div>
@@ -253,7 +254,9 @@
 </div>
 
 <div id="localizer"
-     data-chart-progress="@Localizer["Dashboard.ChartProgress"]"
+     data-culture="@System.Globalization.CultureInfo.CurrentCulture.Name"
+     data-answers="@Localizer["Dashboard.TotalAnswers"]"
+     data-chart-daily-accuracy="@Localizer["Dashboard.ChartDailyAccuracy"]"
      data-chart-accuracy-by-skill="@Localizer["Dashboard.ChartAccuracyBySkill"]"
      data-chart-accuracy-by-category="@Localizer["Dashboard.ChartAccuracyByCategory"]"
      data-chart-accuracy-by-difficulty="@Localizer["Dashboard.ChartAccuracyByDifficulty"]"
@@ -341,7 +344,9 @@
                 data: { labels: base.data.labels, datasets },
                 options: Object.assign({}, base.options, {
                     scales,
-                    plugins: { legend: { labels: { color: t.muted, font: { family: t.font } } } }
+                    plugins: Object.assign({}, base.options?.plugins, {
+                        legend: { labels: { color: t.muted, font: { family: t.font } } }
+                    })
                 })
             };
         }
@@ -360,29 +365,44 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const loc = document.getElementById("localizer")?.dataset;
+            const culture = loc.culture || undefined;
+
+            // Days arrive as yyyy-MM-dd in the student's time zone: build them as local
+            // dates, since parsing the string would read it as midnight UTC.
+            const dayFormat = new Intl.DateTimeFormat(culture, { day: 'numeric', month: 'short' });
+            const localDay = date => {
+                const [year, month, day] = date.split('-').map(Number);
+                return new Date(year, month - 1, day);
+            };
 
             fetch("/Dashboard/GetUserTimeline")
                 .then(res => res.json())
                 .then(data => {
                     const ctx = document.getElementById("learningTimelineChart");
-                    const labels = data.map(d => d.date);
-                    const scores = data.map(d => d.score);
 
                     aaChart(ctx, {
                         type: 'line',
                         data: {
-                            labels: labels,
+                            labels: data.map(d => dayFormat.format(localDay(d.date))),
                             datasets: [{
-                                label: loc.chartProgress,
-                                data: scores,
+                                label: loc.chartDailyAccuracy,
+                                data: data.map(d => d.accuracy),
                                 fill: true,
                                 tension: 0.3
                             }]
                         },
                         options: {
                             responsive: true,
+                            locale: culture,
                             scales: {
-                                y: { beginAtZero: true }
+                                y: { min: 0, max: 100 }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        afterLabel: item => `${loc.answers}: ${data[item.dataIndex].answers}`
+                                    }
+                                }
                             }
                         }
                     });
@@ -435,22 +455,34 @@
                     });
                 });
 
-            // Histórico
+            // Sessões recentes
             const formatDuration = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+            const startFormat = new Intl.DateTimeFormat(culture, { dateStyle: 'short', timeStyle: 'short' });
+            const cell = (text, className) => {
+                const td = document.createElement("td");
+                if (className) {
+                    const span = document.createElement("span");
+                    span.className = className;
+                    span.textContent = text;
+                    td.appendChild(span);
+                } else {
+                    td.textContent = text;
+                }
+                return td;
+            };
             fetch("/Dashboard/GetScoreHistory")
                 .then(res => res.json())
                 .then(data => {
                     const tbody = document.getElementById("scoreHistoryTable");
-                    data.forEach(row => {
+                    data.forEach(session => {
                         const tr = document.createElement("tr");
-                        tr.innerHTML = `
-                                <td>${tExercise(row.exercise)}</td>
-                                <td>${row.date}</td>
-                                <td><span class="text-success fw-semibold">${row.correct}</span></td>
-                                <td><span class="text-danger fw-semibold">${row.error}</span></td>
-                                <td>${formatDuration(row.timeSpentSeconds)}</td>
-                                <td><span class="aa-badge-soft">${row.score}</span></td>
-                            `;
+                        tr.append(
+                            cell(tExercise(session.exercise)),
+                            cell(startFormat.format(new Date(session.start))),
+                            cell(session.correct, "text-success fw-semibold"),
+                            cell(session.errors, "text-danger fw-semibold"),
+                            cell(formatDuration(session.timeSpentSeconds)),
+                            cell(session.score, "aa-badge-soft"));
                         tbody.appendChild(tr);
                     });
                 });
@@ -488,6 +520,7 @@
                 });
 
             // Maiores dificuldades
+            const shareFormat = new Intl.NumberFormat(culture, { style: 'percent', maximumFractionDigits: 0 });
             fetch("/Dashboard/GetMostMissedItems")
                 .then(res => res.json())
                 .then(data => {
@@ -495,7 +528,13 @@
                     data.forEach(item => {
                         const li = document.createElement("li");
                         li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center", "border-0", "px-0");
-                        li.innerHTML = `<span>${tExercise(item.exercise)}</span> <span class="badge bg-danger-subtle text-danger-emphasis">${item.errors}</span>`;
+                        const name = document.createElement("span");
+                        name.textContent = tExercise(item.exercise);
+                        const share = document.createElement("span");
+                        share.className = "badge bg-danger-subtle text-danger-emphasis";
+                        share.textContent = shareFormat.format(item.errors / item.answers);
+                        share.title = `${item.errors}/${item.answers}`;
+                        li.append(name, share);
                         list.appendChild(li);
                     });
                 });
@@ -508,7 +547,12 @@
                     data.forEach(msg => {
                         const div = document.createElement("div");
                         div.classList.add("list-group-item", "border-0", "px-0", "d-flex", "align-items-start", "gap-2");
-                        div.innerHTML = `<i class="bi bi-arrow-right-circle text-primary mt-1"></i><span>${msg}</span>`;
+                        const icon = document.createElement("i");
+                        icon.className = "bi bi-arrow-right-circle text-primary mt-1";
+                        icon.setAttribute("aria-hidden", "true");
+                        const text = document.createElement("span");
+                        text.textContent = msg;
+                        div.append(icon, text);
                         list.appendChild(div);
                     });
                 });
