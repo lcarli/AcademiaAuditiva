@@ -533,9 +533,8 @@
     <value>A resposta correta era {{0}}.</value>
     <comment>.</comment>
   </data>
-  <data name="Dashboard.TotalExercises" xml:space="preserve">
-    <value>Total de exercícios</value>
-    <comment />
+  <data name="Dashboard.TotalAnswers" xml:space="preserve">
+    <value>Total de respostas</value>
   </data>
   <data name="Dashboard.BestScore" xml:space="preserve">
     <value>Melhor pontuação</value>
@@ -747,8 +746,11 @@
   <data name="Dashboard.PedagogicalCategories" xml:space="preserve">
     <value>Categorias pedagógicas</value>
   </data>
-  <data name="Dashboard.ChartProgress" xml:space="preserve">
-    <value>Progresso</value>
+  <data name="Dashboard.ChartDailyAccuracy" xml:space="preserve">
+    <value>Precisão por dia</value>
+  </data>
+  <data name="Dashboard.MostMissedHint" xml:space="preserve">
+    <value>Proporção de erros nas suas últimas {0} respostas de cada exercício</value>
   </data>
   <data name="Dashboard.ChartAccuracyBySkill" xml:space="preserve">
     <value>Precisão por tipo técnico</value>

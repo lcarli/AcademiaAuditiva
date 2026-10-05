@@ -86,6 +86,7 @@ public sealed class RealSqlServerFixture : IAsyncLifetime
         services.AddScoped<PracticeHistory>();
         services.AddScoped<IGamificationService, GamificationService>();
         services.AddScoped<ITutorialService, TutorialService>();
+        services.AddScoped<UserReportService>();
         _services = services.BuildServiceProvider(validateScopes: true);
     }
 

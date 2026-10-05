@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
-using System.Security.Claims;
 
 namespace AcademiaAuditiva.Controllers
 {
@@ -55,22 +54,10 @@ namespace AcademiaAuditiva.Controllers
 
             ViewBag.FirstName = user?.FirstName;
 
-            var userScores = _context.Scores
-                .Where(s => s.UserId == userId)
-                .ToList();
-
-            var totalExercises = userScores.Count;
-
-            var bestScore = userScores
-                .Select(s => s.CorrectCount - s.ErrorCount)
-                .DefaultIfEmpty(0)
-                .Max();
-
-            var totalTimeMinutes = userScores.Sum(s => s.TimeSpentSeconds) / 60;
-
-            ViewBag.TotalExercises = totalExercises;
-            ViewBag.BestScore = bestScore;
-            ViewBag.TotalTime = totalTimeMinutes;
+            var summary = await _userReportService.GetSummaryAsync(userId, HttpContext.RequestAborted);
+            ViewBag.TotalAnswers = summary.Answers;
+            ViewBag.BestScore = summary.BestScore;
+            ViewBag.TotalTime = summary.TotalSeconds / 60;
 
             // The history and most-missed lists load later and name exercises by identifier
             // (GuessNote); the page shows them through this map of the whole catalogue.
@@ -154,52 +141,32 @@ namespace AcademiaAuditiva.Controllers
             return LocalRedirect(Url.IsLocalUrl(returnUrl) ? returnUrl : "~/");
         }
 
+        // Accuracy per exercise type (radar) and per category.
         [HttpGet]
-        public IActionResult GetUserProgress()
-        {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = _userReportService.GetUserProgress(userId);
-            return Json(result);
-        }
+        public async Task<IActionResult> GetUserProgress(CancellationToken ct) =>
+            Json(await _userReportService.GetSkillProfileAsync(_userManager.GetUserId(User)!, ct));
+
+        // Answers and accuracy per day, by the student's calendar.
+        [HttpGet]
+        public async Task<IActionResult> GetUserTimeline(CancellationToken ct) =>
+            Json(await _userReportService.GetTimelineAsync(_userManager.GetUserId(User)!, UserTimeZone.FromRequest(Request), ct));
+
+        // The latest practice sessions.
+        [HttpGet]
+        public async Task<IActionResult> GetScoreHistory(CancellationToken ct) =>
+            Json(await _userReportService.GetRecentSessionsAsync(_userManager.GetUserId(User)!, ct));
 
         [HttpGet]
-        public IActionResult GetUserTimeline()
-        {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var data = _userReportService.GetUserTimeline(userId);
-            return Json(data);
-        }
+        public async Task<IActionResult> GetPerformanceByDifficulty(CancellationToken ct) =>
+            Json(await _userReportService.GetAccuracyByDifficultyAsync(_userManager.GetUserId(User)!, ct));
+
+        // The exercises most often answered wrong lately.
+        [HttpGet]
+        public async Task<IActionResult> GetMostMissedItems(CancellationToken ct) =>
+            Json(await _userReportService.GetStrugglesAsync(_userManager.GetUserId(User)!, ct));
 
         [HttpGet]
-        public IActionResult GetScoreHistory()
-        {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var history = _userReportService.GetScoreHistory(userId);
-            return Json(history);
-        }
-
-        [HttpGet]
-        public IActionResult GetPerformanceByDifficulty()
-        {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var performance = _userReportService.GetPerformanceByDifficulty(userId);
-            return Json(performance);
-        }
-
-        [HttpGet]
-        public IActionResult GetMostMissedItems()
-        {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var errors = _userReportService.GetMostMissedItems(userId);
-            return Json(errors);
-        }
-
-        [HttpGet]
-        public IActionResult GetRecommendations()
-        {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var recs = _userReportService.GetRecommendations(userId);
-            return Json(recs);
-        }
+        public async Task<IActionResult> GetRecommendations(CancellationToken ct) =>
+            Json(await _userReportService.GetRecommendationsAsync(_userManager.GetUserId(User)!, ct));
     }
 }

@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Services.Gamification;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -30,6 +31,8 @@ public class AnswerTimeTests : IClassFixture<AnswerTimeTests.Factory>
     {
         var exerciseId = SeedExercise("GuessNote");
         var client = await SignedInClientAsync();
+        // The other tests answer GuessNote too: start a practice session of its own.
+        _factory.Clock.Advance(PracticeSessions.SessionGap + TimeSpan.FromMinutes(1));
 
         var roundId = await PlayAsync(client, exerciseId);
         var answer = await ExpectedNoteAsync(exerciseId, roundId);
@@ -43,9 +46,11 @@ public class AnswerTimeTests : IClassFixture<AnswerTimeTests.Factory>
         _factory.Clock.Advance(TimeSpan.FromSeconds(30));
         (await AnswerAfterAsync(client, exerciseId, TimeSpan.FromSeconds(10))).Should().Be(10);
 
-        var history = await ReadJsonAsync(await client.GetAsync("/Dashboard/GetScoreHistory"));
-        history.EnumerateArray().Take(2).Select(row => row.GetProperty("timeSpentSeconds").GetInt32())
-            .Should().Equal([10, 42], "the history shows each answer's seconds, latest first");
+        var sessions = await ReadJsonAsync(await client.GetAsync("/Dashboard/GetScoreHistory"));
+        var session = sessions.EnumerateArray().First();
+        session.GetProperty("correct").GetInt32().Should().Be(2);
+        session.GetProperty("timeSpentSeconds").GetInt32()
+            .Should().Be(52, "the session adds up its rounds' own seconds, without the pause between them");
     }
 
     [Fact]
