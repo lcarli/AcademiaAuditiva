@@ -68,7 +68,7 @@ public class AnswerFiltersTests : IClassFixture<ExploreWebApplicationFactory>
         var play = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new { exerciseId, filters }));
         var roundId = play.TryGetProperty("roundId", out var round) ? round.GetString() : null;
         var validation = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
-            new { exerciseId, roundId, userGuess = guess, timeSpentSeconds = 3 }));
+            new { exerciseId, roundId, userGuess = guess }));
         validation.GetProperty("success").GetBoolean().Should().BeTrue();
 
         using var scope = _factory.Services.CreateScope();

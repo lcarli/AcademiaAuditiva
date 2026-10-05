@@ -106,7 +106,6 @@
       let roundId = null;
       let metadata = null;
       let staffInstance = null;
-      const exerciseStartTime = Date.now();
 
       function drawEmptyStaff() {
         window.StaffRenderer.render("#staffEditor", {
@@ -178,7 +177,6 @@
           ExerciseId: exerciseId,
           RoundId: roundId,
           userGuess: userAnswer,
-          timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
         }).then((data) => {
           if (AAi18n.serverError(data, loc)) return;
           AAi18n.result(data, loc);

@@ -3,7 +3,6 @@ public class ValidateExerciseDto
 {
     public int ExerciseId { get; set; }
     public string UserGuess { get; set; }
-    public int TimeSpentSeconds { get; set; }
 
     /// <summary>
     /// Identifier of the round previously issued by <c>RequestPlay</c>.

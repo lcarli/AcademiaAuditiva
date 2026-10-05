@@ -7,5 +7,7 @@ public class ExerciseSessionData
 
     /// <summary>The exercise filters the round was played with (see <c>AudioRound.FilterJson</c>).</summary>
     public string? FilterJson { get; set; }
+
+    /// <summary>When <c>RequestPlay</c> issued the round (UTC); the answer's time is measured from it.</summary>
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }

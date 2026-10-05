@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // the browser never learns the notes (or the answer) before validating.
   let playToken = null;
   let roundId = null;
-  let roundStartedAt = Date.now();
 
   function resetSelections() {
     answerSelects.forEach((select) => {
@@ -62,7 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
           if (AAi18n.serverError(data, loc)) return;
           playToken = data.playToken;
           roundId = data.roundId;
-          roundStartedAt = Date.now();
           resetSelections();
           if (playToken) AudioEngine.playToken(playToken);
         })
@@ -99,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
         exerciseId: exerciseId,
         roundId: roundId,
         userGuess: parts.join("|"),
-        timeSpentSeconds: Math.floor((Date.now() - roundStartedAt) / 1000),
       })
         .then((data) => {
           if (AAi18n.serverError(data, loc)) return;

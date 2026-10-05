@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const SILENCE_RMS = 0.003;
   const RMS_WINDOW = 1024;
 
-  let round = null; // { melody, startedAt }
+  let round = null; // { melody }
   let recorder = null;
   let recorderStopped = Promise.resolve();
   let recording = null; // { blob, url }
@@ -394,7 +394,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       await stopRecording();
       discardRecording();
-      round = { melody: data.melody, startedAt: Date.now() };
+      round = { melody: data.melody };
       drawStaff(round.melody);
       playStartingNote();
     } catch (err) {
@@ -465,7 +465,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await AAPractice.validate({
         exerciseId,
         userGuess: sung.map(midiToName).join("|"),
-        timeSpentSeconds: Math.floor((Date.now() - round.startedAt) / 1000),
       });
       // The server forgets the expected answer after one attempt.
       round = null;

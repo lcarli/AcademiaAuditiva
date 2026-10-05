@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let playToken = null;
   let roundId = null;
   let userGuessedNote = "";
-  const exerciseStartTime = Date.now();
 
   const guessButtons = document.querySelectorAll(".guessAnswer");
   guessButtons.forEach((button) => {
@@ -63,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ExerciseId: exerciseId,
         RoundId: roundId,
         userGuess: userGuessedNote,
-        timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
       }).then((data) => {
         if (AAi18n.serverError(data, loc)) return;
         AAi18n.result(data, loc);

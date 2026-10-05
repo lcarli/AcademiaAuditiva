@@ -150,7 +150,7 @@ public class LearningPathAnswersTests : IClassFixture<SignedInWebApplicationFact
             JsonSerializer.Serialize(new { ExpectedAnswer = expected }));
 
         var validation = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync(
-            "/Exercise/ValidateExercise", new { exerciseId, userGuess = correct ? right : wrong, timeSpentSeconds = 3 }));
+            "/Exercise/ValidateExercise", new { exerciseId, userGuess = correct ? right : wrong }));
 
         validation.GetProperty("success").GetBoolean().Should().BeTrue();
         validation.GetProperty("isCorrect").GetBoolean().Should().Be(correct);

@@ -72,7 +72,7 @@ public class SolfegeMelodyRoundTests : IClassFixture<SignedInWebApplicationFacto
             .ToList();
         notes.Should().NotBeEmpty("a melody starts with a note");
 
-        var guess = new { exerciseId, userGuess = string.Join("|", notes), timeSpentSeconds = 3 };
+        var guess = new { exerciseId, userGuess = string.Join("|", notes) };
         var validation = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise", guess));
         validation.GetProperty("success").GetBoolean().Should().BeTrue();
         validation.GetProperty("isCorrect").GetBoolean().Should().BeTrue();

@@ -119,7 +119,7 @@ public class UserReportService
                 Date = s.Timestamp.ToString("yyyy-MM-dd"),
                 Correct = s.CorrectCount,
                 Error = s.ErrorCount,
-                TimeSpent = s.TimeSpentSeconds / 60,
+                TimeSpentSeconds = s.TimeSpentSeconds,
                 Score = s.CorrectCount - s.ErrorCount
             })
             .ToList();

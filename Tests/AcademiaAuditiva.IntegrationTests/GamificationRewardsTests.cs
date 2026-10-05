@@ -103,7 +103,7 @@ public class GamificationRewardsTests : IClassFixture<SignedInWebApplicationFact
         var notes = play.GetProperty("melody").EnumerateArray()
             .Where(item => item.GetProperty("type").GetString() == "note")
             .Select(item => item.GetProperty("note").GetString());
-        var guess = new { exerciseId, userGuess = correct ? string.Join("|", notes) : "X", timeSpentSeconds = 3 };
+        var guess = new { exerciseId, userGuess = correct ? string.Join("|", notes) : "X" };
 
         var validation = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise", guess));
 
