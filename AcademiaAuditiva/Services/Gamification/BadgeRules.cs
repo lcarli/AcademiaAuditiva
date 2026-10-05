@@ -1,3 +1,6 @@
+using AcademiaAuditiva.Services.DailyChallenge;
+using AcademiaAuditiva.Services.LearningPath;
+
 namespace AcademiaAuditiva.Services.Gamification;
 
 /// <summary>
@@ -13,9 +16,10 @@ public static class BadgeRules
     private static readonly TimeSpan MarathonLength = TimeSpan.FromMinutes(20);
     private static readonly TimeSpan Week = TimeSpan.FromDays(7);
     private static readonly TimeSpan Month = TimeSpan.FromDays(30);
+    private static readonly TimeSpan SpeedsterTime = TimeSpan.FromMinutes(4);
 
     /// <param name="answers">All of the player's answers, oldest first.</param>
-    /// <param name="exercises">Taxonomy of every exercise, by id.</param>
+    /// <param name="exercises">Every exercise (name, taxonomy and filter defaults), by id.</param>
     /// <param name="timeZone">Player's time zone; streaks count local calendar days.</param>
     /// <returns>Badges earned now that are not in <paramref name="alreadyEarned"/>, in catalog order.</returns>
     public static IReadOnlyList<string> Evaluate(
@@ -48,15 +52,33 @@ public static class BadgeRules
         return awarded;
     }
 
+    /// <summary>
+    /// One badge's rule, hidden or not (<see cref="Evaluate"/> only awards available badges),
+    /// so the rules of the badges whose art is missing can be tested.
+    /// </summary>
+    internal static bool IsEarned(
+        string key,
+        IReadOnlyList<PracticeAnswer> answers,
+        IReadOnlyDictionary<int, ExerciseInfo> exercises,
+        TimeZoneInfo timeZone,
+        DateTime nowUtc) =>
+        answers.Count > 0 && IsEarned(key, new History(answers, exercises, timeZone, nowUtc));
+
     private static bool IsEarned(string key, History h) => key switch
     {
         BadgeKeys.FirstSession => h.Answers.Count > 0,
         BadgeKeys.ThreeDays => h.BestStreak >= 3,
         BadgeKeys.FiveDays => h.BestStreak >= 5,
+        BadgeKeys.SevenDays => h.BestStreak >= 7,
+        BadgeKeys.ThirtyDays => h.BestStreak >= 30,
         BadgeKeys.Marathon20Min => PracticeSessions.Split(h.Answers, MarathonGap)
             .Any(run => run[^1].Timestamp - run[0].Timestamp >= MarathonLength),
         BadgeKeys.FaithfulPractitioner => h.Sessions.Count >= 30,
         BadgeKeys.TenSessionsWeek => HasSessionsWithin(h.Sessions, 10, Week),
+        BadgeKeys.HundredSessions => h.Sessions.Count >= 100,
+        BadgeKeys.DailyChallengeComplete => h.ChallengeDays.Count >= 1,
+        BadgeKeys.Explorer => AllOf(h.ExerciseNames, name => h.PracticedNames.Contains(name)),
+        BadgeKeys.FilterNinja => h.Sessions.Count(s => s.Any(h.UsedCustomFilters)) >= 5,
 
         BadgeKeys.MasterChords => h.Exercises(e => e.Type == "ChordRecognition")
             .Count(id => PracticeSessions.HasWindow(h.Results(id), 20, 18)) >= 3,
@@ -68,6 +90,7 @@ public static class BadgeRules
             id => PracticeSessions.HasWindow(h.Results(id), 10, 8)),
         BadgeKeys.ScaleClimber => AllOf(h.Exercises(e => e.Type == "ScaleRecognition"),
             id => h.Results(id).Count(correct => correct) >= 5),
+        BadgeKeys.PerfectSession => h.Sessions.Any(s => s.Count >= 10 && s.All(a => a.IsCorrect)),
 
         BadgeKeys.ComebackKid => h.PracticedExercises.Any(id => IsComeback(h.Results(id))),
         BadgeKeys.AdvancedConqueror => h.Exercises(e => e.Difficulty == "Advanced")
@@ -77,14 +100,23 @@ public static class BadgeRules
         BadgeKeys.ResilientEar => h.PracticedExercises.Any(id => BouncedBack(h.Results(id), 3)),
         BadgeKeys.IntervalTamer => h.Exercises(e => e.Type == "IntervalRecognition")
             .Sum(id => h.SessionsOf(id).Count(s => PracticeSessions.AccuracyAtLeast(s, 80))) >= 10,
+        BadgeKeys.TotalMastery => CompletedLearningPath(h),
+
+        BadgeKeys.MissionAddict => h.ChallengeDays.Count >= 10,
+        BadgeKeys.Speedster => HasQuickRun(h.Answers, 20, 18, SpeedsterTime),
+        BadgeKeys.MysteryListener => PracticeSessions.HasWindow(h.ResultsOf("GuessNote"), 5, 5),
+        BadgeKeys.ImpossibleMelody => PracticeSessions.HasWindow(h.ResultsOf("MelodicDictation"), 3, 3),
+        BadgeKeys.AllRounder => AllOf(h.Categories, category => h.AnswersIn(category) >= 10),
+        BadgeKeys.NightOwl => h.Sessions.Any(s => h.LocalHour(s[0]) is >= 22 or < 5),
+        BadgeKeys.EarlyBird => h.Sessions.Any(s => h.LocalHour(s[0]) is >= 5 and < 7),
 
         _ => false
     };
 
-    private static bool AllOf(IEnumerable<int> exerciseIds, Func<int, bool> predicate)
+    private static bool AllOf<T>(IEnumerable<T> items, Func<T, bool> predicate)
     {
-        var ids = exerciseIds.ToList();
-        return ids.Count > 0 && ids.All(predicate);
+        var list = items.ToList();
+        return list.Count > 0 && list.All(predicate);
     }
 
     private static bool HasSessionsWithin(List<List<PracticeAnswer>> sessions, int count, TimeSpan span)
@@ -101,6 +133,32 @@ public static class BadgeRules
         results.Count >= 15
         && results.Take(5).Count(correct => correct) <= 2
         && PracticeSessions.HasWindow(results.Skip(5).ToList(), 10, 8);
+
+    // Some <size> answers in a row, any exercises, with at least <minCorrect> right and at most
+    // <within> from the first to the last.
+    private static bool HasQuickRun(IReadOnlyList<PracticeAnswer> answers, int size, int minCorrect, TimeSpan within)
+    {
+        var correct = 0;
+        for (var i = 0; i < answers.Count; i++)
+        {
+            if (answers[i].IsCorrect) correct++;
+            if (i >= size && answers[i - size].IsCorrect) correct--;
+            if (i >= size - 1 && correct >= minCorrect && answers[i].Timestamp - answers[i - size + 1].Timestamp <= within)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Every step complete, judged like the learning path page: steps whose exercise is missing
+    // are left out, and each step counts the answers on the lowest id with its exercise's name.
+    private static bool CompletedLearningPath(History h)
+    {
+        var steps = LearningPathCatalog.Steps.Where(s => h.IdsByName.ContainsKey(s.Exercise)).ToList();
+        return steps.Count > 0
+            && LearningPathEvaluator.Evaluate(steps, h.IdsByName, h.Answers).Steps.All(s => s.State == StepState.Completed);
+    }
 
     private static bool HasRisingRun(List<List<PracticeAnswer>> sessions, int length)
     {
@@ -182,8 +240,14 @@ public static class BadgeRules
         private readonly Dictionary<int, List<PracticeAnswer>> _byExercise;
         private readonly Dictionary<int, List<bool>> _results = [];
         private readonly Dictionary<int, List<List<PracticeAnswer>>> _sessionsByExercise = [];
+        private readonly Dictionary<(int ExerciseId, string FilterJson), bool> _customFilters = [];
         private List<List<PracticeAnswer>>? _sessions;
         private int? _bestStreak;
+        private HashSet<string>? _exerciseNames;
+        private HashSet<string>? _practicedNames;
+        private Dictionary<string, int>? _idsByName;
+        private Dictionary<string, int>? _answersByCategory;
+        private IReadOnlyList<DateOnly>? _challengeDays;
 
         public History(
             IReadOnlyList<PracticeAnswer> answers,
@@ -244,5 +308,67 @@ public static class BadgeRules
             }
             return sessions;
         }
+
+        /// <summary>Names of every known exercise except the microphone ones, practiced or not.</summary>
+        public IReadOnlySet<string> ExerciseNames => _exerciseNames ??= _exercises.Values
+            .Select(e => e.Name)
+            .Where(name => !MicrophoneExercises.Contains(name))
+            .ToHashSet(StringComparer.Ordinal);
+
+        /// <summary>Names of the known exercises the player answered.</summary>
+        public IReadOnlySet<string> PracticedNames => _practicedNames ??= _byExercise.Keys
+            .Where(_exercises.ContainsKey)
+            .Select(id => _exercises[id].Name)
+            .ToHashSet(StringComparer.Ordinal);
+
+        /// <summary>Exercise name → its lowest id, the one the learning path uses.</summary>
+        public IReadOnlyDictionary<string, int> IdsByName => _idsByName ??= _exercises.Values
+            .GroupBy(e => e.Name, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.Min(e => e.ExerciseId), StringComparer.Ordinal);
+
+        /// <summary>Categories of every known exercise except the microphone ones.</summary>
+        public IEnumerable<string> Categories => _exercises.Values
+            .Where(e => e.Category.Length > 0 && !MicrophoneExercises.Contains(e.Name))
+            .Select(e => e.Category)
+            .Distinct(StringComparer.Ordinal);
+
+        /// <summary>Answers, right or wrong, to any exercise of the category.</summary>
+        public int AnswersIn(string category)
+        {
+            _answersByCategory ??= Answers
+                .Where(a => _exercises.ContainsKey(a.ExerciseId))
+                .GroupBy(a => _exercises[a.ExerciseId].Category, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+            return _answersByCategory.GetValueOrDefault(category);
+        }
+
+        /// <summary>Right/wrong results of every exercise with that name, oldest first.</summary>
+        public IReadOnlyList<bool> ResultsOf(string exerciseName) => Answers
+            .Where(a => _exercises.TryGetValue(a.ExerciseId, out var exercise) && exercise.Name == exerciseName)
+            .Select(a => a.IsCorrect)
+            .ToList();
+
+        /// <summary>The local dates whose daily challenge the player completed.</summary>
+        public IReadOnlyList<DateOnly> ChallengeDays => _challengeDays ??= DailyChallengeRules.CompletedDays(
+            _exercises.Values.Select(e => new ChallengeExercise(e.ExerciseId, e.Name, e.Category)).ToList(),
+            Answers,
+            TimeZone);
+
+        /// <summary>True when the answer was played with some filter on another option than the one it starts on.</summary>
+        public bool UsedCustomFilters(PracticeAnswer answer)
+        {
+            if (answer.FilterJson is null || !_exercises.TryGetValue(answer.ExerciseId, out var exercise)) return false;
+
+            var key = (answer.ExerciseId, answer.FilterJson);
+            if (!_customFilters.TryGetValue(key, out var custom))
+            {
+                custom = ExerciseFilterPresets.Parse(answer.FilterJson)
+                    .Any(f => exercise.DefaultFilters.TryGetValue(f.Key, out var first) && f.Value != first);
+                _customFilters[key] = custom;
+            }
+            return custom;
+        }
+
+        public int LocalHour(PracticeAnswer answer) => PracticeStreak.LocalTime(answer.Timestamp, TimeZone).Hour;
     }
 }

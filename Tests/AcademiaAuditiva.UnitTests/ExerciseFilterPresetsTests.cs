@@ -52,6 +52,42 @@ public class ExerciseFilterPresetsTests
     }
 
     [Fact]
+    public void Defaults_AreTheFirstOptionOfEachGroup()
+    {
+        ExerciseFilterPresets.Defaults(KeyAndScale).Should().BeEquivalentTo(new Dictionary<string, string>
+        {
+            ["keySelect"] = "C",
+            ["scaleTypeSelect"] = "major",
+        });
+    }
+
+    [Fact]
+    public void Defaults_KeepAnEmptyFirstOption_AndTheFirstGroupOfARepeatedName()
+    {
+        var groups = new List<FilterOptionGroup>
+        {
+            new() { Name = "keySelect", Label = "Exercise.Key", Options = new() { new("", "Exercise.Any"), new("C", "C") } },
+            new() { Name = "keySelect", Label = "Exercise.Key", Options = new() { new("D", "D") } },
+        };
+
+        ExerciseFilterPresets.Defaults(groups).Should().BeEquivalentTo(new Dictionary<string, string> { ["keySelect"] = "" });
+    }
+
+    [Fact]
+    public void Defaults_SkipGroupsWithoutANameOrOptions()
+    {
+        var groups = new List<FilterOptionGroup>
+        {
+            new() { Name = "keySelect", Label = "Exercise.Key", Options = new() },
+            new() { Name = "scaleTypeSelect", Label = "Exercise.ScaleType", Options = null! },
+            new() { Name = null!, Label = "Exercise.Key", Options = new() { new("C", "C") } },
+            new() { Name = "octaveSelect", Label = "Exercise.Octave", Options = new() { new(null!, "Exercise.Any"), new("3", "3") } },
+        };
+
+        ExerciseFilterPresets.Defaults(groups).Should().BeEmpty();
+    }
+
+    [Fact]
     public void Parse_KeepsStringAndIntegerValues_Only()
     {
         const string json = """

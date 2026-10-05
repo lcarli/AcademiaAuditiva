@@ -114,13 +114,24 @@ public sealed class GamificationService : IGamificationService
     {
         var answers = await _history.GetAsync(userId, ct);
 
-        var exercises = await _db.Exercises.AsNoTracking()
-            .Select(e => new ExerciseInfo(
+        var exercises = (await _db.Exercises.AsNoTracking()
+                .Select(e => new
+                {
+                    e.ExerciseId,
+                    e.Name,
+                    Type = e.ExerciseType != null ? e.ExerciseType.Name : "",
+                    Category = e.ExerciseCategory != null ? e.ExerciseCategory.Name : "",
+                    Difficulty = e.DifficultyLevel != null ? e.DifficultyLevel.Name : "",
+                    e.FiltersJson,
+                })
+                .ToListAsync(ct))
+            .ToDictionary(e => e.ExerciseId, e => new ExerciseInfo(
                 e.ExerciseId,
-                e.ExerciseType != null ? e.ExerciseType.Name : "",
-                e.ExerciseCategory != null ? e.ExerciseCategory.Name : "",
-                e.DifficultyLevel != null ? e.DifficultyLevel.Name : ""))
-            .ToDictionaryAsync(e => e.ExerciseId, ct);
+                e.Name,
+                e.Type,
+                e.Category,
+                e.Difficulty,
+                ExerciseFilterPresets.Defaults(ExerciseFilterPresets.Groups(e.FiltersJson))));
 
         var state = new PlayerState(answers, exercises);
         await LoadEarnedAsync(userId, state, ct);

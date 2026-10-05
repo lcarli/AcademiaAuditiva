@@ -69,8 +69,10 @@ public static class PracticeStreak
         return new StreakInfo(current, best, practicedToday);
     }
 
-    public static DateOnly LocalDate(DateTime utc, TimeZoneInfo timeZone) =>
-        DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), timeZone));
+    public static DateOnly LocalDate(DateTime utc, TimeZoneInfo timeZone) => DateOnly.FromDateTime(LocalTime(utc, timeZone));
+
+    public static DateTime LocalTime(DateTime utc, TimeZoneInfo timeZone) =>
+        TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), timeZone);
 }
 
 /// <summary>

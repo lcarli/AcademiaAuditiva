@@ -170,6 +170,58 @@ public class DailyChallengeRulesTests
         progress.Items.Single(i => i.Exercise == "GuessNote").Answered.Should().Be(2);
     }
 
+    [Fact]
+    public void CompletedDays_ListsTheDaysWhoseChallengeWasCompleted_OldestFirst()
+    {
+        List<PracticeAnswer> answers =
+        [
+            .. Complete(Noon),
+            .. Complete(Noon.AddDays(-1)).Skip(1),
+            .. Complete(Noon.AddDays(-2)),
+            new(99, true, Noon.AddDays(-3)),
+        ];
+
+        DailyChallengeRules.CompletedDays(Three, answers, TimeZoneInfo.Utc).Should().Equal(Day.AddDays(-2), Day);
+    }
+
+    [Fact]
+    public void CompletedDays_CountsAnswersOnThePlayersCalendarDay()
+    {
+        var toronto = TimeZoneInfo.FindSystemTimeZoneById("America/Toronto");
+        // Oct 6, 02:00 UTC is still Oct 5, 22:00 in Toronto.
+        var answers = Complete(new DateTime(2026, 10, 6, 2, 0, 0, DateTimeKind.Utc));
+
+        DailyChallengeRules.CompletedDays(Three, answers, toronto).Should().Equal(Day);
+        DailyChallengeRules.CompletedDays(Three, answers, TimeZoneInfo.Utc).Should().Equal(Day.AddDays(1));
+    }
+
+    [Fact]
+    public void CompletedDays_AgreesWithEvaluate()
+    {
+        var exercises = Seeded.Value;
+        var dates = Enumerable.Range(0, 30).Select(i => Day.AddDays(i)).ToList();
+        var answers = dates
+            .SelectMany((date, i) =>
+            {
+                var day = Complete(date.ToDateTime(new TimeOnly(12, 0), DateTimeKind.Utc), DailyChallengeRules.Pick(date, exercises));
+                // Every third day stops one answer short.
+                return i % 3 == 0 ? day.SkipLast(1) : day;
+            })
+            .ToList();
+
+        var completed = DailyChallengeRules.CompletedDays(exercises, answers, TimeZoneInfo.Utc);
+
+        completed.Should().HaveCount(20)
+            .And.Equal(dates.Where(d => DailyChallengeRules.Evaluate(d, exercises, answers, TimeZoneInfo.Utc).IsComplete));
+    }
+
+    // Each exercise answered as many times as the challenge asks, a minute apart from <from>.
+    private static List<PracticeAnswer> Complete(DateTime from, IEnumerable<ChallengeExercise>? exercises = null) =>
+        (exercises ?? Three)
+            .SelectMany(e => Enumerable.Repeat(e.ExerciseId, DailyChallengeRules.Target(e.Name)))
+            .Select((id, i) => new PracticeAnswer(id, false, from.AddMinutes(i)))
+            .ToList();
+
     private static IReadOnlyList<ChallengeExercise> LoadSeededExercises()
     {
         using var db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>()

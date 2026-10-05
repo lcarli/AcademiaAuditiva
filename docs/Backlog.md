@@ -17,8 +17,9 @@ The modernization plan is done (#47 to #83):
   (#53, #56, #70, #82).
 - **Exercises**: 19 exercises on piano, guitar and violin, plus Explore and
   free practice (#58, #60, #75 to #78).
-- **Engagement**: XP, levels, streaks, 18 badges with their own medal art, the
-  learning path, the tutorial and the daily challenge (#72 to #74, #94, #97).
+- **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
+  more wait for theirs), the learning path, the tutorial and the daily
+  challenge (#72 to #74, #94, #97).
 - **Accounts**: privacy policy, data export and deletion, admin lock, unlock
   and delete, and lockout after failed sign-ins with a rate limit on the
   account forms (#57, #65, #80, #81, #93).
@@ -237,42 +238,28 @@ returns to the login page with a message.
 
 If #31 goes ahead, Entra External ID could provide social sign-in instead.
 
-### #16: the remaining badges and their artwork
+### #16: the art of the hidden badges
 
-#72 shipped 18 badges, and #94 replaced their icons with medal art. Eight more
-are seeded but hidden (`IsAvailable: false` in
-`AcademiaAuditiva/Services/Gamification/BadgeCatalog.cs:82-89`). Nothing in the
-app can award them yet. Two recent features give some of them a basis:
+#72 shipped 18 badges, and #94 replaced their icons with medal art. Fifteen
+more have their rules, tests and texts in the three languages, but stay hidden
+(`IsAvailable: false` in
+`AcademiaAuditiva/Services/Gamification/BadgeCatalog.cs`) until their art is
+ready: the eight seeded with #72, whose rules now use the recorded filters
+(#96), the daily challenge (#97) and the learning path, and seven new ones
+(longer streaks, 100 sessions, a perfect session, all categories, night owl
+and early bird). [badges.md](../badges.md#hidden-badges) lists their rules and
+has an art prompt for each.
 
-- Answers record the exercise filters they were played with
-  (`ScoreSnapshot.FilterJson`, null on older answers), which the filter rules
-  can use.
-- The dashboard has a daily challenge (#97): three exercises from different
-  categories, the same for everyone on a given local day. With `Pick` and
-  `Target` in `AcademiaAuditiva/Services/DailyChallenge/DailyChallengeRules.cs`,
-  the saved answers tell which days a player completed.
+**What to do.** For each badge, generate its art, export it with
+`python scripts/export-badge-art.py <key> <png>` and remove its
+`IsAvailable: false`. Players who already meet a released badge's rule get it
+with their next answer. When all of them are out, raise
+`BadgeRules.BadgeCollectorThreshold` from 15 to 20 and change the 15 in the
+`Badge.badge_collector.Description` texts (3 resx files), its seed row and its
+prompt in badges.md.
 
-The hidden badges:
-
-| Badge key | Seeded rule (`AcademiaAuditiva/Data/SeedData.cs`) | Missing feature |
-|---|---|---|
-| `explorer` | Used every filter once (:979) | A rule over the recorded filters, or reward the Explore page (#76) instead |
-| `filter_ninja` | Custom filter combinations in 5 sessions (:980) | A rule over the recorded filters |
-| `daily_challenge_complete` | Finished all of the day's exercises (:983) | A rule over the completed daily challenges |
-| `total_mastery` | 100% on an exercise with every filter (:989) | A rule over the recorded filters |
-| `mission_addict` | Finished 10 mixed challenges (:995) | Missions, or a count of completed daily challenges |
-| `speedster` | 90% correct in a speed test (:996) | A speed test mode |
-| `mystery_listener` | Got an "impossible" question right in a fully random mode (:997) | A fully random mode |
-| `impossible_melody` | Got an altered melody with a hidden rest right (:998) | That melody variant |
-
-Each of them also needs its art. [badges.md](../badges.md) has the style guide
-and a prompt for every badge, the hidden ones included, and explains how
-`scripts/export-badge-art.py` puts an approved image in
-`AcademiaAuditiva/wwwroot/img/badges`.
-
-**Done when.** Each badge has a rule, tests, texts in the three cultures and its
-art, and its `IsAvailable: false` is gone (`BadgeArtTests` then requires the
-art). The owner approves any artwork.
+**Done when.** No badge is hidden and the collector badge asks for 20 others.
+The owner approves any artwork.
 
 ### #31: Microsoft Entra External ID
 
