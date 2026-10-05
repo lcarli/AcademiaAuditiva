@@ -353,6 +353,20 @@ test('on a phone the header menus open over the page and stay on screen', async 
   await expectHeaderMenuUsable(page, '.aa-site-header .dropdown-toggle.aa-ghost-btn');
 });
 
+test('public pages never scroll sideways on phones, tablets or small laptops', async ({ page, baseURL }) => {
+  const paths = [...cultures.map(c => `/?culture=${c}&ui-culture=${c}`), '/Exercise', '/Home/Privacy', '/Identity/Account/Login', '/Identity/Account/Register'];
+  for (const path of paths) {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await page.goto(`${baseURL}${path}`, { waitUntil: 'networkidle' });
+    // Below 1200 px <main> fills the screen, so a row gutter wider than its padding sticks out.
+    for (const width of [360, 768, 1024]) {
+      await page.setViewportSize({ width, height: 740 });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, `${path} at ${width} px`).toBe(0);
+    }
+  }
+});
+
 test('each tour step brings its element out from under the header', async ({ page, baseURL }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1024, height: 600 });

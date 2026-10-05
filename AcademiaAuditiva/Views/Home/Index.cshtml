@@ -21,7 +21,8 @@
 }
 
 <section class="aa-hero" aria-labelledby="aa-hero-title">
-    <div class="row align-items-center g-5">
+    @* Below xl, <main> fills the screen, so a gutter wider than gx-4 would make the page scroll sideways. *@
+    <div class="row align-items-center gx-4 gx-xl-5 gy-5">
         <div class="col-lg-7">
             <span class="aa-eyebrow">@Localizer["Home.Hero.Eyebrow"]</span>
             <h1 id="aa-hero-title" class="aa-hero-title">@Localizer["Home.Hero.Title"]</h1>
@@ -178,7 +179,7 @@
 </section>
 
 <section class="aa-section" aria-labelledby="aa-faq-title">
-    <div class="row g-4 g-lg-5">
+    <div class="row g-4 g-xl-5">
         <div class="col-lg-4">
             <div class="aa-section-head mb-0">
                 <span class="aa-eyebrow">@Localizer["Home.Faq.Badge"]</span>
