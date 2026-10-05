@@ -103,6 +103,20 @@ public static class BadgeCatalog
 
     public static IReadOnlyList<BadgeDefinition> Available { get; } = All.Where(b => b.IsAvailable).ToArray();
 
+    /// <summary>
+    /// The medals on the home page, with every group's colour, in display order.
+    /// A badge that is not available is left out.
+    /// </summary>
+    public static IReadOnlyList<BadgeDefinition> Showcase { get; } =
+        new[]
+        {
+            BadgeKeys.FirstSession, BadgeKeys.MasterChords, BadgeKeys.ComebackKid,
+            BadgeKeys.FiveDays, BadgeKeys.SharpListener, BadgeKeys.BadgeCollector,
+        }
+        .Select(key => Available.FirstOrDefault(b => b.Key == key))
+        .OfType<BadgeDefinition>()
+        .ToArray();
+
     public static IReadOnlyList<BadgeGroup> Groups { get; } =
         [BadgeGroup.Dedication, BadgeGroup.Mastery, BadgeGroup.Progress, BadgeGroup.Fun];
 

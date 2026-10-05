@@ -1,10 +1,10 @@
 # Badge art prompts
 
 Prompts for generating the badge artwork with ChatGPT (issue #16). Each badge is a circular medal: a ring in the
-group colour, a navy face and one bold emblem. The app shows badges at 64 px on the badges page and in the
-celebration, and at 40 px on the dashboard, in light and dark themes, so the emblem must stay readable at 40 px.
-Badges carry no words, because the site comes in three languages. [Using the images in the app](#using-the-images-in-the-app)
-explains how an approved image gets into the app.
+group colour, a navy face and one bold emblem. The app shows badges at 88 px on the home page, at 64 px on the badges
+page and in the celebration, and at 40 px on the dashboard, in light and dark themes, so the emblem must stay readable
+at 40 px. Badges carry no words, because the site comes in three languages.
+[Using the images in the app](#using-the-images-in-the-app) explains how an approved image gets into the app.
 
 ## How to use
 
@@ -501,8 +501,9 @@ the PNG the medal fills, which should be about 92%.
 
 - `Url.BadgeImage(key)` (`AcademiaAuditiva/Services/Gamification/BadgeDisplay.cs`) adds a hash of the file to the
   image URL, so browsers fetch a replaced image at once. The badges page (`Views/Shared/_BadgeMedal.cshtml`), the
-  dashboard (`Views/Dashboard/Index.cshtml`) and the celebration after an answer (`ExerciseController.BuildRewards`
-  sends the URL to `wwwroot/js/core/rewards.js`) all use it.
+  dashboard (`Views/Dashboard/Index.cshtml`), the home page (`Views/Home/Index.cshtml`, which shows the six badges of
+  `BadgeCatalog.Showcase`) and the celebration after an answer (`ExerciseController.BuildRewards` sends the URL to
+  `wwwroot/js/core/rewards.js`) all use it.
 - The images have `alt=""`, since the badge title is always shown or read next to them.
 - The locked state comes from CSS (grayscale and lower opacity), so no locked artwork is needed.
 - `BadgeArtTests` fails if a badge players can earn has no image, or if an image is not named after a badge. A hidden

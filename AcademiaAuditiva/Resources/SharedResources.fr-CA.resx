@@ -1868,6 +1868,15 @@
   <data name="Home.Exercises.Lead" xml:space="preserve">
     <value>Des notes isolées au solfège, sur trois niveaux de difficulté.</value>
   </data>
+  <data name="Home.Badges.Badge" xml:space="preserve">
+    <value>Badges</value>
+  </data>
+  <data name="Home.Badges.Title" xml:space="preserve">
+    <value>Gagnez des badges en vous entraînant</value>
+  </data>
+  <data name="Home.Badges.Lead" xml:space="preserve">
+    <value>Vous entraîner plusieurs jours de suite, maîtriser un exercice ou remonter la pente vous rapporte des badges pour votre collection.</value>
+  </data>
   <data name="Home.Roles.TeacherNote" xml:space="preserve">
     <value>Le profil enseignant est activé par l'administrateur.</value>
   </data>

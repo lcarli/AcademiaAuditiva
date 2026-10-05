@@ -1868,6 +1868,15 @@
   <data name="Home.Exercises.Lead" xml:space="preserve">
     <value>De notas isoladas ao solfejo, em três níveis de dificuldade.</value>
   </data>
+  <data name="Home.Badges.Badge" xml:space="preserve">
+    <value>Conquistas</value>
+  </data>
+  <data name="Home.Badges.Title" xml:space="preserve">
+    <value>Desbloqueie conquistas enquanto treina</value>
+  </data>
+  <data name="Home.Badges.Lead" xml:space="preserve">
+    <value>Treinar vários dias seguidos, dominar um exercício ou dar a volta por cima rende conquistas para a sua coleção.</value>
+  </data>
   <data name="Home.Roles.TeacherNote" xml:space="preserve">
     <value>O perfil de professor é ativado pelo administrador.</value>
   </data>
