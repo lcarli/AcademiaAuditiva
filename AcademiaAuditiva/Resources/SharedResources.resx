@@ -1868,6 +1868,15 @@
   <data name="Home.Exercises.Lead" xml:space="preserve">
     <value>From single notes to sight-singing, across three difficulty levels.</value>
   </data>
+  <data name="Home.Badges.Badge" xml:space="preserve">
+    <value>Badges</value>
+  </data>
+  <data name="Home.Badges.Title" xml:space="preserve">
+    <value>Earn badges as you train</value>
+  </data>
+  <data name="Home.Badges.Lead" xml:space="preserve">
+    <value>Training several days in a row, mastering an exercise or bouncing back after a rough start earns badges for your collection.</value>
+  </data>
   <data name="Home.Roles.TeacherNote" xml:space="preserve">
     <value>Teacher accounts are enabled by the administrator.</value>
   </data>

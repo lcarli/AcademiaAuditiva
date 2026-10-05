@@ -1277,6 +1277,40 @@ a:focus-visible {
     line-height: 1.45;
 }
 
+/* A few medals (BadgeCatalog.Showcase): three per row on phones, six on wider screens. */
+.aa-medal-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.75rem .75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.aa-medal-strip > li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .65rem;
+    font-family: var(--aa-font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -.01em;
+    text-align: center;
+}
+
+.aa-medal-strip .aa-medal-disc {
+    width: 5.5rem;
+    height: 5.5rem;
+}
+
+@media (min-width: 768px) {
+    .aa-medal-strip {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+
 .aa-roles-panel {
     margin-top: 1.5rem;
     padding: clamp(1.25rem, 3vw, 2rem);

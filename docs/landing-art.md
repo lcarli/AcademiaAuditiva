@@ -170,7 +170,7 @@ The eight images go into the home page together, once all of them are approved (
    - use `alt=""`, because the text beside each image already says the same thing;
    - use `loading="lazy"` on every image except the hero;
    - add `asp-append-version`, so browsers fetch a new export right away.
-3. Add a test that every image on the home page is served as WebP. Then check the page in the light and dark themes
-   and on a phone.
+3. Run `HomePageTests`, which checks that every image on the home page is served as WebP. Then check the page in the
+   light and dark themes and on a phone.
 
 To replace an image later, export its new PNG over the old file.

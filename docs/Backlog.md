@@ -241,11 +241,11 @@ The owner approves any artwork.
 
 ### #101: the landing page art
 
-The home page is all text; its only picture is a small staff in the hero. #101
-adds eight illustrations in the style of the medals, generated with ChatGPT.
-[landing-art.md](landing-art.md) has the style guide, a prompt for each image
-and the checks, and `scripts/export-landing-art.py` exports and previews each
-image.
+Apart from a row of six medals, the home page is all text, with a small staff in
+the hero. #101 adds eight illustrations in the style of the medals, generated
+with ChatGPT. [landing-art.md](landing-art.md) has the style guide, a prompt for
+each image and the checks, and `scripts/export-landing-art.py` exports and
+previews each image.
 
 **What to do.** Once the owner approves all eight images, export them and put
 them on the home page as

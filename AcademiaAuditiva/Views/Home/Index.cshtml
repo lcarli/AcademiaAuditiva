@@ -1,4 +1,5 @@
 @using System.Globalization
+@using AcademiaAuditiva.Services.Gamification
 @using Microsoft.AspNetCore.Html
 @{
     ViewData["Title"] = Localizer["Home.PageTitle"].Value;
@@ -108,6 +109,23 @@
                         <span class="aa-ex-item-sub">@Localizer[$"Exercise.{name}.Subtitle"]</span>
                     </span>
                 </a>
+            </li>
+        }
+    </ul>
+</section>
+
+<section class="aa-section" aria-labelledby="aa-badges-title">
+    <div class="aa-section-head">
+        <span class="aa-eyebrow">@Localizer["Home.Badges.Badge"]</span>
+        <h2 id="aa-badges-title" class="aa-section-title">@Localizer["Home.Badges.Title"]</h2>
+        <p>@Localizer["Home.Badges.Lead"]</p>
+    </div>
+    <ul class="aa-medal-strip">
+        @foreach (var badge in BadgeCatalog.Showcase)
+        {
+            <li>
+                <span class="aa-medal-disc" aria-hidden="true"><img src="@Url.BadgeImage(badge.Key)" alt="" width="192" height="192" loading="lazy" decoding="async" /></span>
+                @Localizer[$"Badge.{badge.Key}.Title"]
             </li>
         }
     </ul>
