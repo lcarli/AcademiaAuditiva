@@ -16,7 +16,7 @@ public class AudioTokenServiceTests
     private const string Clip = "piano-audio-mixed/mix-abc.wav";
 
     private readonly AudioTokenService _service =
-        new(new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())));
+        new(new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())), TimeProvider.System);
 
     [Fact]
     public async Task IssuedToken_ResolvesToItsClip_OnlyForItsUser()
@@ -43,7 +43,7 @@ public class AudioTokenServiceTests
     public async Task IssuedToken_ExpiresFifteenMinutesAfterItIsIssued_EvenIfUsed()
     {
         var cache = new Mock<IDistributedCache>();
-        var token = await new AudioTokenService(cache.Object).IssueTokenAsync("alice", Clip);
+        var token = await new AudioTokenService(cache.Object, TimeProvider.System).IssueTokenAsync("alice", Clip);
 
         cache.Verify(c => c.SetAsync(
             $"AudioToken:alice:{token}",
@@ -101,13 +101,27 @@ public class AudioTokenServiceTests
         await cache.SetStringAsync("ExerciseRound:alice:7:abc",
             """{"RoundId":"abc","ExpectedAnswerJson":"{\"note\":\"C4\"}","TokenToBlob":{"t1":"C4.mp3"}}""");
 
-        var round = await new AudioTokenService(cache).GetRoundAsync("alice", 7, "abc");
+        var round = await new AudioTokenService(cache, TimeProvider.System).GetRoundAsync("alice", 7, "abc");
 
         round.Should().NotBeNull();
         round!.Free.Should().BeFalse();
         round.FilterJson.Should().BeNull("rounds cached before filters were saved have none");
+        round.IssuedAt.Should().BeNull("rounds cached before answer times were measured have none");
         round.ExpectedAnswerJson.Should().Be("""{"note":"C4"}""");
         round.Tokens.Should().Equal("t1");
+    }
+
+    [Fact]
+    public async Task Rounds_RememberWhenTheyWereIssued()
+    {
+        var issuedAt = new DateTimeOffset(2026, 10, 5, 14, 30, 15, 250, TimeSpan.Zero);
+        var service = new AudioTokenService(
+            new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())), new FixedClock(issuedAt));
+
+        var round = await service.CreateRoundAsync("alice", 7, "{}", ["C4.mp3"]);
+
+        round.IssuedAt.Should().Be(issuedAt);
+        (await service.GetRoundAsync("alice", 7, round.RoundId))!.IssuedAt.Should().Be(issuedAt);
     }
 
     [Fact]
@@ -132,5 +146,10 @@ public class AudioTokenServiceTests
     {
         await FluentActions.Awaiting(() => _service.IssueTokenAsync(userId!, address!))
             .Should().ThrowAsync<ArgumentException>();
+    }
+
+    private sealed class FixedClock(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 }

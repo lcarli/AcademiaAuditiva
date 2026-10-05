@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let roundId = null;
   let metadata = null;
   let staffInstance = null;
-  const exerciseStartTime = Date.now();
 
   function filterValues() {
     const filters = {};
@@ -122,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ExerciseId: exerciseId,
       RoundId: roundId,
       userGuess: userAnswer,
-      timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
     }).then((data) => {
       if (AAi18n.serverError(data, loc)) return;
       AAi18n.result(data, loc);

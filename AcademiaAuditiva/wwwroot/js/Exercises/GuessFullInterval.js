@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let playToken = null;
   let roundId = null;
   let selectedGuess = "";
-  let exerciseStartTime = Date.now();
 
   const exerciseId = document.getElementById("exerciseId")?.value;
   const keySelect = document.getElementById("keySelect");
@@ -79,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
         exerciseId: exerciseId,
         roundId: roundId,
         userGuess: selectedGuess,
-        timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000),
       }).then((data) => {
         if (AAi18n.serverError(data, loc)) return;
         AAi18n.result(data, loc);

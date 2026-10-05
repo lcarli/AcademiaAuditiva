@@ -2,7 +2,7 @@
 
 What is left to do on Academia Auditiva, in priority order. Written on
 2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`; line
-numbers refer to `07d6776` (`ef42bfa` in item 4). Each item says why it
+numbers refer to `07d6776` (`ef42bfa` in item 3). Each item says why it
 matters, where to look, what to do and when it is done. New ideas go to GitHub
 issues.
 
@@ -16,7 +16,8 @@ The modernization plan is done (#47 to #83):
 - **Look and languages**: the visual identity, and full en-US, pt-BR and fr-CA
   (#53, #56, #70, #82).
 - **Exercises**: 19 exercises on piano, guitar and violin, plus Explore and
-  free practice (#58, #60, #75 to #78).
+  free practice (#58, #60, #75 to #78). The server times each answer, so the
+  dashboard shows real practice time (#99).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -78,31 +79,7 @@ throws (`MembersController.cs:127-131`).
 **Done when.** Without SMTP, a teacher copies the link and the student joins.
 Integration tests cover both modes.
 
-### 2. Fix the inflated practice time
-
-**Why.** Each exercise script sets `exerciseStartTime` once, when the page
-loads (for example `AcademiaAuditiva/wwwroot/js/Exercises/GuessNote.js:14`).
-Every answer then sends the time since page load (`GuessNote.js:66`), so the
-tenth answer on a page reports the whole visit. The dashboard's total time adds
-these values up (`AcademiaAuditiva/Controllers/DashboardController.cs:65`).
-`AcademiaAuditiva/Services/UserReportService.cs:292`, `:506`, `:513`, `:521`
-and `:530` average or sum the same field.
-
-**What.**
-
-- Time each round. Choose one way:
-  - restart the clock when a round starts, in the 14 scripts that set
-    `exerciseStartTime`;
-  - or compute the time on the server, from when `RequestPlay` issued the
-    round, and stop trusting the client value
-    (`AcademiaAuditiva/Controllers/ExerciseController.cs:324`, `:334`, `:376`).
-- Cap a single answer, for example at 5 minutes.
-- Decide what to do with existing rows; capping them in the queries would do.
-
-**Done when.** Tests show per-round times, and the dashboard total matches real
-practice time.
-
-### 3. Settle the Essentia.js license (AGPL-3.0)
+### 2. Settle the Essentia.js license (AGPL-3.0)
 
 **Why.** Sight-singing (`SolfegeMelody`) detects the sung pitch with
 Essentia.js. Its files carry the AGPL-3.0 notice, while the app is MIT. The
@@ -132,7 +109,7 @@ doubt, ask someone qualified.
 gone and sight-singing still recognizes sung notes. Either way, the readme's
 third-party table matches.
 
-### 4. Create the contato@ inbox
+### 3. Create the contato@ inbox
 
 **Why.** `contato@academiaauditiva.com` is the only address the site gives for
 reaching us, but the domain has no MX record, so mail to it bounces.
@@ -203,7 +180,7 @@ API key with sending access to `academiaauditiva.com` only.
 
 **Still to do.**
 
-- The `contato@` inbox ([item 4](#4-create-the-contato-inbox)).
+- The `contato@` inbox ([item 3](#3-create-the-contato-inbox)).
 - Add a DMARC report address (`rua=`), and once the reports are clean, move
   from `p=none` to `quarantine`.
 
@@ -285,7 +262,7 @@ These are outside the repo:
 - Confirm the Facebook App Secret was reset (see
   [Facebook sign-in](#facebook-sign-in-off-in-production)).
 - Choose and create the `contato@` inbox, and add its DNS records (see
-  [item 4](#4-create-the-contato-inbox)).
+  [item 3](#3-create-the-contato-inbox)).
 
 ## Watch
 

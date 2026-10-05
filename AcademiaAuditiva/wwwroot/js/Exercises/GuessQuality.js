@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let playToken = null;
     let roundId = null;
     let selectedGuess = "";
-    let exerciseStartTime = Date.now();
 
     const exerciseId = document.getElementById("exerciseId")?.value;
     const chordGroupSelect = document.getElementById("chordGroup");
@@ -67,8 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
             AAPractice.validate({
                 exerciseId: exerciseId,
                 roundId: roundId,
-                userGuess: selectedGuess,
-                timeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
+                userGuess: selectedGuess
             })
                 .then(data => {
                     if (AAi18n.serverError(data, loc)) return;

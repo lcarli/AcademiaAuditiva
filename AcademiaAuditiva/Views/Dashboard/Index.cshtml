@@ -436,6 +436,7 @@
                 });
 
             // Histórico
+            const formatDuration = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
             fetch("/Dashboard/GetScoreHistory")
                 .then(res => res.json())
                 .then(data => {
@@ -447,7 +448,7 @@
                                 <td>${row.date}</td>
                                 <td><span class="text-success fw-semibold">${row.correct}</span></td>
                                 <td><span class="text-danger fw-semibold">${row.error}</span></td>
-                                <td>${row.timeSpent}</td>
+                                <td>${formatDuration(row.timeSpentSeconds)}</td>
                                 <td><span class="aa-badge-soft">${row.score}</span></td>
                             `;
                         tbody.appendChild(tr);

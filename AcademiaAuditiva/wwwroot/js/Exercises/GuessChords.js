@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let roundId = null;
     let userRoot = "";
     let userQuality = "major";
-    const exerciseStartTime = Date.now();
 
     const rootButtons = document.querySelectorAll(".guessAnswer");
     rootButtons.forEach(btn => {
@@ -79,8 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
             AAPractice.validate({
                 ExerciseId: exerciseId,
                 RoundId: roundId,
-                UserGuess: userRoot + "|" + userQuality,
-                TimeSpentSeconds: Math.floor((Date.now() - exerciseStartTime) / 1000)
+                UserGuess: userRoot + "|" + userQuality
             })
             .then(data => {
                 if (AAi18n.serverError(data, loc)) return;

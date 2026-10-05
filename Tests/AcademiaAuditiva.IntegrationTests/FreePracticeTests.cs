@@ -54,7 +54,7 @@ public class FreePracticeTests : IClassFixture<FreePracticeTests.Factory>
         elsewhere.GetProperty("success").GetBoolean().Should().BeFalse();
 
         var validation = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
-            new { exerciseId, roundId, userGuess = answer, timeSpentSeconds = 3 }));
+            new { exerciseId, roundId, userGuess = answer }));
         validation.EnumerateObject().Select(p => p.Name).Should().Equal("success", "free", "isCorrect", "answer", "message");
         validation.GetProperty("success").GetBoolean().Should().BeTrue();
         validation.GetProperty("free").GetBoolean().Should().BeTrue();
@@ -64,7 +64,7 @@ public class FreePracticeTests : IClassFixture<FreePracticeTests.Factory>
 
         // An answered round is used up, free or not.
         var replay = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
-            new { exerciseId, roundId, userGuess = answer, timeSpentSeconds = 3 }));
+            new { exerciseId, roundId, userGuess = answer }));
         replay.GetProperty("success").GetBoolean().Should().BeFalse();
         var late = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RevealAnswer", new { exerciseId, roundId }));
         late.GetProperty("success").GetBoolean().Should().BeFalse();
@@ -86,7 +86,7 @@ public class FreePracticeTests : IClassFixture<FreePracticeTests.Factory>
         var wrong = expected.StartsWith('C') ? "D" : "C";
 
         var validation = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
-            new { exerciseId, roundId, userGuess = wrong, timeSpentSeconds = 3 }));
+            new { exerciseId, roundId, userGuess = wrong }));
 
         validation.GetProperty("free").GetBoolean().Should().BeTrue();
         validation.GetProperty("isCorrect").GetBoolean().Should().BeFalse();
@@ -110,7 +110,7 @@ public class FreePracticeTests : IClassFixture<FreePracticeTests.Factory>
 
         var answer = await ExpectedNoteAsync(exerciseId, roundId!);
         var validation = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
-            new { exerciseId, roundId, userGuess = answer, timeSpentSeconds = 3, free = true }));
+            new { exerciseId, roundId, userGuess = answer, free = true }));
 
         validation.GetProperty("success").GetBoolean().Should().BeTrue();
         validation.TryGetProperty("free", out _).Should().BeFalse();
@@ -139,7 +139,7 @@ public class FreePracticeTests : IClassFixture<FreePracticeTests.Factory>
             .Select(item => item.GetProperty("note").GetString());
 
         var validation = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
-            new { exerciseId, userGuess = string.Join("|", notes), timeSpentSeconds = 3 }));
+            new { exerciseId, userGuess = string.Join("|", notes) }));
 
         validation.GetProperty("success").GetBoolean().Should().BeTrue();
         validation.GetProperty("free").GetBoolean().Should().BeTrue();
@@ -147,7 +147,7 @@ public class FreePracticeTests : IClassFixture<FreePracticeTests.Factory>
         (await SavedAsync()).Should().Be(before);
 
         var replay = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
-            new { exerciseId, userGuess = string.Join("|", notes), timeSpentSeconds = 3 }));
+            new { exerciseId, userGuess = string.Join("|", notes) }));
         replay.GetProperty("success").GetBoolean().Should().BeFalse("the expected answer is used only once");
     }
 

@@ -78,6 +78,8 @@ public interface IAudioTokenService
 /// Snapshot of a single exercise round, returned by <see cref="IAudioTokenService"/>.
 /// <paramref name="Free"/> marks a free practice round; <paramref name="FilterJson"/> is the
 /// preset of exercise filters it was played with (<c>ScoreSnapshot.FilterJson</c>).
+/// <paramref name="IssuedAt"/> is when the round was created, which the answer's time is
+/// measured from; rounds cached before it was recorded have none.
 /// </summary>
 public sealed record AudioRound(
     string RoundId,
@@ -85,4 +87,5 @@ public sealed record AudioRound(
     IReadOnlyList<string> Tokens,
     IReadOnlyDictionary<string, string> TokenToBlob,
     bool Free = false,
-    string? FilterJson = null);
+    string? FilterJson = null,
+    DateTimeOffset? IssuedAt = null);

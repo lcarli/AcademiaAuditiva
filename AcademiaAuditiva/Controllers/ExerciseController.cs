@@ -37,6 +37,7 @@ namespace AcademiaAuditiva.Controllers
 		private readonly AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner _playbackPlanner;
 		private readonly IGamificationService _gamification;
 		private readonly ILearningPathService _learningPath;
+		private readonly TimeProvider _clock;
 		private readonly ILogger<ExerciseController> _logger;
 		// Expected-answer entries live for one round (15 min) and are
 		// keyed per (user, exercise). The cache is a distributed abstraction
@@ -56,6 +57,7 @@ namespace AcademiaAuditiva.Controllers
 			AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner playbackPlanner,
 			IGamificationService gamification,
 			ILearningPathService learningPath,
+			TimeProvider clock,
 			ILogger<ExerciseController> logger)
 		{
 			_context = context;
@@ -69,6 +71,7 @@ namespace AcademiaAuditiva.Controllers
 			_playbackPlanner = playbackPlanner;
 			_gamification = gamification;
 			_learningPath = learningPath;
+			_clock = clock;
 			_logger = logger;
 		}
 
@@ -134,7 +137,8 @@ namespace AcademiaAuditiva.Controllers
 				{
 					ExpectedAnswer = plan.ExpectedAnswerJson,
 					Free = request.Free,
-					FilterJson = filterJson
+					FilterJson = filterJson,
+					Timestamp = _clock.GetUtcNow().UtcDateTime
 				};
 				await _cache.SetStringAsync(
 					ExpectedAnswerCacheKey(userId, request.ExerciseId),
@@ -244,12 +248,13 @@ namespace AcademiaAuditiva.Controllers
 			// audio-token flow) or, for sheet-music exercises that don't
 			// produce a token, from the legacy session-key cache. The
 			// round also says whether it is a free practice round (the
-			// mode is fixed by RequestPlay, never by this request) and
-			// which filters it was played with.
+			// mode is fixed by RequestPlay, never by this request), which
+			// filters it was played with and when it was issued.
 			string expectedAnswer = null;
 			bool roundConsumed = false;
 			bool free = false;
 			string? filterJson = null;
+			DateTimeOffset? issuedAt = null;
 
 			if (!string.IsNullOrEmpty(dto.RoundId))
 			{
@@ -260,6 +265,7 @@ namespace AcademiaAuditiva.Controllers
 					roundConsumed = true;
 					free = round.Free;
 					filterJson = round.FilterJson;
+					issuedAt = round.IssuedAt;
 				}
 			}
 
@@ -273,6 +279,7 @@ namespace AcademiaAuditiva.Controllers
 				expectedAnswer = legacy.ExpectedAnswer;
 				free = legacy.Free;
 				filterJson = legacy.FilterJson;
+				issuedAt = DateTime.SpecifyKind(legacy.Timestamp, DateTimeKind.Utc);
 			}
 
 			var validator = _validators.Get(exercise.Name);
@@ -327,7 +334,11 @@ namespace AcademiaAuditiva.Controllers
 			int errorCount = update.ErrorCount;
 			int bestScore = update.BestScore;
 
-			var now = DateTime.UtcNow;
+			var answeredAt = _clock.GetUtcNow();
+			var now = answeredAt.UtcDateTime;
+			// Measured here rather than sent by the client: from Play to this
+			// answer, at most five minutes.
+			var timeSpentSeconds = AnswerTime.Seconds(issuedAt, answeredAt);
 
 			// Legacy Score row (running totals; kept until the contract step
 			// of the score-model split drops the table).
@@ -338,7 +349,7 @@ namespace AcademiaAuditiva.Controllers
 				CorrectCount = correctCount,
 				ErrorCount = errorCount,
 				BestScore = bestScore,
-				TimeSpentSeconds = dto.TimeSpentSeconds,
+				TimeSpentSeconds = timeSpentSeconds,
 				Timestamp = now
 			});
 
@@ -348,7 +359,7 @@ namespace AcademiaAuditiva.Controllers
 				UserId = userId,
 				ExerciseId = exercise.ExerciseId,
 				IsCorrect = isCorrect,
-				TimeSpentSeconds = dto.TimeSpentSeconds,
+				TimeSpentSeconds = timeSpentSeconds,
 				Timestamp = now,
 				FilterJson = filterJson
 			});
@@ -384,14 +395,14 @@ namespace AcademiaAuditiva.Controllers
 			{
 				UserId = userId,
 				Exercise = exercise.Name,
-				Timestamp = DateTime.UtcNow,
+				Timestamp = now,
 				QuestionId = currentAnswer,
 				Attempt = new AttemptDetails
 				{
 					UserAnswer = dto.UserGuess,
 					ExpectedAnswer = currentAnswer,
 					IsCorrect = isCorrect,
-					TimeSpentSeconds = dto.TimeSpentSeconds,
+					TimeSpentSeconds = timeSpentSeconds,
 				}
 			});
 
