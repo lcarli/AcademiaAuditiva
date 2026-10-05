@@ -26,6 +26,8 @@ fr-CA). It runs at <https://academiaauditiva.com>.
   plays one note at a time.
 - 🧭 **Learning path**: 18 steps in 3 units, from *Higher or Lower* to
   *Guess Note*, with progress and celebrations.
+- 📅 **Daily challenge**: three exercises from different categories every
+  day, the same for every student, with progress on the dashboard.
 - 🏆 **Gamification**: XP, levels, practice streaks and badges.
 - 🔎 **Explore**: hear and see any note, interval, chord or scale.
 - 🆓 **Free practice**: answers are checked but not saved, and *Show answer*

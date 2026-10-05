@@ -6,8 +6,9 @@ namespace AcademiaAuditiva.Services.Gamification;
 
 /// <summary>
 /// The player's graded answers, read once per request (scoped) and shared by the services that
-/// evaluate them: XP and badges, and the learning path. Saving a <see cref="ScoreSnapshot"/> through
-/// the same context discards the copy, so the next read includes it (ExecuteDelete and raw SQL don't).
+/// evaluate them: XP and badges, the learning path and the daily challenge. Saving a
+/// <see cref="ScoreSnapshot"/> through the same context discards the copy, so the next read
+/// includes it (ExecuteDelete and raw SQL don't).
 /// </summary>
 public sealed class PracticeHistory
 {

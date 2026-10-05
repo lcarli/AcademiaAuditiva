@@ -2444,6 +2444,79 @@ a:focus-visible {
     margin: .6rem 0;
 }
 
+/* ---------- Daily challenge ---------- */
+.aa-challenge-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: .75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* The whole item links to its exercise (stretched-link). */
+.aa-challenge-item {
+    position: relative;
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--aa-line);
+    border-radius: var(--aa-radius-lg);
+    background: var(--aa-surface);
+    transition: border-color .15s ease;
+}
+
+.aa-challenge-item:hover,
+.aa-challenge-item:focus-within {
+    border-color: color-mix(in srgb, var(--aa-accent) 55%, var(--aa-line));
+}
+
+.aa-challenge-item.is-done {
+    border-color: color-mix(in srgb, var(--aa-ok) 45%, var(--aa-line));
+    background: var(--aa-ok-bg);
+}
+
+.aa-challenge-category {
+    display: block;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--aa-muted);
+}
+
+.aa-challenge-title {
+    display: block;
+    margin-top: .15rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--aa-ink);
+    text-decoration: none;
+}
+
+.aa-challenge-title:hover,
+.aa-challenge-title:focus-visible {
+    color: var(--aa-accent-text);
+    text-decoration: underline;
+}
+
+/* The check overflows a zero-height box, so done items keep the bar's row height. */
+.aa-challenge-check {
+    display: flex;
+    align-items: center;
+    height: 0;
+    color: var(--aa-ok);
+}
+
+.aa-challenge-item.is-done .progress-bar {
+    background-color: var(--aa-ok);
+    background-image: none;
+}
+
+.aa-challenge-card.is-complete .aa-icon-pill {
+    background: var(--aa-ok-bg);
+    color: var(--aa-ok);
+}
+
 /* ---------- Guided tour (js/core/tutorial.js) ----------
    Above Bootstrap modals, SweetAlert and tooltips; below the skip link. The
    highlight's wide shadow dims the rest of the page. */

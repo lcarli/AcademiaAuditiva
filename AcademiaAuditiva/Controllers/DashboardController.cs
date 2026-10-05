@@ -2,6 +2,7 @@
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.DailyChallenge;
 using AcademiaAuditiva.Services.Gamification;
 using AcademiaAuditiva.Services.LearningPath;
 using Microsoft.AspNetCore.Authorization;
@@ -24,6 +25,7 @@ namespace AcademiaAuditiva.Controllers
         private readonly UserReportService _userReportService;
         private readonly IGamificationService _gamification;
         private readonly ILearningPathService _learningPath;
+        private readonly IDailyChallengeService _dailyChallenge;
         private readonly ILogger<DashboardController> _logger;
 
         public DashboardController(
@@ -33,6 +35,7 @@ namespace AcademiaAuditiva.Controllers
             UserReportService userReportService,
             IGamificationService gamification,
             ILearningPathService learningPath,
+            IDailyChallengeService dailyChallenge,
             ILogger<DashboardController> logger)
         {
             _context = context;
@@ -41,6 +44,7 @@ namespace AcademiaAuditiva.Controllers
             _userReportService = userReportService;
             _gamification = gamification;
             _learningPath = learningPath;
+            _dailyChallenge = dailyChallenge;
             _logger = logger;
         }
 
@@ -76,11 +80,13 @@ namespace AcademiaAuditiva.Controllers
                 .ToListAsync(HttpContext.RequestAborted);
             ViewBag.ExerciseNames = exerciseNames.ToDictionary(name => name, name => _localizer[name].Value);
 
+            var timeZone = UserTimeZone.FromRequest(Request);
+
             // The progress row is optional: the rest of the dashboard still renders without it.
             GamificationProfile? profile = null;
             try
             {
-                profile = await _gamification.GetProfileAsync(userId, UserTimeZone.FromRequest(Request), HttpContext.RequestAborted);
+                profile = await _gamification.GetProfileAsync(userId, timeZone, HttpContext.RequestAborted);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -95,6 +101,16 @@ namespace AcademiaAuditiva.Controllers
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex, "Could not load the learning path for the dashboard.");
+            }
+
+            // And the daily challenge card.
+            try
+            {
+                ViewBag.DailyChallenge = await _dailyChallenge.GetTodayAsync(userId, timeZone, HttpContext.RequestAborted);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogWarning(ex, "Could not load the daily challenge for the dashboard.");
             }
 
             return View(profile);
