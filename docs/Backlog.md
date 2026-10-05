@@ -28,8 +28,8 @@ The modernization plan is done (#47 to #83):
 
 E-mail is [on](#e-mail): production sends through Resend (#89), and every
 e-mail has the site's layout and a plain-text version (#92). There are no open
-pull requests and no open CodeQL or Dependabot alerts. The open issues are #16
-and #31.
+pull requests and no open CodeQL or Dependabot alerts. The open issues are
+#16, #31 and #101.
 
 ## How we work
 
@@ -239,6 +239,21 @@ prompt in badges.md.
 **Done when.** No badge is hidden and the collector badge asks for 20 others.
 The owner approves any artwork.
 
+### #101: the landing page art
+
+The home page is all text; its only picture is a small staff in the hero. #101
+adds eight illustrations in the style of the medals, generated with ChatGPT.
+[landing-art.md](landing-art.md) has the style guide, a prompt for each image
+and the checks, and `scripts/export-landing-art.py` exports and previews each
+image.
+
+**What to do.** Once the owner approves all eight images, export them and put
+them on the home page as
+[landing-art.md](landing-art.md#using-the-images-in-the-app) describes.
+
+**Done when.** The eight images are on the production home page and look right
+in both themes and on a phone.
+
 ### #31: Microsoft Entra External ID
 
 The issue proposes letting Entra handle identity. Today ASP.NET Core Identity
@@ -264,6 +279,8 @@ These are outside the repo:
   [Facebook sign-in](#facebook-sign-in-off-in-production)).
 - Choose and create the `contato@` inbox, and add its DNS records (see
   [item 3](#3-create-the-contato-inbox)).
+- Generate and approve the eight landing page images in ChatGPT (see
+  [#101](#101-the-landing-page-art)).
 
 ## Watch
 

@@ -59,6 +59,7 @@ fr-CA). It runs at <https://academiaauditiva.com>.
 | [docs/Security.md](docs/Security.md) | Threat model, secret rotation runbook |
 | [docs/Pedagogia-Exercicios.md](docs/Pedagogia-Exercicios.md) (PT) | Exercise categories, levels and badges |
 | [docs/FiltrosPorExercicio.md](docs/FiltrosPorExercicio.md) (PT) | The filters of each exercise |
+| [docs/landing-art.md](docs/landing-art.md) | ChatGPT prompts and style guide for the home page illustrations |
 | [docs/Backlog.md](docs/Backlog.md) | What is left to do, in priority order |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, commits, tests and pull requests |
 | [docs/archive/](docs/archive/README.md) | Older plans, the backlog and the v2 smoke test, kept for history |
