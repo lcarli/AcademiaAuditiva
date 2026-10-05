@@ -35,7 +35,7 @@ public sealed class PracticeHistory
         var answers = await _db.ScoreSnapshots.AsNoTracking()
             .Where(s => s.UserId == userId)
             .OrderBy(s => s.Timestamp).ThenBy(s => s.Id)
-            .Select(s => new PracticeAnswer(s.ExerciseId, s.IsCorrect, s.Timestamp))
+            .Select(s => new PracticeAnswer(s.ExerciseId, s.IsCorrect, s.Timestamp, s.FilterJson))
             .ToListAsync(ct);
         for (var i = 0; i < answers.Count; i++)
         {

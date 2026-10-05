@@ -242,14 +242,16 @@ If #31 goes ahead, Entra External ID could provide social sign-in instead.
 #72 shipped 18 badges, and #94 replaced their icons with medal art. Eight more
 are seeded but hidden (`IsAvailable: false` in
 `AcademiaAuditiva/Services/Gamification/BadgeCatalog.cs:82-89`). Nothing in the
-app can award them yet:
+app can award them yet. Answers now record the exercise filters they were played
+with (`ScoreSnapshot.FilterJson`, null on older answers), which the filter rules
+can use:
 
 | Badge key | Seeded rule (`AcademiaAuditiva/Data/SeedData.cs`) | Missing feature |
 |---|---|---|
-| `explorer` | Used every filter once (:979) | Track the filters each player uses, or reward the Explore page (#76) instead |
-| `filter_ninja` | Custom filter combinations in 5 sessions (:980) | The same filter tracking |
+| `explorer` | Used every filter once (:979) | A rule over the recorded filters, or reward the Explore page (#76) instead |
+| `filter_ninja` | Custom filter combinations in 5 sessions (:980) | A rule over the recorded filters |
 | `daily_challenge_complete` | Finished all of the day's exercises (:983) | A daily challenge |
-| `total_mastery` | 100% on an exercise with every filter (:989) | The same filter tracking |
+| `total_mastery` | 100% on an exercise with every filter (:989) | A rule over the recorded filters |
 | `mission_addict` | Finished 10 mixed challenges (:995) | Missions |
 | `speedster` | 90% correct in a speed test (:996) | A speed test mode |
 | `mystery_listener` | Got an "impossible" question right in a fully random mode (:997) | A fully random mode |

@@ -159,7 +159,7 @@ public class PersonalDataService
         var answers = await _db.ScoreSnapshots.AsNoTracking()
             .Where(s => s.UserId == userId)
             .OrderBy(s => s.Timestamp)
-            .Select(s => new { Exercise = s.Exercise!.Name, s.IsCorrect, s.TimeSpentSeconds, s.Timestamp })
+            .Select(s => new { Exercise = s.Exercise!.Name, s.IsCorrect, s.TimeSpentSeconds, s.Timestamp, s.FilterJson })
             .ToListAsync(ct);
 
         var sessions = await _db.Scores.AsNoTracking()

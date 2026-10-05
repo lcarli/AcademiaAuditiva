@@ -151,6 +151,7 @@ namespace AcademiaAuditiva.Data
             // contract phase will drop it once readers move over.
             modelBuilder.Entity<ScoreSnapshot>(b =>
             {
+                b.Property(s => s.FilterJson).HasMaxLength(ScoreSnapshot.FilterJsonMaxLength);
                 b.HasIndex(s => new { s.UserId, s.ExerciseId, s.Timestamp });
                 b.HasOne(s => s.User).WithMany().HasForeignKey(s => s.UserId)
                     .OnDelete(DeleteBehavior.Cascade);

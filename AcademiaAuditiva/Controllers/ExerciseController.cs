@@ -119,6 +119,9 @@ namespace AcademiaAuditiva.Controllers
 			if (!filters.ContainsKey("noteRange") && noteRange is not null)
 				filters["noteRange"] = noteRange;
 
+			// The round's answer is saved with the exercise filters it was played with.
+			var filterJson = ExerciseFilterPresets.ForAnswer(filters, exercise.FiltersJson);
+
 			var plan = _playbackPlanner.Plan(exercise, filters);
 
 			// SolfegeMelody shows its melody as sheet music for the student
@@ -127,7 +130,12 @@ namespace AcademiaAuditiva.Controllers
 			// clear text for the staff renderer.
 			if (plan.PlaybackPlans.Count == 0)
 			{
-				var sessionData = new ExerciseSessionData { ExpectedAnswer = plan.ExpectedAnswerJson, Free = request.Free };
+				var sessionData = new ExerciseSessionData
+				{
+					ExpectedAnswer = plan.ExpectedAnswerJson,
+					Free = request.Free,
+					FilterJson = filterJson
+				};
 				await _cache.SetStringAsync(
 					ExpectedAnswerCacheKey(userId, request.ExerciseId),
 					JsonConvert.SerializeObject(sessionData),
@@ -153,6 +161,7 @@ namespace AcademiaAuditiva.Controllers
 				plan.ExpectedAnswerJson,
 				mixedAddresses,
 				free: request.Free,
+				filterJson: filterJson,
 				cancellationToken: HttpContext.RequestAborted);
 
 			// Uniform response: most exercises ship one play token; only
@@ -234,11 +243,13 @@ namespace AcademiaAuditiva.Controllers
 			// Resolve the expected answer either from the round (modern
 			// audio-token flow) or, for sheet-music exercises that don't
 			// produce a token, from the legacy session-key cache. The
-			// round also says whether it is a free practice round: the
-			// mode is fixed by RequestPlay, never by this request.
+			// round also says whether it is a free practice round (the
+			// mode is fixed by RequestPlay, never by this request) and
+			// which filters it was played with.
 			string expectedAnswer = null;
 			bool roundConsumed = false;
 			bool free = false;
+			string? filterJson = null;
 
 			if (!string.IsNullOrEmpty(dto.RoundId))
 			{
@@ -248,6 +259,7 @@ namespace AcademiaAuditiva.Controllers
 					expectedAnswer = round.ExpectedAnswerJson;
 					roundConsumed = true;
 					free = round.Free;
+					filterJson = round.FilterJson;
 				}
 			}
 
@@ -260,6 +272,7 @@ namespace AcademiaAuditiva.Controllers
 				var legacy = JsonConvert.DeserializeObject<ExerciseSessionData>(json);
 				expectedAnswer = legacy.ExpectedAnswer;
 				free = legacy.Free;
+				filterJson = legacy.FilterJson;
 			}
 
 			var validator = _validators.Get(exercise.Name);
@@ -336,7 +349,8 @@ namespace AcademiaAuditiva.Controllers
 				ExerciseId = exercise.ExerciseId,
 				IsCorrect = isCorrect,
 				TimeSpentSeconds = dto.TimeSpentSeconds,
-				Timestamp = now
+				Timestamp = now,
+				FilterJson = filterJson
 			});
 
 			// Upsert the aggregate row (one per user+exercise).

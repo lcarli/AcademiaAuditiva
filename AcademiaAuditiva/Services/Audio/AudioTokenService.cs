@@ -25,6 +25,7 @@ public sealed class AudioTokenService : IAudioTokenService
         string expectedAnswerJson,
         IReadOnlyList<string> blobNames,
         bool free = false,
+        string? filterJson = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(userId);
@@ -42,7 +43,7 @@ public sealed class AudioTokenService : IAudioTokenService
             tokenToBlob[token] = blobNames[i];
         }
 
-        var round = new RoundEnvelope(roundId, expectedAnswerJson, tokenToBlob, free);
+        var round = new RoundEnvelope(roundId, expectedAnswerJson, tokenToBlob, free, filterJson);
         var roundJson = JsonConvert.SerializeObject(round);
 
         // Persist the round itself (lookup by user+exercise+round)…
@@ -65,7 +66,7 @@ public sealed class AudioTokenService : IAudioTokenService
                 cancellationToken);
         }
 
-        return new AudioRound(roundId, expectedAnswerJson, tokens, tokenToBlob, free);
+        return new AudioRound(roundId, expectedAnswerJson, tokens, tokenToBlob, free, filterJson);
     }
 
     public async Task<string> IssueTokenAsync(
@@ -148,7 +149,7 @@ public sealed class AudioTokenService : IAudioTokenService
         var envelope = await LoadRoundAsync(userId, exerciseId, roundId, cancellationToken);
         return envelope is null
             ? null
-            : new AudioRound(envelope.RoundId, envelope.ExpectedAnswerJson, envelope.TokenToBlob.Keys.ToArray(), envelope.TokenToBlob, envelope.Free);
+            : new AudioRound(envelope.RoundId, envelope.ExpectedAnswerJson, envelope.TokenToBlob.Keys.ToArray(), envelope.TokenToBlob, envelope.Free, envelope.FilterJson);
     }
 
     public async Task RemoveRoundAsync(
@@ -202,12 +203,14 @@ public sealed class AudioTokenService : IAudioTokenService
     private static string TokenCacheKey(string userId, string token)
         => $"AudioToken:{userId}:{token}";
 
-    // Rounds cached before free practice existed have no Free field and stay scored.
+    // Rounds cached before free practice existed have no Free field and stay scored;
+    // rounds cached before filters were saved have no FilterJson.
     private sealed record RoundEnvelope(
         string RoundId,
         string ExpectedAnswerJson,
         Dictionary<string, string> TokenToBlob,
-        bool Free = false);
+        bool Free = false,
+        string? FilterJson = null);
 
     // Round tokens point at their round; standalone tokens (IssueTokenAsync)
     // carry the clip address themselves.

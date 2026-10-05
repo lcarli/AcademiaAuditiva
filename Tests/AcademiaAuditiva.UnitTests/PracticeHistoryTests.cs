@@ -83,10 +83,24 @@ public class PracticeHistoryTests
         (await history.GetAsync(UserId)).Should().BeSameAs(before);
     }
 
+    [Fact]
+    public async Task Answers_KeepTheFiltersTheyWerePlayedWith()
+    {
+        await using var db = NewDatabase();
+        db.ScoreSnapshots.AddRange(
+            Answer(exerciseId: 1, Start, filterJson: """{"keySelect":"D4"}"""),
+            Answer(exerciseId: 2, Start.AddMinutes(1)));
+        await db.SaveChangesAsync();
+
+        var answers = await new PracticeHistory(db).GetAsync(UserId);
+
+        answers.Select(a => a.FilterJson).Should().Equal("""{"keySelect":"D4"}""", null);
+    }
+
     private static ApplicationDbContext NewDatabase() => new(new DbContextOptionsBuilder<ApplicationDbContext>()
         .UseInMemoryDatabase($"practice-history-{Guid.NewGuid():N}")
         .Options);
 
-    private static ScoreSnapshot Answer(int exerciseId, DateTime timestamp, string userId = UserId) =>
-        new() { UserId = userId, ExerciseId = exerciseId, IsCorrect = true, Timestamp = timestamp };
+    private static ScoreSnapshot Answer(int exerciseId, DateTime timestamp, string userId = UserId, string? filterJson = null) =>
+        new() { UserId = userId, ExerciseId = exerciseId, IsCorrect = true, Timestamp = timestamp, FilterJson = filterJson };
 }
