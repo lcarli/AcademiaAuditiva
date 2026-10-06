@@ -2,9 +2,9 @@
 
 What is left to do on Academia Auditiva, in priority order. Written on
 2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`; line
-numbers refer to `07d6776` (`ef42bfa` in item 3). Each item says why it
-matters, where to look, what to do and when it is done. New ideas go to GitHub
-issues.
+numbers refer to `07d6776` (`ef42bfa` in item 3, and `47f0a6d` in items 4 to 7,
+added on 2026-10-06). Each item says why it matters, where to look, what to do
+and when it is done. New ideas go to GitHub issues.
 
 ## Where things stand
 
@@ -29,7 +29,8 @@ The modernization plan is done (#47 to #83):
 E-mail is [on](#e-mail): production sends through Resend (#89), and every
 e-mail has the site's layout and a plain-text version (#92). There are no open
 pull requests and no open CodeQL or Dependabot alerts. The open issues are
-#16 and #31.
+#16, #31 and the four in [Classrooms and teachers](#classrooms-and-teachers)
+(#106 to #109).
 
 ## How we work
 
@@ -152,6 +153,210 @@ reaching us, but the domain has no MX record, so mail to it bounces.
 
 **Done when.** Mail from an outside address reaches the inbox. If the inbox
 replies as `contato@`, its replies pass DMARC.
+
+## Classrooms and teachers
+
+The owner's notes of 2026-10-06, one issue each. Item 4 comes first, because
+items 5 and 7 build on the answers it ties to routines. Item 6 stands alone and
+can go at any time.
+
+### 4. Routines work like a test (#106)
+
+**Why.** A student opened a routine item of 10 questions and could keep
+answering past 10. A routine should work like a test: the student does every
+exercise in it, with exactly the number of questions the teacher set.
+
+- The link on My Training opens the ordinary exercise page with the item's
+  filters in the URL (`AcademiaAuditiva/Views/MyTraining/Index.cshtml:76`).
+  The server never learns that the round belongs to a routine, and the student
+  can change the filters and keep going.
+- Progress counts every answer to the same exercise since the assignment,
+  whatever page or filters it came from
+  (`AcademiaAuditiva/Controllers/MyTrainingController.cs:72-87` and `:104`).
+  `ScoreSnapshot` has no link to a routine
+  (`AcademiaAuditiva/Models/ScoreSnapshot.cs:10-33`).
+- An item is complete once the target is reached and the accuracy meets the
+  minimum score
+  (`AcademiaAuditiva/Areas/Teacher/Services/RoutineItemResolver.cs:64-66`), so
+  a student below the minimum keeps answering until they pass.
+- The teacher can add, edit and remove items after assigning
+  (`AcademiaAuditiva/Areas/Teacher/Controllers/RoutinesController.cs:189-263`);
+  only deleting a routine with assignments is blocked (`:113-123`).
+- The due date is only shown (`Views/MyTraining/Index.cshtml:65`); nothing
+  closes.
+
+**Rules agreed with the owner.**
+
+- The student answers every item of the routine, minus the ones the teacher
+  excluded for them, with exactly the item's number of questions. Items can be
+  done in any order.
+- They see whether each answer was right, as in practice today.
+- They can stop and come back later; each item picks up where it stopped.
+- No retakes. To repeat a routine, the teacher assigns it again.
+- When assigning, next to the due date, the teacher chooses whether late work
+  is accepted. If it isn't, the routine closes at the due date and whatever is
+  left stays unanswered.
+
+**What.**
+
+- Tie answers to the routine: nullable `RoutineAssignmentId` and
+  `RoutineItemId` on `ScoreSnapshot`, with a migration and an index on
+  (`UserId`, `RoutineAssignmentId`). Removing an assignment keeps its answers
+  as ordinary practice.
+- Routine mode: My Training links to the exercise with the assignment and the
+  item. `RequestPlay` (`AcademiaAuditiva/Controllers/ExerciseController.cs:97`)
+  checks that the routine is assigned to this student, the item isn't excluded
+  for them, the routine is still open and fewer answers than the target exist.
+  It plans the round with the item's filters from `RoutineItemResolver`, not
+  the page's, and keeps the assignment and the item in the round: in
+  `RoundEnvelope`
+  (`AcademiaAuditiva/Services/Audio/AudioTokenService.cs:212-218`), and in
+  `ExerciseSessionData` for the sheet-music exercises. A free-practice round
+  can't be a routine round.
+- `ValidateExercise` (`ExerciseController.cs:224`, snapshot at `:357`) tags the
+  answer from the round and checks the count again, so two tabs can't go past
+  the target. Routine answers still earn XP, streaks and badges.
+- In routine mode the page shows the routine's name and "question 3 of 10",
+  hides the filters and the free-practice switch, and after the last question
+  shows the item's result with a link back to My Training.
+- Progress counts only the answers tagged with the assignment.
+  `RoutineItemProgress` changes: an item is done once its target is answered,
+  and the minimum score becomes a pass mark (passed or not) instead of a reason
+  to keep answering.
+- Add the late-work choice to `RoutineAssignment` and to the assign form
+  (`AcademiaAuditiva/Areas/Teacher/Views/Routines/Assign.cshtml:44-45`). A
+  routine is due by the end of its due date in the student's time zone
+  (`UserTimeZone`). My Training shows which routines are late, closed or
+  finished.
+- Lock a routine's items once it's assigned, as deleting it already is, and
+  add a "Duplicate" action to change a copy. A student's overrides can change
+  only until that student starts the item.
+- Answers given before this change carry no routine, so the progress of
+  existing assignments starts from zero.
+- New texts in the three cultures.
+
+**Done when.** A student answers exactly the target of every item, in any
+order and over several visits; the server refuses one more answer; practice
+outside the routine doesn't move its progress; late work follows the teacher's
+choice; and a finished routine can't be done again. Integration tests cover
+each rule.
+
+### 5. Teacher reports from routines only (#107)
+
+**Why.** The teacher needs reports per routine (overall and per student), per
+class (overall and per student) and a page per student. Today those pages read
+all of a student's practice:
+
+- `DashboardController.Classroom` sums `ScoreAggregates` and counts
+  `ScoreSnapshots` for every member
+  (`AcademiaAuditiva/Areas/Teacher/Controllers/DashboardController.cs:42-53`),
+  and `Student` shows accuracy per exercise from all of them (`:105-110`). A
+  student in two teachers' classes shows each teacher everything.
+- The privacy policy says so (`AcademiaAuditiva/Views/Home/Privacy.cshtml:94`,
+  and the same line of `Privacy.pt-BR.cshtml` and `Privacy.fr-CA.cshtml`).
+- There's no report per routine, and no tests cover these pages.
+
+**Rule agreed with the owner.** A teacher sees only the answers given in the
+routines they assigned: never the student's practice outside them, free or
+not, and never another teacher's routines.
+
+**What.** Build on the answers item 4 ties to routines, and drop the queries on
+`ScoreAggregates` and on all of a student's `ScoreSnapshots`.
+
+- **Routine** (one assignment): how many students finished, are under way,
+  haven't started or are late, and accuracy and time per answer for each item.
+  Per student: progress and accuracy per item, when they finished, and whether
+  it was late.
+- **Class:** every routine assigned to the class or to some of its students,
+  with completion and accuracy. Per student: routines finished out of those
+  assigned, accuracy and last routine activity.
+- **Student:** their routines from this teacher, item by item. Nothing from
+  other teachers or from practice.
+- A student removed from a class drops out of its reports.
+- Update "Your teachers" in the privacy policy, in the three cultures, and the
+  home page's "Reports" text (`Home.Roles.Teacher3.Desc`, "by class, by student
+  and by exercise").
+- Stopgap, if item 4 takes a while: remove the practice figures from both pages
+  first, in a small pull request of their own.
+
+**Done when.** Every figure a teacher sees comes from their own routines, the
+privacy policy says so in the three languages, and integration tests show that
+a teacher doesn't see practice outside routines, another teacher's routines or
+students outside their classes.
+
+### 6. Assign to a class or chosen students, and e-mail them (#108)
+
+**Why.** Assigning a routine saves the assignment and shows a toast, and
+nobody hears about it until they open My Training
+(`AcademiaAuditiva/Areas/Teacher/Controllers/RoutinesController.cs:295-345`).
+The form offers a whole class or one student
+(`AcademiaAuditiva/Areas/Teacher/Views/Routines/Assign.cshtml:16-36`), so
+giving a routine to three students takes three assignments, with three
+reports.
+
+**Rules agreed with the owner.** A routine goes to the whole class by default;
+the teacher can instead tick some of its students. The students it goes to get
+an e-mail.
+
+**What.**
+
+- The form: pick a class, then "Whole class" or tick students. One assignment
+  holds the ticked students (a join table); existing one-student assignments
+  keep working.
+- A student who joins the class later still gets its whole-class routines, as
+  today (`AcademiaAuditiva/Controllers/MyTrainingController.cs:54-57`), but no
+  e-mail.
+- `EmailComposer.RoutineAssignedAsync`, like `ClassroomInviteAsync`
+  (`AcademiaAuditiva/Services/Email/EmailComposer.cs:40`): the teacher, the
+  routine, the due date and a button to My Training. Texts in the three `.resx`
+  files.
+- E-mails use the culture of the request that sends them
+  (`EmailComposer.cs:12`), which here is the teacher's. Save each user's
+  language when they sign up and when they switch, and write each student's
+  e-mail in theirs.
+- Send from a background queue after the response, so a class of 30 doesn't
+  hold up the page. A failed send never undoes the assignment.
+- Students can turn these e-mails off on their account page, and the e-mail's
+  footer says how.
+- Add these e-mails to the privacy policy's list (`Privacy.cshtml:82`, and the
+  same line in pt-BR and fr-CA).
+- Each assignment sends one e-mail per student, so check the Resend plan's
+  quota first (see [Watch](#watch)): when it runs out, sign-ups stop getting
+  their confirmation e-mail.
+
+**Done when.** Assigning to a class, or to ticked students, e-mails exactly
+those students, each in their own language; a failed send still saves the
+assignment; integration tests cover who gets the e-mail.
+
+### 7. Notifications on the site (#109)
+
+**Why.** The site has no notifications: a student learns about a routine only
+on My Training, and a teacher learns about progress only in the reports.
+
+**Proposal.**
+
+- A `Notification` table: the user, the kind, the routine, assignment or class
+  it's about, and when it was created and read. The texts come from the `.resx`
+  files when shown, so they follow the reader's language.
+- A bell with the unread count in the top bar
+  (`AcademiaAuditiva/Views/Shared/_Layout.cshtml` and
+  `AcademiaAuditiva/Areas/Teacher/Views/Shared/_TeacherLayout.cshtml`), and a
+  page that lists them. Opening one marks it read. The count updates when a
+  page loads; no real-time push at first.
+- First events. For students: a routine is assigned, or is due tomorrow and
+  unfinished. For teachers: a student finished a routine, or accepted an
+  invite.
+- Item 6's e-mail and this notification come from the same event, so build the
+  notifier once.
+- Notifications go into the data export and the account deletion
+  (`AcademiaAuditiva/Services/PersonalDataService.cs:136` and `:49`), and are
+  deleted after 90 days.
+
+**Decide first.** Which events, and whether "due tomorrow" is worked out when
+the page loads or needs a daily job.
+
+**Done when.** The bell shows the chosen events in the three languages, and
+they appear in the data export.
 
 ## E-mail
 
