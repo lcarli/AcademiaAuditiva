@@ -179,6 +179,18 @@ namespace AcademiaAuditiva.Services
         /// <summary>Octave of a missing or malformed <c>noteRange</c>, and where the UI sliders start.</summary>
         public const int DefaultRangeOctave = 4;
 
+        // The exercises whose notes GenerateNoteForExercise draws from the noteRange filter.
+        private static readonly HashSet<string> NoteRangeExercises =
+            ["GuessNote", "HigherOrLower", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality"];
+
+        /// <summary>
+        /// Whether the notes of <paramref name="exerciseName"/> come from the <c>noteRange</c>
+        /// filter: only then does its page offer the octave range sliders. The other exercises
+        /// pick their octaves themselves or with a filter of their own (CompleteChord's
+        /// <c>ccOctave</c>, for instance).
+        /// </summary>
+        public static bool UsesNoteRange(string exerciseName) => NoteRangeExercises.Contains(exerciseName);
+
         /// <summary>
         /// Parses a <c>noteRange</c> filter such as <c>C3-C5</c> into the list of octaves it spans.
         /// The value comes from the request body/cookie, so malformed input falls back to

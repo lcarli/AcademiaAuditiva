@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
+using Newtonsoft.Json.Linq;
 
 namespace AcademiaAuditiva.UnitTests;
 
@@ -9,7 +10,7 @@ namespace AcademiaAuditiva.UnitTests;
 /// The <c>noteRange</c> filter arrives from the <c>/Exercise/RequestPlay</c> body (or the
 /// <c>noteRange</c> cookie), so parsing must never throw and must keep the generated note
 /// list bounded — an unbounded range such as <c>C1-C300000000</c> used to allocate hundreds
-/// of millions of notes per request.
+/// of millions of notes per request. Only the exercises whose notes come from it offer it.
 /// </summary>
 public class NoteRangeFilterTests
 {
@@ -83,6 +84,33 @@ public class NoteRangeFilterTests
 
         ReadProperty<List<string>>(result, "notes").Should().NotBeEmpty();
     }
+
+    // The page of an exercise offers the octave range only when its rounds follow it: with the
+    // range on octave 1, which the other exercises never reach, the rounds of those play there.
+    [Theory]
+    [MemberData(nameof(ExercisePlaybackPlannerInstrumentTests.SeededExercises), MemberType = typeof(ExercisePlaybackPlannerInstrumentTests))]
+    public void UsesNoteRange_ListsTheExercisesWhoseRoundsFollowTheRange(string exerciseName)
+    {
+        var exercise = new Exercise { Name = exerciseName };
+        var filters = new Dictionary<string, string> { ["noteRange"] = "C1-C1" };
+
+        var notes = Enumerable.Range(0, 50)
+            .SelectMany(_ => NotesIn(MusicTheoryService.GenerateNoteForExercise(exercise, filters)))
+            .ToList();
+
+        notes.Should().NotBeEmpty("the notes of {0} are read to check where they are played", exerciseName);
+        notes.Any(note => OctaveOf(note) == MusicTheoryService.MinRangeOctave).Should().Be(
+            MusicTheoryService.UsesNoteRange(exerciseName),
+            "{0} must offer the octave range exactly when its notes come from it", exerciseName);
+    }
+
+    // The notes of a round: its strings, and the parts of its answer strings such as "A4:w|B4:w".
+    private static IEnumerable<string> NotesIn(object round) =>
+        ((JContainer)JToken.FromObject(round)).Descendants()
+            .OfType<JValue>()
+            .Where(value => value.Type == JTokenType.String)
+            .SelectMany(value => value.ToString(CultureInfo.InvariantCulture).Split('|', ':'))
+            .Where(part => Regex.IsMatch(part, @"^[A-G](?:##|#|bb|b)?\d$"));
 
     // GenerateNoteForExercise returns anonymous types, which are internal to the web assembly.
     private static T ReadProperty<T>(object source, string name) =>
