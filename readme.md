@@ -37,7 +37,8 @@ fr-CA). It runs at <https://academiaauditiva.com>.
   unlock or delete accounts.
 - 📝 **Routines**: students take a routine like a test: each exercise with the
   number of questions and the filters the teacher set, by a due date that may
-  accept late answers.
+  accept late answers. Once assigned, a routine's exercises stay fixed;
+  teachers duplicate it to change a copy.
 - 🛡️ **Answers stay on the server**: the server mixes each round's audio and
   streams it through opaque tokens, so the page never holds the answer
   before the student replies.
