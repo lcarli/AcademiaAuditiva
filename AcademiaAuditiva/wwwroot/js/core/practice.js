@@ -1,8 +1,12 @@
 // Free practice (switch in Views/Exercise/_ExerciseHeader.cshtml). With the
 // switch on, RequestPlay starts unscored rounds: ValidateExercise checks the
 // answer but saves nothing, and RevealAnswer may show the answer first.
+// A routine question (banner in Views/Exercise/_RoutineBanner.cshtml) is taken
+// like a test instead: Play sends the routine, both calls return where the
+// student stands in its "routine" field, and once the routine item takes no
+// more answers Play says why without asking the server.
 // The exercise scripts start and check rounds through play() and validate();
-// this file keeps the counters, the "Show answer" button and the banner in step.
+// this file keeps the counters, the "Show answer" button and the banners in step.
 (function (window, document) {
   "use strict";
 
@@ -18,6 +22,56 @@
   function isFree() {
     const input = toggle();
     return !!(input && input.checked);
+  }
+
+  function routineBanner() {
+    return document.getElementById("aaRoutine");
+  }
+
+  // A failed response, shown by the exercise scripts through AAi18n.serverError,
+  // while the routine item takes no more answers; null while it does.
+  function routineBlock(banner) {
+    const state = banner.dataset;
+    return state.blockedTitle
+      ? { success: false, title: state.blockedTitle, message: state.blockedMessage, icon: "info" }
+      : null;
+  }
+
+  // Keeps the routine banner in step with the "routine" field of a response.
+  function syncRoutine(data) {
+    const banner = routineBanner();
+    const status = data && data.routine;
+    if (!banner || !status) return;
+
+    banner.dataset.state = status.state;
+    if (status.blocked) {
+      banner.dataset.blockedTitle = status.blocked.title;
+      banner.dataset.blockedMessage = status.blocked.message;
+    } else {
+      delete banner.dataset.blockedTitle;
+      delete banner.dataset.blockedMessage;
+    }
+    // A refused question says why, rather than "Unable to validate".
+    if (data.success === false) {
+      data.title = data.title || (status.blocked && status.blocked.title);
+      data.icon = "info";
+    }
+
+    const text = banner.querySelector("[data-aa-routine-text]");
+    if (text) text.textContent = status.text;
+    const verdict = banner.querySelector("[data-aa-routine-verdict]");
+    if (verdict) {
+      verdict.textContent = status.verdict || "";
+      verdict.hidden = !status.verdict;
+      verdict.classList.toggle("is-below", status.passed === false);
+    }
+    const late = banner.querySelector("[data-aa-routine-late]");
+    if (late) late.hidden = status.state !== "late";
+    const bar = banner.querySelector("[data-aa-routine-bar]");
+    if (bar) {
+      bar.style.width = `${status.percent}%`;
+      bar.parentElement.setAttribute("aria-valuenow", String(status.percent));
+    }
   }
 
   function post(url, body) {
@@ -39,14 +93,26 @@
   }
 
   function play(body) {
+    const banner = routineBanner();
+    const block = banner && routineBlock(banner);
+    if (block) return Promise.resolve(block);
+
     const input = toggle();
     const free = isFree();
+    const request = banner
+      ? Object.assign({}, body, {
+          free: false,
+          routineAssignmentId: Number(banner.dataset.assignmentId),
+          routineItemId: Number(banner.dataset.itemId),
+        })
+      : Object.assign({}, body, { free });
     // The switch waits for every round asked for (Play may be clicked again meanwhile),
     // so no round lands in the other mode.
     pending += 1;
     if (input) input.disabled = true;
-    return post("/Exercise/RequestPlay", Object.assign({}, body, { free }))
+    return post("/Exercise/RequestPlay", request)
       .then((data) => {
+        syncRoutine(data);
         // An error keeps the round on screen, as the exercise scripts do.
         if (!(data && data.success === false)) {
           round = data && data.roundId ? { exerciseId: body.exerciseId, roundId: data.roundId, free } : null;
@@ -63,6 +129,7 @@
   // The server says whether the round was free; only then does the banner tally count it.
   function validate(body) {
     return post("/Exercise/ValidateExercise", body).then((data) => {
+      syncRoutine(data);
       if (data && data.success !== false) {
         round = null;
         showReveal();

@@ -1593,6 +1593,61 @@ a:focus-visible {
     font-weight: 600;
 }
 
+/* Routine question banner (Views/Exercise/_RoutineBanner); practice.js keeps it in step. */
+.aa-routine {
+    border-color: var(--aa-accent);
+}
+
+.aa-routine-text {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.aa-routine-verdict {
+    color: var(--aa-ok);
+    font-weight: 600;
+}
+
+.aa-routine-verdict.is-below {
+    color: var(--aa-err);
+}
+
+.aa-routine-meta {
+    display: flex;
+    flex: 1 0 100%;
+    flex-wrap: wrap;
+    gap: .4rem;
+}
+
+.aa-routine-meta:not(:has(> :not([hidden]))) {
+    display: none;
+}
+
+.aa-routine-late {
+    background: var(--aa-warn-bg);
+    color: var(--aa-warn);
+}
+
+/* Routine state badges in My Training (Views/MyTraining/Index). */
+.aa-routine-finished {
+    background: var(--aa-ok-bg);
+    color: var(--aa-ok);
+}
+
+.aa-routine-closed {
+    background: rgba(var(--aa-muted-rgb), .14);
+    color: var(--aa-muted);
+}
+
+.aa-routine-bar {
+    flex: 1 0 100%;
+    height: 6px;
+}
+
+.aa-routine[data-state="done"] .aa-routine-bar .progress-bar {
+    background-color: var(--aa-ok);
+}
+
 /* Free practice switch: a chip holding a Bootstrap switch (Views/Exercise/_ExerciseHeader). */
 .aa-chip.aa-chip-switch {
     gap: .5rem;

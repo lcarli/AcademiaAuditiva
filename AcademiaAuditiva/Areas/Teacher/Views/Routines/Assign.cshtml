@@ -45,6 +45,12 @@
             <input asp-for="DueAt" type="date" class="form-control" />
         </div>
 
+        <div class="mb-3 form-check">
+            <input asp-for="AllowLate" class="form-check-input" aria-describedby="allowLateHelp" />
+            <label asp-for="AllowLate" class="form-check-label"></label>
+            <div id="allowLateHelp" class="form-text">@Localizer["Teacher.Routines.AllowLateHelp"]</div>
+        </div>
+
         <button type="submit" class="btn btn-primary">@Localizer["Teacher.Routines.Assign"]</button>
         <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.RoutineId">@Localizer["Common.Cancel"]</a>
     </div>

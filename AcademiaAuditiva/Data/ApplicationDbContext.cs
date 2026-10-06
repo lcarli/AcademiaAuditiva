@@ -153,6 +153,11 @@ namespace AcademiaAuditiva.Data
             {
                 b.Property(s => s.FilterJson).HasMaxLength(ScoreSnapshot.FilterJsonMaxLength);
                 b.HasIndex(s => new { s.UserId, s.ExerciseId, s.Timestamp });
+                // One answer per question of a routine item, even when two tabs answer
+                // the last question at once.
+                b.HasIndex(s => new { s.UserId, s.RoutineAssignmentId, s.RoutineItemId, s.RoutineQuestion })
+                    .IsUnique()
+                    .HasFilter("[RoutineAssignmentId] IS NOT NULL");
                 b.HasOne(s => s.User).WithMany().HasForeignKey(s => s.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
                 b.HasOne(s => s.Exercise).WithMany().HasForeignKey(s => s.ExerciseId)

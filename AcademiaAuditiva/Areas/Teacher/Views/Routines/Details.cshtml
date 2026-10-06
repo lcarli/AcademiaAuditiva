@@ -102,6 +102,7 @@
                                 <div class="text-secondary">
                                     @Localizer["Teacher.Routines.Assigned"] @a.AssignedAt.ToString("yyyy-MM-dd")
                                     @if (a.DueAt.HasValue) { <text>· @Localizer["Teacher.Routines.Due"] @a.DueAt.Value.ToString("yyyy-MM-dd")</text> }
+                                    @if (a.DueAt.HasValue && a.AllowLate) { <text>· @Localizer["Routine.Late"]</text> }
                                 </div>
                                 @if (a.ClassroomId != null)
                                 {

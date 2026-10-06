@@ -5,6 +5,7 @@ using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Gamification;
 using AcademiaAuditiva.Services.LearningPath;
+using AcademiaAuditiva.Services.Routines;
 using AcademiaAuditiva.Services.Scoring;
 using AcademiaAuditiva.ViewModels;
 using AcademiaAuditiva.Interfaces;
@@ -37,6 +38,7 @@ namespace AcademiaAuditiva.Controllers
 		private readonly AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner _playbackPlanner;
 		private readonly IGamificationService _gamification;
 		private readonly ILearningPathService _learningPath;
+		private readonly RoutineRounds _routines;
 		private readonly TimeProvider _clock;
 		private readonly ILogger<ExerciseController> _logger;
 		// Expected-answer entries live for one round (15 min) and are
@@ -57,6 +59,7 @@ namespace AcademiaAuditiva.Controllers
 			AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner playbackPlanner,
 			IGamificationService gamification,
 			ILearningPathService learningPath,
+			RoutineRounds routines,
 			TimeProvider clock,
 			ILogger<ExerciseController> logger)
 		{
@@ -71,6 +74,7 @@ namespace AcademiaAuditiva.Controllers
 			_playbackPlanner = playbackPlanner;
 			_gamification = gamification;
 			_learningPath = learningPath;
+			_routines = routines;
 			_clock = clock;
 			_logger = logger;
 		}
@@ -99,6 +103,12 @@ namespace AcademiaAuditiva.Controllers
 			if (request is null)
 				return BadRequest();
 
+			// A routine question names both its assignment and its item, and is never free practice.
+			var routineLink = RoutineLink.From(request.RoutineAssignmentId, request.RoutineItemId);
+			if ((request.RoutineAssignmentId is not null || request.RoutineItemId is not null)
+				&& (routineLink is null || request.Free))
+				return BadRequest();
+
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (string.IsNullOrEmpty(userId))
 				return Json(new { success = false, message = _localizer["Exercise.UserNotLoggedIn"].Value });
@@ -108,6 +118,47 @@ namespace AcademiaAuditiva.Controllers
 				return NotFound(_localizer["Exercise.NotFound"].Value);
 
 			var filters = request.Filters ?? new Dictionary<string, string>();
+
+			RoutineRoundStatus? routineStatus = null;
+			RoutineQuestion? routineQuestion = null;
+			if (routineLink is { } link)
+			{
+				var routine = await _routines.FindAsync(userId, link, UserTimeZone.FromRequest(Request), HttpContext.RequestAborted);
+				if (routine is null || routine.Item.ExerciseId != exercise.ExerciseId)
+				{
+					var unavailable = RoutineRoundStatus.Unavailable(_localizer);
+					return Json(new { success = false, message = unavailable.Blocked!.Message, routine = unavailable });
+				}
+
+				routineStatus = RoutineRoundStatus.From(routine.Item, _localizer);
+				if (!routine.Item.IsPlayable)
+					return Json(new { success = false, message = routineStatus.Blocked!.Message, routine = routineStatus });
+
+				// Like a test, a question is asked again until it is answered: Play cannot skip it.
+				// Once its question is answered, the pending one is stale.
+				routineQuestion = new RoutineQuestion(link, routine.Item.NextQuestion);
+				var pending = await _routines.PendingQuestionAsync(userId, link, HttpContext.RequestAborted);
+				if (pending?.RoundId is { } pendingRoundId)
+				{
+					var pendingRound = await _audioTokens.GetRoundAsync(userId, exercise.ExerciseId, pendingRoundId, HttpContext.RequestAborted);
+					if (pendingRound is not null && pendingRound.Routine == routineQuestion)
+						return Json(PlayResponse(exercise, pendingRound, routineStatus));
+				}
+				else if (pending?.Sheet is { } sheet
+					&& RoutineQuestion.From(sheet.RoutineAssignmentId, sheet.RoutineItemId, sheet.RoutineQuestion) == routineQuestion)
+				{
+					// Free practice of the exercise may have replaced its session meanwhile.
+					await _cache.SetStringAsync(
+						ExpectedAnswerCacheKey(userId, exercise.ExerciseId),
+						JsonConvert.SerializeObject(sheet),
+						_expectedAnswerTtl);
+					return Content(SheetMusicResponse(sheet.ExpectedAnswer, routineStatus), "application/json");
+				}
+
+				// The teacher's filters are the routine's; the student picks the others.
+				foreach (var (group, option) in routine.Item.Filters)
+					filters[group] = option;
+			}
 
 			var instrument = Request.Cookies["instrument"] ?? "Piano";
 			var noteRange = Request.Cookies["noteRange"];
@@ -138,15 +189,20 @@ namespace AcademiaAuditiva.Controllers
 					ExpectedAnswer = plan.ExpectedAnswerJson,
 					Free = request.Free,
 					FilterJson = filterJson,
-					Timestamp = _clock.GetUtcNow().UtcDateTime
+					Timestamp = _clock.GetUtcNow().UtcDateTime,
+					RoutineAssignmentId = routineQuestion?.Link.AssignmentId,
+					RoutineItemId = routineQuestion?.Link.ItemId,
+					RoutineQuestion = routineQuestion?.Number
 				};
 				await _cache.SetStringAsync(
 					ExpectedAnswerCacheKey(userId, request.ExerciseId),
 					JsonConvert.SerializeObject(sessionData),
 					_expectedAnswerTtl);
+				if (routineQuestion is { } sheetQuestion)
+					await _routines.RememberQuestionAsync(userId, sheetQuestion.Link, new PendingQuestion(Sheet: sessionData), HttpContext.RequestAborted);
 				// Sent verbatim: Json() uses System.Text.Json, which writes every value of a
 				// Newtonsoft JObject as an empty array.
-				return Content(plan.ExpectedAnswerJson, "application/json");
+				return Content(SheetMusicResponse(plan.ExpectedAnswerJson, routineStatus), "application/json");
 			}
 
 			// Mix every plan into a single playable blob, then collect
@@ -166,28 +222,48 @@ namespace AcademiaAuditiva.Controllers
 				mixedAddresses,
 				free: request.Free,
 				filterJson: filterJson,
+				routine: routineQuestion,
 				cancellationToken: HttpContext.RequestAborted);
+			if (routineQuestion is { } roundQuestion)
+				await _routines.RememberQuestionAsync(userId, roundQuestion.Link, new PendingQuestion(RoundId: round.RoundId), HttpContext.RequestAborted);
 
-			// Uniform response: most exercises ship one play token; only
-			// GuessMissingNote ships two (melody1Token, melody2Token).
-			// Staff-based exercises also need a `metadata` payload so the
-			// front-end can pre-render the prompt notes / staff context
-			// without leaking the full answer.
-			var staffExercises = new HashSet<string> {
-				"CompleteScale", "CompleteChord", "TransposeScale",
-				"MelodicDictation", "RhythmDictation"
-			};
-			object response;
+			return Json(PlayResponse(exercise, round, routineStatus));
+		}
+
+		private static readonly HashSet<string> StaffExercises = new() {
+			"CompleteScale", "CompleteChord", "TransposeScale",
+			"MelodicDictation", "RhythmDictation"
+		};
+
+		// Uniform response: most exercises ship one play token; only
+		// GuessMissingNote ships two (melody1Token, melody2Token).
+		// Staff-based exercises also need a `metadata` payload so the
+		// front-end can pre-render the prompt notes / staff context
+		// without leaking the full answer. A routine question also says
+		// where the student stands on the routine item.
+		private static Dictionary<string, object?> PlayResponse(Exercise exercise, AudioRound round, RoutineRoundStatus? routine)
+		{
+			var response = PlayTokens(exercise, round);
+			if (routine is not null)
+			{
+				response["routine"] = routine;
+			}
+			return response;
+		}
+
+		private static Dictionary<string, object?> PlayTokens(Exercise exercise, AudioRound round)
+		{
 			if (exercise.Name == "GuessMissingNote")
 			{
-				response = new { roundId = round.RoundId, melody1Token = round.Tokens[0], melody2Token = round.Tokens[1] };
+				return new() { ["roundId"] = round.RoundId, ["melody1Token"] = round.Tokens[0], ["melody2Token"] = round.Tokens[1] };
 			}
-			else if (staffExercises.Contains(exercise.Name))
+
+			if (StaffExercises.Contains(exercise.Name))
 			{
 				// Build a plain CLR dictionary because the action returns via
 				// System.Text.Json (no AddNewtonsoftJson is registered) which
 				// cannot serialize a Newtonsoft JObject as a real JSON object.
-				var expected = JObject.Parse(plan.ExpectedAnswerJson);
+				var expected = JObject.Parse(round.ExpectedAnswerJson);
 				var metadata = new Dictionary<string, object?>();
 				foreach (var field in new[] {
 					"promptNotes", "clef", "keySignature", "timeSignature",
@@ -201,13 +277,23 @@ namespace AcademiaAuditiva.Controllers
 						metadata[field] = ToPlainJsonValue(token);
 					}
 				}
-				response = new { roundId = round.RoundId, playToken = round.Tokens[0], metadata = metadata };
+				return new() { ["roundId"] = round.RoundId, ["playToken"] = round.Tokens[0], ["metadata"] = metadata };
 			}
-			else
-			{
-				response = new { roundId = round.RoundId, playToken = round.Tokens[0] };
-			}
-			return Json(response);
+
+			return new() { ["roundId"] = round.RoundId, ["playToken"] = round.Tokens[0] };
+		}
+
+		// Sheet music is sent as its expected answer (the melody to sing), with the
+		// routine status added to a routine question, as the other exercises have it.
+		private static string SheetMusicResponse(string expectedAnswerJson, RoutineRoundStatus? routine)
+		{
+			if (routine is null)
+				return expectedAnswerJson;
+
+			var response = JObject.Parse(expectedAnswerJson);
+			response["routine"] = JToken.Parse(System.Text.Json.JsonSerializer.Serialize(
+				routine, System.Text.Json.JsonSerializerOptions.Web));
+			return response.ToString(Formatting.None);
 		}
 
 		private static object? ToPlainJsonValue(JToken token)
@@ -255,6 +341,7 @@ namespace AcademiaAuditiva.Controllers
 			bool free = false;
 			string? filterJson = null;
 			DateTimeOffset? issuedAt = null;
+			RoutineQuestion? routineQuestion = null;
 
 			if (!string.IsNullOrEmpty(dto.RoundId))
 			{
@@ -266,6 +353,7 @@ namespace AcademiaAuditiva.Controllers
 					free = round.Free;
 					filterJson = round.FilterJson;
 					issuedAt = round.IssuedAt;
+					routineQuestion = round.Routine;
 				}
 			}
 
@@ -274,12 +362,13 @@ namespace AcademiaAuditiva.Controllers
 			{
 				var json = await _cache.GetStringAsync(legacyKey);
 				if (string.IsNullOrEmpty(json))
-					return Json(new { success = false, message = _localizer["Exercise.SessionExpired"].Value, isCorrect = false });
+					return await RoundGoneAsync(userId, dto);
 				var legacy = JsonConvert.DeserializeObject<ExerciseSessionData>(json);
 				expectedAnswer = legacy.ExpectedAnswer;
 				free = legacy.Free;
 				filterJson = legacy.FilterJson;
 				issuedAt = DateTime.SpecifyKind(legacy.Timestamp, DateTimeKind.Utc);
+				routineQuestion = RoutineQuestion.From(legacy.RoutineAssignmentId, legacy.RoutineItemId, legacy.RoutineQuestion);
 			}
 
 			var validator = _validators.Get(exercise.Name);
@@ -301,6 +390,8 @@ namespace AcademiaAuditiva.Controllers
 				if (roundConsumed)
 				{
 					await _audioTokens.RemoveRoundAsync(userId, dto.ExerciseId, dto.RoundId, HttpContext.RequestAborted);
+					if (routineQuestion is not null)
+						await _routines.RememberAnsweredAsync(userId, dto.ExerciseId, dto.RoundId, routineQuestion.Value, HttpContext.RequestAborted);
 				}
 				await _cache.RemoveAsync(legacyKey);
 			}
@@ -319,6 +410,26 @@ namespace AcademiaAuditiva.Controllers
 					message = isCorrect ? _localizer["Exercise.CorrectAnswer"].Value : _localizer["Exercise.IncorrectAnswer"].Value
 				});
 			}
+
+			var timeZone = UserTimeZone.FromRequest(Request);
+
+			// A routine question's answer takes that question, unless every question is
+			// answered already or that one is (in another window, say); should the routine
+			// no longer be the student's, it is ordinary practice.
+			RoutineRoundContext? routine = null;
+			if (routineQuestion is { } asked)
+			{
+				routine = await _routines.FindAsync(userId, asked.Link, timeZone, HttpContext.RequestAborted);
+				if (routine is not null && routine.Item.ExerciseId != exercise.ExerciseId)
+					routine = null;
+				if (routine is not null && (routine.Item.Progress.IsComplete || asked.Number != routine.Item.NextQuestion))
+				{
+					await ForgetRoundAsync();
+					return AnswerNotTaken(routine.Item);
+				}
+			}
+
+			var answered = routine is null ? null : routineQuestion;
 
 			var existingScore = await _context.Scores
 				.Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
@@ -361,7 +472,10 @@ namespace AcademiaAuditiva.Controllers
 				IsCorrect = isCorrect,
 				TimeSpentSeconds = timeSpentSeconds,
 				Timestamp = now,
-				FilterJson = filterJson
+				FilterJson = filterJson,
+				RoutineAssignmentId = answered?.Link.AssignmentId,
+				RoutineItemId = answered?.Link.ItemId,
+				RoutineQuestion = answered?.Number
 			});
 
 			// Upsert the aggregate row (one per user+exercise).
@@ -387,7 +501,27 @@ namespace AcademiaAuditiva.Controllers
 				aggregate.LastAttemptAt = now;
 			}
 
-			await _context.SaveChangesAsync();
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (DbUpdateException) when (answered is { } question)
+			{
+				// Two windows answered the same question at once: the unique index on the
+				// routine columns refused this answer, and nothing of it was saved.
+				_context.ChangeTracker.Clear();
+				var taken = await _context.ScoreSnapshots.AnyAsync(s =>
+					s.UserId == userId && s.RoutineAssignmentId == question.Link.AssignmentId &&
+					s.RoutineItemId == question.Link.ItemId && s.RoutineQuestion == question.Number);
+				if (!taken)
+					throw;
+
+				await ForgetRoundAsync();
+				var current = await _routines.FindAsync(userId, question.Link, timeZone, HttpContext.RequestAborted);
+				return AlreadyAnswered(current is null
+					? RoutineRoundStatus.Unavailable(_localizer)
+					: RoutineRoundStatus.From(current.Item, _localizer));
+			}
 
 			await ForgetRoundAsync();
 			
@@ -412,7 +546,7 @@ namespace AcademiaAuditiva.Controllers
 			try
 			{
 				var attempt = await _gamification.RecordAttemptAsync(
-					userId, isCorrect, UserTimeZone.FromRequest(Request), HttpContext.RequestAborted);
+					userId, isCorrect, timeZone, HttpContext.RequestAborted);
 				rewards = BuildRewards(attempt);
 			}
 			catch (Exception ex) when (ex is not OperationCanceledException)
@@ -445,9 +579,46 @@ namespace AcademiaAuditiva.Controllers
 				answer = currentAnswer,
 				message = isCorrect ? _localizer["Exercise.CorrectAnswer"].Value : _localizer["Exercise.IncorrectAnswer"].Value,
 				rewards,
-				path
+				path,
+				routine = routine is null ? null : RoutineRoundStatus.From(routine.Item.Answered(isCorrect), _localizer)
 			});
 		}
+
+		/// <summary>
+		/// Answers a round that is no longer there. When it asked a routine question that was
+		/// answered since (in another window showing the same question, say), the student is
+		/// told so and where the routine stands; otherwise the round expired.
+		/// </summary>
+		private async Task<JsonResult> RoundGoneAsync(string userId, ValidateExerciseDto dto)
+		{
+			if (!string.IsNullOrEmpty(dto.RoundId)
+				&& await _routines.AnsweredQuestionAsync(userId, dto.ExerciseId, dto.RoundId, HttpContext.RequestAborted) is { } asked)
+			{
+				var routine = await _routines.FindAsync(userId, asked.Link, UserTimeZone.FromRequest(Request), HttpContext.RequestAborted);
+				if (routine is not null && routine.Item.ExerciseId == dto.ExerciseId)
+					return AnswerNotTaken(routine.Item);
+			}
+
+			return Json(new { success = false, message = _localizer["Exercise.SessionExpired"].Value, isCorrect = false });
+		}
+
+		/// <summary>Refuses an answer to a routine question that takes none: every question is answered, or that one is.</summary>
+		private JsonResult AnswerNotTaken(AssignedRoutineItem item)
+		{
+			var status = RoutineRoundStatus.From(item, _localizer);
+			return item.Progress.IsComplete
+				? Json(new { success = false, isCorrect = false, message = status.Blocked!.Message, routine = status })
+				: AlreadyAnswered(status);
+		}
+
+		private JsonResult AlreadyAnswered(RoutineRoundStatus status) => Json(new
+		{
+			success = false,
+			isCorrect = false,
+			title = _localizer["Routine.AlreadyAnsweredTitle"].Value,
+			message = _localizer["Routine.AlreadyAnswered"].Value,
+			routine = status
+		});
 
 		/// <summary>
 		/// Shows the answer of a free practice round without using the round up,

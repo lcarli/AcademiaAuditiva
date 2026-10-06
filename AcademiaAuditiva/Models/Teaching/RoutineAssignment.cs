@@ -18,7 +18,12 @@ public class RoutineAssignment
     public ApplicationUser? Student { get; set; }
 
     public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>The due date (no time): the routine is due by the end of that day in the student's time zone.</summary>
     public DateTime? DueAt { get; set; }
+
+    /// <summary>Whether answers are still accepted after the due date; otherwise the routine closes then.</summary>
+    public bool AllowLate { get; set; }
 
     public ICollection<RoutineAssignmentOverride> Overrides { get; set; } = new List<RoutineAssignmentOverride>();
 }

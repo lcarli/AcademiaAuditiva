@@ -8,8 +8,8 @@ namespace AcademiaAuditiva.UnitTests;
 /// what a single routine item looks like for one specific student once
 /// a per-student override is applied to the classroom-wide default — and
 /// for <see cref="RoutineItemProgress"/>, which decides when it is done.
-/// Both underpin the "My Training" page so their rules need to
-/// be unambiguous.
+/// Both underpin the "My Training" page and routine rounds, so their rules
+/// need to be unambiguous.
 /// </summary>
 public class RoutineAssignmentTests
 {
@@ -173,13 +173,13 @@ public class RoutineAssignmentTests
 
     [Theory]
     [InlineData(10, 8, 10, 80, true, 100)]   // exactly the minimum accuracy
-    [InlineData(10, 10, 10, null, true, 100)] // no minimum: attempts are enough
-    [InlineData(12, 5, 10, null, true, 100)]  // attempts beyond the target still count
+    [InlineData(10, 10, 10, null, true, 100)] // no minimum: answers are enough
+    [InlineData(12, 5, 10, null, true, 100)]  // answers beyond a lowered target still count
     [InlineData(5, 5, 10, 80, false, 50)]     // halfway
     [InlineData(3, 3, 7, null, false, 42)]    // floor(42.9)
-    [InlineData(15, 6, 10, 80, false, 99)]    // target reached, accuracy too low
+    [InlineData(10, 6, 10, 80, true, 100)]    // like a test: done even below the minimum
     [InlineData(0, 0, 0, 80, true, 100)]      // a target of 0 asks for nothing
-    public void Progress_IsComplete_OnceTheTargetAndMinimumAccuracyAreMet(
+    public void Progress_IsComplete_OnceEveryQuestionIsAnswered(
         int attempts, int correct, int target, int? minScore, bool complete, int percent)
     {
         var progress = new RoutineItemProgress(attempts, correct, target, minScore);
@@ -197,8 +197,8 @@ public class RoutineAssignmentTests
 
         progress.Accuracy.Should().Be(80);
         progress.MeetsMinScore.Should().BeFalse();
-        progress.IsComplete.Should().BeFalse();
-        progress.Percent.Should().Be(99);
+        progress.IsComplete.Should().BeTrue("the minimum is the pass mark, not a reason to keep answering");
+        progress.Percent.Should().Be(100);
     }
 
     [Fact]

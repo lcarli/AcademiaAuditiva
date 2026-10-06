@@ -1055,12 +1055,6 @@
   <data name="MyTraining.Source.Personal" xml:space="preserve">
     <value>Personnelle</value>
   </data>
-  <data name="MyTraining.Complete" xml:space="preserve">
-    <value>Terminé</value>
-  </data>
-  <data name="MyTraining.AccuracyMin" xml:space="preserve">
-    <value>Précision {0} % (min. {1} %)</value>
-  </data>
   <data name="MyTraining.MinAccuracy" xml:space="preserve">
     <value>Précision minimale : {0} %</value>
   </data>
@@ -1081,6 +1075,60 @@
   </data>
   <data name="MyTraining.NoExercises" xml:space="preserve">
     <value>Aucun exercice dans cette routine.</value>
+  </data>
+  <data name="MyTraining.Answered" xml:space="preserve">
+    <value>Réponses : {0} sur {1}</value>
+  </data>
+  <data name="MyTraining.Finished" xml:space="preserve">
+    <value>Terminée</value>
+  </data>
+  <data name="MyTraining.Closed" xml:space="preserve">
+    <value>Fermée</value>
+  </data>
+  <data name="Routine.Question" xml:space="preserve">
+    <value>Question {0} sur {1}</value>
+  </data>
+  <data name="Routine.Result" xml:space="preserve">
+    <value>Terminé : résultat de {0} sur {1} ({2} %)</value>
+  </data>
+  <data name="Routine.Passed" xml:space="preserve">
+    <value>Minimum de {0} % atteint</value>
+  </data>
+  <data name="Routine.BelowMin" xml:space="preserve">
+    <value>Sous le minimum de {0} %</value>
+  </data>
+  <data name="Routine.Late" xml:space="preserve">
+    <value>Réponses en retard acceptées</value>
+  </data>
+  <data name="Routine.Closed" xml:space="preserve">
+    <value>L’échéance est passée : cette routine n’accepte plus de réponses.</value>
+  </data>
+  <data name="Routine.ClosedTitle" xml:space="preserve">
+    <value>Routine fermée</value>
+  </data>
+  <data name="Routine.ItemDone" xml:space="preserve">
+    <value>Vous avez répondu à toutes les questions de cet exercice. Retournez à Mon entraînement pour la suite de la routine.</value>
+  </data>
+  <data name="Routine.ItemDoneTitle" xml:space="preserve">
+    <value>Exercice terminé</value>
+  </data>
+  <data name="Routine.AlreadyAnswered" xml:space="preserve">
+    <value>Cette question a déjà reçu une réponse, peut-être dans un autre onglet.</value>
+  </data>
+  <data name="Routine.AlreadyAnsweredTitle" xml:space="preserve">
+    <value>Question déjà traitée</value>
+  </data>
+  <data name="Routine.Unavailable" xml:space="preserve">
+    <value>Cette routine ne vous est plus attribuée.</value>
+  </data>
+  <data name="Routine.UnavailableTitle" xml:space="preserve">
+    <value>Routine non disponible</value>
+  </data>
+  <data name="Routine.BackToMyTraining" xml:space="preserve">
+    <value>Retour à Mon entraînement</value>
+  </data>
+  <data name="Routine.FilterLocked" xml:space="preserve">
+    <value>Choisi par votre enseignant pour cette routine.</value>
   </data>
   <data name="Teacher.Home.Title" xml:space="preserve">
     <value>Tableau de bord enseignant</value>
@@ -2461,6 +2509,12 @@
   </data>
   <data name="Teacher.Routines.DueDate" xml:space="preserve">
     <value>Date d’échéance</value>
+  </data>
+  <data name="Teacher.Routines.AllowLate" xml:space="preserve">
+    <value>Accepter les réponses en retard</value>
+  </data>
+  <data name="Teacher.Routines.AllowLateHelp" xml:space="preserve">
+    <value>Les élèves peuvent encore répondre après la date d’échéance. Sinon, la routine se ferme à la fin de cette journée.</value>
   </data>
   <data name="Teacher.Routines.SelectClassroom" xml:space="preserve">
     <value>Sélectionnez une classe.</value>

@@ -1,6 +1,7 @@
 @using AcademiaAuditiva.Services
 @using AcademiaAuditiva.Services.Audio
 @model AcademiaAuditiva.ViewModels.ExerciseFiltersViewModel
+@inject AcademiaAuditiva.Services.Routines.RoutinePage RoutinePage
 @{
     // Exercises about chords leave out the instruments that don't play them. When the exercise
     // plays chords, the guitar plays them where on the neck the student picks: the position
@@ -56,20 +57,34 @@
 
     @if (Model.Groups.Count > 0)
     {
-        var presets = AcademiaAuditiva.Services.ExerciseFilterPresets.FromQuery(Context.Request.Query, Model.Groups);
+        // A routine question plays with the filters its teacher set (RequestPlay enforces them);
+        // the student picks the others.
+        var routine = await RoutinePage.ResolveAsync(Context, Model.ExerciseId);
+        var locked = routine?.Round?.Item.Filters;
+        IReadOnlyDictionary<string, string> presets = locked
+            ?? AcademiaAuditiva.Services.ExerciseFilterPresets.FromQuery(Context.Request.Query, Model.Groups);
         <hr class="my-4" />
         @* The exercise scripts read these selects by id/name, so both stay equal to the group name. *@
         @foreach (var group in Model.Groups)
         {
             presets.TryGetValue(group.Name, out var preset);
+            var isLocked = locked?.ContainsKey(group.Name) == true;
             <div class="mb-3">
                 <label for="@group.Name" class="form-label">@Localizer[group.Label]</label>
-                <select id="@group.Name" name="@group.Name" class="form-select">
+                <select id="@group.Name" name="@group.Name" class="form-select" disabled="@isLocked"
+                        aria-describedby="@(isLocked ? group.Name + "Locked" : null)">
                     @foreach (var opt in group.Options)
                     {
                         <option value="@opt.Value" selected="@(opt.Value == preset)">@Localizer[opt.Text]</option>
                     }
                 </select>
+                @if (isLocked)
+                {
+                    <div class="form-text" id="@(group.Name)Locked">
+                        <i class="bi bi-lock" aria-hidden="true"></i>
+                        @Localizer["Routine.FilterLocked"]
+                    </div>
+                }
             </div>
         }
     }

@@ -11,4 +11,13 @@ public class PlayRequestDto
     /// ValidateExercise never takes it from the client.
     /// </summary>
     public bool Free { get; set; }
+
+    /// <summary>
+    /// The routine item to ask a question of (both or neither): the routine assignment and
+    /// its item, from the exercise page's query string. Never with <see cref="Free"/>.
+    /// </summary>
+    public int? RoutineAssignmentId { get; set; }
+
+    /// <inheritdoc cref="RoutineAssignmentId"/>
+    public int? RoutineItemId { get; set; }
 }

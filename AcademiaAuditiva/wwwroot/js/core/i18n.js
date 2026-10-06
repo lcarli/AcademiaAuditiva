@@ -66,11 +66,12 @@
         message(loc, "incompleteText", "Generate the exercise and select your answer before validating.")
       );
     },
+    // A response may say what went wrong as a dialog title and icon (practice.js does for routines).
     serverError(data, loc) {
       if (!data || data.success !== false) return false;
       Swal.fire({
-        icon: "error",
-        title: message(loc, "validationErrorTitle", "Unable to validate"),
+        icon: data.icon || "error",
+        title: data.title || message(loc, "validationErrorTitle", "Unable to validate"),
         text: data.message || message(loc, "validationErrorText", "Please generate a new exercise and try again.")
       });
       return true;
