@@ -36,6 +36,20 @@
     return m[2] || "";
   }
 
+  var LETTER_SEMITONES = { c: 0, d: 2, e: 4, f: 5, g: 7, a: 9, b: 11 };
+  var ACCIDENTAL_SEMITONES = { "": 0, "#": 1, "##": 2, b: -1, bb: -2 };
+
+  /**
+   * The MIDI number of an AA note name, to order notes by pitch:
+   * "C4" -> 60, "B#3" -> 60, "Cb4" -> 59. Returns null for unparseable input.
+   */
+  function noteToMidi(note) {
+    if (!note || typeof note !== "string") return null;
+    var m = note.match(NOTE_PATTERN);
+    if (!m) return null;
+    return (parseInt(m[3], 10) + 1) * 12 + LETTER_SEMITONES[m[1].toLowerCase()] + ACCIDENTAL_SEMITONES[m[2] || ""];
+  }
+
   /**
    * Translate a duration label to VexFlow's duration string.
    * The trailing "r" marker (used by StaffRenderer's caller) is
@@ -63,6 +77,7 @@
   root.StaffMapping = {
     noteToVexKey: noteToVexKey,
     accidentalOf: accidentalOf,
+    noteToMidi: noteToMidi,
     isRestLabel: isRestLabel,
     stripRest: stripRest,
     isDottedLabel: isDottedLabel,

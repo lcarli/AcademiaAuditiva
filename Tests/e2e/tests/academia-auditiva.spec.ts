@@ -282,7 +282,7 @@ test('rhythm dictation is written with note and rest symbols, without note names
   await expect(page.locator('#staffEditor :is([data-note-name], [data-octave], [data-accidental])')).toHaveCount(0);
 
   // Each click writes its symbol on the staff; the barlines come by themselves.
-  const answer = await revealDictation(page);
+  const answer = await revealOnStaff(page);
   const [first, ...others] = answer.split('|').filter(token => token !== 'bar');
   await page.click(`#staffEditor [data-figure="${first}"]`);
   await expectUnfinishedNotChecked(page);
@@ -290,7 +290,7 @@ test('rhythm dictation is written with note and rest symbols, without note names
   // Every measure is full: no note value fits any more.
   await expect(page.locator('#staffEditor [data-figure]:not([disabled])')).toHaveCount(0);
 
-  expect(await validateDictation(page)).toMatchObject({ success: true, free: true, isCorrect: true, answer });
+  expect(await validateStaff(page)).toMatchObject({ success: true, free: true, isCorrect: true, answer });
   await page.click('.swal2-confirm');
 });
 
@@ -303,9 +303,9 @@ test('melodic dictation is written with note symbols and note names, and a wrong
   await expectFigureButtons(page, ['w', 'h', 'q', '8', 'wr', 'hr', 'qr', '8r']);
   await expect(page.locator('#staffEditor [data-note-name]')).toHaveText(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
 
-  const answer = await revealDictation(page);
+  const answer = await revealOnStaff(page);
   await writeMelody(page, answer);
-  expect(await validateDictation(page)).toMatchObject({ success: true, free: true, isCorrect: true, answer });
+  expect(await validateStaff(page)).toMatchObject({ success: true, free: true, isCorrect: true, answer });
   await page.click('.swal2-confirm');
 
   // A melody never climbs to octave 6, so B6s are always wrong.
@@ -318,7 +318,7 @@ test('melodic dictation is written with note symbols and note names, and a wrong
   for (let i = 0; i < 40 && await b.isEnabled(); i++) await b.click();
   await expect(b).toBeDisabled();
 
-  const wrong = await validateDictation(page);
+  const wrong = await validateStaff(page);
   expect(wrong).toMatchObject({ success: true, isCorrect: false });
   const dialog = page.locator('.swal2-popup');
   await expect(dialog.locator('.aa-answer-caption')).toHaveText('The correct answer was:');
@@ -373,6 +373,52 @@ test('sight-singing is silent on a new melody and plays its starting note on the
   // Its button plays the note, once, as the piano clip: no synthesized tone.
   await page.click('#playStartingNote');
   await expect.poll(heard).toEqual(['decoded', 'clip']);
+});
+
+test('complete the chord is heard and written on the staff, above its root or whole', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  const editor = page.locator('#staffEditor');
+  const noteheads = editor.locator('svg .vf-notehead');
+
+  // The root is on the staff; the other notes stack above it, written in any order.
+  const given = await openChord(page, baseURL!, { ccQuality: 'sevenths', ccAccidentals: 'any', ccRoot: 'given', ccOctave: '4' });
+  expect(given).toMatchObject({ clef: 'treble', octave: 4, slots: 3 });
+  const [root] = given.promptNotes;
+  expect(root).toMatch(/^[A-G][#b]?4$/);
+  await expect(page.locator('#staffPrompt')).toHaveText(`Listen to the chord and complete it above ${root}.`);
+  await expect(noteheads).toHaveCount(1);
+
+  const seventh = await revealOnStaff(page, 4);
+  const upper = seventh.split('|').map(token => token.split(':')[0]);
+  expect(upper).toHaveLength(3);
+  for (const note of [...upper].reverse()) await writeNote(page, note);
+  await expect(noteheads).toHaveCount(4);
+  await expect(editor.locator('[data-note-name]:not([disabled])')).toHaveCount(0);
+  expect(await validateStaff(page)).toMatchObject({ success: true, free: true, isCorrect: true, answer: seventh });
+  await page.click('.swal2-confirm');
+
+  // With the root hidden, the whole chord goes on an empty staff: the bass one for octave 3.
+  const hidden = await openChord(page, baseURL!, { ccQuality: 'triads', ccAccidentals: 'none', ccRoot: 'hidden', ccOctave: '3' });
+  expect(hidden).toMatchObject({ promptNotes: [], clef: 'bass', octave: 3, slots: 3 });
+  await expect(page.locator('#staffPrompt')).toHaveText('Listen to the chord and write all of its notes on the staff, with the root in octave 3.');
+  await expect(noteheads).toHaveCount(0);
+
+  const triad = await revealOnStaff(page, 3);
+  const [bottom, middle, top] = triad.split('|').map(token => token.split(':')[0]);
+  const topTooHigh = top.replace(/\d$/, octave => String(Number(octave) + 1));
+  await writeNote(page, topTooHigh);
+  await writeNote(page, middle);
+  await writeNote(page, bottom);
+  // Undo takes back the note written last, wherever it sits in the chord.
+  await editor.locator('[data-action="undo"]').click();
+  await expect(noteheads).toHaveCount(2);
+  await writeNote(page, bottom);
+  // A click on a note of the chord selects it, to move it.
+  await clickHighestNote(page);
+  await expect(editor.locator('[data-octave-status]')).toHaveText(new RegExp(`${topTooHigh.slice(-1)}$`));
+  await editor.locator('[data-octave="down"]').click();
+  expect(await validateStaff(page)).toMatchObject({ success: true, free: true, isCorrect: true, answer: triad });
+  await page.click('.swal2-confirm');
 });
 
 test('explore plays the chosen chord and shows its notes', async ({ page, baseURL }) => {
@@ -656,8 +702,9 @@ async function expectFigureButtons(page: Page, figures: string[]) {
   }
 }
 
-// Free practice shows the round's answer on a staff, read out without codes.
-async function revealDictation(page: Page) {
+// Free practice shows the round's answer on a staff, read out without codes;
+// the notes of a chord (as many as chordOf) stack as one.
+async function revealOnStaff(page: Page, chordOf?: number) {
   const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
   await page.click('[data-aa-reveal]');
   const shown = await (await revealResponse).json();
@@ -665,16 +712,19 @@ async function revealDictation(page: Page) {
   const dialog = page.locator('.swal2-popup');
   await expect(dialog.locator('.aa-reveal-staff svg')).toBeVisible();
   await expect(dialog.locator('.aa-reveal-staff')).toHaveAttribute('aria-label', /^[^|:]+$/);
+  if (chordOf) {
+    await expect(dialog.locator('.aa-reveal-staff .vf-stavenote')).toHaveCount(1);
+    await expect(dialog.locator('.aa-reveal-staff .vf-notehead')).toHaveCount(chordOf);
+  }
   await page.click('.swal2-confirm');
   await expect(dialog).toBeHidden();
   return shown.answer as string;
 }
 
 // Writes a melody ("E4:q|rest:qr|bar|G4:h") with the editor's buttons: the note value,
-// then the note name, its octave and accidental. The barlines come by themselves.
+// then the note. The barlines come by themselves.
 async function writeMelody(page: Page, answer: string) {
   const editor = page.locator('#staffEditor');
-  const octaveStatus = editor.locator('[data-octave-status]');
   for (const token of answer.split('|')) {
     if (token === 'bar') continue;
     const [note, duration] = token.split(':');
@@ -685,16 +735,57 @@ async function writeMelody(page: Page, answer: string) {
     }
     if (await figure.getAttribute('aria-pressed') !== 'true') await figure.click();
     await expect(figure).toHaveAttribute('aria-pressed', 'true');
-    const [, name, accidental, octave] = /^([A-G])([#b]?)(\d)$/.exec(note)!;
-    await editor.locator(`[data-note-name="${name}"]`).click();
-    for (let i = 0; i < 4; i++) {
-      const current = Number(/(\d+)\s*$/.exec(await octaveStatus.textContent() ?? '')?.[1]);
-      if (current === Number(octave)) break;
-      await editor.locator(`[data-octave="${current < Number(octave) ? 'up' : 'down'}"]`).click();
-    }
-    await expect(octaveStatus).toHaveText(new RegExp(`${octave}$`));
-    if (accidental) await editor.locator(`[data-accidental="${accidental === '#' ? 'sharp' : 'flat'}"]`).click();
+    await writeNote(page, note);
   }
+}
+
+// Writes a note ("Eb5") with the editor's buttons: its name, then its octave and accidental.
+async function writeNote(page: Page, note: string) {
+  const editor = page.locator('#staffEditor');
+  const octaveStatus = editor.locator('[data-octave-status]');
+  const [, name, accidental, octave] = /^([A-G])([#b]?)(\d)$/.exec(note)!;
+  await editor.locator(`[data-note-name="${name}"]`).click();
+  for (let i = 0; i < 4; i++) {
+    const current = Number(/(\d+)\s*$/.exec(await octaveStatus.textContent() ?? '')?.[1]);
+    if (current === Number(octave)) break;
+    await editor.locator(`[data-octave="${current < Number(octave) ? 'up' : 'down'}"]`).click();
+  }
+  await expect(octaveStatus).toHaveText(new RegExp(`${octave}$`));
+  if (accidental) await editor.locator(`[data-accidental="${accidental === '#' ? 'sharp' : 'flat'}"]`).click();
+}
+
+// Opens "complete the chord" in free practice with the chosen filters and plays a round:
+// the chord is heard. Returns what the round tells the staff editor.
+async function openChord(page: Page, baseURL: string, choices: Record<string, string>) {
+  await page.goto(`${baseURL}/Exercise/CompleteChord?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const filters = page.locator('#filtersModal');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  for (const [group, option] of Object.entries(choices)) {
+    await filters.locator(`select[name="${group}"]`).selectOption(option);
+  }
+  await filters.locator('.btn-close').click();
+  await expect(filters).toBeHidden();
+
+  const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  const audioResponse = page.waitForResponse(response => response.url().includes('/audio/token/'));
+  await page.click('#Play');
+  const play = await (await playResponse).json();
+  const audio = await audioResponse;
+  expect(audio.url()).toContain(play.playToken);
+  expect(audio.headers()['content-type']).toContain('audio/');
+  await expect(page.locator('#staffEditor [data-note-name]').first()).toBeVisible();
+  return play.metadata;
+}
+
+// Clicks the highest note of the chord on the editor's staff.
+async function clickHighestNote(page: Page) {
+  const centres = await page.locator('#staffEditor svg .vf-notehead').evaluateAll(nodes => nodes.map(node => {
+    const box = node.getBoundingClientRect();
+    return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+  }));
+  const highest = centres.reduce((best, centre) => (centre.y < best.y ? centre : best));
+  await page.mouse.click(highest.x, highest.y);
 }
 
 // A dictation is checked only once every measure is written.
@@ -713,7 +804,7 @@ async function expectUnfinishedNotChecked(page: Page) {
   expect(checked, 'an unfinished dictation is not sent').toBe(false);
 }
 
-async function validateDictation(page: Page) {
+async function validateStaff(page: Page) {
   const validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
   await page.click('#validateGuess');
   return (await validateResponse).json();

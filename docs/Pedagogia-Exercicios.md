@@ -37,7 +37,7 @@
 - **GuessFunction** - Qual a função harmônica?
 - **GuessCadence** - Que cadência é essa?
 - **GuessInversion** - Qual a inversão do acorde?
-- **CompleteChord** - Complete na pauta as notas que faltam em um acorde
+- **CompleteChord** - Ouça um acorde e escreva-o na pauta
 
 ### Melodia
 - **MelodicDictation** - Ouça uma melodia curta e escreva-a na pauta

@@ -87,9 +87,12 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 ---
 
 ### 10. Complete o acorde
+O aluno ouve o acorde inteiro (tocado como está escrito) e escreve as notas empilhadas na pauta, em posição fundamental.
 - **Filtros aplicáveis**:
-  - Qualidade do acorde (maior, menor ou ambas)
-  - Oitava base
+  - Qualidade do acorde: maiores, menores, maiores e menores, todas as tríades (maior, menor, diminuta, aumentada), acordes com sétima (7M, 7, m7, m7(b5), dim7) ou todos
+  - Acidentes: só acordes sem acidentes ou com acidentes
+  - Fundamental: dada na pauta (o aluno completa o resto) ou oculta (escreve o acorde todo)
+  - Oitava da fundamental: 4 (clave de sol) ou 3 (clave de fá)
 
 ---
 

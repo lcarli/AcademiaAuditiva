@@ -157,25 +157,27 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
     /// sides: trim, lower-case, normalise accidentals (♯→#, ♭→b, ♮
     /// stripped), convert pitches to MIDI so enharmonic spellings match,
     /// unify rest aliases (B4:qr → rest:qr) and barline aliases (barline → bar).
+    /// With <c>unordered</c>, the notes may come in any order: those of a chord.
     /// </summary>
     internal static class StaffSequenceHelpers
     {
         public static ExerciseValidationResult Compare(
             string userGuess,
             string expectedAnswerJson,
-            bool durationOnly = false)
+            bool durationOnly = false,
+            bool unordered = false)
         {
             var obj = JObject.Parse(expectedAnswerJson);
             var expected = (string?)obj["answerString"] ?? string.Empty;
 
-            var canonicalExpected = Canonicalise(expected, durationOnly);
-            var canonicalGuess = Canonicalise(userGuess ?? string.Empty, durationOnly);
+            var canonicalExpected = Canonicalise(expected, durationOnly, unordered);
+            var canonicalGuess = Canonicalise(userGuess ?? string.Empty, durationOnly, unordered);
 
             var isCorrect = string.Equals(canonicalExpected, canonicalGuess, StringComparison.Ordinal);
             return new ExerciseValidationResult(isCorrect, expected);
         }
 
-        private static string Canonicalise(string raw, bool durationOnly)
+        private static string Canonicalise(string raw, bool durationOnly, bool unordered)
         {
             if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
 
@@ -225,6 +227,7 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
                 }
             }
 
+            if (unordered) canon.Sort(StringComparer.Ordinal);
             return string.Join("|", canon);
         }
     }
@@ -236,11 +239,12 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
             => StaffSequenceHelpers.Compare(userGuess, expectedAnswerJson);
     }
 
+    // The notes of a chord are written stacked, so their order doesn't matter.
     public sealed class CompleteChordValidator : IExerciseValidator
     {
         public string ExerciseName => "CompleteChord";
         public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
-            => StaffSequenceHelpers.Compare(userGuess, expectedAnswerJson);
+            => StaffSequenceHelpers.Compare(userGuess, expectedAnswerJson, unordered: true);
     }
 
     public sealed class TransposeScaleValidator : IExerciseValidator

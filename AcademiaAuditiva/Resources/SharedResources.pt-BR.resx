@@ -2970,7 +2970,7 @@
     <comment />
   </data>
   <data name="Exercise.CompleteChordText" xml:space="preserve">
-    <value>Ouça a fundamental e complete o acorde na pauta.</value>
+    <value>Ouça o acorde e escreva-o na pauta.</value>
     <comment />
   </data>
   <data name="Exercise.SelectStaffExerciseText" xml:space="preserve">
@@ -2978,27 +2978,75 @@
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Prompt" xml:space="preserve">
-    <value>Complete o {{0}} sobre {{1}}.</value>
+    <value>Ouça o acorde e complete-o sobre {{0}}.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Subtitle" xml:space="preserve">
-    <value>Ouça a fundamental de um acorde e complete as notas restantes na pauta.</value>
+    <value>Ouça um acorde e escreva suas notas na pauta.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Instructions" xml:space="preserve">
-    <value>Clique em Tocar para ouvir a fundamental do acorde. Depois insira as notas restantes na pauta.</value>
+    <value>Clique em Tocar para ouvir o acorde. Escreva as notas dele empilhadas na pauta, da fundamental para cima. Se a fundamental já estiver na pauta (em cinza), escreva só as outras.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Tip1" xml:space="preserve">
-    <value>Tríades maiores usam terça maior e quinta justa.</value>
+    <value>Acordes maiores têm terça maior e quinta justa; menores, terça menor e quinta justa.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Tip2" xml:space="preserve">
-    <value>Tríades menores usam terça menor e quinta justa.</value>
+    <value>O acorde diminuto tem a quinta diminuta, meio tom abaixo da justa; o aumentado, a quinta aumentada, meio tom acima.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Tip3" xml:space="preserve">
-    <value>Confira a distância a partir da fundamental antes de validar.</value>
+    <value>Nos acordes com sétima, ouça a sétima: maior (meio tom abaixo da oitava), menor (um tom abaixo) ou diminuta (um tom e meio abaixo).</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.PromptWhole" xml:space="preserve">
+    <value>Ouça o acorde e escreva todas as notas dele na pauta, com a fundamental na oitava {{0}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Triads" xml:space="preserve">
+    <value>Todas as tríades</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Sevenths" xml:space="preserve">
+    <value>Acordes com sétima</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.All" xml:space="preserve">
+    <value>Todos os acordes</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.AccidentalsFilter" xml:space="preserve">
+    <value>Acidentes</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.NoAccidentals" xml:space="preserve">
+    <value>Sem acidentes</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.WithAccidentals" xml:space="preserve">
+    <value>Com acidentes</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.RootFilter" xml:space="preserve">
+    <value>Fundamental</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.RootGiven" xml:space="preserve">
+    <value>Dada na pauta</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.RootHidden" xml:space="preserve">
+    <value>Oculta (escrever o acorde todo)</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Octave4" xml:space="preserve">
+    <value>4 (clave de sol)</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Octave3" xml:space="preserve">
+    <value>3 (clave de fá)</value>
     <comment />
   </data>
   <data name="TransposeScale" xml:space="preserve">
@@ -3171,14 +3219,6 @@
   </data>
   <data name="Exercise.StaffEditor.CorrectAnswer" xml:space="preserve">
     <value>A resposta correta era:</value>
-    <comment />
-  </data>
-  <data name="Exercise.CompleteChord.QualityMajor" xml:space="preserve">
-    <value>acorde maior</value>
-    <comment />
-  </data>
-  <data name="Exercise.CompleteChord.QualityMinor" xml:space="preserve">
-    <value>acorde menor</value>
     <comment />
   </data>
   <data name="Gamification.Title" xml:space="preserve">

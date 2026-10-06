@@ -2970,7 +2970,7 @@
     <comment />
   </data>
   <data name="Exercise.CompleteChordText" xml:space="preserve">
-    <value>Listen to the root and complete the chord on the staff.</value>
+    <value>Listen to the chord and write it on the staff.</value>
     <comment />
   </data>
   <data name="Exercise.SelectStaffExerciseText" xml:space="preserve">
@@ -2978,27 +2978,75 @@
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Prompt" xml:space="preserve">
-    <value>Complete the {{0}} above {{1}}.</value>
+    <value>Listen to the chord and complete it above {{0}}.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Subtitle" xml:space="preserve">
-    <value>Hear a chord root and complete the remaining chord tones on the staff.</value>
+    <value>Hear a chord and write its notes on the staff.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Instructions" xml:space="preserve">
-    <value>Click Play to hear the chord root. Then enter the remaining chord tones on the staff.</value>
+    <value>Click Play to hear the chord. Write its notes stacked on the staff, from the root up. If the root is already on the staff (in gray), write only the others.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Tip1" xml:space="preserve">
-    <value>Major triads use a major third and perfect fifth.</value>
+    <value>Major chords have a major third and a perfect fifth; minor chords, a minor third and a perfect fifth.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Tip2" xml:space="preserve">
-    <value>Minor triads use a minor third and perfect fifth.</value>
+    <value>A diminished chord has a diminished fifth, a half step below the perfect one; an augmented chord, an augmented fifth, a half step above.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Tip3" xml:space="preserve">
-    <value>Check the distance from the root before validating.</value>
+    <value>In seventh chords, listen for the seventh: major (a half step below the octave), minor (a whole step below) or diminished (a step and a half below).</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.PromptWhole" xml:space="preserve">
+    <value>Listen to the chord and write all of its notes on the staff, with the root in octave {{0}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Triads" xml:space="preserve">
+    <value>All triads</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Sevenths" xml:space="preserve">
+    <value>Seventh chords</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.All" xml:space="preserve">
+    <value>All chords</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.AccidentalsFilter" xml:space="preserve">
+    <value>Accidentals</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.NoAccidentals" xml:space="preserve">
+    <value>No accidentals</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.WithAccidentals" xml:space="preserve">
+    <value>With accidentals</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.RootFilter" xml:space="preserve">
+    <value>Root</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.RootGiven" xml:space="preserve">
+    <value>Given on the staff</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.RootHidden" xml:space="preserve">
+    <value>Hidden (write the whole chord)</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Octave4" xml:space="preserve">
+    <value>4 (treble clef)</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Octave3" xml:space="preserve">
+    <value>3 (bass clef)</value>
     <comment />
   </data>
   <data name="TransposeScale" xml:space="preserve">
@@ -3171,14 +3219,6 @@
   </data>
   <data name="Exercise.StaffEditor.CorrectAnswer" xml:space="preserve">
     <value>The correct answer was:</value>
-    <comment />
-  </data>
-  <data name="Exercise.CompleteChord.QualityMajor" xml:space="preserve">
-    <value>major chord</value>
-    <comment />
-  </data>
-  <data name="Exercise.CompleteChord.QualityMinor" xml:space="preserve">
-    <value>minor chord</value>
     <comment />
   </data>
   <data name="Gamification.Title" xml:space="preserve">

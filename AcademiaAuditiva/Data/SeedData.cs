@@ -219,7 +219,7 @@ public static class SeedData
             },
             new Exercise {
                 Name = "CompleteChord",
-                Description = "Ouça a fundamental e complete as notas restantes do acorde na pauta.",
+                Description = "Ouça um acorde e escreva-o na pauta.",
                 ExerciseTypeId = 2,
                 ExerciseCategoryId = 1,
                 DifficultyLevelId = 2,
@@ -233,7 +233,30 @@ public static class SeedData
                         {
                             new("major", "Exercise.TypeChordMajeur"),
                             new("minor", "Exercise.TypeChordMineur"),
-                            new("both", "Exercise.TypeChordMajeurMineur")
+                            new("both", "Exercise.TypeChordMajeurMineur"),
+                            new("triads", "Exercise.CompleteChord.Triads"),
+                            new("sevenths", "Exercise.CompleteChord.Sevenths"),
+                            new("all", "Exercise.CompleteChord.All")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.CompleteChord.AccidentalsFilter",
+                        Name = "ccAccidentals",
+                        Options = new List<FilterOption>
+                        {
+                            new("none", "Exercise.CompleteChord.NoAccidentals"),
+                            new("any", "Exercise.CompleteChord.WithAccidentals")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.CompleteChord.RootFilter",
+                        Name = "ccRoot",
+                        Options = new List<FilterOption>
+                        {
+                            new("given", "Exercise.CompleteChord.RootGiven"),
+                            new("hidden", "Exercise.CompleteChord.RootHidden")
                         }
                     },
                     new FilterOptionGroup
@@ -242,16 +265,16 @@ public static class SeedData
                         Name = "ccOctave",
                         Options = new List<FilterOption>
                         {
-                            new("3", "3"),
-                            new("4", "4")
+                            new("4", "Exercise.CompleteChord.Octave4"),
+                            new("3", "Exercise.CompleteChord.Octave3")
                         }
                     }
                 }),
-                Instructions = "Você ouvirá a fundamental do acorde. Use a paleta para completar a terça e a quinta na pauta.",
+                Instructions = "Clique em Tocar para ouvir o acorde. Escreva as notas dele empilhadas na pauta, da fundamental para cima. Se a fundamental já estiver na pauta (em cinza), escreva só as outras.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
-                    "Acordes maiores usam terça maior e quinta justa.",
-                    "Acordes menores usam terça menor e quinta justa.",
-                    "Conte semitons a partir da fundamental se precisar confirmar o intervalo."
+                    "Acordes maiores têm terça maior e quinta justa; menores, terça menor e quinta justa.",
+                    "O acorde diminuto tem a quinta diminuta, meio tom abaixo da justa; o aumentado, a quinta aumentada, meio tom acima.",
+                    "Nos acordes com sétima, ouça a sétima: maior (meio tom abaixo da oitava), menor (um tom abaixo) ou diminuta (um tom e meio abaixo)."
                 }),
                 AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
                 {
