@@ -74,6 +74,47 @@ public class StaffExerciseGeneratorTests
         }
     }
 
+    // The sixteenths of each note value, the unit staff-editor.js counts a measure in.
+    private static readonly Dictionary<string, int> Sixteenths = new()
+    {
+        { "w", 16 }, { "h", 8 }, { "q", 4 }, { "8", 2 },
+    };
+
+    /// <summary>
+    /// Rebuilds a dictation answer the way staff-editor.js writes it: a measure holds
+    /// numerator × 16 / denominator sixteenths, and a note that comes once it is full starts the
+    /// next one, after a "bar". The round's answer must be exactly that, with every measure full,
+    /// or a student who wrote what they heard would be marked wrong.
+    /// </summary>
+    private static void AssertEditorWritesTheAnswer(JObject json, bool rhythm)
+    {
+        var timeSignature = json.Value<string>("timeSignature")!.Split('/');
+        var capacity = int.Parse(timeSignature[0]) * 16 / int.Parse(timeSignature[1]);
+        var answer = json.Value<string>("answerString")!.Split('|');
+
+        // The melody's first note is given on the staff.
+        var used = rhythm ? 0 : Sixteenths[json.Value<string>("firstDuration")!];
+        var measure = 1;
+        var written = new List<string>();
+        foreach (var token in answer.Where(t => t != "bar"))
+        {
+            if (used >= capacity)
+            {
+                measure++;
+                used = 0;
+                written.Add("bar");
+            }
+
+            written.Add(token);
+            used += Sixteenths[(rhythm ? token : token.Split(':')[1]).TrimEnd('r')];
+            used.Should().BeLessThanOrEqualTo(capacity, $"'{token}' must fit in measure {measure} of {json}");
+        }
+
+        used.Should().Be(capacity, $"the last measure of {json} is full");
+        measure.Should().Be(json.Value<int>("numMeasures"));
+        written.Should().Equal(answer, "the editor writes \"bar\" before each note that starts a measure");
+    }
+
     [Fact]
     public void CompleteScale_ProducesMelodyWithRootAndAnswerWithRest()
     {
@@ -357,6 +398,57 @@ public class StaffExerciseGeneratorTests
         json["error"].Should().BeNull();
         json.Value<int>("level").Should().Be(1);
         AssertRhythmEditorCanEnter(json.Value<string>("answerString")!);
+    }
+
+    [Theory]
+    [InlineData("MelodicDictation", "mdLevel", "1", "w,h", false)]
+    [InlineData("MelodicDictation", "mdLevel", "3", "w,h,q", true)]
+    [InlineData("MelodicDictation", "mdLevel", "4", "w,h,q,8", true)]
+    [InlineData("RhythmDictation", "rdLevel", "1", "w,h", false)]
+    [InlineData("RhythmDictation", "rdLevel", "3", "w,h,q", true)]
+    [InlineData("RhythmDictation", "rdLevel", "4", "w,h,q,8", true)]
+    public void Dictation_TellsTheEditorTheNoteValuesOfItsLevel(
+        string exercise, string levelFilter, string level, string durations, bool rests)
+    {
+        var json = GenerateJson(exercise, new() { { levelFilter, level } });
+
+        json["durations"]!.Values<string>().Should().Equal(durations.Split(','));
+        json.Value<bool>("rests").Should().Be(rests);
+    }
+
+    [Theory]
+    [InlineData("MelodicDictation", "md")]
+    [InlineData("RhythmDictation", "rd")]
+    public void Dictation_AnswerIsWhatTheEditorWrites(string exercise, string prefix)
+    {
+        var rhythm = exercise == "RhythmDictation";
+        foreach (var level in new[] { "1", "3", "4" })
+        foreach (var length in new[] { "short", "long" })
+        {
+            for (var round = 0; round < 25; round++)
+            {
+                var json = GenerateJson(exercise, new() { { prefix + "Level", level }, { prefix + "Measures", length } });
+                var offered = json["durations"]!.Values<string>().ToHashSet();
+                var rests = json.Value<bool>("rests");
+
+                if (!rhythm)
+                {
+                    offered.Should().Contain(json.Value<string>("firstDuration"));
+                }
+
+                foreach (var token in json.Value<string>("answerString")!.Split('|').Where(t => t != "bar"))
+                {
+                    var duration = rhythm ? token : token.Split(':')[1];
+                    offered.Should().Contain(duration.TrimEnd('r'), $"the editor offers only the note values of level {level}");
+                    if (duration.EndsWith('r'))
+                    {
+                        rests.Should().BeTrue($"the editor offers rests from level 3, not in level {level}");
+                    }
+                }
+
+                AssertEditorWritesTheAnswer(json, rhythm);
+            }
+        }
     }
 
     [Fact]

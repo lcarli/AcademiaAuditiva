@@ -3050,7 +3050,7 @@
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Instructions" xml:space="preserve">
-    <value>Listen to the full melody, then enter notes, durations, rests and barlines on the staff.</value>
+    <value>Listen to the full melody. Pick a note value, then click the note names in order; a rest takes one click. Barlines are added for you.</value>
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Tip1" xml:space="preserve">
@@ -3062,7 +3062,7 @@
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Tip3" xml:space="preserve">
-    <value>Use barlines to organize the phrase.</value>
+    <value>Click a note on the staff to change its octave or accidental.</value>
     <comment />
   </data>
   <data name="RhythmDictation" xml:space="preserve">
@@ -3074,7 +3074,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Prompt" xml:space="preserve">
-    <value>Time signature: {{0}}. Pitch is ignored for scoring.</value>
+    <value>Time signature: {{0}}.</value>
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Subtitle" xml:space="preserve">
@@ -3082,7 +3082,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Instructions" xml:space="preserve">
-    <value>Listen to the rhythm on a fixed pitch and enter the durations, rests and barlines on the staff.</value>
+    <value>Listen to the rhythm and click the note and rest values in the order you hear them. Barlines are added for you.</value>
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Tip1" xml:space="preserve">
@@ -3094,7 +3094,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Tip3" xml:space="preserve">
-    <value>Only rhythm is scored; pitch does not matter.</value>
+    <value>A value that no longer fits in the measure is grayed out.</value>
     <comment />
   </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
@@ -3103,6 +3103,74 @@
   </data>
   <data name="Exercise.StaffEditor.NoSelection" xml:space="preserve">
     <value>No note selected</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Whole" xml:space="preserve">
+    <value>Whole note</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Half" xml:space="preserve">
+    <value>Half note</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Quarter" xml:space="preserve">
+    <value>Quarter note</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Eighth" xml:space="preserve">
+    <value>Eighth note</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.WholeRest" xml:space="preserve">
+    <value>Whole rest</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.HalfRest" xml:space="preserve">
+    <value>Half rest</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.QuarterRest" xml:space="preserve">
+    <value>Quarter rest</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.EighthRest" xml:space="preserve">
+    <value>Eighth rest</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Measure" xml:space="preserve">
+    <value>Measure {{0}} of {{1}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Complete" xml:space="preserve">
+    <value>All measures are complete.</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Unfinished" xml:space="preserve">
+    <value>Fill every measure before validating.</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Sharp" xml:space="preserve">
+    <value>Sharp</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Flat" xml:space="preserve">
+    <value>Flat</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Natural" xml:space="preserve">
+    <value>Natural</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Undo" xml:space="preserve">
+    <value>Undo</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Clear" xml:space="preserve">
+    <value>Clear all</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.CorrectAnswer" xml:space="preserve">
+    <value>The correct answer was:</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.QualityMajor" xml:space="preserve">

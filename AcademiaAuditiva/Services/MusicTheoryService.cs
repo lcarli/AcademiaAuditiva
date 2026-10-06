@@ -1361,6 +1361,9 @@ namespace AcademiaAuditiva.Services
                         timeSignature = mdSig,
                         numMeasures = mdNumMeasures,
                         level = mdLevel,
+                        // The figures the melody may use, offered by the editor (rests in the same values).
+                        durations = mdAvail.Select(d => d.L).ToArray(),
+                        rests = mdAllowRests,
                         firstNote = mdFirstNote,
                         firstDuration = mdFirstDuration,
                         melody = mdMelodyEntries,
@@ -1417,6 +1420,8 @@ namespace AcademiaAuditiva.Services
                         timeSignature = rdSig,
                         numMeasures = rdNumMeasures,
                         level = rdLevel,
+                        durations = rdAvail.Select(d => d.L).ToArray(),
+                        rests = rdAllowRests,
                         melody = rdMelodyEntries,
                         answerString = string.Join("|", rdAnsParts)
                     };

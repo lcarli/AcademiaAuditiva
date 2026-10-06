@@ -38,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
       octave,
       allowedDurations: ["w"],
       restDurations: [],
-      showBarline: false,
       totalSlots: 10,
       minOctave: 3,
       maxOctave: 6,
@@ -47,6 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
       octaveUpLabel: loc.octaveUpLabel,
       selectedNoteLabel: loc.selectedNoteLabel,
       noSelectionLabel: loc.noSelectionLabel,
+      sharpLabel: loc.sharpLabel,
+      flatLabel: loc.flatLabel,
+      naturalLabel: loc.naturalLabel,
+      undoLabel: loc.undoLabel,
+      clearLabel: loc.clearLabel,
       prefilledNotes: [{ note: rootNote, duration: "w" }],
     });
   }
@@ -64,12 +68,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // The answer leaves out the root, which the editor shows in gray.
   AAPractice.setAnswerView((answer) => {
     const root = metadata?.promptNotes?.[0];
+    const notes = (root ? [{ note: root, duration: "w", prefilled: true }] : []).concat(AAPractice.staffNotes(answer));
     return {
       staff: {
         clef: "treble",
         keySignature: "C",
-        notes: (root ? [{ note: root, duration: "w", prefilled: true }] : []).concat(AAPractice.staffNotes(answer)),
+        notes,
       },
+      label: notes.map((n) => n.note).join(", "),
     };
   });
 

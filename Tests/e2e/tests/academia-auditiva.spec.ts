@@ -272,6 +272,62 @@ test('free practice shows the answer and checks it without scoring', async ({ pa
   await expect(reveal).toBeHidden();
 });
 
+test('rhythm dictation is written with note and rest symbols, without note names', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  const metadata = await openDictation(page, baseURL!, 'RhythmDictation', 'rdLevel');
+
+  expect(metadata).toMatchObject({ durations: ['w', 'h', 'q', '8'], rests: true });
+  await expectFigureButtons(page, ['w', 'h', 'q', '8', 'wr', 'hr', 'qr', '8r']);
+  // A rhythm has no pitch: there are no note names, octaves or accidentals to pick.
+  await expect(page.locator('#staffEditor :is([data-note-name], [data-octave], [data-accidental])')).toHaveCount(0);
+
+  // Each click writes its symbol on the staff; the barlines come by themselves.
+  const answer = await revealDictation(page);
+  const [first, ...others] = answer.split('|').filter(token => token !== 'bar');
+  await page.click(`#staffEditor [data-figure="${first}"]`);
+  await expectUnfinishedNotChecked(page);
+  for (const token of others) await page.click(`#staffEditor [data-figure="${token}"]`);
+  // Every measure is full: no note value fits any more.
+  await expect(page.locator('#staffEditor [data-figure]:not([disabled])')).toHaveCount(0);
+
+  expect(await validateDictation(page)).toMatchObject({ success: true, free: true, isCorrect: true, answer });
+  await page.click('.swal2-confirm');
+});
+
+test('melodic dictation is written with note symbols and note names, and a wrong one shows the melody', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  const metadata = await openDictation(page, baseURL!, 'MelodicDictation', 'mdLevel');
+
+  expect(metadata).toMatchObject({ durations: ['w', 'h', 'q', '8'], rests: true });
+  expect(metadata.firstNote).toMatch(/^[A-G][#b]?\d$/);
+  await expectFigureButtons(page, ['w', 'h', 'q', '8', 'wr', 'hr', 'qr', '8r']);
+  await expect(page.locator('#staffEditor [data-note-name]')).toHaveText(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
+
+  const answer = await revealDictation(page);
+  await writeMelody(page, answer);
+  expect(await validateDictation(page)).toMatchObject({ success: true, free: true, isCorrect: true, answer });
+  await page.click('.swal2-confirm');
+
+  // A melody never climbs to octave 6, so B6s are always wrong.
+  await playDictation(page);
+  const editor = page.locator('#staffEditor');
+  const up = editor.locator('[data-octave="up"]');
+  for (let i = 0; i < 4 && await up.isEnabled(); i++) await up.click();
+  await expect(editor.locator('[data-octave-status]')).toHaveText(/6$/);
+  const b = editor.locator('[data-note-name="B"]');
+  for (let i = 0; i < 40 && await b.isEnabled(); i++) await b.click();
+  await expect(b).toBeDisabled();
+
+  const wrong = await validateDictation(page);
+  expect(wrong).toMatchObject({ success: true, isCorrect: false });
+  const dialog = page.locator('.swal2-popup');
+  await expect(dialog.locator('.aa-answer-caption')).toHaveText('The correct answer was:');
+  await expect(dialog.locator('.aa-reveal-staff svg')).toBeVisible();
+  await expect(dialog.locator('.aa-reveal-staff')).toHaveAttribute('aria-label', /^[A-G][#b]?\d (whole|half|quarter|eighth) note[,;]/);
+  await page.click('.swal2-confirm');
+  await expect(dialog).toBeHidden();
+});
+
 test('explore plays the chosen chord and shows its notes', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Explore`, { waitUntil: 'networkidle' });
@@ -514,6 +570,106 @@ function pitchClass(note: string) {
   const sharps: Record<string, string> = { Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#' };
   const name = note.replace(/\d+$/, '');
   return sharps[name] ?? name;
+}
+
+// Opens a dictation in free practice at its advanced level (every note value, and rests)
+// and plays a round; returns what the round tells the staff editor.
+async function openDictation(page: Page, baseURL: string, exercise: string, levelFilter: string) {
+  await page.goto(`${baseURL}/Exercise/${exercise}?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const filters = page.locator('#filtersModal');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await filters.locator(`select[name="${levelFilter}"]`).selectOption('4');
+  await filters.locator('.btn-close').click();
+  await expect(filters).toBeHidden();
+  return playDictation(page);
+}
+
+async function playDictation(page: Page) {
+  const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  await page.click('#Play');
+  const play = await (await playResponse).json();
+  await expect(page.locator('#staffEditor [data-figure]').first()).toBeVisible();
+  return play.metadata;
+}
+
+// The note values are offered as their symbols, named for screen readers, never as codes ("w", "qr").
+async function expectFigureButtons(page: Page, figures: string[]) {
+  const buttons = await page.locator('#staffEditor [data-figure]').evaluateAll(nodes => nodes.map(node => ({
+    figure: (node as HTMLElement).dataset.figure,
+    label: node.getAttribute('aria-label'),
+    text: node.textContent!.trim(),
+    drawn: !!node.querySelector('svg path'),
+  })));
+  expect(buttons.map(button => button.figure)).toEqual(figures);
+  for (const button of buttons) {
+    expect(button.text, `${button.figure} shows no code`).toBe('');
+    expect(button.drawn, `${button.figure} is drawn`).toBe(true);
+    expect(button.label, `${button.figure} is named`).toMatch(/^(Whole|Half|Quarter|Eighth) (note|rest)$/);
+  }
+}
+
+// Free practice shows the round's answer on a staff, read out without codes.
+async function revealDictation(page: Page) {
+  const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+  await page.click('[data-aa-reveal]');
+  const shown = await (await revealResponse).json();
+  expect(shown.success).toBe(true);
+  const dialog = page.locator('.swal2-popup');
+  await expect(dialog.locator('.aa-reveal-staff svg')).toBeVisible();
+  await expect(dialog.locator('.aa-reveal-staff')).toHaveAttribute('aria-label', /^[^|:]+$/);
+  await page.click('.swal2-confirm');
+  await expect(dialog).toBeHidden();
+  return shown.answer as string;
+}
+
+// Writes a melody ("E4:q|rest:qr|bar|G4:h") with the editor's buttons: the note value,
+// then the note name, its octave and accidental. The barlines come by themselves.
+async function writeMelody(page: Page, answer: string) {
+  const editor = page.locator('#staffEditor');
+  const octaveStatus = editor.locator('[data-octave-status]');
+  for (const token of answer.split('|')) {
+    if (token === 'bar') continue;
+    const [note, duration] = token.split(':');
+    const figure = editor.locator(`[data-figure="${duration}"]`);
+    if (note === 'rest') {
+      await figure.click();
+      continue;
+    }
+    if (await figure.getAttribute('aria-pressed') !== 'true') await figure.click();
+    await expect(figure).toHaveAttribute('aria-pressed', 'true');
+    const [, name, accidental, octave] = /^([A-G])([#b]?)(\d)$/.exec(note)!;
+    await editor.locator(`[data-note-name="${name}"]`).click();
+    for (let i = 0; i < 4; i++) {
+      const current = Number(/(\d+)\s*$/.exec(await octaveStatus.textContent() ?? '')?.[1]);
+      if (current === Number(octave)) break;
+      await editor.locator(`[data-octave="${current < Number(octave) ? 'up' : 'down'}"]`).click();
+    }
+    await expect(octaveStatus).toHaveText(new RegExp(`${octave}$`));
+    if (accidental) await editor.locator(`[data-accidental="${accidental === '#' ? 'sharp' : 'flat'}"]`).click();
+  }
+}
+
+// A dictation is checked only once every measure is written.
+async function expectUnfinishedNotChecked(page: Page) {
+  let checked = false;
+  const listener = (request: { url(): string }) => {
+    if (request.url().includes('/Exercise/ValidateExercise')) checked = true;
+  };
+  page.on('request', listener);
+  await page.click('#validateGuess');
+  const dialog = page.locator('.swal2-popup');
+  await expect(dialog.locator('.swal2-html-container')).toHaveText('Fill every measure before validating.');
+  await page.click('.swal2-confirm');
+  await expect(dialog).toBeHidden();
+  page.off('request', listener);
+  expect(checked, 'an unfinished dictation is not sent').toBe(false);
+}
+
+async function validateDictation(page: Page) {
+  const validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+  await page.click('#validateGuess');
+  return (await validateResponse).json();
 }
 
 // Notes what goes wrong on a page (script errors, console errors, failed

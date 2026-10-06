@@ -10,22 +10,51 @@
  *     keySignature: 'C',
  *     timeSignature: '4/4',
  *     octave: 4,
- *     allowedDurations: ['w'],          // single → "non-linear" mode (no duration picker)
+ *     allowedDurations: ['w'],          // more than one → note value buttons
  *     restDurations: [],
- *     showBarline: false,
- *     totalSlots: 6,                    // hard cap when not in linear mode
+ *     totalSlots: 6,                    // cap on notes when there are no measures
+ *     measures: 2,                      // measures to fill; needs timeSignature
+ *     rhythm: false,                    // true: note values only, on a one-line staff
+ *     figureLabels: { q: 'Quarter note', qr: 'Quarter rest' },
  *     prefilledNotes: [{ note: 'C4', duration: 'w', prefilled: true }],
  *     onChange: function (notes) { ... }
  *   });
  *   editor.getValue();    // → array of { note, duration } the user placed
  *   editor.getAnswerString(); // → "D4:w|E4:w|..." canonical form
+ *   editor.isComplete();  // → every measure is full (always true without measures)
  *   editor.clear();
  *   editor.destroy();
+ *
+ * With `measures`, the barlines follow from the note values: a value that no
+ * longer fits in the measure can't be chosen, and the answer gets "bar"
+ * before each note that starts a measure. A rhythm answer holds the note
+ * values only ("q|qr|bar|h").
  */
 (function (root) {
   "use strict";
 
   var NOTE_NAMES = ["C", "D", "E", "F", "G", "A", "B"];
+  // Note values in sixteenths, the unit a measure is counted in.
+  var SIXTEENTHS = { w: 16, h: 8, q: 4, "8": 2, "16": 1 };
+  var FIGURE_LABELS = {
+    w: "Whole note", h: "Half note", q: "Quarter note", "8": "Eighth note",
+    wr: "Whole rest", hr: "Half rest", qr: "Quarter rest", "8r": "Eighth rest",
+  };
+  // A rhythm is written on the middle line of its one-line staff.
+  var RHYTHM_PITCH = "B4";
+
+  function sixteenths(duration) {
+    var base = String(duration || "").replace(/r$/, "");
+    var dotted = /\.$/.test(base);
+    var value = SIXTEENTHS[base.replace(/\.$/, "")] || 0;
+    return dotted ? value * 1.5 : value;
+  }
+
+  // "3/4" → 12 sixteenths; 0 without a time signature.
+  function measureLength(timeSig) {
+    var m = /^(\d+)\/(\d+)$/.exec(String(timeSig || ""));
+    return m ? (Number(m[1]) * 16) / Number(m[2]) : 0;
+  }
 
   function applyAccidental(note, acc) {
     var clean = note.replace("#", "").replace("b", "");
@@ -47,7 +76,19 @@
   function makeAriaBtn(text, label, classes, onClick) {
     var b = makeBtn(text, classes, onClick);
     b.setAttribute("aria-label", label);
+    b.title = label;
     return b;
+  }
+
+  function makeGroup() {
+    var group = document.createElement("div");
+    group.className = "btn-group";
+    group.setAttribute("role", "group");
+    return group;
+  }
+
+  function lowerFirst(text) {
+    return text ? text.charAt(0).toLowerCase() + text.slice(1) : text;
   }
 
   function attach(target, opts) {
@@ -65,11 +106,26 @@
     var octaveDisplayLabel = opts.octaveDisplayLabel || "Octave";
     var selectedNoteLabel = opts.selectedNoteLabel || "Selected note {{0}}: {{1}}";
     var noSelectionLabel = opts.noSelectionLabel || "No note selected";
+    var measureLabel = opts.measureLabel || "Measure {{0}} of {{1}}";
+    var completeLabel = opts.completeLabel || "All measures are full.";
+    var accidentals = [
+      { value: "#", name: "sharp", symbol: "♯", label: opts.sharpLabel || "Sharp" },
+      { value: "b", name: "flat", symbol: "♭", label: opts.flatLabel || "Flat" },
+      { value: "", name: "natural", symbol: "♮", label: opts.naturalLabel || "Natural" },
+    ];
+    var undoLabel = opts.undoLabel || "Undo";
+    var clearLabel = opts.clearLabel || "Clear";
+    var figureLabels = Object.assign({}, FIGURE_LABELS);
+    Object.keys(opts.figureLabels || {}).forEach(function (key) {
+      if (opts.figureLabels[key]) figureLabels[key] = opts.figureLabels[key];
+    });
     var allowedDurations = opts.allowedDurations && opts.allowedDurations.length
       ? opts.allowedDurations.slice() : ["w"];
     var restDurations = opts.restDurations || [];
-    var showBarline = opts.showBarline === true;
     var totalSlots = opts.totalSlots || 99;
+    var rhythm = opts.rhythm === true;
+    var capacity = measureLength(timeSig);
+    var measures = capacity > 0 && opts.measures > 0 ? Math.floor(opts.measures) : 0;
     var prefilledNotes = (opts.prefilledNotes || []).map(function (n) {
       return Object.assign({}, n, { prefilled: true });
     });
@@ -78,10 +134,14 @@
     var isLinear = allowedDurations.length > 1;
     var userNotes = [];
     var selectedIndex = -1;
-    var selectedDuration = allowedDurations[0];
+    var selectedDuration = allowedDurations.indexOf("q") >= 0 ? "q" : allowedDurations[0];
+    // Where the last render put each note, so a click on the staff selects the nearest one.
+    var drawn = null;
 
     rootEl.innerHTML = "";
     rootEl.classList.add("staff-editor-root");
+    // The staff keeps a light page in both themes (.aa-sheet), so its buttons take the light colours.
+    rootEl.setAttribute("data-bs-theme", "light");
     rootEl.tabIndex = 0;
 
     var staffDiv = document.createElement("div");
@@ -98,34 +158,57 @@
     paletteDiv.className = "staff-editor-palette mt-3 d-flex flex-wrap justify-content-center gap-2";
     rootEl.appendChild(paletteDiv);
 
-    function rerender() {
-      var allNotes = prefilledNotes.concat(userNotes.map(function (n) {
-        return Object.assign({ userPlaced: true }, n, { selected: userNotes.indexOf(n) === selectedIndex });
-      }));
-      window.StaffRenderer.render(staffDiv, {
-        clef: clef,
-        keySignature: keySig,
-        timeSignature: timeSig,
-        notes: allNotes,
+    // Which notes start a measure, how many measures are full and what is left in the current one.
+    function layout() {
+      var used = 0;
+      var measure = 0;
+      var total = 0;
+      var starts = prefilledNotes.concat(userNotes).map(function (n) {
+        var value = sixteenths(n.duration);
+        var startsMeasure = false;
+        if (measures && used >= capacity) {
+          measure += 1;
+          used = 0;
+          startsMeasure = true;
+        }
+        used += value;
+        total += value;
+        return startsMeasure;
       });
-      buildPalette();
-      updateSelectionStatus();
-      onChange(userNotes.slice());
+      var full = measures > 0 && used >= capacity;
+      var filled = full ? measure + 1 : measure;
+      return {
+        starts: starts,
+        filled: filled,
+        complete: measures > 0 && filled >= measures,
+        remaining: full ? capacity : capacity - used,
+        current: Math.min(measures, filled + 1),
+        fill: measures ? total / (measures * capacity) : 1,
+      };
     }
 
-    function canAddMore() {
-      return isLinear ? true : userNotes.length < totalSlots;
+    function fits(duration, lay) {
+      if (!measures) return isLinear || userNotes.length < totalSlots;
+      return !lay.complete && sixteenths(duration) <= lay.remaining;
+    }
+
+    function isEditable(n) {
+      return !rhythm && !!n && n.note !== "rest" && n.note !== "barline";
+    }
+
+    function editableIndexes() {
+      var list = [];
+      userNotes.forEach(function (n, i) { if (isEditable(n)) list.push(i); });
+      return list;
     }
 
     function lastEditableIdx() {
-      for (var i = userNotes.length - 1; i >= 0; i--) {
-        if (userNotes[i].note !== "barline") return i;
-      }
-      return -1;
+      var list = editableIndexes();
+      return list.length ? list[list.length - 1] : -1;
     }
 
     function selectedEditableIdx() {
-      if (selectedIndex >= 0 && selectedIndex < userNotes.length && userNotes[selectedIndex].note !== "barline") {
+      if (selectedIndex >= 0 && selectedIndex < userNotes.length && isEditable(userNotes[selectedIndex])) {
         return selectedIndex;
       }
       return lastEditableIdx();
@@ -134,19 +217,79 @@
     function selectedText() {
       var idx = selectedEditableIdx();
       if (idx < 0) return noSelectionLabel;
+      var n = userNotes[idx];
+      var name = isLinear && figureLabels[n.duration]
+        ? n.note + " (" + lowerFirst(figureLabels[n.duration]) + ")"
+        : n.note;
       return selectedNoteLabel
         .replace("{{0}}", String(idx + 1))
-        .replace("{{1}}", userNotes[idx].note);
+        .replace("{{1}}", name);
     }
 
-    function updateSelectionStatus() {
-      selectionDiv.textContent = selectedText();
-      var label = paletteDiv.querySelector("[data-octave-status='true']");
-      if (label) label.textContent = octaveDisplayLabel + " " + selectedOctave() + ". " + selectedText();
+    function statusText(lay) {
+      if (!measures) return selectedText();
+      var text = lay.complete
+        ? completeLabel
+        : measureLabel.replace("{{0}}", String(lay.current)).replace("{{1}}", String(measures));
+      if (selectedEditableIdx() >= 0) text += " · " + selectedText();
+      return text;
+    }
+
+    function rerender() {
+      var lay = layout();
+      // When the chosen note value no longer fits, take the longest one that does.
+      if (measures && !rhythm && !fits(selectedDuration, lay)) {
+        var fitting = allowedDurations.filter(function (d) { return fits(d, lay); });
+        if (fitting.length) {
+          selectedDuration = fitting.reduce(function (a, b) { return sixteenths(b) > sixteenths(a) ? b : a; });
+        }
+      }
+      drawStaff(lay);
+      buildPalette(lay);
+      var text = statusText(lay);
+      if (selectionDiv.textContent !== text) selectionDiv.textContent = text;
+      onChange(userNotes.slice());
+    }
+
+    function drawStaff(lay) {
+      var items = [];
+      var owners = []; // index in userNotes of each staff item; negative for the rest
+      prefilledNotes.concat(userNotes.map(function (n, i) {
+        return Object.assign({ userPlaced: true }, n, { selected: i === selectedIndex && isEditable(n) });
+      })).forEach(function (n, i) {
+        if (lay.starts[i]) {
+          items.push({ note: "barline" });
+          owners.push(-1);
+        }
+        items.push(n);
+        owners.push(i - prefilledNotes.length);
+      });
+      // A full measure shows its barline before the next one is begun.
+      if (measures && !lay.complete && lay.filled > 0 && lay.remaining === capacity) {
+        items.push({ note: "barline" });
+        owners.push(-1);
+      }
+      var result = window.StaffRenderer.render(staffDiv, {
+        clef: clef,
+        keySignature: keySig,
+        timeSignature: timeSig,
+        notes: items,
+        rhythm: rhythm,
+        autoStem: opts.autoStem === true,
+        fill: measures && !lay.complete ? lay.fill : undefined,
+      });
+      drawn = result ? { width: result.width, xs: result.xs, owners: owners } : null;
+    }
+
+    function addNote(n) {
+      if (!fits(n.duration, layout())) return;
+      userNotes.push(n);
+      if (isEditable(n)) selectedIndex = userNotes.length - 1;
+      rerender();
     }
 
     function selectNote(idx) {
-      if (idx < 0 || idx >= userNotes.length || userNotes[idx].note === "barline") return;
+      if (idx < 0 || idx >= userNotes.length || !isEditable(userNotes[idx])) return;
       selectedIndex = idx;
       rerender();
     }
@@ -178,25 +321,39 @@
       return selectedOctaveForNote(note);
     }
 
-    function restoreFocus(label) {
+    // The palette is rebuilt on every change: give the focus back to the same
+    // button, or to the first one still enabled.
+    function restoreFocus(selector) {
       setTimeout(function () {
-        var btn = paletteDiv.querySelector("button[aria-label='" + label + "']");
-        if (btn) btn.focus();
+        var btn = paletteDiv.querySelector(selector);
+        if (!btn || btn.disabled) btn = paletteDiv.querySelector("button:not(:disabled)");
+        if (btn) btn.focus({ preventScroll: true });
       }, 0);
     }
 
     staffDiv.addEventListener("click", function (ev) {
-      var editable = userNotes.map(function (n, i) { return n.note === "barline" ? -1 : i; }).filter(function (i) { return i >= 0; });
-      if (!editable.length) return;
-      var rect = staffDiv.getBoundingClientRect();
-      var ratio = Math.max(0, Math.min(1, (ev.clientX - rect.left - 55) / Math.max(1, rect.width - 110)));
-      var editableIndex = Math.round(ratio * (editable.length - 1));
-      selectNote(editable[editableIndex]);
+      var svg = staffDiv.querySelector("svg");
+      if (rhythm || !drawn || !svg) return;
+      var rect = svg.getBoundingClientRect();
+      if (!rect.width) return;
+      var x = ((ev.clientX - rect.left) * drawn.width) / rect.width;
+      var best = -1;
+      var bestDistance = Infinity;
+      drawn.xs.forEach(function (noteX, k) {
+        var idx = drawn.owners[k];
+        if (noteX == null || idx < 0 || !isEditable(userNotes[idx])) return;
+        var distance = Math.abs(noteX - x);
+        if (distance < bestDistance) {
+          best = idx;
+          bestDistance = distance;
+        }
+      });
+      selectNote(best);
     });
 
     rootEl.addEventListener("keydown", function (ev) {
       if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight") return;
-      var editable = userNotes.map(function (n, i) { return n.note === "barline" ? -1 : i; }).filter(function (i) { return i >= 0; });
+      var editable = editableIndexes();
       if (!editable.length) return;
       ev.preventDefault();
       var current = editable.indexOf(selectedEditableIdx());
@@ -207,134 +364,163 @@
       selectNote(editable[next]);
     });
 
-    function buildPalette() {
-      paletteDiv.innerHTML = "";
-
-      // Duration picker (linear mode only).
-      if (isLinear && canAddMore()) {
-        var durRow = document.createElement("div");
-        durRow.className = "btn-group";
-        allowedDurations.forEach(function (d) {
-          var b = makeBtn(d, d === selectedDuration ? "btn-primary" : "btn-outline-primary",
-            function () { selectedDuration = d; buildPalette(); });
-          durRow.appendChild(b);
-        });
-        paletteDiv.appendChild(durRow);
-
-        // Rests
-        if (restDurations.length) {
-          var restRow = document.createElement("div");
-          restRow.className = "btn-group";
-          restDurations.forEach(function (rd) {
-            restRow.appendChild(makeBtn("⏸ " + rd, "btn-outline-warning", function () {
-              if (!canAddMore()) return;
-              userNotes.push({ note: "rest", duration: rd });
-              rerender();
-            }));
-          });
-          paletteDiv.appendChild(restRow);
-        }
-
-        // Barline
-        if (showBarline) {
-          paletteDiv.appendChild(makeBtn("𝄀", "btn-outline-dark", function () {
-            userNotes.push({ note: "barline", duration: "barline" });
-            rerender();
-          }));
-        }
+    function makeFigureBtn(duration, classes, onClick) {
+      var label = figureLabels[duration] || duration;
+      var b = makeAriaBtn("", label, classes, onClick);
+      b.className = "btn aa-figure " + classes;
+      b.setAttribute("data-figure", duration);
+      try {
+        b.appendChild(window.StaffRenderer.figure(duration));
+      } catch (err) {
+        console.warn("Could not draw the note value:", err);
+        b.textContent = label;
       }
+      return b;
+    }
 
-      function updateOctaveControls(label, downBtn, upBtn) {
+    // Rhythm: each value goes on the staff. Melody: the value is chosen for the next note name.
+    function appendFigures(lay) {
+      var noteRow = makeGroup();
+      allowedDurations.forEach(function (d) {
+        var pressed = !rhythm && d === selectedDuration;
+        var b = makeFigureBtn(d, pressed ? "btn-primary" : "btn-outline-primary", function () {
+          if (rhythm) {
+            addNote({ note: RHYTHM_PITCH, duration: d });
+          } else {
+            selectedDuration = d;
+            rerender();
+          }
+          restoreFocus("[data-figure='" + d + "']");
+        });
+        if (!rhythm) b.setAttribute("aria-pressed", pressed ? "true" : "false");
+        b.disabled = !fits(d, lay);
+        noteRow.appendChild(b);
+      });
+      paletteDiv.appendChild(noteRow);
+
+      if (!restDurations.length) return;
+      var restRow = makeGroup();
+      restDurations.forEach(function (rd) {
+        var b = makeFigureBtn(rd, "btn-outline-warning", function () {
+          addNote({ note: "rest", duration: rd });
+          restoreFocus("[data-figure='" + rd + "']");
+        });
+        b.disabled = !fits(rd, lay);
+        restRow.appendChild(b);
+      });
+      paletteDiv.appendChild(restRow);
+    }
+
+    function appendOctaveRow() {
+      var octaveRow = makeGroup();
+      octaveRow.classList.add("align-items-center");
+      var label = document.createElement("span");
+      function updateOctaveControls() {
         var currentOctave = selectedOctave();
-        label.textContent = octaveDisplayLabel + " " + currentOctave + ". " + selectedText();
+        label.textContent = octaveDisplayLabel + " " + currentOctave;
         downBtn.disabled = currentOctave <= minOctave;
         upBtn.disabled = currentOctave >= maxOctave;
       }
-
-      function appendOctaveRow() {
-        var octaveRow = document.createElement("div");
-        octaveRow.className = "btn-group align-items-center";
-        var label = document.createElement("span");
-        var downBtn = makeAriaBtn("−", octaveDownLabel, "btn-outline-secondary", function () {
-          var selectedChanged = changeSelectedOctave(-1);
-          if (selectedChanged) {
-            rerender();
-            restoreFocus(octaveDownLabel);
-          } else {
-            updateOctaveControls(label, downBtn, upBtn);
-          }
-        });
-        octaveRow.appendChild(downBtn);
-        label.className = "btn btn-sm btn-outline-secondary disabled";
-        label.setAttribute("aria-live", "polite");
-        label.setAttribute("role", "status");
-        label.setAttribute("data-octave-status", "true");
-        octaveRow.appendChild(label);
-        var upBtn = makeAriaBtn("+", octaveUpLabel, "btn-outline-secondary", function () {
-          var selectedChanged = changeSelectedOctave(1);
-          if (selectedChanged) {
-            rerender();
-            restoreFocus(octaveUpLabel);
-          } else {
-            updateOctaveControls(label, downBtn, upBtn);
-          }
-        });
-        octaveRow.appendChild(upBtn);
-        updateOctaveControls(label, downBtn, upBtn);
-        paletteDiv.appendChild(octaveRow);
-      }
-
-      // Note name buttons
-      if (canAddMore() || selectedEditableIdx() >= 0) {
-        appendOctaveRow();
-      }
-
-      if (canAddMore()) {
-        var noteRow = document.createElement("div");
-        noteRow.className = "btn-group";
-        NOTE_NAMES.forEach(function (nn) {
-          noteRow.appendChild(makeBtn(nn, "btn-outline-success", function () {
-            userNotes.push({ note: nn + octave, duration: selectedDuration });
-            selectedIndex = userNotes.length - 1;
-            rerender();
-          }));
-        });
-        paletteDiv.appendChild(noteRow);
-      }
-
-      // Accidentals apply to the selected note, even when no slots remain.
-      if (selectedEditableIdx() >= 0) {
-        var accRow = document.createElement("div");
-        accRow.className = "btn-group";
-        ["#", "b", ""].forEach(function (acc) {
-          var sym = acc === "#" ? "♯" : acc === "b" ? "♭" : "♮";
-          accRow.appendChild(makeBtn(sym, "btn-outline-info", function () {
-            var idx = selectedEditableIdx();
-            if (idx < 0) return;
-            var n = userNotes[idx];
-            userNotes[idx] = Object.assign({}, n, { note: applyAccidental(n.note, acc) });
-            selectedIndex = idx;
-            rerender();
-          }));
-        });
-        paletteDiv.appendChild(accRow);
-      }
-      // Undo / Clear
-      if (userNotes.length > 0) {
-        var ctrlRow = document.createElement("div");
-        ctrlRow.className = "btn-group";
-        ctrlRow.appendChild(makeBtn("↶", "btn-outline-secondary", function () {
-          userNotes.pop();
-          if (selectedIndex >= userNotes.length) selectedIndex = lastEditableIdx();
+      function step(delta, direction) {
+        if (changeSelectedOctave(delta)) {
           rerender();
-        }));
-        ctrlRow.appendChild(makeBtn("✕", "btn-outline-danger", function () {
-          userNotes = [];
-          selectedIndex = -1;
-          rerender();
-        }));
-        paletteDiv.appendChild(ctrlRow);
+          restoreFocus("[data-octave='" + direction + "']");
+        } else {
+          updateOctaveControls();
+        }
       }
+      var downBtn = makeAriaBtn("−", octaveDownLabel, "btn-outline-secondary", function () {
+        step(-1, "down");
+      });
+      downBtn.setAttribute("data-octave", "down");
+      octaveRow.appendChild(downBtn);
+      label.className = "btn btn-sm btn-outline-secondary disabled";
+      label.setAttribute("aria-live", "polite");
+      label.setAttribute("role", "status");
+      label.setAttribute("data-octave-status", "true");
+      octaveRow.appendChild(label);
+      var upBtn = makeAriaBtn("+", octaveUpLabel, "btn-outline-secondary", function () {
+        step(1, "up");
+      });
+      upBtn.setAttribute("data-octave", "up");
+      octaveRow.appendChild(upBtn);
+      updateOctaveControls();
+      paletteDiv.appendChild(octaveRow);
+    }
+
+    function appendNoteNames(canAdd) {
+      var noteRow = makeGroup();
+      NOTE_NAMES.forEach(function (nn) {
+        var b = makeBtn(nn, "btn-outline-success", function () {
+          addNote({ note: nn + octave, duration: selectedDuration });
+          restoreFocus("[data-note-name='" + nn + "']");
+        });
+        b.setAttribute("data-note-name", nn);
+        b.disabled = !canAdd;
+        noteRow.appendChild(b);
+      });
+      paletteDiv.appendChild(noteRow);
+    }
+
+    // Accidentals apply to the selected note, even when no more notes fit.
+    function appendAccidentals() {
+      var accRow = makeGroup();
+      var none = selectedEditableIdx() < 0;
+      accidentals.forEach(function (acc) {
+        var b = makeAriaBtn(acc.symbol, acc.label, "btn-outline-info", function () {
+          var idx = selectedEditableIdx();
+          if (idx < 0) return;
+          var n = userNotes[idx];
+          userNotes[idx] = Object.assign({}, n, { note: applyAccidental(n.note, acc.value) });
+          selectedIndex = idx;
+          rerender();
+          restoreFocus("[data-accidental='" + acc.name + "']");
+        });
+        b.setAttribute("data-accidental", acc.name);
+        b.disabled = none;
+        accRow.appendChild(b);
+      });
+      paletteDiv.appendChild(accRow);
+    }
+
+    function appendControls() {
+      var ctrlRow = makeGroup();
+      var empty = userNotes.length === 0;
+      var undo = makeAriaBtn("↶", undoLabel, "btn-outline-secondary", function () {
+        userNotes.pop();
+        if (selectedIndex >= userNotes.length) selectedIndex = lastEditableIdx();
+        rerender();
+        restoreFocus("[data-action='undo']");
+      });
+      undo.setAttribute("data-action", "undo");
+      undo.disabled = empty;
+      ctrlRow.appendChild(undo);
+      var clearBtn = makeAriaBtn("✕", clearLabel, "btn-outline-danger", function () {
+        userNotes = [];
+        selectedIndex = -1;
+        rerender();
+        restoreFocus("[data-action='clear']");
+      });
+      clearBtn.setAttribute("data-action", "clear");
+      clearBtn.disabled = empty;
+      ctrlRow.appendChild(clearBtn);
+      paletteDiv.appendChild(ctrlRow);
+    }
+
+    // With measures every control stays in place, disabled when it can't be used.
+    function buildPalette(lay) {
+      paletteDiv.innerHTML = "";
+      if (rhythm) {
+        appendFigures(lay);
+        appendControls();
+        return;
+      }
+      var canAdd = fits(selectedDuration, lay);
+      if (isLinear) appendFigures(lay);
+      if (measures || canAdd || selectedEditableIdx() >= 0) appendOctaveRow();
+      if (measures || canAdd) appendNoteNames(canAdd);
+      if (measures || selectedEditableIdx() >= 0) appendAccidentals();
+      if (measures || userNotes.length > 0) appendControls();
     }
 
     rerender();
@@ -342,12 +528,17 @@
     var instance = {
       getValue: function () { return userNotes.slice(); },
       getAnswerString: function () {
-        return userNotes.map(function (n) {
-          if (n.note === "barline") return "bar";
-          if (n.note === "rest") return "rest:" + n.duration;
-          return n.note + ":" + n.duration;
-        }).join("|");
+        var lay = layout();
+        var tokens = [];
+        userNotes.forEach(function (n, i) {
+          if (lay.starts[prefilledNotes.length + i]) tokens.push("bar");
+          if (rhythm) tokens.push(n.duration);
+          else if (n.note === "rest") tokens.push("rest:" + n.duration);
+          else tokens.push(n.note + ":" + n.duration);
+        });
+        return tokens.join("|");
       },
+      isComplete: function () { return !measures || layout().complete; },
       clear: function () { userNotes = []; selectedIndex = -1; rerender(); },
       destroy: function () { rootEl.innerHTML = ""; },
     };
