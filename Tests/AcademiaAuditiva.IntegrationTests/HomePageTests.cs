@@ -5,11 +5,13 @@ using AcademiaAuditiva.Services.Gamification;
 namespace AcademiaAuditiva.IntegrationTests;
 
 /// <summary>
-/// The home page shows a few medals, named in each culture, and every image on it
-/// is served as WebP.
+/// The home page shows a few medals, named in each culture, and the eight
+/// illustrations of docs/landing-art.md, and every image on it is served as WebP.
 /// </summary>
 public class HomePageTests : IClassFixture<TestWebApplicationFactory>
 {
+    private static readonly string[] LandingArt = ["hero", "step-1", "step-2", "step-3", "student", "teacher", "faq", "final"];
+
     private readonly TestWebApplicationFactory _factory;
 
     public HomePageTests(TestWebApplicationFactory factory) => _factory = factory;
@@ -32,6 +34,29 @@ public class HomePageTests : IClassFixture<TestWebApplicationFactory>
     }
 
     [Fact]
+    public async Task HomePage_ShowsTheLandingArt_AndLoadsOnlyTheHeroEagerly()
+    {
+        var html = await _factory.CreateClient().GetStringAsync("/");
+
+        var tags = Regex.Matches(html, @"<img src=""/img/landing/([\w-]+)\.webp\?v=[\w-]+""[^>]*>")
+            .ToDictionary(m => m.Groups[1].Value, m => m.Value);
+
+        tags.Keys.Should().BeEquivalentTo(LandingArt, "docs/landing-art.md lists where each image goes");
+        foreach (var (name, tag) in tags)
+        {
+            tag.Should().Contain(@"alt=""""").And.MatchRegex(@"width=""\d+"" height=""\d+""", name);
+            if (name == "hero")
+            {
+                tag.Should().NotContain("loading=", "the hero is the largest thing on screen when the page opens");
+            }
+            else
+            {
+                tag.Should().Contain(@"loading=""lazy""", name);
+            }
+        }
+    }
+
+    [Fact]
     public async Task EveryImageOnTheHomePage_IsServedAsWebp()
     {
         var client = _factory.CreateClient();
@@ -42,7 +67,7 @@ public class HomePageTests : IClassFixture<TestWebApplicationFactory>
             .Distinct()
             .ToList();
 
-        sources.Should().HaveCountGreaterThanOrEqualTo(BadgeCatalog.Showcase.Count);
+        sources.Should().HaveCountGreaterThanOrEqualTo(BadgeCatalog.Showcase.Count + LandingArt.Length);
         foreach (var src in sources)
         {
             var response = await client.GetAsync(src);
