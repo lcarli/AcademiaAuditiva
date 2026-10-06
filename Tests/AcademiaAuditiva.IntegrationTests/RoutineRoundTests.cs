@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using AcademiaAuditiva.Data;
+using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Models.Teaching;
 using AcademiaAuditiva.Services.Gamification;
 using AcademiaAuditiva.Services.Routines;
@@ -127,6 +128,10 @@ public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
         free.TryGetProperty("routine", out _).Should().BeFalse();
         var again = await PlayAsync(client, exerciseId, routine);
         Melody(again).Should().Equal(Melody(first));
+        // Its starting note comes again too, under a new token: the first one may have expired.
+        _factory.Mixer.Plans.Last().Should().Equal(new MixInput(Melody(first)[0].Replace("#", "s") + ".mp3", 0, 1.5));
+        (await _factory.Tokens.ResolveTokenAsync(UserId, again.GetProperty("startingNoteToken").GetString()!))
+            .Should().Be(ExploreWebApplicationFactory.Clip);
 
         // Free practice replaced the exercise's session; asking the question again restored it.
         var validation = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",

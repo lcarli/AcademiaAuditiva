@@ -152,7 +152,7 @@ namespace AcademiaAuditiva.Controllers
 						ExpectedAnswerCacheKey(userId, exercise.ExerciseId),
 						JsonConvert.SerializeObject(sheet),
 						_expectedAnswerTtl);
-					return Content(SheetMusicResponse(sheet.ExpectedAnswer, routineStatus), "application/json");
+					return Content(await SheetMusicResponseAsync(userId, sheet.ExpectedAnswer, routineStatus), "application/json");
 				}
 
 				// The teacher's filters are the routine's; the student picks the others.
@@ -179,11 +179,13 @@ namespace AcademiaAuditiva.Controllers
 			var plan = _playbackPlanner.Plan(exercise, filters);
 
 			// SolfegeMelody shows its melody as sheet music for the student
-			// to sing, so it gets no audio token: the expected answer is
-			// cached for ValidateExercise and the melody is returned in
-			// clear text for the staff renderer.
+			// to sing, so it gets no round: the expected answer is cached for
+			// ValidateExercise and the melody is returned in clear text for
+			// the staff renderer, with a token for its starting note.
 			if (plan.PlaybackPlans.Count == 0)
 			{
+				// Mixed first, as a round's clips are: a melody whose note can't be played isn't kept.
+				var sheetResponse = await SheetMusicResponseAsync(userId, plan.ExpectedAnswerJson, routineStatus);
 				var sessionData = new ExerciseSessionData
 				{
 					ExpectedAnswer = plan.ExpectedAnswerJson,
@@ -202,7 +204,7 @@ namespace AcademiaAuditiva.Controllers
 					await _routines.RememberQuestionAsync(userId, sheetQuestion.Link, new PendingQuestion(Sheet: sessionData), HttpContext.RequestAborted);
 				// Sent verbatim: Json() uses System.Text.Json, which writes every value of a
 				// Newtonsoft JObject as an empty array.
-				return Content(SheetMusicResponse(plan.ExpectedAnswerJson, routineStatus), "application/json");
+				return Content(sheetResponse, "application/json");
 			}
 
 			// Mix every plan into a single playable blob, then collect
@@ -284,16 +286,20 @@ namespace AcademiaAuditiva.Controllers
 			return new() { ["roundId"] = round.RoundId, ["playToken"] = round.Tokens[0] };
 		}
 
-		// Sheet music is sent as its expected answer (the melody to sing), with the
-		// routine status added to a routine question, as the other exercises have it.
-		private static string SheetMusicResponse(string expectedAnswerJson, RoutineRoundStatus? routine)
+		// Sheet music is sent as its expected answer (the melody to sing), with a token for its
+		// starting note on the piano, which the page plays only when the student asks for it,
+		// and the routine status added to a routine question, as the other exercises have it.
+		private async Task<string> SheetMusicResponseAsync(string userId, string expectedAnswerJson, RoutineRoundStatus? routine)
 		{
-			if (routine is null)
-				return expectedAnswerJson;
-
+			var startingNote = await _audioMixer.MixAsync(_playbackPlanner.StartingNote(expectedAnswerJson), HttpContext.RequestAborted);
 			var response = JObject.Parse(expectedAnswerJson);
-			response["routine"] = JToken.Parse(System.Text.Json.JsonSerializer.Serialize(
-				routine, System.Text.Json.JsonSerializerOptions.Web));
+			response["startingNoteToken"] = await _audioTokens.IssueTokenAsync(
+				userId, $"{startingNote.Container}/{startingNote.BlobName}", HttpContext.RequestAborted);
+			if (routine is not null)
+			{
+				response["routine"] = JToken.Parse(System.Text.Json.JsonSerializer.Serialize(
+					routine, System.Text.Json.JsonSerializerOptions.Web));
+			}
 			return response.ToString(Formatting.None);
 		}
 

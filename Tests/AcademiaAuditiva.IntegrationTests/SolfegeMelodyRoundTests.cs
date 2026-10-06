@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using AcademiaAuditiva.Data;
+using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,14 +12,15 @@ namespace AcademiaAuditiva.IntegrationTests;
 
 /// <summary>
 /// SolfegeMelody has no audio round: RequestPlay sends the melody itself so the page can
-/// draw it on a staff, and keeps the expected answer for one ValidateExercise call. The
-/// melody must reach the browser as plain JSON ({ melody: [{ type, note, duration }] }).
+/// draw it on a staff, with a token for its starting note on the piano, and keeps the
+/// expected answer for one ValidateExercise call. The melody must reach the browser as
+/// plain JSON ({ melody: [{ type, note, duration }], startingNoteToken }).
 /// </summary>
-public class SolfegeMelodyRoundTests : IClassFixture<SignedInWebApplicationFactory>
+public class SolfegeMelodyRoundTests : IClassFixture<ExploreWebApplicationFactory>
 {
-    private readonly SignedInWebApplicationFactory _factory;
+    private readonly ExploreWebApplicationFactory _factory;
 
-    public SolfegeMelodyRoundTests(SignedInWebApplicationFactory factory) => _factory = factory;
+    public SolfegeMelodyRoundTests(ExploreWebApplicationFactory factory) => _factory = factory;
 
     private int SeedExercise()
     {
@@ -55,10 +57,11 @@ public class SolfegeMelodyRoundTests : IClassFixture<SignedInWebApplicationFacto
         var exerciseId = SeedExercise();
         var client = await WithAntiforgeryHeaderAsync(
             _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false }));
+        _factory.Mixer.Plans.Clear();
 
         var play = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new { exerciseId }));
 
-        play.EnumerateObject().Select(p => p.Name).Should().Equal("melody");
+        play.EnumerateObject().Select(p => p.Name).Should().Equal("melody", "startingNoteToken");
         var items = play.GetProperty("melody").EnumerateArray().ToList();
         items.Should().NotBeEmpty().And.AllSatisfy(item =>
         {
@@ -71,6 +74,17 @@ public class SolfegeMelodyRoundTests : IClassFixture<SignedInWebApplicationFacto
             .Select(i => i.GetProperty("note").GetString()!)
             .ToList();
         notes.Should().NotBeEmpty("a melody starts with a note");
+
+        // Its starting note is the first one, mixed on the piano and played from a token of the student's.
+        _factory.Mixer.Plans.Should().ContainSingle().Which.Should().Equal(
+            new MixInput(notes[0].Replace("#", "s") + ".mp3", 0, 1.5));
+        var token = play.GetProperty("startingNoteToken").GetString()!;
+        token.Should().MatchRegex("^[0-9a-f]{32}$");
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var tokens = scope.ServiceProvider.GetRequiredService<IAudioTokenService>();
+            (await tokens.ResolveTokenAsync(SignedInWebApplicationFactory.UserId, token)).Should().Be(ExploreWebApplicationFactory.Clip);
+        }
 
         var guess = new { exerciseId, userGuess = string.Join("|", notes) };
         var validation = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise", guess));

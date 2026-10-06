@@ -328,6 +328,53 @@ test('melodic dictation is written with note symbols and note names, and a wrong
   await expect(dialog).toBeHidden();
 });
 
+test('sight-singing is silent on a new melody and plays its starting note on the piano when asked', async ({ page, baseURL }) => {
+  // Notes what the page does with sound: clips decoded, clips played and synthesized tones.
+  await page.addInitScript(() => {
+    const heard: string[] = [];
+    (window as unknown as { aaHeard: string[] }).aaHeard = heard;
+    const decode = BaseAudioContext.prototype.decodeAudioData;
+    BaseAudioContext.prototype.decodeAudioData = function (this: BaseAudioContext, data: ArrayBuffer) {
+      return decode.call(this, data).then(buffer => {
+        heard.push('decoded');
+        return buffer;
+      });
+    };
+    const tone = BaseAudioContext.prototype.createOscillator;
+    BaseAudioContext.prototype.createOscillator = function (this: BaseAudioContext) {
+      heard.push('tone');
+      return tone.call(this);
+    };
+    const start = AudioBufferSourceNode.prototype.start;
+    AudioBufferSourceNode.prototype.start = function (this: AudioBufferSourceNode, ...args: Parameters<typeof start>) {
+      heard.push('clip');
+      return start.apply(this, args);
+    };
+  });
+  const heard = () => page.evaluate(() => (window as unknown as { aaHeard: string[] }).aaHeard.slice());
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/SolfegeMelody`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  // A new melody is drawn and its starting note fetched, but nothing plays.
+  const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  const noteResponse = page.waitForResponse(response => response.url().includes('/audio/token/'));
+  await page.click('#Generate');
+  const play = await (await playResponse).json();
+  expect(play.melody[0]).toMatchObject({ type: 'note' });
+  expect(play.startingNoteToken).toMatch(/^[0-9a-f]{32}$/);
+  const note = await noteResponse;
+  expect(note.url()).toContain(play.startingNoteToken);
+  expect(note.headers()['content-type']).toContain('audio/');
+  expect((await note.body()).length).toBeGreaterThan(1000);
+  await expect(page.locator('#output-sheet svg')).toBeVisible();
+  await expect.poll(heard).toEqual(['decoded']);
+
+  // Its button plays the note, once, as the piano clip: no synthesized tone.
+  await page.click('#playStartingNote');
+  await expect.poll(heard).toEqual(['decoded', 'clip']);
+});
+
 test('explore plays the chosen chord and shows its notes', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Explore`, { waitUntil: 'networkidle' });

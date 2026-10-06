@@ -105,7 +105,7 @@ doubt, ask someone qualified.
   `essentia-wasm.web.js` and `essentia-wasm.web.wasm`, 2.15 MB together. They
   came in with `c5009e9` and carry no version number.
 - Loaded only by `AcademiaAuditiva/Views/Exercise/SolfegeMelody.cshtml:72-73`.
-- Used in `AcademiaAuditiva/wwwroot/js/Exercises/SolfegeMelody.js:244-323`
+- Used in `AcademiaAuditiva/wwwroot/js/Exercises/SolfegeMelody.js:224-303`
   (`PitchMelodia`, `PitchContourSegmentation`).
 
 **What.** Pick one:

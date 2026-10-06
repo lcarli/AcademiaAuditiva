@@ -16,9 +16,10 @@ namespace AcademiaAuditiva.Services.Audio;
 ///   - 1 plan for GuessNote / GuessChords / GuessFunction / GuessQuality /
 ///     GuessInterval / GuessFullInterval / IntervalMelodico
 ///   - 2 plans for GuessMissingNote (one per melody)
-///   - 0 plans for SolfegeMelody (the melody is shown as sheet music for
-///     the student to sing, so there is nothing to hide; the caller
-///     short-circuits by not invoking the mixer).
+///   - 0 plans for SolfegeMelody: the melody is shown as sheet music for
+///     the student to sing, so there is nothing to hide. Only its first
+///     note is played, on the piano, when the student asks for it
+///     (<see cref="StartingNote"/>).
 ///
 /// Every plan is played on the instrument the student picked (the
 /// <c>instrument</c> filter): the piano plays a chord's notes together, the
@@ -85,9 +86,8 @@ public sealed class ExercisePlaybackPlanner
     /// <summary>
     /// Returns the JSON to cache as <c>ExpectedAnswer</c> together with
     /// the playback plans that need to be mixed and tokenized. An empty
-    /// list of plans means "no audio to issue" (the front will render
-    /// the question some other way — currently only sheet-music
-    /// exercises, which are out of scope for this anti-cheat work).
+    /// list of plans means the question isn't played: it is shown as
+    /// sheet music (SolfegeMelody, see <see cref="StartingNote"/>).
     /// </summary>
     public ExercisePlan Plan(Exercise exercise, Dictionary<string, string> filters)
     {
@@ -161,7 +161,7 @@ public sealed class ExercisePlaybackPlanner
                 break;
 
             case "SolfegeMelody":
-                // Sheet-music exercise — no audio token is issued.
+                // Sheet music: only its starting note is played (StartingNote).
                 break;
 
             case "CompleteScale":
@@ -181,6 +181,20 @@ public sealed class ExercisePlaybackPlanner
         }
 
         return new ExercisePlan(expectedJson, plans);
+    }
+
+    /// <summary>
+    /// The starting note of a sight-singing melody (the expected answer of SolfegeMelody):
+    /// its first note, on the piano, for the student to find the pitch before singing.
+    /// The melody is on the staff anyway, so the note gives nothing away.
+    /// </summary>
+    public IReadOnlyList<MixInput> StartingNote(string expectedAnswerJson)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(expectedAnswerJson);
+
+        var melody = JObject.Parse(expectedAnswerJson)["melody"] as JArray ?? throw Bad("melody");
+        var first = melody.OfType<JObject>().FirstOrDefault(item => item.Value<string>("type") == "note");
+        return [Note(Instrument.Piano, first?.Value<string>("note") ?? throw Bad("melody"))];
     }
 
     private static MixInput Note(Instrument instrument, string note, double startTime = 0.0) =>
@@ -338,8 +352,8 @@ public sealed class ExercisePlaybackPlanner
 /// </summary>
 /// <param name="ExpectedAnswerJson">JSON to cache and feed to validators (unchanged shape).</param>
 /// <param name="PlaybackPlans">
-/// Mixer plans, in playback order. Empty list means "no audio token to
-/// issue" (SolfegeMelody). Most exercises produce one plan;
+/// Mixer plans, in playback order. Empty list means the question is shown
+/// as sheet music instead (SolfegeMelody). Most exercises produce one plan;
 /// GuessMissingNote produces two (melody1, melody2).
 /// </param>
 public sealed record ExercisePlan(

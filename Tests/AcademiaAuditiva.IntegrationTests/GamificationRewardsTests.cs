@@ -11,13 +11,14 @@ namespace AcademiaAuditiva.IntegrationTests;
 /// <summary>
 /// ValidateExercise returns the XP, level and badges each answer earned, with every
 /// text already localized for wwwroot/js/core/rewards.js. SolfegeMelody is used
-/// because its round needs no audio: RequestPlay sends the melody itself.
+/// because RequestPlay sends its melody, the right answer, itself (its starting note
+/// goes to the recording mixer).
 /// </summary>
-public class GamificationRewardsTests : IClassFixture<SignedInWebApplicationFactory>
+public class GamificationRewardsTests : IClassFixture<ExploreWebApplicationFactory>
 {
-    private readonly SignedInWebApplicationFactory _factory;
+    private readonly ExploreWebApplicationFactory _factory;
 
-    public GamificationRewardsTests(SignedInWebApplicationFactory factory) => _factory = factory;
+    public GamificationRewardsTests(ExploreWebApplicationFactory factory) => _factory = factory;
 
     [Fact]
     public async Task Answers_EarnXpBadgesAndLevels_WithLocalizedTexts()
