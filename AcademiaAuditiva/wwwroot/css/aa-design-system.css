@@ -1131,29 +1131,30 @@ a:focus-visible {
     margin-top: 1.75rem;
 }
 
-.aa-hero-art {
-    width: 100%;
-    max-width: 440px;
-    margin-inline: auto;
+/* The home page art (docs/landing-art.md) sits on a soft ellipse, inset like the export's preview. */
+.aa-art {
+    position: relative;
+    isolation: isolate;
 }
 
-.aa-staff {
+.aa-art::before {
+    content: "";
+    position: absolute;
+    inset: 4%;
+    z-index: -1;
+    border-radius: 50%;
+    background: var(--aa-accent-soft);
+}
+
+.aa-art > img {
     display: block;
     width: 100%;
     height: auto;
 }
 
-.aa-staff-line {
-    stroke: var(--aa-staff);
-    stroke-width: 1.2;
-}
-
-.aa-staff-note {
-    fill: var(--aa-staff);
-}
-
-.aa-staff-note-accent {
-    fill: var(--aa-accent);
+.aa-hero-art {
+    max-width: 34rem;
+    margin-inline: auto;
 }
 
 .aa-section {
@@ -1226,6 +1227,17 @@ a:focus-visible {
     margin: 0;
     color: var(--aa-muted);
     line-height: 1.55;
+}
+
+.aa-step-art {
+    width: 10rem;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 992px) {
+    .aa-step-art {
+        width: 11rem;
+    }
 }
 
 .aa-ex-list {
@@ -1324,6 +1336,16 @@ a:focus-visible {
     line-height: 1.55;
 }
 
+.aa-roles-art {
+    max-width: 30rem;
+    margin-inline: auto;
+}
+
+.aa-faq-art {
+    max-width: 15rem;
+    margin-top: 2rem;
+}
+
 .aa-faq {
     --bs-accordion-btn-padding-x: 0;
     --bs-accordion-body-padding-x: 0;
@@ -1341,20 +1363,22 @@ a:focus-visible {
 }
 
 .aa-final {
+    --aa-final-pad: clamp(2.5rem, 6vw, 4rem);
+    --aa-final-art: 10rem;
     position: relative;
     overflow: hidden;
-    padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+    padding: var(--aa-final-pad) 1.5rem;
     border: 1px solid var(--aa-line);
     border-radius: var(--aa-radius-xl);
     background: var(--aa-surface);
     text-align: center;
 }
 
-/* Five staff lines behind the call to action, faded out under the text. */
+/* Five staff lines through the middle of the illustration, faded out before it. */
 .aa-final::before {
     content: "";
     position: absolute;
-    top: 50%;
+    top: calc(var(--aa-final-pad) + var(--aa-final-art) / 2);
     left: 0;
     right: 0;
     height: 73px;
@@ -1369,17 +1393,15 @@ a:focus-visible {
     position: relative;
 }
 
-/* On phones the text spans the full width, so the lines would run through it. */
-@media (max-width: 575.98px) {
-    .aa-final::before {
-        display: none;
-    }
-}
-
 .aa-final-title {
     margin: .5rem 0 .75rem;
     font-size: clamp(1.8rem, 3.6vw, 2.6rem);
     letter-spacing: -.025em;
+}
+
+.aa-final-art {
+    width: var(--aa-final-art);
+    margin: 0 auto .75rem;
 }
 
 .aa-final p {
