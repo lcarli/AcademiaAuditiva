@@ -187,3 +187,4 @@ O aluno ouve o acorde inteiro (tocado como está escrito) e escreve as notas emp
 - Filtros devem ser opcionais e salvos por sessão de usuário
 - As combinações de filtros podem alterar a dificuldade automaticamente
 - Jogos podem desabilitar ou randomizar filtros
+- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão e a Cadência (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)

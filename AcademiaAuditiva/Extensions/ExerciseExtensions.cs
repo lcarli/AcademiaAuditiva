@@ -29,6 +29,7 @@ namespace AcademiaAuditiva.Extensions
                     Groups = ExerciseFilterPresets.Groups(exercise.FiltersJson),
                     IsChordExercise = ExercisePlaybackPlanner.IsChordExercise(exercise.Name),
                     PlaysChords = ExercisePlaybackPlanner.PlaysChords(exercise.Name),
+                    UsesNoteRange = MusicTheoryService.UsesNoteRange(exercise.Name),
                 },
                 AudioButtons = exercise.AudioButtons,
                 AnswerButtons = exercise.AnswerButtons

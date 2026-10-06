@@ -14,7 +14,8 @@ namespace AcademiaAuditiva.IntegrationTests;
 /// the exercise page offers its octaves, and every round is mixed from its samples. The
 /// exercises about chords leave out the violin, which plays one note at a time, and on the
 /// guitar those that play chords offer where on the neck to play them (the
-/// <c>guitarPosition</c> cookie) instead of the note range.
+/// <c>guitarPosition</c> cookie) instead of the note range, which only the exercises whose
+/// notes come from it offer.
 /// </summary>
 public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactory>
 {
@@ -90,6 +91,16 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
         Buttons(html).Should().Equal(
             new Button("Piano", "true", "1", "6", "C1", "false", "Piano"),
             new Button("Guitar", "false", "2", "5", "E2", "true", "Guitar"));
+    }
+
+    [Fact]
+    public async Task ChordExercisePage_WithTheViolinInTheCookie_OffersTheRangeOfThePiano()
+    {
+        ExerciseId("GuessChords");
+        var client = await ClientAsync(("instrument", "Violin"));
+
+        var html = await client.GetStringAsync("/Exercise/GuessChords");
+
         html.Should().Contain("<div class=\"mb-3\" id=\"rangeFilter\">")
             .And.Contain("id=\"rangeStart\" min=\"1\" max=\"6\" value=\"4\"");
     }
@@ -133,7 +144,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     }
 
     [Theory]
-    [InlineData("CompleteChord")]
+    [InlineData("HigherOrLower")]
     [InlineData("GuessNote")]
     public async Task ExercisePage_ThatPlaysNoChordsOnTheNeck_OffersTheRangeOfTheGuitar(string exerciseName)
     {
@@ -145,6 +156,40 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
         html.Should().NotContain("id=\"positionFilter\"")
             .And.Contain("<div class=\"mb-3\" id=\"rangeFilter\">")
             .And.Contain("id=\"rangeStart\" min=\"2\" max=\"5\" value=\"4\"");
+    }
+
+    // The exercises that set their octaves themselves, or with a filter of their own, would
+    // ignore the range: they don't offer it.
+    [Theory]
+    [InlineData("GuessNote", true)]
+    [InlineData("HigherOrLower", true)]
+    [InlineData("GuessChords", true)]
+    [InlineData("GuessQuality", true)]
+    [InlineData("GuessFunction", true)]
+    [InlineData("GuessInversion", true)]
+    [InlineData("GuessCadence", true)]
+    [InlineData("GuessInterval", false)]
+    [InlineData("GuessFullInterval", false)]
+    [InlineData("IntervalMelodico", false)]
+    [InlineData("GuessMissingNote", false)]
+    [InlineData("GuessScaleType", false)]
+    [InlineData("GuessGreekMode", false)]
+    [InlineData("CompleteScale", false)]
+    [InlineData("TransposeScale", false)]
+    [InlineData("CompleteChord", false)]
+    [InlineData("SolfegeMelody", false)]
+    [InlineData("MelodicDictation", false)]
+    [InlineData("RhythmDictation", false)]
+    public async Task ExercisePage_OffersTheOctaveRange_OnlyWhenItsNotesComeFromIt(string exerciseName, bool offersTheRange)
+    {
+        ExerciseId(exerciseName);
+        var client = await ClientAsync();
+
+        var html = await client.GetStringAsync($"/Exercise/{exerciseName}");
+
+        Buttons(html).Should().NotBeEmpty("every exercise offers the instruments");
+        html.Contains("id=\"rangeFilter\"").Should().Be(offersTheRange);
+        html.Contains("id=\"rangeStart\"").Should().Be(offersTheRange);
     }
 
     [Theory]

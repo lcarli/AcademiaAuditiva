@@ -21,5 +21,11 @@ namespace AcademiaAuditiva.ViewModels
         /// neck to play them instead of the note range.
         /// </summary>
         public bool PlaysChords { get; set; }
+
+        /// <summary>
+        /// Whether the exercise draws its notes from the note range: only then does it offer the
+        /// octave range sliders (see <c>MusicTheoryService.UsesNoteRange</c>).
+        /// </summary>
+        public bool UsesNoteRange { get; set; }
     }
 }

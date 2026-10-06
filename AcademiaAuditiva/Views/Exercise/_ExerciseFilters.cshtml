@@ -45,15 +45,19 @@
         </div>
     }
 
-    <div class="mb-3" id="rangeFilter" hidden="@onTheNeck">
-        <div class="form-label" id="rangeLabel">@Localizer["Range"]</div>
-        <div class="d-flex align-items-center gap-3">
-            <span id="rangeStartLabel" class="fw-semibold">@activeInstrument.OctaveLabel(startOctave)</span>
-            <input type="range" class="form-range" id="rangeStart" min="@activeInstrument.LowestOctave" max="@activeInstrument.HighestOctave" value="@startOctave" step="1" aria-labelledby="rangeLabel">
-            <input type="range" class="form-range" id="rangeEnd" min="@activeInstrument.LowestOctave" max="@activeInstrument.HighestOctave" value="@startOctave" step="1" aria-labelledby="rangeLabel">
-            <span id="rangeEndLabel" class="fw-semibold">@activeInstrument.OctaveLabel(startOctave)</span>
+    @* Only the exercises whose notes come from the range offer it; the others set their octaves. *@
+    @if (Model.UsesNoteRange)
+    {
+        <div class="mb-3" id="rangeFilter" hidden="@onTheNeck">
+            <div class="form-label" id="rangeLabel">@Localizer["Range"]</div>
+            <div class="d-flex align-items-center gap-3">
+                <span id="rangeStartLabel" class="fw-semibold">@activeInstrument.OctaveLabel(startOctave)</span>
+                <input type="range" class="form-range" id="rangeStart" min="@activeInstrument.LowestOctave" max="@activeInstrument.HighestOctave" value="@startOctave" step="1" aria-labelledby="rangeLabel">
+                <input type="range" class="form-range" id="rangeEnd" min="@activeInstrument.LowestOctave" max="@activeInstrument.HighestOctave" value="@startOctave" step="1" aria-labelledby="rangeLabel">
+                <span id="rangeEndLabel" class="fw-semibold">@activeInstrument.OctaveLabel(startOctave)</span>
+            </div>
         </div>
-    </div>
+    }
 
     @if (Model.Groups.Count > 0)
     {

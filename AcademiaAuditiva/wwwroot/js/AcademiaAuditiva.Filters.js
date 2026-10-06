@@ -57,11 +57,11 @@ document.addEventListener("DOMContentLoaded", () => {
 			remember("instrument", button.dataset.instrument);
 
 			// In the exercises that play chords, the guitar plays them where on its neck the
-			// student picks, instead of in the note range.
-			if (positionFilter && rangeFilter) {
+			// student picks, instead of in the note range. Only some exercises offer either.
+			if (positionFilter) {
 				const onTheNeck = button.dataset.strummed === "true";
 				positionFilter.hidden = !onTheNeck;
-				rangeFilter.hidden = onTheNeck;
+				if (rangeFilter) rangeFilter.hidden = onTheNeck;
 			}
 
 			if (startSlider && endSlider) {

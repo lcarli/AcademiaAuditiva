@@ -228,6 +228,25 @@ test('the guitar plays the chords where on the neck the student picks', async ({
   await expect(range).toBeVisible();
 });
 
+test('an exercise that sets its own octave offers no octave range, only the instrument', async ({ page, baseURL, context }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto(`${baseURL}/Exercise/CompleteChord`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  const filters = page.locator('#filtersModal');
+  const guitar = filters.locator('[data-instrument="Guitar"]');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await expect(filters.locator('select[name="ccOctave"]')).toBeVisible();
+  await expect(filters.locator('#rangeFilter')).toHaveCount(0);
+  await guitar.click();
+  await expect(guitar).toHaveAttribute('aria-pressed', 'true');
+  await expect(filters.locator('#positionFilter')).toHaveCount(0);
+  expect((await context.cookies()).find(cookie => cookie.name === 'instrument')?.value).toBe('Guitar');
+  expect(errors).toEqual([]);
+});
+
 test('free practice shows the answer and checks it without scoring', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessNote`, { waitUntil: 'networkidle' });
