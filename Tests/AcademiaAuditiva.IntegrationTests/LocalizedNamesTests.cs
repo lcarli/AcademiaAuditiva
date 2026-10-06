@@ -71,24 +71,20 @@ public class LocalizedNamesTests : IClassFixture<TestWebApplicationFactory>
             await db.SaveChangesAsync();
             classroomId = classroom.Id;
             var exercise = await db.Exercises.SingleAsync(e => e.Name == "HigherOrLower");
+            // The student page shows the teacher's routines only.
+            var routine = new Routine { Name = "Ears", OwnerId = teacher.Id };
+            routine.Items.Add(new RoutineItem { ExerciseId = exercise.ExerciseId, Order = 1, TargetCount = 2 });
             db.AddRange(
                 new ClassroomMember { ClassroomId = classroom.Id, StudentId = student.Id },
-                new ScoreAggregate
-                {
-                    UserId = student.Id,
-                    ExerciseId = exercise.ExerciseId,
-                    CorrectCount = 3,
-                    ErrorCount = 1,
-                    BestScore = 3,
-                    LastAttemptAt = DateTime.UtcNow,
-                });
+                routine,
+                new RoutineAssignment { Routine = routine, ClassroomId = classroom.Id, AssignedAt = DateTime.UtcNow });
             await db.SaveChangesAsync();
         }
         var client = await SignedInClientAsync(teacher);
 
         var page = WebUtility.HtmlDecode(await PageAsync(client, $"/Teacher/Dashboard/Student/{student.Id}?classroomId={classroomId}&culture={culture}"));
 
-        page.Should().Contain($"<td>{higherOrLower}</td>").And.NotContain(">HigherOrLower<");
+        page.Should().Contain($"<div>1. {higherOrLower}</div>").And.NotContain(">HigherOrLower<");
     }
 
     [Theory]

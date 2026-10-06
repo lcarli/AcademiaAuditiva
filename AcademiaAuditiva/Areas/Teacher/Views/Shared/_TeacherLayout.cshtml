@@ -1,6 +1,9 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var currentController = ViewContext.RouteData.Values["controller"] as string ?? string.Empty;
+    // A page can pick its section (ViewData["TeacherNav"]) when its controller serves more than one.
+    var currentController = ViewData["TeacherNav"] as string
+        ?? ViewContext.RouteData.Values["controller"] as string
+        ?? string.Empty;
     string ActiveIf(params string[] controllers) =>
         controllers.Any(c => string.Equals(currentController, c, StringComparison.OrdinalIgnoreCase)) ? "active" : string.Empty;
 }

@@ -1,84 +1,129 @@
-@model AcademiaAuditiva.Areas.Teacher.Models.ClassroomDashboardViewModel
+@model AcademiaAuditiva.Areas.Teacher.Models.ClassroomReport
+@using Microsoft.AspNetCore.Html
 @{
-    ViewData["Title"] = $"{Localizer["Teacher.Dashboard.Classroom"].Value} — {Model.ClassroomName}";
+    var totals = Model.Totals;
+    ViewData["Title"] = $"{Localizer["Teacher.Reports.ClassroomTitle"].Value} — {Model.Name}";
+
+    IHtmlContent None() => new HtmlString("<span class=\"text-secondary\">—</span>");
+    IHtmlContent Percent(int? value) => value is int v ? Localizer["Common.Percent", v] : None();
+    void Stat(LocalizedHtmlString label, object value)
+    {
+        <div class="col">
+            <div class="aa-card-flat h-100"><div class="card-body">
+                <div class="text-secondary small">@label</div>
+                <div class="h3 mb-0">@value</div>
+            </div></div>
+        </div>
+    }
 }
-<div class="d-flex justify-content-between align-items-center mb-3">
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
     <div>
-        <h1 class="h3 mb-0">@Model.ClassroomName</h1>
-        <small class="text-secondary">@Localizer["Teacher.Dashboard.Classroom"]</small>
+        <span class="aa-eyebrow">@Localizer["Teacher.Reports.ClassroomTitle"]</span>
+        <h1 class="h3 mt-1 mb-0 text-body-emphasis">@Model.Name</h1>
     </div>
-    <a class="btn btn-link" asp-controller="Classrooms" asp-action="Details" asp-route-id="@Model.ClassroomId">
-        @Localizer["Teacher.Dashboard.BackToClassroom"]
-    </a>
+    <a class="btn btn-link btn-sm" asp-controller="Classrooms" asp-action="Details" asp-route-id="@Model.Id">@Localizer["Teacher.Reports.Back"]</a>
 </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">@Localizer["Admin.Students"]</div>
-            <div class="h3 mb-0">@Model.Rows.Count</div>
-        </div></div>
+<p class="small text-secondary d-flex align-items-start gap-2 mb-4">
+    <i class="bi bi-shield-lock" aria-hidden="true"></i><span>@Localizer["Teacher.Reports.PrivacyNote"]</span>
+</p>
+
+<div class="row row-cols-2 row-cols-xl-4 g-3 mb-4">
+    @{
+        Stat(Localizer["Teacher.Reports.Students"], Model.Students.Count);
+        Stat(Localizer["Teacher.Nav.Routines"], Model.Routines.Count);
+        Stat(Localizer["Teacher.Reports.Col.RoutinesFinished"], $"{totals.Finished}/{totals.Takes}");
+        Stat(Localizer["Teacher.Reports.Accuracy"], Percent(totals.Accuracy));
+    }
+</div>
+
+<div class="aa-card-flat mb-4">
+    <div class="card-header bg-transparent border-bottom border-body">
+        <h2 class="h6 mb-0 text-body-emphasis">@Localizer["Teacher.Reports.ByRoutine"]</h2>
     </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">@Localizer["Teacher.Dashboard.Active30d"]</div>
-            <div class="h3 mb-0">@Model.ActiveStudentsLast30Days</div>
-        </div></div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">@Localizer["Teacher.Dashboard.TotalAttempts"]</div>
-            <div class="h3 mb-0">@Model.TotalAttempts.ToString("N0")</div>
-        </div></div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">@Localizer["Teacher.Dashboard.AvgAccuracy"]</div>
-            <div class="h3 mb-0">@Localizer["Common.Percent", Model.AverageAccuracy.ToString("F1")]</div>
-        </div></div>
-    </div>
+    @if (Model.Routines.Count == 0)
+    {
+        <div class="card-body text-secondary">@Localizer["Teacher.Reports.NoRoutines"]</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">@Localizer["Teacher.Reports.Col.Routine"]</th>
+                        <th scope="col">@Localizer["Teacher.Reports.Col.Assigned"]</th>
+                        <th scope="col">@Localizer["Teacher.Reports.Col.Due"]</th>
+                        <th scope="col" class="text-end">@Localizer["Teacher.Reports.Col.FinishedBy"]</th>
+                        <th scope="col" class="text-end">@Localizer["Teacher.Reports.Late"]</th>
+                        <th scope="col" class="text-end">@Localizer["Teacher.Reports.Accuracy"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.Routines)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Assignment" asp-route-id="@r.Assignment.Id">@r.Assignment.RoutineName</a>
+                                @if (r.Assignment.StudentName is not null)
+                                {
+                                    <div class="small text-secondary"><i class="bi bi-person me-1" aria-hidden="true"></i>@r.Assignment.StudentName</div>
+                                }
+                            </td>
+                            <td class="text-nowrap">@r.Assignment.AssignedOn.ToString("yyyy-MM-dd")</td>
+                            <td class="text-nowrap">@if (r.Assignment.DueOn is DateOnly due) { @due.ToString("yyyy-MM-dd") } else { @None() }</td>
+                            <td class="text-end text-nowrap">@r.Totals.Finished/@r.Totals.Takes</td>
+                            <td class="text-end">@r.Totals.Late</td>
+                            <td class="text-end">@Percent(r.Totals.Accuracy)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>
 
 <div class="aa-card-flat">
-    <div class="card-header bg-transparent border-bottom border-body"><strong>@Localizer["Teacher.Dashboard.PerStudent"]</strong></div>
-    <div class="table-responsive">
-        <table class="table mb-0 align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>@Localizer["Admin.Students"]</th>
-                    <th class="text-end">@Localizer["Teacher.Dashboard.Sessions"]</th>
-                    <th class="text-end">@Localizer["Teacher.Dashboard.Attempts"]</th>
-                    <th class="text-end">@Localizer["Teacher.Dashboard.Accuracy"]</th>
-                    <th>@Localizer["Dashboard.LastActivity"]</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var r in Model.Rows)
-            {
-                <tr>
-                    <td>
-                        <div>@r.Display</div>
-                        <small class="text-secondary">@r.Email</small>
-                    </td>
-                    <td class="text-end">@r.Sessions</td>
-                    <td class="text-end">@r.Attempts.ToString("N0")</td>
-                    <td class="text-end">@Localizer["Common.Percent", r.Accuracy.ToString("F1")]</td>
-                    <td>
-                        @if (r.LastActivity.HasValue) { @r.LastActivity.Value.ToString("yyyy-MM-dd HH:mm") }
-                        else { <span class="text-secondary">@Localizer["Teacher.Dashboard.Never"]</span> }
-                    </td>
-                    <td class="text-end">
-                        <a class="btn btn-sm btn-outline-primary"
-                           asp-action="Student" asp-route-id="@r.StudentId" asp-route-classroomId="@Model.ClassroomId">@Localizer["Teacher.Dashboard.View"]</a>
-                    </td>
-                </tr>
-            }
-            @if (!Model.Rows.Any())
-            {
-                <tr><td colspan="6" class="text-secondary text-center py-4">@Localizer["Teacher.Dashboard.NoStudents"]</td></tr>
-            }
-            </tbody>
-        </table>
+    <div class="card-header bg-transparent border-bottom border-body">
+        <h2 class="h6 mb-0 text-body-emphasis">@Localizer["Teacher.Reports.ByStudent"]</h2>
     </div>
+    @if (Model.Students.Count == 0)
+    {
+        <div class="card-body text-secondary">@Localizer["Teacher.Reports.NoMembers"]</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">@Localizer["Teacher.Reports.Col.Student"]</th>
+                        <th scope="col" class="text-end">@Localizer["Teacher.Reports.Col.RoutinesFinished"]</th>
+                        <th scope="col" class="text-end">@Localizer["Teacher.Reports.Late"]</th>
+                        <th scope="col" class="text-end">@Localizer["Teacher.Reports.Accuracy"]</th>
+                        <th scope="col">@Localizer["Teacher.Reports.Col.LastAnswer"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.Students)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Student" asp-route-id="@s.Student.Id" asp-route-classroomId="@Model.Id">@s.Student.UserName</a>
+                                @if (s.Student.ShowsEmail)
+                                {
+                                    <div class="small text-secondary">@s.Student.Email</div>
+                                }
+                            </td>
+                            <td class="text-end text-nowrap">@s.Totals.Finished/@s.Totals.Takes</td>
+                            <td class="text-end">@s.Totals.Late</td>
+                            <td class="text-end">@Percent(s.Totals.Accuracy)</td>
+                            <td class="text-nowrap">@if (s.LastAnswerAt is DateTime last) { @last.ToString("yyyy-MM-dd HH:mm") } else { @None() }</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

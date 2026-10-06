@@ -259,6 +259,7 @@ builder.Services.AddScoped<IDailyChallengeService, DailyChallengeService>();
 builder.Services.AddScoped<ITutorialService, TutorialService>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Routines.RoutineRounds>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Routines.RoutinePage>();
+builder.Services.AddScoped<AcademiaAuditiva.Areas.Teacher.Services.RoutineReports>();
 
 
 // Facebook login (external auth). Credentials come from configuration:

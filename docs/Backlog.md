@@ -2,10 +2,10 @@
 
 What is left to do on Academia Auditiva, in priority order. Written on
 2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`; line
-numbers refer to `07d6776` (`ef42bfa` in item 3, `47f0a6d` in items 4 and 6,
-added on 2026-10-06, and the merge of #112 in item 5). Each item says why it
-matters, where to look, what to do and when it is done. New ideas go to GitHub
-issues.
+numbers refer to `07d6776` (`ef42bfa` in item 3, and for the two items added on
+2026-10-06, the merge of #113 in item 4 and `47f0a6d` in item 5). Each item
+says why it matters, where to look, what to do and when it is done. New ideas
+go to GitHub issues.
 
 ## Where things stand
 
@@ -31,13 +31,15 @@ The modernization plan is done (#47 to #83):
   the answers given in the routine count, and the due date closes it unless
   the teacher accepts late work (#111). Once assigned, its exercises can't
   change, nor can a student's adjustments to an item they have started; the
-  teacher duplicates the routine to change a copy (#112).
+  teacher duplicates the routine to change a copy (#112). Teachers get reports
+  per routine, per class and per student, made only from the answers given in
+  their own routines; a student's other practice stays private (#113).
 
 E-mail is [on](#e-mail): production sends through Resend (#89), and every
 e-mail has the site's layout and a plain-text version (#92). There are no open
 pull requests and no open CodeQL or Dependabot alerts. The open issues are
-#16, #31 and the three in [Classrooms and teachers](#classrooms-and-teachers)
-(#107 to #109).
+#16, #31 and the two in [Classrooms and teachers](#classrooms-and-teachers)
+(#108 and #109).
 
 ## How we work
 
@@ -163,55 +165,12 @@ replies as `contato@`, its replies pass DMARC.
 
 ## Classrooms and teachers
 
-The owner's notes of 2026-10-06, one issue each. The first, routines that work
-like a test (#106), is done (#111, #112). #111 tied answers to routines, which
-items 4 and 6 build on; item 5 stands alone and can go at any time.
+The owner's notes of 2026-10-06, one issue each. The first two are done:
+routines that work like a test (#106, in #111 and #112), and teacher reports
+made only from the answers given in routines (#107, in #113). #111 tied
+answers to routines, which item 5 builds on; item 4 can go at any time.
 
-### 4. Teacher reports from routines only (#107)
-
-**Why.** The teacher needs reports per routine (overall and per student), per
-class (overall and per student) and a page per student. Today those pages read
-all of a student's practice:
-
-- `DashboardController.Classroom` sums `ScoreAggregates` and counts
-  `ScoreSnapshots` for every member
-  (`AcademiaAuditiva/Areas/Teacher/Controllers/DashboardController.cs:42-53`),
-  and `Student` shows accuracy per exercise from all of them (`:105-110`). A
-  student in two teachers' classes shows each teacher everything.
-- The privacy policy says so (`AcademiaAuditiva/Views/Home/Privacy.cshtml:94`,
-  and the same line of `Privacy.pt-BR.cshtml` and `Privacy.fr-CA.cshtml`).
-- There's no report per routine, and no tests cover these pages.
-
-**Rule agreed with the owner.** A teacher sees only the answers given in the
-routines they assigned: never the student's practice outside them, free or
-not, and never another teacher's routines.
-
-**What.** Build on the answers #111 ties to routines (`ScoreSnapshot`'s
-`RoutineAssignmentId` and `RoutineItemId`), and drop the queries on
-`ScoreAggregates` and on all of a student's `ScoreSnapshots`.
-
-- **Routine** (one assignment): how many students finished, are under way,
-  haven't started or are late, and accuracy and time per answer for each item.
-  Per student: progress and accuracy per item, when they finished, and whether
-  it was late.
-- **Class:** every routine assigned to the class or to some of its students,
-  with completion and accuracy. Per student: routines finished out of those
-  assigned, accuracy and last routine activity.
-- **Student:** their routines from this teacher, item by item. Nothing from
-  other teachers or from practice.
-- A student removed from a class drops out of its reports.
-- Update "Your teachers" in the privacy policy, in the three cultures, and the
-  home page's "Reports" text (`Home.Roles.Teacher3.Desc`, "by class, by student
-  and by exercise").
-- Stopgap, if this item has to wait: remove the practice figures from both
-  pages first, in a small pull request of their own.
-
-**Done when.** Every figure a teacher sees comes from their own routines, the
-privacy policy says so in the three languages, and integration tests show that
-a teacher doesn't see practice outside routines, another teacher's routines or
-students outside their classes.
-
-### 5. Assign to a class or chosen students, and e-mail them (#108)
+### 4. Assign to a class or chosen students, and e-mail them (#108)
 
 **Why.** Assigning a routine saves the assignment and shows a toast, and
 nobody hears about it until they open My Training
@@ -233,6 +192,11 @@ an e-mail.
 - A student who joins the class later still gets its whole-class routines, as
   today (`AcademiaAuditiva/Services/Routines/RoutineRounds.cs:124-129`), but no
   e-mail.
+- The reports (#113) take a class assignment's students from the class's
+  current members, and a one-student assignment's from that student
+  (`AcademiaAuditiva/Areas/Teacher/Services/RoutineReports.cs:36-38`, `:65-73`
+  and `:104-107`). An assignment to ticked students must count only those of
+  them still in the class.
 - `EmailComposer.RoutineAssignedAsync`, like `ClassroomInviteAsync`
   (`AcademiaAuditiva/Services/Email/EmailComposer.cs:40`): the teacher, the
   routine, the due date and a button to My Training. Texts in the three `.resx`
@@ -252,10 +216,11 @@ an e-mail.
   their confirmation e-mail.
 
 **Done when.** Assigning to a class, or to ticked students, e-mails exactly
-those students, each in their own language; a failed send still saves the
-assignment; integration tests cover who gets the e-mail.
+those students, each in their own language, and the reports count exactly
+them; a failed send still saves the assignment; integration tests cover who
+gets the e-mail.
 
-### 6. Notifications on the site (#109)
+### 5. Notifications on the site (#109)
 
 **Why.** The site has no notifications: a student learns about a routine only
 on My Training, and a teacher learns about progress only in the reports.
@@ -273,7 +238,7 @@ on My Training, and a teacher learns about progress only in the reports.
 - First events. For students: a routine is assigned, or is due tomorrow and
   unfinished. For teachers: a student finished a routine, or accepted an
   invite.
-- Item 5's e-mail and this notification come from the same event, so build the
+- Item 4's e-mail and this notification come from the same event, so build the
   notifier once.
 - Notifications go into the data export and the account deletion
   (`AcademiaAuditiva/Services/PersonalDataService.cs:136` and `:49`), and are

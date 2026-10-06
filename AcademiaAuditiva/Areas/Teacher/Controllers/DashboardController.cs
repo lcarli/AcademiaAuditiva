@@ -1,25 +1,25 @@
 using AcademiaAuditiva.Areas.Teacher.Models;
-using AcademiaAuditiva.Data;
+using AcademiaAuditiva.Areas.Teacher.Services;
 using AcademiaAuditiva.Models;
-using AcademiaAuditiva.Resources;
+using AcademiaAuditiva.Services.Gamification;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
 
 namespace AcademiaAuditiva.Areas.Teacher.Controllers;
 
+/// <summary>
+/// The teacher's reports (<see cref="RoutineReports"/>): an assignment of one of their routines,
+/// one of their classrooms, or a student in one of them. Anything else is not found.
+/// </summary>
 public class DashboardController : TeacherAreaController
 {
-    private readonly ApplicationDbContext _db;
+    private readonly RoutineReports _reports;
     private readonly UserManager<ApplicationUser> _users;
-    private readonly IStringLocalizer<SharedResources> _l;
 
-    public DashboardController(ApplicationDbContext db, UserManager<ApplicationUser> users, IStringLocalizer<SharedResources> localizer)
+    public DashboardController(RoutineReports reports, UserManager<ApplicationUser> users)
     {
-        _db = db;
+        _reports = reports;
         _users = users;
-        _l = localizer;
     }
 
     private string TeacherId => _users.GetUserId(User)!;
@@ -29,122 +29,27 @@ public class DashboardController : TeacherAreaController
     // of 404'ing.
     public IActionResult Index() => RedirectToAction("Index", "Home");
 
-    public async Task<IActionResult> Classroom(int id)
+    public async Task<IActionResult> Assignment(int id)
     {
-        var classroom = await _db.Classrooms
-            .Include(c => c.Members).ThenInclude(m => m.Student)
-            .FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == TeacherId);
-        if (classroom == null) return NotFound();
-
-        var studentIds = classroom.Members.Select(m => m.StudentId).ToList();
-        var since30 = DateTime.UtcNow.AddDays(-30);
-
-        // Use ScoreAggregates for cumulative totals (one row per user/exercise),
-        // and ScoreSnapshots for per-attempt counts. The legacy `Scores` table
-        // stores running totals across rows so summing it overcounts attempts.
-        var aggregates = await _db.ScoreAggregates
-            .Where(a => studentIds.Contains(a.UserId))
-            .ToListAsync();
-
-        var snapshotCounts = await _db.ScoreSnapshots
-            .Where(s => studentIds.Contains(s.UserId))
-            .GroupBy(s => s.UserId)
-            .Select(g => new { UserId = g.Key, Sessions = g.Count() })
-            .ToListAsync();
-
-        var perStudent = classroom.Members.Select(m =>
-        {
-            var mineAgg = aggregates.Where(a => a.UserId == m.StudentId).ToList();
-            var totalAttempts = mineAgg.Sum(a => a.CorrectCount + a.ErrorCount);
-            var totalCorrect = mineAgg.Sum(a => a.CorrectCount);
-            var accuracy = totalAttempts == 0 ? 0
-                : Math.Round(100.0 * totalCorrect / totalAttempts, 1);
-            var lastActivity = mineAgg.Count == 0 ? (DateTime?)null
-                : mineAgg.Max(a => a.LastAttemptAt);
-            return new ClassroomDashboardRow
-            {
-                StudentId = m.StudentId,
-                Display = m.Student?.UserName ?? m.Student?.Email ?? m.StudentId,
-                Email = m.Student?.Email ?? "",
-                Sessions = snapshotCounts.FirstOrDefault(c => c.UserId == m.StudentId)?.Sessions ?? 0,
-                Attempts = totalAttempts,
-                Accuracy = accuracy,
-                LastActivity = lastActivity,
-                ActiveLast30Days = lastActivity.HasValue && lastActivity.Value >= since30
-            };
-        })
-        .OrderByDescending(r => r.LastActivity ?? DateTime.MinValue)
-        .ToList();
-
-        var vm = new ClassroomDashboardViewModel
-        {
-            ClassroomId = classroom.Id,
-            ClassroomName = classroom.Name,
-            Rows = perStudent,
-            TotalAttempts = perStudent.Sum(r => r.Attempts),
-            TotalSessions = perStudent.Sum(r => r.Sessions),
-            AverageAccuracy = perStudent.Where(r => r.Attempts > 0).Select(r => r.Accuracy).DefaultIfEmpty(0).Average(),
-            ActiveStudentsLast30Days = perStudent.Count(r => r.ActiveLast30Days)
-        };
-        return View(vm);
+        var report = await _reports.AssignmentAsync(TeacherId, id, UserTimeZone.FromRequest(Request), HttpContext.RequestAborted);
+        return report is null ? NotFound() : View(report);
     }
 
-    public async Task<IActionResult> Student(string id, int? classroomId = null)
+    public async Task<IActionResult> Classroom(int id)
     {
-        // The teacher can only see students that are members of one of their classrooms.
-        var membership = await _db.ClassroomMembers
-            .Include(m => m.Classroom)
-            .Include(m => m.Student)
-            .Where(m => m.StudentId == id && m.Classroom!.OwnerId == TeacherId)
-            .ToListAsync();
-        if (membership.Count == 0) return Forbid();
+        var report = await _reports.ClassroomAsync(TeacherId, id, UserTimeZone.FromRequest(Request), HttpContext.RequestAborted);
+        return report is null ? NotFound() : View(report);
+    }
 
-        var student = membership.First().Student!;
-        var since30 = DateTime.UtcNow.AddDays(-30);
+    /// <param name="classroomId">The classroom report the teacher came from, if any.</param>
+    /// <param name="assignmentId">The routine report the teacher came from, if any.</param>
+    public async Task<IActionResult> Student(string id, int? classroomId = null, int? assignmentId = null)
+    {
+        var report = await _reports.StudentAsync(TeacherId, id, UserTimeZone.FromRequest(Request), HttpContext.RequestAborted);
+        if (report is null) return NotFound();
 
-        var aggregates = await _db.ScoreAggregates
-            .Where(a => a.UserId == id)
-            .Include(a => a.Exercise)
-            .ToListAsync();
-
-        var sessionCount = await _db.ScoreSnapshots.CountAsync(s => s.UserId == id);
-
-        var totalAttempts = aggregates.Sum(a => a.CorrectCount + a.ErrorCount);
-        var totalCorrect = aggregates.Sum(a => a.CorrectCount);
-        var lastActivity = aggregates.Count == 0 ? (DateTime?)null
-            : aggregates.Max(a => a.LastAttemptAt);
-
-        var byExercise = aggregates
-            .Select(a =>
-            {
-                var att = a.CorrectCount + a.ErrorCount;
-                return new StudentExerciseRow
-                {
-                    ExerciseName = a.Exercise is null ? "?" : _l[a.Exercise.Name].Value,
-                    Attempts = att,
-                    Accuracy = att == 0 ? 0 : Math.Round(100.0 * a.CorrectCount / att, 1),
-                    BestScore = a.BestScore,
-                    LastActivity = a.LastAttemptAt
-                };
-            })
-            .OrderByDescending(r => r.LastActivity)
-            .ToList();
-
-        var vm = new StudentDashboardViewModel
-        {
-            StudentId = id,
-            Display = student.UserName ?? student.Email ?? id,
-            Email = student.Email ?? "",
-            Classrooms = membership.Select(m => new ClassroomOption(m.ClassroomId, m.Classroom!.Name)).ToList(),
-            BackClassroomId = classroomId,
-            TotalSessions = sessionCount,
-            TotalAttempts = totalAttempts,
-            OverallAccuracy = totalAttempts == 0 ? 0
-                : Math.Round(100.0 * totalCorrect / totalAttempts, 1),
-            ActiveLast30Days = lastActivity.HasValue && lastActivity.Value >= since30,
-            LastActivity = lastActivity,
-            ByExercise = byExercise
-        };
-        return View(vm);
+        var backToAssignment = report.Routines.Any(r => r.Assignment.Id == assignmentId) ? assignmentId : null;
+        var backToClassroom = backToAssignment is null && report.Classrooms.Any(c => c.Id == classroomId) ? classroomId : null;
+        return View(new StudentReportPage(report, backToAssignment, backToClassroom));
     }
 }
