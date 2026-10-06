@@ -1,8 +1,8 @@
-// Sight-singing: the student reads a short melody, hears its first note,
-// records themselves singing it, and the recording is transcribed in the
-// browser with essentia.js (PitchMelodia + PitchContourSegmentation). Only
-// the detected note names are sent to the server; the audio never leaves
-// the device (see the privacy policy).
+// Sight-singing: the student reads a short melody, plays its first note on
+// the piano when they want it, and records themselves singing it. The
+// recording is transcribed in the browser with essentia.js (PitchMelodia +
+// PitchContourSegmentation). Only the detected note names are sent to the
+// server; the audio never leaves the device (see the privacy policy).
 document.addEventListener("DOMContentLoaded", () => {
   const loc = AAi18n.localizer();
   const exerciseId = document.getElementById("exerciseId")?.value;
@@ -29,12 +29,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const SILENCE_RMS = 0.003;
   const RMS_WINDOW = 1024;
 
-  let round = null; // { melody }
+  let round = null; // { melody, startingNoteToken }
   let recorder = null;
   let recorderStopped = Promise.resolve();
   let recording = null; // { blob, url }
   let player = null;
-  let audioContext = null;
   let essentiaReady = null;
   let micPending = false;
   let busy = false;
@@ -123,38 +122,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- Starting note ----------
 
-  // Create or resume the context while handling the click: Safari only lets
-  // audio start from a user gesture, and the melody arrives after a fetch.
-  function unlockAudio() {
-    const Context = window.AudioContext || window.webkitAudioContext;
-    if (!Context) return null;
-    if (!audioContext) audioContext = new Context();
-    if (audioContext.state === "suspended") audioContext.resume();
-    return audioContext;
-  }
-
+  // The server mixes the melody's first note on the piano. It is fetched with
+  // the melody but only played when the student asks for it.
   function playStartingNote() {
-    const first = round ? melodyNotes(round.melody)[0] : null;
-    if (!first) {
+    if (!round) {
       AAi18n.noAudio(loc);
       return;
     }
-    const context = unlockAudio();
-    if (!context) return;
-
-    const start = context.currentTime + 0.05;
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.type = "triangle";
-    oscillator.frequency.value = 440 * Math.pow(2, (first.midi - 69) / 12);
-    gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.exponentialRampToValueAtTime(0.3, start + 0.04);
-    gain.gain.setValueAtTime(0.3, start + 1.1);
-    gain.gain.exponentialRampToValueAtTime(0.0001, start + 1.5);
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start(start);
-    oscillator.stop(start + 1.55);
+    AudioEngine.playToken(round.startingNoteToken).catch((err) => {
+      console.error("Starting note playback failed:", err);
+      showError();
+    });
   }
 
   // ---------- Recording ----------
@@ -208,6 +186,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     discardRecording();
+    // The starting note must not ring into the microphone (echo cancellation is off).
+    AudioEngine.stop();
     const chunks = [];
     const timer = setTimeout(stopRecording, MAX_RECORDING_MS);
     recorder = active;
@@ -377,26 +357,28 @@ document.addEventListener("DOMContentLoaded", () => {
   AAPractice.onReset(() => {
     if (busy) return;
     round = null;
+    AudioEngine.stop();
     drawStaff([]);
     stopRecording().then(discardRecording);
   });
 
   generateBtn?.addEventListener("click", async () => {
     if (!exerciseId || busy) return;
-    unlockAudio();
+    // A new melody is silent: its starting note waits for its button.
+    AudioEngine.stop();
     generateBtn.disabled = true;
     try {
       const data = await AAPractice.play({ exerciseId });
       if (AAi18n.serverError(data, loc)) return;
-      if (!Array.isArray(data.melody) || melodyNotes(data.melody).length === 0) {
+      if (!Array.isArray(data.melody) || melodyNotes(data.melody).length === 0 || !data.startingNoteToken) {
         throw new Error("The response has no melody.");
       }
 
       await stopRecording();
       discardRecording();
-      round = { melody: data.melody };
+      round = { melody: data.melody, startingNoteToken: data.startingNoteToken };
       drawStaff(round.melody);
-      playStartingNote();
+      AudioEngine.preload(round.startingNoteToken);
     } catch (err) {
       console.error("SolfegeMelody request failed:", err);
       showError();

@@ -37,9 +37,10 @@ public interface IAudioTokenService
 
     /// <summary>
     /// Issues a token for a clip that belongs to no exercise round (the
-    /// Explore page, where the learner picks what to hear). It resolves
-    /// like a round token for the same 15 min, but there is no expected
-    /// answer behind it.
+    /// Explore page, where the learner picks what to hear, and the starting
+    /// note of a sight-singing melody, which is on the staff anyway). It
+    /// resolves like a round token for the same 15 min, but there is no
+    /// expected answer behind it.
     /// </summary>
     Task<string> IssueTokenAsync(
         string userId,
