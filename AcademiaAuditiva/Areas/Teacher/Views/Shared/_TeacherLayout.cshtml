@@ -9,7 +9,7 @@
 }
 
 <div class="row g-4">
-    <aside class="col-lg-3 col-xl-2">
+    <aside class="col-lg-auto aa-side-col">
         <div class="aa-card-flat p-3 aa-side-sticky">
             <h2 class="aa-eyebrow d-block mb-2 mb-lg-3">@Localizer["Teacher.SidebarTitle"]</h2>
             <nav class="nav flex-row flex-lg-column gap-1 aa-side-nav">
@@ -25,7 +25,7 @@
             </nav>
         </div>
     </aside>
-    <div class="col-lg-9 col-xl-10">
+    <div class="col-lg aa-side-main">
         <partial name="_TempDataAlerts" />
         @RenderBody()
     </div>

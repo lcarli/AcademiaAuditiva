@@ -367,6 +367,31 @@ test('public pages never scroll sideways on phones, tablets or small laptops', a
   }
 });
 
+test('teacher and admin menus fit every label on one line and sit beside the page on wide screens', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  for (const culture of cultures) {
+    for (const path of ['/Teacher', '/Admin', '/Admin/Users']) {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.goto(`${baseURL}${path}?culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
+      for (const width of [390, 768, 992, 1200, 1280, 1400, 1920]) {
+        await page.setViewportSize({ width, height: 900 });
+        expect(await sideMenuLayout(page), `${path} ${culture} at ${width} px`).toEqual({ wrapped: [], overflow: 0, beside: width >= 992 });
+      }
+    }
+  }
+
+  // A table wider than the page scrolls inside it instead of pushing the page under the menu.
+  await page.evaluate(() => {
+    const cells = Array.from({ length: 30 }, (_, i) => `<td class="text-nowrap">Column ${i}</td>`).join('');
+    document.querySelector('main aside')!.nextElementSibling!
+      .insertAdjacentHTML('beforeend', `<div class="table-responsive"><table class="table"><tr>${cells}</tr></table></div>`);
+  });
+  for (const width of [992, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await sideMenuLayout(page), `wide table at ${width} px`).toEqual({ wrapped: [], overflow: 0, beside: true });
+  }
+});
+
 test('each tour step brings its element out from under the header', async ({ page, baseURL }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1024, height: 600 });
@@ -461,6 +486,27 @@ async function expectHeaderMenuUsable(page: Page, toggle: string) {
   for (const item of items) expect(item.onTop, `"${item.text}" is on top`).toBe(true);
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
+}
+
+// Where the teacher and admin areas put their menu (the <aside>) and the page after it,
+// and which of its links are taller than a line.
+async function sideMenuLayout(page: Page) {
+  return page.evaluate(() => {
+    const aside = document.querySelector('main aside')!;
+    const menu = aside.getBoundingClientRect();
+    const content = aside.nextElementSibling!.getBoundingClientRect();
+    // A label too long for the menu breaks under its icon.
+    const wrapped = [...aside.querySelectorAll<HTMLElement>('.nav-link')].filter(link => {
+      const style = getComputedStyle(link);
+      const height = link.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+      return height > 1.5 * parseFloat(style.lineHeight);
+    }).map(link => link.textContent!.trim());
+    return {
+      wrapped,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      beside: Math.abs(content.top - menu.top) < 1 && content.left >= menu.right - 1
+    };
+  });
 }
 
 // "Db4" as the answer button that plays it ("C#"): the buttons name pitch classes in sharps.
