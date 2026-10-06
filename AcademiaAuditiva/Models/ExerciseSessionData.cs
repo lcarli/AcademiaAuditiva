@@ -10,4 +10,13 @@ public class ExerciseSessionData
 
     /// <summary>When <c>RequestPlay</c> issued the round (UTC); the answer's time is measured from it.</summary>
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+    /// <summary>The routine question the round asks (see <c>AudioRound.Routine</c>); null outside routines.</summary>
+    public int? RoutineAssignmentId { get; set; }
+
+    /// <inheritdoc cref="RoutineAssignmentId"/>
+    public int? RoutineItemId { get; set; }
+
+    /// <inheritdoc cref="RoutineAssignmentId"/>
+    public int? RoutineQuestion { get; set; }
 }

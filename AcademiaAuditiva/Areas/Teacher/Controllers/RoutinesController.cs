@@ -337,7 +337,8 @@ public class RoutinesController : TeacherAreaController
             ClassroomId = model.Target == "classroom" ? model.ClassroomId : null,
             StudentId = model.Target == "student" ? model.StudentId : null,
             AssignedAt = DateTime.UtcNow,
-            DueAt = model.DueAt
+            DueAt = model.DueAt,
+            AllowLate = model.DueAt.HasValue && model.AllowLate
         });
         await _db.SaveChangesAsync();
 

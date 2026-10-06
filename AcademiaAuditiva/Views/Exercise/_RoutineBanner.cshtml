@@ -1,0 +1,50 @@
+@using AcademiaAuditiva.Services.Routines
+@model RoutinePageState
+@{
+    // wwwroot/js/core/practice.js sends the routine from these data attributes with every Play,
+    // stops Play while data-blocked-title is not empty (Razor renders null data- attributes as
+    // empty ones), and keeps the banner in step with the routine status RequestPlay and
+    // ValidateExercise return.
+    var status = Model.Status;
+    var routine = Model.Round?.Routine;
+    var item = Model.Round?.Item;
+}
+
+<section class="aa-preset aa-routine" id="aaRoutine" aria-labelledby="aaRoutineName"
+         data-assignment-id="@Model.Link.AssignmentId" data-item-id="@Model.Link.ItemId"
+         data-state="@status.State"
+         data-blocked-title="@status.Blocked?.Title" data-blocked-message="@status.Blocked?.Message">
+    <i class="bi bi-clipboard-check" aria-hidden="true"></i>
+    <div class="aa-preset-body">
+        <strong id="aaRoutineName">@(routine?.RoutineName ?? Localizer["Routine.UnavailableTitle"].Value)</strong>
+        @if (routine?.ClassroomName is { } classroom)
+        {
+            <span class="aa-badge-soft">@Localizer["MyTraining.Source.Classroom", classroom]</span>
+        }
+        <span class="aa-routine-text" data-aa-routine-text aria-live="polite">@status.Text</span>
+        <span class="aa-routine-verdict@(status.Passed == false ? " is-below" : "")" data-aa-routine-verdict
+              hidden="@(status.Verdict is null)">@status.Verdict</span>
+    </div>
+    <a class="btn btn-link btn-sm aa-preset-change" asp-controller="MyTraining" asp-action="Index">
+        @Localizer["Routine.BackToMyTraining"]
+    </a>
+    @if (item is not null)
+    {
+        <div class="aa-routine-meta">
+            @foreach (var applied in item.AppliedFilters)
+            {
+                <span class="aa-badge-soft">@Localizer["Common.LabelValue", Localizer[applied.Group.Label], Localizer[applied.Option.Text]]</span>
+            }
+            @if (item.Progress.MinScore is int minScore)
+            {
+                <span class="aa-badge-soft">@Localizer["MyTraining.MinAccuracy", minScore]</span>
+            }
+            <span class="aa-badge-soft aa-routine-late" data-aa-routine-late
+                  hidden="@(status.State != RoutineRoundStatus.Late)">@Localizer["Routine.Late"]</span>
+        </div>
+        <div class="progress aa-routine-bar" role="progressbar" aria-labelledby="aaRoutineName"
+             aria-valuenow="@status.Percent" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" data-aa-routine-bar style="width: @(status.Percent)%;"></div>
+        </div>
+    }
+</section>

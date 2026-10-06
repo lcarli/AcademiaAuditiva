@@ -103,6 +103,9 @@ public class AssignRoutineViewModel
     [DataType(DataType.Date), Display(Name = "Teacher.Routines.DueDate")]
     public DateTime? DueAt { get; set; }
 
+    [Display(Name = "Teacher.Routines.AllowLate")]
+    public bool AllowLate { get; set; }
+
     public IReadOnlyList<ClassroomOption> Classrooms { get; set; } = Array.Empty<ClassroomOption>();
     public IReadOnlyList<StudentOption> Students { get; set; } = Array.Empty<StudentOption>();
 }

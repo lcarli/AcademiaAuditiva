@@ -30,6 +30,22 @@ namespace AcademiaAuditiva.Models
         public string? FilterJson { get; set; }
 
         public const int FilterJsonMaxLength = 256;
+
+        /// <summary>
+        /// The routine assignment and item a routine answer belongs to, and which of the
+        /// item's questions it answered, counted from 1 (see
+        /// <see cref="Services.Routines.RoutineRounds"/>). All three are null for practice
+        /// outside routines and for answers saved before routines kept their answers.
+        /// There is no foreign key: when an assignment is removed, its answers stay as
+        /// ordinary practice.
+        /// </summary>
+        public int? RoutineAssignmentId { get; set; }
+
+        /// <inheritdoc cref="RoutineAssignmentId"/>
+        public int? RoutineItemId { get; set; }
+
+        /// <inheritdoc cref="RoutineAssignmentId"/>
+        public int? RoutineQuestion { get; set; }
     }
 
     /// <summary>

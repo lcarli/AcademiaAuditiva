@@ -25,6 +25,7 @@ namespace AcademiaAuditiva.Extensions
                 FeedbackType = null,
                 Filters = new ExerciseFiltersViewModel
                 {
+                    ExerciseId = exercise.ExerciseId,
                     Groups = ExerciseFilterPresets.Groups(exercise.FiltersJson),
                     IsChordExercise = ExercisePlaybackPlanner.IsChordExercise(exercise.Name),
                     PlaysChords = ExercisePlaybackPlanner.PlaysChords(exercise.Name),

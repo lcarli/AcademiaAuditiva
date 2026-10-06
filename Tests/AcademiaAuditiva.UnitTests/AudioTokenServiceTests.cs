@@ -1,4 +1,5 @@
 using AcademiaAuditiva.Services.Audio;
+using AcademiaAuditiva.Services.Routines;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -135,6 +136,31 @@ public class AudioTokenServiceTests
         without.FilterJson.Should().BeNull();
         (await _service.GetRoundAsync("alice", 7, withFilters.RoundId))!.FilterJson.Should().Be(filters);
         (await _service.GetRoundAsync("alice", 7, without.RoundId))!.FilterJson.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Rounds_RememberTheRoutineQuestionTheyAsk()
+    {
+        var question = new RoutineQuestion(new RoutineLink(12, 34), 3);
+        var routine = await _service.CreateRoundAsync("alice", 7, "{}", ["C4.mp3"], routine: question);
+        var practice = await _service.CreateRoundAsync("alice", 7, "{}", ["C4.mp3"]);
+
+        routine.Routine.Should().Be(question);
+        practice.Routine.Should().BeNull();
+        (await _service.GetRoundAsync("alice", 7, routine.RoundId))!.Routine.Should().Be(question);
+        (await _service.GetRoundAsync("alice", 7, practice.RoundId))!.Routine.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RoundsCachedBeforeRoutineQuestions_AreOrdinaryPractice()
+    {
+        var cache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
+        await cache.SetStringAsync("ExerciseRound:alice:7:abc",
+            """{"RoundId":"abc","ExpectedAnswerJson":"{}","TokenToBlob":{"t1":"C4.mp3"},"RoutineAssignmentId":12,"RoutineItemId":34}""");
+
+        var round = await new AudioTokenService(cache, TimeProvider.System).GetRoundAsync("alice", 7, "abc");
+
+        round!.Routine.Should().BeNull("a routine round must say which question it asks");
     }
 
     [Theory]

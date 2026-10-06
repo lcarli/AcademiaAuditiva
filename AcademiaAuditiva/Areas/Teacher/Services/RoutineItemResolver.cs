@@ -47,32 +47,24 @@ public readonly record struct EffectiveRoutineItem(
     int? MinScore);
 
 /// <summary>
-/// A student's progress on one routine item, counted from the attempts made
-/// since the routine was assigned. The item is complete once the target
-/// number of attempts is reached <em>and</em> the accuracy over those attempts
-/// meets the optional minimum score (a percentage).
+/// A student's progress on one routine item, counted from the answers given in the
+/// routine (<see cref="AcademiaAuditiva.Services.Routines.RoutineRounds"/>). Like a test,
+/// the item is complete once the target number of questions is answered, right or wrong;
+/// the optional minimum score (a percentage) is the pass mark of the result.
 /// </summary>
 public readonly record struct RoutineItemProgress(int Attempts, int Correct, int Target, int? MinScore)
 {
-    /// <summary>Attempts that count towards the target (never more than the target).</summary>
+    /// <summary>Answers that count towards the target (never more than the target).</summary>
     public int Done => Math.Min(Attempts, Math.Max(Target, 0));
 
-    /// <summary>Rounded accuracy for display, or null before the first attempt.</summary>
+    /// <summary>Rounded accuracy for display, or null before the first answer.</summary>
     public int? Accuracy => Attempts == 0 ? null : (int)Math.Round(100.0 * Correct / Attempts, MidpointRounding.AwayFromZero);
 
     /// <summary>Exact comparison, so 79.6% does not pass a minimum of 80.</summary>
     public bool MeetsMinScore => MinScore is not int min || (long)Correct * 100 >= (long)min * Attempts;
 
-    public bool IsComplete => Attempts >= Target && MeetsMinScore;
+    public bool IsComplete => Attempts >= Target;
 
-    /// <summary>100 only when complete; otherwise capped at 99 so an unmet minimum score stays visible.</summary>
-    public int Percent
-    {
-        get
-        {
-            if (IsComplete) return 100;
-            var ratio = Target <= 0 ? 1.0 : (double)Done / Target;
-            return Math.Min(99, (int)Math.Floor(100 * ratio));
-        }
-    }
+    /// <summary>The share of the questions answered, rounded down.</summary>
+    public int Percent => IsComplete || Target <= 0 ? 100 : (int)Math.Floor(100.0 * Done / Target);
 }

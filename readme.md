@@ -35,6 +35,9 @@ fr-CA). It runs at <https://academiaauditiva.com>.
 - 🧑‍🏫 **Teachers, students and admins**: teachers run classrooms, invite
   students by e-mail and assign routines; admins manage roles and can lock,
   unlock or delete accounts.
+- 📝 **Routines**: students take a routine like a test: each exercise with the
+  number of questions and the filters the teacher set, by a due date that may
+  accept late answers.
 - 🛡️ **Answers stay on the server**: the server mixes each round's audio and
   streams it through opaque tokens, so the page never holds the answer
   before the student replies.

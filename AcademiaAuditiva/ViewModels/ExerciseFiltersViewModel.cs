@@ -2,6 +2,9 @@ namespace AcademiaAuditiva.ViewModels
 {
     public class ExerciseFiltersViewModel
     {
+        /// <summary>The exercise the filters are for; a routine question sets some of them (see <c>RoutinePage</c>).</summary>
+        public int ExerciseId { get; set; }
+
         public string Instrument { get; set; }
         public string Range { get; set; } // Ex: C3-C4
 

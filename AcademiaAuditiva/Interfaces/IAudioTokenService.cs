@@ -1,5 +1,7 @@
 namespace AcademiaAuditiva.Interfaces;
 
+using AcademiaAuditiva.Services.Routines;
+
 /// <summary>
 /// Issues and resolves opaque per-round audio tokens. The front-end
 /// receives only token GUIDs from <c>RequestPlay</c> and uses them in
@@ -20,7 +22,8 @@ public interface IAudioTokenService
     /// supplied <paramref name="blobNames"/>). A <paramref name="free"/>
     /// round (free practice) is checked but never scored, and its answer
     /// may be revealed before it is answered. <paramref name="filterJson"/>
-    /// (the exercise filters it was played with) is saved with its answer.
+    /// (the exercise filters it was played with) is saved with its answer,
+    /// and so is <paramref name="routine"/>, the routine question it asks.
     /// </summary>
     Task<AudioRound> CreateRoundAsync(
         string userId,
@@ -29,6 +32,7 @@ public interface IAudioTokenService
         IReadOnlyList<string> blobNames,
         bool free = false,
         string? filterJson = null,
+        RoutineQuestion? routine = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -79,7 +83,8 @@ public interface IAudioTokenService
 /// <paramref name="Free"/> marks a free practice round; <paramref name="FilterJson"/> is the
 /// preset of exercise filters it was played with (<c>ScoreSnapshot.FilterJson</c>).
 /// <paramref name="IssuedAt"/> is when the round was created, which the answer's time is
-/// measured from; rounds cached before it was recorded have none.
+/// measured from; rounds cached before it was recorded have none. <paramref name="Routine"/>
+/// is the routine question the round asks (see <see cref="RoutineRounds"/>).
 /// </summary>
 public sealed record AudioRound(
     string RoundId,
@@ -88,4 +93,5 @@ public sealed record AudioRound(
     IReadOnlyDictionary<string, string> TokenToBlob,
     bool Free = false,
     string? FilterJson = null,
-    DateTimeOffset? IssuedAt = null);
+    DateTimeOffset? IssuedAt = null,
+    RoutineQuestion? Routine = null);
