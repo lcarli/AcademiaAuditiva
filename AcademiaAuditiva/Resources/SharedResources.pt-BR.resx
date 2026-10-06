@@ -978,7 +978,7 @@
     <value>Relatórios</value>
   </data>
   <data name="Home.Roles.Teacher3.Desc" xml:space="preserve">
-    <value>Veja acertos e atividade recente por turma, por aluno e por exercício.</value>
+    <value>Veja como cada turma e cada aluno se saíram nas suas rotinas, exercício por exercício.</value>
   </data>
   <data name="Home.Faq.Badge" xml:space="preserve">
     <value>Dúvidas</value>
@@ -1450,9 +1450,6 @@
   </data>
   <data name="Teacher.Classrooms.PendingInvites" xml:space="preserve">
     <value>Convites pendentes</value>
-  </data>
-  <data name="Teacher.Classrooms.Dashboard" xml:space="preserve">
-    <value>Painel</value>
   </data>
   <data name="Teacher.Members.SendInvite" xml:space="preserve">
     <value>Enviar convite</value>
@@ -2555,50 +2552,110 @@
   <data name="Teacher.Members.StudentEmail" xml:space="preserve">
     <value>Email do aluno</value>
   </data>
-  <data name="Teacher.Dashboard.Classroom" xml:space="preserve">
-    <value>Painel da turma</value>
+  <data name="Teacher.Reports.Link" xml:space="preserve">
+    <value>Relatório</value>
   </data>
-  <data name="Teacher.Dashboard.Active30d" xml:space="preserve">
-    <value>Ativos (30 dias)</value>
+  <data name="Teacher.Reports.AssignmentTitle" xml:space="preserve">
+    <value>Relatório da rotina</value>
   </data>
-  <data name="Teacher.Dashboard.TotalAttempts" xml:space="preserve">
-    <value>Total de tentativas</value>
+  <data name="Teacher.Reports.ClassroomTitle" xml:space="preserve">
+    <value>Relatório da turma</value>
   </data>
-  <data name="Teacher.Dashboard.AvgAccuracy" xml:space="preserve">
-    <value>Precisão média</value>
+  <data name="Teacher.Reports.StudentTitle" xml:space="preserve">
+    <value>Relatório do aluno</value>
   </data>
-  <data name="Teacher.Dashboard.PerStudent" xml:space="preserve">
-    <value>Por aluno</value>
+  <data name="Teacher.Reports.Back" xml:space="preserve">
+    <value>Voltar</value>
   </data>
-  <data name="Teacher.Dashboard.Sessions" xml:space="preserve">
-    <value>Sessões</value>
+  <data name="Teacher.Reports.PrivacyNote" xml:space="preserve">
+    <value>Aqui contam só as respostas dadas nas suas rotinas. A prática do aluno fora delas continua privada.</value>
   </data>
-  <data name="Teacher.Dashboard.Attempts" xml:space="preserve">
-    <value>Tentativas</value>
+  <data name="Teacher.Reports.Students" xml:space="preserve">
+    <value>Alunos</value>
   </data>
-  <data name="Teacher.Dashboard.Accuracy" xml:space="preserve">
+  <data name="Teacher.Reports.Status.Finished" xml:space="preserve">
+    <value>Concluída</value>
+  </data>
+  <data name="Teacher.Reports.Status.InProgress" xml:space="preserve">
+    <value>Em andamento</value>
+  </data>
+  <data name="Teacher.Reports.Status.NotStarted" xml:space="preserve">
+    <value>Não iniciada</value>
+  </data>
+  <data name="Teacher.Reports.Late" xml:space="preserve">
+    <value>Com atraso</value>
+  </data>
+  <data name="Teacher.Reports.FinishedCount" xml:space="preserve">
+    <value>Concluíram</value>
+  </data>
+  <data name="Teacher.Reports.NotStartedCount" xml:space="preserve">
+    <value>Não começaram</value>
+  </data>
+  <data name="Teacher.Reports.Excluded" xml:space="preserve">
+    <value>Excluído para este aluno</value>
+  </data>
+  <data name="Teacher.Reports.Accuracy" xml:space="preserve">
     <value>Precisão</value>
   </data>
-  <data name="Teacher.Dashboard.Never" xml:space="preserve">
-    <value>nunca</value>
+  <data name="Teacher.Reports.Seconds" xml:space="preserve">
+    <value>{0} s</value>
   </data>
-  <data name="Teacher.Dashboard.View" xml:space="preserve">
-    <value>Ver</value>
-  </data>
-  <data name="Teacher.Dashboard.NoStudents" xml:space="preserve">
-    <value>Ainda não há alunos nesta turma.</value>
-  </data>
-  <data name="Teacher.Dashboard.BackToClassroom" xml:space="preserve">
-    <value>Voltar para a turma</value>
-  </data>
-  <data name="Teacher.Dashboard.ByExercise" xml:space="preserve">
+  <data name="Teacher.Reports.ByExercise" xml:space="preserve">
     <value>Por exercício</value>
   </data>
-  <data name="Teacher.Dashboard.Best" xml:space="preserve">
-    <value>Melhor</value>
+  <data name="Teacher.Reports.ByStudent" xml:space="preserve">
+    <value>Por aluno</value>
   </data>
-  <data name="Teacher.Dashboard.StudentNoPractice" xml:space="preserve">
-    <value>Este aluno ainda não praticou.</value>
+  <data name="Teacher.Reports.ByRoutine" xml:space="preserve">
+    <value>Por rotina</value>
+  </data>
+  <data name="Teacher.Reports.Col.Exercise" xml:space="preserve">
+    <value>Exercício</value>
+  </data>
+  <data name="Teacher.Reports.Col.FinishedBy" xml:space="preserve">
+    <value>Concluído por</value>
+  </data>
+  <data name="Teacher.Reports.Col.Answers" xml:space="preserve">
+    <value>Respostas</value>
+  </data>
+  <data name="Teacher.Reports.Col.TimePerAnswer" xml:space="preserve">
+    <value>Tempo por resposta</value>
+  </data>
+  <data name="Teacher.Reports.Col.Student" xml:space="preserve">
+    <value>Aluno</value>
+  </data>
+  <data name="Teacher.Reports.Col.Status" xml:space="preserve">
+    <value>Situação</value>
+  </data>
+  <data name="Teacher.Reports.Col.FinishedAt" xml:space="preserve">
+    <value>Concluída em</value>
+  </data>
+  <data name="Teacher.Reports.Col.Routine" xml:space="preserve">
+    <value>Rotina</value>
+  </data>
+  <data name="Teacher.Reports.Col.Assigned" xml:space="preserve">
+    <value>Atribuída em</value>
+  </data>
+  <data name="Teacher.Reports.Col.Due" xml:space="preserve">
+    <value>Prazo</value>
+  </data>
+  <data name="Teacher.Reports.Col.RoutinesFinished" xml:space="preserve">
+    <value>Rotinas concluídas</value>
+  </data>
+  <data name="Teacher.Reports.Col.LastAnswer" xml:space="preserve">
+    <value>Última resposta</value>
+  </data>
+  <data name="Teacher.Reports.NoStudents" xml:space="preserve">
+    <value>Nenhum aluno faz esta rotina no momento.</value>
+  </data>
+  <data name="Teacher.Reports.NoRoutines" xml:space="preserve">
+    <value>Nenhuma rotina atribuída a esta turma ou aos alunos dela ainda.</value>
+  </data>
+  <data name="Teacher.Reports.NoMembers" xml:space="preserve">
+    <value>Ainda não há alunos nesta turma.</value>
+  </data>
+  <data name="Teacher.Reports.StudentNoRoutines" xml:space="preserve">
+    <value>Nenhuma das suas rotinas foi atribuída a este aluno ainda.</value>
   </data>
   <data name="Invite.Invalid.Title" xml:space="preserve">
     <value>Convite inválido</value>

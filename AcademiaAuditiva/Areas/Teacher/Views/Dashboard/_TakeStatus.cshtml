@@ -1,0 +1,19 @@
+@model AcademiaAuditiva.Areas.Teacher.Models.RoutineTake
+<span class="d-inline-flex flex-wrap gap-1">
+    @if (Model.Status == TakeStatus.Finished)
+    {
+        <span class="aa-badge-soft aa-routine-finished">@Localizer["Teacher.Reports.Status.Finished"]</span>
+    }
+    else if (Model.Status == TakeStatus.InProgress)
+    {
+        <span class="aa-badge-soft">@Localizer["Teacher.Reports.Status.InProgress"]</span>
+    }
+    else
+    {
+        <span class="aa-badge-soft aa-routine-closed">@Localizer["Teacher.Reports.Status.NotStarted"]</span>
+    }
+    @if (Model.IsLate)
+    {
+        <span class="aa-badge-soft aa-routine-late">@Localizer["Teacher.Reports.Late"]</span>
+    }
+</span>

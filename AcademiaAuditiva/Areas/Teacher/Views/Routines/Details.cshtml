@@ -122,18 +122,24 @@
                                 else { <text>👤 @a.Student?.UserName</text> }
                                 <div class="text-secondary">
                                     @Localizer["Teacher.Routines.Assigned"] @a.AssignedAt.ToString("yyyy-MM-dd")
-                                    @if (a.DueAt.HasValue) { <text>· @Localizer["Teacher.Routines.Due"] @a.DueAt.Value.ToString("yyyy-MM-dd")</text> }
-                                    @if (a.DueAt.HasValue && a.AllowLate) { <text>· @Localizer["Routine.Late"]</text> }
+                                    @if (a.DueAt.HasValue) { <text> · @Localizer["Teacher.Routines.Due"] @a.DueAt.Value.ToString("yyyy-MM-dd")</text> }
+                                    @if (a.DueAt.HasValue && a.AllowLate) { <text> · @Localizer["Routine.Late"]</text> }
                                 </div>
-                                @if (a.ClassroomId != null)
-                                {
-                                    <a class="d-inline-block mt-1" asp-action="Overrides" asp-route-routineId="@Model.Id" asp-route-assignmentId="@a.Id">
-                                        <i class="bi bi-sliders me-1" aria-hidden="true"></i>@Localizer["Teacher.Overrides.Title"]</a>
-                                    @if (customized > 0)
+                                <div class="d-flex flex-wrap align-items-baseline column-gap-3 row-gap-1 mt-1">
+                                    <a asp-controller="Dashboard" asp-action="Assignment" asp-route-id="@a.Id">
+                                        <i class="bi bi-bar-chart me-1" aria-hidden="true"></i>@Localizer["Teacher.Reports.Link"]</a>
+                                    @if (a.ClassroomId != null)
                                     {
-                                        <span class="text-secondary">· @Localizer["Teacher.Overrides.StudentsCustomized", customized]</span>
+                                        <span>
+                                            <a asp-action="Overrides" asp-route-routineId="@Model.Id" asp-route-assignmentId="@a.Id">
+                                                <i class="bi bi-sliders me-1" aria-hidden="true"></i>@Localizer["Teacher.Overrides.Title"]</a>
+                                            @if (customized > 0)
+                                            {
+                                                <span class="text-secondary">· @Localizer["Teacher.Overrides.StudentsCustomized", customized]</span>
+                                            }
+                                        </span>
                                     }
-                                }
+                                </div>
                             </span>
                             <form asp-action="Unassign" method="post"
                                   data-confirm="@Localizer["Teacher.Routines.RemoveAssignmentConfirm"].Value"

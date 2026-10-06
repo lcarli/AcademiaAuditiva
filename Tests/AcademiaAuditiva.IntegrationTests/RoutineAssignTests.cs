@@ -49,7 +49,7 @@ public class RoutineAssignTests : IClassFixture<TestWebApplicationFactory>
         assignment.DueAt.Should().Be(new DateTime(2026, 2, 1));
         assignment.AllowLate.Should().BeTrue();
         var html = await PageAsync(client, details);
-        html.Should().Contain("· due 2026-02-01").And.Contain("· Late answers accepted");
+        html.Should().Contain("· due 2026-02-01 · Late answers accepted");
     }
 
     [Fact]

@@ -1,82 +1,155 @@
-@model AcademiaAuditiva.Areas.Teacher.Models.StudentDashboardViewModel
+@model AcademiaAuditiva.Areas.Teacher.Models.StudentReportPage
+@using Microsoft.AspNetCore.Html
 @{
-    ViewData["Title"] = $"{Localizer["Teacher.Nav.Dashboard"].Value} — {Model.Display}";
+    var report = Model.Report;
+    var student = report.Student;
+    var totals = report.Totals;
+    ViewData["Title"] = $"{Localizer["Teacher.Reports.StudentTitle"].Value} — {student.UserName}";
+
+    IHtmlContent None() => new HtmlString("<span class=\"text-secondary\">—</span>");
+    IHtmlContent Percent(int? value) => value is int v ? Localizer["Common.Percent", v] : None();
+    IHtmlContent Seconds(int? value) => value is int v ? Localizer["Teacher.Reports.Seconds", v] : None();
+    string ExerciseName(ReportItem item)
+    {
+        var name = Localizer[item.ExerciseName];
+        return $"{item.Number}. {(name.IsResourceNotFound ? item.ExerciseName : name.Value)}";
+    }
+    void Stat(LocalizedHtmlString label, object value)
+    {
+        <div class="col">
+            <div class="aa-card-flat h-100"><div class="card-body">
+                <div class="text-secondary small">@label</div>
+                <div class="h3 mb-0">@value</div>
+            </div></div>
+        </div>
+    }
 }
-<div class="d-flex justify-content-between align-items-start mb-3">
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
     <div>
-        <h1 class="h3 mb-1">@Model.Display</h1>
-        <div class="text-secondary">@Model.Email</div>
-        <div class="small text-secondary">
-            @foreach (var c in Model.Classrooms) { <span class="aa-badge-soft me-1">@c.Name</span> }
+        <span class="aa-eyebrow">@Localizer["Teacher.Reports.StudentTitle"]</span>
+        <h1 class="h3 mt-1 mb-1 text-body-emphasis">@student.UserName</h1>
+        @if (student.ShowsEmail)
+        {
+            <div class="text-secondary">@student.Email</div>
+        }
+        <div class="d-flex flex-wrap gap-1 mt-2">
+            @foreach (var c in report.Classrooms)
+            {
+                <a class="aa-badge-soft text-decoration-none" asp-action="Classroom" asp-route-id="@c.Id"><i class="bi bi-people" aria-hidden="true"></i>@c.Name</a>
+            }
         </div>
     </div>
-    <div>
-        @if (Model.BackClassroomId.HasValue)
-        {
-            <a class="btn btn-link" asp-action="Classroom" asp-route-id="@Model.BackClassroomId">@Localizer["Teacher.Dashboard.BackToClassroom"]</a>
-        }
-    </div>
+    @if (Model.BackToAssignmentId is int backToAssignment)
+    {
+        <a class="btn btn-link btn-sm" asp-action="Assignment" asp-route-id="@backToAssignment">@Localizer["Teacher.Reports.Back"]</a>
+    }
+    else if (Model.BackToClassroomId is int backToClassroom)
+    {
+        <a class="btn btn-link btn-sm" asp-action="Classroom" asp-route-id="@backToClassroom">@Localizer["Teacher.Reports.Back"]</a>
+    }
+    else
+    {
+        <a class="btn btn-link btn-sm" asp-controller="Classrooms" asp-action="Index">@Localizer["Teacher.Reports.Back"]</a>
+    }
 </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">@Localizer["Teacher.Dashboard.Sessions"]</div>
-            <div class="h3 mb-0">@Model.TotalSessions.ToString("N0")</div>
-        </div></div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">@Localizer["Teacher.Dashboard.Attempts"]</div>
-            <div class="h3 mb-0">@Model.TotalAttempts.ToString("N0")</div>
-        </div></div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">@Localizer["Teacher.Dashboard.Accuracy"]</div>
-            <div class="h3 mb-0">@Localizer["Common.Percent", Model.OverallAccuracy.ToString("F1")]</div>
-        </div></div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="aa-card-flat h-100"><div class="card-body">
-            <div class="text-secondary small">@Localizer["Dashboard.LastActivity"]</div>
-            <div class="h5 mb-0">
-                @if (Model.LastActivity.HasValue) { @Model.LastActivity.Value.ToString("yyyy-MM-dd HH:mm") }
-                else { <span class="text-secondary">@Localizer["Teacher.Dashboard.Never"]</span> }
+<p class="small text-secondary d-flex align-items-start gap-2 mb-4">
+    <i class="bi bi-shield-lock" aria-hidden="true"></i><span>@Localizer["Teacher.Reports.PrivacyNote"]</span>
+</p>
+
+<div class="row row-cols-2 row-cols-xl-4 g-3 mb-4">
+    @{
+        Stat(Localizer["Teacher.Nav.Routines"], totals.Takes);
+        Stat(Localizer["Teacher.Reports.Col.RoutinesFinished"], $"{totals.Finished}/{totals.Takes}");
+        Stat(Localizer["Teacher.Reports.Late"], totals.Late);
+        Stat(Localizer["Teacher.Reports.Accuracy"], Percent(totals.Accuracy));
+    }
+</div>
+
+@if (report.Routines.Count == 0)
+{
+    <div class="aa-card-flat"><div class="card-body text-secondary">@Localizer["Teacher.Reports.StudentNoRoutines"]</div></div>
+}
+@foreach (var r in report.Routines)
+{
+    var a = r.Assignment;
+    var take = r.Take;
+    <section class="aa-card-flat mb-3" aria-labelledby="aa-routine-@a.Id">
+        <div class="card-header bg-transparent border-bottom border-body d-flex flex-wrap justify-content-between align-items-start gap-2">
+            <div>
+                <h2 id="aa-routine-@a.Id" class="h6 mb-1"><a asp-action="Assignment" asp-route-id="@a.Id">@a.RoutineName</a></h2>
+                <div class="small text-secondary">
+                    @if (a.ClassroomName is not null)
+                    {
+                        <span><i class="bi bi-people me-1" aria-hidden="true"></i>@a.ClassroomName</span>
+                    }
+                    else
+                    {
+                        <span><i class="bi bi-person me-1" aria-hidden="true"></i>@Localizer["MyTraining.Source.Personal"]</span>
+                    }
+                    · @Localizer["Teacher.Routines.Assigned"] @a.AssignedOn.ToString("yyyy-MM-dd")
+                    @if (a.DueOn.HasValue) { <text> · @Localizer["Teacher.Routines.Due"] @a.DueOn.Value.ToString("yyyy-MM-dd")</text> }
+                    @if (a.DueOn.HasValue && a.AllowLate) { <text> · @Localizer["Routine.Late"]</text> }
+                </div>
+                <div class="small text-secondary">
+                    @Localizer["MyTraining.Answered", take.Answered, take.Questions]
+                    · @Localizer["Common.LabelValue", Localizer["Teacher.Reports.Accuracy"], Percent(take.Accuracy)]
+                    @if (take.FinishedAt is DateTime finished)
+                    {
+                        <text>· @Localizer["Common.LabelValue", Localizer["Teacher.Reports.Col.FinishedAt"], finished.ToString("yyyy-MM-dd HH:mm")]</text>
+                    }
+                </div>
             </div>
-        </div></div>
-    </div>
-</div>
-
-<div class="aa-card-flat">
-    <div class="card-header bg-transparent border-bottom border-body"><strong>@Localizer["Teacher.Dashboard.ByExercise"]</strong></div>
-    <div class="table-responsive">
-        <table class="table mb-0 align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>@Localizer["Dashboard.Exercise"]</th>
-                    <th class="text-end">@Localizer["Teacher.Dashboard.Attempts"]</th>
-                    <th class="text-end">@Localizer["Teacher.Dashboard.Accuracy"]</th>
-                    <th class="text-end">@Localizer["Teacher.Dashboard.Best"]</th>
-                    <th>@Localizer["Dashboard.LastActivity"]</th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var r in Model.ByExercise)
-            {
-                <tr>
-                    <td>@r.ExerciseName</td>
-                    <td class="text-end">@r.Attempts.ToString("N0")</td>
-                    <td class="text-end">@Localizer["Common.Percent", r.Accuracy.ToString("F1")]</td>
-                    <td class="text-end">@r.BestScore</td>
-                    <td>@r.LastActivity.ToString("yyyy-MM-dd HH:mm")</td>
-                </tr>
-            }
-            @if (!Model.ByExercise.Any())
-            {
-                <tr><td colspan="5" class="text-secondary text-center py-4">@Localizer["Teacher.Dashboard.StudentNoPractice"]</td></tr>
-            }
-            </tbody>
-        </table>
-    </div>
-</div>
+            <partial name="_TakeStatus" model="take" />
+        </div>
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">@Localizer["Teacher.Reports.Col.Exercise"]</th>
+                        <th scope="col" class="text-end">@Localizer["Teacher.Reports.Col.Answers"]</th>
+                        <th scope="col" class="text-end">@Localizer["Teacher.Reports.Accuracy"]</th>
+                        <th scope="col" class="text-end">@Localizer["Teacher.Reports.Col.TimePerAnswer"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (var n = 0; n < r.Items.Count; n++)
+                    {
+                        var item = take.Items[n];
+                        <tr>
+                            <td>
+                                <div>@ExerciseName(r.Items[n])</div>
+                                @if (item?.Progress.MinScore is int min)
+                                {
+                                    if (!item.Progress.IsComplete)
+                                    {
+                                        <div class="small text-secondary">@Localizer["Common.LabelValue", Localizer["Teacher.Routines.MinScore"], Localizer["Common.Percent", min]]</div>
+                                    }
+                                    else if (item.Progress.MeetsMinScore)
+                                    {
+                                        <div class="small aa-routine-verdict">@Localizer["Routine.Passed", min]</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="small aa-routine-verdict is-below">@Localizer["Routine.BelowMin", min]</div>
+                                    }
+                                }
+                            </td>
+                            @if (item is null)
+                            {
+                                <td colspan="3" class="text-end text-secondary">@Localizer["Teacher.Reports.Excluded"]</td>
+                            }
+                            else
+                            {
+                                <td class="text-end text-nowrap">@item.Progress.Done/@item.Progress.Target</td>
+                                <td class="text-end">@Percent(item.Progress.Accuracy)</td>
+                                <td class="text-end text-nowrap">@Seconds(item.SecondsPerAnswer)</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}
