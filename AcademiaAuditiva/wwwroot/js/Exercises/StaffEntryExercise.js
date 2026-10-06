@@ -10,14 +10,12 @@
     return loc[key] || scale || "";
   }
 
-  function qualityLabel(loc, quality) {
-    const key = "quality" + String(quality || "").charAt(0).toUpperCase() + String(quality || "").slice(1);
-    return loc[key] || quality || "";
-  }
-
   function promptFor(exerciseName, loc, metadata) {
     if (exerciseName === "CompleteChord") {
-      return format(loc.completeChordPrompt, [qualityLabel(loc, metadata.quality), metadata.promptNotes?.[0] || ""]);
+      const root = metadata.promptNotes?.[0];
+      return root
+        ? format(loc.completeChordPrompt, [root])
+        : format(loc.completeChordPromptWhole, [metadata.octave || ""]);
     }
     if (exerciseName === "TransposeScale") {
       return format(loc.transposeScalePrompt, [scaleLabel(loc, metadata.scale), metadata.originalRoot || "", metadata.targetRoot || ""]);
@@ -92,14 +90,16 @@
       clearLabel: loc.clearLabel,
     };
     if (exerciseName === "CompleteChord") {
+      // The notes stack as one chord, as many as the largest chord the filters allow.
       return {
         ...labels,
-        clef: "treble",
+        clef: metadata.clef || "treble",
         keySignature: "C",
         octave,
         allowedDurations: ["w"],
         restDurations: [],
-        totalSlots: 4,
+        chord: true,
+        totalSlots: Number(metadata.slots) || 4,
         prefilledNotes: (metadata.promptNotes || []).map((note) => ({ note, duration: "w" })),
       };
     }
@@ -166,11 +166,15 @@
 
       drawEmptyStaff();
 
-      // The answer leaves out the notes the editor gives (in gray); rhythms go on a one-line staff.
+      // The answer leaves out the notes the editor gives (in gray); rhythms go on a one-line staff
+      // and a chord's notes stack.
       AAPractice.setAnswerView((answer) => {
         const options = optionsFor(exerciseName, metadata || {});
         const given = (options.prefilledNotes || []).map((note) => ({ ...note, prefilled: true }));
         const notes = given.concat(AAPractice.staffNotes(answer, options.rhythm ? "B4" : null));
+        const shown = options.chord && notes.length
+          ? [{ chord: notes.map((n) => ({ note: n.note, prefilled: n.prefilled })), duration: "w" }]
+          : notes;
         return {
           staff: {
             clef: options.clef,
@@ -178,7 +182,7 @@
             timeSignature: options.timeSignature,
             rhythm: options.rhythm,
             autoStem: options.autoStem,
-            notes,
+            notes: shown,
           },
           label: spokenNotes(loc, notes, options),
         };

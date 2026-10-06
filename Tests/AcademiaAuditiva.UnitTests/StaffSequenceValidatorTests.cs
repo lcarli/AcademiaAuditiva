@@ -106,6 +106,36 @@ public class StaffSequenceValidatorTests
         v.Validate("E4:w|D4:w|F4:w", json).IsCorrect.Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData("C4:w|E4:w|G4:w|Bb4:w")]
+    [InlineData("Bb4:w|G4:w|E4:w|C4:w")]
+    [InlineData("E4:w|A#4:w|C4:w|G4:w")]
+    [InlineData("B#3:w|Fb4:w|G4:w|Bb4:w")]
+    public void CompleteChord_TheNotesOfTheChord_InAnyOrder_PassValidation(string guess)
+    {
+        // The notes of a chord are stacked on the staff: they have no order.
+        var json = "{\"answerString\":\"C4:w|E4:w|G4:w|Bb4:w\"}";
+
+        new CompleteChordValidator().Validate(guess, json).IsCorrect.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("C4:w|E4:w|G4:w")]
+    [InlineData("C4:w|E4:w|G4:w|Bb4:w|D5:w")]
+    [InlineData("C4:w|E4:w|G4:w|G4:w")]
+    [InlineData("C4:w|E4:w|G4:w|B4:w")]
+    [InlineData("C4:w|E4:w|G4:w|Bb3:w")]
+    [InlineData("C4:h|E4:w|G4:w|Bb4:w")]
+    [InlineData("")]
+    public void CompleteChord_AnotherChord_FailsValidation(string guess)
+    {
+        var json = "{\"answerString\":\"C4:w|E4:w|G4:w|Bb4:w\"}";
+
+        var result = new CompleteChordValidator().Validate(guess, json);
+
+        result.IsCorrect.Should().BeFalse();
+    }
+
     [Fact]
     public void Validators_AllRegisterCorrectExerciseName()
     {

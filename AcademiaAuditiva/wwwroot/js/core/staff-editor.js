@@ -15,6 +15,7 @@
  *     totalSlots: 6,                    // cap on notes when there are no measures
  *     measures: 2,                      // measures to fill; needs timeSignature
  *     rhythm: false,                    // true: note values only, on a one-line staff
+ *     chord: false,                     // true: the notes stack as one chord
  *     figureLabels: { q: 'Quarter note', qr: 'Quarter rest' },
  *     prefilledNotes: [{ note: 'C4', duration: 'w', prefilled: true }],
  *     onChange: function (notes) { ... }
@@ -29,6 +30,11 @@
  * longer fits in the measure can't be chosen, and the answer gets "bar"
  * before each note that starts a measure. A rhythm answer holds the note
  * values only ("q|qr|bar|h").
+ *
+ * With `chord`, the given notes and those placed stack as one chord, kept
+ * from the lowest note up: a click on the staff selects the note nearest in
+ * height, the arrow keys the next one up or down, undo drops the note placed
+ * last and the answer lists the notes from the lowest ("E4:w|G4:w").
  */
 (function (root) {
   "use strict";
@@ -124,6 +130,7 @@
     var restDurations = opts.restDurations || [];
     var totalSlots = opts.totalSlots || 99;
     var rhythm = opts.rhythm === true;
+    var chord = opts.chord === true;
     var capacity = measureLength(timeSig);
     var measures = capacity > 0 && opts.measures > 0 ? Math.floor(opts.measures) : 0;
     var prefilledNotes = (opts.prefilledNotes || []).map(function (n) {
@@ -137,6 +144,8 @@
     var selectedDuration = allowedDurations.indexOf("q") >= 0 ? "q" : allowedDurations[0];
     // Where the last render put each note, so a click on the staff selects the nearest one.
     var drawn = null;
+    // The notes of a chord are numbered as they are placed, for undo.
+    var nextId = 1;
 
     rootEl.innerHTML = "";
     rootEl.classList.add("staff-editor-root");
@@ -204,7 +213,23 @@
 
     function lastEditableIdx() {
       var list = editableIndexes();
-      return list.length ? list[list.length - 1] : -1;
+      if (!chord) return list.length ? list[list.length - 1] : -1;
+      // In a chord, the note placed last.
+      return list.reduce(function (latest, i) {
+        return latest < 0 || userNotes[i].id > userNotes[latest].id ? i : latest;
+      }, -1);
+    }
+
+    function pitch(note) {
+      return window.StaffMapping.noteToMidi(note) || 0;
+    }
+
+    // A chord keeps its notes from the lowest up; the selection stays on its note.
+    function sortChord() {
+      if (!chord) return;
+      var selected = userNotes[selectedIndex];
+      userNotes.sort(function (a, b) { return pitch(a.note) - pitch(b.note) || a.id - b.id; });
+      selectedIndex = userNotes.indexOf(selected);
     }
 
     function selectedEditableIdx() {
@@ -252,6 +277,10 @@
     }
 
     function drawStaff(lay) {
+      if (chord) {
+        drawChord();
+        return;
+      }
       var items = [];
       var owners = []; // index in userNotes of each staff item; negative for the rest
       prefilledNotes.concat(userNotes.map(function (n, i) {
@@ -281,10 +310,39 @@
       drawn = result ? { width: result.width, xs: result.xs, owners: owners } : null;
     }
 
+    // The given notes and those placed, stacked as one chord of their note value.
+    function drawChord() {
+      var members = prefilledNotes.map(function (n) {
+        return { note: n.note, prefilled: true };
+      }).concat(userNotes.map(function (n, i) {
+        return { note: n.note, userPlaced: true, selected: i === selectedIndex };
+      }));
+      // The index in userNotes of each note of the chord; negative for the given ones.
+      var owners = members.map(function (m, k) { return k - prefilledNotes.length; });
+      var result = window.StaffRenderer.render(staffDiv, {
+        clef: clef,
+        keySignature: keySig,
+        timeSignature: timeSig,
+        notes: members.length ? [{ chord: members, duration: selectedDuration }] : [],
+      });
+      drawn = result ? { width: result.width, xs: result.xs, ys: result.ys, owners: owners } : null;
+    }
+
     function addNote(n) {
       if (!fits(n.duration, layout())) return;
+      if (chord) {
+        // A note already in the chord isn't stacked twice; one placed is selected instead.
+        var same = userNotes.map(function (u) { return u.note; }).indexOf(n.note);
+        if (same >= 0) {
+          selectNote(same);
+          return;
+        }
+        if (prefilledNotes.some(function (p) { return p.note === n.note; })) return;
+        n = Object.assign({ id: nextId++ }, n);
+      }
       userNotes.push(n);
       if (isEditable(n)) selectedIndex = userNotes.length - 1;
+      sortChord();
       rerender();
     }
 
@@ -307,6 +365,7 @@
       userNotes[idx] = Object.assign({}, n, { note: changed });
       octave = selectedOctaveForNote(changed);
       selectedIndex = idx;
+      sortChord();
       return true;
     }
 
@@ -334,6 +393,10 @@
     staffDiv.addEventListener("click", function (ev) {
       var svg = staffDiv.querySelector("svg");
       if (rhythm || !drawn || !svg) return;
+      if (chord) {
+        selectNote(nearestInChord(svg, ev));
+        return;
+      }
       var rect = svg.getBoundingClientRect();
       if (!rect.width) return;
       var x = ((ev.clientX - rect.left) * drawn.width) / rect.width;
@@ -351,14 +414,41 @@
       selectNote(best);
     });
 
+    // The notes of a chord share one x: the placed note nearest the click in height.
+    function nearestInChord(svg, ev) {
+      var ys = drawn.ys && drawn.ys[0];
+      var ctm = svg.getScreenCTM && svg.getScreenCTM();
+      if (!ys || !ctm) return -1;
+      // The staff may grow above its box (fitHeight), so map the click through the SVG's own transform.
+      var point = svg.createSVGPoint();
+      point.x = ev.clientX;
+      point.y = ev.clientY;
+      var y = point.matrixTransform(ctm.inverse()).y;
+      var best = -1;
+      var bestDistance = Infinity;
+      ys.forEach(function (keyY, k) {
+        var idx = drawn.owners[k];
+        if (keyY == null || idx < 0) return;
+        var distance = Math.abs(keyY - y);
+        if (distance < bestDistance) {
+          best = idx;
+          bestDistance = distance;
+        }
+      });
+      return best;
+    }
+
+    // In a chord, up and down move the selection as left and right do: its notes go from the lowest up.
     rootEl.addEventListener("keydown", function (ev) {
-      if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight") return;
+      var forward = ev.key === "ArrowRight" || (chord && ev.key === "ArrowUp");
+      var back = ev.key === "ArrowLeft" || (chord && ev.key === "ArrowDown");
+      if (!forward && !back) return;
       var editable = editableIndexes();
       if (!editable.length) return;
       ev.preventDefault();
       var current = editable.indexOf(selectedEditableIdx());
-      if (current < 0) current = ev.key === "ArrowRight" ? -1 : editable.length;
-      var next = ev.key === "ArrowRight"
+      if (current < 0) current = forward ? -1 : editable.length;
+      var next = forward
         ? Math.min(editable.length - 1, current + 1)
         : Math.max(0, current - 1);
       selectNote(editable[next]);
@@ -473,6 +563,7 @@
           var n = userNotes[idx];
           userNotes[idx] = Object.assign({}, n, { note: applyAccidental(n.note, acc.value) });
           selectedIndex = idx;
+          sortChord();
           rerender();
           restoreFocus("[data-accidental='" + acc.name + "']");
         });
@@ -487,8 +578,16 @@
       var ctrlRow = makeGroup();
       var empty = userNotes.length === 0;
       var undo = makeAriaBtn("↶", undoLabel, "btn-outline-secondary", function () {
-        userNotes.pop();
-        if (selectedIndex >= userNotes.length) selectedIndex = lastEditableIdx();
+        if (chord) {
+          // A chord drops the note placed last, wherever it sits.
+          var selected = userNotes[selectedIndex];
+          userNotes.splice(lastEditableIdx(), 1);
+          selectedIndex = userNotes.indexOf(selected);
+          if (selectedIndex < 0) selectedIndex = lastEditableIdx();
+        } else {
+          userNotes.pop();
+          if (selectedIndex >= userNotes.length) selectedIndex = lastEditableIdx();
+        }
         rerender();
         restoreFocus("[data-action='undo']");
       });
@@ -507,7 +606,7 @@
       paletteDiv.appendChild(ctrlRow);
     }
 
-    // With measures every control stays in place, disabled when it can't be used.
+    // With measures or a chord every control stays in place, disabled when it can't be used.
     function buildPalette(lay) {
       paletteDiv.innerHTML = "";
       if (rhythm) {
@@ -515,12 +614,13 @@
         appendControls();
         return;
       }
+      var fixed = measures > 0 || chord;
       var canAdd = fits(selectedDuration, lay);
       if (isLinear) appendFigures(lay);
-      if (measures || canAdd || selectedEditableIdx() >= 0) appendOctaveRow();
-      if (measures || canAdd) appendNoteNames(canAdd);
-      if (measures || selectedEditableIdx() >= 0) appendAccidentals();
-      if (measures || userNotes.length > 0) appendControls();
+      if (fixed || canAdd || selectedEditableIdx() >= 0) appendOctaveRow();
+      if (fixed || canAdd) appendNoteNames(canAdd);
+      if (fixed || selectedEditableIdx() >= 0) appendAccidentals();
+      if (fixed || userNotes.length > 0) appendControls();
     }
 
     rerender();

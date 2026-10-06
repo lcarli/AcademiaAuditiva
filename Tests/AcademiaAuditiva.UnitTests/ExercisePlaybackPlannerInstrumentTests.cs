@@ -303,6 +303,60 @@ public class ExercisePlaybackPlannerInstrumentTests
     }
 
     [Theory]
+    [InlineData("Piano")]
+    [InlineData("Violin")]
+    public void CompleteChord_PlaysTheChordAsWritten_AllItsNotesTogether(string instrumentName)
+    {
+        var exercise = new Exercise { ExerciseId = 1, Name = "CompleteChord" };
+
+        foreach (var octave in new[] { "3", "4" })
+        {
+            for (var round = 0; round < 20; round++)
+            {
+                var plan = _planner.Plan(exercise, new()
+                {
+                    ["instrument"] = instrumentName, ["ccQuality"] = "all", ["ccAccidentals"] = "any", ["ccOctave"] = octave,
+                });
+
+                var chord = JObject.Parse(plan.ExpectedAnswerJson)["chordNotes"]!.Values<string>();
+                plan.PlaybackPlans.Should().ContainSingle().Which.Should().Equal(
+                    chord.Select(note => new MixInput(Instrument.Piano.SampleFor(note!), 0.0, 2.0)),
+                    "the chord rings for a whole note, on the piano when the instrument plays one note at a time");
+            }
+        }
+    }
+
+    [Fact]
+    public void CompleteChord_OnTheGuitar_StrumsTheChordAsWritten()
+    {
+        var exercise = new Exercise { ExerciseId = 1, Name = "CompleteChord" };
+
+        foreach (var octave in new[] { "3", "4" })
+        {
+            for (var round = 0; round < 20; round++)
+            {
+                // The position of the other chord exercises doesn't move it to a shape of the neck.
+                var plan = _planner.Plan(exercise, new()
+                {
+                    ["instrument"] = "Guitar", ["guitarPosition"] = "High",
+                    ["ccQuality"] = "all", ["ccAccidentals"] = "any", ["ccOctave"] = octave,
+                });
+
+                var chord = Midis(JObject.Parse(plan.ExpectedAnswerJson)["chordNotes"]!);
+                var strum = plan.PlaybackPlans.Should().ContainSingle().Subject;
+                strum.Select(input => GuitarNotes[input.SampleName]).Should().Equal(chord,
+                    "the student hears the notes they write, from the lowest up");
+                for (var i = 0; i < strum.Count; i++)
+                {
+                    strum[i].StartTimeSeconds.Should().BeApproximately(i * 0.015, 1e-9);
+                    (strum[i].StartTimeSeconds + strum[i].DurationSeconds).Should().BeApproximately(2.0, 1e-9,
+                        "every string rings until the whole note ends");
+                }
+            }
+        }
+    }
+
+    [Theory]
     [MemberData(nameof(SeededExercises))]
     public void IsChordExercise_ForEveryExerciseThatPlaysNotesTogether(string exerciseName)
     {
@@ -312,10 +366,10 @@ public class ExercisePlaybackPlannerInstrumentTests
             .SelectMany(_ => _planner.Plan(exercise, new() { ["instrument"] = "Piano" }).PlaybackPlans)
             .Any(plan => plan.GroupBy(input => input.StartTimeSeconds).Any(notes => notes.Count() > 1));
 
-        // CompleteChord plays the root of a chord for the student to complete it.
-        ExercisePlaybackPlanner.IsChordExercise(exerciseName).Should().Be(notesTogether || exerciseName == "CompleteChord",
+        // CompleteChord plays its chord as written, not on a shape of the guitar's neck.
+        ExercisePlaybackPlanner.IsChordExercise(exerciseName).Should().Be(notesTogether,
             "the exercises about chords leave out the violin");
-        ExercisePlaybackPlanner.PlaysChords(exerciseName).Should().Be(notesTogether,
+        ExercisePlaybackPlanner.PlaysChords(exerciseName).Should().Be(notesTogether && exerciseName != "CompleteChord",
             "on the guitar the student picks where on the neck to play the chords");
     }
 

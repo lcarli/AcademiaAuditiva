@@ -2970,7 +2970,7 @@
     <comment />
   </data>
   <data name="Exercise.CompleteChordText" xml:space="preserve">
-    <value>Écoutez la fondamentale et complétez l’accord sur la portée.</value>
+    <value>Écoutez l’accord et écrivez-le sur la portée.</value>
     <comment />
   </data>
   <data name="Exercise.SelectStaffExerciseText" xml:space="preserve">
@@ -2978,27 +2978,75 @@
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Prompt" xml:space="preserve">
-    <value>Complétez l’{{0}} au-dessus de {{1}}.</value>
+    <value>Écoutez l’accord et complétez-le au-dessus de {{0}}.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Subtitle" xml:space="preserve">
-    <value>Écoutez la fondamentale d’un accord et complétez les autres sons sur la portée.</value>
+    <value>Écoutez un accord et écrivez ses notes sur la portée.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Instructions" xml:space="preserve">
-    <value>Cliquez sur Jouer pour entendre la fondamentale de l’accord. Saisissez ensuite les autres sons sur la portée.</value>
+    <value>Cliquez sur Jouer pour entendre l’accord. Écrivez ses notes superposées sur la portée, à partir de la fondamentale. Si la fondamentale est déjà sur la portée (en gris), écrivez seulement les autres.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Tip1" xml:space="preserve">
-    <value>Les triades majeures utilisent une tierce majeure et une quinte juste.</value>
+    <value>Les accords majeurs ont une tierce majeure et une quinte juste; les mineurs, une tierce mineure et une quinte juste.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Tip2" xml:space="preserve">
-    <value>Les triades mineures utilisent une tierce mineure et une quinte juste.</value>
+    <value>L’accord diminué a une quinte diminuée, un demi-ton sous la juste; l’accord augmenté, une quinte augmentée, un demi-ton au-dessus.</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.Tip3" xml:space="preserve">
-    <value>Vérifiez la distance depuis la fondamentale avant de valider.</value>
+    <value>Dans les accords de septième, écoutez la septième : majeure (un demi-ton sous l’octave), mineure (un ton sous l’octave) ou diminuée (un ton et demi sous l’octave).</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.PromptWhole" xml:space="preserve">
+    <value>Écoutez l’accord et écrivez toutes ses notes sur la portée, avec la fondamentale à l’octave {{0}}.</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Triads" xml:space="preserve">
+    <value>Toutes les triades</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Sevenths" xml:space="preserve">
+    <value>Accords de septième</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.All" xml:space="preserve">
+    <value>Tous les accords</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.AccidentalsFilter" xml:space="preserve">
+    <value>Altérations</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.NoAccidentals" xml:space="preserve">
+    <value>Sans altérations</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.WithAccidentals" xml:space="preserve">
+    <value>Avec altérations</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.RootFilter" xml:space="preserve">
+    <value>Fondamentale</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.RootGiven" xml:space="preserve">
+    <value>Donnée sur la portée</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.RootHidden" xml:space="preserve">
+    <value>Cachée (écrire tout l’accord)</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Octave4" xml:space="preserve">
+    <value>4 (clé de sol)</value>
+    <comment />
+  </data>
+  <data name="Exercise.CompleteChord.Octave3" xml:space="preserve">
+    <value>3 (clé de fa)</value>
     <comment />
   </data>
   <data name="TransposeScale" xml:space="preserve">
@@ -3171,14 +3219,6 @@
   </data>
   <data name="Exercise.StaffEditor.CorrectAnswer" xml:space="preserve">
     <value>La bonne réponse était :</value>
-    <comment />
-  </data>
-  <data name="Exercise.CompleteChord.QualityMajor" xml:space="preserve">
-    <value>accord majeur</value>
-    <comment />
-  </data>
-  <data name="Exercise.CompleteChord.QualityMinor" xml:space="preserve">
-    <value>accord mineur</value>
     <comment />
   </data>
   <data name="Gamification.Title" xml:space="preserve">

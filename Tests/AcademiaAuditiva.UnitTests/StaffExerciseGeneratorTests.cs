@@ -7,9 +7,10 @@ namespace AcademiaAuditiva.UnitTests;
 
 /// <summary>
 /// Smoke coverage for the 5 staff-based exercise generators ported in
-/// Phase 0. Verifies each generator returns the unified shape expected
-/// by ExercisePlaybackPlanner (a `melody` array with `durationBeats`
-/// numeric values + a pipe-separated `answerString`).
+/// Phase 0. Verifies each generator returns the shape expected by
+/// ExercisePlaybackPlanner (a `melody` array with `durationBeats` numeric
+/// values, or the `chordNotes` of CompleteChord) + a pipe-separated
+/// `answerString` the staff editor can write.
 /// </summary>
 public class StaffExerciseGeneratorTests
 {
@@ -164,40 +165,48 @@ public class StaffExerciseGeneratorTests
     }
 
     [Fact]
-    public void CompleteChord_ProducesPromptRoot_AndTwoChordTonesInAnswer()
+    public void CompleteChord_PlaysAChord_AndAsksForTheNotesAboveItsGivenRoot()
     {
         var json = GenerateJson("CompleteChord", new() { { "ccQuality", "major" }, { "ccOctave", "4" } });
 
-        json["promptNotes"].Should().NotBeNull();
-        var melody = (JArray)json["melody"]!;
-        melody.Count.Should().Be(1);
-
-        var answer = json.Value<string>("answerString")!;
-        answer.Split('|').Length.Should().Be(2, "the user must complete the 3rd and 5th of a triad");
+        json["melody"].Should().BeNull("the chord is played as written, all its notes together");
+        var notes = json["chordNotes"]!.Values<string>().ToList();
+        notes.Should().HaveCount(3);
+        notes[0].Should().BeOneOf("C4", "F4", "G4");
+        json["promptNotes"]!.Values<string>().Should().Equal(notes[0]);
+        json.Value<string>("answerString").Should().Be($"{notes[1]}:w|{notes[2]}:w",
+            "the student writes the third and the fifth over the given root");
+        json.Value<int>("slots").Should().Be(2);
     }
 
     [Fact]
     public void CompleteChord_OfferedFilters_AlwaysProduceEditorEnterableAnswers()
     {
-        foreach (var quality in new[] { "major", "minor", "both" })
+        foreach (var quality in new[] { "major", "minor", "both", "triads", "sevenths", "all" })
+        foreach (var accidentals in new[] { "none", "any" })
+        foreach (var root in new[] { "given", "hidden" })
         foreach (var octave in new[] { "3", "4" })
+        for (var attempt = 0; attempt < 10; attempt++)
         {
-            var json = GenerateJson("CompleteChord", new() { { "ccQuality", quality }, { "ccOctave", octave } });
+            var json = GenerateJson("CompleteChord", new()
+            {
+                { "ccQuality", quality }, { "ccAccidentals", accidentals }, { "ccRoot", root }, { "ccOctave", octave },
+            });
 
-            json["error"].Should().BeNull($"filters {quality}/{octave} should be supported");
-            json.Value<string>("quality").Should().BeOneOf("major", "minor");
-            AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: 4);
+            json["error"].Should().BeNull($"filters {quality}/{accidentals}/{root}/{octave} should be supported");
+            AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: json.Value<int>("slots"));
         }
     }
 
     [Fact]
-    public void CompleteChord_InvalidOctave_FallsBackToSampleSafeRound()
+    public void CompleteChord_InvalidFilters_FallBackToSampleSafeRound()
     {
         var json = GenerateJson("CompleteChord", new() { { "ccQuality", "x" }, { "ccOctave", "5" } });
 
         json["error"].Should().BeNull();
         json.Value<int>("octave").Should().Be(4);
-        AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: 4);
+        json.Value<string>("clef").Should().Be("treble");
+        AssertEditorCanEnter(json.Value<string>("answerString")!, new HashSet<string> { "w" }, totalSlots: json.Value<int>("slots"));
     }
 
     [Fact]

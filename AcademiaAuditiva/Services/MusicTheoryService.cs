@@ -1192,43 +1192,7 @@ namespace AcademiaAuditiva.Services
                 }
 
                 case "CompleteChord":
-                {
-                    var ccAllNotes = new[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B" };
-                    var ccOctave = filters.TryGetValue("ccOctave", out var ccO)
-                        && int.TryParse(ccO, out var ccOctP)
-                        && (ccOctP == 3 || ccOctP == 4)
-                        ? ccOctP
-                        : 4;
-                    var ccQualityFilter = filters.TryGetValue("ccQuality", out var ccQ) ? ccQ : "both";
-                    var ccQualities = ccQualityFilter switch
-                    {
-                        "major" => new[] { "major" },
-                        "minor" => new[] { "minor" },
-                        _ => new[] { "major", "minor" }
-                    };
-                    var ccQuality = ccQualities[random.Next(ccQualities.Length)];
-                    var ccRoot = ccAllNotes[random.Next(ccAllNotes.Length)];
-                    var ccChord = GetChordNotes(ccRoot + ccOctave, ccQuality);
-
-                    if (ccChord.Count < 3)
-                        return new { error = "Acorde não pôde ser gerado." };
-
-                    var ccMelody = new[] {
-                        new { type = "note", note = ccChord[0], durationBeats = 4.0, durationLabel = "w" }
-                    };
-                    var ccAnswer = string.Join("|", ccChord.Skip(1).Select(n => $"{n}:w"));
-
-                    return new
-                    {
-                        root = ccRoot,
-                        quality = ccQuality,
-                        octave = ccOctave,
-                        chordNotes = ccChord,
-                        promptNotes = new[] { ccChord[0] },
-                        melody = ccMelody,
-                        answerString = ccAnswer
-                    };
-                }
+                    return CompleteChordRounds.Generate(filters, random);
 
                 case "TransposeScale":
                 {

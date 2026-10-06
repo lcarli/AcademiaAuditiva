@@ -135,7 +135,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     [Theory]
     [InlineData("CompleteChord")]
     [InlineData("GuessNote")]
-    public async Task ExercisePage_ThatPlaysNoChords_OffersTheRangeOfTheGuitar(string exerciseName)
+    public async Task ExercisePage_ThatPlaysNoChordsOnTheNeck_OffersTheRangeOfTheGuitar(string exerciseName)
     {
         ExerciseId(exerciseName);
         var client = await ClientAsync(("instrument", "Guitar"), ("guitarPosition", "High"));

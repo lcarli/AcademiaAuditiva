@@ -24,7 +24,8 @@ namespace AcademiaAuditiva.Services.Audio;
 /// Every plan is played on the instrument the student picked (the
 /// <c>instrument</c> filter): the piano plays a chord's notes together, the
 /// guitar strums it on a chord shape of its neck (<see cref="GuitarVoicing"/>)
-/// where the student picked (the <c>guitarPosition</c> filter), and the
+/// where the student picked (the <c>guitarPosition</c> filter), or exactly as
+/// written when the student writes it on the staff (CompleteChord), and the
 /// exercises about chords are played on the piano instead of the violin,
 /// which plays one note at a time.
 /// </summary>
@@ -62,12 +63,16 @@ public sealed class ExercisePlaybackPlanner
     // A guitar strum sweeps the strings from the low one up, one every 15 ms.
     private const double StrumStepSeconds = 0.015;
 
-    // The exercises that play chords, which the violin can't.
+    // A written chord rings for a whole note: 4 beats.
+    private const double WholeNoteBeats = 4.0;
+
+    // The exercises that play chords on a shape of the guitar's neck; the violin can't play them.
     private static readonly HashSet<string> ChordsPlayed =
         ["GuessChords", "GuessFunction", "GuessQuality", "GuessInversion", "GuessCadence"];
 
-    // The exercises about chords: those that play them, and CompleteChord, which plays
-    // the root of a chord for the student to complete it.
+    // The exercises about chords: those above, and CompleteChord, which plays a chord as it
+    // is written for the student to write it on the staff. On the guitar it is strummed as
+    // written, not on a shape of the neck, so it offers no position to pick.
     private static readonly HashSet<string> ChordExercises = [.. ChordsPlayed, "CompleteChord"];
 
     /// <summary>
@@ -77,9 +82,9 @@ public sealed class ExercisePlaybackPlanner
     public static bool IsChordExercise(string exerciseName) => ChordExercises.Contains(exerciseName);
 
     /// <summary>
-    /// Whether <paramref name="exerciseName"/> plays chords. On the guitar, the student then
-    /// picks where on the neck to play them (<see cref="GuitarPosition"/>), which sets their
-    /// octaves instead of the note range.
+    /// Whether <paramref name="exerciseName"/> plays chords on a shape of the guitar's neck. On
+    /// the guitar, the student then picks where on the neck to play them (<see cref="GuitarPosition"/>),
+    /// which sets their octaves instead of the note range. CompleteChord plays its chord as written.
     /// </summary>
     public static bool PlaysChords(string exerciseName) => ChordsPlayed.Contains(exerciseName);
 
@@ -164,8 +169,11 @@ public sealed class ExercisePlaybackPlanner
                 // Sheet music: only its starting note is played (StartingNote).
                 break;
 
-            case "CompleteScale":
             case "CompleteChord":
+                plans.Add(WrittenChord(instrument, StringArray(token, "chordNotes")));
+                break;
+
+            case "CompleteScale":
             case "TransposeScale":
             case "MelodicDictation":
             case "RhythmDictation":
@@ -227,6 +235,23 @@ public sealed class ExercisePlaybackPlanner
 
     private static IReadOnlyList<MixInput> NotesInSequence(Instrument instrument, IReadOnlyList<string> notes)
         => NotesInSequence(instrument, notes, NoteClipSeconds, IntervalGapSeconds);
+
+    /// <summary>
+    /// A chord as it is written on the staff, ringing for a whole note: the piano plays its
+    /// notes together and the guitar strums exactly those notes, from the lowest up, so the
+    /// student hears what they write (<see cref="Chord"/> plays a shape of the neck instead).
+    /// </summary>
+    private static IReadOnlyList<MixInput> WrittenChord(Instrument instrument, IReadOnlyList<string> notes)
+    {
+        var seconds = WholeNoteBeats * BeatDurationSeconds;
+        if (instrument.Chords != ChordStyle.Strummed)
+            return [.. notes.Select(note => new MixInput(instrument.SampleFor(note), 0.0, seconds))];
+
+        return [.. notes.Select(Midi).Order().Select((midi, i) => new MixInput(
+            instrument.SampleName(midi),
+            i * StrumStepSeconds,
+            seconds - i * StrumStepSeconds))];
+    }
 
     private static IReadOnlyList<MixInput> NotesInSequence(
         Instrument instrument,

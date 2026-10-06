@@ -25,6 +25,9 @@
  * - Dots: any duration ending in `.` (e.g. 'h.') renders a dotted note.
  * - `chord: ['C4', 'E4', 'G4']` (instead of `note`) stacks the notes on
  *   one stem; double sharps and flats ('F##4', 'Bbb3') are drawn too.
+ *   A chord note may be an object, { note: 'E4', userPlaced: true,
+ *   selected: true }, to colour it on its own.
+ * - `prefilled` notes are gray, `userPlaced` ones blue and a `selected` one red.
  * - `clefAnnotation: '8va'` (treble) or `'8vb'` (treble or bass) marks
  *   the clef and draws every note an octave lower or higher than the
  *   pitch given, so very high or low notes need fewer ledger lines.
@@ -33,8 +36,9 @@
  * - With a time signature, eighth notes are beamed by the beat.
  * - `fill: 0.5` spreads the notes over half the staff, so a dictation being
  *   written grows from the left instead of stretching over the whole staff.
- * - render() returns { width, xs }: the SVG width and the x of each note
- *   (null for barlines), so a click on the staff can find the note under it.
+ * - render() returns { width, xs, ys }: the SVG width, the x of each note
+ *   (null for barlines), so a click on the staff can find the note under it,
+ *   and the y of each of its keys (a chord's in the order given).
  *
  * StaffRenderer.figure('q') returns an SVG icon of a note value ('qr' for its
  * rest); every icon shares one viewBox so the values keep their sizes.
@@ -55,6 +59,16 @@
   var VEX_DURATION = { w: "1", h: "2", q: "4" };
 
   var HEIGHT = 150;
+
+  var GIVEN = { fillStyle: "#888", strokeStyle: "#888" };
+  var PLACED = { fillStyle: "#0d6efd", strokeStyle: "#0d6efd" };
+  var SELECTED = { fillStyle: "#dc3545", strokeStyle: "#dc3545" };
+
+  function colourOf(n) {
+    if (n.userPlaced) return PLACED;
+    if (n.prefilled) return GIVEN;
+    return null;
+  }
 
   // A flat on a note far above the staff reaches past the top of the box;
   // grow the box to show it rather than clip it. Normal staves keep 150 px.
@@ -86,6 +100,7 @@
     var baseDur = Mapping.baseDuration(rawDur);
 
     var names = [];
+    var members = [];
     var keys;
     var vexDuration = VEX_DURATION[baseDur] || baseDur;
     if (isRest) {
@@ -93,7 +108,10 @@
       keys = [clef === "bass" ? "d/3" : "b/4"];
       vexDuration += "r";
     } else {
-      names = Array.isArray(n.chord) ? n.chord : [n.note];
+      members = Array.isArray(n.chord)
+        ? n.chord.map(function (m) { return typeof m === "string" ? { note: m } : m; })
+        : [n];
+      names = members.map(function (m) { return m.note; });
       keys = names.map(function (name) {
         var key = Mapping.noteToVexKey(name);
         if (!key) throw new Error("StaffRenderer: bad note " + name);
@@ -114,24 +132,34 @@
       Dot.buildAndAttach([staveNote], { all: true });
     }
 
+    var accidentals = [];
     names.forEach(function (name, index) {
       var accidental = Mapping.accidentalOf(name);
-      if (accidental) staveNote.addModifier(new Accidental(accidental), index);
+      if (!accidental) return;
+      accidentals[index] = new Accidental(accidental);
+      staveNote.addModifier(accidentals[index], index);
     });
 
-    var style = null;
-    if (n.prefilled) style = { fillStyle: "#888", strokeStyle: "#888" };
-    if (n.userPlaced) style = { fillStyle: "#0d6efd", strokeStyle: "#0d6efd" };
+    var style = colourOf(n);
     if (style) staveNote.setStyle(style);
     // A beam takes the color of its notes (render); a selected note keeps it blue.
     staveNote.aaBeamStyle = style;
     if (n.selected) {
-      staveNote.setStyle({ fillStyle: "#dc3545", strokeStyle: "#dc3545" });
+      staveNote.setStyle(SELECTED);
       if (VexFlow.Annotation) {
         var annotation = new VexFlow.Annotation("◆");
         if (annotation.setFont) annotation.setFont("Arial", 9);
         staveNote.addModifier(annotation, 0);
       }
+    }
+    // The notes of a chord can each have their own colour, accidental included.
+    if (Array.isArray(n.chord)) {
+      members.forEach(function (m, index) {
+        var keyStyle = m.selected ? SELECTED : colourOf(m);
+        if (!keyStyle) return;
+        staveNote.setKeyStyle(index, keyStyle);
+        if (accidentals[index]) accidentals[index].setStyle(keyStyle);
+      });
     }
 
     return staveNote;
@@ -167,7 +195,11 @@
     var playable = notes.filter(function (n) { return n.note !== "barline"; });
     var barCount = notes.length - playable.length;
     var totalWidth = Math.max(widthHint, playable.length * 50 + barCount * 22 + 110);
-    var drawn = { width: totalWidth, xs: notes.map(function () { return null; }) };
+    var drawn = {
+      width: totalWidth,
+      xs: notes.map(function () { return null; }),
+      ys: notes.map(function () { return null; }),
+    };
 
     var renderer = new Renderer(div, Renderer.Backends.SVG);
     renderer.resize(totalWidth, HEIGHT);
@@ -237,6 +269,7 @@
       drawn.xs[entry.index] = note.getNoteHeadBeginX && note.getNoteHeadEndX
         ? (note.getNoteHeadBeginX() + note.getNoteHeadEndX()) / 2
         : note.getAbsoluteX();
+      drawn.ys[entry.index] = note.getYs ? note.getYs().slice() : null;
     });
     fitHeight(div, totalWidth);
     return drawn;
