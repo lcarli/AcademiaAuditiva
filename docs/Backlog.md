@@ -1,11 +1,11 @@
 # Backlog
 
 What is left to do on Academia Auditiva, in priority order. Written on
-2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`; line
-numbers refer to `07d6776` (`ef42bfa` in item 3, and for the two items added on
-2026-10-06, the merge of #113 in item 4 and `47f0a6d` in item 5). Each item
-says why it matters, where to look, what to do and when it is done. New ideas
-go to GitHub issues.
+2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`. Line
+numbers refer to `07d6776`, except in item 2 (`ef42bfa`) and in the items added
+on 2026-10-06: item 3 (the merge of #113), item 4 (`47f0a6d`) and the
+[exercises](#exercises) (`21f9dff`). Each item says why it matters, where to
+look, what to do and when it is done. New ideas go to GitHub issues.
 
 ## Where things stand
 
@@ -64,33 +64,7 @@ pull requests and no open CodeQL or Dependabot alerts. The open issues are
 
 ## Next up
 
-### 1. Show invite links while e-mail is off
-
-**Lower priority since #89.** Production now e-mails invites, and when sending
-fails the teacher already sees the link. This only matters where e-mail is off:
-locally, in CI, or if production turns it off again.
-
-**Why.** Without SMTP, the e-mail sender logs a warning and returns
-(`AcademiaAuditiva/Services/EmailSender.cs:25-34`). The teacher still sees
-"invite sent" (`AcademiaAuditiva/Areas/Teacher/Controllers/MembersController.cs:134`)
-although nothing went out. The pending-invite list
-(`AcademiaAuditiva/Areas/Teacher/Views/Classrooms/Details.cshtml:65-94`) has no
-link to copy, so the student cannot join. The link only appears when sending
-throws (`MembersController.cs:127-131`).
-
-**What.**
-
-- When e-mail is off, say so and show the accept link with a copy
-  button, both after inviting and in the pending list.
-  `SmtpOptions.IsConfigured` tells whether e-mail is on;
-  `RegisterConfirmation.cshtml.cs` already uses it.
-- Keep the e-mail path as it is.
-- Add the new texts in the three cultures.
-
-**Done when.** Without SMTP, a teacher copies the link and the student joins.
-Integration tests cover both modes.
-
-### 2. Settle the Essentia.js license (AGPL-3.0)
+### 1. Settle the Essentia.js license (AGPL-3.0)
 
 **Why.** Sight-singing (`SolfegeMelody`) detects the sung pitch with
 Essentia.js. Its files carry the AGPL-3.0 notice, while the app is MIT. The
@@ -120,7 +94,7 @@ doubt, ask someone qualified.
 gone and sight-singing still recognizes sung notes. Either way, the readme's
 third-party table matches.
 
-### 3. Create the contato@ inbox
+### 2. Create the contato@ inbox
 
 **Why.** `contato@academiaauditiva.com` is the only address the site gives for
 reaching us, but the domain has no MX record, so mail to it bounces.
@@ -168,9 +142,9 @@ replies as `contato@`, its replies pass DMARC.
 The owner's notes of 2026-10-06, one issue each. The first two are done:
 routines that work like a test (#106, in #111 and #112), and teacher reports
 made only from the answers given in routines (#107, in #113). #111 tied
-answers to routines, which item 5 builds on; item 4 can go at any time.
+answers to routines, which item 4 builds on; item 3 can go at any time.
 
-### 4. Assign to a class or chosen students, and e-mail them (#108)
+### 3. Assign to a class or chosen students, and e-mail them (#108)
 
 **Why.** Assigning a routine saves the assignment and shows a toast, and
 nobody hears about it until they open My Training
@@ -220,7 +194,7 @@ those students, each in their own language, and the reports count exactly
 them; a failed send still saves the assignment; integration tests cover who
 gets the e-mail.
 
-### 5. Notifications on the site (#109)
+### 4. Notifications on the site (#109)
 
 **Why.** The site has no notifications: a student learns about a routine only
 on My Training, and a teacher learns about progress only in the reports.
@@ -238,7 +212,7 @@ on My Training, and a teacher learns about progress only in the reports.
 - First events. For students: a routine is assigned, or is due tomorrow and
   unfinished. For teachers: a student finished a routine, or accepted an
   invite.
-- Item 4's e-mail and this notification come from the same event, so build the
+- Item 3's e-mail and this notification come from the same event, so build the
   notifier once.
 - Notifications go into the data export and the account deletion
   (`AcademiaAuditiva/Services/PersonalDataService.cs:136` and `:49`), and are
@@ -249,6 +223,347 @@ the page loads or needs a daily job.
 
 **Done when.** The bell shows the chosen events in the three languages, and
 they appear in the data export.
+
+## Exercises
+
+From the brainstorm of 2026-10-06. There are 19 exercises, but rhythm has a
+single one (RhythmDictation), and the Games and Misc categories have none
+(`AcademiaAuditiva/Data/SeedData.cs:34-35`). Item 5 is a bug and can go at any
+time. Items 6 to 8 share one helper, a cadence that sets the key before the
+question: it fixes GuessFunction and opens two new exercises. Rhythm (items 11
+and 12) comes next, then the rest.
+
+| Item | Kind | Effort | Needs |
+| --- | --- | --- | --- |
+| 5. Fix Compare 2 melodies | Bug | Small | – |
+| 6. Play the key before GuessFunction's chord | Fix | Small | – |
+| 7. The degree of a note in the key | New exercise | Small | Item 6 |
+| 8. Chord progressions | New exercise | Medium | Item 6 |
+| 9. More sevenths, and the top note | New filters | Small | – |
+| 10. Harmonic intervals | New filter | Small | – |
+| 11. A count-in, and more rhythms | RhythmDictation | Medium | – |
+| 12. Which rhythm, tap it back, duple or triple | New exercises | Medium | Item 11 |
+| 13. Which note changed? | New exercise | Small | Item 5 |
+| 14. Singing exercises | New exercises | Medium | Item 1 |
+| 15. In tune or not? | New exercise | Medium | – |
+| 16. Game modes | Games category | Medium to large | – |
+
+**Adding an exercise.** A new exercise needs all of this, and tests that go
+through every seeded exercise check much of it:
+
+- Its row in `SeedData.cs`. Seeding adds the missing exercises, by name, and
+  updates the others (`SeedData.cs:959-979`), so it reaches production with
+  the deploy.
+- A case in `MusicTheoryService.GenerateNoteForExercise`, and one in
+  `ExercisePlaybackPlanner.Plan`, which throws on an exercise it doesn't know
+  (`AcademiaAuditiva/Services/Audio/ExercisePlaybackPlanner.cs:186-188`).
+- An `IExerciseValidator`, registered in `AcademiaAuditiva/Program.cs:230-248`.
+- `Views/Exercise/<Name>.cshtml` and `wwwroot/js/Exercises/<Name>.js`.
+- In the three `.resx` files: its name
+  (`Tests/AcademiaAuditiva.IntegrationTests/LocalizedNamesTests.cs:31-55`),
+  and `Exercise.<Name>.Instructions` and its tips, which otherwise fall back to
+  the seed's Portuguese
+  (`AcademiaAuditiva/Views/Exercise/_ExerciseInstructions.cshtml:4-16`).
+- Exactly one step in
+  `AcademiaAuditiva/Services/LearningPath/LearningPathCatalog.cs`
+  (`Tests/AcademiaAuditiva.UnitTests/LearningPathServiceTests.cs:17-23`).
+- An entry in `MusicTheoryService.UsesNoteRange`
+  (`AcademiaAuditiva/Services/MusicTheoryService.cs:183-192`), only if its
+  rounds follow the octave range
+  (`Tests/AcademiaAuditiva.UnitTests/NoteRangeFilterTests.cs:92`).
+
+Each new exercise, unless it needs a microphone, also raises the bar for three
+badges that stay hidden until their art is ready (#16): `explorer` asks for
+every exercise
+(`AcademiaAuditiva/Services/Gamification/BadgeRules.cs:80`), `total_mastery`
+for the whole learning path (`:103`), and `all_rounder` for 10 answers in
+every category that has an exercise (`:109` and `:330-333`), so the first game
+adds a category. Badges already earned are kept (`BadgeRules.cs:39`).
+
+**Left out on purpose.** Reading drills without sound, since this is an
+ear-training site; the frequency and mixing module
+(`docs/archive/MapaDoProjeto.md:150`); and a melodic contour exercise
+(`docs/Pedagogia-Exercicios.md:45`), since HigherOrLower and the dictations
+cover it between them.
+
+### 5. Fix Compare 2 melodies (GuessMissingNote)
+
+**Why.** It is the fourth step of the learning path
+(`AcademiaAuditiva/Services/LearningPath/LearningPathCatalog.cs:29`), and some
+of its rounds can't be answered.
+
+- Half the rounds turn one entry of the melody into a rest and expect
+  "different" (`AcademiaAuditiva/Services/MusicTheoryService.cs:1007-1017`).
+  The entry is picked among all of them, and about a quarter are rests already
+  (`:362`). About one round in eight then plays the same melody twice and
+  still expects "different".
+- The length filter, 4 to 8 notes (`AcademiaAuditiva/Data/SeedData.cs:844-853`),
+  is read but never used (`MusicTheoryService.cs:993`). Every round is two 4/4
+  bars (`:995`) of random notes from all twelve, over two octaves, with
+  sixteenths and rests (`:308-378`). That is hard to remember in the path's
+  first unit, and the path's preset of 4 notes does nothing.
+
+**What.**
+
+- Change a note, never a rest: pick among the entries that are notes.
+- Make `melodyLength` the number of notes, in one key and by small intervals,
+  as `GenerateVocalMelody` writes them (`MusicTheoryService.cs:392`).
+- Test that every "different" round sounds different, and that the melodies
+  have the chosen number of notes.
+
+**Done when.** No round plays the same melody twice and expects "different",
+and the length filter sets the number of notes.
+
+### 6. Play the key before GuessFunction's chord
+
+**Why.** GuessFunction plays a chord on its own
+(`AcademiaAuditiva/Services/Audio/ExercisePlaybackPlanner.cs:124-129`), though
+its instructions say to hear it "within a context"
+(`AcademiaAuditiva/Data/SeedData.cs:733`). The round returns only the chord
+(`AcademiaAuditiva/Services/MusicTheoryService.cs:1053-1073`). Without hearing
+the key, naming the function takes absolute pitch: to answer V in C major, the
+student has to recognize a G chord.
+
+**What.**
+
+- Before the chord, play a cadence in the chosen key (I–IV–V–I in major), then
+  a short silence. GuessCadence already builds such chords
+  (`MusicTheoryService.cs:887-911`, with `GetChordFromFunction` at `:664`), and
+  the planner plays chords one after another (`ChordsInSequence`,
+  `ExercisePlaybackPlanner.cs:278-293`).
+- Write it as a helper that items 7 and 8 can call. IntervalMelodico could use
+  it too: its melody, 8 to 31 notes, has to set the key on its own
+  (`MusicTheoryService.cs:1127`).
+- At 1.2 s a chord (`ExercisePlaybackPlanner.cs:60`), the cadence adds about
+  5 s; a mix stops at 30 s
+  (`AcademiaAuditiva/Services/Audio/AudioMixerService.cs:24`).
+
+**Decide first.**
+
+- Minor keys. GuessFunction's answers come from the natural minor, with v and
+  VII (`MusicTheoryService.cs:1058`), while GuessCadence plays V in minor
+  (`:890`). Either keep v and play i–iv–v–i, or move the minor answers to the
+  harmonic minor (V and vii°) and play i–iv–V–i.
+- Whether Replay plays the cadence again, or only the chord.
+
+**Done when.** Every GuessFunction round plays a cadence in the chosen key
+before its chord, and a planner test checks it.
+
+### 7. New exercise: the degree of a note in the key
+
+**Why.** Hearing what a note does in a key (do, re, mi, or 1 to 7) is the base
+of tonal ear training and of melodic dictation. No exercise asks for it on its
+own: IntervalMelodico asks for the degrees of the first and last notes of a
+long melody, with no cadence before it (`MusicTheoryService.cs:1110`).
+
+**What.** Item 6's cadence in the chosen key, then one note (later two or
+three). The student answers its degree with buttons 1 to 7, and at a harder
+level with the chromatic degrees too (♭3, ♯4, ♭7 and so on). Filters: the key
+or a random one, major or minor, and the level. Its learning-path step goes in
+the first unit.
+
+**Done when.** It follows the list above, and every round plays the cadence
+before the note.
+
+### 8. New exercise: chord progressions
+
+**Why.** GuessCadence names how a four-chord phrase ends: perfect, plagal,
+imperfect or deceptive. Songs are built from whole progressions, such as
+I–V–vi–IV, ii–V–I, I–vi–IV–V, the Andalusian cadence (i–VII–VI–V) and the
+12-bar blues. `docs/archive/MapaDoProjeto.md:31` proposed it.
+
+**What.** Item 6's cadence, then the progression (`ChordsInSequence`). Two
+levels: pick the progression's name among a few common ones, or write each
+chord's Roman numeral with dropdowns, like IntervalMelodico's. With the
+cadence, the 12-bar blues takes about 20 s at GuessCadence's pace, within the
+mixer's 30 s.
+
+**Decide first.** Which progressions, and whether the blues uses seventh
+chords (`dominant7` exists, `MusicTheoryService.cs:46`).
+
+**Done when.** It follows the list above, in major and minor keys.
+
+### 9. More sevenths in GuessQuality, and the top note
+
+**Why.**
+
+- GuessQuality's All group plays major, minor, diminished and augmented
+  triads, and M7, m7 and dim7 chords (`MusicTheoryService.cs:1080`, buttons at
+  `SeedData.cs:683-689`). It leaves out the dominant seventh, the most common
+  seventh chord in tonal music, and the half-diminished, m7(♭5), though
+  `ChordIntervals` has both (`MusicTheoryService.cs:46-47`).
+- GuessInversion asks which note is in the bass. Nothing asks which one is on
+  top (the root, the third or the fifth), the note that carries a melody over
+  chords.
+
+**What.**
+
+- Add 7 and m7(♭5) to GuessQuality. A later group could add sus2, sus4, 6 and
+  add9; check each one in `ChordIntervals` first, since `ninth` has the same
+  intervals as `add9`, without a seventh (`MusicTheoryService.cs:39` and
+  `:49`).
+- The top note, as a mode of GuessInversion or an exercise of its own: the
+  root stays in the bass while the top changes, in open or four-part voicings.
+  With the close triads GuessInversion plays (`MusicTheoryService.cs:922-967`),
+  the top note follows from the inversion, so it needs voicings of its own.
+
+**Decide first.** Whether the sevenths join All, which the learning path uses
+(`LearningPathCatalog.cs:34`), or a Sevenths group of their own.
+
+**Done when.** GuessQuality plays and accepts both chords, the top note can be
+asked, and the new texts exist in the three languages.
+
+### 10. Harmonic intervals
+
+**Why.** GuessInterval and GuessFullInterval always play one note after the
+other (`ExercisePlaybackPlanner.cs:131-139`). Two notes at once, a harmonic
+interval, is what students hear in two-part music and inside chords.
+`docs/FiltrosPorExercicio.md:39` planned the filter.
+
+**What.** A filter on both: melodic as today, harmonic, or either at random.
+Harmonic plays both notes at the same time, in the octaves written, as
+`WrittenChord` does (`ExercisePlaybackPlanner.cs:244`). `Chord` won't do: on
+the guitar it strums a shape of four to six strings, in octaves of its own,
+which changes the interval. The direction filter doesn't apply to harmonic
+intervals. HigherOrLower shares the planner case and stays melodic.
+
+**Done when.** Both exercises play harmonic intervals when chosen, a planner
+test checks the start times, and the new texts exist in the three languages.
+
+### 11. A count-in, and more rhythms in RhythmDictation
+
+**Why.** RhythmDictation is the only rhythm exercise.
+
+- It starts without a count-in, and nothing in the app plays a click or a
+  metronome, so the first note comes before the student has the pulse.
+- Every note is a C5 (`MusicTheoryService.cs:1374`), at 120 beats a minute
+  (`ExercisePlaybackPlanner.cs:37`).
+- It writes only whole, half, quarter and eighth notes and their rests
+  (`MusicTheoryService.cs:1358-1365`): no dotted notes, sixteenths, ties,
+  syncopation or triplets.
+- A 6/8 bar is filled as if it were 3/4 (`:1372`), with no dotted quarter,
+  the beat of 6/8.
+
+**What.**
+
+- A count-in: a bar of beats in the rhythm's meter before it starts, in
+  RhythmDictation and MelodicDictation. They share a planner case with
+  CompleteScale and TransposeScale, which need none
+  (`ExercisePlaybackPlanner.cs:176-184`). There is no click sample, and
+  bundled samples must be note files
+  (`AcademiaAuditiva/Services/Audio/BundledSamples.cs:51`); a short note on
+  each beat, higher than the rhythm's C5, needs no new file.
+- New levels: dotted notes, sixteenths, syncopation, and 6/8 in dotted
+  quarters. The staff editor and renderer already draw dotted notes and beam
+  eighths by the dotted quarter in compound meters
+  (`AcademiaAuditiva/wwwroot/js/core/staff-editor.js:54-56`,
+  `AcademiaAuditiva/wwwroot/js/core/staff-renderer.js:25` and `:168`), but no
+  generator writes them yet. The validator compares the duration labels as
+  written
+  (`AcademiaAuditiva/Services/ExerciseValidators/ExerciseValidators.cs:180`);
+  ties and triplets need labels of their own in the generator, the editor and
+  the renderer.
+
+**Done when.** Every dictation starts after a bar of beats, and the new levels
+are played, written and corrected, with tests for the new durations.
+
+### 12. New rhythm exercises
+
+**Why.** Rhythm has one exercise, and it asks for the hardest thing: writing
+down what was heard. `docs/Pedagogia-Exercicios.md:50-52` proposed others.
+
+**What.** Three exercises, each following the list above:
+
+- **Which rhythm?** One bar plays, the page shows three or four written bars,
+  and the student picks the one heard. The staff renderer draws the options,
+  and the server keeps which one is right, as for every exercise.
+- **Tap it back.** After item 11's count-in, the student taps the rhythm on a
+  key or a button, and the server compares the taps' timing with the rhythm's,
+  with a tolerance. Bluetooth headphones can delay the sound by 0.1 to 0.3 s,
+  so begin with a bar of tapping along, to measure the delay.
+- **Duple or triple?** A pulse plays, and the student says whether it goes in
+  two, three or four (`docs/archive/MapaDoProjeto.md:47`). `MixInput` has no
+  volume (`AcademiaAuditiva/Interfaces/IAudioMixerService.cs:39-42`), so
+  either play the first beat lower ("oom-pah-pah") or add a gain to
+  `MixInput`.
+
+**Done when.** Each one follows the list above, with tests for its rounds and
+its validator.
+
+### 13. New exercise: which note changed?
+
+**Why.** After item 5, Compare 2 melodies asks only whether two melodies
+differ. The next step is to say where and how: which note changed, and whether
+it went up or down (`docs/Pedagogia-Exercicios.md:31`,
+`docs/archive/MapaDoProjeto.md:20`).
+
+**What.** Item 5's melodies, with one note moved by a step or a leap. The
+student picks its position (buttons 1 to n) and up or down. It could be a
+level of Compare 2 melodies instead, but its answer buttons are different.
+
+**Done when.** It follows the list above.
+
+### 14. Singing exercises
+
+**Needs [item 1](#1-settle-the-essentiajs-license-agpl-30).** They would
+detect the sung pitch as sight-singing does (`detectNotes` in
+`AcademiaAuditiva/wwwroot/js/Exercises/SolfegeMelody.js:266`), so settle
+Essentia.js first. If it is replaced, the new detector serves them all.
+
+**What.**
+
+- Sing the note you hear.
+- Sing an interval above or below a given note
+  (`docs/FiltrosPorExercicio.md:128`, `docs/archive/MapaDoProjeto.md:25`).
+- Sing back a short melody (`docs/archive/MapaDoProjeto.md:39`).
+
+Microphone exercises stay out of the learning path, the daily challenge, and
+the badges that ask for every exercise or category. Add each one to
+`MicrophoneExercises` (`AcademiaAuditiva/Services/MicrophoneExercises.cs:9`),
+which the daily challenge and those badges check
+(`AcademiaAuditiva/Services/DailyChallenge/DailyChallengeRules.cs:118`,
+`BadgeRules.cs:315` and `:331`). The learning path just has no step for them,
+and its test names SolfegeMelody (`LearningPathServiceTests.cs:22`); make the
+test use `MicrophoneExercises`.
+
+**Done when.** Each one follows the list above, except the learning-path step,
+and recognizes sung notes as reliably as sight-singing does.
+
+### 15. New exercise: in tune or not?
+
+**Why.** Violinists and singers tune by ear, and nothing trains it: every
+sample is in tune, one per semitone.
+
+**What.** A reference note, then the same note in tune, sharp or flat. The
+levels set how far off: 50, then 25, then 10 cents. The mixer needs to shift a
+sample's pitch by resampling it as it mixes (`AudioMixerService.cs:161-167`),
+with a new field on `MixInput`.
+
+**Done when.** It follows the list above, and a mixer test checks the shifted
+pitch.
+
+### 16. Game modes
+
+**Why.** The Games and Misc categories are empty. Modes that reuse the rounds
+of existing exercises add variety without new music code.
+
+**What.**
+
+- **Sprint:** as many right answers as possible in 60 seconds
+  (`docs/Pedagogia-Exercicios.md:63`).
+- **Sudden death:** rounds until the first mistake
+  (`docs/archive/MapaDoProjeto.md:96`).
+- **Weak spots:** rounds built from what the student misses most, from
+  `ScoreSnapshots` and their recorded filters (#96;
+  `docs/Pedagogia-Exercicios.md:65`).
+- **Placement test:** a short mixed test that suggests where to start on the
+  learning path (`docs/archive/MapaDoProjeto.md:88`).
+
+**Decide first.** Whether they count for XP, streaks and badges, and whether
+they are exercises, which then follow the list above and bring the Games
+category into `all_rounder`, or pages of their own.
+
+**Done when.** The chosen modes are live in the three languages.
 
 ## E-mail
 
@@ -278,40 +593,13 @@ API key with sending access to `academiaauditiva.com` only.
 
 **Still to do.**
 
-- The `contato@` inbox ([item 3](#3-create-the-contato-inbox)).
+- The `contato@` inbox ([item 2](#2-create-the-contato-inbox)).
 - Add a DMARC report address (`rua=`), and once the reports are clean, move
   from `p=none` to `quarantine`.
 
 **Done when.** DMARC reports arrive and the policy is `quarantine`.
 
 ## Later, or needs a decision
-
-### Facebook sign-in (off in production)
-
-**Today.** Facebook sign-in is registered only when `Facebook:AppId` and
-`Facebook:AppSecret` are both set (`AcademiaAuditiva/Program.cs:252-263`). In
-production the `Facebook--AppId` Key Vault secret is a disabled placeholder, so
-no Facebook button appears.
-
-**Before turning it on.**
-
-- **Owner:**
-  - An older App Secret is in the public git history. `docs/Security.md` lists
-    it as rotated; confirm that in the Meta console
-    ([runbook](Security.md#rotate-facebook-appsecret)).
-  - Set the OAuth redirect URIs (`https://academiaauditiva.com/signin-facebook`,
-    plus the `www` host).
-  - Store both values with `seed-keyvault.ps1`.
-- **Code:**
-  - `AccessDeniedPath = "/AccessDeniedPathInfo"` (`Program.cs:261`) is a 404.
-    Send the user back to the login page instead.
-  - Handle `OnRemoteFailure` (a cancel or a Meta error) with a localized
-    message.
-
-**Done when.** A test Facebook account signs in on production, and cancelling
-returns to the login page with a message.
-
-If #31 goes ahead, Entra External ID could provide social sign-in instead.
 
 ### #16: the art of the hidden badges
 
@@ -343,7 +631,7 @@ handles local accounts, two-factor, the admin lock, and data export and
 deletion.
 
 - **Gains.** Moving would bring hosted e-mail verification, MFA and social
-  sign-in, which covers much of the Facebook work.
+  sign-in.
 - **Costs.** It would touch `Areas/Identity`, `LockoutAwareSignInManager`, the
   admin users page and the personal-data code. Existing accounts would need a
   migration plan.
@@ -357,10 +645,11 @@ These are outside the repo:
 - Change the bootstrap admin password in production, turn on two-factor for
   that account, and delete any local copy of the initial password.
 - Review who holds the Admin role.
-- Confirm the Facebook App Secret was reset (see
-  [Facebook sign-in](#facebook-sign-in-off-in-production)).
+- Confirm in the Meta console that the Facebook App Secret was reset: an older
+  one is in the public git history (see the
+  [runbook](Security.md#rotate-facebook-appsecret)).
 - Choose and create the `contato@` inbox, and add its DNS records (see
-  [item 3](#3-create-the-contato-inbox)).
+  [item 2](#2-create-the-contato-inbox)).
 
 ## Watch
 
