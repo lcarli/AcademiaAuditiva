@@ -176,31 +176,38 @@
     return window.AAi18n ? window.AAi18n.answerLabel(answer) : String(answer || "");
   }
 
+  // The answer on a staff when the answer view draws one: { sheet, draw }, or null.
+  // VexFlow measures the staff, so draw() once the sheet is on the page.
+  function staffSheet(view, answer) {
+    if (!view || !view.staff || !window.StaffRenderer) return null;
+    const label = view.label || answerText(answer);
+    const sheet = document.createElement("div");
+    sheet.className = "aa-sheet aa-reveal-staff";
+    sheet.setAttribute("role", "img");
+    sheet.setAttribute("aria-label", label);
+    return {
+      sheet,
+      draw() {
+        try {
+          window.StaffRenderer.render(sheet, Object.assign({}, view.staff, {
+            width: Math.max(300, sheet.clientWidth - 24),
+          }));
+        } catch (err) {
+          console.warn("Could not draw the answer:", err);
+          sheet.textContent = label;
+        }
+      },
+    };
+  }
+
+  function answerSheet(answer) {
+    return staffSheet(answerView ? answerView(answer) : null, answer);
+  }
+
   function showAnswer(answer, title) {
     const view = answerView ? answerView(answer) : null;
-    if (view && view.staff && window.StaffRenderer) {
-      const sheet = document.createElement("div");
-      sheet.className = "aa-sheet aa-reveal-staff";
-      sheet.setAttribute("role", "img");
-      sheet.setAttribute("aria-label", answerText(answer));
-      return Swal.fire({
-        icon: "info",
-        title,
-        html: sheet,
-        width: "42em",
-        // VexFlow measures the staff, so draw it once the dialog is on the page.
-        didOpen: () => {
-          try {
-            window.StaffRenderer.render(sheet, Object.assign({}, view.staff, {
-              width: Math.max(300, sheet.clientWidth - 24),
-            }));
-          } catch (err) {
-            console.warn("Could not draw the answer:", err);
-            sheet.textContent = answerText(answer);
-          }
-        },
-      });
-    }
+    const staff = staffSheet(view, answer);
+    if (staff) return Swal.fire({ icon: "info", title, html: staff.sheet, width: "42em", didOpen: staff.draw });
     return Swal.fire({ icon: "info", title, text: typeof view === "string" ? view : answerText(answer) });
   }
 
@@ -283,11 +290,12 @@
     play,
     validate,
     staffNotes,
+    answerSheet,
     decorate,
     onReset(handler) {
       if (typeof handler === "function") resetHandlers.push(handler);
     },
-    // view(answer) returns the text to show, or { staff: StaffRenderer options }.
+    // view(answer) returns the text to show, or { staff: StaffRenderer options, label: text read out }.
     setAnswerView(view) {
       answerView = typeof view === "function" ? view : null;
     },

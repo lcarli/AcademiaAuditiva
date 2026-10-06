@@ -345,11 +345,11 @@ public static class SeedData
                         }
                     }
                 }),
-                Instructions = "Escute a melodia completa e reproduza as notas, durações, pausas e barras de compasso na pauta.",
+                Instructions = "Ouça a melodia completa. Escolha uma figura e clique nos nomes das notas em ordem; uma pausa entra com um clique. As barras de compasso entram sozinhas.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Ouça primeiro o contorno geral antes de escrever.",
                     "Marque as durações principais e depois ajuste as alturas.",
-                    "Use barras de compasso para separar as frases quando necessário."
+                    "Clique em uma nota na pauta para mudar a oitava ou o acidente."
                 }),
                 AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
                 {
@@ -388,7 +388,7 @@ public static class SeedData
                         }
                     }
                 }),
-                Instructions = "Escute o padrão rítmico tocado em uma nota fixa e escreva as durações, pausas e barras de compasso.",
+                Instructions = "Ouça o ritmo e clique nas figuras e pausas na ordem em que soam. As barras de compasso entram sozinhas.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Conte os pulsos em voz baixa enquanto escuta.",
                     "Identifique primeiro os valores longos e depois preencha os curtos.",

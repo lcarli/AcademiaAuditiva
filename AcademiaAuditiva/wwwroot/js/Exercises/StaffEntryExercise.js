@@ -39,16 +39,57 @@
     return filters;
   }
 
+  // #localizer keys of the note value names (buttons and the answer read-out).
+  const FIGURE_KEYS = {
+    w: "figureWhole", h: "figureHalf", q: "figureQuarter", "8": "figureEighth",
+    wr: "figureWholeRest", hr: "figureHalfRest", qr: "figureQuarterRest", "8r": "figureEighthRest",
+  };
+
+  function figureLabels(loc) {
+    const labels = {};
+    Object.keys(FIGURE_KEYS).forEach((duration) => {
+      if (loc[FIGURE_KEYS[duration]]) labels[duration] = loc[FIGURE_KEYS[duration]];
+    });
+    return labels;
+  }
+
+  // The answer staff read out: "E4 quarter note, quarter rest; G4 half note".
+  // Note values are named only when the exercise has more than one.
+  function spokenNotes(loc, notes, options) {
+    const names = figureLabels(loc);
+    const named = options.allowedDurations.length > 1;
+    const measures = [[]];
+    notes.forEach((n) => {
+      if (n.note === "barline") {
+        measures.push([]);
+        return;
+      }
+      const figure = (names[n.duration] || n.duration).toLowerCase();
+      let text = n.note;
+      if (n.note === "rest" || options.rhythm) text = figure;
+      else if (named) text = `${n.note} ${figure}`;
+      measures[measures.length - 1].push(text);
+    });
+    const text = measures.filter((m) => m.length).map((m) => m.join(", ")).join("; ");
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
   function optionsFor(exerciseName, metadata) {
+    const loc = AAi18n.localizer();
     const octave = Number(metadata.octave || 4);
     const labels = {
       minOctave: 3,
       maxOctave: 6,
-      octaveDisplayLabel: AAi18n.localizer().octaveLabel,
-      octaveDownLabel: AAi18n.localizer().octaveDownLabel,
-      octaveUpLabel: AAi18n.localizer().octaveUpLabel,
-      selectedNoteLabel: AAi18n.localizer().selectedNoteLabel,
-      noSelectionLabel: AAi18n.localizer().noSelectionLabel,
+      octaveDisplayLabel: loc.octaveLabel,
+      octaveDownLabel: loc.octaveDownLabel,
+      octaveUpLabel: loc.octaveUpLabel,
+      selectedNoteLabel: loc.selectedNoteLabel,
+      noSelectionLabel: loc.noSelectionLabel,
+      sharpLabel: loc.sharpLabel,
+      flatLabel: loc.flatLabel,
+      naturalLabel: loc.naturalLabel,
+      undoLabel: loc.undoLabel,
+      clearLabel: loc.clearLabel,
     };
     if (exerciseName === "CompleteChord") {
       return {
@@ -58,7 +99,6 @@
         octave,
         allowedDurations: ["w"],
         restDurations: [],
-        showBarline: false,
         totalSlots: 4,
         prefilledNotes: (metadata.promptNotes || []).map((note) => ({ note, duration: "w" })),
       };
@@ -71,11 +111,16 @@
         octave,
         allowedDurations: ["q"],
         restDurations: [],
-        showBarline: false,
         totalSlots: 8,
       };
     }
-    const prefilledNotes = exerciseName === "MelodicDictation" && metadata.firstNote
+    // A dictation fills metadata.numMeasures measures with the note values of its level.
+    const rhythm = exerciseName === "RhythmDictation";
+    const durations = Array.isArray(metadata.durations) && metadata.durations.length
+      ? metadata.durations
+      : ["w", "h", "q", "8"];
+    const rests = metadata.rests === undefined || metadata.rests === true;
+    const prefilledNotes = !rhythm && metadata.firstNote
       ? [{ note: metadata.firstNote, duration: metadata.firstDuration || "q" }]
       : [];
     return {
@@ -84,10 +129,14 @@
       keySignature: "C",
       timeSignature: metadata.timeSignature || "4/4",
       octave,
-      allowedDurations: ["w", "h", "q", "8"],
-      restDurations: ["wr", "hr", "qr", "8r"],
-      showBarline: true,
-      totalSlots: 64,
+      allowedDurations: durations,
+      restDurations: rests ? durations.map((d) => d + "r") : [],
+      measures: Number(metadata.numMeasures) || 0,
+      rhythm,
+      autoStem: !rhythm,
+      figureLabels: figureLabels(loc),
+      measureLabel: loc.measureLabel,
+      completeLabel: loc.completeLabel,
       prefilledNotes,
     };
   }
@@ -117,17 +166,21 @@
 
       drawEmptyStaff();
 
-      // The answer leaves out the notes the editor gives (in gray); rhythms are drawn on C5.
+      // The answer leaves out the notes the editor gives (in gray); rhythms go on a one-line staff.
       AAPractice.setAnswerView((answer) => {
         const options = optionsFor(exerciseName, metadata || {});
         const given = (options.prefilledNotes || []).map((note) => ({ ...note, prefilled: true }));
+        const notes = given.concat(AAPractice.staffNotes(answer, options.rhythm ? "B4" : null));
         return {
           staff: {
             clef: options.clef,
             keySignature: options.keySignature,
             timeSignature: options.timeSignature,
-            notes: given.concat(AAPractice.staffNotes(answer, exerciseName === "RhythmDictation" ? "C5" : null)),
+            rhythm: options.rhythm,
+            autoStem: options.autoStem,
+            notes,
           },
+          label: spokenNotes(loc, notes, options),
         };
       });
 
@@ -171,6 +224,11 @@
         const userAnswer = staffInstance.getAnswerString();
         if (!userAnswer) {
           AAi18n.incomplete(loc);
+          return;
+        }
+        // A dictation is checked once every measure is written.
+        if (!staffInstance.isComplete()) {
+          AAi18n.warning(loc.incompleteTitle, loc.unfinishedMeasuresText || loc.incompleteText);
           return;
         }
         AAPractice.validate({

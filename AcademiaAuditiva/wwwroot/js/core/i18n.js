@@ -76,19 +76,37 @@
       });
       return true;
     },
-    // Shows the answer dialog; returns the SweetAlert2 promise.
+    // Shows the answer dialog; returns the SweetAlert2 promise. An exercise
+    // written on a staff shows the right answer on one (AAPractice.answerSheet).
     result(data, loc) {
-      const options = data.isCorrect
-        ? {
-            icon: "success",
-            title: message(loc, "correctMessage", "Correct!"),
-            text: message(loc, "correctMessageText", "You got it right!")
-          }
-        : {
-            icon: "error",
-            title: message(loc, "wrongMessage", "Wrong!"),
-            text: format(message(loc, "wrongMessageText", "The correct answer was {0}."), answerLabel(data.answer))
-          };
+      const staff = !data.isCorrect && data.answer && window.AAPractice ? window.AAPractice.answerSheet(data.answer) : null;
+      let options;
+      if (data.isCorrect) {
+        options = {
+          icon: "success",
+          title: message(loc, "correctMessage", "Correct!"),
+          text: message(loc, "correctMessageText", "You got it right!")
+        };
+      } else if (staff) {
+        const html = document.createElement("div");
+        const caption = document.createElement("p");
+        caption.className = "aa-answer-caption";
+        caption.textContent = message(loc, "correctAnswerCaption", "The correct answer was:");
+        html.append(caption, staff.sheet);
+        options = {
+          icon: "error",
+          title: message(loc, "wrongMessage", "Wrong!"),
+          html,
+          width: "42em",
+          didOpen: staff.draw
+        };
+      } else {
+        options = {
+          icon: "error",
+          title: message(loc, "wrongMessage", "Wrong!"),
+          text: format(message(loc, "wrongMessageText", "The correct answer was {0}."), answerLabel(data.answer))
+        };
+      }
       return Swal.fire(withRewards(options, data));
     },
     withRewards

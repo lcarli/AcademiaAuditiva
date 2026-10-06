@@ -3050,7 +3050,7 @@
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Instructions" xml:space="preserve">
-    <value>Écoutez la mélodie complète, puis saisissez les notes, les durées, les silences et les barres de mesure sur la portée.</value>
+    <value>Écoutez la mélodie complète. Choisissez une figure, puis cliquez sur le nom des notes dans l’ordre ; un silence se place d’un clic. Les barres de mesure s’ajoutent seules.</value>
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Tip1" xml:space="preserve">
@@ -3062,7 +3062,7 @@
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Tip3" xml:space="preserve">
-    <value>Utilisez les barres de mesure pour organiser la phrase.</value>
+    <value>Cliquez sur une note de la portée pour changer son octave ou son altération.</value>
     <comment />
   </data>
   <data name="RhythmDictation" xml:space="preserve">
@@ -3074,7 +3074,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Prompt" xml:space="preserve">
-    <value>Mesure : {{0}}. La hauteur est ignorée pour la correction.</value>
+    <value>Mesure : {{0}}.</value>
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Subtitle" xml:space="preserve">
@@ -3082,7 +3082,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Instructions" xml:space="preserve">
-    <value>Écoutez le rythme sur une note fixe et saisissez les durées, les silences et les barres de mesure sur la portée.</value>
+    <value>Écoutez le rythme et cliquez sur les figures et les silences dans l’ordre où vous les entendez. Les barres de mesure s’ajoutent seules.</value>
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Tip1" xml:space="preserve">
@@ -3094,7 +3094,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Tip3" xml:space="preserve">
-    <value>Seul le rythme est corrigé ; la hauteur n’a pas d’importance.</value>
+    <value>Une figure qui n’entre plus dans la mesure est désactivée.</value>
     <comment />
   </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
@@ -3103,6 +3103,74 @@
   </data>
   <data name="Exercise.StaffEditor.NoSelection" xml:space="preserve">
     <value>Aucune note sélectionnée</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Whole" xml:space="preserve">
+    <value>Ronde</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Half" xml:space="preserve">
+    <value>Blanche</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Quarter" xml:space="preserve">
+    <value>Noire</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Eighth" xml:space="preserve">
+    <value>Croche</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.WholeRest" xml:space="preserve">
+    <value>Pause</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.HalfRest" xml:space="preserve">
+    <value>Demi-pause</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.QuarterRest" xml:space="preserve">
+    <value>Soupir</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.EighthRest" xml:space="preserve">
+    <value>Demi-soupir</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Measure" xml:space="preserve">
+    <value>Mesure {{0}} sur {{1}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Complete" xml:space="preserve">
+    <value>Toutes les mesures sont complètes.</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Unfinished" xml:space="preserve">
+    <value>Remplissez toutes les mesures avant de valider.</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Sharp" xml:space="preserve">
+    <value>Dièse</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Flat" xml:space="preserve">
+    <value>Bémol</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Natural" xml:space="preserve">
+    <value>Bécarre</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Undo" xml:space="preserve">
+    <value>Annuler</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Clear" xml:space="preserve">
+    <value>Tout effacer</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.CorrectAnswer" xml:space="preserve">
+    <value>La bonne réponse était :</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.QualityMajor" xml:space="preserve">

@@ -268,6 +268,7 @@ namespace AcademiaAuditiva.Controllers
 				foreach (var field in new[] {
 					"promptNotes", "clef", "keySignature", "timeSignature",
 					"numMeasures", "octave", "originalRoot", "targetRoot", "scale", "level",
+					"durations", "rests",
 					"root", "quality", "firstNote", "firstDuration"
 				})
 				{

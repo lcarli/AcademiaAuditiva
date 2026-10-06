@@ -3050,7 +3050,7 @@
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Instructions" xml:space="preserve">
-    <value>Ouça a melodia completa e insira notas, durações, pausas e barras de compasso na pauta.</value>
+    <value>Ouça a melodia completa. Escolha uma figura e clique nos nomes das notas em ordem; uma pausa entra com um clique. As barras de compasso entram sozinhas.</value>
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Tip1" xml:space="preserve">
@@ -3062,7 +3062,7 @@
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Tip3" xml:space="preserve">
-    <value>Use barras de compasso para organizar a frase.</value>
+    <value>Clique em uma nota na pauta para mudar a oitava ou o acidente.</value>
     <comment />
   </data>
   <data name="RhythmDictation" xml:space="preserve">
@@ -3074,7 +3074,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Prompt" xml:space="preserve">
-    <value>Compasso: {{0}}. A altura é ignorada na correção.</value>
+    <value>Compasso: {{0}}.</value>
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Subtitle" xml:space="preserve">
@@ -3082,7 +3082,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Instructions" xml:space="preserve">
-    <value>Ouça o ritmo em uma nota fixa e insira durações, pausas e barras de compasso na pauta.</value>
+    <value>Ouça o ritmo e clique nas figuras e pausas na ordem em que soam. As barras de compasso entram sozinhas.</value>
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Tip1" xml:space="preserve">
@@ -3094,7 +3094,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Tip3" xml:space="preserve">
-    <value>Apenas o ritmo é corrigido; a altura não importa.</value>
+    <value>Uma figura que não cabe mais no compasso fica desativada.</value>
     <comment />
   </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
@@ -3103,6 +3103,74 @@
   </data>
   <data name="Exercise.StaffEditor.NoSelection" xml:space="preserve">
     <value>Nenhuma nota selecionada</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Whole" xml:space="preserve">
+    <value>Semibreve</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Half" xml:space="preserve">
+    <value>Mínima</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Quarter" xml:space="preserve">
+    <value>Semínima</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Eighth" xml:space="preserve">
+    <value>Colcheia</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.WholeRest" xml:space="preserve">
+    <value>Pausa de semibreve</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.HalfRest" xml:space="preserve">
+    <value>Pausa de mínima</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.QuarterRest" xml:space="preserve">
+    <value>Pausa de semínima</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.EighthRest" xml:space="preserve">
+    <value>Pausa de colcheia</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Measure" xml:space="preserve">
+    <value>Compasso {{0}} de {{1}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Complete" xml:space="preserve">
+    <value>Todos os compassos estão completos.</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Unfinished" xml:space="preserve">
+    <value>Preencha todos os compassos antes de validar.</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Sharp" xml:space="preserve">
+    <value>Sustenido</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Flat" xml:space="preserve">
+    <value>Bemol</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Natural" xml:space="preserve">
+    <value>Bequadro</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Undo" xml:space="preserve">
+    <value>Desfazer</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Clear" xml:space="preserve">
+    <value>Limpar tudo</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.CorrectAnswer" xml:space="preserve">
+    <value>A resposta correta era:</value>
     <comment />
   </data>
   <data name="Exercise.CompleteChord.QualityMajor" xml:space="preserve">
