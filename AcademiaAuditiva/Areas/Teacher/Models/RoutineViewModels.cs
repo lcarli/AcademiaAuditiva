@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using AcademiaAuditiva.Models.Teaching;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace AcademiaAuditiva.Areas.Teacher.Models;
@@ -7,7 +8,7 @@ public class RoutineFormViewModel
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Validation.Required"), StringLength(120, ErrorMessage = "Validation.MaxLength")]
+    [Required(ErrorMessage = "Validation.Required"), StringLength(Routine.NameMaxLength, ErrorMessage = "Validation.MaxLength")]
     [Display(Name = "Common.Name")]
     public string Name { get; set; } = string.Empty;
 
@@ -65,6 +66,12 @@ public class RoutineOverridesViewModel
     [BindNever] public string? StudentDisplay { get; set; }
     [BindNever] public IReadOnlyList<OverrideStudentOption> Students { get; set; } = Array.Empty<OverrideStudentOption>();
 
+    /// <summary>The student has adjustments on items they haven't started, which Clear removes.</summary>
+    [BindNever] public bool CanClear { get; set; }
+
+    /// <summary>The student has adjustments on items they have started, which Clear keeps.</summary>
+    [BindNever] public bool KeepsStarted { get; set; }
+
     public List<RoutineItemOverrideInput> Items { get; set; } = new();
 }
 
@@ -84,6 +91,10 @@ public class RoutineItemOverrideInput
     public Dictionary<string, string?> Filters { get; set; } = new();
 
     [BindNever] public string ExerciseName { get; set; } = string.Empty;
+
+    /// <summary>The student has answered this item in the assignment, so its adjustments no longer change.</summary>
+    [BindNever] public bool Started { get; set; }
+
     [BindNever] public int DefaultTarget { get; set; }
     [BindNever] public IReadOnlyList<FilterOptionGroup> FilterGroups { get; set; } = Array.Empty<FilterOptionGroup>();
     [BindNever] public IReadOnlyDictionary<string, string> DefaultFilters { get; set; } = new Dictionary<string, string>();

@@ -4,9 +4,11 @@ namespace AcademiaAuditiva.Models.Teaching;
 
 public class Routine
 {
+    public const int NameMaxLength = 120;
+
     public int Id { get; set; }
 
-    [Required, MaxLength(120)]
+    [Required, MaxLength(NameMaxLength)]
     public string Name { get; set; } = string.Empty;
 
     [MaxLength(1000)]

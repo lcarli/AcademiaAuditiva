@@ -16,18 +16,36 @@ public class RoutinesController : TeacherAreaController
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _users;
     private readonly IStringLocalizer<SharedResources> _l;
+    private readonly TimeProvider _clock;
 
-    public RoutinesController(ApplicationDbContext db, UserManager<ApplicationUser> users, IStringLocalizer<SharedResources> localizer)
+    public RoutinesController(ApplicationDbContext db, UserManager<ApplicationUser> users, IStringLocalizer<SharedResources> localizer, TimeProvider clock)
     {
         _db = db;
         _users = users;
         _l = localizer;
+        _clock = clock;
     }
 
     private string TeacherId => _users.GetUserId(User)!;
 
     private Task<Routine?> LoadOwnedAsync(int id)
         => _db.Routines.FirstOrDefaultAsync(r => r.Id == id && r.OwnerId == TeacherId);
+
+    /// <summary>
+    /// An assigned routine is a test under way: its items stay as they are, so every answer
+    /// keeps counting towards what the students were given. Removing every assignment unlocks it.
+    /// </summary>
+    private Task<bool> IsAssignedAsync(int routineId)
+        => _db.RoutineAssignments.AnyAsync(a => a.RoutineId == routineId);
+
+    private IActionResult RoutineLocked(int routineId) => Refused(routineId, "Toast.RoutineLocked");
+
+    /// <summary>Back to the routine's page, with the reason in an error toast.</summary>
+    private IActionResult Refused(int routineId, string toastKey)
+    {
+        TempData["Error"] = _l[toastKey].Value;
+        return RedirectToAction(nameof(Details), new { id = routineId });
+    }
 
     public async Task<IActionResult> Index()
     {
@@ -129,6 +147,48 @@ public class RoutinesController : TeacherAreaController
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>Copies the routine and its items, without assignments, so the copy can change.</summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Duplicate(int id)
+    {
+        var r = await _db.Routines
+            .AsNoTracking()
+            .Include(x => x.Items)
+            .FirstOrDefaultAsync(x => x.Id == id && x.OwnerId == TeacherId);
+        if (r == null) return NotFound();
+
+        var copy = new Routine
+        {
+            Name = CopyName(r.Name),
+            Description = r.Description,
+            OwnerId = TeacherId,
+            CreatedAt = _clock.GetUtcNow().UtcDateTime,
+            Items = r.Items.OrderBy(i => i.Order).Select(i => new RoutineItem
+            {
+                ExerciseId = i.ExerciseId,
+                Order = i.Order,
+                FilterJson = i.FilterJson,
+                TargetCount = i.TargetCount,
+                MinScore = i.MinScore
+            }).ToList()
+        };
+        _db.Routines.Add(copy);
+        await _db.SaveChangesAsync();
+        TempData["Success"] = _l["Toast.RoutineDuplicated"].Value;
+        return RedirectToAction(nameof(Details), new { id = copy.Id });
+    }
+
+    /// <summary>"Name (copy)" in the page's language, shortening the name to fit.</summary>
+    private string CopyName(string name)
+    {
+        var copy = _l["Teacher.Routines.CopyName", name].Value;
+        var excess = copy.Length - Routine.NameMaxLength;
+        if (excess <= 0) return copy;
+        var shortened = name[..^excess];
+        if (shortened.Length > 0 && char.IsHighSurrogate(shortened[^1])) shortened = shortened[..^1];
+        return _l["Teacher.Routines.CopyName", shortened.TrimEnd()].Value;
+    }
+
     // ----- Items -----
 
     private string LocalizedExerciseName(string name)
@@ -190,6 +250,7 @@ public class RoutinesController : TeacherAreaController
     {
         var r = await LoadOwnedAsync(routineId);
         if (r == null) return NotFound();
+        if (await IsAssignedAsync(r.Id)) return RoutineLocked(r.Id);
         return View("ItemForm", await NewItemFormAsync(routineId));
     }
 
@@ -198,6 +259,7 @@ public class RoutinesController : TeacherAreaController
     {
         var r = await LoadOwnedAsync(model.RoutineId);
         if (r == null) return NotFound();
+        if (await IsAssignedAsync(r.Id)) return RoutineLocked(r.Id);
         var (ok, filterJson) = await ValidateItemFormAsync(model);
         if (!ok) return View("ItemForm", model);
 
@@ -223,6 +285,7 @@ public class RoutinesController : TeacherAreaController
     {
         var r = await LoadOwnedAsync(routineId);
         if (r == null) return NotFound();
+        if (await IsAssignedAsync(r.Id)) return RoutineLocked(r.Id);
         var item = await _db.RoutineItems.FirstOrDefaultAsync(i => i.Id == itemId && i.RoutineId == routineId);
         if (item == null) return NotFound();
         return View("ItemForm", await NewItemFormAsync(routineId, item));
@@ -233,6 +296,7 @@ public class RoutinesController : TeacherAreaController
     {
         var r = await LoadOwnedAsync(model.RoutineId);
         if (r == null) return NotFound();
+        if (await IsAssignedAsync(r.Id)) return RoutineLocked(r.Id);
         var item = await _db.RoutineItems.FirstOrDefaultAsync(i => i.Id == model.Id && i.RoutineId == r.Id);
         if (item == null) return NotFound();
         var (ok, filterJson) = await ValidateItemFormAsync(model);
@@ -252,6 +316,7 @@ public class RoutinesController : TeacherAreaController
     {
         var r = await LoadOwnedAsync(routineId);
         if (r == null) return NotFound();
+        if (await IsAssignedAsync(r.Id)) return RoutineLocked(r.Id);
         var item = await _db.RoutineItems.FirstOrDefaultAsync(i => i.Id == itemId && i.RoutineId == routineId);
         if (item == null) return NotFound();
         // Overrides reference items with a restrict FK, so they go first.
@@ -281,11 +346,16 @@ public class RoutinesController : TeacherAreaController
             .ToListAsync();
     }
 
+    // An empty routine would lock as soon as it is assigned, with nothing in it to answer.
+    private Task<bool> HasItemsAsync(int routineId)
+        => _db.RoutineItems.AnyAsync(i => i.RoutineId == routineId);
+
     [HttpGet]
     public async Task<IActionResult> Assign(int routineId)
     {
         var r = await LoadOwnedAsync(routineId);
         if (r == null) return NotFound();
+        if (!await HasItemsAsync(r.Id)) return Refused(r.Id, "Toast.RoutineEmpty");
         var vm = new AssignRoutineViewModel { RoutineId = r.Id, RoutineName = r.Name };
         await PopulateAssignChoicesAsync(vm);
         return View(vm);
@@ -296,6 +366,7 @@ public class RoutinesController : TeacherAreaController
     {
         var r = await LoadOwnedAsync(model.RoutineId);
         if (r == null) return NotFound();
+        if (!await HasItemsAsync(r.Id)) return Refused(r.Id, "Toast.RoutineEmpty");
 
         if (model.Target == "classroom")
         {
@@ -382,6 +453,20 @@ public class RoutinesController : TeacherAreaController
     private Task<bool> IsClassroomMemberAsync(int classroomId, string studentId)
         => _db.ClassroomMembers.AnyAsync(m => m.ClassroomId == classroomId && m.StudentId == studentId);
 
+    /// <summary>
+    /// The items the student has answered in this assignment. Their adjustments stay as they
+    /// are, since the student is answering with them.
+    /// </summary>
+    private async Task<HashSet<int>> StartedItemsAsync(int assignmentId, string studentId)
+    {
+        var started = await _db.ScoreSnapshots
+            .Where(s => s.UserId == studentId && s.RoutineAssignmentId == assignmentId && s.RoutineItemId != null)
+            .Select(s => s.RoutineItemId!.Value)
+            .Distinct()
+            .ToListAsync();
+        return started.ToHashSet();
+    }
+
     private async Task PopulateOverridesAsync(RoutineOverridesViewModel vm, Routine routine, RoutineAssignment assignment, bool fromDb)
     {
         vm.RoutineName = routine.Name;
@@ -407,17 +492,21 @@ public class RoutinesController : TeacherAreaController
         if (vm.StudentId == null) return;
         vm.StudentDisplay = vm.Students.FirstOrDefault(s => s.Id == vm.StudentId)?.Display;
 
-        var saved = fromDb
-            ? await _db.RoutineAssignmentOverrides
-                .Where(o => o.RoutineAssignmentId == assignment.Id && o.StudentId == vm.StudentId)
-                .ToListAsync()
-            : new List<RoutineAssignmentOverride>();
-        var posted = vm.Items.GroupBy(i => i.ItemId).ToDictionary(g => g.Key, g => g.First());
+        var saved = await _db.RoutineAssignmentOverrides
+            .Where(o => o.RoutineAssignmentId == assignment.Id && o.StudentId == vm.StudentId)
+            .ToListAsync();
+        var started = await StartedItemsAsync(assignment.Id, vm.StudentId);
+        vm.CanClear = saved.Any(o => !started.Contains(o.RoutineItemId));
+        vm.KeepsStarted = saved.Any(o => started.Contains(o.RoutineItemId));
+        var posted = fromDb
+            ? new Dictionary<int, RoutineItemOverrideInput>()
+            : vm.Items.GroupBy(i => i.ItemId).ToDictionary(g => g.Key, g => g.First());
 
         vm.Items = routine.Items.OrderBy(i => i.Order).Select(item =>
         {
-            RoutineItemOverrideInput input;
-            if (fromDb)
+            var isStarted = started.Contains(item.Id);
+            // Started items, which the page doesn't post, and any item missing from the post show what is saved.
+            if (isStarted || !posted.TryGetValue(item.Id, out var input))
             {
                 var o = saved.FirstOrDefault(x => x.RoutineItemId == item.Id);
                 input = new RoutineItemOverrideInput
@@ -429,12 +518,9 @@ public class RoutinesController : TeacherAreaController
                         .ToDictionary(kv => kv.Key, kv => (string?)kv.Value)
                 };
             }
-            else
-            {
-                input = posted.GetValueOrDefault(item.Id) ?? new RoutineItemOverrideInput { ItemId = item.Id };
-            }
             var groups = ExerciseFilterPresets.Groups(item.Exercise?.FiltersJson);
             input.ExerciseName = LocalizedExerciseName(item.Exercise?.Name ?? string.Empty);
+            input.Started = isStarted;
             input.DefaultTarget = item.TargetCount;
             input.FilterGroups = groups;
             input.DefaultFilters = ExerciseFilterPresets.Sanitize(
@@ -475,6 +561,8 @@ public class RoutinesController : TeacherAreaController
         var existing = await _db.RoutineAssignmentOverrides
             .Where(o => o.RoutineAssignmentId == assignment.Id && o.StudentId == model.StudentId)
             .ToListAsync();
+        var started = await StartedItemsAsync(assignment.Id, model.StudentId);
+        var keptStarted = false;
         var items = routine.Items.ToDictionary(i => i.Id);
         var seen = new HashSet<int>();
 
@@ -482,6 +570,12 @@ public class RoutinesController : TeacherAreaController
         {
             // Only items of this routine, once each; anything else is ignored.
             if (!items.TryGetValue(input.ItemId, out var item) || !seen.Add(item.Id)) continue;
+            // The page doesn't post started items, unless it was opened before the student started.
+            if (started.Contains(item.Id))
+            {
+                keptStarted = true;
+                continue;
+            }
 
             var filters = ExerciseFilterPresets.Sanitize(input.Filters, ExerciseFilterPresets.Groups(item.Exercise?.FiltersJson));
             var row = existing.FirstOrDefault(o => o.RoutineItemId == item.Id);
@@ -508,9 +602,12 @@ public class RoutinesController : TeacherAreaController
         }
 
         await _db.SaveChangesAsync();
-        TempData["Success"] = _l["Toast.OverridesSaved"].Value;
+        TempData["Success"] = WithStartedKept(_l["Toast.OverridesSaved"].Value, keptStarted);
         return RedirectToAction(nameof(Overrides), new { routineId = routine.Id, assignmentId = assignment.Id, studentId = model.StudentId });
     }
+
+    private string WithStartedKept(string toast, bool keptStarted)
+        => keptStarted ? $"{toast} {_l["Toast.OverridesStartedKept"].Value}" : toast;
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> ClearOverrides(int routineId, int assignmentId, string studentId)
@@ -524,9 +621,10 @@ public class RoutinesController : TeacherAreaController
         var rows = await _db.RoutineAssignmentOverrides
             .Where(o => o.RoutineAssignmentId == assignment.Id && o.StudentId == studentId)
             .ToListAsync();
-        _db.RoutineAssignmentOverrides.RemoveRange(rows);
+        var started = await StartedItemsAsync(assignment.Id, studentId);
+        _db.RoutineAssignmentOverrides.RemoveRange(rows.Where(o => !started.Contains(o.RoutineItemId)));
         await _db.SaveChangesAsync();
-        TempData["Success"] = _l["Toast.OverridesCleared"].Value;
+        TempData["Success"] = WithStartedKept(_l["Toast.OverridesCleared"].Value, rows.Any(o => started.Contains(o.RoutineItemId)));
         return RedirectToAction(nameof(Overrides), new { routineId = routine.Id, assignmentId = assignment.Id, studentId });
     }
 }

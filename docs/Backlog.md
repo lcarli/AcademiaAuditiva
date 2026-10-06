@@ -2,10 +2,10 @@
 
 What is left to do on Academia Auditiva, in priority order. Written on
 2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`; line
-numbers refer to `07d6776` (`ef42bfa` in item 3, `47f0a6d` in items 5 and 7,
-added on 2026-10-06, and the merge of #111 in items 4 and 6). Each item says
-why it matters, where to look, what to do and when it is done. New ideas go to
-GitHub issues.
+numbers refer to `07d6776` (`ef42bfa` in item 3, `47f0a6d` in items 4 and 6,
+added on 2026-10-06, and the merge of #112 in item 5). Each item says why it
+matters, where to look, what to do and when it is done. New ideas go to GitHub
+issues.
 
 ## Where things stand
 
@@ -29,13 +29,15 @@ The modernization plan is done (#47 to #83):
 - **Classrooms**: a routine works like a test. Each item takes exactly the
   questions the teacher set, with the teacher's filters, one at a time; only
   the answers given in the routine count, and the due date closes it unless
-  the teacher accepts late work (#111).
+  the teacher accepts late work (#111). Once assigned, its exercises can't
+  change, nor can a student's adjustments to an item they have started; the
+  teacher duplicates the routine to change a copy (#112).
 
 E-mail is [on](#e-mail): production sends through Resend (#89), and every
 e-mail has the site's layout and a plain-text version (#92). There are no open
 pull requests and no open CodeQL or Dependabot alerts. The open issues are
-#16, #31 and the four in [Classrooms and teachers](#classrooms-and-teachers)
-(#106 to #109).
+#16, #31 and the three in [Classrooms and teachers](#classrooms-and-teachers)
+(#107 to #109).
 
 ## How we work
 
@@ -161,45 +163,11 @@ replies as `contato@`, its replies pass DMARC.
 
 ## Classrooms and teachers
 
-The owner's notes of 2026-10-06, one issue each. #111 tied answers to
-routines, which items 5 and 7 build on; item 4 finishes #106 and comes first.
-Item 6 stands alone and can go at any time.
+The owner's notes of 2026-10-06, one issue each. The first, routines that work
+like a test (#106), is done (#111, #112). #111 tied answers to routines, which
+items 4 and 6 build on; item 5 stands alone and can go at any time.
 
-### 4. Lock a routine once it's assigned (#106)
-
-**Why.** #111 made a routine work like a test: the student answers every item,
-with exactly the questions the teacher set and the teacher's filters, one
-question at a time and each until it is answered. The teacher can still change
-the test while students take it:
-
-- Items can be added, edited and removed after assigning
-  (`AcademiaAuditiva/Areas/Teacher/Controllers/RoutinesController.cs:188-263`);
-  only deleting a routine with assignments is blocked (`:112-130`). Changing an
-  item's exercise or target changes what the answers already given count
-  towards, and a removed item leaves answers tagged with an item that no longer
-  exists.
-- A student's overrides (skip an item, another target or other filters) can be
-  saved and cleared at any time (`RoutinesController.cs:460-531`), even after
-  the student started the item.
-
-**What.**
-
-- Once a routine has an assignment, `AddItem`, `EditItem` and `RemoveItem`
-  refuse with a toast, as `Delete` does, and `Details` hides their buttons
-  (`AcademiaAuditiva/Areas/Teacher/Views/Routines/Details.cshtml:28-30` and
-  `:66-75`). The name and description can still change.
-- A "Duplicate" action on `Details` copies the routine and its items, without
-  assignments, so the teacher changes the copy and assigns it.
-- A student's overrides of an item can change only until they answer its first
-  question in that assignment (a `ScoreSnapshot` tagged with both). `Overrides`
-  shows those items read-only, and saving or clearing leaves them as they are.
-- New texts in the three cultures.
-
-**Done when.** An assigned routine's items can't change, a duplicate's can, and
-an item a student started keeps that student's overrides; integration tests
-cover each rule. Then close #106.
-
-### 5. Teacher reports from routines only (#107)
+### 4. Teacher reports from routines only (#107)
 
 **Why.** The teacher needs reports per routine (overall and per student), per
 class (overall and per student) and a page per student. Today those pages read
@@ -243,11 +211,11 @@ privacy policy says so in the three languages, and integration tests show that
 a teacher doesn't see practice outside routines, another teacher's routines or
 students outside their classes.
 
-### 6. Assign to a class or chosen students, and e-mail them (#108)
+### 5. Assign to a class or chosen students, and e-mail them (#108)
 
 **Why.** Assigning a routine saves the assignment and shows a toast, and
 nobody hears about it until they open My Training
-(`AcademiaAuditiva/Areas/Teacher/Controllers/RoutinesController.cs:295-347`).
+(`AcademiaAuditiva/Areas/Teacher/Controllers/RoutinesController.cs:365-418`).
 The form offers a whole class or one student
 (`AcademiaAuditiva/Areas/Teacher/Views/Routines/Assign.cshtml:16-36`), so
 giving a routine to three students takes three assignments, with three
@@ -287,7 +255,7 @@ an e-mail.
 those students, each in their own language; a failed send still saves the
 assignment; integration tests cover who gets the e-mail.
 
-### 7. Notifications on the site (#109)
+### 6. Notifications on the site (#109)
 
 **Why.** The site has no notifications: a student learns about a routine only
 on My Training, and a teacher learns about progress only in the reports.
@@ -305,7 +273,7 @@ on My Training, and a teacher learns about progress only in the reports.
 - First events. For students: a routine is assigned, or is due tomorrow and
   unfinished. For teachers: a student finished a routine, or accepted an
   invite.
-- Item 6's e-mail and this notification come from the same event, so build the
+- Item 5's e-mail and this notification come from the same event, so build the
   notifier once.
 - Notifications go into the data export and the account deletion
   (`AcademiaAuditiva/Services/PersonalDataService.cs:136` and `:49`), and are

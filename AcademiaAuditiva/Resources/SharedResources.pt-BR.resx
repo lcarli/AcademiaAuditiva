@@ -1538,11 +1538,23 @@
   <data name="Toast.RoutineActiveAssignments" xml:space="preserve">
     <value>A rotina possui atribuições ativas. Remova-as primeiro.</value>
   </data>
+  <data name="Toast.RoutineLocked" xml:space="preserve">
+    <value>Esta rotina já foi atribuída, então seus exercícios não podem mudar. Duplique-a para mudar uma cópia.</value>
+  </data>
+  <data name="Toast.RoutineDuplicated" xml:space="preserve">
+    <value>Rotina duplicada. A cópia não está atribuída, então você pode mudar seus exercícios.</value>
+  </data>
+  <data name="Toast.RoutineEmpty" xml:space="preserve">
+    <value>Adicione pelo menos um exercício antes de atribuir esta rotina.</value>
+  </data>
   <data name="Toast.OverridesSaved" xml:space="preserve">
     <value>Ajustes salvos.</value>
   </data>
   <data name="Toast.OverridesCleared" xml:space="preserve">
     <value>Ajustes removidos.</value>
+  </data>
+  <data name="Toast.OverridesStartedKept" xml:space="preserve">
+    <value>Os exercícios que este aluno já começou mantêm os ajustes.</value>
   </data>
   <data name="Toast.MemberRemoved" xml:space="preserve">
     <value>Membro removido.</value>
@@ -2507,6 +2519,12 @@
   <data name="Teacher.Overrides.ClearConfirm" xml:space="preserve">
     <value>Remover todos os ajustes deste aluno? Ele voltará a seguir a rotina.</value>
   </data>
+  <data name="Teacher.Overrides.Started" xml:space="preserve">
+    <value>Este aluno já começou este exercício, então os ajustes não podem mais mudar.</value>
+  </data>
+  <data name="Teacher.Overrides.ClearStartedConfirm" xml:space="preserve">
+    <value>Remover os ajustes deste aluno? Os exercícios que ele já começou mantêm os ajustes; os outros voltarão a seguir a rotina.</value>
+  </data>
   <data name="Teacher.Routines.DueDate" xml:space="preserve">
     <value>Data de vencimento</value>
   </data>
@@ -2515,6 +2533,15 @@
   </data>
   <data name="Teacher.Routines.AllowLateHelp" xml:space="preserve">
     <value>Os alunos ainda podem responder depois da data de vencimento. Caso contrário, a rotina se encerra no fim desse dia.</value>
+  </data>
+  <data name="Teacher.Routines.Duplicate" xml:space="preserve">
+    <value>Duplicar</value>
+  </data>
+  <data name="Teacher.Routines.CopyName" xml:space="preserve">
+    <value>{0} (cópia)</value>
+  </data>
+  <data name="Teacher.Routines.Locked" xml:space="preserve">
+    <value>Esta rotina já foi atribuída, então seus exercícios não podem mudar. Para mudá-los, duplique a rotina e atribua a cópia.</value>
   </data>
   <data name="Teacher.Routines.SelectClassroom" xml:space="preserve">
     <value>Selecione uma turma.</value>

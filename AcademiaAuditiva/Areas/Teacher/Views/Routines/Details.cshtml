@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = Model.Name;
     var assignments = (List<AcademiaAuditiva.Models.Teaching.RoutineAssignment>)ViewBag.Assignments;
+    // Assigned routines keep their items (RoutinesController.IsAssignedAsync); a duplicate can change.
+    var locked = assignments.Count > 0;
 }
 
 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
@@ -13,6 +15,12 @@
         <a class="btn btn-outline-secondary btn-sm" asp-action="Edit" asp-route-id="@Model.Id">
             <i class="bi bi-pencil me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.Edit"]
         </a>
+        <form asp-action="Duplicate" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn btn-outline-secondary btn-sm" type="submit">
+                <i class="bi bi-files me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.Duplicate"]
+            </button>
+        </form>
         <a class="btn btn-primary btn-sm" asp-action="Assign" asp-route-routineId="@Model.Id">
             <i class="bi bi-person-check me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.Assign"]
         </a>
@@ -25,10 +33,20 @@
         <div class="aa-card-flat">
             <div class="card-header bg-transparent border-bottom border-body d-flex justify-content-between align-items-center gap-2 flex-wrap">
                 <strong class="text-body-emphasis"><i class="bi bi-music-note-list me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.Exercises"] (@Model.Items.Count)</strong>
-                <a class="btn btn-sm btn-primary" asp-action="AddItem" asp-route-routineId="@Model.Id">
-                    <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.AddExercise"]
-                </a>
+                @if (!locked)
+                {
+                    <a class="btn btn-sm btn-primary" asp-action="AddItem" asp-route-routineId="@Model.Id">
+                        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.AddExercise"]
+                    </a>
+                }
             </div>
+            @if (locked)
+            {
+                <div class="card-body small text-secondary border-bottom border-body d-flex align-items-start gap-2">
+                    <i class="bi bi-lock mt-1" aria-hidden="true"></i>
+                    <span>@Localizer["Teacher.Routines.Locked"]</span>
+                </div>
+            }
             @if (!Model.Items.Any())
             {
                 <div class="card-body text-secondary">@Localizer["Teacher.Routines.NoExercisesYet"]</div>
@@ -63,16 +81,19 @@
                                         </ul>
                                     }
                                 </div>
-                                <div class="d-flex gap-1">
-                                    <a class="btn btn-sm btn-outline-secondary" asp-action="EditItem" asp-route-routineId="@Model.Id" asp-route-itemId="@item.Id">@Localizer["Teacher.Routines.Edit"]</a>
-                                    <form asp-action="RemoveItem" method="post"
-                                          data-confirm="@Localizer["Teacher.Routines.RemoveItemConfirm"].Value"
-                                          onsubmit="return confirm(this.dataset.confirm);">
-                                        <input type="hidden" name="routineId" value="@Model.Id" />
-                                        <input type="hidden" name="itemId" value="@item.Id" />
-                                        <button class="btn btn-sm btn-outline-danger" type="submit">@Localizer["Teacher.Routines.Remove"]</button>
-                                    </form>
-                                </div>
+                                @if (!locked)
+                                {
+                                    <div class="d-flex gap-1">
+                                        <a class="btn btn-sm btn-outline-secondary" asp-action="EditItem" asp-route-routineId="@Model.Id" asp-route-itemId="@item.Id">@Localizer["Teacher.Routines.Edit"]</a>
+                                        <form asp-action="RemoveItem" method="post"
+                                              data-confirm="@Localizer["Teacher.Routines.RemoveItemConfirm"].Value"
+                                              onsubmit="return confirm(this.dataset.confirm);">
+                                            <input type="hidden" name="routineId" value="@Model.Id" />
+                                            <input type="hidden" name="itemId" value="@item.Id" />
+                                            <button class="btn btn-sm btn-outline-danger" type="submit">@Localizer["Teacher.Routines.Remove"]</button>
+                                        </form>
+                                    </div>
+                                }
                             </div>
                         </li>
                     }

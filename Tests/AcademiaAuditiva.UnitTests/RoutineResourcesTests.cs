@@ -8,7 +8,8 @@ namespace AcademiaAuditiva.UnitTests;
 
 /// <summary>
 /// The texts of a routine taken like a test (My Training, the exercise page's routine banner,
-/// the answers it refuses and the teacher's late answers option) exist in every culture.
+/// the answers it refuses, the teacher's late answers option, and the locks on an assigned
+/// routine and on a student's started items) exist in every culture.
 /// Views render them through IHtmlLocalizer, which runs string.Format even without arguments,
 /// so only keys that are always given arguments may hold braces.
 /// </summary>
@@ -16,7 +17,7 @@ public class RoutineResourcesTests
 {
     public static TheoryData<string> Cultures => new() { "", "pt-BR", "fr-CA" };
 
-    // Key → number of arguments passed by Views/MyTraining/Index and RoutineRoundStatus.
+    // Key → number of arguments passed by Views/MyTraining/Index, RoutineRoundStatus and the teacher's RoutinesController.
     private static readonly Dictionary<string, int> FormattedKeys = new()
     {
         ["MyTraining.Answered"] = 2,
@@ -24,6 +25,7 @@ public class RoutineResourcesTests
         ["Routine.Result"] = 3,
         ["Routine.Passed"] = 1,
         ["Routine.BelowMin"] = 1,
+        ["Teacher.Routines.CopyName"] = 1,
     };
 
     private static readonly string[] PlainKeys =
@@ -33,6 +35,9 @@ public class RoutineResourcesTests
         "Routine.AlreadyAnswered", "Routine.AlreadyAnsweredTitle", "Routine.Unavailable", "Routine.UnavailableTitle",
         "Routine.BackToMyTraining", "Routine.FilterLocked",
         "Teacher.Routines.AllowLate", "Teacher.Routines.AllowLateHelp",
+        "Teacher.Routines.Duplicate", "Teacher.Routines.Locked",
+        "Teacher.Overrides.Started", "Teacher.Overrides.ClearStartedConfirm",
+        "Toast.RoutineLocked", "Toast.RoutineDuplicated", "Toast.RoutineEmpty", "Toast.OverridesStartedKept",
     ];
 
     private static IEnumerable<string> AllKeys => PlainKeys.Concat(FormattedKeys.Keys);
