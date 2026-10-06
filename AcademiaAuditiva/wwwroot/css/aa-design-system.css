@@ -1103,6 +1103,18 @@ a:focus-visible {
         position: sticky;
         top: 5rem;
     }
+
+    /* The teacher and admin menus (col-lg-auto) are as wide as their longest label, so none
+       wraps under its icon in any language; short menus keep this width. */
+    .aa-side-col {
+        min-width: 13rem;
+    }
+
+    /* Without this the page beside the menu can't be narrower than a wide table in it,
+       and the row wraps it under the menu. */
+    .aa-side-main {
+        min-width: 0;
+    }
 }
 
 /* ---------- Home ---------- */
