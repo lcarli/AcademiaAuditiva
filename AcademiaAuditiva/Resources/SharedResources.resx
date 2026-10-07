@@ -739,6 +739,12 @@
   <data name="Exercise.Quality.ChordGroup" xml:space="preserve">
     <value>Chord type</value>
   </data>
+  <data name="Exercise.Quality.SusAdded" xml:space="preserve">
+    <value>Sus, 6th and add9 chords</value>
+  </data>
+  <data name="Exercise.Quality.TriadsSevenths" xml:space="preserve">
+    <value>Triads and sevenths</value>
+  </data>
   <data name="GuessMissingNote" xml:space="preserve">
     <value>Compare 2 melodies</value>
   </data>
@@ -1334,7 +1340,7 @@
     <value>Notice whether the sound is close (second) or wide (fifth, octave...).</value>
   </data>
   <data name="Exercise.GuessQuality.Instructions" xml:space="preserve">
-    <value>Listen to the chord and decide whether it is major, minor or diminished.</value>
+    <value>Listen to the chord and name its quality: major, minor, diminished, augmented, a seventh chord, or a sus, 6 or add9 chord. The Chord type filter picks which ones are played.</value>
   </data>
   <data name="Exercise.GuessQuality.Tip1" xml:space="preserve">
     <value>Try to memorize the typical sound of each quality.</value>
@@ -1344,6 +1350,12 @@
   </data>
   <data name="Exercise.GuessQuality.Tip3" xml:space="preserve">
     <value>Compare with simple chords you already know.</value>
+  </data>
+  <data name="Exercise.GuessQuality.Tip4" xml:space="preserve">
+    <value>A dominant 7 asks to resolve; a major 7 rests, soft and bright.</value>
+  </data>
+  <data name="Exercise.GuessQuality.Tip5" xml:space="preserve">
+    <value>Sus chords have no third: neither major nor minor, they sound open, waiting.</value>
   </data>
   <data name="Exercise.GuessFunction.Instructions" xml:space="preserve">
     <value>Listen to the cadence that sets the key, then to the chord, and identify its function in that key (tonic, subdominant, dominant...).</value>
@@ -4101,6 +4113,12 @@
   </data>
   <data name="Exercise.ChordQuality.Sus4" xml:space="preserve">
     <value>Sus4</value>
+  </data>
+  <data name="Exercise.ChordQuality.Major6" xml:space="preserve">
+    <value>Major 6</value>
+  </data>
+  <data name="Exercise.ChordQuality.Add9" xml:space="preserve">
+    <value>Add9</value>
   </data>
   <data name="Exercise.InversionThird" xml:space="preserve">
     <value>3rd inversion</value>

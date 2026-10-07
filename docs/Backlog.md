@@ -39,7 +39,9 @@ The modernization plan is done (#47 to #83):
   student taps it back on a pad or the space bar. The server matches the
   taps to the notes at the tempo and from the start that fit them best, so
   a steady delay of the headphones doesn't count, and a single tap off time
-  is the only note marked wrong (#128).
+  is the only note marked wrong (#128). GuessQuality plays the five seventh
+  chords, and sus2, sus4, 6 and add9, in chord types the student picks; the
+  learning path asks for the triads and the sevenths (#129).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -260,7 +262,7 @@ student tap one back (#128).
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
-| 5. More sevenths, and the top note | New filters | Small | – |
+| 5. The top note | New exercise | Small | – |
 | 6. Harmonic intervals | New filter | Small | – |
 | 7. Which note changed? | New exercise | Small | – |
 | 8. Singing exercises | New exercises | Medium | Item 1 |
@@ -307,35 +309,21 @@ cover it between them; and ties and triplets in the dictations (#125), which
 would each need a duration label of their own in the generator, the staff
 editor and the renderer.
 
-### 5. More sevenths in GuessQuality, and the top note
+### 5. The top note of a chord
 
-**Why.**
+**Why.** GuessInversion asks which note is in the bass. Nothing asks which one
+is on top (the root, the third or the fifth), the note that carries a melody
+over chords. The other half of this item, the seventh, sus, 6 and add9 chords
+in GuessQuality, shipped in #129.
 
-- GuessQuality's All group plays major, minor, diminished and augmented
-  triads, and M7, m7 and dim7 chords (`MusicTheoryService.cs:1080`, buttons at
-  `SeedData.cs:683-689`). It leaves out the dominant seventh, the most common
-  seventh chord in tonal music, and the half-diminished, m7(♭5), though
-  `ChordIntervals` has both (`MusicTheoryService.cs:46-47`).
-- GuessInversion asks which note is in the bass. Nothing asks which one is on
-  top (the root, the third or the fifth), the note that carries a melody over
-  chords.
+**What.** The top note, as a mode of GuessInversion or an exercise of its own:
+the root stays in the bass while the top changes, in open or four-part
+voicings. With the close triads GuessInversion plays
+(`MusicTheoryService.cs:922-967`), the top note follows from the inversion, so
+it needs voicings of its own.
 
-**What.**
-
-- Add 7 and m7(♭5) to GuessQuality. A later group could add sus2, sus4, 6 and
-  add9; check each one in `ChordIntervals` first, since `ninth` has the same
-  intervals as `add9`, without a seventh (`MusicTheoryService.cs:39` and
-  `:49`).
-- The top note, as a mode of GuessInversion or an exercise of its own: the
-  root stays in the bass while the top changes, in open or four-part voicings.
-  With the close triads GuessInversion plays (`MusicTheoryService.cs:922-967`),
-  the top note follows from the inversion, so it needs voicings of its own.
-
-**Decide first.** Whether the sevenths join All, which the learning path uses
-(`LearningPathCatalog.cs:34`), or a Sevenths group of their own.
-
-**Done when.** GuessQuality plays and accepts both chords, the top note can be
-asked, and the new texts exist in the three languages.
+**Done when.** The top note can be asked, and its texts exist in the three
+languages.
 
 ### 6. Harmonic intervals
 

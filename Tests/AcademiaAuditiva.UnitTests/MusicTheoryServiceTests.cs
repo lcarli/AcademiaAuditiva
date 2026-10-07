@@ -212,6 +212,26 @@ public class MusicTheoryServiceTests
         MusicTheoryService.GetChordNotes(root, quality).Should().Equal(expected.Split(','));
     }
 
+    // The chords that aren't stacked in thirds write each note on the letter of its interval.
+    [Theory]
+    [InlineData("C4", "sus2", "C4,D4,G4")]
+    [InlineData("C4", "sus4", "C4,F4,G4")]
+    [InlineData("C4", "major6", "C4,E4,G4,A4")]
+    [InlineData("C4", "add9", "C4,E4,G4,D5")]
+    [InlineData("Eb4", "sus2", "Eb4,F4,Bb4")]
+    [InlineData("A#4", "sus4", "A#4,D#5,E#5")]
+    [InlineData("F#4", "major6", "F#4,A#4,C#5,D#5")]
+    [InlineData("A#4", "add9", "A#4,C##5,E#5,B#5")]
+    [InlineData("B3", "add9", "B3,D#4,F#4,C#5")]
+    [InlineData("C4", "minor6", "C4,Eb4,G4,A4")]
+    [InlineData("C4", "ninth", "C4,E4,G4,D5")]
+    [InlineData("C4", "add11", "C4,E4,G4,F5")]
+    [InlineData("C4", "add13", "C4,E4,G4,A5")]
+    public void GetChordNotes_WritesTheSusAndAddedNotes_OnTheLettersOfTheirIntervals(string root, string quality, string expected)
+    {
+        MusicTheoryService.GetChordNotes(root, quality).Should().Equal(expected.Split(','));
+    }
+
     public static TheoryData<string, int[]> TextbookChords()
     {
         var data = new TheoryData<string, int[]>();
@@ -224,6 +244,10 @@ public class MusicTheoryServiceTests
         data.Add("minor7", [0, 3, 7, 10]);
         data.Add("halfDiminished", [0, 3, 6, 10]);
         data.Add("diminished7", [0, 3, 6, 9]);
+        data.Add("sus2", [0, 2, 7]);
+        data.Add("sus4", [0, 5, 7]);
+        data.Add("major6", [0, 4, 7, 9]);
+        data.Add("add9", [0, 4, 7, 14]);
         return data;
     }
 

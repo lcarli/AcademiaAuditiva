@@ -51,6 +51,41 @@ namespace AcademiaAuditiva.Services
             { "diminishedMajor", (new List<int>{ 3, 3, 4 }, null) }
         };
 
+        // The letters of the chords that aren't stacked in thirds, in steps up from the letter of
+        // the root (the others take every other letter, C E G B): a sus2 has a second where a triad
+        // has its third (C D G), a 6 a sixth where a seventh chord has its seventh (C E G A).
+        private static readonly Dictionary<string, int[]> ChordLetterSteps = new()
+        {
+            ["sus2"] = [0, 1, 4],
+            ["sus4"] = [0, 3, 4],
+            ["add9"] = [0, 2, 4, 8],
+            ["add11"] = [0, 2, 4, 10],
+            ["add13"] = [0, 2, 4, 12],
+            ["major6"] = [0, 2, 4, 5],
+            ["minor6"] = [0, 2, 4, 5],
+            ["ninth"] = [0, 2, 4, 8],
+        };
+
+        private static readonly string[] Triads = ["major", "minor", "diminished", "augmented"];
+        private static readonly string[] SeventhChords = ["major7", "dominant7", "minor7", "halfDiminished", "diminished7"];
+        private static readonly string[] SusAndAddedChords = ["sus2", "sus4", "major6", "add9"];
+
+        /// <summary>
+        /// The chord qualities of each GuessQuality group, its <c>chordGroup</c> filter. All of them
+        /// come in the order of the exercise's answer buttons, and the page shows only those of the
+        /// group the student picks.
+        /// </summary>
+        public static IReadOnlyDictionary<string, IReadOnlyList<string>> QualityGroups { get; } =
+            new Dictionary<string, IReadOnlyList<string>>
+            {
+                ["both"] = ["major", "minor"],
+                ["triads"] = Triads,
+                ["sevenths"] = SeventhChords,
+                ["susAdded"] = SusAndAddedChords,
+                ["triadsSevenths"] = [.. Triads, .. SeventhChords],
+                ["all"] = [.. Triads, .. SeventhChords, .. SusAndAddedChords],
+            };
+
         /// <summary>
         /// Dicionário contendo intervalos (em semitons) para diferentes tipos de escalas.
         /// </summary>
@@ -529,20 +564,22 @@ namespace AcademiaAuditiva.Services
             if (!rootMidi.HasValue || !TryParseNoteParts(root, out var rootLetter, out _, out var rootOctave))
                 return result;
 
+            var letterSteps = ChordLetterSteps.GetValueOrDefault(quality);
             var semitoneOffset = 0;
             var letterOffset = 0;
+            var tone = 0;
             result.Add(SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, semitoneOffset, letterOffset));
             foreach (var step in baseIntervals)
             {
                 semitoneOffset += step;
-                letterOffset += 2;
+                letterOffset = letterSteps?[++tone] ?? letterOffset + 2;
                 result.Add(SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, semitoneOffset, letterOffset));
             }
 
             if (seventhInterval.HasValue)
             {
                 semitoneOffset += seventhInterval.Value;
-                letterOffset += 2;
+                letterOffset = letterSteps?[++tone] ?? letterOffset + 2;
                 result.Add(SpellByLetterOffset(rootMidi.Value, rootLetter, rootOctave, semitoneOffset, letterOffset));
             }
 
@@ -1279,22 +1316,21 @@ namespace AcademiaAuditiva.Services
                 }
                 case "GuessQuality":
                     var qualityGroup = filters.TryGetValue("chordGroup", out var group) ? group : "all";
-
-                    List<string> allowedQualities = qualityGroup switch
-                    {
-                        "both" => new List<string> { "major", "minor" },
-                        _ => new List<string> { "major", "major7", "minor", "minor7", "diminished", "diminished7", "augmented" }
-                    };
+                    var allowedQualities = QualityGroups.GetValueOrDefault(qualityGroup) ?? QualityGroups["all"];
 
                     var rootNotesQ = GetAllNotes(ParseOctaveRange(noteRange));
-                    var allChordsQ = GetAllChords(rootNotesQ, allowedQualities);
+                    var allChordsQ = GetAllChords(rootNotesQ, [.. allowedQualities]);
                     var chordQ = allChordsQ[random.Next(allChordsQ.Count)];
+                    // The ninth of an add9 is past the samples from A#6 up: such a chord is played an octave lower.
+                    var notesQ = AboveTheSamples(chordQ.Notes)
+                        ? GetChordNotes(MidiToNote(NoteToMidi(chordQ.Root)!.Value - 12), chordQ.Type)
+                        : chordQ.Notes;
 
                     return new
                     {
-                        root = Regex.Replace(chordQ.Root, @"\\d", ""),
+                        root = Regex.Replace(chordQ.Root, @"\d", ""),
                         type = chordQ.Type,
-                        notes = chordQ.Notes,
+                        notes = notesQ,
                         answer = chordQ.Type
                     };
                 case "SolfegeMelody":

@@ -905,15 +905,21 @@ public static class SeedData
                         Options = new List<FilterOption>
                         {
                             new("both", "Exercise.TypeChordMajeurMineur"),
-                            new("all", "Exercise.All")
+                            new("triads", "Exercise.CompleteChord.Triads"),
+                            new("sevenths", "Exercise.CompleteChord.Sevenths"),
+                            new("susAdded", "Exercise.Quality.SusAdded"),
+                            new("triadsSevenths", "Exercise.Quality.TriadsSevenths"),
+                            new("all", "Exercise.CompleteChord.All")
                         }
                     }
                 }),
-                Instructions = "Ouça o acorde e determine se ele é maior, menor ou diminuto.",
+                Instructions = "Ouça o acorde e diga a sua qualidade: maior, menor, diminuto, aumentado, um acorde com sétima, ou um sus, 6 ou add9. O filtro Tipo de acorde escolhe quais tocam.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Tente memorizar a sonoridade típica de cada qualidade.",
                     "Acordes diminutos soam mais tensos ou instáveis.",
-                    "Compare com acordes simples que você já conhece."
+                    "Compare com acordes simples que você já conhece.",
+                    "O dominante 7 pede resolução; o maior 7 repousa, suave e brilhante.",
+                    "Os sus não têm terça: nem maiores nem menores, soam abertos, à espera."
                 }),
                 AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
                 {
@@ -925,12 +931,18 @@ public static class SeedData
                     { "guessAnswer", new Dictionary<string, string>
                         {
                             { "M", "major" },
-                            { "M7", "major7" },
                             { "m", "minor" },
-                            { "m7", "minor7" },
                             { "dim", "diminished" },
+                            { "aug", "augmented" },
+                            { "M7", "major7" },
+                            { "7", "dominant7" },
+                            { "m7", "minor7" },
+                            { "m7(♭5)", "halfDiminished" },
                             { "dim7", "diminished7" },
-                            { "aug", "augmented" }
+                            { "sus2", "sus2" },
+                            { "sus4", "sus4" },
+                            { "6", "major6" },
+                            { "add9", "add9" }
                         }
                     }
                 })

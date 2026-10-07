@@ -6,6 +6,7 @@
 
 @await Html.PartialAsync("_ExerciseHeader", Model)
 <input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+<div id="aa-quality-groups" hidden data-groups="@System.Text.Json.JsonSerializer.Serialize(AcademiaAuditiva.Services.MusicTheoryService.QualityGroups)"></div>
 
 <div class="row g-4">
     <div class="col-lg-8 order-lg-2">

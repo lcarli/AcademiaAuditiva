@@ -739,6 +739,12 @@
   <data name="Exercise.Quality.ChordGroup" xml:space="preserve">
     <value>Tipo de acorde</value>
   </data>
+  <data name="Exercise.Quality.SusAdded" xml:space="preserve">
+    <value>Suspensos, com sexta e com nona</value>
+  </data>
+  <data name="Exercise.Quality.TriadsSevenths" xml:space="preserve">
+    <value>Tríades e sétimas</value>
+  </data>
   <data name="GuessMissingNote" xml:space="preserve">
     <value>Compare 2 melodias</value>
   </data>
@@ -1334,7 +1340,7 @@
     <value>Perceba se o som é próximo (segunda) ou espaçado (quinta, oitava...).</value>
   </data>
   <data name="Exercise.GuessQuality.Instructions" xml:space="preserve">
-    <value>Ouça o acorde e determine se ele é maior, menor ou diminuto.</value>
+    <value>Ouça o acorde e diga a sua qualidade: maior, menor, diminuto, aumentado, um acorde com sétima, ou um sus, 6 ou add9. O filtro Tipo de acorde escolhe quais tocam.</value>
   </data>
   <data name="Exercise.GuessQuality.Tip1" xml:space="preserve">
     <value>Tente memorizar a sonoridade típica de cada qualidade.</value>
@@ -1344,6 +1350,12 @@
   </data>
   <data name="Exercise.GuessQuality.Tip3" xml:space="preserve">
     <value>Compare com acordes simples que você já conhece.</value>
+  </data>
+  <data name="Exercise.GuessQuality.Tip4" xml:space="preserve">
+    <value>O dominante 7 pede resolução; o maior 7 repousa, suave e brilhante.</value>
+  </data>
+  <data name="Exercise.GuessQuality.Tip5" xml:space="preserve">
+    <value>Os sus não têm terça: nem maiores nem menores, soam abertos, à espera.</value>
   </data>
   <data name="Exercise.GuessFunction.Instructions" xml:space="preserve">
     <value>Ouça a cadência que estabelece a tonalidade e depois o acorde, e identifique a função dele nessa tonalidade (tônica, subdominante, dominante...).</value>
@@ -4101,6 +4113,12 @@
   </data>
   <data name="Exercise.ChordQuality.Sus4" xml:space="preserve">
     <value>Sus4</value>
+  </data>
+  <data name="Exercise.ChordQuality.Major6" xml:space="preserve">
+    <value>Maior 6</value>
+  </data>
+  <data name="Exercise.ChordQuality.Add9" xml:space="preserve">
+    <value>Add9</value>
   </data>
   <data name="Exercise.InversionThird" xml:space="preserve">
     <value>3ª inversão</value>
