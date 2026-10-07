@@ -4213,4 +4213,37 @@
   <data name="DailyChallenge.Answers" xml:space="preserve">
     <value>{0} of {1} answers</value>
   </data>
+  <data name="GuessTopNote" xml:space="preserve">
+    <value>Guess Top Note</value>
+  </data>
+  <data name="Exercise.GuessTopNoteText" xml:space="preserve">
+    <value>Listen to the chord and identify the note on top.</value>
+  </data>
+  <data name="Exercise.SelectGuessTopNoteText" xml:space="preserve">
+    <value>Please select the note on top.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Subtitle" xml:space="preserve">
+    <value>Tell whether the root, the third or the fifth of a chord is on top.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Instructions" xml:space="preserve">
+    <value>Listen to the chord and identify which of its notes is on top, in the highest voice: the root, the third or the fifth. The bass is always the root.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Tip1" xml:space="preserve">
+    <value>Sing the highest note of the chord, as if it were the melody, then go down to the bass.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Tip2" xml:space="preserve">
+    <value>If the top note is the bass note in another octave, it is the root: the chord sounds settled.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Tip3" xml:space="preserve">
+    <value>The third on top sounds sweet and full; the fifth on top sounds open, as if the chord were left hanging.</value>
+  </data>
+  <data name="Exercise.TopNote.Root" xml:space="preserve">
+    <value>Root</value>
+  </data>
+  <data name="Exercise.TopNote.Third" xml:space="preserve">
+    <value>Third</value>
+  </data>
+  <data name="Exercise.TopNote.Fifth" xml:space="preserve">
+    <value>Fifth</value>
+  </data>
 </root>

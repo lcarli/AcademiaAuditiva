@@ -4213,4 +4213,37 @@
   <data name="DailyChallenge.Answers" xml:space="preserve">
     <value>{0} de {1} respostas</value>
   </data>
+  <data name="GuessTopNote" xml:space="preserve">
+    <value>Adivinhe a nota de cima</value>
+  </data>
+  <data name="Exercise.GuessTopNoteText" xml:space="preserve">
+    <value>Ouça o acorde e identifique a nota de cima.</value>
+  </data>
+  <data name="Exercise.SelectGuessTopNoteText" xml:space="preserve">
+    <value>Por favor, selecione a nota de cima.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Subtitle" xml:space="preserve">
+    <value>Diga se a fundamental, a terça ou a quinta do acorde está em cima.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Instructions" xml:space="preserve">
+    <value>Ouça o acorde e identifique qual das notas dele está em cima, na voz mais aguda: a fundamental, a terça ou a quinta. O baixo é sempre a fundamental.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Tip1" xml:space="preserve">
+    <value>Cante a nota mais aguda do acorde, como se fosse a melodia, e depois desça até o baixo.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Tip2" xml:space="preserve">
+    <value>Se a nota de cima é a mesma do baixo, em outra oitava, ela é a fundamental: o acorde soa conclusivo.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Tip3" xml:space="preserve">
+    <value>A terça em cima soa doce e cheia; a quinta em cima soa aberta, como se o acorde ficasse suspenso.</value>
+  </data>
+  <data name="Exercise.TopNote.Root" xml:space="preserve">
+    <value>Fundamental</value>
+  </data>
+  <data name="Exercise.TopNote.Third" xml:space="preserve">
+    <value>Terça</value>
+  </data>
+  <data name="Exercise.TopNote.Fifth" xml:space="preserve">
+    <value>Quinta</value>
+  </data>
 </root>

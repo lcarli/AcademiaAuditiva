@@ -157,6 +157,20 @@ public class ExerciseValidatorTests
     }
 
     [Fact]
+    public void GuessTopNoteValidator_MatchesOnTopNoteField_CaseInsensitive()
+    {
+        var v = new GuessTopNoteValidator();
+        v.ExerciseName.Should().Be("GuessTopNote");
+
+        var json = "{\"topNote\":\"topThird\",\"quality\":\"major\",\"notes\":[\"C3\",\"G3\",\"C4\",\"E4\"]}";
+        v.Validate("topThird", json).IsCorrect.Should().BeTrue();
+        v.Validate("TOPTHIRD", json).IsCorrect.Should().BeTrue();
+        v.Validate("topFifth", json).IsCorrect.Should().BeFalse();
+        v.Validate("major", json).IsCorrect.Should().BeFalse();
+        v.Validate("topThird", json).CanonicalAnswer.Should().Be("topThird");
+    }
+
+    [Fact]
     public void IntervalMelodico_RequiresAll4Parts_AndComparesEach()
     {
         var v = new IntervalMelodicoValidator();

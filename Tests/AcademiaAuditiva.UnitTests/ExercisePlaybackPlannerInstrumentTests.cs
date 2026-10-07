@@ -186,6 +186,7 @@ public class ExercisePlaybackPlannerInstrumentTests
     [InlineData("GuessCadence")]
     [InlineData("GuessProgression")]
     [InlineData("CompleteChord")]
+    [InlineData("GuessTopNote")]
     public void ChordExercises_OnTheViolin_ArePlayedOnThePiano(string exerciseName)
     {
         var plan = _planner.Plan(new Exercise { ExerciseId = 1, Name = exerciseName }, new() { ["instrument"] = "Violin" });
@@ -426,10 +427,10 @@ public class ExercisePlaybackPlannerInstrumentTests
             .Select(plan => plan.Where(input => input.StartTimeSeconds >= QuestionStart.GetValueOrDefault(exerciseName)))
             .Any(question => question.GroupBy(input => input.StartTimeSeconds).Any(notes => notes.Count() > 1));
 
-        // CompleteChord plays its chord as written, not on a shape of the guitar's neck.
+        // CompleteChord and GuessTopNote play their chords as written, not on a shape of the guitar's neck.
         ExercisePlaybackPlanner.IsChordExercise(exerciseName).Should().Be(notesTogether,
             "the exercises about chords leave out the violin");
-        ExercisePlaybackPlanner.PlaysChords(exerciseName).Should().Be(notesTogether && exerciseName != "CompleteChord",
+        ExercisePlaybackPlanner.PlaysChords(exerciseName).Should().Be(notesTogether && exerciseName is not ("CompleteChord" or "GuessTopNote"),
             "on the guitar the student picks where on the neck to play the chords");
     }
 

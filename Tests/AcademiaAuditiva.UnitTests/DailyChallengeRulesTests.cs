@@ -128,6 +128,7 @@ public class DailyChallengeRulesTests
     [InlineData("TransposeScale", 3)]
     [InlineData("GuessRhythmPattern", 5)]
     [InlineData("RhythmTap", 5)]
+    [InlineData("GuessTopNote", 5)]
     public void Target_IsLowerForTheExercisesAnsweredOnAStaff(string exercise, int target) =>
         DailyChallengeRules.Target(exercise).Should().Be(target);
 

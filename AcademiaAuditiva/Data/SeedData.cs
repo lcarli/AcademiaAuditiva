@@ -620,6 +620,49 @@ public static class SeedData
                 })
             },
             new Exercise {
+                Name = "GuessTopNote",
+                Description = "Ouça um acorde de quatro vozes, com a fundamental no baixo, e identifique a nota de cima: a fundamental, a terça ou a quinta.",
+                ExerciseTypeId = 2,
+                ExerciseCategoryId = 1,
+                DifficultyLevelId = 3,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.TypeChord",
+                        Name = "tnQuality",
+                        Options = new List<FilterOption>
+                        {
+                            new("major", "Exercise.TypeChordMajeur"),
+                            new("minor", "Exercise.TypeChordMineur"),
+                            new("both", "Exercise.TypeChordMajeurMineur")
+                        }
+                    }
+                }),
+                Instructions = "Ouça o acorde e identifique qual das notas dele está em cima, na voz mais aguda: a fundamental, a terça ou a quinta. O baixo é sempre a fundamental.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Cante a nota mais aguda do acorde, como se fosse a melodia, e depois desça até o baixo.",
+                    "Se a nota de cima é a mesma do baixo, em outra oitava, ela é a fundamental: o acorde soa conclusivo.",
+                    "A terça em cima soa doce e cheia; a quinta em cima soa aberta, como se o acorde ficasse suspenso."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                // The tones MusicTheoryService asks on top (TopNoteVoicings); the page labels them by value.
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Fundamental", "topRoot" },
+                            { "Terça", "topThird" },
+                            { "Quinta", "topFifth" }
+                        }
+                    }
+                })
+            },
+            new Exercise {
                 Name = "GuessCadence",
                 Description = "Ouça uma progressão de 4 acordes e identifique a cadência: perfeita, plagal, imperfeita ou deceptiva.",
                 ExerciseTypeId = 7,

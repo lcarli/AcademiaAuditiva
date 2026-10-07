@@ -39,6 +39,7 @@
 - **GuessCadence** - Que cadência é essa?
 - **GuessProgression** - Que progressão de acordes é essa?
 - **GuessInversion** - Qual a inversão do acorde?
+- **GuessTopNote** - Qual nota do acorde está em cima: a fundamental, a terça ou a quinta?
 - **CompleteChord** - Ouça um acorde e escreva-o na pauta
 
 ### Melodia

@@ -81,6 +81,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     [Theory]
     [InlineData("GuessChords")]
     [InlineData("CompleteChord")]
+    [InlineData("GuessTopNote")]
     public async Task ChordExercisePage_LeavesOutTheViolin(string exerciseName)
     {
         ExerciseId(exerciseName);
@@ -146,6 +147,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     [Theory]
     [InlineData("HigherOrLower")]
     [InlineData("GuessNote")]
+    [InlineData("GuessTopNote")]
     public async Task ExercisePage_ThatPlaysNoChordsOnTheNeck_OffersTheRangeOfTheGuitar(string exerciseName)
     {
         ExerciseId(exerciseName);
@@ -170,6 +172,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     [InlineData("GuessInversion", true)]
     [InlineData("GuessCadence", true)]
     [InlineData("GuessProgression", true)]
+    [InlineData("GuessTopNote", true)]
     [InlineData("GuessInterval", false)]
     [InlineData("GuessFullInterval", false)]
     [InlineData("IntervalMelodico", false)]
@@ -200,6 +203,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     [Theory]
     [InlineData("GuessChords")]
     [InlineData("CompleteChord")]
+    [InlineData("GuessTopNote")]
     public async Task ChordRound_OnTheViolin_IsPlayedOnThePiano(string exerciseName)
     {
         var exerciseId = ExerciseId(exerciseName);

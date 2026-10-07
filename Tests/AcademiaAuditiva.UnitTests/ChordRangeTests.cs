@@ -42,6 +42,10 @@ public class ChordRangeTests
     [InlineData("GuessProgression", "C2-C2", 2)]
     [InlineData("GuessProgression", "C5-C5", 5)]
     [InlineData("GuessProgression", null, 4)]
+    // GuessTopNote's chord spans two octaves, so it goes down sooner (see GuessTopNoteExerciseTests).
+    [InlineData("GuessTopNote", "C2-C2", 2)]
+    [InlineData("GuessTopNote", "C3-C3", 3)]
+    [InlineData("GuessTopNote", null, 4)]
     public void TheRoots_AreInTheOctaveOfTheRange(string exerciseName, string? noteRange, int octave)
     {
         var filters = new Dictionary<string, string>(InC);

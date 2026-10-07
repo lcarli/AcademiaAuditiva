@@ -194,6 +194,12 @@ namespace AcademiaAuditiva.Services
             return SpellMidiAsLetter(rootMidi + semitoneOffset, targetLetter, targetOctave);
         }
 
+        // The note (D#4, Ebb3…) moved by octaves, spelled as it is.
+        private static string ShiftOctaves(string note, int octaves) =>
+            TryParseNoteParts(note, out var letter, out var accidental, out var octave)
+                ? string.Create(CultureInfo.InvariantCulture, $"{letter}{accidental}{octave + octaves}")
+                : throw new ArgumentException($"Invalid note name '{note}'.", nameof(note));
+
         private static IReadOnlyList<int> ScaleLetterOffsets(string scaleType, int count)
         {
             var offsets = scaleType switch
@@ -217,7 +223,7 @@ namespace AcademiaAuditiva.Services
 
         // The exercises whose notes GenerateNoteForExercise draws from the noteRange filter.
         private static readonly HashSet<string> NoteRangeExercises =
-            ["GuessNote", "HigherOrLower", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality", "GuessDegree", "GuessProgression"];
+            ["GuessNote", "HigherOrLower", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality", "GuessDegree", "GuessProgression", "GuessTopNote"];
 
         /// <summary>
         /// Whether the notes of <paramref name="exerciseName"/> come from the <c>noteRange</c>
@@ -768,6 +774,17 @@ namespace AcademiaAuditiva.Services
             ("iio-V-i", ["2-diminished", "5-major", "1-minor"]),
         ];
 
+        // GuessTopNote's chord for each tone it asks on top (the values of its answer buttons):
+        // four voices, the root in the bass and three in close position above it, each a tone
+        // of the triad (0 the root, 1 the third, 2 the fifth) and its octaves above the bass.
+        // In C major: C3 E4 G4 C5, C3 G3 C4 E4 and C3 C4 E4 G4.
+        private static readonly (string TopNote, (int Tone, int Octaves)[] Voices)[] TopNoteVoicings =
+        [
+            ("topRoot", [(0, 0), (1, 1), (2, 1), (0, 2)]),
+            ("topThird", [(0, 0), (2, 0), (0, 1), (1, 1)]),
+            ("topFifth", [(0, 0), (0, 1), (1, 1), (2, 1)]),
+        ];
+
         // The chords GuessProgression's dictation may move to from each chord of a key, the usual
         // moves of tonal harmony: toward the dominant and back to the tonic, or down by fifths.
         // Its rounds start on the tonic. A minor key's VII is the natural one, as in the
@@ -1079,6 +1096,33 @@ namespace AcademiaAuditiva.Services
                         inversion = chosenInversion,
                         notes = invFinalNotes
                     };
+
+                case "GuessTopNote":
+                {
+                    List<string> topNoteQualities = filters.GetValueOrDefault("tnQuality") switch
+                    {
+                        "major" => ["major"],
+                        "minor" => ["minor"],
+                        _ => ["major", "minor"],
+                    };
+                    var topNoteQuality = topNoteQualities[random.Next(topNoteQualities.Count)];
+                    var (topNote, topNoteVoices) = TopNoteVoicings[random.Next(TopNoteVoicings.Length)];
+
+                    // The bass is a note of the range; the chord goes down by octaves while its
+                    // top is past the instrument's highest note.
+                    var topNoteRoots = instrument.NotesIn(instrument.Octaves(noteRange));
+                    var topNoteTriad = GetChordNotes(topNoteRoots[random.Next(topNoteRoots.Count)], topNoteQuality);
+                    var topNoteNotes = topNoteVoices.Select(voice => ShiftOctaves(topNoteTriad[voice.Tone], voice.Octaves)).ToList();
+                    while (NoteToMidi(topNoteNotes[^1]) > instrument.HighestMidi)
+                        topNoteNotes = [.. topNoteNotes.Select(note => ShiftOctaves(note, -1))];
+
+                    return new
+                    {
+                        topNote,
+                        quality = topNoteQuality,
+                        notes = topNoteNotes
+                    };
+                }
 
                 case "GuessInterval":
                     var tonic = filters.TryGetValue("keySelect", out var key) ? key : "C4";

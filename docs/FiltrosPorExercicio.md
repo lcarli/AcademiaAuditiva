@@ -232,9 +232,17 @@ O servidor compara as batidas com as notas no andamento e a partir do início qu
 
 ---
 
+### 26. Adivinhe a nota de cima
+O aluno ouve uma tríade maior ou menor a quatro vozes, com a fundamental no baixo e as outras três vozes juntas acima dele, e diz qual nota do acorde está em cima, na voz mais aguda: a fundamental, a terça ou a quinta. O acorde toca como escrito, todas as notas juntas; no violão, as cordas soam exatamente essas notas, do baixo para cima.
+- **Filtros aplicáveis**:
+  - Qualidade do acorde: maiores (o padrão da página), menores ou ambos. Sem o filtro, tocam maiores e menores
+  - Faixa de oitavas (a oitava do baixo). O acorde ocupa até duas oitavas: se a nota de cima passaria da mais aguda do instrumento (B6 no piano, B5 no violão), o acorde todo desce uma ou duas oitavas. No violão não há posição no braço; no violino, o acorde toca no piano
+
+---
+
 ## Observações
 
 - Filtros devem ser opcionais e salvos por sessão de usuário
 - As combinações de filtros podem alterar a dificuldade automaticamente
 - Jogos podem desabilitar ou randomizar filtros
-- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Adivinhe o Grau, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão, a Cadência e a Progressão (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)
+- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Adivinhe o Grau, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão, a Nota de cima, a Cadência e a Progressão (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)

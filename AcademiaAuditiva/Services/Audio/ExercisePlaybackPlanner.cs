@@ -36,7 +36,8 @@ namespace AcademiaAuditiva.Services.Audio;
 /// <c>instrument</c> filter): the piano plays a chord's notes together, the
 /// guitar strums it on a chord shape of its neck (<see cref="GuitarVoicing"/>)
 /// where the student picked (the <c>guitarPosition</c> filter), or exactly as
-/// written when the student writes it on the staff (CompleteChord), and the
+/// written when the student writes it on the staff (CompleteChord) or names
+/// its top note (GuessTopNote), and the
 /// exercises about chords are played on the piano instead of the violin,
 /// which plays one note at a time. So is the cadence that sets the key of a
 /// note played on the violin (GuessDegree), and the accompaniment GuessMeter
@@ -94,10 +95,11 @@ public sealed class ExercisePlaybackPlanner
     private static readonly HashSet<string> ChordsPlayed =
         ["GuessChords", "GuessFunction", "GuessQuality", "GuessInversion", "GuessCadence", "GuessProgression"];
 
-    // The exercises about chords: those above, and CompleteChord, which plays a chord as it
-    // is written for the student to write it on the staff. On the guitar it is strummed as
-    // written, not on a shape of the neck, so it offers no position to pick.
-    private static readonly HashSet<string> ChordExercises = [.. ChordsPlayed, "CompleteChord"];
+    // The exercises about chords: those above, and those that play a chord as it is written:
+    // CompleteChord, for the student to write it on the staff, and GuessTopNote, whose voicing
+    // is the question. On the guitar they are strummed as written, not on a shape of the neck,
+    // so they offer no position to pick.
+    private static readonly HashSet<string> ChordExercises = [.. ChordsPlayed, "CompleteChord", "GuessTopNote"];
 
     /// <summary>
     /// Whether <paramref name="exerciseName"/> is about chords: it is then only played on (and
@@ -108,7 +110,8 @@ public sealed class ExercisePlaybackPlanner
     /// <summary>
     /// Whether <paramref name="exerciseName"/> plays chords on a shape of the guitar's neck. On
     /// the guitar, the student then picks where on the neck to play them (<see cref="GuitarPosition"/>),
-    /// which sets their octaves instead of the note range. CompleteChord plays its chord as written.
+    /// which sets their octaves instead of the note range. CompleteChord and GuessTopNote play
+    /// their chords as written.
     /// </summary>
     public static bool PlaysChords(string exerciseName) => ChordsPlayed.Contains(exerciseName);
 
@@ -230,6 +233,11 @@ public sealed class ExercisePlaybackPlanner
 
             case "CompleteChord":
                 plans.Add(WrittenChord(instrument, StringArray(token, "chordNotes")));
+                break;
+
+            case "GuessTopNote":
+                // Its voicing is the question: a shape of the guitar's neck would change the top note.
+                plans.Add(WrittenChord(instrument, StringArray(token, "notes")));
                 break;
 
             case "CompleteScale":

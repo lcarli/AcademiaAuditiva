@@ -856,6 +856,19 @@ namespace AcademiaAuditiva.Controllers
 		}
 		#endregion
 
+		#region GuessTopNote
+		public IActionResult GuessTopNote()
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessTopNote");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
 		#region CompleteScale
 		public IActionResult CompleteScale()
 		{
