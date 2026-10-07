@@ -182,7 +182,7 @@ namespace AcademiaAuditiva.Services
 
         // The exercises whose notes GenerateNoteForExercise draws from the noteRange filter.
         private static readonly HashSet<string> NoteRangeExercises =
-            ["GuessNote", "HigherOrLower", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality"];
+            ["GuessNote", "HigherOrLower", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality", "GuessDegree"];
 
         /// <summary>
         /// Whether the notes of <paramref name="exerciseName"/> come from the <c>noteRange</c>
@@ -693,6 +693,22 @@ namespace AcademiaAuditiva.Services
             return [.. functions.Select(function => KeyChord(key, scaleType, octave, function))];
         }
 
+        // The degrees GuessDegree asks, with their semitones above the tonic. They are counted on
+        // the key's own scale, the natural minor in a minor key (3, 6 and 7 are then a minor
+        // third, sixth and seventh up), and a note out of the scale is a degree of it raised (#)
+        // or lowered (b). The answers are the values of the exercise's answer buttons.
+        private static readonly (string Degree, int Semitones)[] MajorDiatonicDegrees =
+            [("1", 0), ("2", 2), ("3", 4), ("4", 5), ("5", 7), ("6", 9), ("7", 11)];
+
+        private static readonly (string Degree, int Semitones)[] MajorChromaticDegrees =
+            [("1", 0), ("b2", 1), ("2", 2), ("b3", 3), ("3", 4), ("4", 5), ("#4", 6), ("5", 7), ("b6", 8), ("6", 9), ("b7", 10), ("7", 11)];
+
+        private static readonly (string Degree, int Semitones)[] MinorDiatonicDegrees =
+            [("1", 0), ("2", 2), ("3", 3), ("4", 5), ("5", 7), ("6", 8), ("7", 10)];
+
+        private static readonly (string Degree, int Semitones)[] MinorChromaticDegrees =
+            [("1", 0), ("b2", 1), ("2", 2), ("3", 3), ("#3", 4), ("4", 5), ("#4", 6), ("5", 7), ("6", 8), ("#6", 9), ("7", 10), ("#7", 11)];
+
         public static bool NotesAreEquivalent(string note1, string note2)
         {
             // Canonical form keeps the letter capitalized and preserves the
@@ -1068,6 +1084,44 @@ namespace AcademiaAuditiva.Services
                         cadence = functionCadence,
                         notes = chordFunc,
                         answer = selectedFunction
+                    };
+                }
+                case "GuessDegree":
+                {
+                    // "any" draws the key of each question; an unknown key, scale or level is C major, diatonic.
+                    filters.TryGetValue("keySelect", out var degreeKeyFilter);
+                    var degreeKey = degreeKeyFilter == "any"
+                        ? KeyTonics[random.Next(KeyTonics.Length)]
+                        : KeyTonics.FirstOrDefault(keyTonic => keyTonic == degreeKeyFilter) ?? "C";
+                    var degreeScale = filters.TryGetValue("scaleTypeSelect", out var degreeScaleFilter) && degreeScaleFilter == "minor" ? "minor" : "major";
+                    var chromatic = filters.TryGetValue("gdLevel", out var degreeLevelFilter) && degreeLevelFilter == "chromatic";
+                    var degrees = (degreeScale, chromatic) switch
+                    {
+                        ("minor", true) => MinorChromaticDegrees,
+                        ("minor", false) => MinorDiatonicDegrees,
+                        (_, true) => MajorChromaticDegrees,
+                        _ => MajorDiatonicDegrees,
+                    };
+                    var (degreeAnswer, degreeSemitones) = degrees[random.Next(degrees.Length)];
+
+                    // The cadence sets the key in an octave of the range, an octave lower when a note
+                    // of it would go past the highest sample. The note is then the degree up from that
+                    // tonic, moved by octaves into the notes of the instrument.
+                    var degreeOctaves = instrument.Octaves(noteRange);
+                    var degreeOctave = degreeOctaves[random.Next(degreeOctaves.Count)];
+                    if (KeyCadence(degreeKey, degreeScale, degreeOctave).Any(AboveTheSamples))
+                        degreeOctave--;
+                    var degreeMidi = NoteToMidi(degreeKey + degreeOctave)!.Value + degreeSemitones;
+                    while (degreeMidi > instrument.HighestMidi)
+                        degreeMidi -= 12;
+                    while (degreeMidi < instrument.LowestMidi)
+                        degreeMidi += 12;
+
+                    return new
+                    {
+                        cadence = KeyCadence(degreeKey, degreeScale, degreeOctave),
+                        note = MidiToNote(degreeMidi),
+                        answer = degreeAnswer
                     };
                 }
                 case "GuessQuality":

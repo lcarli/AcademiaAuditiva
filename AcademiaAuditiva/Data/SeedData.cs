@@ -761,6 +761,93 @@ public static class SeedData
                     }
                 })
             },
+            new Exercise {
+                Name = "GuessDegree",
+                Description = "Ouça a cadência da tonalidade e identifique o grau de uma nota.",
+                ExerciseTypeId = 1,
+                ExerciseCategoryId = 4,
+                DifficultyLevelId = 1,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Key",
+                        Name = "keySelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("C", "C"),
+                            new("C#", "C#"),
+                            new("D", "D"),
+                            new("D#", "D#"),
+                            new("E", "E"),
+                            new("F", "F"),
+                            new("F#", "F#"),
+                            new("G", "G"),
+                            new("G#", "G#"),
+                            new("A", "A"),
+                            new("A#", "A#"),
+                            new("B", "B"),
+                            new("any", "Exercise.Any")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Scale",
+                        Name = "scaleTypeSelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("major", "Exercise.Major"),
+                            new("minor", "Exercise.Minor")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "gdLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("diatonic", "Exercise.GuessDegree.Diatonic"),
+                            new("chromatic", "Exercise.GuessDegree.Chromatic")
+                        }
+                    }
+                }),
+                Instructions = "Ouça a cadência que estabelece a tonalidade e depois uma nota, e identifique o grau dela nessa tonalidade (1 é a tônica).",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Cante a escala a partir da tônica até chegar à nota.",
+                    "A sensível (o 7 do modo maior) puxa para a tônica, e o 4 tende a descer para o 3.",
+                    "O 1, o 3 e o 5 soam estáveis: são as notas do acorde da tônica."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                // Every degree either kind of key asks, in the order of their semitones. The page shows
+                // 1 to 7, and on the chromatic level ♭2, ♭3, ♯4, ♭6 and ♭7 in a major key or ♭2, ♯3,
+                // ♯4, ♯6 and ♯7 in a minor one (MusicTheoryService's degree tables).
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "1", "1" },
+                            { "♭2", "b2" },
+                            { "2", "2" },
+                            { "♭3", "b3" },
+                            { "3", "3" },
+                            { "♯3", "#3" },
+                            { "4", "4" },
+                            { "♯4", "#4" },
+                            { "5", "5" },
+                            { "♭6", "b6" },
+                            { "6", "6" },
+                            { "♯6", "#6" },
+                            { "♭7", "b7" },
+                            { "7", "7" },
+                            { "♯7", "#7" }
+                        }
+                    }
+                })
+            },
            new Exercise {
                 Name = "GuessFullInterval",
                 Description = "Adivinhe o intervalo completo (maior, menor, justo...)",

@@ -1005,6 +1005,20 @@ namespace AcademiaAuditiva.Controllers
 
 		#endregion
 
+		#region GuessDegree
+		public IActionResult GuessDegree()
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessDegree");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+
+		#endregion
+
 		#region GuessFullInterval
 
 		public IActionResult GuessFullInterval()
