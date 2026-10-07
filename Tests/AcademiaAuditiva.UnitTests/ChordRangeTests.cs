@@ -9,6 +9,7 @@ namespace AcademiaAuditiva.UnitTests;
 /// The note range slider moves the chords of every chord exercise: the roots are in the
 /// octaves of the range (octave 4 without one, where the slider starts), and in the top
 /// octave a chord that would go past the highest sample (B7) is played an octave lower.
+/// GuessFunction's cadence, which sets the key before its chord, moves with the chord.
 /// </summary>
 public class ChordRangeTests
 {
@@ -81,18 +82,23 @@ public class ChordRangeTests
         if (chord["chords"] is JArray chords)
             return [.. chords.Select(notes => Midi((string)notes[0]!))];
 
-        var notes = Notes(chord);
-        return (string?)chord["inversion"] switch
+        var notes = chord.SelectTokens("$.notes[*]").Select(note => Midi((string)note!)).ToList();
+        var root = (string?)chord["inversion"] switch
         {
             // The inversions raise the root, then the third, an octave.
-            "first" => [notes[2] - 12],
-            "second" => [notes[1] - 12],
-            _ => [notes[0]],
+            "first" => notes[2] - 12,
+            "second" => notes[1] - 12,
+            _ => notes[0],
         };
+        var cadence = chord.SelectTokens("$.cadence[*]").Select(cadenceChord => Midi((string)cadenceChord[0]!));
+        return [.. cadence, root];
     }
 
     private static List<int> Notes(JObject chord) =>
-        [.. chord.SelectTokens("$.chords[*][*]").Concat(chord.SelectTokens("$.notes[*]")).Select(note => Midi((string)note!))];
+        [.. chord.SelectTokens("$.chords[*][*]")
+            .Concat(chord.SelectTokens("$.cadence[*][*]"))
+            .Concat(chord.SelectTokens("$.notes[*]"))
+            .Select(note => Midi((string)note!))];
 
     private static int Midi(string note) => MusicTheoryService.NoteToMidi(note) ?? throw new ArgumentException(note);
 }

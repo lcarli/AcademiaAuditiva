@@ -59,6 +59,7 @@ namespace AcademiaAuditiva.Services
         {
             { "major",           new List<int> { 2, 2, 1, 2, 2, 2, 1 } },
             { "minor",           new List<int> { 2, 1, 2, 2, 1, 2, 2 } },
+            { "harmonicMinor",   new List<int> { 2, 1, 2, 2, 1, 3, 1 } },
             { "majorPentatonic", new List<int> { 2, 2, 3, 2, 3 } },
             { "minorPentatonic", new List<int> { 3, 2, 2, 3, 2 } },
             { "ionian",          new List<int> { 2, 2, 1, 2, 2, 2, 1 } },
@@ -653,6 +654,45 @@ namespace AcademiaAuditiva.Services
             return GetChordNotes(rootNote, chordType);
         }
 
+        /// <summary>The tonics the key filters offer, spelled with sharps as their options are.</summary>
+        private static readonly string[] KeyTonics = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+        /// <summary>The chord of each degree of a major key, as GuessFunction asks them.</summary>
+        private static readonly string[] MajorKeyFunctions =
+            ["1-major", "2-minor", "3-minor", "4-major", "5-major", "6-minor", "7-diminished"];
+
+        /// <summary>
+        /// The chord of each degree of a minor key: the dominant (V) and the leading-tone chord
+        /// (vii°) come from the harmonic minor, with the raised seventh, as in tonal music.
+        /// </summary>
+        private static readonly string[] MinorKeyFunctions =
+            ["1-minor", "2-diminished", "3-major", "4-minor", "5-major", "6-major", "7-diminished"];
+
+        /// <summary>
+        /// The chord of a degree of a key (a function code of <see cref="GetChordFromFunction"/>),
+        /// up from the tonic in <paramref name="octave"/>. A minor key builds it on the harmonic
+        /// minor, so 7 is the leading tone (G# in A minor).
+        /// </summary>
+        /// <param name="key">Tonic, without an octave (ex: "C", "F#").</param>
+        /// <param name="scaleType">"minor" for a minor key; anything else is major.</param>
+        public static List<string> KeyChord(string key, string scaleType, int octave, string functionCode) =>
+            GetChordFromFunction(key + octave, scaleType == "minor" ? "harmonicMinor" : "major", functionCode);
+
+        /// <summary>
+        /// The cadence that sets a key before a question about it: I–IV–V–I in a major key and
+        /// i–iv–V–i in a minor one, whose dominant has the leading tone, as GuessCadence plays them.
+        /// Each chord is in root position, up from the tonic in <paramref name="octave"/>.
+        /// </summary>
+        /// <param name="key">Tonic, without an octave (ex: "C", "F#").</param>
+        /// <param name="scaleType">"minor" for a minor key; anything else is major.</param>
+        public static List<List<string>> KeyCadence(string key, string scaleType, int octave)
+        {
+            string[] functions = scaleType == "minor"
+                ? ["1-minor", "4-minor", "5-major", "1-minor"]
+                : ["1-major", "4-major", "5-major", "1-major"];
+            return [.. functions.Select(function => KeyChord(key, scaleType, octave, function))];
+        }
+
         public static bool NotesAreEquivalent(string note1, string note2)
         {
             // Canonical form keeps the letter capitalized and preserves the
@@ -1005,26 +1045,31 @@ namespace AcademiaAuditiva.Services
                         answer = chosenInterval
                     };
                 case "GuessFunction":
-                    var keyRoot = filters.TryGetValue("keySelect", out var k) ? k : "C";
-                    var scaleFunc = filters.TryGetValue("scaleTypeSelect", out var s) ? s : "major";
+                {
+                    var functionKey = filters.TryGetValue("keySelect", out var k) && KeyTonics.Contains(k) ? k : "C";
+                    var functionScale = filters.TryGetValue("scaleTypeSelect", out var s) && s == "minor" ? "minor" : "major";
+                    var functionList = functionScale == "minor" ? MinorKeyFunctions : MajorKeyFunctions;
+                    var selectedFunction = functionList[random.Next(functionList.Length)];
 
-                    var majorFunctions = new List<string> { "1-major", "2-minor", "3-minor", "4-major", "5-major", "6-minor", "7-diminished" };
-                    var minorFunctions = new List<string> { "1-minor", "2-diminished", "3-major", "4-minor", "5-minor", "6-major", "7-major" };
-
-                    var functionList = scaleFunc == "minor" ? minorFunctions : majorFunctions;
-                    var selectedFunction = functionList[random.Next(functionList.Count)];
-
+                    // The cadence sets the key before the chord, in the same octave: an octave
+                    // lower when a note of either would go past the highest sample.
                     var functionOctaves = ParseOctaveRange(noteRange);
                     var functionOctave = functionOctaves[random.Next(functionOctaves.Count)];
-                    var chordFunc = GetChordFromFunction(keyRoot + functionOctave, scaleFunc, selectedFunction);
-                    if (AboveTheSamples(chordFunc))
-                        chordFunc = GetChordFromFunction(keyRoot + (functionOctave - 1), scaleFunc, selectedFunction);
+                    var functionCadence = KeyCadence(functionKey, functionScale, functionOctave);
+                    var chordFunc = KeyChord(functionKey, functionScale, functionOctave, selectedFunction);
+                    if (AboveTheSamples(chordFunc) || functionCadence.Any(AboveTheSamples))
+                    {
+                        functionCadence = KeyCadence(functionKey, functionScale, functionOctave - 1);
+                        chordFunc = KeyChord(functionKey, functionScale, functionOctave - 1, selectedFunction);
+                    }
 
                     return new
                     {
+                        cadence = functionCadence,
                         notes = chordFunc,
                         answer = selectedFunction
                     };
+                }
                 case "GuessQuality":
                     var qualityGroup = filters.TryGetValue("chordGroup", out var group) ? group : "all";
 
