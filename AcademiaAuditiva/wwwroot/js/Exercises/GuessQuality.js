@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const exerciseId = document.getElementById("exerciseId")?.value;
     const chordGroupSelect = document.getElementById("chordGroup");
     let chordGroup = chordGroupSelect?.value || "all";
+    // The qualities of each chord type, as the server plays them.
+    const qualityGroups = JSON.parse(document.getElementById("aa-quality-groups")?.dataset.groups || "{}");
 
     const guessButtons = document.querySelectorAll(".guessAnswer");
     guessButtons.forEach(button => {
@@ -80,13 +82,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Shows the qualities of the chord type picked; a hidden answer can't stay selected.
     function updateVisibleButtons() {
-        const allowed = chordGroup === "both"
-            ? ["major", "minor"]
-            : ["major", "major7", "minor", "minor7", "diminished", "diminished7", "augmented"];
+        const allowed = qualityGroups[chordGroup] || qualityGroups.all || [];
         guessButtons.forEach(btn => {
-            const value = btn.value;
-            btn.style.display = allowed.includes(value) ? "inline-block" : "none";
+            const visible = allowed.includes(btn.value);
+            btn.style.display = visible ? "" : "none";
+            if (!visible && btn.classList.contains("selected")) {
+                btn.classList.remove("selected");
+                selectedGuess = "";
+            }
         });
     }
 

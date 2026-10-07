@@ -739,6 +739,12 @@
   <data name="Exercise.Quality.ChordGroup" xml:space="preserve">
     <value>Type d’accord</value>
   </data>
+  <data name="Exercise.Quality.SusAdded" xml:space="preserve">
+    <value>Suspendus, de sixte et de neuvième ajoutée</value>
+  </data>
+  <data name="Exercise.Quality.TriadsSevenths" xml:space="preserve">
+    <value>Triades et septièmes</value>
+  </data>
   <data name="GuessMissingNote" xml:space="preserve">
     <value>Comparez 2 mélodies</value>
   </data>
@@ -1334,7 +1340,7 @@
     <value>Remarquez si le son est rapproché (seconde) ou large (quinte, octave...).</value>
   </data>
   <data name="Exercise.GuessQuality.Instructions" xml:space="preserve">
-    <value>Écoutez l&apos;accord et déterminez s&apos;il est majeur, mineur ou diminué.</value>
+    <value>Écoutez l&apos;accord et nommez sa qualité : majeur, mineur, diminué, augmenté, un accord de septième, ou un accord sus, 6 ou add9. Le filtre Type d’accord choisit lesquels sont joués.</value>
   </data>
   <data name="Exercise.GuessQuality.Tip1" xml:space="preserve">
     <value>Essayez de mémoriser la sonorité typique de chaque qualité.</value>
@@ -1344,6 +1350,12 @@
   </data>
   <data name="Exercise.GuessQuality.Tip3" xml:space="preserve">
     <value>Comparez avec des accords simples que vous connaissez déjà.</value>
+  </data>
+  <data name="Exercise.GuessQuality.Tip4" xml:space="preserve">
+    <value>La dominante 7 demande à se résoudre; la majeure 7 repose, douce et lumineuse.</value>
+  </data>
+  <data name="Exercise.GuessQuality.Tip5" xml:space="preserve">
+    <value>Les accords sus n&apos;ont pas de tierce : ni majeurs ni mineurs, ils sonnent ouverts, en attente.</value>
   </data>
   <data name="Exercise.GuessFunction.Instructions" xml:space="preserve">
     <value>Écoutez la cadence qui établit la tonalité, puis l&apos;accord, et identifiez sa fonction dans cette tonalité (tonique, sous-dominante, dominante...).</value>
@@ -4101,6 +4113,12 @@
   </data>
   <data name="Exercise.ChordQuality.Sus4" xml:space="preserve">
     <value>Sus4</value>
+  </data>
+  <data name="Exercise.ChordQuality.Major6" xml:space="preserve">
+    <value>Majeur 6</value>
+  </data>
+  <data name="Exercise.ChordQuality.Add9" xml:space="preserve">
+    <value>Add9</value>
   </data>
   <data name="Exercise.InversionThird" xml:space="preserve">
     <value>3e renversement</value>

@@ -291,6 +291,63 @@ test('free practice shows the answer and checks it without scoring', async ({ pa
   await expect(reveal).toBeHidden();
 });
 
+test('guess the quality shows the chords of the chord type picked, plays one of them and checks it', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessQuality?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const answers = page.locator('.aa-answer.guessAnswer:visible');
+  const shownAnswers = () => answers.evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value));
+  expect(await shownAnswers()).toEqual(['major', 'minor']);
+
+  const filters = page.locator('#filtersModal');
+  const dialog = page.locator('.swal2-popup');
+  const pickChordType = async (chordGroup: string) => {
+    await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+    await filters.locator('select[name="chordGroup"]').selectOption(chordGroup);
+    await filters.locator('.btn-close').click();
+    await expect(filters).toBeHidden();
+  };
+  const chordTypes: [string, string[]][] = [
+    ['sevenths', ['major7', 'dominant7', 'minor7', 'halfDiminished', 'diminished7']],
+    ['susAdded', ['sus2', 'sus4', 'major6', 'add9']],
+  ];
+  for (const [chordGroup, qualities] of chordTypes) {
+    await pickChordType(chordGroup);
+    expect(await shownAnswers()).toEqual(qualities);
+
+    const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+    const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+    await page.click('#Play');
+    const play = await playResponse;
+    expect(JSON.parse(play.request().postData() ?? '{}').filters.chordGroup).toBe(chordGroup);
+    const audio = await audioResponse;
+    expect(audio.headers()['content-type']).toContain('audio/');
+    expect((await audio.body()).length).toBeGreaterThan(1000);
+
+    const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+    await page.locator('[data-aa-reveal]').click();
+    const shown = await (await revealResponse).json();
+    expect(qualities).toContain(shown.answer);
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+
+    await page.locator(`.aa-answer:visible[value="${shown.answer}"]`).click();
+    const validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+    await page.click('#validateGuess');
+    const result = await (await validateResponse).json();
+    expect(result).toMatchObject({ success: true, free: true, isCorrect: true, answer: shown.answer });
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+  }
+
+  // An answer the new chord type hides can't stay picked.
+  await page.locator('.aa-answer:visible[value="add9"]').click();
+  await expect(page.locator('.aa-answer.selected')).toHaveCount(1);
+  await pickChordType('both');
+  expect(await shownAnswers()).toEqual(['major', 'minor']);
+  await expect(page.locator('.aa-answer.selected')).toHaveCount(0);
+});
+
 test('guess the meter plays its beats as clicks or as bass and chords, and checks the meter', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessMeter?practice=free`, { waitUntil: 'networkidle' });

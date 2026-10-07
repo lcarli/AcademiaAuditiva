@@ -57,10 +57,10 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 ---
 
 ### 6. Adivinhe a Qualidade
+O aluno ouve um acorde em posição fundamental e diz a sua qualidade. A página só mostra os botões das qualidades do tipo de acorde escolhido.
 - **Filtros aplicáveis**:
-  - Tom base
-  - Modo de reprodução
-  - Tipos de qualidade (maior, menor, diminuto...)
+  - Tipo de acorde: maiores e menores (o padrão da página), todas as tríades (maior, menor, diminuta, aumentada), acordes com sétima (7M, 7, m7, m7(♭5), dim7), suspensos, com sexta e com nona (sus2, sus4, 6, add9), tríades e sétimas (as nove) ou todos os acordes (as treze). Sem o filtro, tocam todos os acordes
+  - Faixa de oitavas (a oitava da fundamental); um acorde que passaria da nota mais aguda dos samples, como um add9 no alto da faixa, desce uma oitava. No violão, a posição no braço
 
 ---
 

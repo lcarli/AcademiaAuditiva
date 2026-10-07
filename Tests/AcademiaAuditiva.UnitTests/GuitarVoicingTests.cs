@@ -17,8 +17,8 @@ public class GuitarVoicingTests
 
     private static readonly string[] Roots = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-    // Semitones from the root to each note of the chords the exercises play (GuessChords, GuessFunction,
-    // GuessQuality, GuessInversion, GuessCadence and GuessProgression), and of the other common seventh chords.
+    // Semitones from the root to each note of the triads and seventh chords the exercises play
+    // (GuessChords, GuessFunction, GuessQuality, GuessInversion, GuessCadence and GuessProgression).
     private static readonly Dictionary<string, int[]> Qualities = new()
     {
         ["major"] = [0, 4, 7],
@@ -30,6 +30,15 @@ public class GuitarVoicingTests
         ["dominant7"] = [0, 4, 7, 10],
         ["halfDiminished"] = [0, 3, 6, 10],
         ["diminished7"] = [0, 3, 6, 9],
+    };
+
+    // The chords GuessQuality plays in root position only: the sus, 6 and add9 chords.
+    private static readonly Dictionary<string, int[]> SusAndAddedChords = new()
+    {
+        ["sus2"] = [0, 2, 7],
+        ["sus4"] = [0, 5, 7],
+        ["major6"] = [0, 4, 7, 9],
+        ["add9"] = [0, 4, 7, 14],
     };
 
     [Theory]
@@ -233,8 +242,39 @@ public class GuitarVoicingTests
     public void Find_PlaysEveryChord_InEveryPosition_OnAShapeOneHandCanHold(
         string root, string quality, int inversion, GuitarPosition position)
     {
-        var chord = Chord(root, quality, inversion);
+        ShouldPlayOnAShapeOneHandCanHold(Chord(root, quality, inversion), position);
+    }
 
+    // The sus, 6 and add9 chords of every root in every position on the neck.
+    public static TheoryData<string, string, GuitarPosition> EverySusAndAddedChord
+    {
+        get
+        {
+            var data = new TheoryData<string, string, GuitarPosition>();
+            foreach (var root in Roots)
+            {
+                foreach (var quality in SusAndAddedChords.Keys)
+                {
+                    foreach (var position in Enum.GetValues<GuitarPosition>())
+                    {
+                        data.Add(root, quality, position);
+                    }
+                }
+            }
+            return data;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(EverySusAndAddedChord))]
+    public void Find_PlaysTheSusSixthAndAdd9Chords_InEveryPosition_OnAShapeOneHandCanHold(
+        string root, string quality, GuitarPosition position)
+    {
+        ShouldPlayOnAShapeOneHandCanHold(Chord(root, quality, 0), position);
+    }
+
+    private static void ShouldPlayOnAShapeOneHandCanHold(List<int> chord, GuitarPosition position)
+    {
         var shape = GuitarVoicing.Find(chord, position);
 
         shape.Should().NotBeNull();
@@ -329,7 +369,8 @@ public class GuitarVoicingTests
     /// </summary>
     private static List<int> Chord(string root, string quality, int inversion)
     {
-        var notes = Qualities[quality].Select(semitones => 48 + Array.IndexOf(Roots, root) + semitones).ToList();
+        var notes = (Qualities.GetValueOrDefault(quality) ?? SusAndAddedChords[quality])
+            .Select(semitones => 48 + Array.IndexOf(Roots, root) + semitones).ToList();
         for (var i = 0; i < inversion; i++)
         {
             notes[i] += 12;

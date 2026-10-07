@@ -34,7 +34,7 @@
 
 ### Harmonia
 - **GuessChords** - Adivinhe o acorde
-- **GuessQuality** - Maior, menor ou diminuto?
+- **GuessQuality** - Qual a qualidade do acorde? Tríades, sétimas, sus, 6 e add9
 - **GuessFunction** - Qual a função harmônica?
 - **GuessCadence** - Que cadência é essa?
 - **GuessProgression** - Que progressão de acordes é essa?
