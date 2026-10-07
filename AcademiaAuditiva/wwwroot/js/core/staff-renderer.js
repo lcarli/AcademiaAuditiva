@@ -34,8 +34,14 @@
  * - `autoStem: true` points each stem away from the middle line.
  * - `rhythm: true` draws a one-line (percussion) staff for rhythms written on B4.
  * - With a time signature, eighth notes are beamed by the beat.
+ * - `hideTimeSignature: true` beams by the time signature without writing it,
+ *   for a bar that continues a line above.
  * - `fill: 0.5` spreads the notes over half the staff, so a dictation being
  *   written grows from the left instead of stretching over the whole staff.
+ * - The staff is at least `width` wide, and wider when its notes need more
+ *   room: `noteWidth` (50 by default) for each.
+ * - `crop: true` trims the box to the staff and what is drawn around it,
+ *   so short staves stack closely (the rhythms GuessRhythmPattern offers).
  * - render() returns { width, xs, ys }: the SVG width, the x of each note
  *   (null for barlines), so a click on the staff can find the note under it,
  *   and the y of each of its keys (a chord's in the order given).
@@ -82,6 +88,31 @@
     var top = Math.min(0, Math.floor(box.y) - 2);
     var bottom = Math.max(HEIGHT, Math.ceil(box.y + box.height) + 2);
     if (top === 0 && bottom === HEIGHT) return;
+    var height = bottom - top;
+    svg.setAttribute("viewBox", "0 " + top + " " + width + " " + height);
+    svg.setAttribute("height", String(height));
+    svg.style.height = height + "px";
+  }
+
+  // A cropped staff keeps the band of a staff and its stems, grown to whatever is drawn
+  // outside it, so staves of different rhythms stay the same height.
+  var CROP_TOP = 30;
+  var CROP_BOTTOM = 112;
+
+  function cropHeight(div, width) {
+    var svg = div.querySelector("svg");
+    if (!svg) return;
+    var top = CROP_TOP;
+    var bottom = CROP_BOTTOM;
+    if (typeof svg.getBBox === "function") {
+      try {
+        var box = svg.getBBox();
+        if (box.width || box.height) {
+          top = Math.min(top, Math.floor(box.y) - 2);
+          bottom = Math.max(bottom, Math.ceil(box.y + box.height) + 2);
+        }
+      } catch (e) { /* A hidden staff has no layout to measure. */ }
+    }
     var height = bottom - top;
     svg.setAttribute("viewBox", "0 " + top + " " + width + " " + height);
     svg.setAttribute("height", String(height));
@@ -194,7 +225,8 @@
 
     var playable = notes.filter(function (n) { return n.note !== "barline"; });
     var barCount = notes.length - playable.length;
-    var totalWidth = Math.max(widthHint, playable.length * 50 + barCount * 22 + 110);
+    var noteWidth = opts.noteWidth || 50;
+    var totalWidth = Math.max(widthHint, playable.length * noteWidth + barCount * 22 + 110);
     var drawn = {
       width: totalWidth,
       xs: notes.map(function () { return null; }),
@@ -214,7 +246,7 @@
       stave.addClef(clef, undefined, OCTAVE_SHIFT[opts.clefAnnotation] ? opts.clefAnnotation : undefined)
         .addKeySignature(keySig);
     }
-    if (timeSig) stave.addTimeSignature(timeSig);
+    if (timeSig && !opts.hideTimeSignature) stave.addTimeSignature(timeSig);
     stave.setContext(ctx).draw();
 
     if (notes.length === 0) return drawn;
@@ -271,7 +303,8 @@
         : note.getAbsoluteX();
       drawn.ys[entry.index] = note.getYs ? note.getYs().slice() : null;
     });
-    fitHeight(div, totalWidth);
+    if (opts.crop) cropHeight(div, totalWidth);
+    else fitHeight(div, totalWidth);
     return drawn;
   }
 

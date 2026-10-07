@@ -2100,6 +2100,118 @@ a:focus-visible {
     margin-bottom: .75rem;
 }
 
+/* GuessRhythmPattern: the rhythms offered, each a numbered button around its staff. */
+.aa-rhythm-options {
+    display: grid;
+    gap: .75rem;
+    margin-top: 1.25rem;
+}
+
+.aa-rhythm-options:empty {
+    display: none;
+}
+
+.aa-rhythm-option {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    width: 100%;
+    padding: .5rem;
+    border: 1px solid var(--aa-line-strong);
+    border-radius: var(--aa-radius);
+    background: var(--aa-bg);
+    color: var(--aa-ink);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+
+.aa-rhythm-option:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--aa-accent) 45%, var(--aa-line-strong));
+}
+
+.aa-rhythm-option.selected {
+    border-color: var(--aa-accent);
+    background: var(--aa-accent-soft);
+    box-shadow: inset 0 0 0 1px var(--aa-accent);
+}
+
+.aa-rhythm-option:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 .25rem var(--aa-focus-ring);
+}
+
+.aa-rhythm-option.selected:focus-visible {
+    box-shadow: inset 0 0 0 1px var(--aa-accent), 0 0 0 .25rem var(--aa-focus-ring);
+}
+
+/* Once answered, the rhythm played is marked, and a wrong pick too, until the next round. */
+.aa-rhythm-option:disabled {
+    cursor: default;
+}
+
+.aa-rhythm-option.is-answer {
+    border-color: var(--aa-ok);
+    background: var(--aa-ok-bg);
+    box-shadow: inset 0 0 0 1px var(--aa-ok);
+}
+
+.aa-rhythm-option.is-wrong {
+    border-color: var(--aa-err);
+    background: var(--aa-err-bg);
+    box-shadow: inset 0 0 0 1px var(--aa-err);
+}
+
+.aa-rhythm-number {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--aa-surface);
+    color: var(--aa-ink);
+    font-family: var(--aa-font-display);
+    font-weight: 700;
+}
+
+.aa-rhythm-option.selected .aa-rhythm-number {
+    background: var(--aa-accent);
+    color: var(--aa-on-accent);
+}
+
+.aa-rhythm-option.is-answer .aa-rhythm-number {
+    background: var(--aa-ok);
+    color: var(--aa-bg);
+}
+
+.aa-rhythm-option.is-wrong .aa-rhythm-number {
+    background: var(--aa-err);
+    color: var(--aa-bg);
+}
+
+/* VexFlow draws black glyphs, so each staff keeps a light page, as .aa-sheet does. */
+.aa-rhythm-staff {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0 .5rem;
+    border-radius: calc(var(--aa-radius) - 2px);
+    background: #FFFFFF;
+    color: #0B1A33;
+}
+
+.aa-rhythm-staff svg {
+    display: block;
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Where a whole rhythm would not fit on a line, each bar takes its own. */
+.aa-rhythm-bar {
+    display: block;
+}
+
 /* ---------- Gamification: level, streak, badges ---------- */
 /* The rank is a dynamics marking (pp … fff), set like one in the display face. */
 .aa-rank {

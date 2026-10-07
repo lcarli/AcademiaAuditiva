@@ -1563,7 +1563,7 @@ namespace AcademiaAuditiva.Services
                 {
                     var rdLevel = filters.TryGetValue("rdLevel", out var rdL)
                         && int.TryParse(rdL, out var rdLP)
-                        && (rdLP is 1 or 3 or 4 || DictationRhythm.Find(rdLP) is not null)
+                        && DictationRhythm.IsLevel(rdLP)
                         ? rdLP
                         : 1;
                     var rdTempo = DictationRhythm.Tempo(filters.GetValueOrDefault("rdTempo"));
@@ -1585,35 +1585,12 @@ namespace AcademiaAuditiva.Services
                     }
                     else
                     {
-                        // 6/8 has its own level, whose bars are counted in dotted beats.
-                        var rdSigPool = rdLevel switch
-                        {
-                            1 => new[] { "4/4" },
-                            3 => new[] { "4/4", "3/4" },
-                            _ => new[] { "4/4", "3/4", "2/4" },
-                        };
-                        rdSig = rdSigPool[random.Next(rdSigPool.Length)];
-                        rdDurations = rdLevel switch
-                        {
-                            1 => new[] { "w", "h" },
-                            3 => new[] { "w", "h", "q" },
-                            _ => new[] { "w", "h", "q", "8" },
-                        };
-                        rdRests = rdLevel >= 3 ? rdDurations.Select(d => d + "r").ToArray() : Array.Empty<string>();
-                        rdBars = DictationRhythm.RandomBars(rdDurations, rdLevel >= 3 ? 0.15 : 0.0, rdSig, rdNumMeasures, random, melodic: false);
+                        var rdFirst = DictationRhythm.FindRandom(rdLevel)!;
+                        rdSig = rdFirst.TimeSignatures[random.Next(rdFirst.TimeSignatures.Count)];
+                        rdDurations = rdFirst.Durations.ToArray();
+                        rdRests = rdFirst.Rests.ToArray();
+                        rdBars = DictationRhythm.RandomBars(rdDurations, rdFirst.RestChance, rdSig, rdNumMeasures, random, melodic: false);
                     }
-
-                    const string rdNote = "C5";
-                    var rdMelodyEntries = rdBars
-                        .SelectMany(bar => bar)
-                        .Select(label => (object)new
-                        {
-                            type = DictationRhythm.IsRest(label) ? "rest" : "note",
-                            note = rdNote,
-                            durationBeats = DictationRhythm.Beats(label),
-                            durationLabel = label
-                        })
-                        .ToList();
 
                     return new
                     {
@@ -1624,8 +1601,30 @@ namespace AcademiaAuditiva.Services
                         durations = rdDurations,
                         rests = rdRests.Length > 0,
                         restDurations = rdRests,
-                        melody = rdMelodyEntries,
+                        melody = RhythmMelody(rdBars),
                         answerString = string.Join("|bar|", rdBars.Select(bar => string.Join("|", bar)))
+                    };
+                }
+
+                case "GuessRhythmPattern":
+                {
+                    // Four rhythms of two bars at a level of RhythmDictation; the one played is the answer.
+                    var grpLevel = filters.TryGetValue("grpLevel", out var grpL)
+                        && int.TryParse(grpL, out var grpLP)
+                        && DictationRhythm.IsLevel(grpLP)
+                        ? grpLP
+                        : 1;
+                    var grpRound = RhythmChoices.Draw(grpLevel, random);
+
+                    return new
+                    {
+                        timeSignature = grpRound.TimeSignature,
+                        numMeasures = RhythmChoices.Measures,
+                        level = grpLevel,
+                        tempo = DictationRhythm.Tempo(filters.GetValueOrDefault("grpTempo")),
+                        options = grpRound.Options.Select(option => option.Text).ToList(),
+                        melody = RhythmMelody(grpRound.Played.Values),
+                        answerString = grpRound.Played.Text
                     };
                 }
 
@@ -1633,6 +1632,18 @@ namespace AcademiaAuditiva.Services
                     return new { message = "Exercício sem gerador de nota implementado." };
             }
         }
+
+        // A rhythm played on one note, as the planner plays a dictation: its note values bar by bar.
+        private static List<object> RhythmMelody(IReadOnlyList<IReadOnlyList<string>> bars) =>
+        [
+            .. bars.SelectMany(bar => bar).Select(label => (object)new
+            {
+                type = DictationRhythm.IsRest(label) ? "rest" : "note",
+                note = "C5",
+                durationBeats = DictationRhythm.Beats(label),
+                durationLabel = label
+            })
+        ];
 
         // Métodos auxiliares para IntervalMelodico
         public static string GetDegreeInScale(string note, List<string> scaleNotes)

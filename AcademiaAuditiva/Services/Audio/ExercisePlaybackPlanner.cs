@@ -19,9 +19,10 @@ namespace AcademiaAuditiva.Services.Audio;
 ///     a cadence in their key before their chord, note or progression, in
 ///     the same plan)
 ///   - 1 plan for the exercises written on the staff (CompleteChord,
-///     CompleteScale, TransposeScale, MelodicDictation, RhythmDictation).
-///     The dictations play at the tempo the student picked, and count the
-///     student in on the piano first, in the same plan (<see cref="Dictation"/>)
+///     CompleteScale, TransposeScale, MelodicDictation, RhythmDictation),
+///     and for GuessRhythmPattern, which plays a rhythm as RhythmDictation
+///     does. The dictations play at the tempo the student picked, and count
+///     the student in on the piano first, in the same plan (<see cref="Dictation"/>)
 ///   - 2 plans for GuessMissingNote (one per melody)
 ///   - 1 plan for GuessMeter: its twelve beats, clicked on the piano or
 ///     played by an accompaniment (<see cref="Meter"/>)
@@ -244,6 +245,7 @@ public sealed class ExercisePlaybackPlanner
                 break;
 
             case "RhythmDictation":
+            case "GuessRhythmPattern":
                 plans.Add(Dictation(instrument, token, "C"));
                 break;
 

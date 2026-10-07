@@ -3303,6 +3303,46 @@
     <value>Bass and chords (oom-pah)</value>
     <comment />
   </data>
+  <data name="GuessRhythmPattern" xml:space="preserve">
+    <value>Guess Rhythm</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Subtitle" xml:space="preserve">
+    <value>Hear a rhythm and find it among four written ones.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Instructions" xml:space="preserve">
+    <value>A count-in sets the tempo, then a two-bar rhythm plays. Pick, among the four written rhythms, the one you heard.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Tip1" xml:space="preserve">
+    <value>The four rhythms differ in one or two beats: compare them before listening and look for where they change.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Tip2" xml:space="preserve">
+    <value>Follow the score while you listen, counting the beats of each bar.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Tip3" xml:space="preserve">
+    <value>The rhythms always differ in where their notes start: listen for the attacks more than for how long the notes last.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmPatternText" xml:space="preserve">
+    <value>Which rhythm did you hear?</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectRhythmPatternText" xml:space="preserve">
+    <value>Please select a rhythm.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmPattern.Option" xml:space="preserve">
+    <value>Rhythm {{0}}: {{1}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmPattern.Placeholder" xml:space="preserve">
+    <value>Click Play to hear a rhythm and see the four choices.</value>
+    <comment />
+  </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
     <value>Selected note {{0}}: {{1}}</value>
     <comment />

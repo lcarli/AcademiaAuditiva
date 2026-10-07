@@ -3303,6 +3303,46 @@
     <value>Baixo e acordes (pum-pá-pá)</value>
     <comment />
   </data>
+  <data name="GuessRhythmPattern" xml:space="preserve">
+    <value>Adivinhe o ritmo</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Subtitle" xml:space="preserve">
+    <value>Ouça um ritmo e encontre-o entre quatro ritmos escritos.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Instructions" xml:space="preserve">
+    <value>Uma contagem dá o andamento e depois um ritmo de dois compassos toca. Escolha, entre os quatro ritmos escritos, o que você ouviu.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Tip1" xml:space="preserve">
+    <value>Os quatro ritmos diferem em um ou dois tempos: compare-os antes de ouvir e procure onde mudam.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Tip2" xml:space="preserve">
+    <value>Acompanhe a partitura enquanto escuta, contando os tempos de cada compasso.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Tip3" xml:space="preserve">
+    <value>Os ritmos sempre diferem em onde as notas começam: concentre-se nos ataques, mais do que na duração das notas.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmPatternText" xml:space="preserve">
+    <value>Qual ritmo você ouviu?</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectRhythmPatternText" xml:space="preserve">
+    <value>Por favor, selecione um ritmo.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmPattern.Option" xml:space="preserve">
+    <value>Ritmo {{0}}: {{1}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmPattern.Placeholder" xml:space="preserve">
+    <value>Clique em Tocar para ouvir um ritmo e ver as quatro opções.</value>
+    <comment />
+  </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
     <value>Nota selecionada {{0}}: {{1}}</value>
     <comment />

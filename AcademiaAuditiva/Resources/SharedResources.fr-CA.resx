@@ -3303,6 +3303,46 @@
     <value>Basse et accords (oum-pa-pa)</value>
     <comment />
   </data>
+  <data name="GuessRhythmPattern" xml:space="preserve">
+    <value>Devinez le rythme</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Subtitle" xml:space="preserve">
+    <value>Écoutez un rythme et trouvez-le parmi quatre rythmes écrits.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Instructions" xml:space="preserve">
+    <value>Un décompte donne le tempo, puis un rythme de deux mesures joue. Choisissez, parmi les quatre rythmes écrits, celui que vous avez entendu.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Tip1" xml:space="preserve">
+    <value>Les quatre rythmes diffèrent d&apos;un ou deux temps : comparez-les avant d&apos;écouter et repérez où ils changent.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Tip2" xml:space="preserve">
+    <value>Suivez la partition en écoutant, en comptant les temps de chaque mesure.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessRhythmPattern.Tip3" xml:space="preserve">
+    <value>Les rythmes diffèrent toujours par l&apos;endroit où leurs notes commencent : écoutez les attaques plus que la durée des notes.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmPatternText" xml:space="preserve">
+    <value>Quel rythme avez-vous entendu ?</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectRhythmPatternText" xml:space="preserve">
+    <value>Veuillez sélectionner un rythme.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmPattern.Option" xml:space="preserve">
+    <value>Rythme {{0}} : {{1}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmPattern.Placeholder" xml:space="preserve">
+    <value>Cliquez sur « Jouer » pour entendre un rythme et voir les quatre choix.</value>
+    <comment />
+  </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
     <value>Note sélectionnée {{0}} : {{1}}</value>
     <comment />

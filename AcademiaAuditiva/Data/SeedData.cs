@@ -493,6 +493,55 @@ public static class SeedData
                 })
             },
             new Exercise {
+                Name = "GuessRhythmPattern",
+                Description = "Ouça um ritmo e identifique-o entre quatro ritmos escritos.",
+                ExerciseTypeId = 6,
+                ExerciseCategoryId = 3,
+                DifficultyLevelId = 1,
+                // The levels of RhythmDictation (DictationRhythm), which draws its rhythms.
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "grpLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("1", "Beginner"),
+                            new("3", "Intermediate"),
+                            new("4", "Advanced"),
+                            new("5", "Exercise.RhythmLevel.Dotted"),
+                            new("6", "Exercise.RhythmLevel.Sixteenths"),
+                            new("7", "Exercise.RhythmLevel.Syncopation"),
+                            new("8", "Exercise.RhythmLevel.Compound")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Tempo",
+                        Name = "grpTempo",
+                        Options = new List<FilterOption>
+                        {
+                            new("120", "Exercise.Tempo.Normal"),
+                            new("90", "Exercise.Tempo.Slow"),
+                            new("60", "Exercise.Tempo.VerySlow")
+                        }
+                    }
+                }),
+                Instructions = "Uma contagem dá o andamento e depois um ritmo de dois compassos toca. Escolha, entre os quatro ritmos escritos, o que você ouviu.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Os quatro ritmos diferem em um ou dois tempos: compare-os antes de ouvir e procure onde mudam.",
+                    "Acompanhe a partitura enquanto escuta, contando os tempos de cada compasso.",
+                    "Os ritmos sempre diferem em onde as notas começam: concentre-se nos ataques, mais do que na duração das notas."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
                 Name = "GuessInversion",
                 Description = "Ouça um acorde tríade e identifique se está no estado fundamental, na 1ª ou na 2ª inversão.",
                 ExerciseTypeId = 2,

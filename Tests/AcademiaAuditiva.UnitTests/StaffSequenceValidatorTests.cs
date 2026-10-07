@@ -112,6 +112,21 @@ public class StaffSequenceValidatorTests
     }
 
     [Fact]
+    public void GuessRhythmPattern_IsRightOnlyForTheRhythmPlayed()
+    {
+        var v = new GuessRhythmPatternValidator();
+        var json = "{\"answerString\":\"h|h|bar|q|8r|8|h\"}";
+
+        var right = v.Validate("h|h|bar|q|8r|8|h", json);
+
+        right.IsCorrect.Should().BeTrue();
+        right.CanonicalAnswer.Should().Be("h|h|bar|q|8r|8|h", "the answer shown is the rhythm played, as it was offered");
+        v.Validate("h|h|bar|q|q|h", json).IsCorrect.Should().BeFalse();
+        v.Validate("w|bar|q|8r|8|h", json).IsCorrect.Should().BeFalse();
+        v.Validate("", json).IsCorrect.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompleteScale_WrongOrder_FailsValidation()
     {
         var v = new CompleteScaleValidator();
@@ -157,5 +172,6 @@ public class StaffSequenceValidatorTests
         new TransposeScaleValidator().ExerciseName.Should().Be("TransposeScale");
         new MelodicDictationValidator().ExerciseName.Should().Be("MelodicDictation");
         new RhythmDictationValidator().ExerciseName.Should().Be("RhythmDictation");
+        new GuessRhythmPatternValidator().ExerciseName.Should().Be("GuessRhythmPattern");
     }
 }

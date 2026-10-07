@@ -234,7 +234,7 @@ namespace AcademiaAuditiva.Controllers
 
 		private static readonly HashSet<string> StaffExercises = new() {
 			"CompleteScale", "CompleteChord", "TransposeScale",
-			"MelodicDictation", "RhythmDictation"
+			"MelodicDictation", "RhythmDictation", "GuessRhythmPattern"
 		};
 
 		// Uniform response: most exercises ship one play token; only
@@ -265,13 +265,15 @@ namespace AcademiaAuditiva.Controllers
 				// Build a plain CLR dictionary because the action returns via
 				// System.Text.Json (no AddNewtonsoftJson is registered) which
 				// cannot serialize a Newtonsoft JObject as a real JSON object.
+				// GuessRhythmPattern's options are the rhythms the student picks from, one of
+				// them the answer, as the buttons of the other exercises are.
 				var expected = JObject.Parse(round.ExpectedAnswerJson);
 				var metadata = new Dictionary<string, object?>();
 				foreach (var field in new[] {
 					"promptNotes", "clef", "keySignature", "timeSignature",
 					"numMeasures", "octave", "originalRoot", "targetRoot", "scale", "level",
 					"durations", "rests", "restDurations", "slots",
-					"root", "firstNote", "firstDuration"
+					"root", "firstNote", "firstDuration", "options"
 				})
 				{
 					var token = expected[field];
@@ -1023,6 +1025,20 @@ namespace AcademiaAuditiva.Controllers
 		public IActionResult GuessMeter()
 		{
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessMeter");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+
+		#endregion
+
+		#region GuessRhythmPattern
+		public IActionResult GuessRhythmPattern()
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessRhythmPattern");
 			if (exercise == null)
 				return NotFound();
 

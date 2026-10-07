@@ -8,6 +8,7 @@ namespace AcademiaAuditiva.IntegrationTests;
 /// <summary>
 /// A dictation round tells the staff editor what to offer — the time signature, the measures
 /// to fill, the note values of the level and its rests — but never the melody or the answer.
+/// A GuessRhythmPattern round tells the page the rhythms to draw, but not which one is played.
 /// </summary>
 public class DictationMetadataTests : IClassFixture<ExploreWebApplicationFactory>
 {
@@ -59,6 +60,54 @@ public class DictationMetadataTests : IClassFixture<ExploreWebApplicationFactory
         metadata.TryGetProperty("melody", out _).Should().BeFalse();
         metadata.TryGetProperty("answerString", out _).Should().BeFalse();
         play.TryGetProperty("answerString", out _).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("1", "4/4")]
+    [InlineData("5", "4/4,3/4,2/4")]
+    [InlineData("8", "6/8")]
+    public async Task RhythmPatternRound_OffersFourRhythms_ButNotWhichIsPlayed(string level, string timeSignatures)
+    {
+        var client = await IntegrationHttp.WithAntiforgeryHeaderAsync(
+            _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false }));
+        var filters = new Dictionary<string, string> { ["grpLevel"] = level, ["grpTempo"] = "60" };
+
+        var play = await IntegrationHttp.ReadJsonAsync(
+            await client.PostAsJsonAsync("/Exercise/RequestPlay", new { exerciseId = ExerciseId("GuessRhythmPattern"), filters }));
+
+        var metadata = play.GetProperty("metadata");
+        metadata.EnumerateObject().Select(p => p.Name).Should().BeEquivalentTo(
+            ["timeSignature", "numMeasures", "level", "options"], "the page needs the rhythms to draw, and nothing else");
+        metadata.GetProperty("timeSignature").GetString().Should().BeOneOf(timeSignatures.Split(','));
+        metadata.GetProperty("numMeasures").GetInt32().Should().Be(2);
+        metadata.GetProperty("level").GetInt32().Should().Be(int.Parse(level));
+        metadata.GetProperty("options").EnumerateArray().Select(o => o.GetString())
+            .Should().HaveCount(4).And.OnlyHaveUniqueItems().And.OnlyContain(o => o!.Contains("|bar|"));
+        play.TryGetProperty("answerString", out _).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task RhythmPatternRound_IsRightForTheRhythmPlayed_AndWrongForTheOthers(bool pickThePlayedOne)
+    {
+        var client = await IntegrationHttp.WithAntiforgeryHeaderAsync(
+            _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false }));
+        var exerciseId = ExerciseId("GuessRhythmPattern");
+        var play = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay",
+            new { exerciseId, free = true, filters = new Dictionary<string, string> { ["grpLevel"] = "7" } }));
+        var roundId = play.GetProperty("roundId").GetString();
+        var options = play.GetProperty("metadata").GetProperty("options").EnumerateArray().Select(o => o.GetString()!).ToList();
+
+        var played = (await IntegrationHttp.ReadJsonAsync(
+            await client.PostAsJsonAsync("/Exercise/RevealAnswer", new { exerciseId, roundId }))).GetProperty("answer").GetString();
+        var guess = pickThePlayedOne ? played : options.First(option => option != played);
+        var validation = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
+            new { exerciseId, roundId, userGuess = guess }));
+
+        options.Should().Contain(played!, "the rhythm played is one of those offered");
+        validation.GetProperty("isCorrect").GetBoolean().Should().Be(pickThePlayedOne);
+        validation.GetProperty("answer").GetString().Should().Be(played, "the rhythm played is shown as it was offered");
     }
 
     private int ExerciseId(string name)
