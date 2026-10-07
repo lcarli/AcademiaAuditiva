@@ -299,81 +299,34 @@ namespace AcademiaAuditiva.Services
         }
 
         /// <summary>
-        /// Gera uma melodia aleatória dentro de um certo número de compassos, com time signature e oitavas desejadas.
+        /// The melody of a Compare 2 melodies round (GuessMissingNote): <paramref name="length"/>
+        /// notes in a random major key, each a step or a third from the one before, ending on the
+        /// tonic. They stay between the fifth degree below the tonic and the one above it (G3 to
+        /// G4 in C major), so from G3 to F#5 at most, which every instrument plays.
         /// </summary>
-        /// <remarks>
-        /// Inclui pausas (rests) aleatoriamente com 25% de chance.
-        /// Durações possíveis: whole (4), half (2), quarter (1), eighth (0.5), sixteenth (0.25).
-        /// </remarks>
-        public static List<(string Note, double Duration, bool IsRest)> GenerateAdvancedMelodyWithRhythm(
-            int measures = 2,
-            string timeSignature = "4/4",
-            List<int> octaves = null,
-            bool includeRests = true)
+        private static List<string> GenerateComparisonMelody(int length, Random random)
         {
-            if (octaves == null || octaves.Count == 0)
-                octaves = new List<int> { 2, 3, 4, 5, 6 };
+            var keys = new[] { "C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B" };
+            var key = keys[random.Next(keys.Length)];
 
-            var allNotes = GetAllNotes(octaves);
-            var random = new Random();
-            if (allNotes.Count == 0)
+            // Sol, la and ti below the tonic, then do to sol.
+            var degrees = GetScaleNotes(key + "3", "major").Skip(4).Take(3)
+                .Concat(GetScaleNotes(key + "4", "major").Take(5))
+                .ToList();
+            var degree = 3; // the tonic
+
+            // Written backwards from the tonic, so that the melody ends on it.
+            var melody = new List<string> { degrees[degree] };
+            while (melody.Count < length)
             {
-                allNotes.Add(ChromaticScaleBase[random.Next(ChromaticScaleBase.Count)] + random.Next(2, 7));
-            }
-            var melody = new List<(string Note, double Duration, bool IsRest)>();
-
-            var beatsPerMeasure = int.Parse(timeSignature.Split('/')[0]);
-            var totalBeats = beatsPerMeasure * measures;
-
-            // Durações possíveis com pesos: semínima, colcheia, semicolcheia, triolet, etc.
-            var rhythmOptions = new List<(string Name, double Duration, double Weight)>
-            {
-                ("whole", 4.0, 0.5),
-                ("half", 2.0, 1.0),
-                ("quarter", 1.0, 2.0),
-                ("eighth", 0.5, 2.5),
-                ("sixteenth", 0.25, 2.5)
-            };
-
-            double accumulated = 0;
-            while (accumulated < totalBeats)
-            {
-                // Filtrar opções que cabem no tempo restante
-                var remaining = totalBeats - accumulated;
-                var validDurations = rhythmOptions.Where(r => r.Duration <= remaining).ToList();
-                if (validDurations.Count == 0)
-                    break;
-
-                // Seleção com peso
-                var totalWeight = validDurations.Sum(r => r.Weight);
-                var choice = random.NextDouble() * totalWeight;
-                double current = 0;
-                (string Name, double Duration, double Weight) selected = validDurations[0];
-                foreach (var r in validDurations)
-                {
-                    current += r.Weight;
-                    if (choice <= current)
-                    {
-                        selected = r;
-                        break;
-                    }
-                }
-
-                bool isRest = includeRests && random.NextDouble() < 0.25;
-                string note;
-                if (isRest)
-                    note = "rest";
-                else
-                {
-                    note = allNotes[random.Next(allNotes.Count)];
-                    if (!System.Text.RegularExpressions.Regex.IsMatch(note, @"\d"))
-                        note = note + random.Next(2, 7);
-                }
-
-                melody.Add((note, selected.Duration, isRest));
-                accumulated += selected.Duration;
+                // A step three times in four, otherwise a third; it turns back at the edges.
+                var interval = random.Next(4) == 0 ? 2 : 1;
+                var next = random.Next(2) == 0 ? degree - interval : degree + interval;
+                degree = next >= 0 && next < degrees.Count ? next : 2 * degree - next;
+                melody.Add(degrees[degree]);
             }
 
+            melody.Reverse();
             return melody;
         }
 
@@ -990,32 +943,33 @@ namespace AcademiaAuditiva.Services
                         answer = degree.ToString()
                     };
                 case "GuessMissingNote":
-                    var melodyLength = filters.TryGetValue("melodyLength", out var rawLen) && int.TryParse(rawLen, out var len) ? len : 5;
-                    var octavesMelody = new List<int> { 3, 4 };
-                    var melodyRaw = GenerateAdvancedMelodyWithRhythm(measures: 2, timeSignature: "4/4", octaves: octavesMelody, includeRests: true);
+                {
+                    // The number of notes: 4 to 8 (SeedData.cs), 5 without the filter.
+                    var melodyLength = filters.TryGetValue("melodyLength", out var rawLen) && int.TryParse(rawLen, out var len)
+                        ? Math.Clamp(len, 4, 8)
+                        : 5;
+                    // Quarter notes, and a half note to end.
+                    var melody1 = GenerateComparisonMelody(melodyLength, random)
+                        .Select((note, i) => new { type = "note", note, duration = i == melodyLength - 1 ? 2.0 : 1.0 })
+                        .ToList();
 
-                    var melody1 = melodyRaw.Select(m => new
+                    // Half the rounds leave out a note, never the first or the last: a beat of the
+                    // pulse goes silent, which the student hears.
+                    var melody2 = melody1.ToList();
+                    var noteLeftOut = random.NextDouble() < 0.5;
+                    if (noteLeftOut)
                     {
-                        type = m.IsRest ? "rest" : "note",
-                        note = m.Note,
-                        duration = m.Duration
-                    }).ToList();
-
-                    // Gera uma cópia com uma nota substituída por rest
-                    var melody2 = melody1.Select(x => new { x.type, x.note, x.duration }).ToList();
-                    var randomIndex = random.Next(melody2.Count);
-                    var shouldRemove = random.NextDouble() < 0.5;
-                    if (!shouldRemove)
-                        melody2 = melody1;
-                    else
-                        melody2[randomIndex] = new { type = "rest", note = "rest", duration = melody2[randomIndex].duration };
+                        var leftOut = random.Next(1, melodyLength - 1);
+                        melody2[leftOut] = new { type = "rest", note = "rest", duration = melody1[leftOut].duration };
+                    }
 
                     return new
                     {
                         melody1,
                         melody2,
-                        answer = shouldRemove ? "diff" : "same"
+                        answer = noteLeftOut ? "diff" : "same"
                     };
+                }
                 case "GuessFullInterval":
                     var tonicNote = filters.TryGetValue("keySelect", out var root) ? root + "4" : "C4";
                     var direction = filters.TryGetValue("intervalDirection", out var dir) ? dir : "asc";
