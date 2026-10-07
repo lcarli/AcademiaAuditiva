@@ -3343,6 +3343,66 @@
     <value>Clique em Tocar para ouvir um ritmo e ver as quatro opções.</value>
     <comment />
   </data>
+  <data name="RhythmTap" xml:space="preserve">
+    <value>Bata o ritmo</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Subtitle" xml:space="preserve">
+    <value>Ouça um ritmo e reproduza-o com batidas.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Instructions" xml:space="preserve">
+    <value>Uma contagem dá o andamento, um ritmo de dois compassos toca e a contagem se repete. No tempo seguinte, bata o ritmo no botão ou na barra de espaço: uma batida onde começa cada nota.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Tip1" xml:space="preserve">
+    <value>Conte os tempos enquanto ouve e continue contando durante a segunda contagem: ela dá o andamento das suas batidas.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Tip2" xml:space="preserve">
+    <value>Só os ataques contam: nas notas longas e nas pausas, espere contando, sem bater.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Tip3" xml:space="preserve">
+    <value>Você pode começar quando quiser depois da contagem e bater um pouco mais rápido ou mais devagar: o que conta é a distância entre as batidas.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTapText" xml:space="preserve">
+    <value>Bata o ritmo que você ouviu.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TapRhythmText" xml:space="preserve">
+    <value>Bata o ritmo antes de validar.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Pad" xml:space="preserve">
+    <value>Bata aqui</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Taps" xml:space="preserve">
+    <value>Batidas: {{0}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Placeholder" xml:space="preserve">
+    <value>Clique em Tocar para ouvir um ritmo.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Listen" xml:space="preserve">
+    <value>Ouça e espere a segunda contagem terminar…</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Now" xml:space="preserve">
+    <value>Agora bata o ritmo, no botão ou na barra de espaço.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Count" xml:space="preserve">
+    <value>Batidas: {{0}}, mas o ritmo tem {{1}} notas:</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Off" xml:space="preserve">
+    <value>As notas que você bateu fora do tempo estão em vermelho ({{0}} de {{1}}):</value>
+    <comment />
+  </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
     <value>Nota selecionada {{0}}: {{1}}</value>
     <comment />

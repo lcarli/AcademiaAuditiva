@@ -5,6 +5,7 @@ using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Audio;
 using AcademiaAuditiva.Services.ExerciseValidators;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 namespace AcademiaAuditiva.UnitTests;
 
@@ -58,11 +59,17 @@ public class FreePracticeAnswerTests
             var json = planner.Plan(exercise, filters).ExpectedAnswerJson;
 
             var answer = validator!.AnswerOf(json);
+            // RhythmTap shows the rhythm played, and the student taps it: a tap on each note plays it.
+            var guess = exerciseName == "RhythmTap" ? TapsOnTheNotes(json) : answer;
 
             answer.Should().NotBeNullOrWhiteSpace(json);
-            validator.Validate(answer, json).Should().Be(new ExerciseValidationResult(true, answer), json);
+            (validator.Validate(guess, json) with { Detail = null })
+                .Should().Be(new ExerciseValidationResult(true, answer), json);
         }
     }
+
+    private static string TapsOnTheNotes(string json) =>
+        string.Join(",", RhythmTaps.Onsets(JObject.Parse(json)).Select(onset => (int)Math.Round(onset)));
 
     [Fact]
     public void TheAnswerShown_IsTheAnswerReported_ForAnEmptyGuess()

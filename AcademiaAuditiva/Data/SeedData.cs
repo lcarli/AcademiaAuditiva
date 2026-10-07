@@ -542,6 +542,55 @@ public static class SeedData
                 AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
             },
             new Exercise {
+                Name = "RhythmTap",
+                Description = "Ouça um ritmo e repita-o, batendo-o no botão ou na barra de espaço.",
+                ExerciseTypeId = 6,
+                ExerciseCategoryId = 3,
+                DifficultyLevelId = 1,
+                // The levels of RhythmDictation (DictationRhythm), which draws its rhythms.
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "rtLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("1", "Beginner"),
+                            new("3", "Intermediate"),
+                            new("4", "Advanced"),
+                            new("5", "Exercise.RhythmLevel.Dotted"),
+                            new("6", "Exercise.RhythmLevel.Sixteenths"),
+                            new("7", "Exercise.RhythmLevel.Syncopation"),
+                            new("8", "Exercise.RhythmLevel.Compound")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Tempo",
+                        Name = "rtTempo",
+                        Options = new List<FilterOption>
+                        {
+                            new("120", "Exercise.Tempo.Normal"),
+                            new("90", "Exercise.Tempo.Slow"),
+                            new("60", "Exercise.Tempo.VerySlow")
+                        }
+                    }
+                }),
+                Instructions = "Uma contagem dá o andamento, um ritmo de dois compassos toca e a contagem se repete. No tempo seguinte, bata o ritmo no botão ou na barra de espaço: uma batida onde começa cada nota.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Conte os tempos enquanto ouve e continue contando durante a segunda contagem: ela dá o andamento das suas batidas.",
+                    "Só os ataques contam: nas notas longas e nas pausas, espere contando, sem bater.",
+                    "Você pode começar quando quiser depois da contagem e bater um pouco mais rápido ou mais devagar: o que conta é a distância entre as batidas."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
                 Name = "GuessInversion",
                 Description = "Ouça um acorde tríade e identifique se está no estado fundamental, na 1ª ou na 2ª inversão.",
                 ExerciseTypeId = 2,

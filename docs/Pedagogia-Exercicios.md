@@ -51,7 +51,7 @@
 - **RhythmDictation** - Ouça um ritmo e escreva as durações na pauta
 - **GuessMeter** - O compasso é binário, ternário ou quaternário?
 - **GuessRhythmPattern** - Qual dos quatro ritmos escritos tocou?
-- **RhythmTap** *(novo)* - Reproduzir ritmo com batidas
+- **RhythmTap** - Ouça um ritmo e repita-o, batendo no botão ou na barra de espaço
 - **MissingBeat** *(novo)* - Qual batida está faltando?
 
 ### Escalas

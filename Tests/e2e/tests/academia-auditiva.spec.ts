@@ -424,6 +424,85 @@ test('on a phone the rhythms to pick from stay readable, a bar to a line when th
   }
 });
 
+test('tap the rhythm takes the taps once the count-in has played again, and says what went wrong', async ({ page, baseURL }) => {
+  test.setTimeout(90_000);
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/RhythmTap?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const pad = page.locator('#tapPad');
+  const count = page.locator('#tapCount');
+  const dialog = page.locator('.swal2-popup');
+  // Nothing to tap before a round plays.
+  await expect(pad).toBeDisabled();
+  await expect(count).toHaveText('Taps: 0');
+
+  const filters = page.locator('#filtersModal');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await filters.locator('select[name="rtLevel"]').selectOption('3');
+  await filters.locator('.btn-close').click();
+  await expect(filters).toBeHidden();
+
+  const playRound = async () => {
+    const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+    const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+    await page.click('#Play');
+    const play = await playResponse;
+    expect(JSON.parse(play.request().postData() ?? '{}').filters).toEqual({ rtLevel: '3', rtTempo: '120' });
+    const metadata = (await play.json()).metadata;
+    // The page learns when to take the taps, never the rhythm.
+    expect(Object.keys(metadata).sort()).toEqual(['level', 'numMeasures', 'tapsFrom', 'timeSignature']);
+    const audio = await audioResponse;
+    expect(audio.headers()['content-type']).toContain('audio/');
+    // A tap while the rhythm and the second count-in play counts for nothing.
+    await expect(pad).toBeDisabled();
+    await page.keyboard.press('Space');
+    await expect(count).toHaveText('Taps: 0');
+    await expect(pad).toBeEnabled({ timeout: (metadata.tapsFrom + 10) * 1000 });
+  };
+
+  await playRound();
+  const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+  await page.locator('[data-aa-reveal]').click();
+  const answer: string = (await (await revealResponse).json()).answer;
+  await page.click('.swal2-confirm');
+  await expect(dialog).toBeHidden();
+
+  // A tap on the space bar where each note starts, at 120 quarter notes a minute.
+  const beats: Record<string, number> = { w: 4, h: 2, q: 1 };
+  const onsets: number[] = [];
+  let at = 0;
+  for (const value of answer.split('|').filter(value => value !== 'bar')) {
+    if (!value.endsWith('r')) onsets.push(at * 500);
+    at += beats[value.replace(/r$/, '')];
+  }
+  const start = Date.now() + 200;
+  for (const onset of onsets) {
+    await page.waitForTimeout(Math.max(0, start + onset - Date.now()));
+    await page.keyboard.press('Space');
+  }
+  await expect(count).toHaveText(`Taps: ${onsets.length}`);
+  let validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+  await page.click('#validateGuess');
+  let result = await (await validateResponse).json();
+  expect(result, answer).toMatchObject({ success: true, free: true, isCorrect: true, answer });
+  await page.click('.swal2-confirm');
+  await expect(dialog).toBeHidden();
+  await expect(pad).toBeDisabled();
+
+  // One tap for a rhythm of three notes at least: the rhythm is drawn under how many it has.
+  await playRound();
+  await pad.click();
+  await expect(count).toHaveText('Taps: 1');
+  validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+  await page.click('#validateGuess');
+  result = await (await validateResponse).json();
+  expect(result).toMatchObject({ isCorrect: false, detail: { taps: 1, deviations: null } });
+  await expect(dialog).toContainText(`Taps: 1, but the rhythm has ${result.detail.notes} notes:`);
+  await expect(dialog.locator('svg .vf-stavenote').first()).toBeVisible();
+  await page.click('.swal2-confirm');
+  await expect(dialog).toBeHidden();
+});
+
 test('rhythm dictation is written with note and rest symbols, without note names', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   const metadata = await openDictation(page, baseURL!, 'RhythmDictation', 'rdLevel');

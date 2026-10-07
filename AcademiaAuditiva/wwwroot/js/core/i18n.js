@@ -77,7 +77,8 @@
       return true;
     },
     // Shows the answer dialog; returns the SweetAlert2 promise. An exercise
-    // written on a staff shows the right answer on one (AAPractice.answerSheet).
+    // written on a staff shows the right answer on one (AAPractice.answerSheet),
+    // under data.caption when the exercise sets one.
     result(data, loc) {
       const staff = !data.isCorrect && data.answer && window.AAPractice ? window.AAPractice.answerSheet(data.answer) : null;
       let options;
@@ -91,7 +92,7 @@
         const html = document.createElement("div");
         const caption = document.createElement("p");
         caption.className = "aa-answer-caption";
-        caption.textContent = message(loc, "correctAnswerCaption", "The correct answer was:");
+        caption.textContent = data.caption || message(loc, "correctAnswerCaption", "The correct answer was:");
         html.append(caption, staff.sheet);
         options = {
           icon: "error",

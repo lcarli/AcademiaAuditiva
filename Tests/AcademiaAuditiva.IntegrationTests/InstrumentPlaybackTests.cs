@@ -183,6 +183,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     [InlineData("MelodicDictation", false)]
     [InlineData("RhythmDictation", false)]
     [InlineData("GuessRhythmPattern", false)]
+    [InlineData("RhythmTap", false)]
     [InlineData("GuessMeter", false)]
     public async Task ExercisePage_OffersTheOctaveRange_OnlyWhenItsNotesComeFromIt(string exerciseName, bool offersTheRange)
     {

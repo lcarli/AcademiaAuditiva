@@ -1,0 +1,80 @@
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+@{
+    ViewData["Title"] = Localizer[Model.Title].Value;
+    ViewData["FiltersPartial"] = "_ExerciseFilters";
+}
+
+@await Html.PartialAsync("_ExerciseHeader", Model)
+<input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+
+<div class="row g-4">
+    <div class="col-lg-8 order-lg-2">
+        <section class="aa-panel" aria-labelledby="aa-question">
+            <h2 id="aa-question" class="aa-question">@Localizer["Exercise.RhythmTapText"]</h2>
+
+            <div class="aa-audio-row">
+                @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
+                <div id="waveform" class="aa-wave" aria-hidden="true"></div>
+            </div>
+
+            <div class="aa-tap" data-tour="answer">
+                <button type="button" id="tapPad" class="aa-tap-pad" disabled aria-describedby="tapStatus">@Localizer["Exercise.RhythmTap.Pad"]</button>
+                <p id="tapStatus" class="aa-tap-status" role="status" aria-live="polite">@Localizer["Exercise.RhythmTap.Placeholder"]</p>
+                <div class="aa-tap-tally">
+                    <span id="tapCount" class="aa-tap-count"></span>
+                    <button type="button" id="clearTaps" class="btn btn-sm btn-outline-secondary" disabled>@Localizer["Exercise.StaffEditor.Clear"]</button>
+                </div>
+            </div>
+
+            <div class="aa-validate">
+                <button type="button" id="validateGuess" class="btn btn-primary px-4">@Localizer["Exercise.ValidationButton"]</button>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-4 order-lg-1">
+        @await Html.PartialAsync("_ExerciseInstructions", Model)
+    </div>
+</div>
+
+@await Html.PartialAsync("_ExerciseFiltersModal", Model)
+
+<div id="localizer"
+     data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+     data-incomplete-text="@Localizer["Exercise.TapRhythmText"]"
+     data-no-audio-title="@Localizer["Exercise.NoAudioTitle"]"
+     data-no-audio-text="@Localizer["Exercise.NoAudioText"]"
+     data-validation-error-title="@Localizer["Exercise.ValidationErrorTitle"]"
+     data-validation-error-text="@Localizer["Exercise.ValidationErrorText"]"
+     data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+     data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
+     data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+     data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]"
+     data-correct-answer-caption="@Localizer["Exercise.StaffEditor.CorrectAnswer"]"
+     data-tap-count="@Localizer["Exercise.RhythmTap.Taps"].Value"
+     data-tap-placeholder="@Localizer["Exercise.RhythmTap.Placeholder"]"
+     data-tap-listen="@Localizer["Exercise.RhythmTap.Listen"]"
+     data-tap-now="@Localizer["Exercise.RhythmTap.Now"]"
+     data-tap-count-caption="@Localizer["Exercise.RhythmTap.Count"].Value"
+     data-tap-off-caption="@Localizer["Exercise.RhythmTap.Off"].Value"
+     data-figure-whole="@Localizer["Exercise.StaffEditor.Whole"]"
+     data-figure-half="@Localizer["Exercise.StaffEditor.Half"]"
+     data-figure-quarter="@Localizer["Exercise.StaffEditor.Quarter"]"
+     data-figure-eighth="@Localizer["Exercise.StaffEditor.Eighth"]"
+     data-figure-whole-rest="@Localizer["Exercise.StaffEditor.WholeRest"]"
+     data-figure-half-rest="@Localizer["Exercise.StaffEditor.HalfRest"]"
+     data-figure-quarter-rest="@Localizer["Exercise.StaffEditor.QuarterRest"]"
+     data-figure-eighth-rest="@Localizer["Exercise.StaffEditor.EighthRest"]"
+     data-figure-dotted-half="@Localizer["Exercise.StaffEditor.DottedHalf"]"
+     data-figure-dotted-quarter="@Localizer["Exercise.StaffEditor.DottedQuarter"]"
+     data-figure-dotted-eighth="@Localizer["Exercise.StaffEditor.DottedEighth"]"
+     data-figure-sixteenth="@Localizer["Exercise.StaffEditor.Sixteenth"]"
+     data-figure-dotted-quarter-rest="@Localizer["Exercise.StaffEditor.DottedQuarterRest"]">
+</div>
+
+@section Scripts {
+    <script src="~/js/vexflow.js" asp-append-version="true"></script>
+    <script src="~/js/core/staff-mapping.js" asp-append-version="true"></script>
+    <script src="~/js/core/staff-renderer.js" asp-append-version="true"></script>
+    <script src="~/js/Exercises/StaffEntryExercise.js" asp-append-version="true"></script>
+    <script src="~/js/Exercises/RhythmTap.js" asp-append-version="true"></script>
+}

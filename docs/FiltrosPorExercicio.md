@@ -222,6 +222,16 @@ Depois da contagem dos ditados, um ritmo de dois compassos toca numa nota só, e
 
 ---
 
+### 25. Bata o ritmo
+Depois da contagem dos ditados, um ritmo de dois compassos toca numa nota só, e a contagem se repete. A partir do compasso seguinte, o aluno bate o ritmo no botão ou na barra de espaço: uma batida onde começa cada nota, nenhuma nas pausas. As batidas contam depois do último clique da segunda contagem: o botão se acende na metade do caminho entre ele e o compasso seguinte, pelo relógio do áudio que o aluno ouve. Cada ritmo tem ao menos três notas, e ao menos uma em cada compasso.
+
+O servidor compara as batidas com as notas no andamento e a partir do início que melhor as encaixam: o andamento pode variar até 15% e o momento da primeira batida não importa, então um atraso constante do fone (Bluetooth, por exemplo) não conta. Cada batida pode se afastar da sua nota até 100 ms, ou 40% do menor intervalo entre duas notas, se for menor. Uma batida fora do tempo não desloca as outras: o encaixe segue as batidas que concordam entre si. Uma resposta errada mostra o ritmo na pauta e diz quantas notas ele tem, quando o número de batidas é outro, ou marca em vermelho as notas batidas fora do tempo.
+- **Filtros aplicáveis**:
+  - Nível: os mesmos do Ditado Rítmico, com os mesmos compassos e figuras
+  - Andamento: normal (♩ = 120), lento (♩ = 90) ou muito lento (♩ = 60)
+
+---
+
 ## Observações
 
 - Filtros devem ser opcionais e salvos por sessão de usuário

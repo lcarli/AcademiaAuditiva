@@ -93,10 +93,11 @@ public class ExercisePlaybackPlannerInstrumentTests
             var filters = new Dictionary<string, string> { ["instrument"] = instrumentName, ["noteRange"] = "C1-C6" };
             var plan = _planner.Plan(exercise, filters);
             var countIn = CountInSeconds(exerciseName, plan.ExpectedAnswerJson);
+            var countInAgain = CountInAgainSeconds(exerciseName, plan.ExpectedAnswerJson);
 
             foreach (var input in plan.PlaybackPlans.SelectMany(clip => clip))
             {
-                var playedOn = input.StartTimeSeconds < countIn ? Instrument.Piano
+                var playedOn = input.StartTimeSeconds < countIn || input.StartTimeSeconds >= countInAgain ? Instrument.Piano
                     : input.StartTimeSeconds < QuestionStart.GetValueOrDefault(exerciseName) ? accompaniment
                     : instrument;
                 var folder = playedOn.Folder is null ? "" : playedOn.Folder + "/";
@@ -459,18 +460,29 @@ public class ExercisePlaybackPlannerInstrumentTests
     private static List<int> Midis(JToken notes) => [.. notes.Values<string>().Select(note => Midi(note!))];
 
     // When the melody of a dictation starts, after its count-in; 0 for the other exercises.
-    // GuessRhythmPattern plays its rhythm as RhythmDictation does. GuessMeter's clicks are all
-    // on the piano, as a count-in is.
+    // GuessRhythmPattern and RhythmTap play their rhythm as RhythmDictation does. GuessMeter's
+    // clicks are all on the piano, as a count-in is.
     private static double CountInSeconds(string exerciseName, string expectedAnswerJson)
     {
         if (exerciseName == "GuessMeter")
             return JObject.Parse(expectedAnswerJson).Value<string>("level") == "clicks" ? double.PositiveInfinity : 0.0;
-        if (exerciseName is not ("MelodicDictation" or "RhythmDictation" or "GuessRhythmPattern"))
+        if (exerciseName is not ("MelodicDictation" or "RhythmDictation" or "GuessRhythmPattern" or "RhythmTap"))
             return 0.0;
 
         var answer = JObject.Parse(expectedAnswerJson);
         var beats = DictationRhythm.CountIn(answer.Value<string>("timeSignature")!).Sum(click => click.Beats);
         return beats * 60.0 / answer.Value<int>("tempo") - 1e-9;
+    }
+
+    // When RhythmTap counts in again, after its rhythm, on the piano too; never for the other exercises.
+    private static double CountInAgainSeconds(string exerciseName, string expectedAnswerJson)
+    {
+        if (exerciseName != "RhythmTap")
+            return double.PositiveInfinity;
+
+        var answer = JObject.Parse(expectedAnswerJson);
+        var rhythm = answer["melody"]!.Sum(note => note.Value<double>("durationBeats"));
+        return CountInSeconds(exerciseName, expectedAnswerJson) + rhythm * 60.0 / answer.Value<int>("tempo");
     }
 
     private static int Midi(string note) => MusicTheoryService.NoteToMidi(note) ?? throw new ArgumentException(note);

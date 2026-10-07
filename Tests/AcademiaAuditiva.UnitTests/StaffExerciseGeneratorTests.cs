@@ -521,6 +521,9 @@ public class StaffExerciseGeneratorTests
     [InlineData("GuessRhythmPattern", "grpTempo", "60", 60)]
     [InlineData("GuessRhythmPattern", "grpTempo", "90", 90)]
     [InlineData("GuessRhythmPattern", "grpTempo", null, 120)]
+    [InlineData("RhythmTap", "rtTempo", "60", 60)]
+    [InlineData("RhythmTap", "rtTempo", "90", 90)]
+    [InlineData("RhythmTap", "rtTempo", "100", 120)]
     public void Dictation_IsPlayedAtTheTempoTheStudentPicked(string exercise, string filter, string? tempo, int expected)
     {
         var filters = new Dictionary<string, string>();
@@ -594,6 +597,64 @@ public class StaffExerciseGeneratorTests
         json.Value<int>("tempo").Should().Be(120);
         json.Value<string>("timeSignature").Should().Be("4/4");
         json["options"]!.Values<string>().Should().BeEquivalentTo("w|bar|w", "w|bar|h|h", "h|h|bar|w", "h|h|bar|h|h");
+    }
+
+    [Theory]
+    [InlineData("1")]
+    [InlineData("3")]
+    [InlineData("4")]
+    [InlineData("5")]
+    [InlineData("6")]
+    [InlineData("7")]
+    [InlineData("8")]
+    public void RhythmTap_PlaysARhythmOfTheLevel_OnOneNote(string level)
+    {
+        for (var round = 0; round < 25; round++)
+        {
+            var json = GenerateJson("RhythmTap", new() { { "rtLevel", level }, { "rtTempo", "90" } });
+            var answer = json.Value<string>("answerString")!;
+            var timeSignature = json.Value<string>("timeSignature")!;
+
+            json["error"].Should().BeNull();
+            json.Value<int>("level").Should().Be(int.Parse(level));
+            json.Value<int>("numMeasures").Should().Be(2);
+            json.Value<double>("tapsFrom").Should().Be(RhythmTaps.TapsFrom(timeSignature, 90));
+            AssertEditorWritesTheAnswer(json, rhythm: true);
+
+            // The melody is the rhythm, on one note, as a rhythm dictation's.
+            var melody = json["melody"]!.ToList();
+            melody.Select(entry => entry.Value<string>("durationLabel")).Should().Equal(answer.Split('|').Where(t => t != "bar"));
+            melody.Should().AllSatisfy(entry =>
+            {
+                var value = entry.Value<string>("durationLabel")!;
+                entry.Value<string>("note").Should().Be("C5");
+                entry.Value<string>("type").Should().Be(value.EndsWith('r') ? "rest" : "note");
+                entry.Value<double>("durationBeats").Should().Be(Sixteenths[value.TrimEnd('r')] / 4.0);
+            });
+            melody.Count(entry => entry.Value<string>("type") == "note").Should().BeGreaterThanOrEqualTo(RhythmTaps.FewestNotes);
+        }
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("2")]
+    [InlineData("9")]
+    [InlineData("five")]
+    public void RhythmTap_AnUnknownLevel_IsTheFirst(string? level)
+    {
+        var filters = new Dictionary<string, string> { ["rtTempo"] = "fast" };
+        if (level is not null)
+        {
+            filters["rtLevel"] = level;
+        }
+
+        var json = GenerateJson("RhythmTap", filters);
+
+        json.Value<int>("level").Should().Be(1);
+        json.Value<int>("tempo").Should().Be(120);
+        json.Value<string>("timeSignature").Should().Be("4/4");
+        json.Value<double>("tapsFrom").Should().Be(7.75, "the taps count from half a beat before the bar after the second count-in");
+        json.Value<string>("answerString").Should().BeOneOf("w|bar|h|h", "h|h|bar|w", "h|h|bar|h|h");
     }
 
     [Fact]

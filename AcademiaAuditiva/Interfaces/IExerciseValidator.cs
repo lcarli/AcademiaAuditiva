@@ -11,7 +11,12 @@ namespace AcademiaAuditiva.Interfaces
     /// validator-specific; for compound answers (chord, melodic interval) it
     /// is a `|`-joined token list.
     /// </param>
-    public sealed record ExerciseValidationResult(bool IsCorrect, string CanonicalAnswer);
+    /// <param name="Detail">
+    /// What the page needs to say more about the answer than right or wrong, sent with
+    /// the result as <c>detail</c>; null for most exercises. RhythmTap says which of the
+    /// notes were tapped off time (<see cref="Services.RhythmTaps.Result"/>).
+    /// </param>
+    public sealed record ExerciseValidationResult(bool IsCorrect, string CanonicalAnswer, object? Detail = null);
 
     /// <summary>
     /// One implementation per exercise type. Each validator owns the
