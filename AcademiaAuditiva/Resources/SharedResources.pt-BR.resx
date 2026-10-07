@@ -1296,7 +1296,7 @@
     <value>Compare com acordes simples que você já conhece.</value>
   </data>
   <data name="Exercise.GuessFunction.Instructions" xml:space="preserve">
-    <value>Ouça o acorde dentro de um contexto e identifique sua função (tônica, dominante, subdominante).</value>
+    <value>Ouça a cadência que estabelece a tonalidade e depois o acorde, e identifique a função dele nessa tonalidade (tônica, subdominante, dominante...).</value>
   </data>
   <data name="Exercise.GuessFunction.Tip1" xml:space="preserve">
     <value>Ouça a progressão inteira primeiro para fixar a tonalidade.</value>

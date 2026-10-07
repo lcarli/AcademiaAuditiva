@@ -178,7 +178,6 @@ public class ExercisePlaybackPlannerInstrumentTests
 
     [Theory]
     [InlineData("GuessChords")]
-    [InlineData("GuessFunction")]
     [InlineData("GuessQuality")]
     [InlineData("GuessInversion")]
     public void Chords_OnTheGuitar_AreStrummedOnAShapeOfTheNeck(string exerciseName)
@@ -218,6 +217,36 @@ public class ExercisePlaybackPlannerInstrumentTests
             for (var k = 0; k < chords.Count; k++)
             {
                 ShouldStrum([.. strums[k]], chords[k], startTime: k * 1.25, seconds: 1.2);
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData("Open")]
+    [InlineData("Barre")]
+    [InlineData("High")]
+    public void Functions_OnTheGuitar_StrumTheKeyThenTheChord(string position)
+    {
+        var exercise = new Exercise { ExerciseId = 1, Name = "GuessFunction" };
+
+        foreach (var scale in new[] { "major", "minor" })
+        {
+            for (var round = 0; round < 15; round++)
+            {
+                var plan = _planner.Plan(exercise, new() { ["instrument"] = "Guitar", ["guitarPosition"] = position, ["scaleTypeSelect"] = scale });
+
+                var answer = JObject.Parse(plan.ExpectedAnswerJson);
+                var cadence = answer["cadence"]!.Select(Midis).ToList();
+                var strums = plan.PlaybackPlans.Should().ContainSingle().Subject
+                    .GroupBy(input => (int)Math.Floor(input.StartTimeSeconds / 1.25 + 1e-9))
+                    .ToList();
+                strums.Select(strum => strum.Key).Should().Equal([0, 1, 2, 3, 5], "a silent beat comes between the key and the chord");
+                cadence.Should().HaveCount(4);
+                for (var k = 0; k < cadence.Count; k++)
+                {
+                    ShouldStrum([.. strums[k]], cadence[k], startTime: k * 1.25, seconds: 1.2);
+                }
+                ShouldStrum([.. strums[4]], Midis(answer["notes"]!), startTime: 6.25, seconds: 1.5);
             }
         }
     }
@@ -285,9 +314,13 @@ public class ExercisePlaybackPlannerInstrumentTests
                 var plan = _planner.Plan(exercise, filters);
 
                 var answer = JObject.Parse(plan.ExpectedAnswerJson);
-                List<List<int>> chords = exerciseName == "GuessCadence"
-                    ? [.. answer["chords"]!.Select(Midis)]
-                    : [Midis(answer["notes"]!)];
+                List<List<int>> chords = exerciseName switch
+                {
+                    "GuessCadence" => [.. answer["chords"]!.Select(Midis)],
+                    // The cadence that sets the key, then the chord.
+                    "GuessFunction" => [.. answer["cadence"]!.Select(Midis), Midis(answer["notes"]!)],
+                    _ => [Midis(answer["notes"]!)],
+                };
                 var strums = plan.PlaybackPlans.Should().ContainSingle().Subject
                     .GroupBy(input => (int)Math.Floor(input.StartTimeSeconds / 1.25 + 1e-9))
                     .Select(strum => strum.Select(input => GuitarNotes[input.SampleName]).ToList())

@@ -1296,7 +1296,7 @@
     <value>Compare with simple chords you already know.</value>
   </data>
   <data name="Exercise.GuessFunction.Instructions" xml:space="preserve">
-    <value>Listen to the chord in context and identify its function (tonic, dominant, subdominant).</value>
+    <value>Listen to the cadence that sets the key, then to the chord, and identify its function in that key (tonic, subdominant, dominant...).</value>
   </data>
   <data name="Exercise.GuessFunction.Tip1" xml:space="preserve">
     <value>Listen to the whole progression first to anchor the key.</value>

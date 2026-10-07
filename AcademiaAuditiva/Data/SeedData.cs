@@ -730,7 +730,7 @@ public static class SeedData
                         }
                     }
                 }),
-                Instructions = "Ouça o acorde dentro de um contexto e identifique sua função (tônica, dominante, subdominante).",
+                Instructions = "Ouça a cadência que estabelece a tonalidade e depois o acorde, e identifique a função dele nessa tonalidade (tônica, subdominante, dominante...).",
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Lembre que acordes tônicos tendem a soar resolvidos.",
                     "Dominantes soam como tensão que pede resolução.",
@@ -756,9 +756,7 @@ public static class SeedData
                             { "II°", "2-diminished" },
                             { "III", "3-major" },
                             { "iv", "4-minor" },
-                            { "v", "5-minor" },
-                            { "VI", "6-major" },
-                            { "VII", "7-major" }
+                            { "VI", "6-major" }
                         }
                     }
                 })

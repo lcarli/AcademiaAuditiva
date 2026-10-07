@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function toggleFunctionButtons(scaleType) {
     const majorFunctions = ["I", "ii", "iii", "IV", "V", "vi", "VII°"];
-    const minorFunctions = ["i", "II°", "III", "iv", "v", "VI", "VII"];
+    const minorFunctions = ["i", "II°", "III", "iv", "V", "VI", "VII°"];
     const guessButtons = document.querySelectorAll(".guessAnswer");
 
     guessButtons.forEach((btn) => {

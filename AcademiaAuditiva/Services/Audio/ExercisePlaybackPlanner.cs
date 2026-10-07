@@ -14,7 +14,8 @@ namespace AcademiaAuditiva.Services.Audio;
 ///
 /// Produces:
 ///   - 1 plan for GuessNote / GuessChords / GuessFunction / GuessQuality /
-///     GuessInterval / GuessFullInterval / IntervalMelodico
+///     GuessInterval / GuessFullInterval / IntervalMelodico (GuessFunction
+///     plays a cadence in its key before its chord, in the same plan)
 ///   - 2 plans for GuessMissingNote (one per melody)
 ///   - 0 plans for SolfegeMelody: the melody is shown as sheet music for
 ///     the student to sing, so there is nothing to hide. Only its first
@@ -122,10 +123,18 @@ public sealed class ExercisePlaybackPlanner
                 break;
 
             case "GuessChords":
-            case "GuessFunction":
             case "GuessQuality":
             case "GuessInversion":
                 plans.Add([.. Chord(instrument, StringArray(token, "notes"), position, 0.0, NoteClipSeconds)]);
+                break;
+
+            case "GuessFunction":
+                // A function is heard against its key: the cadence first, then the chord.
+                plans.Add(AfterTheKey(
+                    instrument,
+                    ChordArray(token, "cadence"),
+                    position,
+                    start => Chord(instrument, StringArray(token, "notes"), position, start, NoteClipSeconds)));
                 break;
 
             case "HigherOrLower":
@@ -290,6 +299,24 @@ public sealed class ExercisePlaybackPlanner
             t += chordSeconds + gapSeconds;
         }
         return plan;
+    }
+
+    /// <summary>
+    /// The cadence that sets the key (<see cref="MusicTheoryService.KeyCadence"/>), at
+    /// GuessCadence's pace, then a silent beat of that pace, then the question, from the start
+    /// time it is given. It is all one mix, so Replay plays the key again before the question.
+    /// </summary>
+    private static IReadOnlyList<MixInput> AfterTheKey(
+        Instrument instrument,
+        IReadOnlyList<IReadOnlyList<string>> cadence,
+        GuitarPosition position,
+        Func<double, IEnumerable<MixInput>> question)
+    {
+        var beat = CadenceChordSeconds + CadenceChordGapSeconds;
+        return [
+            .. ChordsInSequence(instrument, cadence, position, CadenceChordSeconds, CadenceChordGapSeconds),
+            .. question((cadence.Count + 1) * beat),
+        ];
     }
 
     private static IReadOnlyList<MixInput> EvenMelody(Instrument instrument, IReadOnlyList<string> notes)
