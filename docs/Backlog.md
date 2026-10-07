@@ -16,14 +16,16 @@ The modernization plan is done (#47 to #83):
   with real SQL Server and Playwright (#47, #48, #51, #52, #59).
 - **Look and languages**: the visual identity, eight illustrations on the
   home page, and full en-US, pt-BR and fr-CA (#53, #56, #70, #82, #101).
-- **Exercises**: 19 exercises on piano, guitar and violin, plus Explore and
+- **Exercises**: 20 exercises on piano, guitar and violin, plus Explore and
   free practice (#58, #60, #75 to #78). The server times each answer, and the
   dashboard works out every figure from the answers themselves, so it shows
   real practice time and real error counts (#99, #100). Compare 2 melodies
   plays short melodies in one key, as many notes as the student picks, and
   every round that expects "different" leaves out a note (#120).
   GuessFunction plays a cadence in its key before the chord, and in minor
-  keys takes V and vii° from the harmonic minor (#122).
+  keys takes V and vii° from the harmonic minor (#122). GuessDegree plays
+  the same cadence, then a note, and asks for its degree in the key: 1 to 7,
+  or all twelve notes at the chromatic level (#123).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -230,26 +232,26 @@ they appear in the data export.
 
 ## Exercises
 
-From the brainstorm of 2026-10-06. There are 19 exercises, but rhythm has a
+From the brainstorm of 2026-10-06. There are 20 exercises, but rhythm has a
 single one (RhythmDictation), and the Games and Misc categories have none
-(`AcademiaAuditiva/Data/SeedData.cs:34-35`). Items 5 and 6 build on the
-cadence that GuessFunction plays to set the key before its chord (#122).
-IntervalMelodico could play it too: its melody, 8 to 31 notes, has to set the
-key on its own (`MusicTheoryService.cs:1127`). Rhythm (items 9 and 10) comes
+(`AcademiaAuditiva/Data/SeedData.cs:34-35`). Item 5 builds on the cadence
+that GuessFunction (#122) and GuessDegree (#123) play to set the key before
+the question. IntervalMelodico could play it too: its melody, 8 to 31 notes,
+has to set the key on its own (`MusicTheoryService.cs:1127`), and GuessDegree
+could later ask for two or three notes in a row. Rhythm (items 8 and 9) comes
 next, then the rest.
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
-| 5. The degree of a note in the key | New exercise | Small | – |
-| 6. Chord progressions | New exercise | Medium | – |
-| 7. More sevenths, and the top note | New filters | Small | – |
-| 8. Harmonic intervals | New filter | Small | – |
-| 9. A count-in, and more rhythms | RhythmDictation | Medium | – |
-| 10. Which rhythm, tap it back, duple or triple | New exercises | Medium | Item 9 |
-| 11. Which note changed? | New exercise | Small | – |
-| 12. Singing exercises | New exercises | Medium | Item 1 |
-| 13. In tune or not? | New exercise | Medium | – |
-| 14. Game modes | Games category | Medium to large | – |
+| 5. Chord progressions | New exercise | Medium | – |
+| 6. More sevenths, and the top note | New filters | Small | – |
+| 7. Harmonic intervals | New filter | Small | – |
+| 8. A count-in, and more rhythms | RhythmDictation | Medium | – |
+| 9. Which rhythm, tap it back, duple or triple | New exercises | Medium | Item 8 |
+| 10. Which note changed? | New exercise | Small | – |
+| 11. Singing exercises | New exercises | Medium | Item 1 |
+| 12. In tune or not? | New exercise | Medium | – |
+| 13. Game modes | Games category | Medium to large | – |
 
 **Adding an exercise.** A new exercise needs all of this, and tests that go
 through every seeded exercise check much of it:
@@ -289,36 +291,18 @@ ear-training site; the frequency and mixing module
 (`docs/Pedagogia-Exercicios.md:45`), since HigherOrLower and the dictations
 cover it between them.
 
-### 5. New exercise: the degree of a note in the key
-
-**Why.** Hearing what a note does in a key (do, re, mi, or 1 to 7) is the base
-of tonal ear training and of melodic dictation. No exercise asks for it on its
-own: IntervalMelodico asks for the degrees of the first and last notes of a
-long melody, with no cadence before it (`MusicTheoryService.cs:1110`).
-
-**What.** The cadence in the chosen key, then one note (later two or three).
-GuessFunction plays it already: `MusicTheoryService.KeyCadence` builds it, and
-the planner's `AfterTheKey` plays it before the question in the same mix, so
-Replay plays the key again. The student answers the note's degree with buttons
-1 to 7, and at a harder level with the chromatic degrees too (♭3, ♯4, ♭7 and
-so on). Filters: the key or a random one, major or minor, and the level. Its
-learning-path step goes in the first unit.
-
-**Done when.** It follows the list above, and every round plays the cadence
-before the note.
-
-### 6. New exercise: chord progressions
+### 5. New exercise: chord progressions
 
 **Why.** GuessCadence names how a four-chord phrase ends: perfect, plagal,
 imperfect or deceptive. Songs are built from whole progressions, such as
 I–V–vi–IV, ii–V–I, I–vi–IV–V, the Andalusian cadence (i–VII–VI–V) and the
 12-bar blues. `docs/archive/MapaDoProjeto.md:31` proposed it.
 
-**What.** The key's cadence (`AfterTheKey`, see item 5), then the progression
-(`ChordsInSequence`). Two levels: pick the progression's name among a few
-common ones, or write each chord's Roman numeral with dropdowns, like
-IntervalMelodico's. With the cadence, the 12-bar blues takes about 21 s at
-GuessCadence's pace, within the mixer's 30 s.
+**What.** The key's cadence (`AfterTheKey`, as GuessFunction and GuessDegree
+play it), then the progression (`ChordsInSequence`). Two levels: pick the
+progression's name among a few common ones, or write each chord's Roman
+numeral with dropdowns, like IntervalMelodico's. With the cadence, the 12-bar
+blues takes about 21 s at GuessCadence's pace, within the mixer's 30 s.
 
 **Decided.**
 
@@ -331,7 +315,7 @@ GuessCadence's pace, within the mixer's 30 s.
 
 **Done when.** It follows the list above, in major and minor keys.
 
-### 7. More sevenths in GuessQuality, and the top note
+### 6. More sevenths in GuessQuality, and the top note
 
 **Why.**
 
@@ -361,7 +345,7 @@ GuessCadence's pace, within the mixer's 30 s.
 **Done when.** GuessQuality plays and accepts both chords, the top note can be
 asked, and the new texts exist in the three languages.
 
-### 8. Harmonic intervals
+### 7. Harmonic intervals
 
 **Why.** GuessInterval and GuessFullInterval always play one note after the
 other (`ExercisePlaybackPlanner.cs:131-139`). Two notes at once, a harmonic
@@ -378,7 +362,7 @@ intervals. HigherOrLower shares the planner case and stays melodic.
 **Done when.** Both exercises play harmonic intervals when chosen, a planner
 test checks the start times, and the new texts exist in the three languages.
 
-### 9. A count-in, and more rhythms in RhythmDictation
+### 8. A count-in, and more rhythms in RhythmDictation
 
 **Why.** RhythmDictation is the only rhythm exercise.
 
@@ -415,7 +399,7 @@ test checks the start times, and the new texts exist in the three languages.
 **Done when.** Every dictation starts after a bar of beats, and the new levels
 are played, written and corrected, with tests for the new durations.
 
-### 10. New rhythm exercises
+### 9. New rhythm exercises
 
 **Why.** Rhythm has one exercise, and it asks for the hardest thing: writing
 down what was heard. `docs/Pedagogia-Exercicios.md:50-52` proposed others.
@@ -425,7 +409,7 @@ down what was heard. `docs/Pedagogia-Exercicios.md:50-52` proposed others.
 - **Which rhythm?** One bar plays, the page shows three or four written bars,
   and the student picks the one heard. The staff renderer draws the options,
   and the server keeps which one is right, as for every exercise.
-- **Tap it back.** After item 9's count-in, the student taps the rhythm on a
+- **Tap it back.** After item 8's count-in, the student taps the rhythm on a
   key or a button, and the server compares the taps' timing with the rhythm's,
   with a tolerance. Bluetooth headphones can delay the sound by 0.1 to 0.3 s,
   so begin with a bar of tapping along, to measure the delay.
@@ -438,7 +422,7 @@ down what was heard. `docs/Pedagogia-Exercicios.md:50-52` proposed others.
 **Done when.** Each one follows the list above, with tests for its rounds and
 its validator.
 
-### 11. New exercise: which note changed?
+### 10. New exercise: which note changed?
 
 **Why.** Compare 2 melodies asks only whether two melodies differ: the second
 one leaves out a note or not (#120). The next step is to say where and how:
@@ -452,7 +436,7 @@ level of Compare 2 melodies instead, but its answer buttons are different.
 
 **Done when.** It follows the list above.
 
-### 12. Singing exercises
+### 11. Singing exercises
 
 **Needs [item 1](#1-settle-the-essentiajs-license-agpl-30).** They would
 detect the sung pitch as sight-singing does (`detectNotes` in
@@ -478,7 +462,7 @@ test use `MicrophoneExercises`.
 **Done when.** Each one follows the list above, except the learning-path step,
 and recognizes sung notes as reliably as sight-singing does.
 
-### 13. New exercise: in tune or not?
+### 12. New exercise: in tune or not?
 
 **Why.** Violinists and singers tune by ear, and nothing trains it: every
 sample is in tune, one per semitone.
@@ -491,7 +475,7 @@ with a new field on `MixInput`.
 **Done when.** It follows the list above, and a mixer test checks the shifted
 pitch.
 
-### 14. Game modes
+### 13. Game modes
 
 **Why.** The Games and Misc categories are empty. Modes that reuse the rounds
 of existing exercises add variety without new music code.

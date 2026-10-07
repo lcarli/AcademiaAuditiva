@@ -13,9 +13,10 @@ namespace AcademiaAuditiva.Services.Audio;
 /// the original JSON unchanged).
 ///
 /// Produces:
-///   - 1 plan for GuessNote / GuessChords / GuessFunction / GuessQuality /
-///     GuessInterval / GuessFullInterval / IntervalMelodico (GuessFunction
-///     plays a cadence in its key before its chord, in the same plan)
+///   - 1 plan for GuessNote / GuessChords / GuessFunction / GuessDegree /
+///     GuessQuality / GuessInterval / GuessFullInterval / IntervalMelodico
+///     (GuessFunction and GuessDegree play a cadence in their key before
+///     their chord or note, in the same plan)
 ///   - 2 plans for GuessMissingNote (one per melody)
 ///   - 0 plans for SolfegeMelody: the melody is shown as sheet music for
 ///     the student to sing, so there is nothing to hide. Only its first
@@ -28,7 +29,8 @@ namespace AcademiaAuditiva.Services.Audio;
 /// where the student picked (the <c>guitarPosition</c> filter), or exactly as
 /// written when the student writes it on the staff (CompleteChord), and the
 /// exercises about chords are played on the piano instead of the violin,
-/// which plays one note at a time.
+/// which plays one note at a time. So is the cadence that sets the key of a
+/// note played on the violin (GuessDegree).
 /// </summary>
 public sealed class ExercisePlaybackPlanner
 {
@@ -103,9 +105,12 @@ public sealed class ExercisePlaybackPlanner
         // The note range comes from a cookie or the request: keep it where the
         // instrument sounds natural, without touching the caller's filters.
         // Chords the instrument can't play are played on the piano, and the
-        // guitar plays them where on the neck the student picked.
+        // guitar plays them where on the neck the student picked, in the
+        // exercises that let them pick it: the others play its open chords.
         var instrument = Instrument.FromName(filters.GetValueOrDefault("instrument"), IsChordExercise(exercise.Name));
-        var position = GuitarVoicing.PositionFromName(filters.GetValueOrDefault("guitarPosition"));
+        var position = PlaysChords(exercise.Name)
+            ? GuitarVoicing.PositionFromName(filters.GetValueOrDefault("guitarPosition"))
+            : GuitarPosition.Open;
         var instrumentFilters = new Dictionary<string, string>(filters, filters.Comparer)
         {
             ["noteRange"] = instrument.ClampRange(filters.GetValueOrDefault("noteRange")),
@@ -135,6 +140,15 @@ public sealed class ExercisePlaybackPlanner
                     ChordArray(token, "cadence"),
                     position,
                     start => Chord(instrument, StringArray(token, "notes"), position, start, NoteClipSeconds)));
+                break;
+
+            case "GuessDegree":
+                // A degree is heard against its key too: the cadence first, then the note.
+                plans.Add(AfterTheKey(
+                    instrument,
+                    ChordArray(token, "cadence"),
+                    position,
+                    start => [Note(instrument, token.Value<string>("note") ?? throw Bad("note"), start)]));
                 break;
 
             case "HigherOrLower":
@@ -305,6 +319,7 @@ public sealed class ExercisePlaybackPlanner
     /// The cadence that sets the key (<see cref="MusicTheoryService.KeyCadence"/>), at
     /// GuessCadence's pace, then a silent beat of that pace, then the question, from the start
     /// time it is given. It is all one mix, so Replay plays the key again before the question.
+    /// The piano plays the cadence for an instrument that plays no chords (the violin).
     /// </summary>
     private static IReadOnlyList<MixInput> AfterTheKey(
         Instrument instrument,
@@ -313,8 +328,9 @@ public sealed class ExercisePlaybackPlanner
         Func<double, IEnumerable<MixInput>> question)
     {
         var beat = CadenceChordSeconds + CadenceChordGapSeconds;
+        var accompaniment = instrument.PlaysChords ? instrument : Instrument.Piano;
         return [
-            .. ChordsInSequence(instrument, cadence, position, CadenceChordSeconds, CadenceChordGapSeconds),
+            .. ChordsInSequence(accompaniment, cadence, position, CadenceChordSeconds, CadenceChordGapSeconds),
             .. question((cadence.Count + 1) * beat),
         ];
     }

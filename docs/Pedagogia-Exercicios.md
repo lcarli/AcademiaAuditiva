@@ -27,6 +27,7 @@
 - **HigherOrLower** - Diga se a segunda nota é mais alta ou mais grave
 - **GuessInterval** - Adivinhe o intervalo simples (1, 2, 3...)
 - **GuessFullInterval** - Adivinhe o intervalo completo (segunda menor, quinta justa...)
+- **GuessDegree** - Qual o grau da nota na tonalidade?
 - **GuessMissingNote** - Diga se duas melodias são iguais ou diferentes
 - **GuessMelodyComparison** - Identifique qual nota mudou entre duas melodias
 - **IntervalDirection** *(novo)* - O intervalo sobe ou desce?

@@ -28,6 +28,14 @@ public class ExercisePlaybackPlannerInstrumentTests
 
     private readonly ExercisePlaybackPlanner _planner = new();
 
+    // The exercises that set their key with a cadence before the question, and when the question
+    // starts: after the four chords of the cadence and a silent beat, 1.25 s each.
+    private static readonly Dictionary<string, double> QuestionStart = new()
+    {
+        ["GuessFunction"] = 6.25,
+        ["GuessDegree"] = 6.25,
+    };
+
     private static List<string> SeededExerciseNames()
     {
         using var db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -70,9 +78,10 @@ public class ExercisePlaybackPlannerInstrumentTests
     [MemberData(nameof(SeededExercisesOnEveryInstrument))]
     public void EveryExercise_PlaysANoteSampleOfTheInstrument(string exerciseName, string instrumentName)
     {
-        // Exercises about chords play them on the piano when the instrument doesn't.
+        // Exercises about chords play them on the piano when the instrument doesn't, and so does
+        // the cadence that sets the key before a question.
         var instrument = Instrument.FromName(instrumentName, ExercisePlaybackPlanner.IsChordExercise(exerciseName));
-        var folder = instrument.Folder is null ? "" : instrument.Folder + "/";
+        var accompaniment = instrument.PlaysChords ? instrument : Instrument.Piano;
         var exercise = new Exercise { ExerciseId = 1, Name = exerciseName };
 
         for (var round = 0; round < 20; round++)
@@ -82,9 +91,11 @@ public class ExercisePlaybackPlannerInstrumentTests
 
             foreach (var input in _planner.Plan(exercise, filters).PlaybackPlans.SelectMany(plan => plan))
             {
-                input.SampleName.Should().StartWith(folder, "{0} is played on the {1}", exerciseName, instrumentName);
+                var playedOn = input.StartTimeSeconds < QuestionStart.GetValueOrDefault(exerciseName) ? accompaniment : instrument;
+                var folder = playedOn.Folder is null ? "" : playedOn.Folder + "/";
+                input.SampleName.Should().StartWith(folder, "{0} is played on the {1}", exerciseName, playedOn.Name);
                 NoteFiles.Should().Contain(input.SampleName[folder.Length..],
-                    "{0} plays notes the {1} has a sample for", exerciseName, instrumentName);
+                    "{0} plays notes the {1} has a sample for", exerciseName, playedOn.Name);
             }
         }
     }
@@ -395,9 +406,12 @@ public class ExercisePlaybackPlannerInstrumentTests
     {
         var exercise = new Exercise { ExerciseId = 1, Name = exerciseName };
 
+        // Only the question counts: the cadence that sets a key before it is played on the piano
+        // when the instrument plays no chords (GuessDegree's note on the violin).
         var notesTogether = Enumerable.Range(0, 10)
             .SelectMany(_ => _planner.Plan(exercise, new() { ["instrument"] = "Piano" }).PlaybackPlans)
-            .Any(plan => plan.GroupBy(input => input.StartTimeSeconds).Any(notes => notes.Count() > 1));
+            .Select(plan => plan.Where(input => input.StartTimeSeconds >= QuestionStart.GetValueOrDefault(exerciseName)))
+            .Any(question => question.GroupBy(input => input.StartTimeSeconds).Any(notes => notes.Count() > 1));
 
         // CompleteChord plays its chord as written, not on a shape of the guitar's neck.
         ExercisePlaybackPlanner.IsChordExercise(exerciseName).Should().Be(notesTogether,

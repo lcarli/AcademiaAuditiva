@@ -65,6 +65,7 @@ public class ExerciseValidatorTests
     [InlineData(typeof(GuessIntervalValidator), "GuessInterval")]
     [InlineData(typeof(GuessMissingNoteValidator), "GuessMissingNote")]
     [InlineData(typeof(GuessFunctionValidator), "GuessFunction")]
+    [InlineData(typeof(GuessDegreeValidator), "GuessDegree")]
     [InlineData(typeof(GuessQualityValidator), "GuessQuality")]
     [InlineData(typeof(HigherOrLowerValidator), "HigherOrLower")]
     public void SingleFieldValidators_MatchOnAnswerField_CaseInsensitive(System.Type validatorType, string expectedName)

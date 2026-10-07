@@ -513,6 +513,10 @@
     <value>Adivinhe a função</value>
     <comment>.</comment>
   </data>
+  <data name="GuessDegree" xml:space="preserve">
+    <value>Adivinhe o grau</value>
+    <comment>.</comment>
+  </data>
   <data name="Beginner" xml:space="preserve">
     <value>Iniciante</value>
     <comment>.</comment>
@@ -706,6 +710,9 @@
   </data>
   <data name="Exercise.FunctionText" xml:space="preserve">
     <value>Qual a função do acorde?</value>
+  </data>
+  <data name="Exercise.DegreeText" xml:space="preserve">
+    <value>Qual é o grau da nota na tonalidade?</value>
   </data>
   <data name="Dashboard.LearningTimeline" xml:space="preserve">
     <value>Linha do tempo de aprendizado</value>
@@ -1307,6 +1314,24 @@
   <data name="Exercise.GuessFunction.Tip3" xml:space="preserve">
     <value>Acordes subdominantes parecem um passo suave para fora da tônica.</value>
   </data>
+  <data name="Exercise.GuessDegree.Instructions" xml:space="preserve">
+    <value>Ouça a cadência que estabelece a tonalidade e depois uma nota, e identifique o grau dela nessa tonalidade (1 é a tônica). Numa tonalidade menor, os graus são os da escala menor natural: 3, 6 e 7 ficam uma terça, uma sexta e uma sétima menores acima da tônica.</value>
+  </data>
+  <data name="Exercise.GuessDegree.Tip1" xml:space="preserve">
+    <value>Cante a escala a partir da tônica até chegar à nota.</value>
+  </data>
+  <data name="Exercise.GuessDegree.Tip2" xml:space="preserve">
+    <value>A sensível (o 7 do modo maior) puxa para a tônica, e o 4 tende a descer para o 3.</value>
+  </data>
+  <data name="Exercise.GuessDegree.Tip3" xml:space="preserve">
+    <value>O 1, o 3 e o 5 soam estáveis: são as notas do acorde da tônica.</value>
+  </data>
+  <data name="Exercise.GuessDegree.Diatonic" xml:space="preserve">
+    <value>Diatônico (1 a 7)</value>
+  </data>
+  <data name="Exercise.GuessDegree.Chromatic" xml:space="preserve">
+    <value>Cromático (as 12 notas)</value>
+  </data>
   <data name="Exercise.GuessFullInterval.Instructions" xml:space="preserve">
     <value>Ouça o intervalo e identifique não apenas a distância, mas também a sua qualidade (maior, menor, justo, etc).</value>
   </data>
@@ -1381,6 +1406,9 @@
   </data>
   <data name="Exercise.GuessFunction.Subtitle" xml:space="preserve">
     <value>Adivinhe a função do acorde dentro do campo harmônico.</value>
+  </data>
+  <data name="Exercise.GuessDegree.Subtitle" xml:space="preserve">
+    <value>Ouça a tonalidade, depois uma nota, e diga o grau dela.</value>
   </data>
   <data name="Exercise.GuessMissingNote.Subtitle" xml:space="preserve">
     <value>Ouça duas melodias e diga se são iguais ou diferentes.</value>
@@ -2017,6 +2045,9 @@
   </data>
   <data name="Exercise.SelectFunctionText" xml:space="preserve">
     <value>Por favor, selecione uma função.</value>
+  </data>
+  <data name="Exercise.SelectDegreeText" xml:space="preserve">
+    <value>Por favor, selecione um grau.</value>
   </data>
   <data name="Exercise.SelectAnswerText" xml:space="preserve">
     <value>Por favor, selecione uma resposta.</value>

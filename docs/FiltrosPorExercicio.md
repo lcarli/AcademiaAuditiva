@@ -182,9 +182,19 @@ O aluno ouve o acorde inteiro (tocado como está escrito) e escreve as notas emp
 
 ---
 
+### 21. Adivinhe o grau
+O aluno ouve uma cadência que estabelece a tonalidade (I–IV–V–I, ou i–iv–V–i na menor) e, depois, uma nota, e diz qual é o grau dela na tonalidade.
+- **Filtros aplicáveis**:
+  - Tom base, ou qualquer um (sorteado a cada questão)
+  - Tonalidade maior ou menor (na menor, os graus são contados na escala menor natural)
+  - Nível: diatônico (graus 1 a 7) ou cromático (as 12 notas, com os graus alterados ♭ e ♯)
+  - Faixa de oitavas (a oitava da tonalidade)
+
+---
+
 ## Observações
 
 - Filtros devem ser opcionais e salvos por sessão de usuário
 - As combinações de filtros podem alterar a dificuldade automaticamente
 - Jogos podem desabilitar ou randomizar filtros
-- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão e a Cadência (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)
+- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Adivinhe o Grau, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão e a Cadência (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)
