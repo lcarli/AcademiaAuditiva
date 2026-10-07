@@ -348,6 +348,72 @@ test('guess the quality shows the chords of the chord type picked, plays one of 
   await expect(page.locator('.aa-answer.selected')).toHaveCount(0);
 });
 
+test('guess the top note plays the chord as written, on the guitar too, and checks the note on top', async ({ page, baseURL, context }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessTopNote?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const topNotes = ['topRoot', 'topThird', 'topFifth'];
+  const answers = page.locator('.aa-answer.guessAnswer:visible');
+  expect(await answers.evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value))).toEqual(topNotes);
+  await expect(answers).toHaveText(['Root', 'Third', 'Fifth']);
+
+  // The guitar sounds the written notes, so no position on the neck replaces the octave range.
+  const filters = page.locator('#filtersModal');
+  const guitar = filters.locator('[data-instrument="Guitar"]');
+  const quality = filters.locator('select[name="tnQuality"]');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await expect(filters.locator('[data-instrument="Violin"]')).toHaveCount(0);
+  await expect(filters.locator('#positionFilter')).toHaveCount(0);
+  await expect(quality.locator('option')).toHaveText(['Majors', 'Minors', 'Majors and Minors']);
+  await expect(quality).toHaveValue('major');
+  await guitar.click();
+  await expect(guitar).toHaveAttribute('aria-pressed', 'true');
+  await expect(filters.locator('#rangeFilter')).toBeVisible();
+  await expect(filters.locator('#rangeStart')).toHaveAttribute('min', '2');
+  await expect(filters.locator('#rangeEnd')).toHaveAttribute('max', '5');
+  expect((await context.cookies()).find(cookie => cookie.name === 'instrument')?.value).toBe('Guitar');
+  await quality.selectOption('minor');
+  await filters.locator('.btn-close').click();
+  await expect(filters).toBeHidden();
+
+  const dialog = page.locator('.swal2-popup');
+  const playAndReveal = async () => {
+    const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+    const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+    await page.click('#Play');
+    const play = await playResponse;
+    expect(JSON.parse(play.request().postData() ?? '{}').filters.tnQuality).toBe('minor');
+    // Nothing but the round and its audio: the page can't tell which note is on top.
+    expect(Object.keys(await play.json()).sort()).toEqual(['playToken', 'roundId']);
+    const audio = await audioResponse;
+    expect(audio.headers()['content-type']).toContain('audio/');
+    expect((await audio.body()).length).toBeGreaterThan(1000);
+
+    const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+    await page.locator('[data-aa-reveal]').click();
+    const shown = await (await revealResponse).json();
+    expect(topNotes).toContain(shown.answer);
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+    return shown.answer as string;
+  };
+  const answer = async (guess: string) => {
+    await page.locator(`.aa-answer:visible[value="${guess}"]`).click();
+    const validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+    await page.click('#validateGuess');
+    const result = await (await validateResponse).json();
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+    return result;
+  };
+
+  const first = await playAndReveal();
+  expect(await answer(first)).toMatchObject({ success: true, free: true, isCorrect: true, answer: first });
+  const second = await playAndReveal();
+  const wrong = topNotes.find(note => note !== second)!;
+  expect(await answer(wrong)).toMatchObject({ success: true, free: true, isCorrect: false, answer: second });
+});
+
 test('guess the meter plays its beats as clicks or as bass and chords, and checks the meter', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessMeter?practice=free`, { waitUntil: 'networkidle' });

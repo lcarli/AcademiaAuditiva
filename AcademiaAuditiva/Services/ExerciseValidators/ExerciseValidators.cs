@@ -176,6 +176,13 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
             => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "inversion");
     }
 
+    public sealed class GuessTopNoteValidator : IExerciseValidator
+    {
+        public string ExerciseName => "GuessTopNote";
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+            => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "topNote");
+    }
+
     /// <summary>
     /// Shared logic for staff-based exercises (CompleteScale, CompleteChord,
     /// TransposeScale, MelodicDictation, RhythmDictation). Compares the

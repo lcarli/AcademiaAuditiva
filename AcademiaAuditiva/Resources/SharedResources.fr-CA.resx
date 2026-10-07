@@ -4213,4 +4213,37 @@
   <data name="DailyChallenge.Answers" xml:space="preserve">
     <value>{0} sur {1} réponses</value>
   </data>
+  <data name="GuessTopNote" xml:space="preserve">
+    <value>Devinez la note du dessus</value>
+  </data>
+  <data name="Exercise.GuessTopNoteText" xml:space="preserve">
+    <value>Écoutez l’accord et identifiez la note du dessus.</value>
+  </data>
+  <data name="Exercise.SelectGuessTopNoteText" xml:space="preserve">
+    <value>Veuillez sélectionner la note du dessus.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Subtitle" xml:space="preserve">
+    <value>Dites si la fondamentale, la tierce ou la quinte de l’accord est au-dessus.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Instructions" xml:space="preserve">
+    <value>Écoutez l’accord et identifiez laquelle de ses notes est au-dessus, à la voix la plus aiguë : la fondamentale, la tierce ou la quinte. La basse est toujours la fondamentale.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Tip1" xml:space="preserve">
+    <value>Chantez la note la plus aiguë de l’accord, comme si c’était la mélodie, puis descendez jusqu’à la basse.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Tip2" xml:space="preserve">
+    <value>Si la note du dessus est celle de la basse, à une autre octave, c’est la fondamentale : l’accord sonne conclusif.</value>
+  </data>
+  <data name="Exercise.GuessTopNote.Tip3" xml:space="preserve">
+    <value>La tierce au-dessus sonne douce et pleine. La quinte au-dessus sonne ouverte, comme si l’accord restait en suspens.</value>
+  </data>
+  <data name="Exercise.TopNote.Root" xml:space="preserve">
+    <value>Fondamentale</value>
+  </data>
+  <data name="Exercise.TopNote.Third" xml:space="preserve">
+    <value>Tierce</value>
+  </data>
+  <data name="Exercise.TopNote.Fifth" xml:space="preserve">
+    <value>Quinte</value>
+  </data>
 </root>

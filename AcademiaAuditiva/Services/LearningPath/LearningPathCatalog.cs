@@ -46,6 +46,7 @@ public static class LearningPathCatalog
         [
             Step("GuessFullInterval", 10, 7, ("intervalDirection", "asc")),
             Step("GuessInversion", 10, 7),
+            Step("GuessTopNote", 10, 7, ("tnQuality", "both")),
             Step("GuessGreekMode", 10, 7),
             Step("TransposeScale", 5, 4, ("tsScale", "major")),
             Step("GuessCadence", 10, 7),

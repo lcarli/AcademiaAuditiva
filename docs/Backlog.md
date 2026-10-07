@@ -16,7 +16,7 @@ The modernization plan is done (#47 to #83):
   with real SQL Server and Playwright (#47, #48, #51, #52, #59).
 - **Look and languages**: the visual identity, eight illustrations on the
   home page, and full en-US, pt-BR and fr-CA (#53, #56, #70, #82, #101).
-- **Exercises**: 24 exercises on piano, guitar and violin, plus Explore and
+- **Exercises**: 25 exercises on piano, guitar and violin, plus Explore and
   free practice (#58, #60, #75 to #78). The server times each answer, and the
   dashboard works out every figure from the answers themselves, so it shows
   real practice time and real error counts (#99, #100). Compare 2 melodies
@@ -41,7 +41,9 @@ The modernization plan is done (#47 to #83):
   a steady delay of the headphones doesn't count, and a single tap off time
   is the only note marked wrong (#128). GuessQuality plays the five seventh
   chords, and sus2, sus4, 6 and add9, in chord types the student picks; the
-  learning path asks for the triads and the sevenths (#129).
+  learning path asks for the triads and the sevenths (#129). GuessTopNote
+  plays a major or minor triad in four voices, the root in the bass, and asks
+  which of its tones is on top: the root, the third or the fifth (#131).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -248,7 +250,7 @@ they appear in the data export.
 
 ## Exercises
 
-From the brainstorm of 2026-10-06. There are 24 exercises, four of them on
+From the brainstorm of 2026-10-06. There are 25 exercises, four of them on
 rhythm (RhythmDictation, GuessMeter, GuessRhythmPattern and RhythmTap), but
 the Games and Misc categories have none
 (`AcademiaAuditiva/Data/SeedData.cs:34-35`). GuessFunction (#122),
@@ -258,16 +260,16 @@ notes, has to set the key on its own (`MusicTheoryService.cs:1127`), and
 GuessDegree could later ask for two or three notes in a row. RhythmDictation
 counts in and has levels up to 6/8 (#125), GuessMeter asks for the meter
 (#126), GuessRhythmPattern for the rhythm (#127), and RhythmTap has the
-student tap one back (#128).
+student tap one back (#128). GuessQuality plays seventh, sus, 6 and add9
+chords (#129), and GuessTopNote asks for the top note of a chord (#131).
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
-| 5. The top note | New exercise | Small | – |
-| 6. Harmonic intervals | New filter | Small | – |
-| 7. Which note changed? | New exercise | Small | – |
-| 8. Singing exercises | New exercises | Medium | Item 1 |
-| 9. In tune or not? | New exercise | Medium | – |
-| 10. Game modes | Games category | Medium to large | – |
+| 5. Harmonic intervals | New filter | Small | – |
+| 6. Which note changed? | New exercise | Small | – |
+| 7. Singing exercises | New exercises | Medium | Item 1 |
+| 8. In tune or not? | New exercise | Medium | – |
+| 9. Game modes | Games category | Medium to large | – |
 
 **Adding an exercise.** A new exercise needs all of this, and tests that go
 through every seeded exercise check much of it:
@@ -309,23 +311,7 @@ cover it between them; and ties and triplets in the dictations (#125), which
 would each need a duration label of their own in the generator, the staff
 editor and the renderer.
 
-### 5. The top note of a chord
-
-**Why.** GuessInversion asks which note is in the bass. Nothing asks which one
-is on top (the root, the third or the fifth), the note that carries a melody
-over chords. The other half of this item, the seventh, sus, 6 and add9 chords
-in GuessQuality, shipped in #129.
-
-**What.** The top note, as a mode of GuessInversion or an exercise of its own:
-the root stays in the bass while the top changes, in open or four-part
-voicings. With the close triads GuessInversion plays
-(`MusicTheoryService.cs:922-967`), the top note follows from the inversion, so
-it needs voicings of its own.
-
-**Done when.** The top note can be asked, and its texts exist in the three
-languages.
-
-### 6. Harmonic intervals
+### 5. Harmonic intervals
 
 **Why.** GuessInterval and GuessFullInterval always play one note after the
 other (`ExercisePlaybackPlanner.cs:131-139`). Two notes at once, a harmonic
@@ -342,7 +328,7 @@ intervals. HigherOrLower shares the planner case and stays melodic.
 **Done when.** Both exercises play harmonic intervals when chosen, a planner
 test checks the start times, and the new texts exist in the three languages.
 
-### 7. New exercise: which note changed?
+### 6. New exercise: which note changed?
 
 **Why.** Compare 2 melodies asks only whether two melodies differ: the second
 one leaves out a note or not (#120). The next step is to say where and how:
@@ -356,7 +342,7 @@ level of Compare 2 melodies instead, but its answer buttons are different.
 
 **Done when.** It follows the list above.
 
-### 8. Singing exercises
+### 7. Singing exercises
 
 **Needs [item 1](#1-settle-the-essentiajs-license-agpl-30).** They would
 detect the sung pitch as sight-singing does (`detectNotes` in
@@ -382,7 +368,7 @@ test use `MicrophoneExercises`.
 **Done when.** Each one follows the list above, except the learning-path step,
 and recognizes sung notes as reliably as sight-singing does.
 
-### 9. New exercise: in tune or not?
+### 8. New exercise: in tune or not?
 
 **Why.** Violinists and singers tune by ear, and nothing trains it: every
 sample is in tune, one per semitone.
@@ -395,7 +381,7 @@ with a new field on `MixInput`.
 **Done when.** It follows the list above, and a mixer test checks the shifted
 pitch.
 
-### 10. Game modes
+### 9. Game modes
 
 **Why.** The Games and Misc categories are empty. Modes that reuse the rounds
 of existing exercises add variety without new music code.
