@@ -87,6 +87,29 @@ public class DailyChallengeRulesTests
     }
 
     [Fact]
+    public void Pick_GivesTheExercisesOfACategoryInTurn_DayAfterDay()
+    {
+        ChallengeExercise[] exercises =
+        [
+            new(1, "GuessNote", "EarTraining"),
+            new(2, "HigherOrLower", "EarTraining"),
+            new(3, "GuessInterval", "EarTraining"),
+            new(4, "GuessChords", "Harmony"),
+            new(5, "RhythmDictation", "Rhythm"),
+        ];
+
+        var earTraining = Enumerable.Range(0, 30)
+            .Select(i => DailyChallengeRules.Pick(Day.AddDays(i), exercises).Single(e => e.Category == "EarTraining").Name)
+            .ToList();
+
+        earTraining.Zip(earTraining.Skip(1)).Should().OnlyContain(days => days.First != days.Second,
+            "an exercise doesn't come up two days in a row");
+        earTraining.CountBy(name => name).ToDictionary().Should().BeEquivalentTo(
+            new Dictionary<string, int> { ["GuessInterval"] = 10, ["GuessNote"] = 10, ["HigherOrLower"] = 10 },
+            "each exercise of the category takes its turn");
+    }
+
+    [Fact]
     public void Pick_WithFewerExercises_TakesThemAll()
     {
         DailyChallengeRules.Pick(Day, []).Should().BeEmpty();

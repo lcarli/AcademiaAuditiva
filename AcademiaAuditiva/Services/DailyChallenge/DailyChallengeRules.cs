@@ -46,9 +46,11 @@ public static class DailyChallengeRules
         StaffExercises.Contains(exercise) ? AnswersPerStaffExercise : AnswersPerExercise;
 
     /// <summary>
-    /// The date's exercises: the pool is shuffled with the date as the seed, then the first exercise
-    /// of each category not drawn yet is taken. With fewer categories than exercises per day, the
-    /// rest of the shuffle fills the remaining places.
+    /// The date's exercises: the pool is shuffled with the date as the seed, and the first categories
+    /// to come up give one exercise each, the one whose turn it is on that date. A category's
+    /// exercises take turns day after day, so none comes up much less often than the others of its
+    /// category, nor two days in a row. With fewer categories than exercises per day, the rest of
+    /// the shuffle fills the remaining places.
     /// </summary>
     public static IReadOnlyList<ChallengeExercise> Pick(DateOnly date, IEnumerable<ChallengeExercise> exercises) =>
         Draw(date, Pool(exercises));
@@ -131,13 +133,17 @@ public static class DailyChallengeRules
             (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
         }
 
-        var picked = new List<ChallengeExercise>(ExercisesPerDay);
-        var categories = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var exercise in shuffled)
-        {
-            if (picked.Count == ExercisesPerDay) break;
-            if (categories.Add(exercise.Category)) picked.Add(exercise);
-        }
+        // A category's exercises take turns in the pool's order, by name.
+        var picked = shuffled
+            .Select(e => e.Category)
+            .Distinct(StringComparer.Ordinal)
+            .Take(ExercisesPerDay)
+            .Select(category =>
+            {
+                var exercises = Array.FindAll(pool, e => string.Equals(e.Category, category, StringComparison.Ordinal));
+                return exercises[date.DayNumber % exercises.Length];
+            })
+            .ToList();
         foreach (var exercise in shuffled)
         {
             if (picked.Count == ExercisesPerDay) break;
