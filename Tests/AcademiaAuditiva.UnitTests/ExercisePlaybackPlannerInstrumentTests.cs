@@ -459,12 +459,13 @@ public class ExercisePlaybackPlannerInstrumentTests
     private static List<int> Midis(JToken notes) => [.. notes.Values<string>().Select(note => Midi(note!))];
 
     // When the melody of a dictation starts, after its count-in; 0 for the other exercises.
-    // GuessMeter's clicks are all on the piano, as a count-in is.
+    // GuessRhythmPattern plays its rhythm as RhythmDictation does. GuessMeter's clicks are all
+    // on the piano, as a count-in is.
     private static double CountInSeconds(string exerciseName, string expectedAnswerJson)
     {
         if (exerciseName == "GuessMeter")
             return JObject.Parse(expectedAnswerJson).Value<string>("level") == "clicks" ? double.PositiveInfinity : 0.0;
-        if (exerciseName is not ("MelodicDictation" or "RhythmDictation"))
+        if (exerciseName is not ("MelodicDictation" or "RhythmDictation" or "GuessRhythmPattern"))
             return 0.0;
 
         var answer = JObject.Parse(expectedAnswerJson);

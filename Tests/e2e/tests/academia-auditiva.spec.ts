@@ -334,6 +334,96 @@ test('guess the meter plays its beats as clicks or as bass and chords, and check
   }
 });
 
+test('guess the rhythm draws four rhythms, plays one of them and checks the one picked', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessRhythmPattern?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const options = page.locator('#rhythmOptions .aa-rhythm-option');
+  // Nothing to pick before a round plays.
+  await expect(options).toHaveCount(0);
+  await expect(page.locator('#rhythmPlaceholder')).toBeVisible();
+
+  const filters = page.locator('#filtersModal');
+  const dialog = page.locator('.swal2-popup');
+  for (const level of ['1', '3', '4', '5', '6', '7', '8']) {
+    await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+    await filters.locator('select[name="grpLevel"]').selectOption(level);
+    await filters.locator('.btn-close').click();
+    await expect(filters).toBeHidden();
+
+    const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+    const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+    await page.click('#Play');
+    const play = await playResponse;
+    expect(JSON.parse(play.request().postData() ?? '{}').filters).toEqual({ grpLevel: level, grpTempo: '120' });
+    const offered: string[] = (await play.json()).metadata.options;
+    const audio = await audioResponse;
+    expect(audio.headers()['content-type']).toContain('audio/');
+    expect((await audio.body()).length).toBeGreaterThan(1000);
+
+    // Each rhythm is drawn on a staff and read out for screen readers, never as codes ("q|8|bar").
+    await expect(options).toHaveCount(4);
+    await expect(page.locator('#rhythmPlaceholder')).toBeHidden();
+    expect(await options.evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value))).toEqual(offered);
+    for (let i = 0; i < 4; i++) {
+      await expect(options.nth(i).locator('svg .vf-stavenote').first()).toBeVisible();
+      await expect(options.nth(i)).toHaveAttribute('aria-label', new RegExp(`^Rhythm ${i + 1}: [^|:]+$`));
+    }
+
+    const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+    await page.locator('[data-aa-reveal]').click();
+    const shown = await (await revealResponse).json();
+    expect(offered).toContain(shown.answer);
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+
+    const played = options.nth(offered.indexOf(shown.answer));
+    await played.click();
+    await expect(played).toHaveAttribute('aria-pressed', 'true');
+    const validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+    await page.click('#validateGuess');
+    const result = await (await validateResponse).json();
+    expect(result).toMatchObject({ success: true, free: true, isCorrect: true, answer: shown.answer });
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+    // The rhythm played stays marked, and nothing more can be picked, until the next round.
+    await expect(played).toHaveClass(/\bis-answer\b/);
+    await expect(page.locator('#rhythmOptions .aa-rhythm-option:disabled')).toHaveCount(4);
+  }
+});
+
+test('on a phone the rhythms to pick from stay readable, a bar to a line when they are long', async ({ page, baseURL }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessRhythmPattern?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const filters = page.locator('#filtersModal');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await filters.locator('select[name="grpLevel"]').selectOption('6');
+  await filters.locator('.btn-close').click();
+  await expect(filters).toBeHidden();
+
+  // Sixteenths in 4/4 would shrink to a third of their size on one line.
+  for (let round = 0; round < 3; round++) {
+    const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+    await page.click('#Play');
+    const metadata = (await (await playResponse).json()).metadata;
+    await expect(page.locator('#rhythmOptions .aa-rhythm-option')).toHaveCount(4);
+    const layout = await page.locator('#rhythmOptions').evaluate(list => ({
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      scales: [...list.querySelectorAll('.aa-rhythm-staff svg')]
+        .map(svg => svg.getBoundingClientRect().width / Number(svg.getAttribute('width'))),
+      lines: [...list.querySelectorAll('.aa-rhythm-staff')].map(staff => staff.querySelectorAll('svg').length),
+    }));
+    const label = `${metadata.timeSignature}: ${JSON.stringify(metadata.options)}`;
+    expect(layout.overflow, label).toBe(0);
+    for (const scale of layout.scales) expect(scale, label).toBeGreaterThanOrEqual(0.5);
+    // The four are laid out alike: a line each, or a line per bar.
+    expect(new Set(layout.lines).size, label).toBe(1);
+    expect([1, metadata.numMeasures], label).toContain(layout.lines[0]);
+  }
+});
+
 test('rhythm dictation is written with note and rest symbols, without note names', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   const metadata = await openDictation(page, baseURL!, 'RhythmDictation', 'rdLevel');

@@ -294,6 +294,14 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
             => StaffSequenceHelpers.Compare(userGuess, expectedAnswerJson, durationOnly: true);
     }
 
+    /// <summary>The rhythm picked among those offered, written as a RhythmDictation answer.</summary>
+    public sealed class GuessRhythmPatternValidator : IExerciseValidator
+    {
+        public string ExerciseName => "GuessRhythmPattern";
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+            => StaffSequenceHelpers.Compare(userGuess, expectedAnswerJson, durationOnly: true);
+    }
+
     public sealed class IntervalMelodicoValidator : IExerciseValidator
     {
         public string ExerciseName => "IntervalMelodico";

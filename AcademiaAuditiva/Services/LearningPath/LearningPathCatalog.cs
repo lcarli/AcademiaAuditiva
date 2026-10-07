@@ -38,6 +38,7 @@ public static class LearningPathCatalog
             Step("GuessScaleType", 10, 7),
             Step("CompleteScale", 5, 4, ("csRoot", "C"), ("csScale", "major")),
             Step("GuessFunction", 10, 7, ("keySelect", "C"), ("scaleTypeSelect", "major")),
+            Step("GuessRhythmPattern", 10, 7, ("grpLevel", "1")),
             Step("RhythmDictation", 5, 4, ("rdLevel", "1"), ("rdMeasures", "short")),
         ]),
         new("Musicianship",

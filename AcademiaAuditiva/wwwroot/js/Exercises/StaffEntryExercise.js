@@ -148,6 +148,11 @@
   }
 
   window.AAStaffEntryExercise = {
+    // A rhythm read out ("Half note, half note; whole note") from its StaffRenderer notes.
+    spokenRhythm(notes) {
+      return spokenNotes(AAi18n.localizer(), notes, { rhythm: true, allowedDurations: [] });
+    },
+
     init() {
       AcademiaAuditiva.init();
       AudioEngine.setupWaveform();

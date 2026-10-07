@@ -83,6 +83,10 @@ public class ExercisePlaybackPlannerTests
     [InlineData("RhythmDictation", "3/4", "x..", 1.0)]
     [InlineData("RhythmDictation", "2/4", "x.x.", 1.0)]
     [InlineData("RhythmDictation", "6/8", "x..x..", 0.5)]
+    [InlineData("GuessRhythmPattern", "4/4", "x...", 1.0)]
+    [InlineData("GuessRhythmPattern", "3/4", "x..", 1.0)]
+    [InlineData("GuessRhythmPattern", "2/4", "x.x.", 1.0)]
+    [InlineData("GuessRhythmPattern", "6/8", "x..x..", 0.5)]
     [InlineData("MelodicDictation", "4/4", "x...", 1.0)]
     [InlineData("MelodicDictation", "3/4", "x..", 1.0)]
     [InlineData("MelodicDictation", "2/4", "x.x.", 1.0)]
@@ -96,6 +100,7 @@ public class ExercisePlaybackPlannerTests
             ["mdRoot"] = "D",
             ["mdLevel"] = "4",
             ["rdLevel"] = timeSignature == "6/8" ? "8" : "5",
+            ["grpLevel"] = timeSignature == "6/8" ? "8" : "5",
         };
 
         var plan = PlanIn(exerciseName, timeSignature, filters);
@@ -126,12 +131,18 @@ public class ExercisePlaybackPlannerTests
     [InlineData("RhythmDictation", "rdTempo", "60", 1.0)]
     [InlineData("RhythmDictation", "rdTempo", "90", 2.0 / 3)]
     [InlineData("RhythmDictation", "rdTempo", "120", 0.5)]
+    [InlineData("GuessRhythmPattern", "grpTempo", "60", 1.0)]
+    [InlineData("GuessRhythmPattern", "grpTempo", "90", 2.0 / 3)]
+    [InlineData("GuessRhythmPattern", "grpTempo", "120", 0.5)]
     [InlineData("MelodicDictation", "mdTempo", "60", 1.0)]
     [InlineData("MelodicDictation", "mdTempo", "90", 2.0 / 3)]
     public void Dictation_IsPlayedAtTheTempoTheStudentPicked(string exerciseName, string filter, string tempo, double beatSeconds)
     {
         // Level 1 is in 4/4, without rests: four clicks, then a note on each value.
-        var filters = new Dictionary<string, string> { [filter] = tempo, ["mdLevel"] = "1", ["rdLevel"] = "1" };
+        var filters = new Dictionary<string, string>
+        {
+            [filter] = tempo, ["mdLevel"] = "1", ["rdLevel"] = "1", ["grpLevel"] = "1",
+        };
 
         var plan = _planner.Plan(new Exercise { ExerciseId = 1, Name = exerciseName }, filters);
 
@@ -156,6 +167,7 @@ public class ExercisePlaybackPlannerTests
     [Theory]
     [InlineData("MelodicDictation", "md", "1,3,4")]
     [InlineData("RhythmDictation", "rd", "1,3,4,5,6,7,8")]
+    [InlineData("GuessRhythmPattern", "grp", "1,3,4,5,6,7,8")]
     public void Dictation_AtTheSlowestTempo_FitsInAMix(string exerciseName, string prefix, string levels)
     {
         foreach (var level in levels.Split(','))

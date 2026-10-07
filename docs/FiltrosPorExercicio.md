@@ -214,6 +214,14 @@ O aluno ouve doze pulsos a ♩ = 120, com o primeiro de cada compasso acentuado,
 
 ---
 
+### 24. Adivinhe o ritmo
+Depois da contagem dos ditados, um ritmo de dois compassos toca numa nota só, e a página mostra quatro ritmos escritos, cada um numa pauta de uma linha; o aluno escolhe o que ouviu. O primeiro ritmo é sorteado como no Ditado Rítmico, e os outros três são ele com uma ou duas figuras sorteadas de novo. Cada um tem as notas começando em lugares diferentes, para que se distinga de ouvido, mas difere do primeiro em no máximo dois tempos. Qualquer um dos quatro pode ser o que toca. Num celular, quando o ritmo não cabe numa linha (semicolcheias em 4/4), cada compasso ocupa uma linha.
+- **Filtros aplicáveis**:
+  - Nível: os mesmos do Ditado Rítmico, com os mesmos compassos e figuras. No Iniciante, os quatro ritmos são sempre os mesmos: em cada compasso, uma semibreve ou duas mínimas
+  - Andamento: normal (♩ = 120), lento (♩ = 90) ou muito lento (♩ = 60)
+
+---
+
 ## Observações
 
 - Filtros devem ser opcionais e salvos por sessão de usuário

@@ -12,12 +12,12 @@ fr-CA). It runs at <https://academiaauditiva.com>.
 
 ## ✨ Features
 
-- 🎧 **22 exercises**: notes, higher or lower, intervals, scale degrees,
+- 🎧 **23 exercises**: notes, higher or lower, intervals, scale degrees,
   chords and their quality, inversions, harmonic functions, cadences, chord
   progressions, scale types, Greek modes, missing notes, melodic and rhythmic
-  dictation, meters, staff exercises (complete a scale or a chord, transpose a
-  scale) and sight-singing. Filters choose the key, scale, octave, level and
-  more.
+  dictation, meters, rhythms, staff exercises (complete a scale or a chord,
+  transpose a scale) and sight-singing. Filters choose the key, scale, octave,
+  level and more.
 - 🎸 **Piano, guitar or violin**: every exercise with audio plays on the
   instrument the student picks, in the notes it has (the guitar from its
   low E string, the violin from its G string). The guitar strums chords on
@@ -25,7 +25,7 @@ fr-CA). It runs at <https://academiaauditiva.com>.
   chords, barre chords or high on the neck. On the piano, the octave range
   moves the chords. The exercises about chords leave out the violin, which
   plays one note at a time.
-- 🧭 **Learning path**: 21 steps in 3 units, from *Higher or Lower* to
+- 🧭 **Learning path**: 22 steps in 3 units, from *Higher or Lower* to
   *Guess Note*, with progress and celebrations.
 - 📅 **Daily challenge**: three exercises from different categories every
   day, the same for every student, with progress on the dashboard.

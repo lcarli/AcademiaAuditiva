@@ -119,11 +119,107 @@ public class DictationRhythmTests
             .Options);
         SeedData.SeedExercises(db);
         var tempos = DictationRhythm.Tempos.Select(Invariant).ToList();
+        var levels = DictationRhythm.RandomLevels.Select(level => level.Value)
+            .Concat(DictationRhythm.Levels.Select(level => level.Value))
+            .Select(Invariant)
+            .ToList();
 
-        Options(db, "RhythmDictation", "rdLevel").Should().Equal(
-            new[] { "1", "3", "4" }.Concat(DictationRhythm.Levels.Select(level => Invariant(level.Value))));
+        // GuessRhythmPattern draws its rhythms at the levels of RhythmDictation.
+        Options(db, "RhythmDictation", "rdLevel").Should().Equal(levels);
+        Options(db, "GuessRhythmPattern", "grpLevel").Should().Equal(levels);
         Options(db, "RhythmDictation", "rdTempo").Should().Equal(tempos);
+        Options(db, "GuessRhythmPattern", "grpTempo").Should().Equal(tempos);
         Options(db, "MelodicDictation", "mdTempo").Should().Equal(tempos);
+    }
+
+    [Theory]
+    [InlineData(1, true)]
+    [InlineData(3, true)]
+    [InlineData(4, true)]
+    [InlineData(5, true)]
+    [InlineData(8, true)]
+    [InlineData(0, false)]
+    [InlineData(2, false)]
+    [InlineData(9, false)]
+    public void IsLevel_IsAFirstLevel_OrOneThatTeachesAFigure(int value, bool isLevel)
+    {
+        DictationRhythm.IsLevel(value).Should().Be(isLevel);
+        (DictationRhythm.FindRandom(value) is null).Should().Be(value is not (1 or 3 or 4));
+    }
+
+    [Theory]
+    [MemberData(nameof(LevelsInEachOfTheirTimeSignatures))]
+    public void Fill_FillsASpanOfABar_WithFiguresThatFitWhereTheyStart(int value, string timeSignature)
+    {
+        var level = DictationRhythm.Find(value)!;
+        var beat = DictationRhythm.BeatLength(timeSignature);
+        var bar = DictationRhythm.BarLength(timeSignature);
+        var silent = level.Cells.First(cell => cell.IsSilent);
+        var note = level.Cells.First(cell => !cell.StartsWithRest);
+        var random = new Random(value);
+
+        for (var from = 0; from < bar; from += beat)
+        for (var to = from + beat; to <= bar; to += beat)
+        foreach (var before in new[] { null, silent, note })
+        foreach (var after in new[] { null, silent, note })
+        {
+            DictationRhythm.Fill(level, timeSignature, from, from, before, after, random).Should().BeEmpty();
+            for (var round = 0; round < 20; round++)
+            {
+                var cells = DictationRhythm.Fill(level, timeSignature, from, to, before, after, random);
+                var because = $"{from}-{to} of {timeSignature}: {string.Join(" ", DictationRhythm.Values(cells))}";
+
+                var offset = from;
+                foreach (var cell in cells)
+                {
+                    level.Cells.Should().Contain(cell);
+                    DictationRhythm.Fits(cell, timeSignature, offset).Should().BeTrue(because);
+                    offset += cell.Length;
+                }
+                offset.Should().Be(to, "the span is filled exactly: {0}", because);
+
+                // As in a round, two silent figures never follow each other, even around the span.
+                var row = new[] { before }.Concat(cells).Append(after).OfType<DictationRhythm.Cell>().ToList();
+                row.Zip(row.Skip(1)).Should().NotContain(pair => pair.First.IsSilent && pair.Second.IsSilent, because);
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData("4/4", 2, 8)]
+    [InlineData("4/4", 4, 20)]
+    [InlineData("4/4", 8, 4)]
+    [InlineData("4/4", -4, 4)]
+    [InlineData("6/8", 0, 4)]
+    [InlineData("6/8", 3, 6)]
+    public void Fill_OffTheBeat_OrOutOfTheBar_IsAnError(string timeSignature, int from, int to)
+    {
+        var level = DictationRhythm.Find(timeSignature == "6/8" ? 8 : 5)!;
+
+        var act = () => DictationRhythm.Fill(level, timeSignature, from, to, null, null, new Random(0));
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void RandomFill_FillsTheLength_WithTheValuesOfAFirstLevel()
+    {
+        var random = new Random(4);
+
+        foreach (var level in DictationRhythm.RandomLevels)
+        {
+            var shortest = level.Durations.Min(DictationRhythm.Sixteenths);
+            for (var length = 0; length <= 16; length += shortest)
+            {
+                for (var round = 0; round < 50; round++)
+                {
+                    var values = DictationRhythm.RandomFill(level.Durations, level.RestChance, length, random);
+
+                    values.Sum(DictationRhythm.Sixteenths).Should().Be(length);
+                    values.Should().BeSubsetOf(level.Durations.Concat(level.Rests));
+                }
+            }
+        }
     }
 
     [Fact]

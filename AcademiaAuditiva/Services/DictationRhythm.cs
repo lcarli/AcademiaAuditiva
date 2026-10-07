@@ -8,12 +8,13 @@ namespace AcademiaAuditiva.Services;
 /// <c>q.</c>, <c>q</c>, <c>8.</c>, <c>8</c> or <c>16</c>, and its rest ends in <c>r</c>
 /// (<c>qr</c>, <c>q.r</c>).
 ///
-/// The first levels (1, 3 and 4) fill their bars at random (<see cref="RandomBars"/>). The
-/// levels after them teach a figure (<see cref="Levels"/>): their bars are built of cells,
-/// short figures that start on a beat, so the figure is heard where it belongs, and every
-/// round has one (<see cref="Bars"/>). A melody in 6/8 is built of the cells of compound meter.
-/// Both dictations are played at a tempo the student picks (<see cref="Tempo"/>), after a
-/// count-in (<see cref="CountIn"/>).
+/// The first levels (1, 3 and 4, <see cref="RandomLevels"/>) fill their bars at random
+/// (<see cref="RandomBars"/>). The levels after them teach a figure (<see cref="Levels"/>):
+/// their bars are built of cells, short figures that start on a beat, so the figure is heard
+/// where it belongs, and every round has one (<see cref="Bars"/>). A melody in 6/8 is built of
+/// the cells of compound meter. Both dictations are played at a tempo the student picks
+/// (<see cref="Tempo"/>), after a count-in (<see cref="CountIn"/>). GuessRhythmPattern draws its
+/// rhythms at the levels of RhythmDictation (<see cref="RhythmChoices"/>).
 /// </summary>
 public static class DictationRhythm
 {
@@ -44,6 +45,21 @@ public static class DictationRhythm
         IReadOnlyList<string> Rests,
         IReadOnlyList<Cell> Cells);
 
+    /// <summary>
+    /// A first level of RhythmDictation, whose bars are filled at random: its <c>rdLevel</c>
+    /// value, the time signatures of its rounds, its note values, and how often a value is a
+    /// rest instead (<see cref="RandomBars"/>).
+    /// </summary>
+    public sealed record RandomLevel(
+        int Value,
+        IReadOnlyList<string> TimeSignatures,
+        IReadOnlyList<string> Durations,
+        double RestChance)
+    {
+        /// <summary>The rests the editor offers: the rest of each note value, when the level has rests.</summary>
+        public IReadOnlyList<string> Rests => RestChance > 0 ? [.. Durations.Select(value => value + "r")] : [];
+    }
+
     private static readonly Dictionary<string, int> ValueSixteenths = new()
     {
         ["w"] = 16, ["h."] = 12, ["h"] = 8, ["q."] = 6, ["q"] = 4, ["8."] = 3, ["8"] = 2, ["16"] = 1,
@@ -54,6 +70,18 @@ public static class DictationRhythm
 
     /// <summary>The tempos of a dictation, in quarter notes a minute; the first is the default.</summary>
     public static IReadOnlyList<int> Tempos { get; } = [120, 90, 60];
+
+    /// <summary>
+    /// The first levels of RhythmDictation, the <c>rdLevel</c> options before <see cref="Levels"/>:
+    /// whole and half notes in 4/4, then quarter notes and rests in 3/4 too, then eighth notes
+    /// in 2/4 too. 6/8 has its own level.
+    /// </summary>
+    public static IReadOnlyList<RandomLevel> RandomLevels { get; } =
+    [
+        new(1, ["4/4"], ["w", "h"], 0.0),
+        new(3, ["4/4", "3/4"], ["w", "h", "q"], 0.15),
+        new(4, ["4/4", "3/4", "2/4"], ["w", "h", "q", "8"], 0.15),
+    ];
 
     /// <summary>
     /// The levels that teach a figure, the <c>rdLevel</c> options after the first three. Their
@@ -94,6 +122,12 @@ public static class DictationRhythm
 
     /// <summary>The level of an <c>rdLevel</c> value, or null for the first levels and any other value.</summary>
     public static Level? Find(int value) => Levels.FirstOrDefault(level => level.Value == value);
+
+    /// <summary>The first level of an <c>rdLevel</c> value, or null for the levels that teach a figure and any other value.</summary>
+    public static RandomLevel? FindRandom(int value) => RandomLevels.FirstOrDefault(level => level.Value == value);
+
+    /// <summary>Whether <paramref name="value"/> is a level of RhythmDictation: a first level or one that teaches a figure.</summary>
+    public static bool IsLevel(int value) => FindRandom(value) is not null || Find(value) is not null;
 
     /// <summary>The tempo of an <c>rdTempo</c> or <c>mdTempo</c> value: one of <see cref="Tempos"/>, the first by default.</summary>
     public static int Tempo(string? filter) =>
@@ -160,14 +194,14 @@ public static class DictationRhythm
     }
 
     /// <summary>
-    /// The note values of a round of <paramref name="measures"/> bars of
-    /// <paramref name="timeSignature"/>, bar by bar, built of the cells of <paramref name="level"/>:
-    /// each is picked by its weight among those that fit where it starts (<see cref="Fits"/>).
-    /// Two silent cells never follow each other, and a <paramref name="melodic"/> round starts
-    /// with a note, whose pitch is given. Every round has a cell the level teaches: when a
-    /// hundred rounds drawn have none, the round starts with one.
+    /// A round of <paramref name="measures"/> bars of <paramref name="timeSignature"/>, bar by bar,
+    /// built of the cells of <paramref name="level"/>: each is picked by its weight among those
+    /// that fit where it starts (<see cref="Fits"/>). Two silent cells never follow each other,
+    /// and a <paramref name="melodic"/> round starts with a note, whose pitch is given. Every
+    /// round has a cell the level teaches: when a hundred rounds drawn have none, the round
+    /// starts with one.
     /// </summary>
-    public static IReadOnlyList<IReadOnlyList<string>> Bars(
+    public static IReadOnlyList<IReadOnlyList<Cell>> Figures(
         Level level, string timeSignature, int measures, Random random, bool melodic)
     {
         for (var attempt = 0; attempt < Attempts; attempt++)
@@ -182,6 +216,48 @@ public static class DictationRhythm
         return Draw(level, timeSignature, measures, random, melodic, Pick(openings, random)).Bars;
     }
 
+    /// <summary>The note values of a round of <see cref="Figures"/>, bar by bar.</summary>
+    public static IReadOnlyList<IReadOnlyList<string>> Bars(
+        Level level, string timeSignature, int measures, Random random, bool melodic) =>
+        [.. Figures(level, timeSignature, measures, random, melodic).Select(Values)];
+
+    /// <summary>The note values of a bar of cells, in order.</summary>
+    public static IReadOnlyList<string> Values(IReadOnlyList<Cell> cells) => [.. cells.SelectMany(cell => cell.Values)];
+
+    /// <summary>
+    /// Cells of <paramref name="level"/> that fill a bar of <paramref name="timeSignature"/> from
+    /// <paramref name="from"/> to <paramref name="to"/> sixteenths, both on a beat: each is picked
+    /// by its weight among those that fit where it starts (<see cref="Fits"/>) and end by
+    /// <paramref name="to"/>. As in a round, two silent cells never follow each other, counting
+    /// the cells <paramref name="before"/> and <paramref name="after"/> the span. Every level has
+    /// a note a beat long, so the span can always be filled.
+    /// </summary>
+    public static IReadOnlyList<Cell> Fill(
+        Level level, string timeSignature, int from, int to, Cell? before, Cell? after, Random random)
+    {
+        var beat = BeatLength(timeSignature);
+        if (from < 0 || from > to || to > BarLength(timeSignature) || from % beat != 0 || to % beat != 0)
+            throw new ArgumentOutOfRangeException(nameof(to), $"Cannot fill {from} to {to} of a bar of {timeSignature}.");
+
+        var cells = new List<Cell>();
+        var previous = before;
+        for (var offset = from; offset < to;)
+        {
+            var start = offset;
+            var last = previous;
+            var cell = Pick(
+                [.. level.Cells.Where(c => Fits(c, timeSignature, start)
+                    && start + c.Length <= to
+                    && !(c.IsSilent && last?.IsSilent == true)
+                    && !(c.IsSilent && start + c.Length == to && after?.IsSilent == true))],
+                random);
+            cells.Add(cell);
+            offset += cell.Length;
+            previous = cell;
+        }
+        return cells;
+    }
+
     /// <summary>
     /// The note values of a round of the first levels, bar by bar: each is picked at random
     /// among the <paramref name="durations"/> that still fit in the bar, and is a rest once in a
@@ -193,30 +269,44 @@ public static class DictationRhythm
         var bars = new List<IReadOnlyList<string>>();
         for (var measure = 0; measure < measures; measure++)
         {
-            var values = new List<string>();
-            for (var left = BarLength(timeSignature); left > 0;)
-            {
-                var fitting = durations.Where(value => Sixteenths(value) <= left).ToList();
-                if (fitting.Count == 0) break;
-                var value = fitting[random.Next(fitting.Count)];
-                var opening = melodic && measure == 0 && values.Count == 0;
-                values.Add(!opening && random.NextDouble() < restChance ? value + "r" : value);
-                left -= Sixteenths(value);
-            }
-            bars.Add(values);
+            bars.Add(RandomFill(durations, restChance, BarLength(timeSignature), random, startWithNote: melodic && measure == 0));
         }
         return bars;
     }
 
-    private static (IReadOnlyList<IReadOnlyList<string>> Bars, bool Taught) Draw(
+    /// <summary>
+    /// Note values that fill <paramref name="length"/> sixteenths as the first levels fill a bar
+    /// (<see cref="RandomBars"/>): each is picked at random among the <paramref name="durations"/>
+    /// that still fit, and is a rest once in a while (<paramref name="restChance"/>).
+    /// </summary>
+    public static IReadOnlyList<string> RandomFill(IReadOnlyList<string> durations, double restChance, int length, Random random) =>
+        RandomFill(durations, restChance, length, random, startWithNote: false);
+
+    private static List<string> RandomFill(
+        IReadOnlyList<string> durations, double restChance, int length, Random random, bool startWithNote)
+    {
+        var values = new List<string>();
+        for (var left = length; left > 0;)
+        {
+            var fitting = durations.Where(value => Sixteenths(value) <= left).ToList();
+            if (fitting.Count == 0) break;
+            var value = fitting[random.Next(fitting.Count)];
+            var opening = startWithNote && values.Count == 0;
+            values.Add(!opening && random.NextDouble() < restChance ? value + "r" : value);
+            left -= Sixteenths(value);
+        }
+        return values;
+    }
+
+    private static (IReadOnlyList<IReadOnlyList<Cell>> Bars, bool Taught) Draw(
         Level level, string timeSignature, int measures, Random random, bool melodic, Cell? first)
     {
-        var bars = new List<IReadOnlyList<string>>();
+        var bars = new List<IReadOnlyList<Cell>>();
         var taught = false;
         Cell? previous = null;
         for (var measure = 0; measure < measures; measure++)
         {
-            var values = new List<string>();
+            var cells = new List<Cell>();
             for (var offset = 0; offset < BarLength(timeSignature);)
             {
                 var start = offset;
@@ -228,12 +318,12 @@ public static class DictationRhythm
                             && !(c.IsSilent && after?.IsSilent == true)
                             && !(melodic && after is null && c.StartsWithRest))],
                         random);
-                values.AddRange(cell.Values);
+                cells.Add(cell);
                 offset += cell.Length;
                 taught |= cell.Teaches;
                 previous = cell;
             }
-            bars.Add(values);
+            bars.Add(cells);
         }
         return (bars, taught);
     }

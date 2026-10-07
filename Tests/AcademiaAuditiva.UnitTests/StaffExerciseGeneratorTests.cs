@@ -518,6 +518,9 @@ public class StaffExerciseGeneratorTests
     [InlineData("RhythmDictation", "rdTempo", "60", 60)]
     [InlineData("RhythmDictation", "rdTempo", "90", 90)]
     [InlineData("RhythmDictation", "rdTempo", "75", 120)]
+    [InlineData("GuessRhythmPattern", "grpTempo", "60", 60)]
+    [InlineData("GuessRhythmPattern", "grpTempo", "90", 90)]
+    [InlineData("GuessRhythmPattern", "grpTempo", null, 120)]
     public void Dictation_IsPlayedAtTheTempoTheStudentPicked(string exercise, string filter, string? tempo, int expected)
     {
         var filters = new Dictionary<string, string>();
@@ -527,6 +530,70 @@ public class StaffExerciseGeneratorTests
         }
 
         GenerateJson(exercise, filters).Value<int>("tempo").Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("1")]
+    [InlineData("3")]
+    [InlineData("4")]
+    [InlineData("5")]
+    [InlineData("6")]
+    [InlineData("7")]
+    [InlineData("8")]
+    public void GuessRhythmPattern_PlaysOneOfTheFourRhythmsItOffers_OnOneNote(string level)
+    {
+        for (var round = 0; round < 25; round++)
+        {
+            var json = GenerateJson("GuessRhythmPattern", new() { { "grpLevel", level } });
+            var answer = json.Value<string>("answerString")!;
+
+            json["error"].Should().BeNull();
+            json.Value<int>("level").Should().Be(int.Parse(level));
+            json.Value<int>("numMeasures").Should().Be(2);
+            var options = json["options"]!.Values<string>().ToList();
+            options.Should().HaveCount(4).And.OnlyHaveUniqueItems().And.Contain(answer, "the rhythm played is offered");
+
+            // Each rhythm is written as a rhythm dictation's answer, so it is drawn as one.
+            foreach (var option in options)
+            {
+                AssertEditorWritesTheAnswer(new JObject
+                {
+                    ["timeSignature"] = json["timeSignature"], ["numMeasures"] = 2, ["answerString"] = option,
+                }, rhythm: true);
+            }
+
+            // The melody is the rhythm played, on one note, as a rhythm dictation's.
+            var melody = json["melody"]!.ToList();
+            melody.Select(entry => entry.Value<string>("durationLabel")).Should().Equal(answer.Split('|').Where(t => t != "bar"));
+            melody.Should().AllSatisfy(entry =>
+            {
+                var value = entry.Value<string>("durationLabel")!;
+                entry.Value<string>("note").Should().Be("C5");
+                entry.Value<string>("type").Should().Be(value.EndsWith('r') ? "rest" : "note");
+                entry.Value<double>("durationBeats").Should().Be(Sixteenths[value.TrimEnd('r')] / 4.0);
+            });
+        }
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("2")]
+    [InlineData("9")]
+    [InlineData("five")]
+    public void GuessRhythmPattern_AnUnknownLevel_IsTheFirst(string? level)
+    {
+        var filters = new Dictionary<string, string> { ["grpTempo"] = "fast" };
+        if (level is not null)
+        {
+            filters["grpLevel"] = level;
+        }
+
+        var json = GenerateJson("GuessRhythmPattern", filters);
+
+        json.Value<int>("level").Should().Be(1);
+        json.Value<int>("tempo").Should().Be(120);
+        json.Value<string>("timeSignature").Should().Be("4/4");
+        json["options"]!.Values<string>().Should().BeEquivalentTo("w|bar|w", "w|bar|h|h", "h|h|bar|w", "h|h|bar|h|h");
     }
 
     [Fact]
