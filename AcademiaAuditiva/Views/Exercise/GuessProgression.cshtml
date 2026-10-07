@@ -1,0 +1,72 @@
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+@{
+    ViewData["Title"] = Localizer[Model.Title].Value;
+    ViewData["FiltersPartial"] = "_ExerciseFilters";
+    // Dictation asks the chords after the tonic; GuessProgression.js fills in the chords of the key.
+    (string Id, string Label)[] dictatedChords =
+    {
+        ("chord2Select", "Exercise.GuessProgression.Chord2"),
+        ("chord3Select", "Exercise.GuessProgression.Chord3"),
+        ("chord4Select", "Exercise.GuessProgression.Chord4")
+    };
+}
+
+@await Html.PartialAsync("_ExerciseHeader", Model)
+<input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+
+<div class="row g-4">
+    <div class="col-lg-8 order-lg-2">
+        <section class="aa-panel" aria-labelledby="aa-question">
+            <h2 id="aa-question" class="aa-question">@Localizer["Exercise.ProgressionText"]</h2>
+
+            <div class="aa-audio-row">
+                @await Html.PartialAsync("_ExerciseAudioButtons", Model.AudioButtons)
+                <div id="waveform" class="aa-wave" aria-hidden="true"></div>
+            </div>
+
+            @* The name level answers on the buttons, dictation on the selects: the script shows the level picked. *@
+            <div id="progressionNames">
+                @await Html.PartialAsync("_ExerciseAnswerButtons", Model.AnswerButtons)
+            </div>
+            @* The tour frames the fields together: the row's gutter would leave a gap above them. *@
+            <div id="progressionNumerals" class="row g-3 mt-2" hidden>
+                @foreach (var chord in dictatedChords)
+                {
+                    <div class="col-sm-4" data-tour="answer">
+                        <label class="form-label" for="@chord.Id">@Localizer[chord.Label]</label>
+                        <select class="form-select" id="@chord.Id">
+                            <option value="">@Localizer["Exercise.SelectOption"]</option>
+                        </select>
+                    </div>
+                }
+            </div>
+
+            <div class="aa-validate">
+                <button type="button" id="validateGuess" class="btn btn-primary px-4">@Localizer["Exercise.ValidationButton"]</button>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-4 order-lg-1">
+        @await Html.PartialAsync("_ExerciseInstructions", Model)
+    </div>
+</div>
+
+@await Html.PartialAsync("_ExerciseFiltersModal", Model)
+
+<div id="localizer"
+     data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+     data-incomplete-text="@Localizer["Exercise.SelectProgressionText"]"
+
+     data-no-audio-title="@Localizer["Exercise.NoAudioTitle"]"
+     data-no-audio-text="@Localizer["Exercise.NoAudioText"]"
+     data-validation-error-title="@Localizer["Exercise.ValidationErrorTitle"]"
+     data-validation-error-text="@Localizer["Exercise.ValidationErrorText"]"
+     data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+     data-correct-message-text="@Localizer["Exercise.CorrectMessageText"]"
+     data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+     data-wrong-message-text="@Localizer["Exercise.WrongMessageText"]">
+</div>
+
+@section Scripts {
+    <script src="~/js/Exercises/GuessProgression.js" asp-append-version="true"></script>
+}

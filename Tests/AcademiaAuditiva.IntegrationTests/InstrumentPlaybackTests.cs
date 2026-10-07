@@ -169,6 +169,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     [InlineData("GuessDegree", true)]
     [InlineData("GuessInversion", true)]
     [InlineData("GuessCadence", true)]
+    [InlineData("GuessProgression", true)]
     [InlineData("GuessInterval", false)]
     [InlineData("GuessFullInterval", false)]
     [InlineData("IntervalMelodico", false)]

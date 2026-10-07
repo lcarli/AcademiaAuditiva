@@ -182,7 +182,7 @@ namespace AcademiaAuditiva.Services
 
         // The exercises whose notes GenerateNoteForExercise draws from the noteRange filter.
         private static readonly HashSet<string> NoteRangeExercises =
-            ["GuessNote", "HigherOrLower", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality", "GuessDegree"];
+            ["GuessNote", "HigherOrLower", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality", "GuessDegree", "GuessProgression"];
 
         /// <summary>
         /// Whether the notes of <paramref name="exerciseName"/> come from the <c>noteRange</c>
@@ -709,6 +709,54 @@ namespace AcademiaAuditiva.Services
         private static readonly (string Degree, int Semitones)[] MinorChromaticDegrees =
             [("1", 0), ("b2", 1), ("2", 2), ("3", 3), ("#3", 4), ("4", 5), ("#4", 6), ("5", 7), ("6", 8), ("#6", 9), ("7", 10), ("#7", 11)];
 
+        // The progressions GuessProgression names, as function codes of GetChordFromFunction on
+        // the key's own scale: the natural minor in a minor key, so VII is a whole step below the
+        // tonic (G in A minor) while V keeps its major third (E G# B). The names are the values
+        // of the exercise's answer buttons; ii°–V–i is "iio-V-i", apart from ii–V–I ignoring case.
+        private static readonly (string Name, string[] Chords)[] MajorProgressions =
+        [
+            ("I-V-vi-IV", ["1-major", "5-major", "6-minor", "4-major"]),
+            ("I-vi-IV-V", ["1-major", "6-minor", "4-major", "5-major"]),
+            ("ii-V-I", ["2-minor", "5-major", "1-major"]),
+            // The 12-bar blues, one bar per chord: I7 I7 I7 I7 | IV7 IV7 I7 I7 | V7 IV7 I7 I7.
+            ("blues", ["1-dominant7", "1-dominant7", "1-dominant7", "1-dominant7",
+                       "4-dominant7", "4-dominant7", "1-dominant7", "1-dominant7",
+                       "5-dominant7", "4-dominant7", "1-dominant7", "1-dominant7"]),
+        ];
+
+        private static readonly (string Name, string[] Chords)[] MinorProgressions =
+        [
+            ("i-VII-VI-V", ["1-minor", "7-major", "6-major", "5-major"]),
+            ("i-VI-III-VII", ["1-minor", "6-major", "3-major", "7-major"]),
+            ("iio-V-i", ["2-diminished", "5-major", "1-minor"]),
+        ];
+
+        // The chords GuessProgression's dictation may move to from each chord of a key, the usual
+        // moves of tonal harmony: toward the dominant and back to the tonic, or down by fifths.
+        // Its rounds start on the tonic. A minor key's VII is the natural one, as in the
+        // progressions above; its V has the leading tone.
+        private static readonly Dictionary<string, string[]> MajorProgressionMoves = new()
+        {
+            ["1-major"] = ["2-minor", "3-minor", "4-major", "5-major", "6-minor"],
+            ["2-minor"] = ["5-major", "7-diminished"],
+            ["3-minor"] = ["6-minor", "4-major"],
+            ["4-major"] = ["1-major", "2-minor", "5-major", "7-diminished"],
+            ["5-major"] = ["1-major", "6-minor"],
+            ["6-minor"] = ["2-minor", "4-major"],
+            ["7-diminished"] = ["1-major"],
+        };
+
+        private static readonly Dictionary<string, string[]> MinorProgressionMoves = new()
+        {
+            ["1-minor"] = ["2-diminished", "3-major", "4-minor", "5-major", "6-major", "7-major"],
+            ["2-diminished"] = ["5-major"],
+            ["3-major"] = ["6-major", "4-minor"],
+            ["4-minor"] = ["1-minor", "5-major", "7-major"],
+            ["5-major"] = ["1-minor", "6-major"],
+            ["6-major"] = ["2-diminished", "3-major", "4-minor", "7-major"],
+            ["7-major"] = ["3-major", "1-minor"],
+        };
+
         public static bool NotesAreEquivalent(string note1, string note2)
         {
             // Canonical form keeps the letter capitalized and preserves the
@@ -1122,6 +1170,59 @@ namespace AcademiaAuditiva.Services
                         cadence = KeyCadence(degreeKey, degreeScale, degreeOctave),
                         note = MidiToNote(degreeMidi),
                         answer = degreeAnswer
+                    };
+                }
+                case "GuessProgression":
+                {
+                    // "any" draws the key of each question; an unknown key, scale or level is C major, naming.
+                    filters.TryGetValue("keySelect", out var progressionKeyFilter);
+                    var progressionKey = progressionKeyFilter == "any"
+                        ? KeyTonics[random.Next(KeyTonics.Length)]
+                        : KeyTonics.FirstOrDefault(keyTonic => keyTonic == progressionKeyFilter) ?? "C";
+                    var progressionScale = filters.TryGetValue("scaleTypeSelect", out var progressionScaleFilter) && progressionScaleFilter == "minor" ? "minor" : "major";
+                    var dictation = filters.TryGetValue("gpLevel", out var progressionLevelFilter) && progressionLevelFilter == "numerals";
+
+                    string[] progressionFunctions;
+                    string progressionAnswer;
+                    if (dictation)
+                    {
+                        // The tonic, then three chords, each a move from the one before: the
+                        // student names chords 2 to 4.
+                        var moves = progressionScale == "minor" ? MinorProgressionMoves : MajorProgressionMoves;
+                        var dictated = new List<string> { progressionScale == "minor" ? "1-minor" : "1-major" };
+                        while (dictated.Count < 4)
+                        {
+                            var nextChords = moves[dictated[^1]];
+                            dictated.Add(nextChords[random.Next(nextChords.Length)]);
+                        }
+                        progressionFunctions = [.. dictated];
+                        progressionAnswer = string.Join('|', dictated.Skip(1));
+                    }
+                    else
+                    {
+                        var progressions = progressionScale == "minor" ? MinorProgressions : MajorProgressions;
+                        (progressionAnswer, progressionFunctions) = progressions[random.Next(progressions.Length)];
+                    }
+
+                    // The cadence sets the key, then the progression follows in the same octave: an
+                    // octave lower when a note of either would go past the highest sample.
+                    var progressionOctaves = ParseOctaveRange(noteRange);
+                    var progressionOctave = progressionOctaves[random.Next(progressionOctaves.Count)];
+                    Func<int, List<List<string>>> progressionChordsIn = octave => [.. progressionFunctions
+                        .Select(function => GetChordFromFunction(progressionKey + octave, progressionScale, function))];
+                    var progressionCadence = KeyCadence(progressionKey, progressionScale, progressionOctave);
+                    var progressionChords = progressionChordsIn(progressionOctave);
+                    if (progressionCadence.Any(AboveTheSamples) || progressionChords.Any(AboveTheSamples))
+                    {
+                        progressionCadence = KeyCadence(progressionKey, progressionScale, progressionOctave - 1);
+                        progressionChords = progressionChordsIn(progressionOctave - 1);
+                    }
+
+                    return new
+                    {
+                        cadence = progressionCadence,
+                        chords = progressionChords,
+                        answer = progressionAnswer
                     };
                 }
                 case "GuessQuality":

@@ -18,7 +18,7 @@ public class GuitarVoicingTests
     private static readonly string[] Roots = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
     // Semitones from the root to each note of the chords the exercises play (GuessChords, GuessFunction,
-    // GuessQuality, GuessInversion and GuessCadence), and of the other common seventh chords.
+    // GuessQuality, GuessInversion, GuessCadence and GuessProgression), and of the other common seventh chords.
     private static readonly Dictionary<string, int[]> Qualities = new()
     {
         ["major"] = [0, 4, 7],

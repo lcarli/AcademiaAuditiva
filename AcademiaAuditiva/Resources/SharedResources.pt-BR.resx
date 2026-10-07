@@ -461,6 +461,49 @@
     <value>Deceptiva</value>
     <comment />
   </data>
+  <data name="GuessProgression" xml:space="preserve">
+    <value>Adivinhe a progressão</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessProgression.Subtitle" xml:space="preserve">
+    <value>Ouça a tonalidade, depois uma progressão de acordes, e diga qual é.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Instructions" xml:space="preserve">
+    <value>Ouça a cadência que estabelece a tonalidade e depois uma progressão de acordes, e diga qual é a progressão. No nível de ditado, a progressão começa na tônica: identifique o grau de cada um dos três acordes seguintes.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Tip1" xml:space="preserve">
+    <value>Siga o baixo: ele anda para um grau vizinho ou salta uma quarta ou uma quinta.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Tip2" xml:space="preserve">
+    <value>O V puxa para o I: depois dele, o I soa como chegada e o vi como surpresa.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Tip3" xml:space="preserve">
+    <value>Em menor, o VII fica um tom abaixo da tônica, e o V tem a sensível, meio tom abaixo dela.</value>
+  </data>
+  <data name="Exercise.GuessProgression.LevelName" xml:space="preserve">
+    <value>Nome da progressão</value>
+  </data>
+  <data name="Exercise.GuessProgression.LevelNumerals" xml:space="preserve">
+    <value>Ditado (acordes 2 a 4)</value>
+  </data>
+  <data name="Exercise.GuessProgression.Chord2" xml:space="preserve">
+    <value>Acorde 2</value>
+  </data>
+  <data name="Exercise.GuessProgression.Chord3" xml:space="preserve">
+    <value>Acorde 3</value>
+  </data>
+  <data name="Exercise.GuessProgression.Chord4" xml:space="preserve">
+    <value>Acorde 4</value>
+  </data>
+  <data name="Exercise.ProgressionText" xml:space="preserve">
+    <value>Qual progressão você ouviu?</value>
+  </data>
+  <data name="Exercise.SelectProgressionText" xml:space="preserve">
+    <value>Por favor, selecione a progressão ou o grau de cada acorde.</value>
+  </data>
+  <data name="Exercise.Progression.Blues" xml:space="preserve">
+    <value>Blues de 12 compassos</value>
+  </data>
   <data name="GuessInversion" xml:space="preserve">
     <value>Adivinhe a inversão</value>
     <comment>.</comment>
