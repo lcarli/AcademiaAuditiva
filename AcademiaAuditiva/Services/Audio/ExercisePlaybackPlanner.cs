@@ -14,9 +14,10 @@ namespace AcademiaAuditiva.Services.Audio;
 ///
 /// Produces:
 ///   - 1 plan for GuessNote / GuessChords / GuessFunction / GuessDegree /
-///     GuessQuality / GuessInterval / GuessFullInterval / IntervalMelodico
-///     (GuessFunction and GuessDegree play a cadence in their key before
-///     their chord or note, in the same plan)
+///     GuessProgression / GuessQuality / GuessInterval / GuessFullInterval /
+///     IntervalMelodico (GuessFunction, GuessDegree and GuessProgression play
+///     a cadence in their key before their chord, note or progression, in
+///     the same plan)
 ///   - 2 plans for GuessMissingNote (one per melody)
 ///   - 0 plans for SolfegeMelody: the melody is shown as sheet music for
 ///     the student to sing, so there is nothing to hide. Only its first
@@ -71,7 +72,7 @@ public sealed class ExercisePlaybackPlanner
 
     // The exercises that play chords on a shape of the guitar's neck; the violin can't play them.
     private static readonly HashSet<string> ChordsPlayed =
-        ["GuessChords", "GuessFunction", "GuessQuality", "GuessInversion", "GuessCadence"];
+        ["GuessChords", "GuessFunction", "GuessQuality", "GuessInversion", "GuessCadence", "GuessProgression"];
 
     // The exercises about chords: those above, and CompleteChord, which plays a chord as it
     // is written for the student to write it on the staff. On the guitar it is strummed as
@@ -149,6 +150,21 @@ public sealed class ExercisePlaybackPlanner
                     ChordArray(token, "cadence"),
                     position,
                     start => [Note(instrument, token.Value<string>("note") ?? throw Bad("note"), start)]));
+                break;
+
+            case "GuessProgression":
+                // So is a progression: the cadence, then its chords at the cadence's pace.
+                plans.Add(AfterTheKey(
+                    instrument,
+                    ChordArray(token, "cadence"),
+                    position,
+                    start => ChordsInSequence(
+                        instrument,
+                        ChordArray(token, "chords"),
+                        position,
+                        CadenceChordSeconds,
+                        CadenceChordGapSeconds,
+                        start)));
                 break;
 
             case "HigherOrLower":
@@ -294,19 +310,21 @@ public sealed class ExercisePlaybackPlanner
 
     /// <summary>
     /// Stacks several chords into a single playback plan: chord <c>i</c> starts
-    /// (see <see cref="Chord"/>) after <c>chordSeconds + gapSeconds</c> times
-    /// <c>i</c>. Used by GuessCadence so the four chords play sequentially as
-    /// a single audio mix.
+    /// (see <see cref="Chord"/>) <c>chordSeconds + gapSeconds</c> times <c>i</c>
+    /// after <paramref name="startTime"/>. Used by GuessCadence so the four chords
+    /// play sequentially as a single audio mix, and by GuessProgression after the
+    /// cadence of its key.
     /// </summary>
     private static IReadOnlyList<MixInput> ChordsInSequence(
         Instrument instrument,
         IReadOnlyList<IReadOnlyList<string>> chords,
         GuitarPosition position,
         double chordSeconds,
-        double gapSeconds)
+        double gapSeconds,
+        double startTime = 0.0)
     {
         var plan = new List<MixInput>();
-        var t = 0.0;
+        var t = startTime;
         foreach (var chord in chords)
         {
             plan.AddRange(Chord(instrument, chord, position, t, chordSeconds));

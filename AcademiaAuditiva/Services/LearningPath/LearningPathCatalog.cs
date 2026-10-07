@@ -46,6 +46,7 @@ public static class LearningPathCatalog
             Step("GuessGreekMode", 10, 7),
             Step("TransposeScale", 5, 4, ("tsScale", "major")),
             Step("GuessCadence", 10, 7),
+            Step("GuessProgression", 10, 7, ("keySelect", "C"), ("scaleTypeSelect", "major"), ("gpLevel", "name")),
             Step("MelodicDictation", 5, 4, ("mdLevel", "1"), ("mdMeasures", "short")),
             Step("GuessNote", 10, 5),
         ]),

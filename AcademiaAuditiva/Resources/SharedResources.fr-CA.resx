@@ -481,6 +481,49 @@
     <value>Rompue</value>
     <comment />
   </data>
+  <data name="GuessProgression" xml:space="preserve">
+    <value>Devinez la progression</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessProgression.Subtitle" xml:space="preserve">
+    <value>Écoutez la tonalité, puis une progression d&apos;accords, et nommez-la.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Instructions" xml:space="preserve">
+    <value>Écoutez la cadence qui établit la tonalité, puis une progression d&apos;accords, et nommez la progression. Au niveau dictée, la progression commence sur la tonique : identifiez le degré de chacun des trois accords suivants.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Tip1" xml:space="preserve">
+    <value>Suivez la basse : elle passe à un degré voisin ou saute d&apos;une quarte ou d&apos;une quinte.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Tip2" xml:space="preserve">
+    <value>Le V tire vers le I : après lui, le I sonne comme une arrivée et le vi comme une surprise.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Tip3" xml:space="preserve">
+    <value>En mineur, le VII est un ton sous la tonique, et le V a la sensible, un demi-ton sous elle.</value>
+  </data>
+  <data name="Exercise.GuessProgression.LevelName" xml:space="preserve">
+    <value>Nom de la progression</value>
+  </data>
+  <data name="Exercise.GuessProgression.LevelNumerals" xml:space="preserve">
+    <value>Dictée (accords 2 à 4)</value>
+  </data>
+  <data name="Exercise.GuessProgression.Chord2" xml:space="preserve">
+    <value>Accord 2</value>
+  </data>
+  <data name="Exercise.GuessProgression.Chord3" xml:space="preserve">
+    <value>Accord 3</value>
+  </data>
+  <data name="Exercise.GuessProgression.Chord4" xml:space="preserve">
+    <value>Accord 4</value>
+  </data>
+  <data name="Exercise.ProgressionText" xml:space="preserve">
+    <value>Quelle progression avez-vous entendue ?</value>
+  </data>
+  <data name="Exercise.SelectProgressionText" xml:space="preserve">
+    <value>Veuillez sélectionner la progression ou le degré de chaque accord.</value>
+  </data>
+  <data name="Exercise.Progression.Blues" xml:space="preserve">
+    <value>Blues de 12 mesures</value>
+  </data>
   <data name="GuessInversion" xml:space="preserve">
     <value>Devinez l’inversion</value>
     <comment>.</comment>

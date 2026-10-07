@@ -7,7 +7,7 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
     /// <summary>
     /// Shared helpers for the simple "compare a single JSON field as a
     /// case-insensitive string" validators (GuessInterval, GuessMissingNote,
-    /// GuessFunction, GuessDegree, GuessQuality).
+    /// GuessFunction, GuessDegree, GuessProgression, GuessQuality).
     /// </summary>
     internal static class ValidatorHelpers
     {
@@ -111,6 +111,17 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
     public sealed class GuessDegreeValidator : IExerciseValidator
     {
         public string ExerciseName => "GuessDegree";
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+            => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "answer");
+    }
+
+    /// <summary>
+    /// A progression's name ("I-V-vi-IV") or, in dictation, the degrees of its chords 2 to 4
+    /// ("6-minor|2-minor|5-major"), which must all be right.
+    /// </summary>
+    public sealed class GuessProgressionValidator : IExerciseValidator
+    {
+        public string ExerciseName => "GuessProgression";
         public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
             => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "answer");
     }

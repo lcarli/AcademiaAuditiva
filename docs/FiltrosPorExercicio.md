@@ -192,9 +192,19 @@ O aluno ouve uma cadência que estabelece a tonalidade (I–IV–V–I, ou i–i
 
 ---
 
+### 22. Adivinhe a progressão
+O aluno ouve uma cadência que estabelece a tonalidade (I–IV–V–I, ou i–iv–V–i na menor) e, depois, uma progressão de acordes, e diz qual é a progressão.
+- **Filtros aplicáveis**:
+  - Tom base, ou qualquer um (sorteado a cada questão)
+  - Tonalidade maior ou menor (na menor, o VII é o da escala menor natural e o V, com a sensível, o da menor harmônica)
+  - Nível: nome da progressão (na maior, I–V–vi–IV, I–vi–IV–V, ii–V–I ou blues de 12 compassos; na menor, i–VII–VI–V, i–VI–III–VII ou ii°–V–i) ou ditado (quatro acordes a partir da tônica: o aluno diz o grau do 2º, do 3º e do 4º)
+  - Faixa de oitavas (a oitava da tonalidade); no violão, a posição no braço
+
+---
+
 ## Observações
 
 - Filtros devem ser opcionais e salvos por sessão de usuário
 - As combinações de filtros podem alterar a dificuldade automaticamente
 - Jogos podem desabilitar ou randomizar filtros
-- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Adivinhe o Grau, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão e a Cadência (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)
+- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Adivinhe o Grau, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão, a Cadência e a Progressão (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)

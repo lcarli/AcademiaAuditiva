@@ -9,7 +9,8 @@ namespace AcademiaAuditiva.UnitTests;
 /// The note range slider moves the chords of every chord exercise: the roots are in the
 /// octaves of the range (octave 4 without one, where the slider starts), and in the top
 /// octave a chord that would go past the highest sample (B7) is played an octave lower.
-/// GuessFunction's cadence, which sets the key before its chord, moves with the chord.
+/// The cadence that sets the key before GuessFunction's chord, or before GuessProgression's
+/// chords, moves with them.
 /// </summary>
 public class ChordRangeTests
 {
@@ -38,6 +39,9 @@ public class ChordRangeTests
     [InlineData("GuessCadence", "C2-C2", 2)]
     [InlineData("GuessCadence", "C5-C5", 5)]
     [InlineData("GuessCadence", null, 4)]
+    [InlineData("GuessProgression", "C2-C2", 2)]
+    [InlineData("GuessProgression", "C5-C5", 5)]
+    [InlineData("GuessProgression", null, 4)]
     public void TheRoots_AreInTheOctaveOfTheRange(string exerciseName, string? noteRange, int octave)
     {
         var filters = new Dictionary<string, string>(InC);
@@ -59,6 +63,7 @@ public class ChordRangeTests
     [InlineData("GuessInversion", "invQuality", "both")]
     [InlineData("GuessFunction", "keySelect", "B")]
     [InlineData("GuessCadence", "cadenceRoot", "B")]
+    [InlineData("GuessProgression", "keySelect", "B")]
     public void InTheTopOctave_EveryNoteHasASample(string exerciseName, string filter, string value)
     {
         // In B, the dominant of octave 6 (F#7 A#7 C#8) goes past B7: so does every cadence.
@@ -79,8 +84,9 @@ public class ChordRangeTests
     /// <summary>The root of each chord, which the generators build the chord up from.</summary>
     private static List<int> Roots(JObject chord)
     {
+        var cadence = chord.SelectTokens("$.cadence[*]").Select(cadenceChord => Midi((string)cadenceChord[0]!)).ToList();
         if (chord["chords"] is JArray chords)
-            return [.. chords.Select(notes => Midi((string)notes[0]!))];
+            return [.. cadence, .. chords.Select(notes => Midi((string)notes[0]!))];
 
         var notes = chord.SelectTokens("$.notes[*]").Select(note => Midi((string)note!)).ToList();
         var root = (string?)chord["inversion"] switch
@@ -90,7 +96,6 @@ public class ChordRangeTests
             "second" => notes[1] - 12,
             _ => notes[0],
         };
-        var cadence = chord.SelectTokens("$.cadence[*]").Select(cadenceChord => Midi((string)cadenceChord[0]!));
         return [.. cadence, root];
     }
 

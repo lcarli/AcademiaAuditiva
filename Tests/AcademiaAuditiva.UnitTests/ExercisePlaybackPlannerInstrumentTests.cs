@@ -34,6 +34,7 @@ public class ExercisePlaybackPlannerInstrumentTests
     {
         ["GuessFunction"] = 6.25,
         ["GuessDegree"] = 6.25,
+        ["GuessProgression"] = 6.25,
     };
 
     private static List<string> SeededExerciseNames()
@@ -176,6 +177,7 @@ public class ExercisePlaybackPlannerInstrumentTests
     [InlineData("GuessQuality")]
     [InlineData("GuessInversion")]
     [InlineData("GuessCadence")]
+    [InlineData("GuessProgression")]
     [InlineData("CompleteChord")]
     public void ChordExercises_OnTheViolin_ArePlayedOnThePiano(string exerciseName)
     {
@@ -308,6 +310,9 @@ public class ExercisePlaybackPlannerInstrumentTests
     [InlineData("GuessCadence", null, GuitarPosition.Open)]
     [InlineData("GuessCadence", "Barre", GuitarPosition.Barre)]
     [InlineData("GuessCadence", "High", GuitarPosition.High)]
+    [InlineData("GuessProgression", null, GuitarPosition.Open)]
+    [InlineData("GuessProgression", "Barre", GuitarPosition.Barre)]
+    [InlineData("GuessProgression", "High", GuitarPosition.High)]
     public void Chords_OnTheGuitar_ArePlayedWhereOnTheNeckTheStudentPicked(
         string exerciseName, string? guitarPosition, GuitarPosition position)
     {
@@ -330,6 +335,7 @@ public class ExercisePlaybackPlannerInstrumentTests
                     "GuessCadence" => [.. answer["chords"]!.Select(Midis)],
                     // The cadence that sets the key, then the chord.
                     "GuessFunction" => [.. answer["cadence"]!.Select(Midis), Midis(answer["notes"]!)],
+                    "GuessProgression" => [.. answer["cadence"]!.Select(Midis), .. answer["chords"]!.Select(Midis)],
                     _ => [Midis(answer["notes"]!)],
                 };
                 var strums = plan.PlaybackPlans.Should().ContainSingle().Subject

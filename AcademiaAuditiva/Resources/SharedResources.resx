@@ -461,6 +461,49 @@
     <value>Deceptive</value>
     <comment />
   </data>
+  <data name="GuessProgression" xml:space="preserve">
+    <value>Guess Progression</value>
+    <comment>.</comment>
+  </data>
+  <data name="Exercise.GuessProgression.Subtitle" xml:space="preserve">
+    <value>Hear the key, then a chord progression, and name it.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Instructions" xml:space="preserve">
+    <value>Listen to the cadence that sets the key, then to a chord progression, and name the progression. On the dictation level, the progression starts on the tonic: identify the degree of each of the next three chords.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Tip1" xml:space="preserve">
+    <value>Follow the bass: it moves to a neighboring degree, or leaps a fourth or a fifth.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Tip2" xml:space="preserve">
+    <value>V pulls to I: after it, I sounds like arriving, and vi like a surprise.</value>
+  </data>
+  <data name="Exercise.GuessProgression.Tip3" xml:space="preserve">
+    <value>In a minor key, VII is a whole step below the tonic, and V has the leading tone, a half step below it.</value>
+  </data>
+  <data name="Exercise.GuessProgression.LevelName" xml:space="preserve">
+    <value>Name the progression</value>
+  </data>
+  <data name="Exercise.GuessProgression.LevelNumerals" xml:space="preserve">
+    <value>Dictation (chords 2 to 4)</value>
+  </data>
+  <data name="Exercise.GuessProgression.Chord2" xml:space="preserve">
+    <value>Chord 2</value>
+  </data>
+  <data name="Exercise.GuessProgression.Chord3" xml:space="preserve">
+    <value>Chord 3</value>
+  </data>
+  <data name="Exercise.GuessProgression.Chord4" xml:space="preserve">
+    <value>Chord 4</value>
+  </data>
+  <data name="Exercise.ProgressionText" xml:space="preserve">
+    <value>Which progression did you hear?</value>
+  </data>
+  <data name="Exercise.SelectProgressionText" xml:space="preserve">
+    <value>Please select the progression, or the degree of each chord.</value>
+  </data>
+  <data name="Exercise.Progression.Blues" xml:space="preserve">
+    <value>12-bar blues</value>
+  </data>
   <data name="GuessInversion" xml:space="preserve">
     <value>Guess Inversion</value>
     <comment>.</comment>

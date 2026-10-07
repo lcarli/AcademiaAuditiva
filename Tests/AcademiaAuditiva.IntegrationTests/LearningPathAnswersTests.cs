@@ -82,7 +82,7 @@ public class LearningPathAnswersTests : IClassFixture<SignedInWebApplicationFact
         ShouldCelebrate(path,
             title: "Path complete!",
             icon: "bi-trophy",
-            text: "You completed step 19: Guess Note.",
+            text: "You completed step 20: Guess Note.",
             nextText: null,
             actionText: "View the path",
             actionUrl: "/LearningPath");

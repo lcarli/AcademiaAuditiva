@@ -484,6 +484,84 @@ public static class SeedData
                 })
             },
             new Exercise {
+                Name = "GuessProgression",
+                Description = "Ouça a cadência da tonalidade e depois uma progressão de acordes, e identifique-a.",
+                ExerciseTypeId = 7,
+                ExerciseCategoryId = 1,
+                DifficultyLevelId = 3,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Key",
+                        Name = "keySelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("C", "C"),
+                            new("C#", "C#"),
+                            new("D", "D"),
+                            new("D#", "D#"),
+                            new("E", "E"),
+                            new("F", "F"),
+                            new("F#", "F#"),
+                            new("G", "G"),
+                            new("G#", "G#"),
+                            new("A", "A"),
+                            new("A#", "A#"),
+                            new("B", "B"),
+                            new("any", "Exercise.Any")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Scale",
+                        Name = "scaleTypeSelect",
+                        Options = new List<FilterOption>
+                        {
+                            new("major", "Exercise.Major"),
+                            new("minor", "Exercise.Minor")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "gpLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("name", "Exercise.GuessProgression.LevelName"),
+                            new("numerals", "Exercise.GuessProgression.LevelNumerals")
+                        }
+                    }
+                }),
+                Instructions = "Ouça a cadência que estabelece a tonalidade e depois uma progressão de acordes, e diga qual é a progressão. No nível de ditado, a progressão começa na tônica: identifique o grau de cada um dos três acordes seguintes.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Siga o baixo: ele anda para um grau vizinho ou salta uma quarta ou uma quinta.",
+                    "O V puxa para o I: depois dele, o I soa como chegada e o vi como surpresa.",
+                    "Em menor, o VII fica um tom abaixo da tônica, e o V tem a sensível, meio tom abaixo dela."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                // The progressions of either kind of key (MusicTheoryService's progression tables): the
+                // page shows those of the key picked. Dictation answers on the page's selects instead.
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "I–V–vi–IV", "I-V-vi-IV" },
+                            { "I–vi–IV–V", "I-vi-IV-V" },
+                            { "ii–V–I", "ii-V-I" },
+                            { "Blues de 12 compassos", "blues" },
+                            { "i–VII–VI–V", "i-VII-VI-V" },
+                            { "i–VI–III–VII", "i-VI-III-VII" },
+                            { "ii°–V–i", "iio-V-i" }
+                        }
+                    }
+                })
+            },
+            new Exercise {
                 Name = "GuessGreekMode",
                 Description = "Ouça uma escala modal e identifique qual dos sete modos gregos está sendo tocado.",
                 ExerciseTypeId = 8,

@@ -37,6 +37,7 @@
 - **GuessQuality** - Maior, menor ou diminuto?
 - **GuessFunction** - Qual a função harmônica?
 - **GuessCadence** - Que cadência é essa?
+- **GuessProgression** - Que progressão de acordes é essa?
 - **GuessInversion** - Qual a inversão do acorde?
 - **CompleteChord** - Ouça um acorde e escreva-o na pauta
 
