@@ -20,9 +20,10 @@ namespace AcademiaAuditiva.Services.Audio;
 ///     the same plan)
 ///   - 1 plan for the exercises written on the staff (CompleteChord,
 ///     CompleteScale, TransposeScale, MelodicDictation, RhythmDictation),
-///     and for GuessRhythmPattern, which plays a rhythm as RhythmDictation
-///     does. The dictations play at the tempo the student picked, and count
-///     the student in on the piano first, in the same plan (<see cref="Dictation"/>)
+///     and for GuessRhythmPattern and RhythmTap, which play a rhythm as
+///     RhythmDictation does. The dictations play at the tempo the student
+///     picked, and count the student in on the piano first, in the same plan
+///     (<see cref="Dictation"/>); RhythmTap counts them in again after it
 ///   - 2 plans for GuessMissingNote (one per melody)
 ///   - 1 plan for GuessMeter: its twelve beats, clicked on the piano or
 ///     played by an accompaniment (<see cref="Meter"/>)
@@ -249,6 +250,10 @@ public sealed class ExercisePlaybackPlanner
                 plans.Add(Dictation(instrument, token, "C"));
                 break;
 
+            case "RhythmTap":
+                plans.Add(Dictation(instrument, token, "C", countInAgain: true));
+                break;
+
             case "GuessMeter":
                 plans.Add(Meter(instrument, token));
                 break;
@@ -403,21 +408,36 @@ public sealed class ExercisePlaybackPlanner
     /// quarter notes a minute. The count-in comes first: a click on the piano for each beat of
     /// its time signature (<see cref="DictationRhythm.CountIn"/>), an octave higher when it
     /// is accented, on <paramref name="clickPitch"/>. Then the melody starts on the next beat,
-    /// on the student's instrument.
+    /// on the student's instrument. RhythmTap counts the student in again once the melody is
+    /// over (<paramref name="countInAgain"/>), for them to tap it back from the next beat.
     /// </summary>
-    private static IReadOnlyList<MixInput> Dictation(Instrument instrument, JObject token, string clickPitch)
+    private static IReadOnlyList<MixInput> Dictation(
+        Instrument instrument, JObject token, string clickPitch, bool countInAgain = false)
     {
         var beatSeconds = 60.0 / (token.Value<int?>("tempo") ?? DictationRhythm.Tempos[0]);
+        var timeSignature = token.Value<string>("timeSignature") ?? throw Bad("timeSignature");
+        var melody = token["melody"] as JArray ?? throw Bad("melody");
         var plan = new List<MixInput>();
-        var t = 0.0;
-        foreach (var (beats, accent) in DictationRhythm.CountIn(token.Value<string>("timeSignature") ?? throw Bad("timeSignature")))
+        var t = CountIn(plan, timeSignature, clickPitch, beatSeconds, 0.0);
+        plan.AddRange(MelodyPlan(instrument, melody, beatSeconds, t));
+        if (countInAgain)
+        {
+            CountIn(plan, timeSignature, clickPitch, beatSeconds, t + melody.Sum(BeatsOf) * beatSeconds);
+        }
+        return plan;
+    }
+
+    // Adds the clicks of a count-in from `start` to the plan, and returns when the beat after them starts.
+    private static double CountIn(List<MixInput> plan, string timeSignature, string clickPitch, double beatSeconds, double start)
+    {
+        var t = start;
+        foreach (var (beats, accent) in DictationRhythm.CountIn(timeSignature))
         {
             var octave = accent ? AccentOctave : ClickOctave;
             plan.Add(new MixInput(Instrument.Piano.SampleFor($"{clickPitch}{octave}"), t, ClickSeconds));
             t += beats * beatSeconds;
         }
-        plan.AddRange(MelodyPlan(instrument, token["melody"] as JArray ?? throw Bad("melody"), beatSeconds, t));
-        return plan;
+        return t;
     }
 
     /// <summary>
@@ -467,9 +487,7 @@ public sealed class ExercisePlaybackPlanner
         {
             var type = entry.Value<string>("type");
             var note = entry.Value<string>("note");
-            // Prefer durationBeats (new staff exercises); fall back to duration (legacy GuessMissingNote).
-            var beats = entry.Value<double?>("durationBeats") ?? entry.Value<double?>("duration") ?? 1.0;
-            var seconds = beats * beatSeconds;
+            var seconds = BeatsOf(entry) * beatSeconds;
 
             if (type == "note" && !string.IsNullOrEmpty(note) && note != "rest")
             {
@@ -480,6 +498,10 @@ public sealed class ExercisePlaybackPlanner
         }
         return plan;
     }
+
+    // How long a melody entry lasts, in beats: durationBeats (the staff exercises), or duration (legacy GuessMissingNote).
+    private static double BeatsOf(JToken entry) =>
+        entry.Value<double?>("durationBeats") ?? entry.Value<double?>("duration") ?? 1.0;
 
     private static IReadOnlyList<string> StringArray(JObject token, string field)
     {

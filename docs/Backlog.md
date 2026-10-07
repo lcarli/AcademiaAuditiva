@@ -16,7 +16,7 @@ The modernization plan is done (#47 to #83):
   with real SQL Server and Playwright (#47, #48, #51, #52, #59).
 - **Look and languages**: the visual identity, eight illustrations on the
   home page, and full en-US, pt-BR and fr-CA (#53, #56, #70, #82, #101).
-- **Exercises**: 23 exercises on piano, guitar and violin, plus Explore and
+- **Exercises**: 24 exercises on piano, guitar and violin, plus Explore and
   free practice (#58, #60, #75 to #78). The server times each answer, and the
   dashboard works out every figure from the answers themselves, so it shows
   real practice time and real error counts (#99, #100). Compare 2 melodies
@@ -35,7 +35,11 @@ The modernization plan is done (#47 to #83):
   and chords, and asks whether they go in two, three or four (#126).
   GuessRhythmPattern plays a two-bar rhythm at a dictation level and asks
   which of four written rhythms, that differ in one or two beats, it was
-  (#127).
+  (#127). RhythmTap plays such a rhythm between two count-ins, and the
+  student taps it back on a pad or the space bar. The server matches the
+  taps to the notes at the tempo and from the start that fit them best, so
+  a steady delay of the headphones doesn't count, and a single tap off time
+  is the only note marked wrong (#128).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -242,27 +246,26 @@ they appear in the data export.
 
 ## Exercises
 
-From the brainstorm of 2026-10-06. There are 23 exercises, but rhythm has
-only three (RhythmDictation, GuessMeter and GuessRhythmPattern), and the
-Games and Misc categories have none
+From the brainstorm of 2026-10-06. There are 24 exercises, four of them on
+rhythm (RhythmDictation, GuessMeter, GuessRhythmPattern and RhythmTap), but
+the Games and Misc categories have none
 (`AcademiaAuditiva/Data/SeedData.cs:34-35`). GuessFunction (#122),
 GuessDegree (#123) and GuessProgression (#124) play a cadence to set the key
 before the question. IntervalMelodico could play it too: its melody, 8 to 31
 notes, has to set the key on its own (`MusicTheoryService.cs:1127`), and
 GuessDegree could later ask for two or three notes in a row. RhythmDictation
 counts in and has levels up to 6/8 (#125), GuessMeter asks for the meter
-(#126) and GuessRhythmPattern for the rhythm (#127); tapping a rhythm back
-(item 7) comes next, then the rest.
+(#126), GuessRhythmPattern for the rhythm (#127), and RhythmTap has the
+student tap one back (#128).
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
 | 5. More sevenths, and the top note | New filters | Small | – |
 | 6. Harmonic intervals | New filter | Small | – |
-| 7. Tap the rhythm back | New exercise | Medium | – |
-| 8. Which note changed? | New exercise | Small | – |
-| 9. Singing exercises | New exercises | Medium | Item 1 |
-| 10. In tune or not? | New exercise | Medium | – |
-| 11. Game modes | Games category | Medium to large | – |
+| 7. Which note changed? | New exercise | Small | – |
+| 8. Singing exercises | New exercises | Medium | Item 1 |
+| 9. In tune or not? | New exercise | Medium | – |
+| 10. Game modes | Games category | Medium to large | – |
 
 **Adding an exercise.** A new exercise needs all of this, and tests that go
 through every seeded exercise check much of it:
@@ -351,34 +354,7 @@ intervals. HigherOrLower shares the planner case and stays melodic.
 **Done when.** Both exercises play harmonic intervals when chosen, a planner
 test checks the start times, and the new texts exist in the three languages.
 
-### 7. New rhythm exercise: tap it back
-
-**Why.** Rhythm has three exercises: RhythmDictation asks for the hardest
-thing, writing down what was heard, GuessMeter (#126) only for the meter, and
-GuessRhythmPattern (#127) for which of four written rhythms was heard. None
-asks the student to perform one. `docs/Pedagogia-Exercicios.md:50-55`
-proposed it.
-
-**What.** One more exercise, following the list above:
-
-- **Tap it back.** After a count-in, as in the dictations (#125), the student
-  taps the rhythm on a key or a button, and the server compares the taps'
-  timing with the rhythm's, with a tolerance. Bluetooth headphones can delay
-  the sound by 0.1 to 0.3 s, so begin with a bar of tapping along, to measure
-  the delay.
-
-GuessMeter (#126) did **duple or triple?**: twelve beats in bars of two, three
-or four, the first of each bar clicked an octave higher, as the dictations'
-count-in does, or, at the other level, the bass of a chord on it and the
-chord, short, on the other beats. GuessRhythmPattern (#127) did **which
-rhythm?**: two bars at a level of RhythmDictation, and four written rhythms
-whose notes start in different places but differ in at most two beats
-(`AcademiaAuditiva/Services/RhythmChoices.cs`).
-
-**Done when.** It follows the list above, with tests for its rounds and its
-validator.
-
-### 8. New exercise: which note changed?
+### 7. New exercise: which note changed?
 
 **Why.** Compare 2 melodies asks only whether two melodies differ: the second
 one leaves out a note or not (#120). The next step is to say where and how:
@@ -392,7 +368,7 @@ level of Compare 2 melodies instead, but its answer buttons are different.
 
 **Done when.** It follows the list above.
 
-### 9. Singing exercises
+### 8. Singing exercises
 
 **Needs [item 1](#1-settle-the-essentiajs-license-agpl-30).** They would
 detect the sung pitch as sight-singing does (`detectNotes` in
@@ -418,7 +394,7 @@ test use `MicrophoneExercises`.
 **Done when.** Each one follows the list above, except the learning-path step,
 and recognizes sung notes as reliably as sight-singing does.
 
-### 10. New exercise: in tune or not?
+### 9. New exercise: in tune or not?
 
 **Why.** Violinists and singers tune by ear, and nothing trains it: every
 sample is in tune, one per semitone.
@@ -431,7 +407,7 @@ with a new field on `MixInput`.
 **Done when.** It follows the list above, and a mixer test checks the shifted
 pitch.
 
-### 11. Game modes
+### 10. Game modes
 
 **Why.** The Games and Misc categories are empty. Modes that reuse the rounds
 of existing exercises add variety without new music code.

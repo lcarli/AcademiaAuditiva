@@ -302,6 +302,24 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
             => StaffSequenceHelpers.Compare(userGuess, expectedAnswerJson, durationOnly: true);
     }
 
+    /// <summary>
+    /// The rhythm tapped back: when each tap came, in milliseconds (<see cref="RhythmTaps.Parse"/>),
+    /// is right when there is a tap for each note and each is where its note starts
+    /// (<see cref="RhythmTaps.Check"/>). The answer is the rhythm, as RhythmDictation writes it;
+    /// the detail says how far each tap was from its note.
+    /// </summary>
+    public sealed class RhythmTapValidator : IExerciseValidator
+    {
+        public string ExerciseName => "RhythmTap";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var round = JObject.Parse(expectedAnswerJson);
+            var result = RhythmTaps.Check(RhythmTaps.Onsets(round), RhythmTaps.Parse(userGuess) ?? []);
+            return new ExerciseValidationResult(result.InTime(), (string?)round["answerString"] ?? string.Empty, result);
+        }
+    }
+
     public sealed class IntervalMelodicoValidator : IExerciseValidator
     {
         public string ExerciseName => "IntervalMelodico";

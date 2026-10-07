@@ -6,11 +6,15 @@
 // Playback uses the native Web Audio API.
 //
 // Public API:
-//   AudioEngine.playToken(token[, { overlap }])
+//   AudioEngine.playToken(token[, { overlap, onStart }])
 //                                 → Promise that resolves when the clip
 //                                   finishes playing or is stopped; with
 //                                   overlap: true the clips already playing
-//                                   keep ringing (Explore's piano keys)
+//                                   keep ringing (Explore's piano keys).
+//                                   onStart(clock) is called as the clip
+//                                   starts: clock() is how far into it the
+//                                   student is hearing, in seconds (RhythmTap
+//                                   takes the taps from a moment of its clip)
 //   AudioEngine.stop()            → interrupts every clip still playing
 //   AudioEngine.preload(token)    → optional hint to fetch the buffer
 //                                   without playing yet
@@ -104,7 +108,13 @@ const AudioEngine = (() => {
         playing.clear();
     }
 
-    async function playToken(token, { overlap = false } = {}) {
+    // What the browser knows of the time a sample takes from the render clock
+    // (currentTime) to the speakers.
+    function latency(audio) {
+        return (audio.baseLatency || 0) + (audio.outputLatency || 0);
+    }
+
+    async function playToken(token, { overlap = false, onStart } = {}) {
         if (!token) return;
         // Resume before the fetch so a direct click handler still counts as
         // the user gesture.
@@ -125,6 +135,10 @@ const AudioEngine = (() => {
                 resolve();
             };
             source.start();
+            if (typeof onStart === "function") {
+                const startedAt = audio.currentTime;
+                onStart(() => audio.currentTime - startedAt - latency(audio));
+            }
         });
     }
 

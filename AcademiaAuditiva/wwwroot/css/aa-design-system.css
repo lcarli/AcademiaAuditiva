@@ -2212,6 +2212,75 @@ a:focus-visible {
     display: block;
 }
 
+/* RhythmTap: the pad the rhythm is tapped on, the taps counted under it. A tap must not
+   select text, zoom the page or open the touch menu, whatever its speed. */
+.aa-tap {
+    display: grid;
+    justify-items: center;
+    gap: .75rem;
+    margin-top: 1.25rem;
+}
+
+.aa-tap-pad {
+    display: grid;
+    place-items: center;
+    width: min(100%, 24rem);
+    min-height: 10rem;
+    padding: 1rem;
+    border: 2px dashed var(--aa-line-strong);
+    border-radius: calc(var(--aa-radius) * 2);
+    background: var(--aa-surface);
+    color: var(--aa-muted);
+    font-family: var(--aa-font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color .08s ease, border-color .12s ease, transform .06s ease;
+}
+
+.aa-tap-pad:disabled {
+    cursor: default;
+}
+
+.aa-tap-pad.is-armed {
+    border-style: solid;
+    border-color: var(--aa-accent);
+    background: var(--aa-accent-soft);
+    color: var(--aa-accent-text);
+}
+
+.aa-tap-pad.is-hit {
+    background: color-mix(in srgb, var(--aa-accent) 28%, var(--aa-accent-soft));
+    transform: scale(.98);
+}
+
+.aa-tap-pad:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 .25rem var(--aa-focus-ring);
+}
+
+.aa-tap-status {
+    margin: 0;
+    color: var(--aa-muted);
+    text-align: center;
+}
+
+.aa-tap-tally {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.aa-tap-count {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
 /* ---------- Gamification: level, streak, badges ---------- */
 /* The rank is a dynamics marking (pp … fff), set like one in the display face. */
 .aa-rank {

@@ -1628,6 +1628,29 @@ namespace AcademiaAuditiva.Services
                     };
                 }
 
+                case "RhythmTap":
+                {
+                    // A rhythm of two bars at a level of RhythmDictation, tapped back after the count-in plays again.
+                    var rtLevel = filters.TryGetValue("rtLevel", out var rtL)
+                        && int.TryParse(rtL, out var rtLP)
+                        && DictationRhythm.IsLevel(rtLP)
+                        ? rtLP
+                        : 1;
+                    var rtTempo = DictationRhythm.Tempo(filters.GetValueOrDefault("rtTempo"));
+                    var (rtTimeSignature, rtBars) = RhythmTaps.Draw(rtLevel, random);
+
+                    return new
+                    {
+                        timeSignature = rtTimeSignature,
+                        numMeasures = RhythmTaps.Measures,
+                        level = rtLevel,
+                        tempo = rtTempo,
+                        tapsFrom = RhythmTaps.TapsFrom(rtTimeSignature, rtTempo),
+                        melody = RhythmMelody(rtBars),
+                        answerString = string.Join("|bar|", rtBars.Select(bar => string.Join("|", bar)))
+                    };
+                }
+
                 default:
                     return new { message = "Exercício sem gerador de nota implementado." };
             }

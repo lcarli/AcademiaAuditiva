@@ -3343,6 +3343,66 @@
     <value>Cliquez sur « Jouer » pour entendre un rythme et voir les quatre choix.</value>
     <comment />
   </data>
+  <data name="RhythmTap" xml:space="preserve">
+    <value>Frappez le rythme</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Subtitle" xml:space="preserve">
+    <value>Écoutez un rythme et reproduisez-le en frappant.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Instructions" xml:space="preserve">
+    <value>Un décompte donne le tempo, un rythme de deux mesures joue, puis le décompte reprend. Au temps suivant, frappez le rythme sur le bouton ou avec la barre d&apos;espace : une frappe là où commence chaque note.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Tip1" xml:space="preserve">
+    <value>Comptez les temps en écoutant, et continuez de compter pendant le second décompte : il donne le tempo de vos frappes.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Tip2" xml:space="preserve">
+    <value>Seules les attaques comptent : pendant les notes longues et les silences, attendez en comptant, sans frapper.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Tip3" xml:space="preserve">
+    <value>Vous pouvez commencer quand vous voulez après le décompte, et frapper un peu plus vite ou plus lentement : ce qui compte, c&apos;est le temps entre vos frappes.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTapText" xml:space="preserve">
+    <value>Frappez le rythme que vous avez entendu.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TapRhythmText" xml:space="preserve">
+    <value>Frappez le rythme avant de valider.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Pad" xml:space="preserve">
+    <value>Frappez ici</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Taps" xml:space="preserve">
+    <value>Frappes : {{0}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Placeholder" xml:space="preserve">
+    <value>Cliquez sur « Jouer » pour entendre un rythme.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Listen" xml:space="preserve">
+    <value>Écoutez, et attendez la fin du second décompte…</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Now" xml:space="preserve">
+    <value>Frappez maintenant le rythme, sur le bouton ou avec la barre d&apos;espace.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Count" xml:space="preserve">
+    <value>Frappes : {{0}}, mais le rythme a {{1}} notes :</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Off" xml:space="preserve">
+    <value>Les notes frappées en décalage sont en rouge ({{0}} sur {{1}}) :</value>
+    <comment />
+  </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
     <value>Note sélectionnée {{0}} : {{1}}</value>
     <comment />

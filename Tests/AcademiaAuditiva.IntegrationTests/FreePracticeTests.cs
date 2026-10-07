@@ -55,11 +55,12 @@ public class FreePracticeTests : IClassFixture<FreePracticeTests.Factory>
 
         var validation = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
             new { exerciseId, roundId, userGuess = answer }));
-        validation.EnumerateObject().Select(p => p.Name).Should().Equal("success", "free", "isCorrect", "answer", "message");
+        validation.EnumerateObject().Select(p => p.Name).Should().Equal("success", "free", "isCorrect", "answer", "detail", "message");
         validation.GetProperty("success").GetBoolean().Should().BeTrue();
         validation.GetProperty("free").GetBoolean().Should().BeTrue();
         validation.GetProperty("isCorrect").GetBoolean().Should().BeTrue();
         validation.GetProperty("answer").GetString().Should().Be(answer);
+        validation.GetProperty("detail").ValueKind.Should().Be(System.Text.Json.JsonValueKind.Null, "only RhythmTap says how the answer went");
         validation.GetProperty("message").GetString().Should().Be("Correct answer!");
 
         // An answered round is used up, free or not.

@@ -1,5 +1,6 @@
 using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Audio;
 using Newtonsoft.Json.Linq;
 
@@ -128,27 +129,84 @@ public class ExercisePlaybackPlannerTests
     }
 
     [Theory]
+    [InlineData("4/4", "x...", 1.0)]
+    [InlineData("3/4", "x..", 1.0)]
+    [InlineData("2/4", "x.x.", 1.0)]
+    [InlineData("6/8", "x..x..", 0.5)]
+    public void RhythmTap_CountsTheStudentInAgain_AfterTheRhythm(string timeSignature, string accents, double clickBeats)
+    {
+        var filters = new Dictionary<string, string>
+        {
+            ["instrument"] = "Violin",
+            ["rtLevel"] = timeSignature == "6/8" ? "8" : "5",
+        };
+
+        var plan = PlanIn("RhythmTap", timeSignature, filters);
+
+        // The count-in on the piano, the rhythm on the student's instrument, then the count-in
+        // again from the beat after the rhythm, at 120 quarter notes a minute: the taps follow it.
+        List<MixInput> CountIn(double start) => [.. accents.Select((accent, i) =>
+            new MixInput(Instrument.Piano.SampleFor("C" + (accent == 'x' ? "7" : "6")), start + i * clickBeats * 0.5, 0.12))];
+        var expected = CountIn(0);
+        var t = accents.Length * clickBeats * 0.5;
+        foreach (var entry in JObject.Parse(plan.ExpectedAnswerJson)["melody"]!)
+        {
+            var seconds = entry.Value<double>("durationBeats") * 0.5;
+            if (entry.Value<string>("type") == "note")
+            {
+                expected.Add(new MixInput(Instrument.Violin.SampleFor(entry.Value<string>("note")!), t, seconds));
+            }
+            t += seconds;
+        }
+        expected.AddRange(CountIn(t));
+
+        plan.PlaybackPlans.Should().ContainSingle().Which.Should().Equal(expected);
+    }
+
+    [Theory]
+    [InlineData("4/4")]
+    [InlineData("3/4")]
+    [InlineData("2/4")]
+    [InlineData("6/8")]
+    public void RhythmTap_TakesTheTaps_FromHalfwayBetweenTheLastClickAndTheBeatAfterIt(string timeSignature)
+    {
+        var plan = PlanIn("RhythmTap", timeSignature, new() { ["rtLevel"] = timeSignature == "6/8" ? "8" : "5", ["rtTempo"] = "90" });
+
+        var answer = JObject.Parse(plan.ExpectedAnswerJson);
+        var inputs = plan.PlaybackPlans.Should().ContainSingle().Subject;
+        var lastClick = inputs[^1].StartTimeSeconds;
+        var clickSeconds = DictationRhythm.CountIn(timeSignature)[^1].Beats * 60.0 / 90;
+
+        answer.Value<double>("tapsFrom").Should().BeApproximately(lastClick + clickSeconds / 2, 0.001);
+    }
+
+    [Theory]
     [InlineData("RhythmDictation", "rdTempo", "60", 1.0)]
     [InlineData("RhythmDictation", "rdTempo", "90", 2.0 / 3)]
     [InlineData("RhythmDictation", "rdTempo", "120", 0.5)]
     [InlineData("GuessRhythmPattern", "grpTempo", "60", 1.0)]
     [InlineData("GuessRhythmPattern", "grpTempo", "90", 2.0 / 3)]
     [InlineData("GuessRhythmPattern", "grpTempo", "120", 0.5)]
+    [InlineData("RhythmTap", "rtTempo", "60", 1.0)]
+    [InlineData("RhythmTap", "rtTempo", "90", 2.0 / 3)]
+    [InlineData("RhythmTap", "rtTempo", "120", 0.5)]
     [InlineData("MelodicDictation", "mdTempo", "60", 1.0)]
     [InlineData("MelodicDictation", "mdTempo", "90", 2.0 / 3)]
     public void Dictation_IsPlayedAtTheTempoTheStudentPicked(string exerciseName, string filter, string tempo, double beatSeconds)
     {
-        // Level 1 is in 4/4, without rests: four clicks, then a note on each value.
+        // Level 1 is in 4/4, without rests: four clicks, then a note on each value; RhythmTap
+        // counts in again after them.
         var filters = new Dictionary<string, string>
         {
-            [filter] = tempo, ["mdLevel"] = "1", ["rdLevel"] = "1", ["grpLevel"] = "1",
+            [filter] = tempo, ["mdLevel"] = "1", ["rdLevel"] = "1", ["grpLevel"] = "1", ["rtLevel"] = "1",
         };
 
         var plan = _planner.Plan(new Exercise { ExerciseId = 1, Name = exerciseName }, filters);
 
         var melody = JObject.Parse(plan.ExpectedAnswerJson)["melody"]!.ToList();
         var inputs = plan.PlaybackPlans.Should().ContainSingle().Subject;
-        inputs.Should().HaveCount(4 + melody.Count);
+        var countsInAgain = exerciseName == "RhythmTap";
+        inputs.Should().HaveCount((countsInAgain ? 8 : 4) + melody.Count);
         for (var i = 0; i < 4; i++)
         {
             inputs[i].StartTimeSeconds.Should().BeApproximately(i * beatSeconds, 1e-9);
@@ -162,12 +220,17 @@ public class ExercisePlaybackPlannerTests
             inputs[4 + k].DurationSeconds.Should().BeApproximately(seconds, 1e-9);
             t += seconds;
         }
+        for (var i = 0; countsInAgain && i < 4; i++)
+        {
+            inputs[4 + melody.Count + i].StartTimeSeconds.Should().BeApproximately(t + i * beatSeconds, 1e-9);
+        }
     }
 
     [Theory]
     [InlineData("MelodicDictation", "md", "1,3,4")]
     [InlineData("RhythmDictation", "rd", "1,3,4,5,6,7,8")]
     [InlineData("GuessRhythmPattern", "grp", "1,3,4,5,6,7,8")]
+    [InlineData("RhythmTap", "rt", "1,3,4,5,6,7,8")]
     public void Dictation_AtTheSlowestTempo_FitsInAMix(string exerciseName, string prefix, string levels)
     {
         foreach (var level in levels.Split(','))

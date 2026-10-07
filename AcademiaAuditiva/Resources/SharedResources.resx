@@ -3343,6 +3343,66 @@
     <value>Click Play to hear a rhythm and see the four choices.</value>
     <comment />
   </data>
+  <data name="RhythmTap" xml:space="preserve">
+    <value>Tap the Rhythm</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Subtitle" xml:space="preserve">
+    <value>Hear a rhythm and tap it back.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Instructions" xml:space="preserve">
+    <value>A count-in sets the tempo, a two-bar rhythm plays, and the count-in plays again. On the next beat, tap the rhythm on the pad or with the space bar: one tap where each note starts.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Tip1" xml:space="preserve">
+    <value>Count the beats while you listen, and keep counting through the second count-in: it sets the tempo of your taps.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Tip2" xml:space="preserve">
+    <value>Only the attacks count: through long notes and rests, wait and count without tapping.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Tip3" xml:space="preserve">
+    <value>You may start whenever you like after the count-in, and tap a little faster or slower: what counts is the time between your taps.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTapText" xml:space="preserve">
+    <value>Tap the rhythm you heard.</value>
+    <comment />
+  </data>
+  <data name="Exercise.TapRhythmText" xml:space="preserve">
+    <value>Tap the rhythm before validating.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Pad" xml:space="preserve">
+    <value>Tap here</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Taps" xml:space="preserve">
+    <value>Taps: {{0}}</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Placeholder" xml:space="preserve">
+    <value>Click Play to hear a rhythm.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Listen" xml:space="preserve">
+    <value>Listen, and wait for the second count-in to end…</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Now" xml:space="preserve">
+    <value>Now tap the rhythm, on the pad or with the space bar.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Count" xml:space="preserve">
+    <value>Taps: {{0}}, but the rhythm has {{1}} notes:</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmTap.Off" xml:space="preserve">
+    <value>The notes you tapped off time are in red ({{0}} of {{1}}):</value>
+    <comment />
+  </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
     <value>Selected note {{0}}: {{1}}</value>
     <comment />
