@@ -28,6 +28,7 @@ public static class LearningPathCatalog
             Step("GuessChords", 10, 8, ("chordType", "both")),
             Step("GuessMissingNote", 10, 7, ("melodyLength", "4")),
             Step("GuessDegree", 10, 7, ("keySelect", "C"), ("scaleTypeSelect", "major"), ("gdLevel", "diatonic")),
+            Step("GuessMeter", 10, 7, ("gmLevel", "clicks")),
         ]),
         new("BuildingBlocks",
         [

@@ -41,7 +41,12 @@ public class DailyChallengeRulesTests
         drawn.Keys.Should().BeEquivalentTo(
             exercises.Select(e => e.Name).Where(n => n != "SolfegeMelody").Distinct(),
             "every exercise but Solfege Melody, which needs a microphone, gets drawn");
-        drawn.Should().AllSatisfy(kv => kv.Value.Should().BeInRange(days / 10, days * 3 / 10, $"{kv.Key} is drawn on 10% to 30% of the days"));
+        // The draw goes by category, so an exercise of a big category comes up less often than one
+        // of a small category: each is drawn at least half, and at most twice, as often as it
+        // would be if every exercise were drawn alike.
+        var share = (double)days * DailyChallengeRules.ExercisesPerDay / drawn.Count;
+        drawn.Should().AllSatisfy(kv => kv.Value.Should().BeInRange((int)(share / 2), (int)(share * 2),
+            $"{kv.Key} is drawn about as often as the other exercises"));
         challenges.Count.Should().BeGreaterThan(days / 2, "the challenge changes from day to day");
     }
 

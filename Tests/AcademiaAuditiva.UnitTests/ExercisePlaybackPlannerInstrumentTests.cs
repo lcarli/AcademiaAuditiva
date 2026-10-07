@@ -29,12 +29,14 @@ public class ExercisePlaybackPlannerInstrumentTests
     private readonly ExercisePlaybackPlanner _planner = new();
 
     // The exercises that set their key with a cadence before the question, and when the question
-    // starts: after the four chords of the cadence and a silent beat, 1.25 s each.
+    // starts: after the four chords of the cadence and a silent beat, 1.25 s each. GuessMeter asks
+    // no question on the instrument: its clips are clicks or an accompaniment, all of them.
     private static readonly Dictionary<string, double> QuestionStart = new()
     {
         ["GuessFunction"] = 6.25,
         ["GuessDegree"] = 6.25,
         ["GuessProgression"] = 6.25,
+        ["GuessMeter"] = double.PositiveInfinity,
     };
 
     private static List<string> SeededExerciseNames()
@@ -457,8 +459,11 @@ public class ExercisePlaybackPlannerInstrumentTests
     private static List<int> Midis(JToken notes) => [.. notes.Values<string>().Select(note => Midi(note!))];
 
     // When the melody of a dictation starts, after its count-in; 0 for the other exercises.
+    // GuessMeter's clicks are all on the piano, as a count-in is.
     private static double CountInSeconds(string exerciseName, string expectedAnswerJson)
     {
+        if (exerciseName == "GuessMeter")
+            return JObject.Parse(expectedAnswerJson).Value<string>("level") == "clicks" ? double.PositiveInfinity : 0.0;
         if (exerciseName is not ("MelodicDictation" or "RhythmDictation"))
             return 0.0;
 

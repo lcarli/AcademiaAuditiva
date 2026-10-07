@@ -93,17 +93,17 @@ public class LearningPathServiceTests
     {
         await using var db = SeededDatabase();
         var answers = new Answers(db);
-        answers.CompleteSteps(4);
-        answers.Add("GuessDegree", correct: true, count: 7);
+        answers.CompleteSteps(5);
+        answers.Add("GuessMeter", correct: true, count: 7);
         await db.SaveChangesAsync();
 
         var progress = await Service(db).GetProgressAsync(UserId);
 
-        progress.JustCompleted!.Number.Should().Be(5);
+        progress.JustCompleted!.Number.Should().Be(6);
         progress.UnitOf(progress.JustCompleted).State.Should().Be(StepState.Completed);
-        progress.Current!.Should().BeEquivalentTo(new { Number = 6, Exercise = "IntervalMelodico" });
+        progress.Current!.Should().BeEquivalentTo(new { Number = 7, Exercise = "IntervalMelodico" });
         progress.UnitOf(progress.Current).Key.Should().Be("BuildingBlocks");
-        progress.Should().BeEquivalentTo(new { CompletedSteps = 5, Percent = 25 });
+        progress.Should().BeEquivalentTo(new { CompletedSteps = 6, Percent = 28 });
     }
 
     [Fact]

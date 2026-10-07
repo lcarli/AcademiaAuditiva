@@ -66,6 +66,7 @@ public class ExerciseValidatorTests
     [InlineData(typeof(GuessMissingNoteValidator), "GuessMissingNote")]
     [InlineData(typeof(GuessFunctionValidator), "GuessFunction")]
     [InlineData(typeof(GuessDegreeValidator), "GuessDegree")]
+    [InlineData(typeof(GuessMeterValidator), "GuessMeter")]
     [InlineData(typeof(GuessProgressionValidator), "GuessProgression")]
     [InlineData(typeof(GuessQualityValidator), "GuessQuality")]
     [InlineData(typeof(HigherOrLowerValidator), "HigherOrLower")]

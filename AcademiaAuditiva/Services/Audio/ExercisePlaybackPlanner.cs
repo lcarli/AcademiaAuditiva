@@ -23,6 +23,8 @@ namespace AcademiaAuditiva.Services.Audio;
 ///     The dictations play at the tempo the student picked, and count the
 ///     student in on the piano first, in the same plan (<see cref="Dictation"/>)
 ///   - 2 plans for GuessMissingNote (one per melody)
+///   - 1 plan for GuessMeter: its twelve beats, clicked on the piano or
+///     played by an accompaniment (<see cref="Meter"/>)
 ///   - 0 plans for SolfegeMelody: the melody is shown as sheet music for
 ///     the student to sing, so there is nothing to hide. Only its first
 ///     note is played, on the piano, when the student asks for it
@@ -35,7 +37,8 @@ namespace AcademiaAuditiva.Services.Audio;
 /// written when the student writes it on the staff (CompleteChord), and the
 /// exercises about chords are played on the piano instead of the violin,
 /// which plays one note at a time. So is the cadence that sets the key of a
-/// note played on the violin (GuessDegree).
+/// note played on the violin (GuessDegree), and the accompaniment GuessMeter
+/// plays for it.
 /// </summary>
 public sealed class ExercisePlaybackPlanner
 {
@@ -79,6 +82,11 @@ public sealed class ExercisePlaybackPlanner
     private const double ClickSeconds = 0.12;
     private const int ClickOctave = 6;
     private const int AccentOctave = 7;
+
+    // GuessMeter's accompaniment: the bass rings through most of the first beat of a bar, and
+    // the chord is short on each of the others, so a bar of 3/4 goes oom-pah-pah.
+    private const double BassBeats = 0.9;
+    private const double OffbeatChordBeats = 0.6;
 
     // The exercises that play chords on a shape of the guitar's neck; the violin can't play them.
     private static readonly HashSet<string> ChordsPlayed =
@@ -239,6 +247,10 @@ public sealed class ExercisePlaybackPlanner
                 plans.Add(Dictation(instrument, token, "C"));
                 break;
 
+            case "GuessMeter":
+                plans.Add(Meter(instrument, token));
+                break;
+
             default:
                 throw new InvalidOperationException(
                     $"ExercisePlaybackPlanner does not know how to plan '{exercise.Name}'.");
@@ -293,19 +305,23 @@ public sealed class ExercisePlaybackPlanner
         => NotesInSequence(instrument, notes, NoteClipSeconds, IntervalGapSeconds);
 
     /// <summary>
-    /// A chord as it is written on the staff, ringing for a whole note: the piano plays its
-    /// notes together and the guitar strums exactly those notes, from the lowest up, so the
-    /// student hears what they write (<see cref="Chord"/> plays a shape of the neck instead).
+    /// A chord as it is written on the staff, from <paramref name="startTime"/> for
+    /// <paramref name="seconds"/>, a whole note unless told: the piano plays its notes together
+    /// and the guitar strums exactly those notes, from the lowest up, so the student hears what
+    /// they write (<see cref="Chord"/> plays a shape of the neck instead).
     /// </summary>
-    private static IReadOnlyList<MixInput> WrittenChord(Instrument instrument, IReadOnlyList<string> notes)
+    private static IReadOnlyList<MixInput> WrittenChord(
+        Instrument instrument,
+        IReadOnlyList<string> notes,
+        double startTime = 0.0,
+        double seconds = WholeNoteBeats * BeatDurationSeconds)
     {
-        var seconds = WholeNoteBeats * BeatDurationSeconds;
         if (instrument.Chords != ChordStyle.Strummed)
-            return [.. notes.Select(note => new MixInput(instrument.SampleFor(note), 0.0, seconds))];
+            return [.. notes.Select(note => new MixInput(instrument.SampleFor(note), startTime, seconds))];
 
         return [.. notes.Select(Midi).Order().Select((midi, i) => new MixInput(
             instrument.SampleName(midi),
-            i * StrumStepSeconds,
+            startTime + i * StrumStepSeconds,
             seconds - i * StrumStepSeconds))];
     }
 
@@ -399,6 +415,44 @@ public sealed class ExercisePlaybackPlanner
             t += beats * beatSeconds;
         }
         plan.AddRange(MelodyPlan(instrument, token["melody"] as JArray ?? throw Bad("melody"), beatSeconds, t));
+        return plan;
+    }
+
+    /// <summary>
+    /// GuessMeter: the <see cref="MusicTheoryService.MeterBeats"/> beats of its round at 120 BPM
+    /// (<see cref="BeatDurationSeconds"/>), the first of each bar accented. They are clicks on the
+    /// piano, as a dictation counts in, or an accompaniment: the bass of each bar's chord on its
+    /// first beat and the chord on the others, played by the student's instrument when it plays
+    /// chords (the guitar strums them as written) and by the piano when it doesn't (the violin).
+    /// </summary>
+    private static IReadOnlyList<MixInput> Meter(Instrument instrument, JObject token)
+    {
+        var beatsPerBar = token.Value<int?>("beatsPerBar") ?? throw Bad("beatsPerBar");
+        var plan = new List<MixInput>();
+        if (token.Value<string>("level") != "accompaniment")
+        {
+            for (var beat = 0; beat < MusicTheoryService.MeterBeats; beat++)
+            {
+                var octave = beat % beatsPerBar == 0 ? AccentOctave : ClickOctave;
+                plan.Add(new MixInput(Instrument.Piano.SampleFor($"C{octave}"), beat * BeatDurationSeconds, ClickSeconds));
+            }
+            return plan;
+        }
+
+        var accompaniment = instrument.PlaysChords ? instrument : Instrument.Piano;
+        var t = 0.0;
+        foreach (var bar in (token["bars"] as JArray ?? throw Bad("bars")).OfType<JObject>())
+        {
+            plan.Add(new MixInput(
+                accompaniment.SampleFor(bar.Value<string>("bass") ?? throw Bad("bass")), t, BassBeats * BeatDurationSeconds));
+            var chord = StringArray(bar, "chord");
+            for (var beat = 1; beat < beatsPerBar; beat++)
+            {
+                plan.AddRange(WrittenChord(
+                    accompaniment, chord, t + beat * BeatDurationSeconds, OffbeatChordBeats * BeatDurationSeconds));
+            }
+            t += beatsPerBar * BeatDurationSeconds;
+        }
         return plan;
     }
 

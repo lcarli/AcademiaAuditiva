@@ -3251,6 +3251,58 @@
     <value>Muito lento (♩ = 60)</value>
     <comment />
   </data>
+  <data name="GuessMeter" xml:space="preserve">
+    <value>Adivinhe o compasso</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessMeter.Subtitle" xml:space="preserve">
+    <value>Ouça os pulsos e diga como eles se agrupam em compassos.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessMeter.Instructions" xml:space="preserve">
+    <value>Ouça doze pulsos e identifique o compasso. O primeiro tempo de cada compasso é acentuado: os pulsos se agrupam de dois em dois (binário), de três em três (ternário) ou de quatro em quatro (quaternário).</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessMeter.Tip1" xml:space="preserve">
+    <value>Conte "1, 2, 3…" e volte ao 1 em cada acento: o maior número a que você chega é o compasso.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessMeter.Tip2" xml:space="preserve">
+    <value>Binário e quaternário se confundem: no quaternário, três tempos fracos separam os acentos.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessMeter.Tip3" xml:space="preserve">
+    <value>Com acompanhamento, o baixo e a troca de acorde marcam o primeiro tempo, e os acordes curtos, os outros.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MeterText" xml:space="preserve">
+    <value>Qual compasso você ouviu?</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectMeterText" xml:space="preserve">
+    <value>Por favor, selecione um compasso.</value>
+    <comment />
+  </data>
+  <data name="Exercise.Meter.Duple" xml:space="preserve">
+    <value>Binário (2/4)</value>
+    <comment />
+  </data>
+  <data name="Exercise.Meter.Triple" xml:space="preserve">
+    <value>Ternário (3/4)</value>
+    <comment />
+  </data>
+  <data name="Exercise.Meter.Quadruple" xml:space="preserve">
+    <value>Quaternário (4/4)</value>
+    <comment />
+  </data>
+  <data name="Exercise.MeterLevel.Clicks" xml:space="preserve">
+    <value>Cliques</value>
+    <comment />
+  </data>
+  <data name="Exercise.MeterLevel.Accompaniment" xml:space="preserve">
+    <value>Baixo e acordes (pum-pá-pá)</value>
+    <comment />
+  </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
     <value>Nota selecionada {{0}}: {{1}}</value>
     <comment />

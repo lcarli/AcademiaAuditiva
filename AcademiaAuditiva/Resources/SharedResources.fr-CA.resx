@@ -3251,6 +3251,58 @@
     <value>Très lent (♩ = 60)</value>
     <comment />
   </data>
+  <data name="GuessMeter" xml:space="preserve">
+    <value>Devinez la mesure</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessMeter.Subtitle" xml:space="preserve">
+    <value>Écoutez les temps et dites comment ils se groupent en mesures.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessMeter.Instructions" xml:space="preserve">
+    <value>Écoutez douze temps et identifiez la mesure. Le premier temps de chaque mesure est accentué : les temps se groupent par deux (mesure à deux temps), par trois (à trois temps) ou par quatre (à quatre temps).</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessMeter.Tip1" xml:space="preserve">
+    <value>Comptez « 1, 2, 3… » et revenez à 1 à chaque accent : le plus grand nombre atteint donne la mesure.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessMeter.Tip2" xml:space="preserve">
+    <value>On confond facilement deux et quatre temps : à quatre temps, trois temps faibles séparent les accents.</value>
+    <comment />
+  </data>
+  <data name="Exercise.GuessMeter.Tip3" xml:space="preserve">
+    <value>Avec l&apos;accompagnement, la basse et le changement d&apos;accord marquent le premier temps, et les accords brefs, les autres.</value>
+    <comment />
+  </data>
+  <data name="Exercise.MeterText" xml:space="preserve">
+    <value>Quelle mesure avez-vous entendue ?</value>
+    <comment />
+  </data>
+  <data name="Exercise.SelectMeterText" xml:space="preserve">
+    <value>Veuillez sélectionner une mesure.</value>
+    <comment />
+  </data>
+  <data name="Exercise.Meter.Duple" xml:space="preserve">
+    <value>À deux temps (2/4)</value>
+    <comment />
+  </data>
+  <data name="Exercise.Meter.Triple" xml:space="preserve">
+    <value>À trois temps (3/4)</value>
+    <comment />
+  </data>
+  <data name="Exercise.Meter.Quadruple" xml:space="preserve">
+    <value>À quatre temps (4/4)</value>
+    <comment />
+  </data>
+  <data name="Exercise.MeterLevel.Clicks" xml:space="preserve">
+    <value>Clics</value>
+    <comment />
+  </data>
+  <data name="Exercise.MeterLevel.Accompaniment" xml:space="preserve">
+    <value>Basse et accords (oum-pa-pa)</value>
+    <comment />
+  </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
     <value>Note sélectionnée {{0}} : {{1}}</value>
     <comment />
