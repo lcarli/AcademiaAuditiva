@@ -115,6 +115,14 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
             => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "answer");
     }
 
+    /// <summary>The meter of the beats played: duple, triple or quadruple.</summary>
+    public sealed class GuessMeterValidator : IExerciseValidator
+    {
+        public string ExerciseName => "GuessMeter";
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+            => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "answer");
+    }
+
     /// <summary>
     /// A progression's name ("I-V-vi-IV") or, in dictation, the degrees of its chords 2 to 4
     /// ("6-minor|2-minor|5-major"), which must all be right.

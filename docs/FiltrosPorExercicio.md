@@ -206,6 +206,14 @@ O aluno ouve uma cadência que estabelece a tonalidade (I–IV–V–I, ou i–i
 
 ---
 
+### 23. Adivinhe o compasso
+O aluno ouve doze pulsos a ♩ = 120, com o primeiro de cada compasso acentuado, e diz se eles se agrupam de dois em dois (binário, 2/4), de três em três (ternário, 3/4) ou de quatro em quatro (quaternário, 4/4). Os três compassos duram o mesmo tempo e terminam num tempo fraco.
+- **Filtros aplicáveis**:
+  - Nível: cliques (no piano, como a contagem dos ditados: um Dó uma oitava acima no primeiro tempo) ou baixo e acordes (um "pum-pá-pá" num tom maior sorteado a cada questão: o baixo do acorde no primeiro tempo e o acorde, curto, nos outros; o acorde muda a cada compasso, I–V–I em 4/4, I–IV–V–I em 3/4 e I–IV–V–I–V–I em 2/4)
+  - Instrumento: os cliques tocam sempre no piano; o acompanhamento toca no instrumento escolhido, ou no piano quando é o violino
+
+---
+
 ## Observações
 
 - Filtros devem ser opcionais e salvos por sessão de usuário

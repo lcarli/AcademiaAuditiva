@@ -757,6 +757,26 @@ namespace AcademiaAuditiva.Services
             ["7-major"] = ["3-major", "1-minor"],
         };
 
+        /// <summary>
+        /// The beats of a round of GuessMeter: a whole number of bars in each of its meters, so
+        /// every meter lasts as long and ends on a weak beat.
+        /// </summary>
+        public const int MeterBeats = 12;
+
+        // The meters GuessMeter asks, with the beats of their bars. The names are the values of
+        // the exercise's answer buttons.
+        private static readonly (string Meter, int BeatsPerBar)[] Meters = [("duple", 2), ("triple", 3), ("quadruple", 4)];
+
+        // The chords of GuessMeter's accompaniment, one a bar, as the semitones from the tonic up
+        // to their roots: I–V–I in the three bars of 4/4, I–IV–V–I in the four of 3/4 and
+        // I–IV–V–I–V–I in the six of 2/4, so the chord changes on every first beat.
+        private static readonly Dictionary<int, int[]> MeterProgressions = new()
+        {
+            [4] = [0, 7, 0],
+            [3] = [0, 5, 7, 0],
+            [2] = [0, 5, 7, 0, 7, 0],
+        };
+
         public static bool NotesAreEquivalent(string note1, string note2)
         {
             // Canonical form keeps the letter capitalized and preserves the
@@ -1223,6 +1243,38 @@ namespace AcademiaAuditiva.Services
                         cadence = progressionCadence,
                         chords = progressionChords,
                         answer = progressionAnswer
+                    };
+                }
+                case "GuessMeter":
+                {
+                    // MeterBeats beats in bars of two, three or four. An unknown level is clicks,
+                    // which the planner makes from the beats of a bar.
+                    var (meterAnswer, meterBeatsPerBar) = Meters[random.Next(Meters.Length)];
+                    if (!(filters.TryGetValue("gmLevel", out var meterLevel) && meterLevel == "accompaniment"))
+                        return new { level = "clicks", beatsPerBar = meterBeatsPerBar, answer = meterAnswer };
+
+                    // An oom-pah in a major key drawn for the round: the root of each bar's chord in
+                    // the bass, from F2 to E3, then the chord in root position an octave above it.
+                    var meterKey = KeyTonics[random.Next(KeyTonics.Length)];
+                    var meterTonic = NoteToMidi(meterKey + "4")!.Value % 12;
+                    var meterBars = MeterProgressions[meterBeatsPerBar].Select(meterRoot =>
+                    {
+                        var meterPitchClass = (meterTonic + meterRoot) % 12;
+                        var meterBass = meterPitchClass <= 4 ? 48 + meterPitchClass : 36 + meterPitchClass;
+                        return new
+                        {
+                            bass = MidiToNote(meterBass),
+                            chord = new[] { meterBass + 12, meterBass + 16, meterBass + 19 }.Select(MidiToNote).ToList()
+                        };
+                    }).ToList();
+
+                    return new
+                    {
+                        level = "accompaniment",
+                        beatsPerBar = meterBeatsPerBar,
+                        key = meterKey,
+                        bars = meterBars,
+                        answer = meterAnswer
                     };
                 }
                 case "GuessQuality":

@@ -291,6 +291,49 @@ test('free practice shows the answer and checks it without scoring', async ({ pa
   await expect(reveal).toBeHidden();
 });
 
+test('guess the meter plays its beats as clicks or as bass and chords, and checks the meter', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessMeter?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const answers = page.locator('.aa-answer.guessAnswer:visible');
+  await expect(answers).toHaveCount(3);
+  expect(await answers.evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value)))
+    .toEqual(['duple', 'triple', 'quadruple']);
+
+  const filters = page.locator('#filtersModal');
+  const dialog = page.locator('.swal2-popup');
+  for (const level of ['clicks', 'accompaniment']) {
+    await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+    await filters.locator('select[name="gmLevel"]').selectOption(level);
+    await filters.locator('.btn-close').click();
+    await expect(filters).toBeHidden();
+
+    const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+    const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+    await page.click('#Play');
+    const play = await playResponse;
+    expect(JSON.parse(play.request().postData() ?? '{}').filters).toEqual({ gmLevel: level });
+    const audio = await audioResponse;
+    expect(audio.headers()['content-type']).toContain('audio/');
+    expect((await audio.body()).length).toBeGreaterThan(1000);
+
+    const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+    await page.locator('[data-aa-reveal]').click();
+    const shown = await (await revealResponse).json();
+    expect(shown.answer).toMatch(/^(duple|triple|quadruple)$/);
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+
+    await page.locator(`.aa-answer:visible[value="${shown.answer}"]`).click();
+    const validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+    await page.click('#validateGuess');
+    const result = await (await validateResponse).json();
+    expect(result).toMatchObject({ success: true, free: true, isCorrect: true, answer: shown.answer });
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+  }
+});
+
 test('rhythm dictation is written with note and rest symbols, without note names', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   const metadata = await openDictation(page, baseURL!, 'RhythmDictation', 'rdLevel');

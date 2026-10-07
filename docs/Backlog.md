@@ -16,7 +16,7 @@ The modernization plan is done (#47 to #83):
   with real SQL Server and Playwright (#47, #48, #51, #52, #59).
 - **Look and languages**: the visual identity, eight illustrations on the
   home page, and full en-US, pt-BR and fr-CA (#53, #56, #70, #82, #101).
-- **Exercises**: 21 exercises on piano, guitar and violin, plus Explore and
+- **Exercises**: 22 exercises on piano, guitar and violin, plus Explore and
   free practice (#58, #60, #75 to #78). The server times each answer, and the
   dashboard works out every figure from the answers themselves, so it shows
   real practice time and real error counts (#99, #100). Compare 2 melodies
@@ -31,7 +31,8 @@ The modernization plan is done (#47 to #83):
   dictations count in on the piano and play at the tempo the student picks,
   and RhythmDictation has four more levels: dotted notes, sixteenths,
   syncopation and 6/8 in dotted quarters, which melodies in 6/8 use too
-  (#125).
+  (#125). GuessMeter plays twelve beats, as clicks or as an oom-pah of bass
+  and chords, and asks whether they go in two, three or four (#126).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -238,21 +239,22 @@ they appear in the data export.
 
 ## Exercises
 
-From the brainstorm of 2026-10-06. There are 21 exercises, but rhythm has a
-single one (RhythmDictation), and the Games and Misc categories have none
+From the brainstorm of 2026-10-06. There are 22 exercises, but rhythm has
+only two (RhythmDictation and GuessMeter), and the Games and Misc categories
+have none
 (`AcademiaAuditiva/Data/SeedData.cs:34-35`). GuessFunction (#122),
 GuessDegree (#123) and GuessProgression (#124) play a cadence to set the key
 before the question. IntervalMelodico could play it too: its melody, 8 to 31
 notes, has to set the key on its own (`MusicTheoryService.cs:1127`), and
 GuessDegree could later ask for two or three notes in a row. RhythmDictation
-counts in and has levels up to 6/8 (#125); the new rhythm exercises (item 7)
-come next, then the rest.
+counts in and has levels up to 6/8 (#125), and GuessMeter asks for the meter
+(#126); the other two rhythm exercises (item 7) come next, then the rest.
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
 | 5. More sevenths, and the top note | New filters | Small | – |
 | 6. Harmonic intervals | New filter | Small | – |
-| 7. Which rhythm, tap it back, duple or triple | New exercises | Medium | – |
+| 7. Which rhythm, tap it back | New exercises | Medium | – |
 | 8. Which note changed? | New exercise | Small | – |
 | 9. Singing exercises | New exercises | Medium | Item 1 |
 | 10. In tune or not? | New exercise | Medium | – |
@@ -347,10 +349,11 @@ test checks the start times, and the new texts exist in the three languages.
 
 ### 7. New rhythm exercises
 
-**Why.** Rhythm has one exercise, and it asks for the hardest thing: writing
-down what was heard. `docs/Pedagogia-Exercicios.md:50-52` proposed others.
+**Why.** Rhythm has two exercises: RhythmDictation asks for the hardest
+thing, writing down what was heard, and GuessMeter (#126) only for the meter.
+`docs/Pedagogia-Exercicios.md:50-55` proposed others.
 
-**What.** Three exercises, each following the list above:
+**What.** Two more exercises, each following the list above:
 
 - **Which rhythm?** One bar plays, the page shows three or four written bars,
   and the student picks the one heard. The staff renderer draws the options,
@@ -360,11 +363,11 @@ down what was heard. `docs/Pedagogia-Exercicios.md:50-52` proposed others.
   timing with the rhythm's, with a tolerance. Bluetooth headphones can delay
   the sound by 0.1 to 0.3 s, so begin with a bar of tapping along, to measure
   the delay.
-- **Duple or triple?** A pulse plays, and the student says whether it goes in
-  two, three or four (`docs/archive/MapaDoProjeto.md:47`). `MixInput` has no
-  volume (`AcademiaAuditiva/Interfaces/IAudioMixerService.cs:39-42`), so
-  either play the first beat in another octave, as the dictations' count-in
-  does (#125), or lower ("oom-pah-pah"), or add a gain to `MixInput`.
+
+GuessMeter (#126) did the third, **duple or triple?**: twelve beats in bars of
+two, three or four, the first of each bar clicked an octave higher, as the
+dictations' count-in does, or, at the other level, the bass of a chord on it
+and the chord, short, on the other beats.
 
 **Done when.** Each one follows the list above, with tests for its rounds and
 its validator.

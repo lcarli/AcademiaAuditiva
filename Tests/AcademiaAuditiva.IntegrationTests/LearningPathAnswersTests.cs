@@ -56,15 +56,15 @@ public class LearningPathAnswersTests : IClassFixture<SignedInWebApplicationFact
     [Fact]
     public async Task TheLastStepOfAUnit_CelebratesTheUnit()
     {
-        ResetAnswers(("HigherOrLower", 8), ("GuessInterval", 7), ("GuessChords", 8), ("GuessMissingNote", 7), ("GuessDegree", 6));
+        ResetAnswers(("HigherOrLower", 8), ("GuessInterval", 7), ("GuessChords", 8), ("GuessMissingNote", 7), ("GuessDegree", 7), ("GuessMeter", 6));
         var client = await CreateClientAsync();
 
-        var path = await AnswerAsync(client, "GuessDegree", correct: true);
+        var path = await AnswerAsync(client, "GuessMeter", correct: true);
 
         ShouldCelebrate(path,
             title: "Unit complete!",
             icon: "bi-flag",
-            text: "You completed step 5: Guess Degree.",
+            text: "You completed step 6: Guess Meter.",
             nextText: "Next step: Melodic Intervals",
             actionText: "Go to the next step",
             actionUrl: "/Exercise/IntervalMelodico?keySelect=C&scaleTypeSelect=major");
@@ -82,7 +82,7 @@ public class LearningPathAnswersTests : IClassFixture<SignedInWebApplicationFact
         ShouldCelebrate(path,
             title: "Path complete!",
             icon: "bi-trophy",
-            text: "You completed step 20: Guess Note.",
+            text: "You completed step 21: Guess Note.",
             nextText: null,
             actionText: "View the path",
             actionUrl: "/LearningPath");

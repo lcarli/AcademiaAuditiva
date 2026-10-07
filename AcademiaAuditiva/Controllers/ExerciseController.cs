@@ -1019,6 +1019,20 @@ namespace AcademiaAuditiva.Controllers
 
 		#endregion
 
+		#region GuessMeter
+		public IActionResult GuessMeter()
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessMeter");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+
+		#endregion
+
 		#region GuessProgression
 		public IActionResult GuessProgression()
 		{

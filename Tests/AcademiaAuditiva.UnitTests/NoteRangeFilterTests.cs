@@ -93,6 +93,9 @@ public class NoteRangeFilterTests
     {
         var exercise = new Exercise { Name = exerciseName };
         var filters = new Dictionary<string, string> { ["noteRange"] = "C1-C1" };
+        // GuessMeter's clicks are not notes of its rounds: the notes of its accompaniment are.
+        if (exerciseName == "GuessMeter")
+            filters["gmLevel"] = "accompaniment";
 
         var notes = Enumerable.Range(0, 50)
             .SelectMany(_ => NotesIn(MusicTheoryService.GenerateNoteForExercise(exercise, filters)))

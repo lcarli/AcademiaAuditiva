@@ -451,6 +451,48 @@ public static class SeedData
                 AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
             },
             new Exercise {
+                Name = "GuessMeter",
+                Description = "Ouça doze pulsos e identifique o compasso: binário, ternário ou quaternário.",
+                ExerciseTypeId = 6,
+                ExerciseCategoryId = 3,
+                DifficultyLevelId = 1,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "gmLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("clicks", "Exercise.MeterLevel.Clicks"),
+                            new("accompaniment", "Exercise.MeterLevel.Accompaniment")
+                        }
+                    }
+                }),
+                Instructions = "Ouça doze pulsos e identifique o compasso. O primeiro tempo de cada compasso é acentuado: os pulsos se agrupam de dois em dois (binário), de três em três (ternário) ou de quatro em quatro (quaternário).",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Conte \"1, 2, 3…\" e volte ao 1 em cada acento: o maior número a que você chega é o compasso.",
+                    "Binário e quaternário se confundem: no quaternário, três tempos fracos separam os acentos.",
+                    "Com acompanhamento, o baixo e a troca de acorde marcam o primeiro tempo, e os acordes curtos, os outros."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                // The meters MusicTheoryService draws (Meters); the page labels them by value.
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Binário", "duple" },
+                            { "Ternário", "triple" },
+                            { "Quaternário", "quadruple" }
+                        }
+                    }
+                })
+            },
+            new Exercise {
                 Name = "GuessInversion",
                 Description = "Ouça um acorde tríade e identifique se está no estado fundamental, na 1ª ou na 2ª inversão.",
                 ExerciseTypeId = 2,
