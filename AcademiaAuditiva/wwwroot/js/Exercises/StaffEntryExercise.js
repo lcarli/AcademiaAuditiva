@@ -39,8 +39,10 @@
 
   // #localizer keys of the note value names (buttons and the answer read-out).
   const FIGURE_KEYS = {
-    w: "figureWhole", h: "figureHalf", q: "figureQuarter", "8": "figureEighth",
-    wr: "figureWholeRest", hr: "figureHalfRest", qr: "figureQuarterRest", "8r": "figureEighthRest",
+    w: "figureWhole", "h.": "figureDottedHalf", h: "figureHalf", "q.": "figureDottedQuarter",
+    q: "figureQuarter", "8.": "figureDottedEighth", "8": "figureEighth", "16": "figureSixteenth",
+    wr: "figureWholeRest", hr: "figureHalfRest", "q.r": "figureDottedQuarterRest", qr: "figureQuarterRest",
+    "8r": "figureEighthRest",
   };
 
   function figureLabels(loc) {
@@ -114,12 +116,16 @@
         totalSlots: 8,
       };
     }
-    // A dictation fills metadata.numMeasures measures with the note values of its level.
+    // A dictation fills metadata.numMeasures measures with the note values of its level,
+    // and the rests it offers (restDurations; older rounds have the rest of each value).
     const rhythm = exerciseName === "RhythmDictation";
     const durations = Array.isArray(metadata.durations) && metadata.durations.length
       ? metadata.durations
       : ["w", "h", "q", "8"];
     const rests = metadata.rests === undefined || metadata.rests === true;
+    const restDurations = Array.isArray(metadata.restDurations)
+      ? metadata.restDurations
+      : rests ? durations.map((d) => d + "r") : [];
     const prefilledNotes = !rhythm && metadata.firstNote
       ? [{ note: metadata.firstNote, duration: metadata.firstDuration || "q" }]
       : [];
@@ -130,7 +136,7 @@
       timeSignature: metadata.timeSignature || "4/4",
       octave,
       allowedDurations: durations,
-      restDurations: rests ? durations.map((d) => d + "r") : [],
+      restDurations,
       measures: Number(metadata.numMeasures) || 0,
       rhythm,
       autoStem: !rhythm,

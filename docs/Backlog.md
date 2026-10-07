@@ -27,7 +27,11 @@ The modernization plan is done (#47 to #83):
   the same cadence, then a note, and asks for its degree in the key: 1 to 7,
   or all twelve notes at the chromatic level (#123). GuessProgression plays
   the cadence before a chord progression and asks for its name or, at the
-  dictation level, the degree of each chord after the tonic (#124).
+  dictation level, the degree of each chord after the tonic (#124). The
+  dictations count in on the piano and play at the tempo the student picks,
+  and RhythmDictation has four more levels: dotted notes, sixteenths,
+  syncopation and 6/8 in dotted quarters, which melodies in 6/8 use too
+  (#125).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -240,19 +244,19 @@ single one (RhythmDictation), and the Games and Misc categories have none
 GuessDegree (#123) and GuessProgression (#124) play a cadence to set the key
 before the question. IntervalMelodico could play it too: its melody, 8 to 31
 notes, has to set the key on its own (`MusicTheoryService.cs:1127`), and
-GuessDegree could later ask for two or three notes in a row. Rhythm (items 7
-and 8) comes next, then the rest.
+GuessDegree could later ask for two or three notes in a row. RhythmDictation
+counts in and has levels up to 6/8 (#125); the new rhythm exercises (item 7)
+come next, then the rest.
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
 | 5. More sevenths, and the top note | New filters | Small | – |
 | 6. Harmonic intervals | New filter | Small | – |
-| 7. A count-in, and more rhythms | RhythmDictation | Medium | – |
-| 8. Which rhythm, tap it back, duple or triple | New exercises | Medium | Item 7 |
-| 9. Which note changed? | New exercise | Small | – |
-| 10. Singing exercises | New exercises | Medium | Item 1 |
-| 11. In tune or not? | New exercise | Medium | – |
-| 12. Game modes | Games category | Medium to large | – |
+| 7. Which rhythm, tap it back, duple or triple | New exercises | Medium | – |
+| 8. Which note changed? | New exercise | Small | – |
+| 9. Singing exercises | New exercises | Medium | Item 1 |
+| 10. In tune or not? | New exercise | Medium | – |
+| 11. Game modes | Games category | Medium to large | – |
 
 **Adding an exercise.** A new exercise needs all of this, and tests that go
 through every seeded exercise check much of it:
@@ -288,9 +292,11 @@ adds a category. Badges already earned are kept (`BadgeRules.cs:39`).
 
 **Left out on purpose.** Reading drills without sound, since this is an
 ear-training site; the frequency and mixing module
-(`docs/archive/MapaDoProjeto.md:150`); and a melodic contour exercise
+(`docs/archive/MapaDoProjeto.md:150`); a melodic contour exercise
 (`docs/Pedagogia-Exercicios.md:45`), since HigherOrLower and the dictations
-cover it between them.
+cover it between them; and ties and triplets in the dictations (#125), which
+would each need a duration label of their own in the generator, the staff
+editor and the renderer.
 
 ### 5. More sevenths in GuessQuality, and the top note
 
@@ -339,44 +345,7 @@ intervals. HigherOrLower shares the planner case and stays melodic.
 **Done when.** Both exercises play harmonic intervals when chosen, a planner
 test checks the start times, and the new texts exist in the three languages.
 
-### 7. A count-in, and more rhythms in RhythmDictation
-
-**Why.** RhythmDictation is the only rhythm exercise.
-
-- It starts without a count-in, and nothing in the app plays a click or a
-  metronome, so the first note comes before the student has the pulse.
-- Every note is a C5 (`MusicTheoryService.cs:1374`), at 120 beats a minute
-  (`ExercisePlaybackPlanner.cs:37`).
-- It writes only whole, half, quarter and eighth notes and their rests
-  (`MusicTheoryService.cs:1358-1365`): no dotted notes, sixteenths, ties,
-  syncopation or triplets.
-- A 6/8 bar is filled as if it were 3/4 (`:1372`), with no dotted quarter,
-  the beat of 6/8.
-
-**What.**
-
-- A count-in: a bar of beats in the rhythm's meter before it starts, in
-  RhythmDictation and MelodicDictation. They share a planner case with
-  CompleteScale and TransposeScale, which need none
-  (`ExercisePlaybackPlanner.cs:176-184`). There is no click sample, and
-  bundled samples must be note files
-  (`AcademiaAuditiva/Services/Audio/BundledSamples.cs:51`); a short note on
-  each beat, higher than the rhythm's C5, needs no new file.
-- New levels: dotted notes, sixteenths, syncopation, and 6/8 in dotted
-  quarters. The staff editor and renderer already draw dotted notes and beam
-  eighths by the dotted quarter in compound meters
-  (`AcademiaAuditiva/wwwroot/js/core/staff-editor.js:54-56`,
-  `AcademiaAuditiva/wwwroot/js/core/staff-renderer.js:25` and `:168`), but no
-  generator writes them yet. The validator compares the duration labels as
-  written
-  (`AcademiaAuditiva/Services/ExerciseValidators/ExerciseValidators.cs:180`);
-  ties and triplets need labels of their own in the generator, the editor and
-  the renderer.
-
-**Done when.** Every dictation starts after a bar of beats, and the new levels
-are played, written and corrected, with tests for the new durations.
-
-### 8. New rhythm exercises
+### 7. New rhythm exercises
 
 **Why.** Rhythm has one exercise, and it asks for the hardest thing: writing
 down what was heard. `docs/Pedagogia-Exercicios.md:50-52` proposed others.
@@ -386,20 +355,21 @@ down what was heard. `docs/Pedagogia-Exercicios.md:50-52` proposed others.
 - **Which rhythm?** One bar plays, the page shows three or four written bars,
   and the student picks the one heard. The staff renderer draws the options,
   and the server keeps which one is right, as for every exercise.
-- **Tap it back.** After item 7's count-in, the student taps the rhythm on a
-  key or a button, and the server compares the taps' timing with the rhythm's,
-  with a tolerance. Bluetooth headphones can delay the sound by 0.1 to 0.3 s,
-  so begin with a bar of tapping along, to measure the delay.
+- **Tap it back.** After a count-in, as in the dictations (#125), the student
+  taps the rhythm on a key or a button, and the server compares the taps'
+  timing with the rhythm's, with a tolerance. Bluetooth headphones can delay
+  the sound by 0.1 to 0.3 s, so begin with a bar of tapping along, to measure
+  the delay.
 - **Duple or triple?** A pulse plays, and the student says whether it goes in
   two, three or four (`docs/archive/MapaDoProjeto.md:47`). `MixInput` has no
   volume (`AcademiaAuditiva/Interfaces/IAudioMixerService.cs:39-42`), so
-  either play the first beat lower ("oom-pah-pah") or add a gain to
-  `MixInput`.
+  either play the first beat in another octave, as the dictations' count-in
+  does (#125), or lower ("oom-pah-pah"), or add a gain to `MixInput`.
 
 **Done when.** Each one follows the list above, with tests for its rounds and
 its validator.
 
-### 9. New exercise: which note changed?
+### 8. New exercise: which note changed?
 
 **Why.** Compare 2 melodies asks only whether two melodies differ: the second
 one leaves out a note or not (#120). The next step is to say where and how:
@@ -413,7 +383,7 @@ level of Compare 2 melodies instead, but its answer buttons are different.
 
 **Done when.** It follows the list above.
 
-### 10. Singing exercises
+### 9. Singing exercises
 
 **Needs [item 1](#1-settle-the-essentiajs-license-agpl-30).** They would
 detect the sung pitch as sight-singing does (`detectNotes` in
@@ -439,7 +409,7 @@ test use `MicrophoneExercises`.
 **Done when.** Each one follows the list above, except the learning-path step,
 and recognizes sung notes as reliably as sight-singing does.
 
-### 11. New exercise: in tune or not?
+### 10. New exercise: in tune or not?
 
 **Why.** Violinists and singers tune by ear, and nothing trains it: every
 sample is in tune, one per semitone.
@@ -452,7 +422,7 @@ with a new field on `MixInput`.
 **Done when.** It follows the list above, and a mixer test checks the shifted
 pitch.
 
-### 12. Game modes
+### 11. Game modes
 
 **Why.** The Games and Misc categories are empty. Modes that reuse the rounds
 of existing exercises add variety without new music code.

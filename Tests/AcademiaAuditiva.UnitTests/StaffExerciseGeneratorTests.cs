@@ -61,24 +61,40 @@ public class StaffExerciseGeneratorTests
         }
     }
 
-    private static void AssertRhythmEditorCanEnter(string answerString)
+    private static void AssertRhythmEditorCanEnter(JObject json)
     {
-        var durations = new HashSet<string> { "w", "h", "q", "8", "wr", "hr", "qr", "8r" };
-        foreach (var token in answerString.Split('|', StringSplitOptions.RemoveEmptyEntries))
+        var offered = Offered(json);
+        foreach (var token in json.Value<string>("answerString")!.Split('|', StringSplitOptions.RemoveEmptyEntries))
         {
             if (token is "bar" or "barline")
             {
                 continue;
             }
 
-            durations.Should().Contain(token, $"duration '{token}' must be available in the rhythm editor");
+            offered.Should().Contain(token, $"duration '{token}' must be available in the rhythm editor");
         }
+    }
+
+    // The figures staff-editor.js has a button for (FIGURE_LABELS).
+    private static readonly HashSet<string> EditorFigures =
+    [
+        "w", "h.", "h", "q.", "q", "8.", "8", "16", "wr", "hr", "q.r", "qr", "8r",
+    ];
+
+    /// <summary>The figures the editor offers for a dictation round: its note values and its rests.</summary>
+    private static HashSet<string> Offered(JObject json)
+    {
+        var offered = json["durations"]!.Values<string>().Concat(json["restDurations"]!.Values<string>())
+            .Select(figure => figure!)
+            .ToHashSet();
+        offered.Should().BeSubsetOf(EditorFigures, "the editor has a button for each figure of {0}", json);
+        return offered;
     }
 
     // The sixteenths of each note value, the unit staff-editor.js counts a measure in.
     private static readonly Dictionary<string, int> Sixteenths = new()
     {
-        { "w", 16 }, { "h", 8 }, { "q", 4 }, { "8", 2 },
+        { "w", 16 }, { "h.", 12 }, { "h", 8 }, { "q.", 6 }, { "q", 4 }, { "8.", 3 }, { "8", 2 }, { "16", 1 },
     };
 
     /// <summary>
@@ -324,10 +340,7 @@ public class StaffExerciseGeneratorTests
             json["error"].Should().BeNull($"filters {level}/{measures} should be supported");
             json.Value<string>("firstNote").Should().NotBeNullOrWhiteSpace();
             json.Value<string>("firstDuration").Should().NotBeNullOrWhiteSpace();
-            AssertEditorCanEnter(
-                json.Value<string>("answerString")!,
-                new HashSet<string> { "w", "h", "q", "8", "wr", "hr", "qr", "8r" },
-                totalSlots: 64);
+            AssertEditorCanEnter(json.Value<string>("answerString")!, Offered(json), totalSlots: 64);
         }
     }
 
@@ -359,16 +372,15 @@ public class StaffExerciseGeneratorTests
             { "mdScale", "x" },
             { "mdOctave", "9" },
             { "mdLevel", "5" },
-            { "mdMeasures", "huge" }
+            { "mdMeasures", "huge" },
+            { "mdTempo", "45" }
         });
 
         json["error"].Should().BeNull();
         json.Value<int>("level").Should().Be(1);
         json.Value<int>("octave").Should().Be(4);
-        AssertEditorCanEnter(
-            json.Value<string>("answerString")!,
-            new HashSet<string> { "w", "h", "q", "8", "wr", "hr", "qr", "8r" },
-            totalSlots: 64);
+        json.Value<int>("tempo").Should().Be(120);
+        AssertEditorCanEnter(json.Value<string>("answerString")!, Offered(json), totalSlots: 64);
     }
 
     [Fact]
@@ -389,75 +401,132 @@ public class StaffExerciseGeneratorTests
     [Fact]
     public void RhythmDictation_OfferedFilters_AlwaysProduceEditorEnterableAnswers()
     {
-        foreach (var level in new[] { "1", "3", "4" })
+        foreach (var level in new[] { "1", "3", "4", "5", "6", "7", "8" })
         foreach (var measures in new[] { "short", "long" })
         {
             var json = GenerateJson("RhythmDictation", new() { { "rdLevel", level }, { "rdMeasures", measures } });
 
             json["error"].Should().BeNull($"filters {level}/{measures} should be supported");
-            AssertRhythmEditorCanEnter(json.Value<string>("answerString")!);
+            AssertRhythmEditorCanEnter(json);
         }
     }
 
-    [Fact]
-    public void RhythmDictation_InvalidFilters_FallBackToEnterableRound()
+    [Theory]
+    [InlineData("2")]
+    [InlineData("9")]
+    [InlineData("five")]
+    public void RhythmDictation_InvalidFilters_FallBackToEnterableRound(string level)
     {
-        var json = GenerateJson("RhythmDictation", new() { { "rdLevel", "5" }, { "rdMeasures", "huge" } });
+        var json = GenerateJson("RhythmDictation", new() { { "rdLevel", level }, { "rdMeasures", "huge" }, { "rdTempo", "fast" } });
 
         json["error"].Should().BeNull();
         json.Value<int>("level").Should().Be(1);
-        AssertRhythmEditorCanEnter(json.Value<string>("answerString")!);
+        json.Value<int>("tempo").Should().Be(120);
+        AssertRhythmEditorCanEnter(json);
     }
 
     [Theory]
-    [InlineData("MelodicDictation", "mdLevel", "1", "w,h", false)]
-    [InlineData("MelodicDictation", "mdLevel", "3", "w,h,q", true)]
-    [InlineData("MelodicDictation", "mdLevel", "4", "w,h,q,8", true)]
-    [InlineData("RhythmDictation", "rdLevel", "1", "w,h", false)]
-    [InlineData("RhythmDictation", "rdLevel", "3", "w,h,q", true)]
-    [InlineData("RhythmDictation", "rdLevel", "4", "w,h,q,8", true)]
+    [InlineData("MelodicDictation", "mdLevel", "1", "4/4", "w,h", "")]
+    [InlineData("MelodicDictation", "mdLevel", "3", "4/4,3/4", "w,h,q", "wr,hr,qr")]
+    [InlineData("MelodicDictation", "mdLevel", "4", "4/4,3/4,2/4,6/8", "w,h,q,8", "wr,hr,qr,8r")]
+    [InlineData("RhythmDictation", "rdLevel", "1", "4/4", "w,h", "")]
+    [InlineData("RhythmDictation", "rdLevel", "3", "4/4,3/4", "w,h,q", "wr,hr,qr")]
+    [InlineData("RhythmDictation", "rdLevel", "4", "4/4,3/4,2/4", "w,h,q,8", "wr,hr,qr,8r")]
+    [InlineData("RhythmDictation", "rdLevel", "5", "4/4,3/4,2/4", "h.,h,q.,q,8", "qr")]
+    [InlineData("RhythmDictation", "rdLevel", "6", "4/4,3/4,2/4", "h,q,8.,8,16", "qr")]
+    [InlineData("RhythmDictation", "rdLevel", "7", "4/4,3/4,2/4", "h,q,8", "qr,8r")]
+    [InlineData("RhythmDictation", "rdLevel", "8", "6/8", "h.,q.,q,8", "q.r")]
     public void Dictation_TellsTheEditorTheNoteValuesOfItsLevel(
-        string exercise, string levelFilter, string level, string durations, bool rests)
+        string exercise, string levelFilter, string level, string timeSignatures, string durations, string restDurations)
     {
-        var json = GenerateJson(exercise, new() { { levelFilter, level } });
+        for (var round = 0; round < 20; round++)
+        {
+            var json = GenerateJson(exercise, new() { { levelFilter, level } });
 
-        json["durations"]!.Values<string>().Should().Equal(durations.Split(','));
-        json.Value<bool>("rests").Should().Be(rests);
+            // A melody in 6/8 is written in the figures of compound meter.
+            var timeSignature = json.Value<string>("timeSignature");
+            var compound = exercise == "MelodicDictation" && timeSignature == "6/8";
+            timeSignature.Should().BeOneOf(timeSignatures.Split(','));
+            json["durations"]!.Values<string>().Should().Equal(
+                compound ? new[] { "h.", "q.", "q", "8" } : durations.Split(','));
+            json["restDurations"]!.Values<string>().Should().Equal(
+                compound ? new[] { "q.r" } : restDurations.Split(',', StringSplitOptions.RemoveEmptyEntries));
+            json.Value<bool>("rests").Should().Be(compound || restDurations.Length > 0);
+        }
     }
 
     [Theory]
-    [InlineData("MelodicDictation", "md")]
-    [InlineData("RhythmDictation", "rd")]
-    public void Dictation_AnswerIsWhatTheEditorWrites(string exercise, string prefix)
+    [InlineData("MelodicDictation", "md", "1,3,4")]
+    [InlineData("RhythmDictation", "rd", "1,3,4,5,6,7,8")]
+    public void Dictation_AnswerIsWhatTheEditorWrites(string exercise, string prefix, string levels)
     {
         var rhythm = exercise == "RhythmDictation";
-        foreach (var level in new[] { "1", "3", "4" })
+        foreach (var level in levels.Split(','))
         foreach (var length in new[] { "short", "long" })
         {
             for (var round = 0; round < 25; round++)
             {
                 var json = GenerateJson(exercise, new() { { prefix + "Level", level }, { prefix + "Measures", length } });
-                var offered = json["durations"]!.Values<string>().ToHashSet();
-                var rests = json.Value<bool>("rests");
+                var notes = json["durations"]!.Values<string>().ToHashSet();
+                var rests = json["restDurations"]!.Values<string>().ToHashSet();
 
+                json.Value<bool>("rests").Should().Be(rests.Count > 0);
                 if (!rhythm)
                 {
-                    offered.Should().Contain(json.Value<string>("firstDuration"));
+                    notes.Should().Contain(json.Value<string>("firstDuration"), "the given first note is a note, not a rest");
                 }
 
                 foreach (var token in json.Value<string>("answerString")!.Split('|').Where(t => t != "bar"))
                 {
                     var duration = rhythm ? token : token.Split(':')[1];
-                    offered.Should().Contain(duration.TrimEnd('r'), $"the editor offers only the note values of level {level}");
-                    if (duration.EndsWith('r'))
-                    {
-                        rests.Should().BeTrue($"the editor offers rests from level 3, not in level {level}");
-                    }
+                    (duration.EndsWith('r') ? rests : notes).Should().Contain(duration,
+                        $"the editor offers only the figures of level {level}");
                 }
 
                 AssertEditorWritesTheAnswer(json, rhythm);
             }
         }
+    }
+
+    [Fact]
+    public void MelodicDictation_In68_IsWrittenInTheFiguresOfCompoundMeter()
+    {
+        var compound = 0;
+        for (var round = 0; round < 400 && compound < 20; round++)
+        {
+            var json = GenerateJson("MelodicDictation", new() { { "mdLevel", "4" }, { "mdMeasures", "long" } });
+            if (json.Value<string>("timeSignature") != "6/8")
+            {
+                continue;
+            }
+
+            compound++;
+            var values = json["melody"]!.Select(entry => entry.Value<string>("durationLabel")).ToList();
+            values.Should().OnlyContain(value => new[] { "h.", "q.", "q", "8", "q.r" }.Contains(value));
+            values.Should().Contain(value => value == "q" || value == "8",
+                "every round splits a beat in a quarter and an eighth, or in three eighths");
+            AssertEditorWritesTheAnswer(json, rhythm: false);
+        }
+
+        compound.Should().Be(20, "a round of level 4 is in 6/8 one time in four");
+    }
+
+    [Theory]
+    [InlineData("MelodicDictation", "mdTempo", "60", 60)]
+    [InlineData("MelodicDictation", "mdTempo", "90", 90)]
+    [InlineData("MelodicDictation", "mdTempo", null, 120)]
+    [InlineData("RhythmDictation", "rdTempo", "60", 60)]
+    [InlineData("RhythmDictation", "rdTempo", "90", 90)]
+    [InlineData("RhythmDictation", "rdTempo", "75", 120)]
+    public void Dictation_IsPlayedAtTheTempoTheStudentPicked(string exercise, string filter, string? tempo, int expected)
+    {
+        var filters = new Dictionary<string, string>();
+        if (tempo is not null)
+        {
+            filters[filter] = tempo;
+        }
+
+        GenerateJson(exercise, filters).Value<int>("tempo").Should().Be(expected);
     }
 
     [Fact]
