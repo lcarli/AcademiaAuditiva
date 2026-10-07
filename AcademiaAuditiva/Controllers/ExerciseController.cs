@@ -270,7 +270,7 @@ namespace AcademiaAuditiva.Controllers
 				foreach (var field in new[] {
 					"promptNotes", "clef", "keySignature", "timeSignature",
 					"numMeasures", "octave", "originalRoot", "targetRoot", "scale", "level",
-					"durations", "rests", "slots",
+					"durations", "rests", "restDurations", "slots",
 					"root", "firstNote", "firstDuration"
 				})
 				{

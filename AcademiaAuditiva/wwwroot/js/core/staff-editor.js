@@ -43,8 +43,9 @@
   // Note values in sixteenths, the unit a measure is counted in.
   var SIXTEENTHS = { w: 16, h: 8, q: 4, "8": 2, "16": 1 };
   var FIGURE_LABELS = {
-    w: "Whole note", h: "Half note", q: "Quarter note", "8": "Eighth note",
-    wr: "Whole rest", hr: "Half rest", qr: "Quarter rest", "8r": "Eighth rest",
+    w: "Whole note", "h.": "Dotted half note", h: "Half note", "q.": "Dotted quarter note",
+    q: "Quarter note", "8.": "Dotted eighth note", "8": "Eighth note", "16": "Sixteenth note",
+    wr: "Whole rest", hr: "Half rest", "q.r": "Dotted quarter rest", qr: "Quarter rest", "8r": "Eighth rest",
   };
   // A rhythm is written on the middle line of its one-line staff.
   var RHYTHM_PITCH = "B4";

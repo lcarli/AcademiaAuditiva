@@ -313,13 +313,44 @@ test('rhythm dictation is written with note and rest symbols, without note names
   await page.click('.swal2-confirm');
 });
 
+// The rhythm levels past Advanced: dotted notes, sixteenths, syncopation and compound meter.
+for (const [level, figures] of [
+  ['5', ['h.', 'h', 'q.', 'q', '8', 'qr']],
+  ['6', ['h', 'q', '8.', '8', '16', 'qr']],
+  ['7', ['h', 'q', '8', 'qr', '8r']],
+  ['8', ['h.', 'q.', 'q', '8', 'q.r']],
+] as const) {
+  test(`rhythm dictation level ${level} offers the figures it teaches, and is written with them`, async ({ page, baseURL }) => {
+    await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+    const metadata = await openDictation(page, baseURL!, 'RhythmDictation', 'rdLevel', level);
+
+    expect(metadata.durations).toEqual(figures.filter(figure => !figure.endsWith('r')));
+    expect(metadata.restDurations).toEqual(figures.filter(figure => figure.endsWith('r')));
+    expect(metadata.timeSignature).toMatch(level === '8' ? /^6\/8$/ : /^[234]\/4$/);
+    await expectFigureButtons(page, [...figures]);
+
+    const answer = await revealOnStaff(page);
+    for (const token of answer.split('|').filter(token => token !== 'bar')) {
+      await page.click(`#staffEditor [data-figure="${token}"]`);
+    }
+    await expect(page.locator('#staffEditor [data-figure]:not([disabled])')).toHaveCount(0);
+
+    expect(await validateStaff(page)).toMatchObject({ success: true, free: true, isCorrect: true, answer });
+    await page.click('.swal2-confirm');
+  });
+}
+
 test('melodic dictation is written with note symbols and note names, and a wrong one shows the melody', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   const metadata = await openDictation(page, baseURL!, 'MelodicDictation', 'mdLevel');
 
-  expect(metadata).toMatchObject({ durations: ['w', 'h', 'q', '8'], rests: true });
+  // A melody in 6/8 is written in the figures of compound meter.
+  const compound = metadata.timeSignature === '6/8';
+  const durations = compound ? ['h.', 'q.', 'q', '8'] : ['w', 'h', 'q', '8'];
+  const rests = compound ? ['q.r'] : ['wr', 'hr', 'qr', '8r'];
+  expect(metadata).toMatchObject({ durations, restDurations: rests, rests: true });
   expect(metadata.firstNote).toMatch(/^[A-G][#b]?\d$/);
-  await expectFigureButtons(page, ['w', 'h', 'q', '8', 'wr', 'hr', 'qr', '8r']);
+  await expectFigureButtons(page, [...durations, ...rests]);
   await expect(page.locator('#staffEditor [data-note-name]')).toHaveText(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
 
   const answer = await revealOnStaff(page);
@@ -342,7 +373,7 @@ test('melodic dictation is written with note symbols and note names, and a wrong
   const dialog = page.locator('.swal2-popup');
   await expect(dialog.locator('.aa-answer-caption')).toHaveText('The correct answer was:');
   await expect(dialog.locator('.aa-reveal-staff svg')).toBeVisible();
-  await expect(dialog.locator('.aa-reveal-staff')).toHaveAttribute('aria-label', /^[A-G][#b]?\d (whole|half|quarter|eighth) note[,;]/);
+  await expect(dialog.locator('.aa-reveal-staff')).toHaveAttribute('aria-label', /^[A-G][#b]?\d (dotted )?(whole|half|quarter|eighth) note[,;]/);
   await page.click('.swal2-confirm');
   await expect(dialog).toBeHidden();
 });
@@ -684,14 +715,14 @@ function pitchClass(note: string) {
   return sharps[name] ?? name;
 }
 
-// Opens a dictation in free practice at its advanced level (every note value, and rests)
-// and plays a round; returns what the round tells the staff editor.
-async function openDictation(page: Page, baseURL: string, exercise: string, levelFilter: string) {
+// Opens a dictation in free practice at a level (by default Advanced: every plain note value,
+// and rests) and plays a round; returns what the round tells the staff editor.
+async function openDictation(page: Page, baseURL: string, exercise: string, levelFilter: string, level = '4') {
   await page.goto(`${baseURL}/Exercise/${exercise}?practice=free`, { waitUntil: 'networkidle' });
   await closeTourIfStarted(page);
   const filters = page.locator('#filtersModal');
   await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
-  await filters.locator(`select[name="${levelFilter}"]`).selectOption('4');
+  await filters.locator(`select[name="${levelFilter}"]`).selectOption(level);
   await filters.locator('.btn-close').click();
   await expect(filters).toBeHidden();
   return playDictation(page);
@@ -717,7 +748,7 @@ async function expectFigureButtons(page: Page, figures: string[]) {
   for (const button of buttons) {
     expect(button.text, `${button.figure} shows no code`).toBe('');
     expect(button.drawn, `${button.figure} is drawn`).toBe(true);
-    expect(button.label, `${button.figure} is named`).toMatch(/^(Whole|Half|Quarter|Eighth) (note|rest)$/);
+    expect(button.label, `${button.figure} is named`).toMatch(/^(Whole|Half|Quarter|Eighth|Sixteenth|Dotted (half|quarter|eighth)) (note|rest)$/);
   }
 }
 

@@ -1426,6 +1426,7 @@ namespace AcademiaAuditiva.Services
                         && new[] { 1, 3, 4 }.Contains(mdLP)
                         ? mdLP
                         : 1;
+                    var mdTempo = DictationRhythm.Tempo(filters.GetValueOrDefault("mdTempo"));
 
                     var mdScaleNotes = GetScaleNotes(mdRoot + mdOctave, mdScale);
                     if (mdScaleNotes.Count < 3)
@@ -1438,11 +1439,9 @@ namespace AcademiaAuditiva.Services
 
                     var mdAvail = mdLevel switch
                     {
-                        1 => new (double V, string L)[] { (4.0, "w"), (2.0, "h") },
-                        2 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
-                        3 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
-                        4 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q"), (0.5, "8") },
-                        _ => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q"), (0.5, "8") },
+                        1 => new[] { "w", "h" },
+                        3 => new[] { "w", "h", "q" },
+                        _ => new[] { "w", "h", "q", "8" },
                     };
                     var mdAllowRests = mdLevel >= 3;
                     var mdRestChance = mdLevel >= 3 ? 0.15 : 0.0;
@@ -1450,36 +1449,41 @@ namespace AcademiaAuditiva.Services
                     var mdSig = mdSigPool[random.Next(mdSigPool.Length)];
                     var mdMeasureFilter = filters.TryGetValue("mdMeasures", out var mdMc) && mdMc == "long" ? "long" : "short";
                     var mdNumMeasures = mdMeasureFilter == "long" ? 4 : 2;
-                    var mdBeats = mdSig switch { "3/4" => 3.0, "2/4" => 2.0, "6/8" => 3.0, _ => 4.0 };
 
+                    // A melody in 6/8 is built of the figures of compound meter, as RhythmDictation's
+                    // level 8 is; in the other meters the bars are filled at random with the level's values.
+                    string[] mdDurations;
+                    string[] mdRests;
+                    IReadOnlyList<IReadOnlyList<string>> mdBars;
+                    if (DictationRhythm.IsCompound(mdSig))
+                    {
+                        mdDurations = DictationRhythm.Compound.Durations.ToArray();
+                        mdRests = DictationRhythm.Compound.Rests.ToArray();
+                        mdBars = DictationRhythm.Bars(DictationRhythm.Compound, mdSig, mdNumMeasures, random, melodic: true);
+                    }
+                    else
+                    {
+                        mdDurations = mdAvail;
+                        mdRests = mdAllowRests ? mdAvail.Select(d => d + "r").ToArray() : Array.Empty<string>();
+                        mdBars = DictationRhythm.RandomBars(mdAvail, mdRestChance, mdSig, mdNumMeasures, random, melodic: true);
+                    }
+
+                    // The melody starts on the tonic, which is given on the staff and left out of the answer.
                     var mdMelodyEntries = new List<object>();
                     var mdAnsParts = new List<string>();
-                    var mdFirstNote = mdScaleNotes[0];
-                    var mdFirstDuration = "q";
-                    for (var m = 0; m < mdNumMeasures; m++)
+                    for (var m = 0; m < mdBars.Count; m++)
                     {
                         if (m > 0) mdAnsParts.Add("bar");
-                        var rem = mdBeats;
-                        while (rem > 0)
+                        foreach (var label in mdBars[m])
                         {
-                            var poss = mdAvail.Where(d => d.V <= rem).ToArray();
-                            if (poss.Length == 0) break;
-                            var ch = poss[random.Next(poss.Length)];
                             var isFirstEntry = mdMelodyEntries.Count == 0;
-                            var isRest = !isFirstEntry && mdAllowRests && random.NextDouble() < mdRestChance;
-                            var note = isFirstEntry ? mdScaleNotes[0] : isRest ? "rest" : mdScaleNotes[random.Next(mdScaleNotes.Count)];
-                            var label = isRest ? ch.L + "r" : ch.L;
-                            mdMelodyEntries.Add(new { type = isRest ? "rest" : "note", note, durationBeats = ch.V, durationLabel = label });
-                            if (isFirstEntry)
-                            {
-                                mdFirstNote = note;
-                                mdFirstDuration = label;
-                            }
-                            else
+                            var isRest = DictationRhythm.IsRest(label);
+                            var note = isRest ? "rest" : isFirstEntry ? mdScaleNotes[0] : mdScaleNotes[random.Next(mdScaleNotes.Count)];
+                            mdMelodyEntries.Add(new { type = isRest ? "rest" : "note", note, durationBeats = DictationRhythm.Beats(label), durationLabel = label });
+                            if (!isFirstEntry)
                             {
                                 mdAnsParts.Add(isRest ? $"rest:{label}" : $"{note}:{label}");
                             }
-                            rem -= ch.V;
                         }
                     }
 
@@ -1491,11 +1495,13 @@ namespace AcademiaAuditiva.Services
                         timeSignature = mdSig,
                         numMeasures = mdNumMeasures,
                         level = mdLevel,
-                        // The figures the melody may use, offered by the editor (rests in the same values).
-                        durations = mdAvail.Select(d => d.L).ToArray(),
-                        rests = mdAllowRests,
-                        firstNote = mdFirstNote,
-                        firstDuration = mdFirstDuration,
+                        tempo = mdTempo,
+                        // The figures the melody may use and its rests, offered by the editor.
+                        durations = mdDurations,
+                        rests = mdRests.Length > 0,
+                        restDurations = mdRests,
+                        firstNote = mdScaleNotes[0],
+                        firstDuration = mdBars[0][0],
                         melody = mdMelodyEntries,
                         answerString = string.Join("|", mdAnsParts)
                     };
@@ -1505,55 +1511,69 @@ namespace AcademiaAuditiva.Services
                 {
                     var rdLevel = filters.TryGetValue("rdLevel", out var rdL)
                         && int.TryParse(rdL, out var rdLP)
-                        && new[] { 1, 3, 4 }.Contains(rdLP)
+                        && (rdLP is 1 or 3 or 4 || DictationRhythm.Find(rdLP) is not null)
                         ? rdLP
                         : 1;
-
-                    var rdAvail = rdLevel switch
-                    {
-                        1 => new (double V, string L)[] { (4.0, "w"), (2.0, "h") },
-                        2 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
-                        3 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q") },
-                        4 => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q"), (0.5, "8") },
-                        _ => new (double V, string L)[] { (4.0, "w"), (2.0, "h"), (1.0, "q"), (0.5, "8") },
-                    };
-                    var rdAllowRests = rdLevel >= 3;
-                    var rdRestChance = rdLevel >= 3 ? 0.15 : 0.0;
-                    var rdSigPool = rdLevel <= 2 ? new[] { "4/4" } : rdLevel <= 3 ? new[] { "4/4", "3/4" } : new[] { "4/4", "3/4", "2/4", "6/8" };
-                    var rdSig = rdSigPool[random.Next(rdSigPool.Length)];
+                    var rdTempo = DictationRhythm.Tempo(filters.GetValueOrDefault("rdTempo"));
                     var rdMeasureFilter = filters.TryGetValue("rdMeasures", out var rdMc) && rdMc == "long" ? "long" : "short";
                     var rdNumMeasures = rdMeasureFilter == "long" ? 4 : 2;
-                    var rdBeats = rdSig switch { "3/4" => 3.0, "2/4" => 2.0, "6/8" => 3.0, _ => 4.0 };
+
+                    // From level 5 each level teaches a figure, and its bars are built of figures
+                    // that start on a beat; the first levels fill their bars at random.
+                    string rdSig;
+                    string[] rdDurations;
+                    string[] rdRests;
+                    IReadOnlyList<IReadOnlyList<string>> rdBars;
+                    if (DictationRhythm.Find(rdLevel) is { } rdCells)
+                    {
+                        rdSig = rdCells.TimeSignatures[random.Next(rdCells.TimeSignatures.Count)];
+                        rdDurations = rdCells.Durations.ToArray();
+                        rdRests = rdCells.Rests.ToArray();
+                        rdBars = DictationRhythm.Bars(rdCells, rdSig, rdNumMeasures, random, melodic: false);
+                    }
+                    else
+                    {
+                        // 6/8 has its own level, whose bars are counted in dotted beats.
+                        var rdSigPool = rdLevel switch
+                        {
+                            1 => new[] { "4/4" },
+                            3 => new[] { "4/4", "3/4" },
+                            _ => new[] { "4/4", "3/4", "2/4" },
+                        };
+                        rdSig = rdSigPool[random.Next(rdSigPool.Length)];
+                        rdDurations = rdLevel switch
+                        {
+                            1 => new[] { "w", "h" },
+                            3 => new[] { "w", "h", "q" },
+                            _ => new[] { "w", "h", "q", "8" },
+                        };
+                        rdRests = rdLevel >= 3 ? rdDurations.Select(d => d + "r").ToArray() : Array.Empty<string>();
+                        rdBars = DictationRhythm.RandomBars(rdDurations, rdLevel >= 3 ? 0.15 : 0.0, rdSig, rdNumMeasures, random, melodic: false);
+                    }
 
                     const string rdNote = "C5";
-                    var rdMelodyEntries = new List<object>();
-                    var rdAnsParts = new List<string>();
-                    for (var m = 0; m < rdNumMeasures; m++)
-                    {
-                        if (m > 0) rdAnsParts.Add("bar");
-                        var rem = rdBeats;
-                        while (rem > 0)
+                    var rdMelodyEntries = rdBars
+                        .SelectMany(bar => bar)
+                        .Select(label => (object)new
                         {
-                            var poss = rdAvail.Where(d => d.V <= rem).ToArray();
-                            if (poss.Length == 0) break;
-                            var ch = poss[random.Next(poss.Length)];
-                            var isRest = rdAllowRests && random.NextDouble() < rdRestChance;
-                            var label = isRest ? ch.L + "r" : ch.L;
-                            rdMelodyEntries.Add(new { type = isRest ? "rest" : "note", note = rdNote, durationBeats = ch.V, durationLabel = label });
-                            rdAnsParts.Add(label);
-                            rem -= ch.V;
-                        }
-                    }
+                            type = DictationRhythm.IsRest(label) ? "rest" : "note",
+                            note = rdNote,
+                            durationBeats = DictationRhythm.Beats(label),
+                            durationLabel = label
+                        })
+                        .ToList();
 
                     return new
                     {
                         timeSignature = rdSig,
                         numMeasures = rdNumMeasures,
                         level = rdLevel,
-                        durations = rdAvail.Select(d => d.L).ToArray(),
-                        rests = rdAllowRests,
+                        tempo = rdTempo,
+                        durations = rdDurations,
+                        rests = rdRests.Length > 0,
+                        restDurations = rdRests,
                         melody = rdMelodyEntries,
-                        answerString = string.Join("|", rdAnsParts)
+                        answerString = string.Join("|bar|", rdBars.Select(bar => string.Join("|", bar)))
                     };
                 }
 

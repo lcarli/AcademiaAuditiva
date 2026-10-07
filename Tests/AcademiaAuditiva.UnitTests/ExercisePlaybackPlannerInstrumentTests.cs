@@ -80,7 +80,7 @@ public class ExercisePlaybackPlannerInstrumentTests
     public void EveryExercise_PlaysANoteSampleOfTheInstrument(string exerciseName, string instrumentName)
     {
         // Exercises about chords play them on the piano when the instrument doesn't, and so does
-        // the cadence that sets the key before a question.
+        // the cadence that sets the key before a question. A dictation counts in on the piano.
         var instrument = Instrument.FromName(instrumentName, ExercisePlaybackPlanner.IsChordExercise(exerciseName));
         var accompaniment = instrument.PlaysChords ? instrument : Instrument.Piano;
         var exercise = new Exercise { ExerciseId = 1, Name = exerciseName };
@@ -89,10 +89,14 @@ public class ExercisePlaybackPlannerInstrumentTests
         {
             // The widest range the sliders allow, so the planner has to keep the notes in.
             var filters = new Dictionary<string, string> { ["instrument"] = instrumentName, ["noteRange"] = "C1-C6" };
+            var plan = _planner.Plan(exercise, filters);
+            var countIn = CountInSeconds(exerciseName, plan.ExpectedAnswerJson);
 
-            foreach (var input in _planner.Plan(exercise, filters).PlaybackPlans.SelectMany(plan => plan))
+            foreach (var input in plan.PlaybackPlans.SelectMany(clip => clip))
             {
-                var playedOn = input.StartTimeSeconds < QuestionStart.GetValueOrDefault(exerciseName) ? accompaniment : instrument;
+                var playedOn = input.StartTimeSeconds < countIn ? Instrument.Piano
+                    : input.StartTimeSeconds < QuestionStart.GetValueOrDefault(exerciseName) ? accompaniment
+                    : instrument;
                 var folder = playedOn.Folder is null ? "" : playedOn.Folder + "/";
                 input.SampleName.Should().StartWith(folder, "{0} is played on the {1}", exerciseName, playedOn.Name);
                 NoteFiles.Should().Contain(input.SampleName[folder.Length..],
@@ -451,6 +455,17 @@ public class ExercisePlaybackPlannerInstrumentTests
     }
 
     private static List<int> Midis(JToken notes) => [.. notes.Values<string>().Select(note => Midi(note!))];
+
+    // When the melody of a dictation starts, after its count-in; 0 for the other exercises.
+    private static double CountInSeconds(string exerciseName, string expectedAnswerJson)
+    {
+        if (exerciseName is not ("MelodicDictation" or "RhythmDictation"))
+            return 0.0;
+
+        var answer = JObject.Parse(expectedAnswerJson);
+        var beats = DictationRhythm.CountIn(answer.Value<string>("timeSignature")!).Sum(click => click.Beats);
+        return beats * 60.0 / answer.Value<int>("tempo") - 1e-9;
+    }
 
     private static int Midi(string note) => MusicTheoryService.NoteToMidi(note) ?? throw new ArgumentException(note);
 

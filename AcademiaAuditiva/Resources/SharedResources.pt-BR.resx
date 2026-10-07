@@ -3172,7 +3172,7 @@
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Instructions" xml:space="preserve">
-    <value>Ouça a melodia completa. Escolha uma figura e clique nos nomes das notas em ordem; uma pausa entra com um clique. As barras de compasso entram sozinhas.</value>
+    <value>Uma contagem dá o andamento e depois a melodia toca. Escolha uma figura e clique nos nomes das notas em ordem; uma pausa entra com um clique. As barras de compasso entram sozinhas.</value>
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Tip1" xml:space="preserve">
@@ -3204,7 +3204,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Instructions" xml:space="preserve">
-    <value>Ouça o ritmo e clique nas figuras e pausas na ordem em que soam. As barras de compasso entram sozinhas.</value>
+    <value>Uma contagem dá o andamento e depois o ritmo toca. Clique nas figuras e pausas na ordem em que soam. As barras de compasso entram sozinhas.</value>
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Tip1" xml:space="preserve">
@@ -3217,6 +3217,38 @@
   </data>
   <data name="Exercise.RhythmDictation.Tip3" xml:space="preserve">
     <value>Uma figura que não cabe mais no compasso fica desativada.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmLevel.Dotted" xml:space="preserve">
+    <value>Figuras pontuadas</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmLevel.Sixteenths" xml:space="preserve">
+    <value>Semicolcheias</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmLevel.Syncopation" xml:space="preserve">
+    <value>Síncopes</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmLevel.Compound" xml:space="preserve">
+    <value>Compasso composto (6/8)</value>
+    <comment />
+  </data>
+  <data name="Exercise.Tempo" xml:space="preserve">
+    <value>Andamento</value>
+    <comment />
+  </data>
+  <data name="Exercise.Tempo.Normal" xml:space="preserve">
+    <value>Normal (♩ = 120)</value>
+    <comment />
+  </data>
+  <data name="Exercise.Tempo.Slow" xml:space="preserve">
+    <value>Lento (♩ = 90)</value>
+    <comment />
+  </data>
+  <data name="Exercise.Tempo.VerySlow" xml:space="preserve">
+    <value>Muito lento (♩ = 60)</value>
     <comment />
   </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
@@ -3257,6 +3289,26 @@
   </data>
   <data name="Exercise.StaffEditor.EighthRest" xml:space="preserve">
     <value>Pausa de colcheia</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.DottedHalf" xml:space="preserve">
+    <value>Mínima pontuada</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.DottedQuarter" xml:space="preserve">
+    <value>Semínima pontuada</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.DottedEighth" xml:space="preserve">
+    <value>Colcheia pontuada</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Sixteenth" xml:space="preserve">
+    <value>Semicolcheia</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.DottedQuarterRest" xml:space="preserve">
+    <value>Pausa de semínima pontuada</value>
     <comment />
   </data>
   <data name="Exercise.StaffEditor.Measure" xml:space="preserve">

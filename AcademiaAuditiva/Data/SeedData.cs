@@ -366,9 +366,20 @@ public static class SeedData
                             new("short", "Exercise.Short"),
                             new("long", "Exercise.Long")
                         }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Tempo",
+                        Name = "mdTempo",
+                        Options = new List<FilterOption>
+                        {
+                            new("120", "Exercise.Tempo.Normal"),
+                            new("90", "Exercise.Tempo.Slow"),
+                            new("60", "Exercise.Tempo.VerySlow")
+                        }
                     }
                 }),
-                Instructions = "Ouça a melodia completa. Escolha uma figura e clique nos nomes das notas em ordem; uma pausa entra com um clique. As barras de compasso entram sozinhas.",
+                Instructions = "Uma contagem dá o andamento e depois a melodia toca. Escolha uma figura e clique nos nomes das notas em ordem; uma pausa entra com um clique. As barras de compasso entram sozinhas.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Ouça primeiro o contorno geral antes de escrever.",
                     "Marque as durações principais e depois ajuste as alturas.",
@@ -397,7 +408,11 @@ public static class SeedData
                         {
                             new("1", "Beginner"),
                             new("3", "Intermediate"),
-                            new("4", "Advanced")
+                            new("4", "Advanced"),
+                            new("5", "Exercise.RhythmLevel.Dotted"),
+                            new("6", "Exercise.RhythmLevel.Sixteenths"),
+                            new("7", "Exercise.RhythmLevel.Syncopation"),
+                            new("8", "Exercise.RhythmLevel.Compound")
                         }
                     },
                     new FilterOptionGroup
@@ -409,9 +424,20 @@ public static class SeedData
                             new("short", "Exercise.Short"),
                             new("long", "Exercise.Long")
                         }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Tempo",
+                        Name = "rdTempo",
+                        Options = new List<FilterOption>
+                        {
+                            new("120", "Exercise.Tempo.Normal"),
+                            new("90", "Exercise.Tempo.Slow"),
+                            new("60", "Exercise.Tempo.VerySlow")
+                        }
                     }
                 }),
-                Instructions = "Ouça o ritmo e clique nas figuras e pausas na ordem em que soam. As barras de compasso entram sozinhas.",
+                Instructions = "Uma contagem dá o andamento e depois o ritmo toca. Clique nas figuras e pausas na ordem em que soam. As barras de compasso entram sozinhas.",
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Conte os pulsos em voz baixa enquanto escuta.",
                     "Identifique primeiro os valores longos e depois preencha os curtos.",

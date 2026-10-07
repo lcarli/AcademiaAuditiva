@@ -105,23 +105,27 @@ O aluno ouve o acorde inteiro (tocado como está escrito) e escreve as notas emp
 ---
 
 ### 12. Dictado Melódico
+Uma contagem no piano dá o andamento: um compasso de tempos, com o primeiro acentuado (em 2/4, dois compassos; em 6/8, as seis colcheias, com acento na 1ª e na 4ª). Depois a melodia toca, num tom maior sorteado a cada questão. Ela começa na tônica, que já vem escrita na pauta, e o aluno escreve o resto: figuras, notas e pausas.
 - **Filtros aplicáveis**:
-  - Tom base
-  - Escala usada
-  - Comprimento da melodia
-  - Presença de cromatismos
-  - Nível de dificuldade
-  - Número de compassos
+  - Nível: iniciante (semibreves e mínimas, em 4/4), intermediário (mais semínimas e pausas, em 4/4 ou 3/4) ou avançado (mais colcheias, em 4/4, 3/4, 2/4 ou 6/8; em 6/8, a melodia usa as figuras do compasso composto, como o nível 6/8 do ditado rítmico)
+  - Tamanho da melodia: curto (2 compassos) ou longo (4)
+  - Andamento: normal (♩ = 120), lento (♩ = 90) ou muito lento (♩ = 60)
 
 ---
 
 ### 13. Dictado Rítmico
+Depois da mesma contagem, o ritmo toca numa nota só, e o aluno escreve as figuras e as pausas na ordem em que soam; as barras de compasso entram sozinhas.
 - **Filtros aplicáveis**:
-  - Compasso (2/4, 3/4, 6/8…)
-  - Figuras rítmicas incluídas
-  - Duração da célula
-  - Nível de dificuldade
-  - Número de compassos
+  - Nível:
+    - Iniciante: semibreves e mínimas, em 4/4
+    - Intermediário: mais semínimas e pausas, em 4/4 ou 3/4
+    - Avançado: mais colcheias, em 4/4, 3/4 ou 2/4
+    - Figuras pontuadas, Semicolcheias e Síncopes, em 4/4, 3/4 ou 2/4: semínimas, pares de colcheias, mínimas e pausas de semínima, e ao menos uma das figuras que o nível ensina. Figuras pontuadas: semínima pontuada e colcheia; mínima pontuada. Semicolcheias: quatro semicolcheias; colcheia e duas semicolcheias; duas semicolcheias e colcheia; colcheia pontuada e semicolcheia. Síncopes: pausa de colcheia e colcheia; colcheia, semínima e colcheia; semínima, mínima e semínima
+    - Compasso composto (6/8): o tempo é a semínima pontuada (ou a pausa dela), e o ritmo traz ao menos uma divisão dele: semínima e colcheia, colcheia e semínima ou três colcheias. A mínima pontuada ocupa o compasso
+  - Tamanho da melodia: curto (2 compassos) ou longo (4)
+  - Andamento: normal (♩ = 120), lento (♩ = 90) ou muito lento (♩ = 60)
+
+Nos quatro últimos níveis, cada figura começa num tempo e termina dentro do compasso; em 4/4, a que começa no 2º tempo não atravessa o meio do compasso. Ligaduras e quiálteras ficam de fora.
 
 ---
 

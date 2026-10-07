@@ -3172,7 +3172,7 @@
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Instructions" xml:space="preserve">
-    <value>Écoutez la mélodie complète. Choisissez une figure, puis cliquez sur le nom des notes dans l’ordre ; un silence se place d’un clic. Les barres de mesure s’ajoutent seules.</value>
+    <value>Un décompte donne le tempo, puis la mélodie est jouée. Choisissez une figure, puis cliquez sur le nom des notes dans l’ordre ; un silence se place d’un clic. Les barres de mesure s’ajoutent seules.</value>
     <comment />
   </data>
   <data name="Exercise.MelodicDictation.Tip1" xml:space="preserve">
@@ -3204,7 +3204,7 @@
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Instructions" xml:space="preserve">
-    <value>Écoutez le rythme et cliquez sur les figures et les silences dans l’ordre où vous les entendez. Les barres de mesure s’ajoutent seules.</value>
+    <value>Un décompte donne le tempo, puis le rythme est joué. Cliquez sur les figures et les silences dans l’ordre où vous les entendez. Les barres de mesure s’ajoutent seules.</value>
     <comment />
   </data>
   <data name="Exercise.RhythmDictation.Tip1" xml:space="preserve">
@@ -3217,6 +3217,38 @@
   </data>
   <data name="Exercise.RhythmDictation.Tip3" xml:space="preserve">
     <value>Une figure qui n’entre plus dans la mesure est désactivée.</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmLevel.Dotted" xml:space="preserve">
+    <value>Notes pointées</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmLevel.Sixteenths" xml:space="preserve">
+    <value>Doubles croches</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmLevel.Syncopation" xml:space="preserve">
+    <value>Syncopes</value>
+    <comment />
+  </data>
+  <data name="Exercise.RhythmLevel.Compound" xml:space="preserve">
+    <value>Mesure composée (6/8)</value>
+    <comment />
+  </data>
+  <data name="Exercise.Tempo" xml:space="preserve">
+    <value>Tempo</value>
+    <comment />
+  </data>
+  <data name="Exercise.Tempo.Normal" xml:space="preserve">
+    <value>Normal (♩ = 120)</value>
+    <comment />
+  </data>
+  <data name="Exercise.Tempo.Slow" xml:space="preserve">
+    <value>Lent (♩ = 90)</value>
+    <comment />
+  </data>
+  <data name="Exercise.Tempo.VerySlow" xml:space="preserve">
+    <value>Très lent (♩ = 60)</value>
     <comment />
   </data>
   <data name="Exercise.StaffEditor.SelectedNote" xml:space="preserve">
@@ -3257,6 +3289,26 @@
   </data>
   <data name="Exercise.StaffEditor.EighthRest" xml:space="preserve">
     <value>Demi-soupir</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.DottedHalf" xml:space="preserve">
+    <value>Blanche pointée</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.DottedQuarter" xml:space="preserve">
+    <value>Noire pointée</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.DottedEighth" xml:space="preserve">
+    <value>Croche pointée</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.Sixteenth" xml:space="preserve">
+    <value>Double croche</value>
+    <comment />
+  </data>
+  <data name="Exercise.StaffEditor.DottedQuarterRest" xml:space="preserve">
+    <value>Soupir pointé</value>
     <comment />
   </data>
   <data name="Exercise.StaffEditor.Measure" xml:space="preserve">

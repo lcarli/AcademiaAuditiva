@@ -49,7 +49,7 @@
   var BEAT_MAP = {
     w: 4, "w.": 6, h: 2, "h.": 3, q: 1, "q.": 1.5,
     "8": 0.5, "8.": 0.75, "16": 0.25, "8t": 1 / 3,
-    wr: 4, hr: 2, qr: 1, "8r": 0.5, "16r": 0.25, "8tr": 1 / 3,
+    wr: 4, hr: 2, "h.r": 3, qr: 1, "q.r": 1.5, "8r": 0.5, "8.r": 0.75, "16r": 0.25, "8tr": 1 / 3,
   };
 
   // VexFlow lowers the drawn note by octave_shift octaves.
@@ -276,15 +276,19 @@
   }
 
   // Shared icon box around the note head on the middle line (x, y = 0, 0):
-  // the stem and flag go up, a rest hangs below or sits on the line.
+  // the stem and flag go up, a rest hangs below or sits on the line. A dotted
+  // value is wider, to fit its dot.
   var FIGURE_BOX = { x: -7, y: -40, width: 36, height: 58 };
+  var DOT_WIDTH = 8;
   var figureCache = {};
 
   function drawFigure(duration) {
     var VexFlow = root.VexFlow || (root.Vex && root.Vex.Flow);
     var Mapping = window.StaffMapping;
     var isRest = Mapping.isRestLabel(duration);
+    var isDotted = Mapping.isDottedLabel(duration);
     var base = Mapping.baseDuration(duration);
+    var width = FIGURE_BOX.width + (isDotted ? DOT_WIDTH : 0);
     var holder = document.createElement("div");
     holder.style.cssText = "position:absolute;left:-10000px;top:0;";
     document.body.appendChild(holder);
@@ -295,7 +299,13 @@
       var stave = new VexFlow.Stave(0, 20, 120, { left_bar: false, right_bar: false });
       stave.setConfigForLines([0, 1, 2, 3, 4].map(function () { return { visible: false }; }));
       stave.setContext(ctx).draw();
-      var note = new VexFlow.StaveNote({ keys: ["b/4"], duration: isRest ? base + "r" : base, clef: "treble" });
+      var note = new VexFlow.StaveNote({
+        keys: ["b/4"],
+        duration: isRest ? base + "r" : base,
+        clef: "treble",
+        dots: isDotted ? 1 : 0,
+      });
+      if (isDotted) VexFlow.Dot.buildAndAttach([note], { all: true });
       VexFlow.Formatter.FormatAndDraw(ctx, stave, [note]);
 
       var svg = holder.querySelector("svg");
@@ -312,7 +322,7 @@
       if (isRest) {
         var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
         line.setAttribute("x1", String(x + FIGURE_BOX.x + 4));
-        line.setAttribute("x2", String(x + FIGURE_BOX.x + FIGURE_BOX.width - 4));
+        line.setAttribute("x2", String(x + FIGURE_BOX.x + width - 4));
         line.setAttribute("y1", String(y));
         line.setAttribute("y2", String(y));
         line.setAttribute("stroke", "currentColor");
@@ -320,7 +330,7 @@
         line.setAttribute("class", "aa-figure-line");
         svg.insertBefore(line, svg.firstChild);
       }
-      svg.setAttribute("viewBox", [x + FIGURE_BOX.x, y + FIGURE_BOX.y, FIGURE_BOX.width, FIGURE_BOX.height].join(" "));
+      svg.setAttribute("viewBox", [x + FIGURE_BOX.x, y + FIGURE_BOX.y, width, FIGURE_BOX.height].join(" "));
       svg.removeAttribute("width");
       svg.removeAttribute("height");
       svg.removeAttribute("style");

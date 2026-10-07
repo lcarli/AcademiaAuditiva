@@ -99,6 +99,19 @@ public class StaffSequenceValidatorTests
     }
 
     [Fact]
+    public void Dictation_DottedValuesSixteenthsAndDottedRests_AreTheirOwnFigures()
+    {
+        const string rhythm = "{\"answerString\":\"q.|8|q.r|bar|8.|16|16|16|8\"}";
+        const string melody = "{\"answerString\":\"D4:q.|E4:8|rest:q.r|bar|F#4:8.|G4:16\"}";
+
+        new RhythmDictationValidator().Validate("q.|8|q.r|bar|8.|16|16|16|8", rhythm).IsCorrect.Should().BeTrue();
+        new RhythmDictationValidator().Validate("q|8|q.r|bar|8.|16|16|16|8", rhythm).IsCorrect.Should().BeFalse();
+        new RhythmDictationValidator().Validate("q.|8|qr|bar|8.|16|16|16|8", rhythm).IsCorrect.Should().BeFalse();
+        new MelodicDictationValidator().Validate("D4:q.|E4:8|B4:q.r|bar|F#4:8.|G4:16", melody).IsCorrect.Should().BeTrue();
+        new MelodicDictationValidator().Validate("D4:q.|E4:8|rest:q.r|bar|F#4:8|G4:16", melody).IsCorrect.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompleteScale_WrongOrder_FailsValidation()
     {
         var v = new CompleteScaleValidator();
