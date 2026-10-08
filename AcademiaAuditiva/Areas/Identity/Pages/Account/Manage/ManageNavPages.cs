@@ -61,6 +61,9 @@ namespace  AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
         /// </summary>
         public static string TwoFactorAuthentication => "TwoFactorAuthentication";
 
+        /// <summary>The e-mails the user chooses to get.</summary>
+        public static string Notifications => "Notifications";
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -108,6 +111,9 @@ namespace  AcademiaAuditiva.Areas.Identity.Pages.Account.Manage
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string TwoFactorAuthenticationNavClass(ViewContext viewContext) => PageNavClass(viewContext, TwoFactorAuthentication);
+
+        /// <summary>"active" on the Notifications page.</summary>
+        public static string NotificationsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Notifications);
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used

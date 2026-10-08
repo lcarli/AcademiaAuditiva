@@ -70,6 +70,10 @@
                                 {
                                     <div class="small text-secondary"><i class="bi bi-person me-1" aria-hidden="true"></i>@r.Assignment.StudentName</div>
                                 }
+                                @if (r.Assignment.ChosenStudents is int chosen)
+                                {
+                                    <div class="small text-secondary"><i class="bi bi-person-check me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.ChosenCount", chosen]</div>
+                                }
                             </td>
                             <td class="text-nowrap">@r.Assignment.AssignedOn.ToString("yyyy-MM-dd")</td>
                             <td class="text-nowrap">@if (r.Assignment.DueOn is DateOnly due) { @due.ToString("yyyy-MM-dd") } else { @None() }</td>

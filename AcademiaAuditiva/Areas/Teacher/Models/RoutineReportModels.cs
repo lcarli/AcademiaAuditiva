@@ -13,6 +13,7 @@ public sealed record ReportStudent(string Id, string UserName, string Email)
 /// <param name="ClassroomName">Set when the routine is assigned to a classroom.</param>
 /// <param name="StudentName">Set when the routine is assigned to one student.</param>
 /// <param name="AssignedOn">In the teacher's time zone.</param>
+/// <param name="ChosenStudents">How many students the teacher ticked, when the routine went to only some of the classroom.</param>
 public sealed record AssignmentSummary(
     int Id,
     int RoutineId,
@@ -22,7 +23,8 @@ public sealed record AssignmentSummary(
     string? StudentName,
     DateOnly AssignedOn,
     DateOnly? DueOn,
-    bool AllowLate);
+    bool AllowLate,
+    int? ChosenStudents = null);
 
 /// <summary>An item of a routine, numbered from 1, with the target the teacher set for everyone.</summary>
 /// <param name="ExerciseName">The exercise key, which the views localize.</param>

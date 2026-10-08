@@ -249,7 +249,7 @@ public class RoutineLockTests : IClassFixture<RoutineLockTests.Factory>
         ShowsError(await FollowAsync(client, form, DetailsUrl(seeded)), Empty);
         var response = await PostAsync(client, "/Teacher/Routines/Assign", new()
         {
-            ["RoutineId"] = Id(seeded.RoutineId), ["Target"] = "classroom", ["ClassroomId"] = Id(seeded.ClassroomId),
+            ["RoutineId"] = Id(seeded.RoutineId), ["Recipients"] = "class", ["ClassroomId"] = Id(seeded.ClassroomId),
         });
 
         ShowsError(await FollowAsync(client, response, DetailsUrl(seeded)), Empty);

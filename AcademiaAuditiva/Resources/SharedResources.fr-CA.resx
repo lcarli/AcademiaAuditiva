@@ -2536,12 +2536,6 @@
   <data name="Teacher.Routines.AssignTitle" xml:space="preserve">
     <value>Attribuer — {0}</value>
   </data>
-  <data name="Teacher.Routines.TargetClassroom" xml:space="preserve">
-    <value>Toute une classe</value>
-  </data>
-  <data name="Teacher.Routines.TargetStudent" xml:space="preserve">
-    <value>Un seul étudiant</value>
-  </data>
   <data name="Teacher.Routines.EditExercise" xml:space="preserve">
     <value>Modifier l’exercice</value>
   </data>
@@ -2628,9 +2622,6 @@
   </data>
   <data name="Teacher.Routines.SelectClassroom" xml:space="preserve">
     <value>Sélectionnez une classe.</value>
-  </data>
-  <data name="Teacher.Routines.SelectStudent" xml:space="preserve">
-    <value>Sélectionnez un étudiant.</value>
   </data>
   <data name="Teacher.Routines.InvalidTarget" xml:space="preserve">
     <value>Cible invalide.</value>
@@ -4689,5 +4680,95 @@
   </data>
   <data name="LearningPath.PlacementLink" xml:space="preserve">
     <value>Faites le test de classement</value>
+  </data>
+  <data name="RoutineEmail.Subject" xml:space="preserve">
+    <value>Nouvelle routine à pratiquer : {0}</value>
+  </data>
+  <data name="RoutineEmail.Title" xml:space="preserve">
+    <value>Vous avez une nouvelle routine</value>
+  </data>
+  <data name="RoutineEmail.Intro" xml:space="preserve">
+    <value>{0} vous a assigné cette routine dans la classe {1} sur Academia Auditiva :</value>
+  </data>
+  <data name="RoutineEmail.Button" xml:space="preserve">
+    <value>Ouvrir Mon entraînement</value>
+  </data>
+  <data name="RoutineEmail.Due" xml:space="preserve">
+    <value>À faire d’ici le {0}.</value>
+  </data>
+  <data name="RoutineEmail.DueLate" xml:space="preserve">
+    <value>À faire d’ici le {0}. Les réponses en retard seront quand même acceptées.</value>
+  </data>
+  <data name="RoutineEmail.NoDue" xml:space="preserve">
+    <value>Aucune date limite : pratiquez à votre rythme.</value>
+  </data>
+  <data name="RoutineEmail.Reason" xml:space="preserve">
+    <value>Vous recevez ce courriel parce qu’une routine vous a été assignée dans une classe sur Academia Auditiva.</value>
+  </data>
+  <data name="RoutineEmail.TurnOff" xml:space="preserve">
+    <value>Désactiver ces courriels</value>
+  </data>
+  <data name="Toast.RoutineAssignedEmailed" xml:space="preserve">
+    <value>Routine assignée. Nous envoyons un courriel aux élèves à ce sujet.</value>
+  </data>
+  <data name="Toast.RoutineEmailLimit" xml:space="preserve">
+    <value>Limite quotidienne de courriels atteinte. Élèves qui ne recevront pas de courriel au sujet de cette routine : {0} sur {1}. Ils la trouveront quand même dans Mon entraînement.</value>
+  </data>
+  <data name="Toast.RoutineEmailFailed" xml:space="preserve">
+    <value>Impossible d’envoyer un courriel aux élèves au sujet de cette routine. Ils la trouveront quand même dans Mon entraînement.</value>
+  </data>
+  <data name="Teacher.Routines.Recipients" xml:space="preserve">
+    <value>Assigner à</value>
+  </data>
+  <data name="Teacher.Routines.WholeClass" xml:space="preserve">
+    <value>Toute la classe</value>
+  </data>
+  <data name="Teacher.Routines.WholeClassHelp" xml:space="preserve">
+    <value>Les élèves qui se joindront à la classe plus tard la recevront aussi.</value>
+  </data>
+  <data name="Teacher.Routines.ChosenStudents" xml:space="preserve">
+    <value>Seulement les élèves que je choisis</value>
+  </data>
+  <data name="Teacher.Routines.ChooseStudents" xml:space="preserve">
+    <value>Choisissez les élèves</value>
+  </data>
+  <data name="Teacher.Routines.SelectStudents" xml:space="preserve">
+    <value>Choisissez au moins un élève.</value>
+  </data>
+  <data name="Teacher.Routines.NotInClassroom" xml:space="preserve">
+    <value>Chaque élève choisi doit faire partie de la classe.</value>
+  </data>
+  <data name="Teacher.Routines.EmailNote" xml:space="preserve">
+    <value>Les élèves qui ont confirmé leur adresse courriel reçoivent un courriel au sujet de la routine, à moins de les avoir désactivés.</value>
+  </data>
+  <data name="Teacher.Routines.ChosenCount" xml:space="preserve">
+    <value>élèves choisis : {0}</value>
+  </data>
+  <data name="Teacher.Routines.ChosenList" xml:space="preserve">
+    <value>Élèves choisis : {0}</value>
+  </data>
+  <data name="Manage.Nav.Notifications" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="Manage.Notifications.Title" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="Manage.Notifications.Intro" xml:space="preserve">
+    <value>Choisissez les courriels qu’Academia Auditiva vous envoie. Les courriels au sujet de votre compte, comme la réinitialisation du mot de passe, sont toujours envoyés.</value>
+  </data>
+  <data name="Manage.Notifications.RoutineEmails" xml:space="preserve">
+    <value>M’envoyer un courriel quand un enseignant m’assigne une routine</value>
+  </data>
+  <data name="Manage.Notifications.RoutineEmailsHelp" xml:space="preserve">
+    <value>Vous trouverez toujours toutes vos routines dans Mon entraînement.</value>
+  </data>
+  <data name="Manage.Notifications.Unconfirmed" xml:space="preserve">
+    <value>Votre adresse courriel n’est pas encore confirmée, donc ces courriels ne peuvent pas vous être envoyés.</value>
+  </data>
+  <data name="Identity.Status.NotificationsSaved" xml:space="preserve">
+    <value>Vos préférences de notification ont été enregistrées.</value>
+  </data>
+  <data name="Identity.Status.NotificationsError" xml:space="preserve">
+    <value>Erreur inattendue lors de l’enregistrement de vos préférences de notification.</value>
   </data>
 </root>

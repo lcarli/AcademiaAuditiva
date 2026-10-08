@@ -107,16 +107,101 @@ public class EmailComposerTests
         ]));
     }
 
+    [Theory]
+    [MemberData(nameof(Cultures))]
+    public async Task RoutineAssigned_LeadsToMyTraining_AndToTurningItOff(string culture)
+    {
+        UseCulture(culture);
+        const string teacher = "Ana \"<b>Lima</b>\" (ana@example.test)";
+        const string classroom = "<i>Ear</i> & Rhythm";
+        const string routine = "<script>alert('x')</script> Week 1";
+        var due = new DateTime(2026, 2, 1);
+
+        var message = await Composer().RoutineAssignedAsync(teacher, classroom, routine, due, allowLate: false);
+
+        message.Subject.Should().Be(string.Format(Text("RoutineEmail.Subject", culture), routine));
+        message.HtmlBody.Should().NotContainAny("<b>", "<i>").And.Contain("&lt;script&gt;");
+        ShouldShowLinking(message, culture, EmailComposer.MyTrainingUrl,
+            [EmailComposer.MyTrainingUrl, EmailComposer.MyTrainingUrl, EmailComposer.NotificationSettingsUrl, EmailComposer.SiteUrl],
+            [
+                Text("RoutineEmail.Title", culture),
+                string.Format(Text("RoutineEmail.Intro", culture), teacher, classroom),
+                routine,
+                Text("RoutineEmail.Button", culture),
+                string.Format(Text("RoutineEmail.Due", culture), due.ToString("D", CultureInfo.GetCultureInfo(culture))),
+                Text("RoutineEmail.Reason", culture),
+                Text("RoutineEmail.TurnOff", culture),
+            ]);
+        message.TextBody.Should().Contain(EmailComposer.NotificationSettingsUrl);
+    }
+
+    [Theory]
+    [MemberData(nameof(Cultures))]
+    public async Task RoutineWithoutDueDate_SaysThereIsNone(string culture)
+    {
+        UseCulture(culture);
+
+        var message = await Composer().RoutineAssignedAsync("Ana Lima", "Ear training", "Week 1", dueAt: null, allowLate: true);
+
+        WebUtility.HtmlDecode(message.HtmlBody).Should().Contain(Text("RoutineEmail.NoDue", culture));
+        message.TextBody.Should().Contain(Text("RoutineEmail.NoDue", culture));
+    }
+
+    [Fact]
+    public async Task RoutinePlainText_SaysLateAnswersCount_AndHowToTurnItOff()
+    {
+        UseCulture("en-US");
+
+        var message = await Composer().RoutineAssignedAsync(
+            "Ana Lima (ana@example.test)", "Ear training", "Week 1", new DateTime(2026, 2, 1), allowLate: true);
+
+        message.TextBody.Should().Be(string.Join("\n",
+        [
+            Text("RoutineEmail.Title", "en-US"),
+            "",
+            string.Format(Text("RoutineEmail.Intro", "en-US"), "Ana Lima (ana@example.test)", "Ear training"),
+            "Week 1",
+            "",
+            Text("RoutineEmail.Button", "en-US"),
+            EmailComposer.MyTrainingUrl,
+            "",
+            string.Format(Text("RoutineEmail.DueLate", "en-US"), "Sunday, February 1, 2026"),
+            "",
+            "-- ",
+            Text("RoutineEmail.Reason", "en-US"),
+            "",
+            Text("RoutineEmail.TurnOff", "en-US"),
+            EmailComposer.NotificationSettingsUrl,
+            "",
+            "Academia Auditiva · " + Text("Layout.FooterTagline", "en-US"),
+            "https://academiaauditiva.com",
+            "",
+        ]));
+    }
+
+    [Theory]
+    [InlineData("Ana", "Lima", "ana@example.test", "Ana Lima (ana@example.test)")]
+    [InlineData(null, "Lima", "ana@example.test", "Lima (ana@example.test)")]
+    [InlineData(" ", "", "ana@example.test", "ana@example.test")]
+    [InlineData("Ana", "Lima", null, "Ana Lima")]
+    [InlineData(null, null, null, "")]
+    public void Teacher_IsNamedWithTheirAddress(string? firstName, string? lastName, string? email, string expected) =>
+        EmailComposer.DescribeTeacher(firstName, lastName, email).Should().Be(expected);
+
     // What both bodies show, and what the HTML may load.
-    private static void ShouldShow(EmailMessage message, string culture, params string[] texts)
+    private static void ShouldShow(EmailMessage message, string culture, params string[] texts) =>
+        ShouldShowLinking(message, culture, Link, [Link, Link, EmailComposer.SiteUrl], texts);
+
+    // hrefs: the button's and the copyable link's (both link), then the footer's.
+    private static void ShouldShowLinking(EmailMessage message, string culture, string link, string[] hrefs, string[] texts)
     {
         var html = message.HtmlBody;
         html.Should().StartWith("<!DOCTYPE html>").And.Contain($"<html lang=\"{culture}\"");
-        html.Should().NotContainAny(["<script", "<link", "@font-face", "{0}"], "mail programs block them");
+        html.Should().NotContainAny(["<script", "<link", "@font-face", "{0}", "{1}"], "mail programs block them");
         html.Should().Contain("<!--[if mso]>", "classic Outlook needs its fixed-width column");
         Attributes(html, "src").Should().NotBeEmpty()
             .And.OnlyContain(src => src.StartsWith(EmailComposer.SiteUrl + "/"), "images load from the site");
-        Attributes(html, "href").Should().BeEquivalentTo([Link, Link, EmailComposer.SiteUrl],
+        Attributes(html, "href").Should().Equal(hrefs,
             "the button and the copyable link lead to the same page, the footer to the site");
 
         var shown = WebUtility.HtmlDecode(html);
@@ -131,7 +216,7 @@ public class EmailComposerTests
             message.TextBody.Should().Contain(text);
         }
 
-        message.TextBody.Should().Contain(Link).And.EndWith(EmailComposer.SiteUrl + "\n");
+        message.TextBody.Should().Contain(link).And.EndWith(EmailComposer.SiteUrl + "\n");
     }
 
     private static IEnumerable<string> Attributes(string html, string name) =>

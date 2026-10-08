@@ -75,6 +75,11 @@ public class PersonalDataService
                 || itemIds.Contains(o.RoutineItemId))
             .ToListAsync(ct);
 
+        // Where the user is a ticked student, and every ticked student of the assignments removed.
+        var chosen = await _db.RoutineAssignmentStudents
+            .Where(s => s.StudentId == userId || assignmentIds.Contains(s.RoutineAssignmentId))
+            .ToListAsync(ct);
+
         var members = await _db.ClassroomMembers
             .Where(m => m.StudentId == userId || classroomIds.Contains(m.ClassroomId))
             .ToListAsync(ct);
@@ -86,6 +91,7 @@ public class PersonalDataService
             .ToListAsync(ct);
 
         _db.RoutineAssignmentOverrides.RemoveRange(overrides);
+        _db.RoutineAssignmentStudents.RemoveRange(chosen);
         _db.RoutineAssignments.RemoveRange(assignments);
         _db.RoutineItems.RemoveRange(items);
         _db.Routines.RemoveRange(routines);
@@ -211,7 +217,8 @@ public class PersonalDataService
 
         var assignedRoutines = await _db.RoutineAssignments.AsNoTracking()
             .Where(a => a.StudentId == userId
-                || (a.ClassroomId != null && memberClassroomIds.Contains(a.ClassroomId.Value)))
+                || (a.ClassroomId != null && memberClassroomIds.Contains(a.ClassroomId.Value)
+                    && (!a.ChosenStudentsOnly || a.ChosenStudents.Any(s => s.StudentId == userId))))
             .OrderBy(a => a.AssignedAt)
             .Select(a => new
             {

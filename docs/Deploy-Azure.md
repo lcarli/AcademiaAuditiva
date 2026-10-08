@@ -122,7 +122,8 @@ other secrets are optional and the app starts without them:
 | Secret | Without it |
 |---|---|
 | `Facebook--AppId`, `Facebook--AppSecret` | no Facebook sign-in |
-| `Smtp--Host`, `Smtp--Port`, `Smtp--User`, `Smtp--Password`, `Smtp--FromAddress` | no email: registration shows the confirmation link on screen, password reset can't send its link |
+| `Smtp--Host`, `Smtp--Port`, `Smtp--User`, `Smtp--Password`, `Smtp--FromAddress` | no email: registration shows the confirmation link on screen, password reset can't send its link, students aren't e-mailed their routines |
+| `NotificationEmails--DailyLimit` | routine e-mails stop at 60 a UTC day; `0` turns them off |
 | `Admin--InitialPassword` | the `appAdminEmail` account gets a random password |
 
 Production sends email through Resend's SMTP server: host `smtp.resend.com`,
@@ -131,6 +132,11 @@ password, and `no-reply@academiaauditiva.com` as the sender. The sender's
 domain must be verified in Resend. Email counts as on only when the host, user,
 password and a sender address are all set. `Smtp--FromAddress` can be left
 out only when `Smtp--User` is itself an email address.
+
+Resend's free plan sends 100 e-mails a day. `NotificationEmails--DailyLimit`
+keeps the e-mails about assigned routines to part of that (60 by default), so
+that sign-ups and password resets, which it doesn't count, still go out. Raise
+it with a paid plan.
 
 ```powershell
 ./infra/scripts/seed-keyvault.ps1 -VaultName <keyVaultName from outputs>

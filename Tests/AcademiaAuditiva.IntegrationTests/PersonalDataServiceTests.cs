@@ -245,10 +245,120 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
         }
     }
 
+    [Fact]
+    public async Task DeleteAccount_RemovesTheStudentsTicks_AndEveryTickOfTheTeachersAssignments()
+    {
+        var exerciseId = await EnsureExerciseAsync();
+        var teacher = await CreateUserAsync("teacher");
+        var colleague = await CreateUserAsync("colleague");
+        var student = await CreateUserAsync("student");
+        var classmate = await CreateUserAsync("classmate");
+
+        RoutineAssignment own, colleagues;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = Db(scope);
+            var choir = new Classroom { Name = "Choir", OwnerId = teacher.Id };
+            var band = new Classroom { Name = "Band", OwnerId = colleague.Id };
+            var intervals = new Routine { Name = "Intervals", OwnerId = teacher.Id };
+            var chords = new Routine { Name = "Chords", OwnerId = colleague.Id };
+            db.AddRange(choir, band, intervals, chords,
+                new RoutineItem { Routine = intervals, ExerciseId = exerciseId, Order = 1 },
+                new RoutineItem { Routine = chords, ExerciseId = exerciseId, Order = 1 });
+            await db.SaveChangesAsync();
+
+            own = ChosenOnly(intervals.Id, choir.Id, student, classmate);
+            colleagues = ChosenOnly(chords.Id, band.Id, student, classmate);
+            db.AddRange(own, colleagues,
+                new ClassroomMember { ClassroomId = choir.Id, StudentId = student.Id },
+                new ClassroomMember { ClassroomId = choir.Id, StudentId = classmate.Id },
+                new ClassroomMember { ClassroomId = band.Id, StudentId = student.Id },
+                new ClassroomMember { ClassroomId = band.Id, StudentId = classmate.Id });
+            await db.SaveChangesAsync();
+        }
+
+        (await DeleteAsync(student.Id)).Succeeded.Should().BeTrue();
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = Db(scope);
+            (await db.RoutineAssignmentStudents.AnyAsync(s => s.StudentId == student.Id)).Should().BeFalse();
+            (await ChosenAsync(db, own.Id)).Should().Equal(classmate.Id);
+            (await ChosenAsync(db, colleagues.Id)).Should().Equal(classmate.Id);
+        }
+
+        (await DeleteAsync(teacher.Id)).Succeeded.Should().BeTrue();
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = Db(scope);
+            (await db.RoutineAssignments.AnyAsync(a => a.Id == own.Id)).Should().BeFalse();
+            (await ChosenAsync(db, own.Id)).Should().BeEmpty("the ticks go with the assignment");
+            (await ChosenAsync(db, colleagues.Id)).Should().Equal(classmate.Id);
+        }
+    }
+
+    [Fact]
+    public async Task Export_IncludesTheEmailSettings_AndOnlyTheRoutinesGivenToTheStudent()
+    {
+        var exerciseId = await EnsureExerciseAsync();
+        var teacher = await CreateUserAsync("teacher");
+        var student = await CreateUserAsync("student", language: "pt-BR", routineEmailsOff: true);
+        var classmate = await CreateUserAsync("classmate");
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = Db(scope);
+            var classroom = new Classroom { Name = "Choir", OwnerId = teacher.Id };
+            var routines = new[] { "Whole class", "Ticked", "Not ticked" }
+                .Select(name => new Routine { Name = name, OwnerId = teacher.Id }).ToArray();
+            db.Add(classroom);
+            db.AddRange(routines);
+            db.AddRange(routines.Select(r => new RoutineItem { Routine = r, ExerciseId = exerciseId, Order = 1 }));
+            await db.SaveChangesAsync();
+
+            var assignments = new[]
+            {
+                new RoutineAssignment { RoutineId = routines[0].Id, ClassroomId = classroom.Id },
+                ChosenOnly(routines[1].Id, classroom.Id, student, classmate),
+                ChosenOnly(routines[2].Id, classroom.Id, classmate),
+            };
+            for (var i = 0; i < assignments.Length; i++)
+            {
+                assignments[i].AssignedAt = new DateTime(2026, 10, 1 + i, 12, 0, 0, DateTimeKind.Utc);
+            }
+            db.AddRange(assignments);
+            db.AddRange(
+                new ClassroomMember { ClassroomId = classroom.Id, StudentId = student.Id },
+                new ClassroomMember { ClassroomId = classroom.Id, StudentId = classmate.Id });
+            await db.SaveChangesAsync();
+        }
+
+        using var doc = JsonDocument.Parse(await ExportAsync(student.Id));
+        var profile = doc.RootElement.GetProperty("profile");
+        profile.GetProperty("Language").GetString().Should().Be("pt-BR");
+        profile.GetProperty("RoutineEmailsOff").GetString().Should().Be("True");
+        doc.RootElement.GetProperty("student").GetProperty("assignedRoutines").EnumerateArray()
+            .Select(a => a.GetProperty("routine").GetString())
+            .Should().Equal(["Whole class", "Ticked"], "a routine the teacher gave only to other students isn't the student's");
+    }
+
+    private static RoutineAssignment ChosenOnly(int routineId, int classroomId, params ApplicationUser[] students) => new()
+    {
+        RoutineId = routineId,
+        ClassroomId = classroomId,
+        ChosenStudentsOnly = true,
+        ChosenStudents = students.Select(s => new RoutineAssignmentStudent { StudentId = s.Id }).ToList(),
+    };
+
+    private static Task<List<string>> ChosenAsync(ApplicationDbContext db, int assignmentId) =>
+        db.RoutineAssignmentStudents.Where(s => s.RoutineAssignmentId == assignmentId).Select(s => s.StudentId).ToListAsync();
+
     private static ApplicationDbContext Db(IServiceScope scope)
         => scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-    private async Task<ApplicationUser> CreateUserAsync(string prefix, string firstName = "Test", string lastName = "User")
+    private async Task<ApplicationUser> CreateUserAsync(string prefix, string firstName = "Test", string lastName = "User",
+        string? language = null, bool routineEmailsOff = false)
     {
         using var scope = _factory.Services.CreateScope();
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -260,7 +370,9 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
             Email = email,
             FirstName = firstName,
             LastName = lastName,
-            EmailConfirmed = true
+            EmailConfirmed = true,
+            Language = language,
+            RoutineEmailsOff = routineEmailsOff
         };
         var result = await users.CreateAsync(user);
         result.Succeeded.Should().BeTrue(string.Join("; ", result.Errors.Select(e => e.Description)));

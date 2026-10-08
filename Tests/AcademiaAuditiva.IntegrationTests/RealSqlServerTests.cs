@@ -1,3 +1,5 @@
+using System.Text;
+using System.Text.Json;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
@@ -198,6 +200,94 @@ public sealed class RealSqlServerTests
             (await db.ClassroomMembers.AnyAsync(m => m.ClassroomId == classroomId && m.StudentId == student.Id)).Should().BeTrue();
             (await db.ClassroomInvites.AnyAsync(i => i.ClassroomId == classroomId)).Should().BeTrue();
         }
+    }
+
+    [RealSqlFact]
+    public async Task PersonalDataDeletion_RemovesTheChosenStudentRows_WithRealForeignKeys()
+    {
+        using (var scope = _fixture.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await db.Database.MigrateAsync();
+            SeedData.SeedExercises(db);
+        }
+
+        var teacher = await CreateUserAsync("chooser-teacher");
+        var student = await CreateUserAsync("chosen-student");
+        var classmate = await CreateUserAsync("chosen-classmate");
+        int assignmentId;
+
+        using (var scope = _fixture.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var exerciseId = await db.Exercises.Select(e => e.ExerciseId).FirstAsync();
+            var assignment = new RoutineAssignment
+            {
+                Routine = new Routine
+                {
+                    Name = "SQL chosen routine",
+                    OwnerId = teacher.Id,
+                    Items = { new RoutineItem { ExerciseId = exerciseId, Order = 1 } }
+                },
+                Classroom = new Classroom
+                {
+                    Name = "SQL chosen classroom",
+                    OwnerId = teacher.Id,
+                    Members = { new ClassroomMember { StudentId = student.Id }, new ClassroomMember { StudentId = classmate.Id } }
+                },
+                ChosenStudentsOnly = true,
+                ChosenStudents =
+                {
+                    new RoutineAssignmentStudent { StudentId = student.Id },
+                    new RoutineAssignmentStudent { StudentId = classmate.Id }
+                }
+            };
+            db.RoutineAssignments.Add(assignment);
+            await db.SaveChangesAsync();
+            assignmentId = assignment.Id;
+        }
+
+        using (var export = JsonDocument.Parse(await ExportAsync(student.Id)))
+        {
+            export.RootElement.GetProperty("student").GetProperty("assignedRoutines").EnumerateArray()
+                .Select(a => a.GetProperty("routine").GetString()).Should().Equal("SQL chosen routine");
+        }
+
+        // The student's row restricts the deletion of their account: the service removes it first.
+        await DeleteAsync(student.Id);
+
+        await using (var db = _fixture.CreateContext())
+        {
+            (await db.Users.AnyAsync(u => u.Id == student.Id)).Should().BeFalse();
+            (await db.RoutineAssignmentStudents.Where(s => s.RoutineAssignmentId == assignmentId).Select(s => s.StudentId).ToListAsync())
+                .Should().Equal([classmate.Id], "the classmate keeps the routine");
+        }
+
+        await DeleteAsync(teacher.Id);
+
+        await using (var db = _fixture.CreateContext())
+        {
+            (await db.RoutineAssignments.AnyAsync(a => a.Id == assignmentId)).Should().BeFalse();
+            (await db.RoutineAssignmentStudents.AnyAsync(s => s.RoutineAssignmentId == assignmentId)).Should().BeFalse();
+            (await db.Users.AnyAsync(u => u.Id == classmate.Id)).Should().BeTrue();
+        }
+    }
+
+    private async Task DeleteAsync(string userId)
+    {
+        using var scope = _fixture.Services.CreateScope();
+        var user = await scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>().FindByIdAsync(userId);
+        user.Should().NotBeNull();
+        var result = await scope.ServiceProvider.GetRequiredService<PersonalDataService>().DeleteAccountAsync(user!);
+        result.Succeeded.Should().BeTrue(string.Join("; ", result.Errors.Select(e => e.Description)));
+    }
+
+    private async Task<string> ExportAsync(string userId)
+    {
+        using var scope = _fixture.Services.CreateScope();
+        var user = await scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>().FindByIdAsync(userId);
+        user.Should().NotBeNull();
+        return Encoding.UTF8.GetString(await scope.ServiceProvider.GetRequiredService<PersonalDataService>().ExportAsync(user!));
     }
 
     private async Task<ApplicationUser> CreateUserAsync(string prefix)

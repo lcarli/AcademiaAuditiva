@@ -42,7 +42,8 @@ fr-CA). It runs at <https://academiaauditiva.com>.
 - 🆓 **Free practice**: answers are checked but not saved, and *Show answer*
   reveals the answer.
 - 🧑‍🏫 **Teachers, students and admins**: teachers run classrooms, invite
-  students by e-mail and assign routines; admins manage roles and can lock,
+  students by e-mail and assign routines to a whole class or to the students
+  they tick, who get an e-mail about it; admins manage roles and can lock,
   unlock or delete accounts.
 - 📝 **Routines**: students take a routine like a test: each exercise with the
   number of questions and the filters the teacher set, by a due date that may

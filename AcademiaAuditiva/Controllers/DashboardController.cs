@@ -116,7 +116,7 @@ namespace AcademiaAuditiva.Controllers
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult SetLanguage(string culture, string returnUrl, [FromServices] IOptions<RequestLocalizationOptions> localization)
+        public async Task<IActionResult> SetLanguage(string culture, string returnUrl, [FromServices] IOptions<RequestLocalizationOptions> localization)
         {
             var supported = localization.Value.SupportedUICultures?
                 .FirstOrDefault(c => string.Equals(c.Name, culture, StringComparison.OrdinalIgnoreCase));
@@ -136,6 +136,18 @@ namespace AcademiaAuditiva.Controllers
                         Secure = Request.IsHttps,
                         SameSite = SameSiteMode.Lax
                     });
+
+                // On the account too, for the e-mails sent to the user while they are away.
+                if (User.Identity?.IsAuthenticated == true
+                    && await _userManager.GetUserAsync(User) is { } user
+                    && user.Language != supported.Name)
+                {
+                    user.Language = supported.Name;
+                    var saved = await _userManager.UpdateAsync(user);
+                    if (!saved.Succeeded)
+                        _logger.LogWarning("Could not save the language of user {UserId}: {Errors}",
+                            user.Id, string.Join(", ", saved.Errors.Select(e => e.Code)));
+                }
             }
 
             return LocalRedirect(Url.IsLocalUrl(returnUrl) ? returnUrl : "~/");

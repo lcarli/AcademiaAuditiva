@@ -46,6 +46,8 @@ dotnet user-secrets set "Smtp:Port" "465"
 dotnet user-secrets set "Smtp:User" "resend"
 dotnet user-secrets set "Smtp:Password" "<a Resend API key with sending access>"
 dotnet user-secrets set "Smtp:FromAddress" "no-reply@academiaauditiva.com"
+# Routine e-mails per day (60 by default; 0 turns them off)
+dotnet user-secrets set "NotificationEmails:DailyLimit" "10"
 
 # Bootstrap admin (first-run admin account)
 dotnet user-secrets set "Admin:Email" "you@example.com"
@@ -55,12 +57,13 @@ dotnet user-secrets set "Admin:InitialPassword" "Some!Strong-Password1"
 > **No SMTP, no Facebook? No problem.** The app boots either way:
 > Facebook auth simply won't appear, and emails are skipped with a
 > warning log instead of throwing. Registration then shows the confirmation
-> link on screen.
+> link on screen, and assigning a routine e-mails nobody.
 >
 > With email on, register test accounts with Resend's test addresses, such as
 > `delivered+anything@resend.dev`. They are accepted but reach no real inbox.
 > Mail to made-up addresses such as `@example.test` bounces, which hurts the
-> sending domain's reputation.
+> sending domain's reputation. Assigning a routine e-mails each of its students
+> who confirmed their address, so keep real students out of a test classroom.
 
 ## 2. Apply EF migrations (or let startup do it)
 
@@ -176,6 +179,7 @@ link that registration shows only while email is off.
 | Port already in use | `dotnet run --project AcademiaAuditiva -- --urls http://localhost:5050` (the launch profile overrides `ASPNETCORE_URLS`) |
 | Facebook button missing | `Facebook:AppId` / `Facebook:AppSecret` not set — expected for local dev |
 | Emails not sent | `Smtp:*` is optional; the Console log's warning lists the settings it needs. With Resend, `Smtp:FromAddress` is required, because the user is `resend`. A failed send logs `Failed to send email` and the page carries on. |
+| A student got no routine e-mail | Only students who confirmed their address and kept routine e-mails on (Manage account → Notifications) get one, up to `NotificationEmails:DailyLimit` a UTC day; the log warns when the limit skips students. The count is in the `EmailDailyCounts` table. |
 | *Play* spins for ~20 s and no sound plays | No audio storage configured: run `./scripts/local-audio.ps1` (step 3) |
 | *Play* stopped working (Azurite container stopped) | `docker start aa-azurite` |
 | SQL Server integration tests are skipped | Set `AA_TEST_SQL_CONNECTION` in the same process running `dotnet test` |

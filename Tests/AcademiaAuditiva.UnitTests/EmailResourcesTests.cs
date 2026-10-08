@@ -8,15 +8,23 @@ namespace AcademiaAuditiva.UnitTests;
 
 /// <summary>
 /// Texts of the e-mails, in every culture. EmailLayout encodes them, so they
-/// hold no markup, and only the keys always given an argument may hold braces.
+/// hold no markup, and only the keys always given arguments may hold braces.
 /// </summary>
 public class EmailResourcesTests
 {
     public static TheoryData<string> Cultures => new() { "", "pt-BR", "fr-CA" };
 
-    // Given the classroom name, the teacher or the expiry date by EmailComposer.
-    private static readonly string[] FormattedKeys =
-        ["Invite.Email.Subject", "Invite.Email.Intro", "Invite.Email.Expires"];
+    // Given by EmailComposer the classroom, the routine, the teacher or a date: the arguments each shows.
+    private static readonly Dictionary<string, string[]> FormattedKeys = new()
+    {
+        ["Invite.Email.Subject"] = ["{0}"],
+        ["Invite.Email.Intro"] = ["{0}"],
+        ["Invite.Email.Expires"] = ["{0}"],
+        ["RoutineEmail.Subject"] = ["{0}"],
+        ["RoutineEmail.Intro"] = ["{0}", "{1}"],
+        ["RoutineEmail.Due"] = ["{0}"],
+        ["RoutineEmail.DueLate"] = ["{0}"],
+    };
 
     private static readonly string[] PlainKeys =
     [
@@ -24,6 +32,7 @@ public class EmailResourcesTests
         .. new[] { "Confirm", "ResetPassword", "ChangeEmail" }.SelectMany(kind =>
             new[] { "Subject", "Title", "Intro", "Button", "Reason" }.Select(part => $"Identity.Email.{kind}.{part}")),
         "Invite.Email.Title", "Invite.Email.Button", "Invite.Email.NoAccount", "Invite.Email.Reason",
+        "RoutineEmail.Title", "RoutineEmail.Button", "RoutineEmail.NoDue", "RoutineEmail.Reason", "RoutineEmail.TurnOff",
     ];
 
     [Theory]
@@ -32,7 +41,7 @@ public class EmailResourcesTests
     {
         var resources = Resources(culture);
 
-        foreach (var key in PlainKeys.Concat(FormattedKeys))
+        foreach (var key in PlainKeys.Concat(FormattedKeys.Keys))
         {
             resources.Should().ContainKey(key);
             resources[key].Should().NotBeNullOrWhiteSpace("{0} needs a text", key)
@@ -47,14 +56,14 @@ public class EmailResourcesTests
 
     [Theory]
     [MemberData(nameof(Cultures))]
-    public void TextsWithAnArgument_UseItOnce(string culture)
+    public void TextsWithArguments_UseEachOnce(string culture)
     {
         var resources = Resources(culture);
 
-        foreach (var key in FormattedKeys)
+        foreach (var (key, arguments) in FormattedKeys)
         {
-            Regex.Matches(resources[key], @"\{[^{}]*\}|[{}]").Select(m => m.Value).Should().Equal(["{0}"],
-                "{0} shows its argument once and nothing else", key);
+            Regex.Matches(resources[key], @"\{[^{}]*\}|[{}]").Select(m => m.Value).Should().BeEquivalentTo(arguments,
+                "{0} shows each of its arguments once and nothing else", key);
         }
     }
 
@@ -66,7 +75,7 @@ public class EmailResourcesTests
         var english = Resources("");
         var translated = Resources(culture);
 
-        foreach (var key in PlainKeys.Concat(FormattedKeys))
+        foreach (var key in PlainKeys.Concat(FormattedKeys.Keys))
         {
             translated[key].Should().NotBe(english[key], "{0} needs a {1} text", key, culture);
         }
@@ -77,7 +86,7 @@ public class EmailResourcesTests
     {
         var resources = Resources("fr-CA");
 
-        foreach (var key in PlainKeys.Concat(FormattedKeys))
+        foreach (var key in PlainKeys.Concat(FormattedKeys.Keys))
         {
             resources[key].Should().NotMatchRegex(@"[ \S][:!?]", "{0} needs a no-break space before : ! ?", key)
                 .And.NotContain("'", "{0} uses typographic apostrophes", key);

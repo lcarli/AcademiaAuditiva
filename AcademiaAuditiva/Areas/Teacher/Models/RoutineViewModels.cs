@@ -102,14 +102,21 @@ public class RoutineItemOverrideInput
 
 public class AssignRoutineViewModel
 {
+    /// <summary><see cref="Recipients"/>: every member of the class, those who join later included.</summary>
+    public const string WholeClass = "class";
+
+    /// <summary><see cref="Recipients"/>: only the members ticked in <see cref="StudentIds"/>.</summary>
+    public const string ChosenStudents = "chosen";
+
     public int RoutineId { get; set; }
     public string RoutineName { get; set; } = string.Empty;
 
-    [Display(Name = "Teacher.Routines.Target")]
-    public string Target { get; set; } = "classroom"; // "classroom" | "student"
-
     public int? ClassroomId { get; set; }
-    public string? StudentId { get; set; }
+
+    /// <summary><see cref="WholeClass"/> or <see cref="ChosenStudents"/>.</summary>
+    public string Recipients { get; set; } = WholeClass;
+
+    public List<string> StudentIds { get; set; } = new();
 
     [DataType(DataType.Date), Display(Name = "Teacher.Routines.DueDate")]
     public DateTime? DueAt { get; set; }
@@ -117,9 +124,15 @@ public class AssignRoutineViewModel
     [Display(Name = "Teacher.Routines.AllowLate")]
     public bool AllowLate { get; set; }
 
-    public IReadOnlyList<ClassroomOption> Classrooms { get; set; } = Array.Empty<ClassroomOption>();
-    public IReadOnlyList<StudentOption> Students { get; set; } = Array.Empty<StudentOption>();
+    [BindNever] public IReadOnlyList<AssignClassroomOption> Classrooms { get; set; } = Array.Empty<AssignClassroomOption>();
+
+    /// <summary>Whether the students will be e-mailed about the routine.</summary>
+    [BindNever] public bool EmailsOn { get; set; }
 }
 
 public record ClassroomOption(int Id, string Name);
+
+/// <summary>A classroom the routine can go to, with the students who can be ticked in it.</summary>
+public record AssignClassroomOption(int Id, string Name, IReadOnlyList<StudentOption> Members);
+
 public record StudentOption(string Id, string Display);

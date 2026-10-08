@@ -9,6 +9,7 @@ namespace AcademiaAuditiva.Services.Email;
 /// <param name="ActionUrl">Where the button goes. It is also written out under the button.</param>
 /// <param name="Notes">Small print under the button.</param>
 /// <param name="Reason">Why the person got the e-mail and what to do if it wasn't meant for them.</param>
+/// <param name="SettingsText">A link under <paramref name="Reason"/> to turn such e-mails off, with <paramref name="SettingsUrl"/>.</param>
 public sealed record EmailContent(
     string Language,
     string Subject,
@@ -20,4 +21,6 @@ public sealed record EmailContent(
     string LinkHint,
     IReadOnlyList<string> Notes,
     string Reason,
-    string Tagline);
+    string Tagline,
+    string? SettingsText = null,
+    string? SettingsUrl = null);
