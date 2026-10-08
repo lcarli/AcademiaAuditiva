@@ -36,10 +36,15 @@ public interface IAudioMixerService
 /// "play the entire sample". Useful for trimming sustained notes inside
 /// melodies.
 /// </param>
+/// <param name="Cents">
+/// Plays the sample this many cents higher (positive) or lower (negative)
+/// than it was recorded, up to an octave either way. Zero leaves it as is.
+/// </param>
 public sealed record MixInput(
     string SampleName,
     double StartTimeSeconds,
-    double? DurationSeconds = null);
+    double? DurationSeconds = null,
+    double Cents = 0);
 
 /// <summary>
 /// Address of a mixed audio asset.

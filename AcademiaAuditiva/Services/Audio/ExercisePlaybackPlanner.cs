@@ -19,6 +19,8 @@ namespace AcademiaAuditiva.Services.Audio;
 ///     a cadence in their key before their chord, note or progression, in
 ///     the same plan; GuessInterval and GuessFullInterval play their two
 ///     notes one after the other, or together when the round is harmonic)
+///   - 1 plan for GuessTuning: its note twice, the second time in tune or
+///     a few cents sharp or flat (<see cref="MixInput.Cents"/>)
 ///   - 1 plan for the singing exercises: SingNote's note, the first note of
 ///     SingInterval (the student sings the second) and SingMelody's melody
 ///   - 1 plan for the exercises written on the staff (CompleteChord,
@@ -225,6 +227,16 @@ public sealed class ExercisePlaybackPlanner
                     ScaleNoteClipSeconds,
                     ScaleNoteGapSeconds));
                 break;
+
+            case "GuessTuning":
+            {
+                // The same note twice, as the notes of a melodic interval; the second one is
+                // played the round's cents sharp or flat, or in tune.
+                var note = Note(instrument, token.Value<string>("note") ?? throw Bad("note"));
+                var cents = token.Value<double?>("cents") ?? throw Bad("cents");
+                plans.Add([note, note with { StartTimeSeconds = NoteClipSeconds + IntervalGapSeconds, Cents = cents }]);
+                break;
+            }
 
             case "GuessCadence":
                 plans.Add(ChordsInSequence(

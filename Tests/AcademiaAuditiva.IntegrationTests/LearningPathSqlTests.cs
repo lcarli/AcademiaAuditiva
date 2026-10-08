@@ -28,8 +28,8 @@ public sealed class LearningPathSqlTests
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var at = DateTime.UtcNow.AddMinutes(-5);
         var answers = Enumerable.Range(0, 8).Select(i => ("HigherOrLower", true, at.AddSeconds(i)))
-            .Append(("GuessInterval", false, at.AddSeconds(10)))
-            .Append(("GuessInterval", true, at.AddSeconds(11)));
+            .Append(("GuessTuning", false, at.AddSeconds(10)))
+            .Append(("GuessTuning", true, at.AddSeconds(11)));
         foreach (var (exercise, correct, timestamp) in answers)
         {
             db.ScoreSnapshots.Add(new ScoreSnapshot { UserId = userId, ExerciseId = ids[exercise], IsCorrect = correct, Timestamp = timestamp });
@@ -40,7 +40,7 @@ public sealed class LearningPathSqlTests
 
         progress.TotalSteps.Should().Be(LearningPathCatalog.Steps.Count);
         progress.CompletedSteps.Should().Be(1);
-        progress.Current.Should().BeEquivalentTo(new { Exercise = "GuessInterval", Correct = 1, Answered = 2 });
+        progress.Current.Should().BeEquivalentTo(new { Exercise = "GuessTuning", Correct = 1, Answered = 2 });
         progress.JustCompleted.Should().BeNull();
     }
 

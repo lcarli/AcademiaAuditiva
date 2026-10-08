@@ -1,3 +1,4 @@
+@using AcademiaAuditiva.Services
 @using AcademiaAuditiva.Services.Gamification
 @using Microsoft.AspNetCore.Html
 @{
@@ -8,7 +9,8 @@
 
     var features = new[] { 1, 2, 3 };
     var steps = new[] { 1, 2, 3 };
-    var exercises = new[] { "GuessNote", "GuessInterval", "GuessFullInterval", "IntervalMelodico", "GuessChords", "GuessQuality", "GuessFunction", "GuessMissingNote", "SolfegeMelody" };
+    // Counted once from the seeded exercises (ExerciseCatalog), not from the database.
+    var exerciseCount = ExerciseCatalog.Count;
     var roles = new[]
     {
         (Id: "student", Tab: "Home.Roles.TabStudent", Prefix: "Home.Roles.Student", Note: (string?)null),
@@ -48,7 +50,7 @@
         {
             <li class="col-md-4">
                 <div class="aa-feature">
-                    <h2 class="aa-feature-title">@noteHead @Localizer[$"Home.Feature{i}.Title"]</h2>
+                    <h2 class="aa-feature-title">@noteHead @Localizer[$"Home.Feature{i}.Title", exerciseCount]</h2>
                     <p>@Localizer[$"Home.Feature{i}.Desc"]</p>
                 </div>
             </li>
@@ -84,23 +86,29 @@
 <section class="aa-section" aria-labelledby="aa-ex-title">
     <div class="aa-section-head">
         <span class="aa-eyebrow">@Localizer["Home.Exercises.Badge"]</span>
-        <h2 id="aa-ex-title" class="aa-section-title">@Localizer["Home.Exercises.Title"]</h2>
+        <h2 id="aa-ex-title" class="aa-section-title">@Localizer["Home.Exercises.Title", exerciseCount]</h2>
         <p>@Localizer["Home.Exercises.Lead"]</p>
     </div>
-    <ul class="aa-ex-list">
-        @foreach (var name in exercises)
-        {
-            <li>
-                <a class="aa-ex-item" asp-area="" asp-controller="Exercise" asp-action="@name">
-                    @noteHead
-                    <span>
-                        <span class="aa-ex-item-title">@Localizer[name]</span>
-                        <span class="aa-ex-item-sub">@Localizer[$"Exercise.{name}.Subtitle"]</span>
-                    </span>
-                </a>
-            </li>
-        }
-    </ul>
+    @foreach (var category in ExerciseCatalog.ByCategory)
+    {
+        <div class="aa-ex-group">
+            <h3 class="aa-ex-group-title" id="aa-ex-@category.Name">@Localizer[$"ExerciseCategory.{category.Name}"]</h3>
+            <ul class="aa-ex-list" aria-labelledby="aa-ex-@category.Name">
+                @foreach (var exercise in category.Exercises)
+                {
+                    <li>
+                        <a class="aa-ex-item" asp-area="" asp-controller="Exercise" asp-action="@exercise.Name">
+                            @noteHead
+                            <span>
+                                <span class="aa-ex-item-title">@Localizer[exercise.Name]</span>
+                                <span class="aa-ex-item-sub">@Localizer[$"Exercise.{exercise.Name}.Subtitle"]</span>
+                            </span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
 </section>
 
 <section class="aa-section" aria-labelledby="aa-badges-title">
@@ -200,7 +208,7 @@
                             </button>
                         </h3>
                         <div id="aaFaq-@i" class="accordion-collapse collapse @(open ? "show" : null)" data-bs-parent="#aaFaq">
-                            <div class="accordion-body">@Localizer[$"Home.Faq{i}.A"]</div>
+                            <div class="accordion-body">@Localizer[$"Home.Faq{i}.A", exerciseCount]</div>
                         </div>
                     </div>
                 }

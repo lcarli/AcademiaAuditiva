@@ -25,6 +25,7 @@ public static class LearningPathCatalog
         new("FirstSteps",
         [
             Step("HigherOrLower", 10, 8),
+            Step("GuessTuning", 10, 7, ("gtLevel", "50")),
             Step("GuessInterval", 10, 7, ("keySelect", "C4"), ("scaleTypeSelect", "major")),
             Step("GuessChords", 10, 8, ("chordType", "both")),
             Step("GuessMissingNote", 10, 7, ("melodyLength", "4")),

@@ -1,12 +1,16 @@
 using System.Net;
 using System.Text.RegularExpressions;
+using AcademiaAuditiva.Data;
+using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Gamification;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AcademiaAuditiva.IntegrationTests;
 
 /// <summary>
-/// The home page shows a few medals, named in each culture, and the eight
-/// illustrations of docs/landing-art.md, and every image on it is served as WebP.
+/// The home page counts and lists every exercise by category, shows a few medals, named in
+/// each culture, and the eight illustrations of docs/landing-art.md, and every image on it is
+/// served as WebP.
 /// </summary>
 public class HomePageTests : IClassFixture<TestWebApplicationFactory>
 {
@@ -31,6 +35,46 @@ public class HomePageTests : IClassFixture<TestWebApplicationFactory>
         }
         html.Should().NotContain("Home.Badges.", "every text has a resource")
             .And.NotMatchRegex(@"Badge\.\w+\.Title");
+    }
+
+    [Theory]
+    [InlineData("en-US", "{0} exercises", "{0} ways to train your ear", "{0}, grouped by area",
+        "Ear Training|Melody|Harmony|Scales|Rhythm", "In tune or not?")]
+    [InlineData("pt-BR", "{0} exercícios", "{0} jeitos de treinar o ouvido", "{0}, agrupados por área",
+        "Percepção|Melodia|Harmonia|Escalas|Ritmo", "Afinado ou não?")]
+    [InlineData("fr-CA", "{0} exercices", "{0} façons d'entraîner votre oreille", "{0}, regroupés par domaine",
+        "Entraînement de l'oreille|Mélodie|Harmonie|Gammes|Rythme", "Juste ou pas\u00A0?")]
+    public async Task HomePage_CountsAndListsEveryExercise_ByCategory_WithoutTheDatabase(
+        string culture, string feature, string title, string faq, string categories, string guessTuning)
+    {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Exercises.Should()
+                .BeEmpty("the test host seeds nothing, so the page lists the exercises from the code");
+        }
+
+        var html = WebUtility.HtmlDecode(await _factory.CreateClient().GetStringAsync($"/?culture={culture}"));
+
+        var count = ExerciseCatalog.Count;
+        count.Should().BeGreaterThan(29);
+        html.Should().Contain(string.Format(feature, count) + "</h2>")
+            .And.Contain(string.Format(title, count) + "</h2>")
+            .And.Contain(">" + string.Format(faq, count));
+
+        var groups = Regex.Matches(html,
+                @"<h3 class=""aa-ex-group-title"" id=""aa-ex-(\w+)"">([^<]*)</h3>\s*<ul class=""aa-ex-list"" aria-labelledby=""aa-ex-\1"">(.*?)</ul>",
+                RegexOptions.Singleline)
+            .Select(m => (Category: m.Groups[1].Value, Title: m.Groups[2].Value,
+                Exercises: Regex.Matches(m.Groups[3].Value, @"<a class=""aa-ex-item"" href=""/Exercise/(\w+)"">").Select(a => a.Groups[1].Value).ToList()))
+            .ToList();
+
+        groups.Select(g => g.Title).Should().Equal(categories.Split('|'));
+        groups.Select(g => (g.Category, g.Exercises)).Should().BeEquivalentTo(
+            ExerciseCatalog.ByCategory.Select(c => (c.Name, c.Exercises.Select(e => e.Name).ToList())),
+            options => options.WithStrictOrdering());
+        groups.SelectMany(g => g.Exercises).Should().HaveCount(count).And.OnlyHaveUniqueItems();
+        html.Should().Contain($"<span class=\"aa-ex-item-title\">{guessTuning}</span>");
+        html.Should().NotMatchRegex(@"Exercise\.\w+\.Subtitle|ExerciseCategory\.|>Home\.", "every text has a resource");
     }
 
     [Fact]

@@ -22,6 +22,25 @@ test('home, catalog and privacy load in every supported culture', async ({ page,
   }
 });
 
+test('the home page counts every exercise it lists, by category, each linking to its page', async ({ page, baseURL }) => {
+  await page.goto(`${baseURL}/?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
+
+  const title = await page.locator('#aa-ex-title').textContent();
+  const count = Number(title!.match(/^(\d+) ways to train your ear$/)![1]);
+  expect(count).toBeGreaterThan(29);
+  await expect(page.locator('.aa-feature-title').first()).toContainText(`${count} exercises`);
+  await expect(page.locator('.aa-ex-group-title')).toHaveText(['Ear Training', 'Melody', 'Harmony', 'Scales', 'Rhythm']);
+  const items = page.locator('.aa-ex-group .aa-ex-item');
+  await expect(items).toHaveCount(count);
+  const links = await items.evaluateAll(links => links.map(link => link.getAttribute('href')));
+  expect(new Set(links).size, 'each exercise is listed once').toBe(count);
+  for (const group of await page.locator('.aa-ex-group').all()) {
+    await expect(group.locator('.aa-ex-item').first()).toBeVisible();
+  }
+
+  await expect(page.locator('.aa-ex-item', { hasText: 'In tune or not?' })).toHaveAttribute('href', '/Exercise/GuessTuning');
+});
+
 test('health endpoints expose the running app version', async ({ request }) => {
   for (const path of ['/health/live', '/health/ready']) {
     const response = await request.get(path);
@@ -413,6 +432,73 @@ test('guess the top note plays the chord as written, on the guitar too, and chec
   const second = await playAndReveal();
   const wrong = topNotes.find(note => note !== second)!;
   expect(await answer(wrong)).toMatchObject({ success: true, free: true, isCorrect: false, answer: second });
+});
+
+test('in tune or not plays the note twice, the second time the level\'s cents out of tune, and checks the answer', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessTuning?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const tunings = ['inTune', 'sharp', 'flat'];
+  const answers = page.locator('.aa-answer.guessAnswer:visible');
+  expect(await answers.evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value))).toEqual(tunings);
+  await expect(answers).toHaveText(['In tune', 'Sharp', 'Flat']);
+
+  const filters = page.locator('#filtersModal');
+  const level = filters.locator('select[name="gtLevel"]');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await expect(level.locator('option')).toHaveText(['50 cents (a quarter tone)', '25 cents', '10 cents', '5 cents']);
+  await expect(level).toHaveValue('50');
+  await expect(filters.locator('#rangeFilter')).toBeVisible();
+  await filters.locator('[data-instrument="Piano"]').click();
+  await filters.locator('.btn-close').click();
+  await expect(filters).toBeHidden();
+
+  const dialog = page.locator('.swal2-popup');
+  const playAndReveal = async () => {
+    const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+    const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+    await page.click('#Play');
+    const play = await playResponse;
+    expect(JSON.parse(play.request().postData() ?? '{}').filters.gtLevel).toBe('50');
+    // Nothing but the round and its audio: the page can't tell whether the note is out of tune.
+    expect(Object.keys(await play.json()).sort()).toEqual(['playToken', 'roundId']);
+    const audio = await audioResponse;
+    expect(audio.headers()['content-type']).toContain('audio/');
+    const cents = await centsBetweenTheNotes(page, await audio.body());
+
+    const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+    await page.locator('[data-aa-reveal]').click();
+    const shown = await (await revealResponse).json();
+    expect(tunings).toContain(shown.answer);
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+    return { answer: shown.answer as string, cents };
+  };
+  const answer = async (guess: string) => {
+    await page.locator(`.aa-answer:visible[value="${guess}"]`).click();
+    const validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+    await page.click('#validateGuess');
+    const result = await (await validateResponse).json();
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+    return result;
+  };
+
+  // What the student hears: the second note 50 cents above or below the first, or the same note.
+  const heard = new Set<string>();
+  for (let round = 0; round < 8 && heard.size < 2; round++) {
+    const { answer: tuning, cents } = await playAndReveal();
+    const expected = { inTune: 0, sharp: 50, flat: -50 }[tuning]!;
+    expect(Math.abs(cents - expected), `the ${tuning} note sounds ${cents.toFixed(1)} cents away`).toBeLessThan(5);
+    heard.add(tuning);
+    if (round === 0) {
+      expect(await answer(tuning)).toMatchObject({ success: true, free: true, isCorrect: true, answer: tuning });
+    } else {
+      const wrong = tunings.find(t => t !== tuning)!;
+      expect(await answer(wrong)).toMatchObject({ success: true, free: true, isCorrect: false, answer: tuning });
+    }
+  }
+  expect(heard.size, 'the rounds are not all the same answer').toBeGreaterThan(1);
 });
 
 test('which note changed plays two melodies, offers a button for each note and checks the note and where it went', async ({ page, baseURL }) => {
@@ -1315,6 +1401,40 @@ function pitchClass(note: string) {
   const sharps: Record<string, string> = { Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#' };
   const name = note.replace(/\d+$/, '');
   return sharps[name] ?? name;
+}
+
+// How many cents the note that starts at 2 s sounds above the one that starts at 0 s, measured
+// on the round's audio: the period of each, by autocorrelation, half a second into the note.
+async function centsBetweenTheNotes(page: Page, mp3: Buffer) {
+  return page.evaluate(async base64 => {
+    const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    const audio = await new OfflineAudioContext(1, 1, 44100).decodeAudioData(bytes.buffer);
+    const samples = audio.getChannelData(0);
+    const rate = audio.sampleRate;
+    const window = (from: number) => samples.subarray(Math.round(from * rate), Math.round((from + 0.5) * rate));
+    const correlation = (x: Float32Array, lag: number) => {
+      let sum = 0, a = 0, b = 0;
+      for (let i = 0; i + lag < x.length; i++) {
+        sum += x[i] * x[i + lag];
+        a += x[i] * x[i];
+        b += x[i + lag] * x[i + lag];
+      }
+      return sum / Math.sqrt(a * b);
+    };
+    const period = (x: Float32Array, min: number, max: number) => {
+      let best = min, bestValue = -Infinity;
+      for (let lag = min; lag <= max; lag++) {
+        const value = correlation(x, lag);
+        if (value > bestValue) [best, bestValue] = [lag, value];
+      }
+      const [before, after] = [correlation(x, best - 1), correlation(x, best + 1)];
+      return best + (before - after) / (2 * (before - 2 * bestValue + after));
+    };
+    // From 30 Hz to 1 kHz; the second note is within a semitone of the first.
+    const first = period(window(0.3), Math.floor(rate / 1000), Math.ceil(rate / 30));
+    const second = period(window(2.3), Math.floor(first * 0.94), Math.ceil(first * 1.06));
+    return 1200 * Math.log2(first / second);
+  }, mp3.toString('base64'));
 }
 
 type Sung = { midi: number; seconds: number };

@@ -148,6 +148,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     [InlineData("HigherOrLower")]
     [InlineData("GuessNote")]
     [InlineData("GuessTopNote")]
+    [InlineData("GuessTuning")]
     public async Task ExercisePage_ThatPlaysNoChordsOnTheNeck_OffersTheRangeOfTheGuitar(string exerciseName)
     {
         ExerciseId(exerciseName);
@@ -165,6 +166,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     [Theory]
     [InlineData("GuessNote", true)]
     [InlineData("HigherOrLower", true)]
+    [InlineData("GuessTuning", true)]
     [InlineData("GuessChords", true)]
     [InlineData("GuessQuality", true)]
     [InlineData("GuessFunction", true)]

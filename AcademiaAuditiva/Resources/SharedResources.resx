@@ -953,7 +953,7 @@
     <value>Tune your ear.</value>
   </data>
   <data name="Home.Hero.Lead" xml:space="preserve">
-    <value>Short exercises on notes, intervals, chords and harmonic functions, with progress you can see.</value>
+    <value>Short exercises on notes, intervals, chords, rhythm and melody, with progress you can see.</value>
   </data>
   <data name="Home.How.Badge" xml:space="preserve">
     <value>How it works</value>
@@ -986,7 +986,7 @@
     <value>Exercises</value>
   </data>
   <data name="Home.Exercises.Title" xml:space="preserve">
-    <value>Nine ways to train your ear</value>
+    <value>{0} ways to train your ear</value>
   </data>
   <data name="Home.Roles.Badge" xml:space="preserve">
     <value>Students and teachers</value>
@@ -1055,7 +1055,7 @@
     <value>Does it work on my phone?</value>
   </data>
   <data name="Home.Faq2.A" xml:space="preserve">
-    <value>Yes. It runs in the browser on phones, tablets and computers, with nothing to install. Headphones help.</value>
+    <value>Yes. It runs in the browser on phones, tablets and computers, with nothing to install. Headphones help. The singing exercises use the microphone, and your recording never leaves your device.</value>
   </data>
   <data name="Home.Faq3.Q" xml:space="preserve">
     <value>Which languages are available?</value>
@@ -1073,7 +1073,7 @@
     <value>Which exercises are available?</value>
   </data>
   <data name="Home.Faq5.A" xml:space="preserve">
-    <value>Nine: note recognition, intervals (by number and by full name), melodic intervals, chords, chord quality, harmonic function, comparing two melodies and sight-singing.</value>
+    <value>{0}, grouped by area: ear training, melody, harmony, scales and rhythm. They range from telling whether a second note is higher or lower to melodic and rhythmic dictation and singing into the microphone. The full list is above.</value>
   </data>
   <data name="Home.Faq6.Q" xml:space="preserve">
     <value>Is it free?</value>
@@ -1988,10 +1988,10 @@
     <value>View my progress</value>
   </data>
   <data name="Home.Feature1.Title" xml:space="preserve">
-    <value>9 exercises</value>
+    <value>{0} exercises</value>
   </data>
   <data name="Home.Feature1.Desc" xml:space="preserve">
-    <value>Notes, intervals, chords, harmonic functions and sight-singing.</value>
+    <value>Notes, intervals, chords, harmony, scales, rhythm, dictation and singing.</value>
   </data>
   <data name="Home.Feature2.Title" xml:space="preserve">
     <value>3 languages</value>
@@ -2006,7 +2006,7 @@
     <value>Classes, invitations and progress reports.</value>
   </data>
   <data name="Home.Exercises.Lead" xml:space="preserve">
-    <value>From single notes to sight-singing, across three difficulty levels.</value>
+    <value>From comparing two notes to singing a melody, across three difficulty levels.</value>
   </data>
   <data name="Home.Badges.Badge" xml:space="preserve">
     <value>Badges</value>
@@ -4404,5 +4404,50 @@
   </data>
   <data name="Exercise.SingMelodyText" xml:space="preserve">
     <value>Sing the melody you hear</value>
+  </data>
+  <data name="GuessTuning" xml:space="preserve">
+    <value>In tune or not?</value>
+  </data>
+  <data name="Exercise.GuessTuningText" xml:space="preserve">
+    <value>Was the second note in tune, sharp or flat?</value>
+  </data>
+  <data name="Exercise.SelectGuessTuningText" xml:space="preserve">
+    <value>Please select whether the second note was in tune, sharp or flat.</value>
+  </data>
+  <data name="Exercise.GuessTuning.Subtitle" xml:space="preserve">
+    <value>Hear a note twice and tell whether the second one is in tune, sharp or flat.</value>
+  </data>
+  <data name="Exercise.GuessTuning.Instructions" xml:space="preserve">
+    <value>Listen to the reference note, then to the same note played again. Tell whether the second one is in tune, sharp (too high) or flat (too low) compared with the first.</value>
+  </data>
+  <data name="Exercise.GuessTuning.Tip1" xml:space="preserve">
+    <value>Sing the first note and keep it in your head while the second one plays.</value>
+  </data>
+  <data name="Exercise.GuessTuning.Tip2" xml:space="preserve">
+    <value>Don't listen for a new note: listen for whether the second one leans up or down, like a string that needs tuning.</value>
+  </data>
+  <data name="Exercise.GuessTuning.Tip3" xml:space="preserve">
+    <value>Start at 50 cents (a quarter tone) and move to a smaller difference only once you get almost every round right.</value>
+  </data>
+  <data name="Exercise.TuningLevel.50" xml:space="preserve">
+    <value>50 cents (a quarter tone)</value>
+  </data>
+  <data name="Exercise.TuningLevel.25" xml:space="preserve">
+    <value>25 cents</value>
+  </data>
+  <data name="Exercise.TuningLevel.10" xml:space="preserve">
+    <value>10 cents</value>
+  </data>
+  <data name="Exercise.TuningLevel.5" xml:space="preserve">
+    <value>5 cents</value>
+  </data>
+  <data name="Exercise.Tuning.InTune" xml:space="preserve">
+    <value>In tune</value>
+  </data>
+  <data name="Exercise.Tuning.Sharp" xml:space="preserve">
+    <value>Sharp</value>
+  </data>
+  <data name="Exercise.Tuning.Flat" xml:space="preserve">
+    <value>Flat</value>
   </data>
 </root>

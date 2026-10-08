@@ -25,15 +25,7 @@ public static class SeedData
         // Seed para ExerciseCategory
         if (!context.ExerciseCategories.Any())
         {
-            context.ExerciseCategories.AddRange(
-                new ExerciseCategory { Name = "Harmony", DisplayName = "Harmonia" },
-                new ExerciseCategory { Name = "Melody", DisplayName = "Melodia" },
-                new ExerciseCategory { Name = "Rhythm", DisplayName = "Ritmo" },
-                new ExerciseCategory { Name = "EarTraining", DisplayName = "Treinamento Auditivo" },
-                new ExerciseCategory { Name = "Scales", DisplayName = "Escalas" },
-                new ExerciseCategory { Name = "Games", DisplayName = "Jogos" },
-                new ExerciseCategory { Name = "Misc", DisplayName = "Diversos" }
-            );
+            context.ExerciseCategories.AddRange(ExerciseCategories());
         }
 
         // Seed para DifficultyLevel
@@ -51,7 +43,55 @@ public static class SeedData
         var seededBadges = context.Badges.Select(b => b.BadgeKey).ToHashSet(StringComparer.OrdinalIgnoreCase);
         context.Badges.AddRange(BadgeSeed().Where(b => !seededBadges.Contains(b.BadgeKey)));
 
-        var exercises = new List<Exercise>
+        foreach (var ex in Exercises())
+        {
+            var existing = context.Exercises.FirstOrDefault(e => e.Name == ex.Name);
+            if (existing == null)
+            {
+                context.Exercises.Add(ex);
+            }
+            else
+            {
+                existing.Description = ex.Description;
+                existing.ExerciseTypeId = ex.ExerciseTypeId;
+                existing.ExerciseCategoryId = ex.ExerciseCategoryId;
+                existing.DifficultyLevelId = ex.DifficultyLevelId;
+                existing.FiltersJson = ex.FiltersJson;
+                existing.Instructions = ex.Instructions;
+                existing.TipsJson = ex.TipsJson;
+                existing.AudioButtonsJson = ex.AudioButtonsJson;
+                existing.AnswerButtonsJson = ex.AnswerButtonsJson;
+                context.Exercises.Update(existing);
+            }
+        }
+
+        context.SaveChanges();
+    }
+
+    /// <summary>
+    /// The exercise categories in the order they are seeded, as new instances on each
+    /// call: an exercise's <c>ExerciseCategoryId</c> is its category's place in this list,
+    /// counting from 1.
+    /// </summary>
+    public static List<ExerciseCategory> ExerciseCategories() =>
+    [
+        new ExerciseCategory { Name = "Harmony", DisplayName = "Harmonia" },
+        new ExerciseCategory { Name = "Melody", DisplayName = "Melodia" },
+        new ExerciseCategory { Name = "Rhythm", DisplayName = "Ritmo" },
+        new ExerciseCategory { Name = "EarTraining", DisplayName = "Treinamento Auditivo" },
+        new ExerciseCategory { Name = "Scales", DisplayName = "Escalas" },
+        new ExerciseCategory { Name = "Games", DisplayName = "Jogos" },
+        new ExerciseCategory { Name = "Misc", DisplayName = "Diversos" }
+    ];
+
+    /// <summary>
+    /// Every exercise the app offers, as new instances on each call: the database tracks
+    /// the ones it is given. <see cref="AcademiaAuditiva.Services.ExerciseCatalog"/> reads
+    /// them once, so pages can list them without asking the database.
+    /// </summary>
+    public static List<Exercise> Exercises()
+    {
+        return new List<Exercise>
         {
             new Exercise {
                 Name = "GuessNote",
@@ -114,6 +154,50 @@ public static class SeedData
                         {
                             { "Mais alta", "higher" },
                             { "Mais grave", "lower" }
+                        }
+                    }
+                })
+            },
+            new Exercise {
+                Name = "GuessTuning",
+                Description = "Ouça uma nota e depois a mesma nota de novo, e diga se a segunda está afinada, alta ou baixa.",
+                ExerciseTypeId = 1,
+                ExerciseCategoryId = 4,
+                DifficultyLevelId = 1,
+                // How far off the second note is, in cents (MusicTheoryService.TuningLevels).
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "gtLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("50", "Exercise.TuningLevel.50"),
+                            new("25", "Exercise.TuningLevel.25"),
+                            new("10", "Exercise.TuningLevel.10"),
+                            new("5", "Exercise.TuningLevel.5")
+                        }
+                    }
+                }),
+                Instructions = "Ouça a nota de referência e depois a mesma nota tocada outra vez. Diga se a segunda está afinada, alta (sustenida) ou baixa (bemol) em relação à primeira.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Cante a primeira nota e mantenha-a na cabeça enquanto a segunda toca.",
+                    "Não procure uma nota nova: perceba se a segunda \"puxa\" para cima ou para baixo, como uma corda que precisa ser afinada.",
+                    "Comece com 50 cents (um quarto de tom) e só passe para uma diferença menor quando acertar quase sempre."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessAnswer", new Dictionary<string, string>
+                        {
+                            { "Afinada", "inTune" },
+                            { "Alta", "sharp" },
+                            { "Baixa", "flat" }
                         }
                     }
                 })
@@ -1497,30 +1581,6 @@ public static class SeedData
                 AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
             }
         };
-
-        foreach (var ex in exercises)
-        {
-            var existing = context.Exercises.FirstOrDefault(e => e.Name == ex.Name);
-            if (existing == null)
-            {
-                context.Exercises.Add(ex);
-            }
-            else
-            {
-                existing.Description = ex.Description;
-                existing.ExerciseTypeId = ex.ExerciseTypeId;
-                existing.ExerciseCategoryId = ex.ExerciseCategoryId;
-                existing.DifficultyLevelId = ex.DifficultyLevelId;
-                existing.FiltersJson = ex.FiltersJson;
-                existing.Instructions = ex.Instructions;
-                existing.TipsJson = ex.TipsJson;
-                existing.AudioButtonsJson = ex.AudioButtonsJson;
-                existing.AnswerButtonsJson = ex.AnswerButtonsJson;
-                context.Exercises.Update(existing);
-            }
-        }
-
-        context.SaveChanges();
     }
 
     /// <summary>

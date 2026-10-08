@@ -10,7 +10,7 @@ namespace AcademiaAuditiva.IntegrationTests;
 
 /// <summary>
 /// The learning path page and its dashboard card. The player completed step 1
-/// (Higher or Lower) and has one right answer out of two on step 2 (Guess Interval).
+/// (Higher or Lower) and has one right answer out of two on step 2 (In tune or not?).
 /// </summary>
 public class LearningPathPagesTests : IClassFixture<SignedInWebApplicationFactory>
 {
@@ -26,21 +26,22 @@ public class LearningPathPagesTests : IClassFixture<SignedInWebApplicationFactor
         var html = await GetPageAsync("/LearningPath");
 
         html.Should().Contain("<h1 class=\"display-6 mt-2 mb-1 text-body-emphasis\">Learning path</h1>")
-            .And.Contain("1 of 25 steps")
+            .And.Contain("1 of 26 steps")
             .And.Contain("First steps").And.Contain("Building blocks").And.Contain("Musicianship")
-            .And.Contain("1 of 6 steps", "the first unit's count")
+            .And.Contain("1 of 7 steps", "the first unit's count")
             .And.Contain("Goal: 7 right answers out of your last 10.")
             .And.Contain("1 of 7 right answers")
             .And.Contain("Complete the previous step to unlock it.");
         Regex.Count(html, "class=\"aa-path-step is-completed\"").Should().Be(1);
         Regex.Count(html, "class=\"aa-path-step is-current\" aria-current=\"step\"").Should().Be(1);
-        Regex.Count(html, "class=\"aa-path-step is-locked\"").Should().Be(23);
+        Regex.Count(html, "class=\"aa-path-step is-locked\"").Should().Be(24);
 
         // Unlocked steps link to their exercise with the preset; locked ones do not link.
         html.Should().Contain("<a href=\"/Exercise/HigherOrLower\">Higher or Lower</a>")
-            .And.Contain("<a href=\"/Exercise/GuessInterval?keySelect=C4&scaleTypeSelect=major\">Guess Interval</a>")
+            .And.Contain("<a href=\"/Exercise/GuessTuning?gtLevel=50\">In tune or not?</a>")
+            .And.NotContain("href=\"/Exercise/GuessInterval")
             .And.NotContain("href=\"/Exercise/GuessChords");
-        html.Should().Contain("Key: C").And.Contain("Continue");
+        html.Should().Contain("Level: 50 cents (a quarter tone)").And.Contain("Continue");
         html.Should().NotMatchRegex(@"LearningPath\.\w", "every text has a resource");
     }
 
@@ -54,13 +55,13 @@ public class LearningPathPagesTests : IClassFixture<SignedInWebApplicationFactor
         var card = Regex.Match(html, "<section class=\"aa-card aa-path-card.*?</section>", RegexOptions.Singleline);
         card.Success.Should().BeTrue("the dashboard shows the learning path card");
         card.Value.Should().Contain("Learning path")
-            .And.Contain("Guess Interval")
-            .And.Contain("Step 2 of 25")
+            .And.Contain("In tune or not?")
+            .And.Contain("Step 2 of 26")
             .And.Contain("Unit 1: First steps")
             .And.Contain("1 of 7 right answers")
-            .And.Contain("href=\"/Exercise/GuessInterval?keySelect=C4&scaleTypeSelect=major\"")
+            .And.Contain("href=\"/Exercise/GuessTuning?gtLevel=50\"")
             .And.Contain("href=\"/LearningPath\"")
-            .And.Contain("1 of 25 steps");
+            .And.Contain("1 of 26 steps");
     }
 
     [Fact]
@@ -71,8 +72,9 @@ public class LearningPathPagesTests : IClassFixture<SignedInWebApplicationFactor
         var html = await GetPageAsync("/LearningPath?culture=fr-CA");
 
         html.Should().Contain("Parcours d’apprentissage")
-            .And.Contain("1 sur 25 étapes")
-            .And.Contain("Premiers pas");
+            .And.Contain("1 sur 26 étapes")
+            .And.Contain("Premiers pas")
+            .And.Contain("Juste ou pas\u00A0?");
         html.Should().NotMatchRegex(@"LearningPath\.\w");
     }
 
@@ -85,7 +87,7 @@ public class LearningPathPagesTests : IClassFixture<SignedInWebApplicationFactor
 
         SeedData.SeedExercises(db);
         var ids = db.Exercises.ToDictionary(e => e.Name, e => e.ExerciseId);
-        var answers = Enumerable.Repeat(("HigherOrLower", true), 8).Append(("GuessInterval", true)).Append(("GuessInterval", false));
+        var answers = Enumerable.Repeat(("HigherOrLower", true), 8).Append(("GuessTuning", true)).Append(("GuessTuning", false));
         var at = DateTime.UtcNow.AddHours(-1);
         foreach (var (exercise, correct) in answers)
         {

@@ -69,9 +69,9 @@ public class LearningPathServiceTests
         await using var db = SeededDatabase();
         var answers = new Answers(db);
         answers.Add("HigherOrLower", correct: true, count: 8);
-        answers.Add("GuessInterval", correct: true, count: 10, userId: "someone-else");
-        answers.Add("GuessInterval", correct: true);
-        answers.Add("GuessInterval", correct: false);
+        answers.Add("GuessTuning", correct: true, count: 10, userId: "someone-else");
+        answers.Add("GuessTuning", correct: true);
+        answers.Add("GuessTuning", correct: false);
         await db.SaveChangesAsync();
 
         var progress = await Service(db).GetProgressAsync(UserId);
@@ -79,7 +79,7 @@ public class LearningPathServiceTests
         progress.CompletedSteps.Should().Be(1);
         progress.Current.Should().BeEquivalentTo(new
         {
-            Number = 2, Exercise = "GuessInterval", State = StepState.Current,
+            Number = 2, Exercise = "GuessTuning", State = StepState.Current,
             Correct = 1, Answered = 2, Required = 7, Window = 10, Percent = 14,
         });
         progress.HasStarted.Should().BeTrue();
@@ -93,17 +93,17 @@ public class LearningPathServiceTests
     {
         await using var db = SeededDatabase();
         var answers = new Answers(db);
-        answers.CompleteSteps(5);
+        answers.CompleteSteps(6);
         answers.Add("GuessMeter", correct: true, count: 7);
         await db.SaveChangesAsync();
 
         var progress = await Service(db).GetProgressAsync(UserId);
 
-        progress.JustCompleted!.Number.Should().Be(6);
+        progress.JustCompleted!.Number.Should().Be(7);
         progress.UnitOf(progress.JustCompleted).State.Should().Be(StepState.Completed);
-        progress.Current!.Should().BeEquivalentTo(new { Number = 7, Exercise = "GuessChangedNote" });
+        progress.Current!.Should().BeEquivalentTo(new { Number = 8, Exercise = "GuessChangedNote" });
         progress.UnitOf(progress.Current).Key.Should().Be("BuildingBlocks");
-        progress.Should().BeEquivalentTo(new { CompletedSteps = 6, Percent = 24 });
+        progress.Should().BeEquivalentTo(new { CompletedSteps = 7, Percent = 26 });
     }
 
     [Fact]
