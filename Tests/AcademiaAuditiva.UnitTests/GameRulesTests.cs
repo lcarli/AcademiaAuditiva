@@ -1,4 +1,5 @@
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Games;
 
 namespace AcademiaAuditiva.UnitTests;
@@ -134,6 +135,11 @@ public class GameRulesTests
     [InlineData("SolfegeMelody", false)]
     public void SungExercises_AreNotPlayedAsGames(string exercise, bool playable)
         => GameModes.Playable(exercise).Should().Be(playable);
+
+    [Fact]
+    public void OnlyMusicExercises_ArePlayedAsGames()
+        => ExerciseCatalog.All.Where(e => GameModes.Playable(e.Name))
+            .Should().OnlyContain(e => e.Track == TrainingTracks.Music, "the games take Music exercises only so far");
 
     [Theory]
     [InlineData(GameModes.Sprint, "Sprint", "bi-stopwatch")]

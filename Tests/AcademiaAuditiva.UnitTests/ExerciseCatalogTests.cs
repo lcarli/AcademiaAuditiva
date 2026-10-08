@@ -19,9 +19,12 @@ public class ExerciseCatalogTests
 
         var seeded = db.Exercises
             .Join(db.ExerciseCategories, e => e.ExerciseCategoryId, c => c.Id,
-                (e, c) => new CatalogExercise(e.Name, c.Name, e.DifficultyLevelId))
+                (e, c) => new { e.Name, Category = c.Name, e.DifficultyLevelId })
+            .AsEnumerable()
+            .Select(e => new CatalogExercise(e.Name, e.Category, e.DifficultyLevelId, TrainingTracks.OfCategory(e.Category)!))
             .ToList();
 
+        seeded.Should().OnlyContain(e => e.Track != null, "every seeded category belongs to a track");
         ExerciseCatalog.All.Should().BeEquivalentTo(seeded);
         ExerciseCatalog.Count.Should().Be(seeded.Count).And.BeGreaterThan(29);
         ExerciseCatalog.All.Select(e => e.Name).Should().OnlyHaveUniqueItems();

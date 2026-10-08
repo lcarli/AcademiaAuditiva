@@ -114,10 +114,10 @@ public static class DailyChallengeRules
 
     /// <summary>
     /// One exercise per name (the lowest id, like the learning path), in a fixed order so the order of
-    /// the database rows doesn't change the draw.
+    /// the database rows doesn't change the draw. Only Music exercises take part so far (<see cref="TrainingTracks"/>).
     /// </summary>
     private static ChallengeExercise[] Pool(IEnumerable<ChallengeExercise> exercises) => exercises
-        .Where(e => !MicrophoneExercises.Contains(e.Name))
+        .Where(e => !MicrophoneExercises.Contains(e.Name) && TrainingTracks.IsMusic(e.Category))
         .GroupBy(e => e.Name, StringComparer.Ordinal)
         .Select(g => g.MinBy(e => e.ExerciseId)!)
         .OrderBy(e => e.Name, StringComparer.Ordinal)

@@ -635,6 +635,45 @@
     <value>Jogos</value>
     <comment />
   </data>
+  <data name="TrainingTrack.Label" xml:space="preserve">
+    <value>Trilhas de treino</value>
+  </data>
+  <data name="TrainingTrack.Music" xml:space="preserve">
+    <value>Música</value>
+  </data>
+  <data name="TrainingTrack.Audio" xml:space="preserve">
+    <value>Áudio</value>
+  </data>
+  <data name="TrainingTrack.Mix" xml:space="preserve">
+    <value>Mixagem</value>
+  </data>
+  <data name="TrainingTrack.Empty.Title" xml:space="preserve">
+    <value>A trilha {0} está chegando</value>
+  </data>
+  <data name="TrainingTrack.Empty.Text" xml:space="preserve">
+    <value>Estamos preparando estes exercícios. Enquanto isso, continue treinando o ouvido com os exercícios de música.</value>
+  </data>
+  <data name="TrainingTrack.Empty.Back" xml:space="preserve">
+    <value>Ver os exercícios de música</value>
+  </data>
+  <data name="ExerciseCategory.Level" xml:space="preserve">
+    <value>Nível</value>
+  </data>
+  <data name="ExerciseCategory.FrequencyEq" xml:space="preserve">
+    <value>Frequência e EQ</value>
+  </data>
+  <data name="ExerciseCategory.Dynamics" xml:space="preserve">
+    <value>Dinâmica</value>
+  </data>
+  <data name="ExerciseCategory.StereoPhase" xml:space="preserve">
+    <value>Estéreo e fase</value>
+  </data>
+  <data name="ExerciseCategory.SpaceTime" xml:space="preserve">
+    <value>Espaço e tempo</value>
+  </data>
+  <data name="ExerciseCategory.CriticalListening" xml:space="preserve">
+    <value>Escuta crítica</value>
+  </data>
   <data name="Exercise.SelectIntervalText" xml:space="preserve">
     <value>Por favor, selecione um intervalo.</value>
     <comment />

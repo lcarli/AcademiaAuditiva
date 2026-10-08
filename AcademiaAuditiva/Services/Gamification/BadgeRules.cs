@@ -309,10 +309,13 @@ public static class BadgeRules
             return sessions;
         }
 
-        /// <summary>Names of every known exercise except the microphone ones, practiced or not.</summary>
+        /// <summary>
+        /// Names of every known Music exercise except the microphone ones, practiced or not
+        /// (<see cref="TrainingTracks.IsMusic"/>).
+        /// </summary>
         public IReadOnlySet<string> ExerciseNames => _exerciseNames ??= _exercises.Values
+            .Where(e => !MicrophoneExercises.Contains(e.Name) && TrainingTracks.IsMusic(e.Category))
             .Select(e => e.Name)
-            .Where(name => !MicrophoneExercises.Contains(name))
             .ToHashSet(StringComparer.Ordinal);
 
         /// <summary>Names of the known exercises the player answered.</summary>
@@ -326,9 +329,9 @@ public static class BadgeRules
             .GroupBy(e => e.Name, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => g.Min(e => e.ExerciseId), StringComparer.Ordinal);
 
-        /// <summary>Categories of every known exercise except the microphone ones.</summary>
+        /// <summary>Categories of every known Music exercise except the microphone ones.</summary>
         public IEnumerable<string> Categories => _exercises.Values
-            .Where(e => e.Category.Length > 0 && !MicrophoneExercises.Contains(e.Name))
+            .Where(e => e.Category.Length > 0 && !MicrophoneExercises.Contains(e.Name) && TrainingTracks.IsMusic(e.Category))
             .Select(e => e.Category)
             .Distinct(StringComparer.Ordinal);
 

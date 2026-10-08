@@ -75,6 +75,22 @@ public class DailyChallengeRulesTests
     }
 
     [Fact]
+    public void Pick_LeavesOutTheExercisesOfTheOtherTracks()
+    {
+        ChallengeExercise[] exercises =
+        [
+            new(1, "GuessNote", "EarTraining"),
+            new(2, "LevelMatch", "Level"), new(3, "GuessFrequency", "FrequencyEq"), new(4, "StereoPosition", "StereoPhase"),
+        ];
+
+        for (var day = 0; day < 10; day++)
+        {
+            DailyChallengeRules.Pick(Day.AddDays(day), exercises)
+                .Should().Equal([new ChallengeExercise(1, "GuessNote", "EarTraining")], "only Music exercises are drawn so far");
+        }
+    }
+
+    [Fact]
     public void Pick_WithFewerCategoriesThanExercises_FillsTheDayWithOtherExercises()
     {
         ChallengeExercise[] exercises =

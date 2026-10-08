@@ -19,6 +19,36 @@
     <h1 class="display-6 mt-2 text-body-emphasis">@Localizer["Exercise.Title"]</h1>
 </header>
 
+@{
+    var track = (string)ViewBag.Track;
+    var tracks = (List<AcademiaAuditiva.Services.TrainingTrack>)ViewBag.Tracks;
+}
+@if (tracks.Count > 0)
+{
+    <nav class="d-flex justify-content-center mb-4" aria-label="@Localizer["TrainingTrack.Label"]">
+        <div class="aa-pill-tab" id="trackTabs">
+            @foreach (var t in tracks)
+            {
+                var isCurrent = t.Key == track;
+                <a class="@(isCurrent ? "active" : null)" href="@Url.Action("Index", "Exercise", new { track = t.Key.ToLowerInvariant() })" aria-current="@(isCurrent ? "page" : null)">
+                    @Localizer["TrainingTrack." + t.Key]
+                </a>
+            }
+        </div>
+    </nav>
+}
+
+@if (!Model.Any())
+{
+    <div class="aa-card p-4 p-lg-5 text-center mx-auto" style="max-width: 40rem;" id="trackEmpty">
+        <span class="aa-icon-pill mb-3" aria-hidden="true"><i class="bi bi-soundwave"></i></span>
+        <h2 class="h5 fw-bold text-body-emphasis">@Localizer["TrainingTrack.Empty.Title", Localizer["TrainingTrack." + track]]</h2>
+        <p class="text-secondary mb-3">@Localizer["TrainingTrack.Empty.Text"]</p>
+        <a href="@Url.Action("Index", "Exercise")" class="btn btn-outline-primary btn-sm">@Localizer["TrainingTrack.Empty.Back"]</a>
+    </div>
+}
+else
+{
 <div class="d-flex justify-content-center mb-4">
     <div class="aa-pill-tab" role="tablist" id="exerciseTabs">
         <button class="active" id="difficulty-tab" data-bs-toggle="tab" data-bs-target="#byDifficulty" type="button" role="tab">
@@ -87,3 +117,4 @@
         }
     </div>
 </div>
+}

@@ -12,9 +12,9 @@ public sealed record PathStep(string Exercise, IReadOnlyDictionary<string, strin
 public sealed record PathUnit(string Key, IReadOnlyList<PathStep> Steps);
 
 /// <summary>
-/// The learning path: every exercise except the singing ones (they need a microphone,
-/// <see cref="MicrophoneExercises"/>), from pitch direction to an absolute pitch challenge.
-/// Each exercise appears once.
+/// The learning path of the Music track (<see cref="TrainingTracks"/>): every Music exercise
+/// except the singing ones (they need a microphone, <see cref="MicrophoneExercises"/>), from
+/// pitch direction to an absolute pitch challenge. Each exercise appears once.
 /// Presets are guidance, like routine items: any answer on the step's exercise counts,
 /// whatever filters it was played with (older answers don't record them).
 /// </summary>
