@@ -19,6 +19,8 @@ namespace AcademiaAuditiva.Services.Audio;
 ///     a cadence in their key before their chord, note or progression, in
 ///     the same plan; GuessInterval and GuessFullInterval play their two
 ///     notes one after the other, or together when the round is harmonic)
+///   - 1 plan for the singing exercises: SingNote's note, the first note of
+///     SingInterval (the student sings the second) and SingMelody's melody
 ///   - 1 plan for the exercises written on the staff (CompleteChord,
 ///     CompleteScale, TransposeScale, MelodicDictation, RhythmDictation),
 ///     and for GuessRhythmPattern and RhythmTap, which play a rhythm as
@@ -150,7 +152,13 @@ public sealed class ExercisePlaybackPlanner
         switch (exercise.Name)
         {
             case "GuessNote":
+            case "SingNote":
                 plans.Add(new[] { Note(instrument, token.Value<string>("note") ?? throw Bad("note")) });
+                break;
+
+            case "SingInterval":
+                // Only the first note: the student sings the second one.
+                plans.Add(new[] { Note(instrument, token.Value<string>("note1") ?? throw Bad("note1")) });
                 break;
 
             case "GuessChords":
@@ -231,6 +239,10 @@ public sealed class ExercisePlaybackPlanner
             case "GuessChangedNote":
                 plans.Add(MelodyPlan(instrument, token["melody1"] as JArray ?? throw Bad("melody1")));
                 plans.Add(MelodyPlan(instrument, token["melody2"] as JArray ?? throw Bad("melody2")));
+                break;
+
+            case "SingMelody":
+                plans.Add(MelodyPlan(instrument, token["melody"] as JArray ?? throw Bad("melody")));
                 break;
 
             case "IntervalMelodico":
@@ -518,7 +530,7 @@ public sealed class ExercisePlaybackPlanner
         return plan;
     }
 
-    // How long a melody entry lasts, in beats: durationBeats (the staff exercises), or duration (the comparison melodies of GuessMissingNote and GuessChangedNote).
+    // How long a melody entry lasts, in beats: durationBeats (the staff exercises), or duration (the comparison melodies of GuessMissingNote, GuessChangedNote and SingMelody).
     private static double BeatsOf(JToken entry) =>
         entry.Value<double?>("durationBeats") ?? entry.Value<double?>("duration") ?? 1.0;
 

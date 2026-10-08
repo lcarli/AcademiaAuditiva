@@ -14,13 +14,13 @@ public class LearningPathServiceTests
     private static readonly DateTime Start = new(2026, 9, 1, 12, 0, 0, DateTimeKind.Utc);
 
     [Fact]
-    public void Catalog_HasEverySeededExerciseButSolfegeMelody_OnceEach()
+    public void Catalog_HasEverySeededExerciseButTheSingingOnes_OnceEach()
     {
         using var db = SeededDatabase();
 
         LearningPathCatalog.Steps.Select(s => s.Exercise).Should().OnlyHaveUniqueItems()
-            .And.BeEquivalentTo(db.Exercises.Select(e => e.Name).Where(n => n != "SolfegeMelody"),
-                "SolfegeMelody needs a microphone");
+            .And.BeEquivalentTo(db.Exercises.Select(e => e.Name).AsEnumerable().Where(n => !MicrophoneExercises.Contains(n)),
+                "the singing exercises need a microphone");
         LearningPathCatalog.Units.Select(u => u.Key).Should().OnlyHaveUniqueItems();
         LearningPathCatalog.Units.Should().OnlyContain(u => u.Steps.Count > 0);
     }

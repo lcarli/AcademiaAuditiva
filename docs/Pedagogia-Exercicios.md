@@ -30,6 +30,8 @@
 - **GuessDegree** - Qual o grau da nota na tonalidade?
 - **GuessMissingNote** - Diga se duas melodias são iguais ou diferentes
 - **GuessChangedNote** - Qual nota mudou entre duas melodias, e ela subiu ou desceu?
+- **SingNote** - Ouça uma nota e cante-a, em qualquer oitava
+- **SingInterval** - Ouça uma nota, cante-a e depois cante o intervalo pedido a partir dela, para cima ou para baixo
 - **IntervalDirection** *(novo)* - O intervalo sobe ou desce?
 
 ### Harmonia
@@ -44,7 +46,7 @@
 
 ### Melodia
 - **MelodicDictation** - Ouça uma melodia curta e escreva-a na pauta
-- **MelodyReproduction** *(novo)* - Reproduzir melodia após escutar
+- **SingMelody** - Ouça uma melodia curta e cante-a de volta
 - **GuessMelodicContour** *(novo)* - O contorno melódico está subindo, descendo ou misto?
 - **ContinueMelody** *(novo)* - O aluno completa a melodia
 
@@ -118,6 +120,7 @@
 ## ✨ Observações
 
 - Cada exercício pode ter variações dependendo dos **filtros aplicados** (oitava, escala, tonalidade, tipo de acorde, etc).
+- Os exercícios de canto (SingNote, SingInterval, SingMelody e o solfejo, SolfegeMelody) precisam de microfone, então ficam fora da trilha de aprendizagem, do desafio diário e dos badges que pedem todos os exercícios ou categorias (`MicrophoneExercises`). A gravação é analisada no navegador, por um detector de altura próprio (YIN, `wwwroot/js/core/pitch-detector.js`), e nunca sai do dispositivo.
 - Os badges e sugestões de prática serão baseados na tabela de `Scores` e futuras tabelas de `ProgressSummary` e `BadgesEarned`.
 - A dificuldade pode ser atribuída dinamicamente com base no tempo de resposta e taxa de erro.
 

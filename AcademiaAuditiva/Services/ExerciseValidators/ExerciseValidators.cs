@@ -369,49 +369,22 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
     }
 
     /// <summary>
-    /// Compares the notes detected in the student's recording ("C4|E4|G4")
-    /// with the melody shown on the staff. Singers may use any octave, so only
-    /// pitch classes are compared (enharmonic spellings are equal). Rests and
-    /// repeated notes are ignored because the pitch tracker cannot tell a held
-    /// note from a repeated one. Melodies of four or more notes tolerate one
-    /// missing, extra or wrong note.
+    /// The notes the singing exercises receive: the browser transcribes the student's
+    /// recording (pitch-detector.js) and sends the notes it heard, "C4|E4|G4". Singers may
+    /// use any octave, so notes are compared by pitch class (enharmonic spellings are equal).
     /// </summary>
-    public sealed class SolfegeMelodyValidator : IExerciseValidator
+    internal static class SungNotes
     {
-        private const int MaxGuessLength = 1024;
+        public const int MaxGuessLength = 1024;
 
-        public string ExerciseName => "SolfegeMelody";
-
-        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
-        {
-            var obj = JObject.Parse(expectedAnswerJson);
-            var expectedNotes = (obj["melody"] as JArray ?? new JArray())
-                .Where(m => (string?)m["type"] == "note")
-                .Select(m => (string?)m["note"] ?? string.Empty)
-                .Where(n => n.Length > 0)
-                .ToList();
-            var canonical = string.Join("|", expectedNotes);
-
-            if (expectedNotes.Count == 0 || string.IsNullOrWhiteSpace(userGuess) || userGuess.Length > MaxGuessLength)
-            {
-                return new ExerciseValidationResult(false, canonical);
-            }
-
-            var expected = CollapseRepeats(expectedNotes.Select(PitchClass));
-            var sung = CollapseRepeats(userGuess
-                .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(PitchClass));
-            if (sung.Count == 0)
-            {
-                return new ExerciseValidationResult(false, canonical);
-            }
-
-            var tolerance = expected.Count >= 4 ? 1 : 0;
-            return new ExerciseValidationResult(EditDistance(expected, sung) <= tolerance, canonical);
-        }
+        /// <summary>The notes of a guess; none when it is blank or too long to be a recording.</summary>
+        public static string[] Split(string? guess) =>
+            string.IsNullOrWhiteSpace(guess) || guess.Length > MaxGuessLength
+                ? []
+                : guess.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         /// <summary>Pitch class 0-11 of a note name with or without octave; -1 when it is not a note.</summary>
-        internal static int PitchClass(string note)
+        public static int PitchClass(string note)
         {
             var name = note.Trim();
             if (name.Length > 0 && !char.IsDigit(name[^1]))
@@ -419,6 +392,35 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
                 name += "4";
             }
             return MusicTheoryService.NoteToMidi(name) is int midi ? ((midi % 12) + 12) % 12 : -1;
+        }
+
+        /// <summary>The MIDI number of a note with its octave, such as "C#4"; null otherwise.</summary>
+        public static int? Midi(string note) => MusicTheoryService.NoteToMidi(note.Trim());
+
+        /// <summary>The notes of a melody (<c>[{type, note, duration}]</c>), without its rests.</summary>
+        public static List<string> OfMelody(JToken? melody) =>
+            (melody as JArray ?? new JArray())
+                .Where(m => (string?)m["type"] == "note")
+                .Select(m => (string?)m["note"] ?? string.Empty)
+                .Where(n => n.Length > 0)
+                .ToList();
+
+        /// <summary>
+        /// Whether the notes sung are the melody. Repeated notes are ignored because the pitch
+        /// tracker cannot tell a held note from a repeated one, and melodies of four or more
+        /// notes tolerate one missing, extra or wrong note.
+        /// </summary>
+        public static bool MatchMelody(IReadOnlyList<string> melody, string? guess)
+        {
+            var sung = CollapseRepeats(Split(guess).Select(PitchClass));
+            if (melody.Count == 0 || sung.Count == 0)
+            {
+                return false;
+            }
+
+            var expected = CollapseRepeats(melody.Select(PitchClass));
+            var tolerance = expected.Count >= 4 ? 1 : 0;
+            return EditDistance(expected, sung) <= tolerance;
         }
 
         private static List<int> CollapseRepeats(IEnumerable<int> notes)
@@ -454,6 +456,88 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
                 (previous, current) = (current, previous);
             }
             return previous[b.Count];
+        }
+    }
+
+    /// <summary>
+    /// Compares the notes detected in the student's recording ("C4|E4|G4") with the melody
+    /// shown on the staff (<see cref="SungNotes.MatchMelody"/>).
+    /// </summary>
+    public sealed class SolfegeMelodyValidator : IExerciseValidator
+    {
+        public string ExerciseName => "SolfegeMelody";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var melody = SungNotes.OfMelody(JObject.Parse(expectedAnswerJson)["melody"]);
+            return new ExerciseValidationResult(SungNotes.MatchMelody(melody, userGuess), string.Join("|", melody));
+        }
+    }
+
+    /// <summary>
+    /// SingNote: the student sings the note played, in any octave. The page sends the note it
+    /// heard longest ("C#3"); the note is right when its pitch class is the note's.
+    /// </summary>
+    public sealed class SingNoteValidator : IExerciseValidator
+    {
+        public string ExerciseName => "SingNote";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var expected = (string?)JObject.Parse(expectedAnswerJson)["note"] ?? string.Empty;
+            var sung = SungNotes.Split(userGuess);
+            var isCorrect = sung.Length == 1
+                && SungNotes.PitchClass(sung[0]) is >= 0 and var pitchClass
+                && pitchClass == SungNotes.PitchClass(expected);
+            return new ExerciseValidationResult(isCorrect, expected);
+        }
+    }
+
+    /// <summary>
+    /// SingInterval: the student sings the note played, then the note at the round's interval
+    /// above or below it. The page sends the two notes it heard longest, in the order sung
+    /// ("C3|G3"). Any octave will do for the first note, but the second must be that many
+    /// semitones from it, in the round's direction.
+    /// </summary>
+    public sealed class SingIntervalValidator : IExerciseValidator
+    {
+        public string ExerciseName => "SingInterval";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var obj = JObject.Parse(expectedAnswerJson);
+            var note1 = (string?)obj["note1"] ?? string.Empty;
+            var note2 = (string?)obj["note2"] ?? string.Empty;
+            var canonical = $"{note1}|{note2}";
+
+            var sung = SungNotes.Split(userGuess);
+            if (sung.Length != 2
+                || SungNotes.Midi(sung[0]) is not int first
+                || SungNotes.Midi(sung[1]) is not int second
+                || SungNotes.Midi(note1) is not int expectedFirst
+                || SungNotes.Midi(note2) is not int expectedSecond)
+            {
+                return new ExerciseValidationResult(false, canonical);
+            }
+
+            var isCorrect = SungNotes.PitchClass(sung[0]) == SungNotes.PitchClass(note1)
+                && second - first == expectedSecond - expectedFirst;
+            return new ExerciseValidationResult(isCorrect, canonical);
+        }
+    }
+
+    /// <summary>
+    /// SingMelody: the student sings back the melody played, compared as SolfegeMelody's
+    /// (<see cref="SungNotes.MatchMelody"/>).
+    /// </summary>
+    public sealed class SingMelodyValidator : IExerciseValidator
+    {
+        public string ExerciseName => "SingMelody";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var melody = SungNotes.OfMelody(JObject.Parse(expectedAnswerJson)["melody"]);
+            return new ExerciseValidationResult(SungNotes.MatchMelody(melody, userGuess), string.Join("|", melody));
         }
     }
 }

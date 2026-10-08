@@ -472,9 +472,10 @@ public class BadgeRulesTests
     }
 
     [Fact]
-    public void Explorer_NeedsAnAnswerToEveryExercise_ButSolfegeMelody()
+    public void Explorer_NeedsAnAnswerToEveryExercise_ButTheSingingOnes()
     {
-        var names = SeededExercises.Value.Select(e => e.Name).Where(n => n != "SolfegeMelody").Distinct().ToList();
+        var names = SeededExercises.Value.Select(e => e.Name).Where(n => !MicrophoneExercises.Contains(n)).Distinct().ToList();
+        names.Should().NotContain(["SolfegeMelody", "SingNote", "SingInterval", "SingMelody"]);
 
         var everyExercise = new History().Seeded();
         foreach (var name in names) everyExercise.Answer(IdOf(name), "0");

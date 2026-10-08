@@ -1,4 +1,5 @@
 using AcademiaAuditiva.Data;
+using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.DailyChallenge;
 using AcademiaAuditiva.Services.Gamification;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ public class DailyChallengeRulesTests
     {
         var exercises = Seeded.Value;
         exercises.Should().Contain(e => e.Name == "SolfegeMelody");
+        exercises.Should().Contain(e => e.Name == "SingNote");
         var drawn = new Dictionary<string, int>(StringComparer.Ordinal);
         var challenges = new HashSet<string>(StringComparer.Ordinal);
         var days = 0;
@@ -42,8 +44,8 @@ public class DailyChallengeRulesTests
         }
 
         drawn.Keys.Should().BeEquivalentTo(
-            exercises.Select(e => e.Name).Where(n => n != "SolfegeMelody").Distinct(),
-            "every exercise but Solfege Melody, which needs a microphone, gets drawn");
+            exercises.Select(e => e.Name).Where(n => !MicrophoneExercises.Contains(n)).Distinct(),
+            "every exercise but the singing ones, which need a microphone, gets drawn");
         // The draw goes by category, so an exercise of a big category comes up less often than one
         // of a small category: each is drawn at least half, and at most twice, as often as it
         // would be if every exercise were drawn alike.

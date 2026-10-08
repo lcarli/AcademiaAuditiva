@@ -2812,16 +2812,16 @@
   <data name="Exercise.Solfege.NoMelodyText" xml:space="preserve">
     <value>Cliquez sur « Nouvelle mélodie » pour obtenir une mélodie à chanter.</value>
   </data>
-  <data name="Exercise.Solfege.Analyzing" xml:space="preserve">
+  <data name="Exercise.Singing.Analyzing" xml:space="preserve">
     <value>Analyse de votre enregistrement…</value>
   </data>
-  <data name="Exercise.Solfege.AnalysisError" xml:space="preserve">
+  <data name="Exercise.Singing.AnalysisError" xml:space="preserve">
     <value>Impossible d’analyser cet enregistrement. Veuillez enregistrer de nouveau.</value>
   </data>
-  <data name="Exercise.Solfege.NothingHeardTitle" xml:space="preserve">
+  <data name="Exercise.Singing.NothingHeardTitle" xml:space="preserve">
     <value>Aucune note détectée</value>
   </data>
-  <data name="Exercise.Solfege.NothingHeardText" xml:space="preserve">
+  <data name="Exercise.Singing.NothingHeardText" xml:space="preserve">
     <value>Nous n’avons entendu aucune note. Chantez un peu plus fort, près du microphone, puis enregistrez de nouveau.</value>
   </data>
   <data name="Lockout.Header" xml:space="preserve">
@@ -3764,7 +3764,7 @@
     <value>Explorateur</value>
   </data>
   <data name="Badge.explorer.Description" xml:space="preserve">
-    <value>Répondez au moins une fois à chaque exercice, sauf Solfège mélodique.</value>
+    <value>Répondez au moins une fois à chaque exercice, sauf les exercices de chant.</value>
   </data>
   <data name="Badge.filter_ninja.Title" xml:space="preserve">
     <value>Ninja des filtres</value>
@@ -4302,5 +4302,107 @@
   </data>
   <data name="Exercise.GuessChangedNote.AnswerDown" xml:space="preserve">
     <value>la note {{0}}, qui est descendue</value>
+  </data>
+  <data name="Exercise.Singing.NoRecordingText" xml:space="preserve">
+    <value>Enregistrez-vous d’abord en train de chanter.</value>
+  </data>
+  <data name="Exercise.Singing.Heard" xml:space="preserve">
+    <value>Nous avons entendu {{0}}.</value>
+  </data>
+  <data name="Exercise.Singing.InTune" xml:space="preserve">
+    <value>Vous avez chanté juste.</value>
+  </data>
+  <data name="Exercise.Singing.Sharp" xml:space="preserve">
+    <value>Vous avez chanté {{0}} cents trop haut.</value>
+  </data>
+  <data name="Exercise.Singing.Flat" xml:space="preserve">
+    <value>Vous avez chanté {{0}} cents trop bas.</value>
+  </data>
+  <data name="SingNote" xml:space="preserve">
+    <value>Chantez la note</value>
+  </data>
+  <data name="Exercise.SingNote.Subtitle" xml:space="preserve">
+    <value>Écoutez une note et chantez-la.</value>
+  </data>
+  <data name="Exercise.SingNote.Instructions" xml:space="preserve">
+    <value>Cliquez sur « Jouer » pour entendre une note. Cliquez sur « Enregistrer », chantez la note sur une voyelle comme « a », puis cliquez sur « Valider ». Toutes les octaves sont acceptées.</value>
+  </data>
+  <data name="Exercise.SingNote.Tip1" xml:space="preserve">
+    <value>Fredonnez la note doucement avant d’enregistrer, puis tenez-la bien stable une seconde ou deux.</value>
+  </data>
+  <data name="Exercise.SingNote.Tip2" xml:space="preserve">
+    <value>Quand vous avez juste, le résultat indique à combien de cents de la hauteur exacte vous étiez : cent cents font un demi-ton.</value>
+  </data>
+  <data name="Exercise.SingNote.Tip3" xml:space="preserve">
+    <value>Si une note est trop aiguë ou trop grave pour votre voix, chantez-la une octave plus bas ou plus haut, ou limitez les octaves dans les filtres.</value>
+  </data>
+  <data name="Exercise.SingNote.Tip4" xml:space="preserve">
+    <value>Votre enregistrement est analysé dans votre navigateur et ne quitte jamais votre appareil.</value>
+  </data>
+  <data name="Exercise.SingNoteText" xml:space="preserve">
+    <value>Chantez la note que vous entendez</value>
+  </data>
+  <data name="SingInterval" xml:space="preserve">
+    <value>Chantez l’intervalle</value>
+  </data>
+  <data name="Exercise.SingInterval.Subtitle" xml:space="preserve">
+    <value>Chantez la note que vous entendez, puis l’intervalle à partir d’elle.</value>
+  </data>
+  <data name="Exercise.SingInterval.Instructions" xml:space="preserve">
+    <value>Cliquez sur « Jouer » pour entendre une note et voir un intervalle. Cliquez sur « Enregistrer », chantez la note, puis la note située à cet intervalle au-dessus ou au-dessous, et cliquez sur « Valider ». Toutes les octaves sont acceptées.</value>
+  </data>
+  <data name="Exercise.SingInterval.Tip1" xml:space="preserve">
+    <value>Chantez la gamme dans votre tête à partir de la note et arrêtez-vous sur le degré de l’intervalle : la quinte est la cinquième note.</value>
+  </data>
+  <data name="Exercise.SingInterval.Tip2" xml:space="preserve">
+    <value>Respirez brièvement entre les deux notes et tenez chacune une seconde.</value>
+  </data>
+  <data name="Exercise.SingInterval.Tip3" xml:space="preserve">
+    <value>Le filtre Niveau choisit les intervalles, et le filtre Direction s’ils montent ou descendent.</value>
+  </data>
+  <data name="Exercise.SingInterval.Tip4" xml:space="preserve">
+    <value>Votre enregistrement est analysé dans votre navigateur et ne quitte jamais votre appareil.</value>
+  </data>
+  <data name="Exercise.SingIntervalText" xml:space="preserve">
+    <value>Chantez la note que vous entendez, puis cet intervalle</value>
+  </data>
+  <data name="Exercise.SingInterval.OneNoteText" xml:space="preserve">
+    <value>Nous n’avons entendu qu’une note. Chantez la note que vous entendez, puis la deuxième note, avec une courte pause entre les deux.</value>
+  </data>
+  <data name="Exercise.SingInterval.HeardInterval" xml:space="preserve">
+    <value>Intervalle chanté : {{0}}.</value>
+  </data>
+  <data name="Exercise.SingIntervalLevel.Easy" xml:space="preserve">
+    <value>Seconde et tierce majeures, quarte, quinte et octave justes</value>
+  </data>
+  <data name="Exercise.SingIntervalLevel.Medium" xml:space="preserve">
+    <value>Secondes, tierces et sixtes majeures et mineures, quarte, quinte et octave justes</value>
+  </data>
+  <data name="Exercise.SingIntervalLevel.All" xml:space="preserve">
+    <value>Tous les intervalles jusqu’à l’octave</value>
+  </data>
+  <data name="SingMelody" xml:space="preserve">
+    <value>Chantez la mélodie</value>
+  </data>
+  <data name="Exercise.SingMelody.Subtitle" xml:space="preserve">
+    <value>Écoutez une courte mélodie et chantez-la à votre tour.</value>
+  </data>
+  <data name="Exercise.SingMelody.Instructions" xml:space="preserve">
+    <value>Cliquez sur « Jouer » pour entendre une courte mélodie. Cliquez sur « Enregistrer », chantez la mélodie, puis cliquez sur « Valider ». Toutes les octaves sont acceptées.</value>
+  </data>
+  <data name="Exercise.SingMelody.Tip1" xml:space="preserve">
+    <value>Écoutez autant de fois que nécessaire avant d’enregistrer : la mélodie avance par degrés et par tierces et finit sur la tonique.</value>
+  </data>
+  <data name="Exercise.SingMelody.Tip2" xml:space="preserve">
+    <value>Chantez chaque note sur sa propre syllabe, comme « la », pour que les notes ne se confondent pas.</value>
+  </data>
+  <data name="Exercise.SingMelody.Tip3" xml:space="preserve">
+    <value>À partir de quatre notes, une note fausse, manquante ou en trop est pardonnée.</value>
+  </data>
+  <data name="Exercise.SingMelody.Tip4" xml:space="preserve">
+    <value>Votre enregistrement est analysé dans votre navigateur et ne quitte jamais votre appareil.</value>
+  </data>
+  <data name="Exercise.SingMelodyText" xml:space="preserve">
+    <value>Chantez la mélodie que vous entendez</value>
   </data>
 </root>

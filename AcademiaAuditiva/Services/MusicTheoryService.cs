@@ -223,7 +223,7 @@ namespace AcademiaAuditiva.Services
 
         // The exercises whose notes GenerateNoteForExercise draws from the noteRange filter.
         private static readonly HashSet<string> NoteRangeExercises =
-            ["GuessNote", "HigherOrLower", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality", "GuessDegree", "GuessProgression", "GuessTopNote"];
+            ["GuessNote", "HigherOrLower", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality", "GuessDegree", "GuessProgression", "GuessTopNote", "SingNote", "SingInterval"];
 
         /// <summary>
         /// Whether the notes of <paramref name="exerciseName"/> come from the <c>noteRange</c>
@@ -232,6 +232,25 @@ namespace AcademiaAuditiva.Services
         /// <c>ccOctave</c>, for instance).
         /// </summary>
         public static bool UsesNoteRange(string exerciseName) => NoteRangeExercises.Contains(exerciseName);
+
+        /// <summary>The semitones of each interval code up to the octave, "4A" for the tritone.</summary>
+        public static readonly IReadOnlyDictionary<string, int> IntervalSemitones = new Dictionary<string, int>
+        {
+            ["2m"] = 1, ["2M"] = 2, ["3m"] = 3, ["3M"] = 4, ["4J"] = 5, ["4A"] = 6,
+            ["5J"] = 7, ["6m"] = 8, ["6M"] = 9, ["7m"] = 10, ["7M"] = 11, ["8J"] = 12,
+        };
+
+        /// <summary>
+        /// The intervals SingInterval asks at each level of its <c>siLevel</c> filter: the major
+        /// and perfect ones that are easiest to sing, then the minor ones and the sixths, then
+        /// all of them. Without the filter, the easy level.
+        /// </summary>
+        public static readonly IReadOnlyDictionary<string, string[]> SingIntervalLevels = new Dictionary<string, string[]>
+        {
+            ["easy"] = ["2M", "3M", "4J", "5J", "8J"],
+            ["medium"] = ["2m", "2M", "3m", "3M", "4J", "5J", "6m", "6M", "8J"],
+            ["all"] = ["2m", "2M", "3m", "3M", "4J", "4A", "5J", "6m", "6M", "7m", "7M", "8J"],
+        };
 
         /// <summary>
         /// Parses a <c>noteRange</c> filter such as <c>C3-C5</c> into the list of octaves it spans.
@@ -1454,6 +1473,45 @@ namespace AcademiaAuditiva.Services
                     {
                         melody = melodySolfege
                     };
+
+                // The singing exercises: the student sings back what is played, in any octave.
+                case "SingNote":
+                {
+                    var singNotes = instrument.NotesIn(instrument.Octaves(noteRange));
+                    return new { note = singNotes[random.Next(singNotes.Count)] };
+                }
+                case "SingInterval":
+                {
+                    // The first note is played; the second is only sung, so it may leave the range.
+                    var startNotes = instrument.NotesIn(instrument.Octaves(noteRange));
+                    var start = startNotes[random.Next(startNotes.Count)];
+                    var intervals = SingIntervalLevels.TryGetValue(filters.GetValueOrDefault("siLevel") ?? "", out var levelIntervals)
+                        ? levelIntervals
+                        : SingIntervalLevels["easy"];
+                    var interval = intervals[random.Next(intervals.Length)];
+                    var singDirection = filters.GetValueOrDefault("intervalDirection") switch
+                    {
+                        "desc" => "desc",
+                        "both" => random.Next(2) == 0 ? "asc" : "desc",
+                        _ => "asc",
+                    };
+                    var startMidi = NoteToMidi(start)!.Value;
+                    var steps = IntervalSemitones[interval];
+
+                    return new
+                    {
+                        note1 = start,
+                        note2 = MidiToNote(singDirection == "asc" ? startMidi + steps : startMidi - steps),
+                        interval,
+                        direction = singDirection
+                    };
+                }
+                case "SingMelody":
+                {
+                    // Like GuessChangedNote's melodies: steps and thirds of a major scale, ending on its tonic.
+                    var (singScale, singDegrees) = GenerateComparisonMelody(ComparisonMelodyLength(filters), random);
+                    return new { melody = ComparisonMelodyEntries(singScale, singDegrees) };
+                }
 
                 case "IntervalMelodico":
                     var keyMel = filters.TryGetValue("keySelect", out var selectedKeyMel) ? selectedKeyMel : "C";

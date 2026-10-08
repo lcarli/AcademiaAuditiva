@@ -1,0 +1,32 @@
+@* The microphone of the singing exercises, driven by js/core/singing.js: the record and listen
+   buttons, the level meter shown while recording and the texts singing.js shows. Goes inside
+   the page's .aa-audio-row; the page loads pitch-detector.js and singing.js. *@
+@{
+    // Pitch classes C..B, in the order singing.js indexes them.
+    var noteNames = string.Join("|", new[] { "C", "CSharp", "D", "DSharp", "E", "F", "FSharp", "G", "GSharp", "A", "ASharp", "B" }
+        .Select(name => Localizer["Exercise.Note." + name].Value));
+}
+
+@* singing.js rebuilds the record button's content while recording, so both states keep a bi icon. *@
+<button type="button" id="recordAudio" class="aa-audio-pill" aria-pressed="false" data-tour="answer">
+    <i class="bi bi-mic" aria-hidden="true"></i> @Localizer["Exercise.RecordAudio"]
+</button>
+<button type="button" id="listenAudio" class="aa-audio-pill">
+    <i class="bi bi-headphones" aria-hidden="true"></i> @Localizer["Exercise.ListenAudio"]
+</button>
+<span id="micMeter" class="aa-mic-meter" hidden aria-hidden="true"><span class="aa-mic-meter-level"></span></span>
+
+<div id="aaSinging" hidden
+     data-record-start-text="@Localizer["Exercise.RecordAudio"]"
+     data-record-stop-text="@Localizer["Exercise.StopRecording"]"
+     data-microphone-unsupported-text="@Localizer["Exercise.MicrophoneUnsupported"]"
+     data-microphone-access-error-text="@Localizer["Exercise.MicrophoneAccessError"]"
+     data-analyzing-text="@Localizer["Exercise.Singing.Analyzing"]"
+     data-analysis-error-text="@Localizer["Exercise.Singing.AnalysisError"]"
+     data-nothing-heard-title="@Localizer["Exercise.Singing.NothingHeardTitle"]"
+     data-nothing-heard-text="@Localizer["Exercise.Singing.NothingHeardText"]"
+     data-in-tune-text="@Localizer["Exercise.Singing.InTune"]"
+     data-sharp-text="@Localizer["Exercise.Singing.Sharp"]"
+     data-flat-text="@Localizer["Exercise.Singing.Flat"]"
+     data-note-names="@noteNames">
+</div>

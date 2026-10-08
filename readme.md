@@ -12,14 +12,15 @@ fr-CA). It runs at <https://academiaauditiva.com>.
 
 ## ✨ Features
 
-- 🎧 **26 exercises**: notes, higher or lower, melodic and harmonic
+- 🎧 **29 exercises**: notes, higher or lower, melodic and harmonic
   intervals, scale degrees,
   chords and their quality, inversions, top notes, harmonic functions,
   cadences, chord progressions, scale types, Greek modes, missing notes,
   which note of a melody changed,
   melodic and rhythmic dictation, meters, rhythms to pick or tap back, staff
-  exercises (complete a scale or a chord, transpose a scale) and
-  sight-singing. Filters choose the key, scale, octave, level and more.
+  exercises (complete a scale or a chord, transpose a scale), sight-singing
+  and singing back a note, an interval or a melody, which the browser checks
+  through the microphone. Filters choose the key, scale, octave, level and more.
 - 🎸 **Piano, guitar or violin**: every exercise with audio plays on the
   instrument the student picks, in the notes it has (the guitar from its
   low E string, the violin from its G string). The guitar strums chords on
@@ -127,7 +128,6 @@ Third-party files in this repository keep their own licenses:
 | Inter and Figtree fonts | `AcademiaAuditiva/wwwroot/fonts/` | SIL Open Font License 1.1 |
 | Bootstrap, jQuery, jQuery Validation, jQuery Validation Unobtrusive | `AcademiaAuditiva/wwwroot/lib/` | MIT, see each folder |
 | VexFlow | `AcademiaAuditiva/wwwroot/js/vexflow.js` | MIT |
-| Essentia.js (pitch detection in the sight-singing exercise) | `AcademiaAuditiva/wwwroot/js/dist/` | AGPL-3.0 |
 
 Libraries loaded from CDNs, in `AcademiaAuditiva/Views/Shared/_Layout.cshtml` and
 `AcademiaAuditiva/Views/Dashboard/Index.cshtml`, are not part of the repository.
