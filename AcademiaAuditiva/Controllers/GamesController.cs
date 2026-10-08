@@ -73,7 +73,7 @@ public class GamesController : Controller
     public sealed record StartRequest(string? Mode, int ExerciseId, Dictionary<string, string>? Filters);
 
     /// <summary>Starts a run with the settings of the page's first Play.</summary>
-    [HttpPost]
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Start([FromBody] StartRequest request)
     {
         var mode = GameModes.Parse(request?.Mode);
@@ -94,7 +94,7 @@ public class GamesController : Controller
     public sealed record FinishRequest(int RunId);
 
     /// <summary>Ends a run: the sprint's time is up, or the player stopped.</summary>
-    [HttpPost]
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Finish([FromBody] FinishRequest request)
     {
         var run = request is null ? null : await _games.FindAsync(UserId, request.RunId, Aborted);
@@ -107,7 +107,7 @@ public class GamesController : Controller
     }
 
     /// <summary>Starts a placement test (ending an unfinished one) on its first exercise.</summary>
-    [HttpPost]
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> StartPlacement()
     {
         if (!await _games.PlacementAvailableAsync(Aborted))
@@ -133,7 +133,7 @@ public class GamesController : Controller
     }
 
     /// <summary>Skips the learning path to the unit the test suggested.</summary>
-    [HttpPost]
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> ApplyPlacement(int id)
     {
         var run = await _games.FindAsync(UserId, id, Aborted);
