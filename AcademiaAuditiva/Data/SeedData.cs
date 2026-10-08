@@ -903,13 +903,15 @@ public static class SeedData
                             new("major", "Exercise.Major"),
                             new("minor", "Exercise.Minor")
                         }
-                    }
+                    },
+                    IntervalModeFilter()
                 }),
                 Instructions = "Ouça as duas notas e identifique a distância entre elas (intervalo).",
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Associe intervalos a músicas conhecidas (ex: terça maior = 'Parabéns pra você').",
                     "Ouça repetidamente e cante as notas.",
-                    "Perceba se o som é próximo (segunda) ou espaçado (quinta, oitava...)."
+                    "Perceba se o som é próximo (segunda) ou espaçado (quinta, oitava...).",
+                    "Num intervalo harmônico, cante a nota de baixo e depois a de cima: ele vira um intervalo melódico."
                 }),
                 AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
                 {
@@ -1170,6 +1172,7 @@ public static class SeedData
                             new("B", "B")
                         }
                     },
+                    IntervalModeFilter(),
                     new FilterOptionGroup
                     {
                         Label = "Exercise.Direction",
@@ -1186,7 +1189,8 @@ public static class SeedData
                 TipsJson = JsonConvert.SerializeObject(new[] {
                     "Treine com intervalos simples antes de ir para os compostos.",
                     "Associe sons familiares a cada tipo de intervalo.",
-                    "Intervalos justos (como quarta e quinta) têm sonoridade estável."
+                    "Intervalos justos (como quarta e quinta) têm sonoridade estável.",
+                    "Tocadas juntas, segundas e sétimas soam ásperas, terças e sextas soam doces, e quartas, quintas e oitavas soam ocas."
                 }),
                 AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
                 {
@@ -1364,6 +1368,23 @@ public static class SeedData
 
         context.SaveChanges();
     }
+
+    /// <summary>
+    /// How GuessInterval and GuessFullInterval play their two notes: one after the other (the
+    /// page's default, and what plays without the filter), together, or either, drawn for each
+    /// round (MusicTheoryService.PlaysTogether).
+    /// </summary>
+    private static FilterOptionGroup IntervalModeFilter() => new()
+    {
+        Label = "Exercise.IntervalMode",
+        Name = "intervalMode",
+        Options = new List<FilterOption>
+        {
+            new("melodic", "Exercise.IntervalMode.Melodic"),
+            new("harmonic", "Exercise.IntervalMode.Harmonic"),
+            new("both", "Exercise.IntervalMode.Both")
+        }
+    };
 
     /// <summary>
     /// One row per <see cref="AcademiaAuditiva.Services.Gamification.BadgeCatalog"/> entry. The

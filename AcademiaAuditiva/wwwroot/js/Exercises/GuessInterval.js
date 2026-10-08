@@ -30,10 +30,11 @@ document.addEventListener("DOMContentLoaded", () => {
     playBtn.addEventListener("click", () => {
       const tonic = document.getElementById("keySelect")?.value || "C";
       const scaleType = document.getElementById("scaleTypeSelect")?.value || "major";
+      const mode = document.getElementById("intervalMode")?.value || "melodic";
 
       AAPractice.play({
         exerciseId: exerciseId,
-        filters: { keySelect: tonic, scaleTypeSelect: scaleType },
+        filters: { keySelect: tonic, scaleTypeSelect: scaleType, intervalMode: mode },
       })
         .then((data) => {
           if (AAi18n.serverError(data, loc)) return;

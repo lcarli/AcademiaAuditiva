@@ -36,7 +36,7 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 - **Filtros aplicáveis**:
   - Oitava da nota base
   - Intervalos permitidos (ex: só 2ª e 3ª)
-  - Modo de reprodução (melódico/harmônico)
+  - Execução: melódico (uma nota depois da outra, o padrão da página), harmônico (as duas notas juntas) ou ambos, sorteado a cada questão. Sem o filtro, o intervalo é melódico. Juntas, as notas soam por uma semibreve, nas oitavas escritas: no violão, tocadas da mais grave para a mais aguda; no violino, em corda dupla
 
 ---
 
@@ -44,7 +44,8 @@ Este documento detalha os filtros possíveis para cada exercício do módulo de 
 - **Filtros aplicáveis**:
   - Tipos de intervalo (menor, maior, justa, etc.)
   - Oitava base
-  - Direção (ascendente/descendente)
+  - Execução: melódico, harmônico ou ambos, como no intervalo simples
+  - Direção (ascendente/descendente/ambas). Não vale para o intervalo harmônico, em que a nota do tom é sempre a de baixo; a página a desativa quando a execução é harmônica
 
 ---
 

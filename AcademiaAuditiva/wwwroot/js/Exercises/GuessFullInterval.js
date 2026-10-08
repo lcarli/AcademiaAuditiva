@@ -10,7 +10,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const exerciseId = document.getElementById("exerciseId")?.value;
   const keySelect = document.getElementById("keySelect");
+  const modeSelect = document.getElementById("intervalMode");
   const directionSelect = document.getElementById("intervalDirection");
+
+  // Two notes played together have no direction, so it is off while the mode is harmonic.
+  // A direction the teacher's routine set stays locked.
+  const directionLocked = directionSelect?.disabled ?? true;
+  const harmonicOnly = () => modeSelect?.value === "harmonic";
+  const syncDirection = () => {
+    if (!directionLocked) directionSelect.disabled = harmonicOnly();
+  };
+  modeSelect?.addEventListener("change", syncDirection);
+  syncDirection();
 
   const guessButtons = document.querySelectorAll(".guessAnswer");
   guessButtons.forEach((button) => {
@@ -31,11 +42,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (playBtn) {
     playBtn.addEventListener("click", () => {
       const key = keySelect?.value || "C";
-      const direction = directionSelect?.value || "asc";
+      const mode = modeSelect?.value || "melodic";
+      const filters = { keySelect: key, intervalMode: mode };
+      if (!harmonicOnly()) filters.intervalDirection = directionSelect?.value || "asc";
 
       AAPractice.play({
         exerciseId: exerciseId,
-        filters: { keySelect: key, intervalDirection: direction },
+        filters: filters,
       })
         .then((data) => {
           if (AAi18n.serverError(data, loc)) return;

@@ -17,7 +17,8 @@ namespace AcademiaAuditiva.Services.Audio;
 ///     GuessProgression / GuessQuality / GuessInterval / GuessFullInterval /
 ///     IntervalMelodico (GuessFunction, GuessDegree and GuessProgression play
 ///     a cadence in their key before their chord, note or progression, in
-///     the same plan)
+///     the same plan; GuessInterval and GuessFullInterval play their two
+///     notes one after the other, or together when the round is harmonic)
 ///   - 1 plan for the exercises written on the staff (CompleteChord,
 ///     CompleteScale, TransposeScale, MelodicDictation, RhythmDictation),
 ///     and for GuessRhythmPattern and RhythmTap, which play a rhythm as
@@ -36,10 +37,11 @@ namespace AcademiaAuditiva.Services.Audio;
 /// <c>instrument</c> filter): the piano plays a chord's notes together, the
 /// guitar strums it on a chord shape of its neck (<see cref="GuitarVoicing"/>)
 /// where the student picked (the <c>guitarPosition</c> filter), or exactly as
-/// written when the student writes it on the staff (CompleteChord) or names
-/// its top note (GuessTopNote), and the
+/// written when the student writes it on the staff (CompleteChord), names
+/// its top note (GuessTopNote) or names a harmonic interval, and the
 /// exercises about chords are played on the piano instead of the violin,
-/// which plays one note at a time. So is the cadence that sets the key of a
+/// which plays one note at a time, or two together in a harmonic interval,
+/// as a double stop. So is the cadence that sets the key of a
 /// note played on the violin (GuessDegree), and the accompaniment GuessMeter
 /// plays for it.
 /// </summary>
@@ -193,12 +195,19 @@ public sealed class ExercisePlaybackPlanner
             case "HigherOrLower":
             case "GuessInterval":
             case "GuessFullInterval":
-                plans.Add(NotesInSequence(instrument, new[]
-                {
+            {
+                string[] interval =
+                [
                     token.Value<string>("note1") ?? throw Bad("note1"),
                     token.Value<string>("note2") ?? throw Bad("note2"),
-                }));
+                ];
+                // A harmonic interval sounds both notes at once, in the octaves written: a shape
+                // of the guitar's neck would move them. HigherOrLower is always melodic.
+                plans.Add(token.Value<bool?>("harmonic") == true
+                    ? WrittenChord(instrument, interval)
+                    : NotesInSequence(instrument, interval));
                 break;
+            }
 
             case "GuessScaleType":
             case "GuessGreekMode":
@@ -323,7 +332,8 @@ public sealed class ExercisePlaybackPlanner
     /// A chord as it is written on the staff, from <paramref name="startTime"/> for
     /// <paramref name="seconds"/>, a whole note unless told: the piano plays its notes together
     /// and the guitar strums exactly those notes, from the lowest up, so the student hears what
-    /// they write (<see cref="Chord"/> plays a shape of the neck instead).
+    /// they write (<see cref="Chord"/> plays a shape of the neck instead). The violin plays them
+    /// together too, which only a harmonic interval asks of it: a double stop.
     /// </summary>
     private static IReadOnlyList<MixInput> WrittenChord(
         Instrument instrument,

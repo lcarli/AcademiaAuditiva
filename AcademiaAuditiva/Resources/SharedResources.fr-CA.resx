@@ -4246,4 +4246,22 @@
   <data name="Exercise.TopNote.Fifth" xml:space="preserve">
     <value>Quinte</value>
   </data>
+  <data name="Exercise.IntervalMode" xml:space="preserve">
+    <value>Exécution</value>
+  </data>
+  <data name="Exercise.IntervalMode.Melodic" xml:space="preserve">
+    <value>Mélodique (une note après l’autre)</value>
+  </data>
+  <data name="Exercise.IntervalMode.Harmonic" xml:space="preserve">
+    <value>Harmonique (les deux notes ensemble)</value>
+  </data>
+  <data name="Exercise.IntervalMode.Both" xml:space="preserve">
+    <value>Les deux, au hasard</value>
+  </data>
+  <data name="Exercise.GuessInterval.Tip4" xml:space="preserve">
+    <value>Dans un intervalle harmonique, chantez la note du bas, puis celle du haut : il devient un intervalle mélodique.</value>
+  </data>
+  <data name="Exercise.GuessFullInterval.Tip4" xml:space="preserve">
+    <value>Jouées ensemble, les secondes et les septièmes sonnent âpres, les tierces et les sixtes, douces, et les quartes, les quintes et les octaves, creuses.</value>
+  </data>
 </root>

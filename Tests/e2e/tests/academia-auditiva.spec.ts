@@ -414,6 +414,68 @@ test('guess the top note plays the chord as written, on the guitar too, and chec
   expect(await answer(wrong)).toMatchObject({ success: true, free: true, isCorrect: false, answer: second });
 });
 
+test('the full interval plays its notes together when asked, with no direction, and checks the interval', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessFullInterval?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  await expect(page.locator('body')).toContainText('Played together, seconds and sevenths sound harsh');
+
+  const filters = page.locator('#filtersModal');
+  const mode = filters.locator('select[name="intervalMode"]');
+  const direction = filters.locator('select[name="intervalDirection"]');
+  const pickMode = async (value: string) => {
+    await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+    await mode.selectOption(value);
+    // Two notes played together go neither up nor down.
+    if (value === 'harmonic') await expect(direction).toBeDisabled();
+    else await expect(direction).toBeEnabled();
+    await filters.locator('.btn-close').click();
+    await expect(filters).toBeHidden();
+  };
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await expect(mode.locator('option')).toHaveText(
+    ['Melodic (one note after the other)', 'Harmonic (both notes together)', 'Both, at random']);
+  await expect(mode).toHaveValue('melodic');
+  await expect(direction).toBeEnabled();
+  await filters.locator('.btn-close').click();
+  await expect(filters).toBeHidden();
+
+  const dialog = page.locator('.swal2-popup');
+  const playAndCheck = async () => {
+    const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+    const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+    await page.click('#Play');
+    const play = await playResponse;
+    const sent = JSON.parse(play.request().postData() ?? '{}').filters;
+    expect(Object.keys(await play.json()).sort()).toEqual(['playToken', 'roundId']);
+    const audio = await audioResponse;
+    expect(audio.headers()['content-type']).toContain('audio/');
+    expect((await audio.body()).length).toBeGreaterThan(1000);
+
+    const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+    await page.locator('[data-aa-reveal]').click();
+    const shown = await (await revealResponse).json();
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+
+    await page.locator(`.aa-answer:visible[value="${shown.answer}"]`).click();
+    const validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+    await page.click('#validateGuess');
+    const result = await (await validateResponse).json();
+    expect(result).toMatchObject({ success: true, free: true, isCorrect: true, answer: shown.answer });
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+    return sent;
+  };
+
+  await pickMode('harmonic');
+  expect(await playAndCheck()).toEqual({ keySelect: 'C', intervalMode: 'harmonic' });
+  await pickMode('both');
+  expect(await playAndCheck()).toEqual({ keySelect: 'C', intervalMode: 'both', intervalDirection: 'asc' });
+  await pickMode('melodic');
+  expect(await playAndCheck()).toEqual({ keySelect: 'C', intervalMode: 'melodic', intervalDirection: 'asc' });
+});
+
 test('guess the meter plays its beats as clicks or as bass and chords, and checks the meter', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessMeter?practice=free`, { waitUntil: 'networkidle' });
