@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using AcademiaAuditiva.Interfaces;
+using AcademiaAuditiva.Services.Audio.Processing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,10 +33,18 @@ public class ExploreWebApplicationFactory : SignedInWebApplicationFactory
     {
         public ConcurrentQueue<IReadOnlyList<MixInput>> Plans { get; } = new();
 
+        public ConcurrentQueue<AudioProcessingPlan> ProcessingPlans { get; } = new();
+
         public Task<MixedAudio> MixAsync(IReadOnlyList<MixInput> inputs, CancellationToken cancellationToken = default)
         {
             Plans.Enqueue(inputs);
             return Task.FromResult(new MixedAudio("piano-audio-mixed", "mix-test.wav"));
+        }
+
+        public Task<MixedAudio> RenderAsync(AudioProcessingPlan plan, CancellationToken cancellationToken = default)
+        {
+            ProcessingPlans.Enqueue(plan);
+            return Task.FromResult(new MixedAudio("piano-audio-mixed", "proc-test.wav"));
         }
     }
 }

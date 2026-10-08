@@ -3,11 +3,13 @@ using System.Globalization;
 using System.Text;
 using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Services.Audio;
+using AcademiaAuditiva.Services.Audio.Processing;
 using AcademiaAuditiva.Services.Audio.Sources;
 using Azure;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
@@ -318,6 +320,173 @@ public class AudioMixerServiceTests
         _downloads.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task ProcessedClip_IsTheSourceThroughItsProcessors_Untrimmed()
+    {
+        StorageAnswers(NotFound());
+        var uploaded = CaptureUploads();
+        var sources = new AudioSourceLibrary(TempAudioSources.BundledRoot);
+        var pink = await sources.ReadAsync(sources.Find("pink-noise")!);
+        AudioProcessor[] chain = [new GainProcessor(-6), new PanProcessor(0.5)];
+
+        var clip = await _mixer.RenderAsync(new("pink-noise", chain));
+
+        clip.Container.Should().Be(MixedContainer);
+        clip.BlobName.Should().MatchRegex($"^{AudioMixerService.ProcessedBlobPrefix}[0-9a-f]{{64}}\\.wav$");
+        _downloads.Should().BeEmpty("the audio sources ship with the app");
+        var wav = Wav.Parse(uploaded());
+        var expected = AudioProcessing.Process(pink, chain);
+        wav.SampleRate.Should().Be(SampleRate);
+        wav.Channels.Should().Be(2);
+        wav.Samples.Should().HaveCount(expected.Samples.Length, "a processed clip is neither trimmed nor padded");
+        // Every sample, the last ones too: unlike a note, a processed clip is not faded out.
+        wav.Samples.Zip(expected.Samples, (w, e) => Math.Abs(w - e)).Max().Should().BeLessThan(0.0001f);
+    }
+
+    [Fact]
+    public async Task ProcessedClip_IsTheSameEveryTime()
+    {
+        StorageAnswers(NotFound());
+        var uploaded = CaptureUploads();
+        AudioProcessingPlan plan = new("bass-line", [new GainProcessor(2.5), new PanProcessor(-0.3)]);
+
+        await _mixer.RenderAsync(plan);
+        var first = uploaded();
+        await Mixer(new AudioSourceLibrary(TempAudioSources.BundledRoot)).RenderAsync(plan);
+
+        uploaded().Should().Equal(first);
+    }
+
+    [Fact]
+    public async Task SameProcessingPlan_ReusesTheStoredClip()
+    {
+        StoredMixWrittenAt(Start);
+
+        var first = await _mixer.RenderAsync(new("pink-noise", [new GainProcessor(-6)]));
+        var second = await _mixer.RenderAsync(new("pink-noise", [new GainProcessor(-6)]));
+
+        second.Should().Be(first);
+        _mixedBlob.Verify(b => b.GetPropertiesAsync(It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mixedBlob.Verify(b => b.UploadAsync(
+            It.IsAny<Stream>(), It.IsAny<BlobHttpHeaders>(), It.IsAny<IDictionary<string, string>>(),
+            It.IsAny<BlobRequestConditions>(), It.IsAny<IProgress<long>>(), It.IsAny<AccessTier?>(),
+            It.IsAny<StorageTransferOptions>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ChangedProcessingPlan_IsStoredUnderANewName()
+    {
+        StoredMixWrittenAt(Start);
+        AudioProcessingPlan plan = new("pink-noise", [new GainProcessor(-6), new PanProcessor(0.5)]);
+        var original = (await _mixer.RenderAsync(plan)).BlobName;
+
+        AudioProcessingPlan[] changed =
+        [
+            plan with { Processors = [new GainProcessor(-6.5), new PanProcessor(0.5)] },
+            plan with { Processors = [new GainProcessor(-6), new PanProcessor(-0.5)] },
+            plan with { Processors = [new PanProcessor(0.5), new GainProcessor(-6)] },
+            plan with { Processors = [new GainProcessor(-6)] },
+            new("bass-line", plan.Processors),
+        ];
+
+        var names = new List<string> { original };
+        foreach (var other in changed)
+        {
+            names.Add((await _mixer.RenderAsync(other)).BlobName);
+        }
+        names.Should().OnlyHaveUniqueItems();
+    }
+
+    [Theory]
+    [InlineData("pt-BR")]
+    [InlineData("fr-CA")]
+    public async Task ProcessedClipName_DependsOnlyOnThePlan_NotOnTheLanguage(string culture)
+    {
+        StoredMixWrittenAt(Start);
+        AudioProcessingPlan plan = new("pink-noise", [new GainProcessor(-1.5), new PanProcessor(0.25)]);
+        var invariant = (await Mixer(new AudioSourceLibrary(TempAudioSources.BundledRoot)).RenderAsync(plan)).BlobName;
+
+        var previous = CultureInfo.CurrentCulture;
+        CultureInfo.CurrentCulture = new CultureInfo(culture);
+        try
+        {
+            (await _mixer.RenderAsync(plan)).BlobName.Should().Be(invariant);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previous;
+        }
+    }
+
+    [Fact]
+    public async Task ReplacedAudioSource_IsProcessedUnderANewName()
+    {
+        StoredMixWrittenAt(Start);
+        AudioProcessingPlan plan = new("pink-noise", [new GainProcessor(-3)]);
+        using var folder = new TempAudioSources();
+        var library = new AudioSourceLibrary(folder.Root);
+        var original = (await Mixer(library).RenderAsync(plan)).BlobName;
+        var pink = await library.ReadAsync(library.Find("pink-noise")!);
+
+        folder.Replace("pink-noise", pink with { Samples = [.. pink.Samples.Select(s => s / 2)] });
+
+        (await Mixer(new AudioSourceLibrary(folder.Root)).RenderAsync(plan)).BlobName.Should().NotBe(original);
+    }
+
+    [Fact]
+    public async Task ProcessingAndMixing_KeepTheirNamesApart()
+    {
+        StoredMixWrittenAt(Start);
+
+        var processed = await _mixer.RenderAsync(new("pink-noise", []));
+        var mixed = await _mixer.MixAsync([new(AudioSourceLibrary.SampleName("pink-noise"), 0)]);
+
+        processed.BlobName.Should().StartWith(AudioMixerService.ProcessedBlobPrefix);
+        mixed.BlobName.Should().StartWith("mix-");
+        (await _mixer.MixAsync(Fifth)).BlobName.Should().Be(FifthMix, "rendering leaves the names of mixes alone");
+    }
+
+    public static TheoryData<string, AudioProcessingPlan> InvalidProcessingPlans => new()
+    {
+        { "an unknown source", new("unknown", [new GainProcessor(-6)]) },
+        { "a path for a source", new("../sources", []) },
+        { "no source", new(null!, []) },
+        { "a gain that is not a number", new("pink-noise", [new GainProcessor(double.NaN)]) },
+        { "an infinite gain", new("pink-noise", [new GainProcessor(double.PositiveInfinity)]) },
+        { "an out-of-range pan", new("pink-noise", [new PanProcessor(-2)]) },
+        { "a gain that would clip", new("pink-noise", [new GainProcessor(12)]) },
+        { "a stereo source panned", new("full-mix", [new PanProcessor(0.5)]) },
+    };
+
+    [Theory]
+    [MemberData(nameof(InvalidProcessingPlans))]
+    public async Task InvalidProcessingPlans_AreRefused_BeforeAnythingIsReadOrStored(string why, AudioProcessingPlan plan)
+    {
+        StorageAnswers(NotFound());
+
+        await FluentActions.Awaiting(() => _mixer.RenderAsync(plan)).Should().ThrowAsync<ArgumentException>(why);
+
+        _mixedBlob.Verify(b => b.GetPropertiesAsync(It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mixedContainer.Verify(c => c.GetBlobClient(It.IsAny<string>()), Times.Never);
+        _downloads.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task FailedProcessing_IsLogged_WithoutItsParameters()
+    {
+        var logger = new RecordingLogger();
+        var mixer = new AudioMixerService(_blobService, new BundledSamples(BundledSamplesTests.Root),
+            new AudioSourceLibrary(TempAudioSources.BundledRoot), _clock, logger);
+
+        await FluentActions.Awaiting(() => mixer.RenderAsync(new("pink-noise", [new PanProcessor(0.375), new GainProcessor(9.75)])))
+            .Should().ThrowAsync<ArgumentOutOfRangeException>();
+
+        var entry = logger.Entries.Should().ContainSingle(e => e.Level == LogLevel.Error).Which;
+        entry.Message.Should().Contain("pink-noise").And.Contain("pan,gain");
+        var logged = entry.Message + entry.Exception?.Message;
+        logged.Should().NotContain("9.75").And.NotContain("9,75").And.NotContain("0.375").And.NotContain("0,375");
+    }
+
     private static RequestFailedException NotFound() =>
         new(404, "The specified blob does not exist.", "BlobNotFound", null);
 
@@ -394,6 +563,18 @@ public class AudioMixerServiceTests
     }
 
     private sealed class MixingStarted : Exception;
+
+    private sealed class RecordingLogger : ILogger<AudioMixerService>
+    {
+        public List<(LogLevel Level, string Message, Exception? Exception)> Entries { get; } = [];
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
+            Entries.Add((logLevel, formatter(state, exception), exception));
+    }
 
     /// <summary>The 16-bit PCM WAV the mixer writes, with its samples back in [-1, 1].</summary>
     private sealed record Wav(int SampleRate, int Channels, float[] Samples)
