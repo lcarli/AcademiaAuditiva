@@ -65,9 +65,9 @@ public class LearningPathAnswersTests : IClassFixture<SignedInWebApplicationFact
             title: "Unit complete!",
             icon: "bi-flag",
             text: "You completed step 6: Guess Meter.",
-            nextText: "Next step: Melodic Intervals",
+            nextText: "Next step: Which Note Changed?",
             actionText: "Go to the next step",
-            actionUrl: "/Exercise/IntervalMelodico?keySelect=C&scaleTypeSelect=major");
+            actionUrl: "/Exercise/GuessChangedNote?melodyLength=4");
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class LearningPathAnswersTests : IClassFixture<SignedInWebApplicationFact
         ShouldCelebrate(path,
             title: "Path complete!",
             icon: "bi-trophy",
-            text: "You completed step 24: Guess Note.",
+            text: "You completed step 25: Guess Note.",
             nextText: null,
             actionText: "View the path",
             actionUrl: "/LearningPath");

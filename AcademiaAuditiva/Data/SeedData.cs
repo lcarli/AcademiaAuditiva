@@ -1265,6 +1265,55 @@ public static class SeedData
                 })
             },
             new Exercise {
+                Name = "GuessChangedNote",
+                Description = "Ouça duas melodias e diga qual nota mudou e se ela subiu ou desceu.",
+                ExerciseTypeId = 5,
+                ExerciseCategoryId = 2,
+                DifficultyLevelId = 2,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.MelodyLength",
+                        Name = "melodyLength",
+                        Options = new List<FilterOption>
+                        {
+                            new("4", "4"),
+                            new("5", "5"),
+                            new("6", "6"),
+                            new("7", "7"),
+                            new("8", "8")
+                        }
+                    }
+                }),
+                Instructions = "Ouça uma melodia e depois a mesma melodia com uma nota trocada. Diga qual nota mudou, contando a partir da primeira, e se ela subiu ou desceu.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Conte as notas enquanto ouve: só uma delas muda.",
+                    "Ouça cada melodia sozinha com os botões Melodia 1 e Melodia 2.",
+                    "A nota que mudou andou um grau da escala ou pulou uma terça; as outras continuam iguais.",
+                    "As melodias terminam na tônica: se a última nota mudou, a segunda melodia não soa conclusiva."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay",
+                    "Melody1",
+                    "Melody2"
+                }),
+                // The note's place in the melody, from 1 (GuessChangedNote.js hides those past
+                // the round's length), and where it went.
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "guessPosition", Enumerable.Range(1, 8).ToDictionary(n => n.ToString(), n => n.ToString()) },
+                    { "guessDirection", new Dictionary<string, string>
+                        {
+                            { "Subiu", "up" },
+                            { "Desceu", "down" }
+                        }
+                    }
+                })
+            },
+            new Exercise {
                 Name = "IntervalMelodico",
                 Description = "Identifique graus e intervalos de uma melodia",
                 ExerciseTypeId = 3, // IntervalRecognition

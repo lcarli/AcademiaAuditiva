@@ -177,6 +177,7 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
     [InlineData("GuessFullInterval", false)]
     [InlineData("IntervalMelodico", false)]
     [InlineData("GuessMissingNote", false)]
+    [InlineData("GuessChangedNote", false)]
     [InlineData("GuessScaleType", false)]
     [InlineData("GuessGreekMode", false)]
     [InlineData("CompleteScale", false)]

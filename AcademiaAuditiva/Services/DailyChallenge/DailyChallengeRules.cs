@@ -48,9 +48,9 @@ public static class DailyChallengeRules
     /// <summary>
     /// The date's exercises: the pool is shuffled with the date as the seed, and the first categories
     /// to come up give one exercise each, the one whose turn it is on that date. A category's
-    /// exercises take turns day after day, so none comes up much less often than the others of its
-    /// category, nor two days in a row. With fewer categories than exercises per day, the rest of
-    /// the shuffle fills the remaining places.
+    /// exercises take turns, in an order that changes from round to round, so none comes up much
+    /// less often than the others of its category, nor two days in a row. With fewer categories
+    /// than exercises per day, the rest of the shuffle fills the remaining places.
     /// </summary>
     public static IReadOnlyList<ChallengeExercise> Pick(DateOnly date, IEnumerable<ChallengeExercise> exercises) =>
         Draw(date, Pool(exercises));
@@ -125,24 +125,13 @@ public static class DailyChallengeRules
 
     private static List<ChallengeExercise> Draw(DateOnly date, ChallengeExercise[] pool)
     {
-        var shuffled = (ChallengeExercise[])pool.Clone();
-        var state = (ulong)date.DayNumber;
-        for (var i = shuffled.Length - 1; i > 0; i--)
-        {
-            var j = (int)(NextRandom(ref state) % (ulong)(i + 1));
-            (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
-        }
+        var shuffled = Shuffle(pool, (ulong)date.DayNumber);
 
-        // A category's exercises take turns in the pool's order, by name.
         var picked = shuffled
             .Select(e => e.Category)
             .Distinct(StringComparer.Ordinal)
             .Take(ExercisesPerDay)
-            .Select(category =>
-            {
-                var exercises = Array.FindAll(pool, e => string.Equals(e.Category, category, StringComparison.Ordinal));
-                return exercises[date.DayNumber % exercises.Length];
-            })
+            .Select(category => Turn(category, Array.FindAll(pool, e => string.Equals(e.Category, category, StringComparison.Ordinal)), date.DayNumber))
             .ToList();
         foreach (var exercise in shuffled)
         {
@@ -150,6 +139,53 @@ public static class DailyChallengeRules
             if (!picked.Contains(exercise)) picked.Add(exercise);
         }
         return picked;
+    }
+
+    /// <summary>
+    /// The exercise of <paramref name="category"/> whose turn it is on <paramref name="day"/>. Its
+    /// exercises take turns in rounds of as many days as it has exercises, each once a round, in an
+    /// order shuffled anew every round with a seed of the category's own: categories of the same
+    /// size would otherwise move in step, an exercise of one always drawn with the same exercise of
+    /// the other. A round never starts with the exercise that ended the one before.
+    /// </summary>
+    private static ChallengeExercise Turn(string category, ChallengeExercise[] exercises, int day)
+    {
+        // Two exercises can only alternate.
+        if (exercises.Length <= 2) return exercises[day % exercises.Length];
+
+        var round = day / exercises.Length;
+        var order = RoundOrder(category, exercises, round);
+        // Swapping the first two leaves the last in place, so the round before ends as shuffled.
+        if (order[0] == RoundOrder(category, exercises, round - 1)[^1])
+            (order[0], order[1]) = (order[1], order[0]);
+        return order[day % exercises.Length];
+    }
+
+    private static ChallengeExercise[] RoundOrder(string category, ChallengeExercise[] exercises, int round) =>
+        Shuffle(exercises, StableHash(category) ^ unchecked((ulong)round));
+
+    /// <summary>A Fisher-Yates shuffle of a copy of <paramref name="items"/>, from <paramref name="seed"/>.</summary>
+    private static T[] Shuffle<T>(T[] items, ulong seed)
+    {
+        var shuffled = (T[])items.Clone();
+        var state = seed;
+        for (var i = shuffled.Length - 1; i > 0; i--)
+        {
+            var j = (int)(NextRandom(ref state) % (ulong)(i + 1));
+            (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+        }
+        return shuffled;
+    }
+
+    /// <summary>FNV-1a: unlike string.GetHashCode, the same in every process.</summary>
+    private static ulong StableHash(string text)
+    {
+        var hash = 0xCBF29CE484222325UL;
+        foreach (var b in System.Text.Encoding.UTF8.GetBytes(text))
+        {
+            hash = unchecked((hash ^ b) * 0x100000001B3UL);
+        }
+        return hash;
     }
 
     /// <summary>SplitMix64: unlike System.Random, the same sequence on every platform and .NET version.</summary>

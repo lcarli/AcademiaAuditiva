@@ -238,7 +238,7 @@ namespace AcademiaAuditiva.Controllers
 		};
 
 		// Uniform response: most exercises ship one play token; only
-		// GuessMissingNote ships two (melody1Token, melody2Token).
+		// GuessMissingNote and GuessChangedNote ship two (melody1Token, melody2Token).
 		// Staff-based exercises also need a `metadata` payload so the
 		// front-end can pre-render the prompt notes / staff context
 		// without leaking the full answer. A routine question also says
@@ -255,9 +255,14 @@ namespace AcademiaAuditiva.Controllers
 
 		private static Dictionary<string, object?> PlayTokens(Exercise exercise, AudioRound round)
 		{
-			if (exercise.Name == "GuessMissingNote")
+			if (exercise.Name is "GuessMissingNote" or "GuessChangedNote")
 			{
-				return new() { ["roundId"] = round.RoundId, ["melody1Token"] = round.Tokens[0], ["melody2Token"] = round.Tokens[1] };
+				var melodies = new Dictionary<string, object?> { ["roundId"] = round.RoundId, ["melody1Token"] = round.Tokens[0], ["melody2Token"] = round.Tokens[1] };
+				// GuessChangedNote offers a button for each note of the melody (a routine may set
+				// its length), which the student hears anyway.
+				if (exercise.Name == "GuessChangedNote")
+					melodies["notes"] = (JObject.Parse(round.ExpectedAnswerJson)["melody1"] as JArray)?.Count;
+				return melodies;
 			}
 
 			if (StaffExercises.Contains(exercise.Name))
@@ -1124,6 +1129,17 @@ namespace AcademiaAuditiva.Controllers
 			return View(model);
 		}
 
+		#endregion
+
+		#region GuessChangedNote
+		public IActionResult GuessChangedNote()
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessChangedNote");
+			if (exercise == null)
+				return NotFound();
+
+			return View(exercise.ToViewModel(_localizer));
+		}
 		#endregion
 
 		#region SolfegeMelody

@@ -26,7 +26,7 @@ public class LearningPathPagesTests : IClassFixture<SignedInWebApplicationFactor
         var html = await GetPageAsync("/LearningPath");
 
         html.Should().Contain("<h1 class=\"display-6 mt-2 mb-1 text-body-emphasis\">Learning path</h1>")
-            .And.Contain("1 of 24 steps")
+            .And.Contain("1 of 25 steps")
             .And.Contain("First steps").And.Contain("Building blocks").And.Contain("Musicianship")
             .And.Contain("1 of 6 steps", "the first unit's count")
             .And.Contain("Goal: 7 right answers out of your last 10.")
@@ -34,7 +34,7 @@ public class LearningPathPagesTests : IClassFixture<SignedInWebApplicationFactor
             .And.Contain("Complete the previous step to unlock it.");
         Regex.Count(html, "class=\"aa-path-step is-completed\"").Should().Be(1);
         Regex.Count(html, "class=\"aa-path-step is-current\" aria-current=\"step\"").Should().Be(1);
-        Regex.Count(html, "class=\"aa-path-step is-locked\"").Should().Be(22);
+        Regex.Count(html, "class=\"aa-path-step is-locked\"").Should().Be(23);
 
         // Unlocked steps link to their exercise with the preset; locked ones do not link.
         html.Should().Contain("<a href=\"/Exercise/HigherOrLower\">Higher or Lower</a>")
@@ -55,12 +55,12 @@ public class LearningPathPagesTests : IClassFixture<SignedInWebApplicationFactor
         card.Success.Should().BeTrue("the dashboard shows the learning path card");
         card.Value.Should().Contain("Learning path")
             .And.Contain("Guess Interval")
-            .And.Contain("Step 2 of 24")
+            .And.Contain("Step 2 of 25")
             .And.Contain("Unit 1: First steps")
             .And.Contain("1 of 7 right answers")
             .And.Contain("href=\"/Exercise/GuessInterval?keySelect=C4&scaleTypeSelect=major\"")
             .And.Contain("href=\"/LearningPath\"")
-            .And.Contain("1 of 24 steps");
+            .And.Contain("1 of 25 steps");
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class LearningPathPagesTests : IClassFixture<SignedInWebApplicationFactor
         var html = await GetPageAsync("/LearningPath?culture=fr-CA");
 
         html.Should().Contain("Parcours d’apprentissage")
-            .And.Contain("1 sur 24 étapes")
+            .And.Contain("1 sur 25 étapes")
             .And.Contain("Premiers pas");
         html.Should().NotMatchRegex(@"LearningPath\.\w");
     }

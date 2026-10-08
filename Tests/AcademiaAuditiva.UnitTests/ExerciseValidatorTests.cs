@@ -170,6 +170,26 @@ public class ExerciseValidatorTests
         v.Validate("topThird", json).CanonicalAnswer.Should().Be("topThird");
     }
 
+    [Theory]
+    [InlineData("3|up", true)]
+    [InlineData("3|UP", true)]
+    [InlineData("3|down", false)] // the right note, the wrong way
+    [InlineData("2|up", false)]   // the wrong note
+    [InlineData("3", false)]      // both parts are needed
+    [InlineData("up", false)]
+    [InlineData("", false)]
+    public void GuessChangedNoteValidator_NeedsTheNoteAndWhereItWent(string guess, bool correct)
+    {
+        var v = new GuessChangedNoteValidator();
+        v.ExerciseName.Should().Be("GuessChangedNote");
+
+        var json = "{\"melody1\":[],\"melody2\":[],\"answer\":\"3|up\"}";
+        var result = v.Validate(guess, json);
+
+        result.IsCorrect.Should().Be(correct);
+        result.CanonicalAnswer.Should().Be("3|up");
+    }
+
     [Fact]
     public void IntervalMelodico_RequiresAll4Parts_AndComparesEach()
     {

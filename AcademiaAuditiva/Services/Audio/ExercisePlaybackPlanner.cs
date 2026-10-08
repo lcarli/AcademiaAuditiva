@@ -25,7 +25,7 @@ namespace AcademiaAuditiva.Services.Audio;
 ///     RhythmDictation does. The dictations play at the tempo the student
 ///     picked, and count the student in on the piano first, in the same plan
 ///     (<see cref="Dictation"/>); RhythmTap counts them in again after it
-///   - 2 plans for GuessMissingNote (one per melody)
+///   - 2 plans for GuessMissingNote and GuessChangedNote (one per melody)
 ///   - 1 plan for GuessMeter: its twelve beats, clicked on the piano or
 ///     played by an accompaniment (<see cref="Meter"/>)
 ///   - 0 plans for SolfegeMelody: the melody is shown as sheet music for
@@ -228,6 +228,7 @@ public sealed class ExercisePlaybackPlanner
                 break;
 
             case "GuessMissingNote":
+            case "GuessChangedNote":
                 plans.Add(MelodyPlan(instrument, token["melody1"] as JArray ?? throw Bad("melody1")));
                 plans.Add(MelodyPlan(instrument, token["melody2"] as JArray ?? throw Bad("melody2")));
                 break;
@@ -517,7 +518,7 @@ public sealed class ExercisePlaybackPlanner
         return plan;
     }
 
-    // How long a melody entry lasts, in beats: durationBeats (the staff exercises), or duration (legacy GuessMissingNote).
+    // How long a melody entry lasts, in beats: durationBeats (the staff exercises), or duration (the comparison melodies of GuessMissingNote and GuessChangedNote).
     private static double BeatsOf(JToken entry) =>
         entry.Value<double?>("durationBeats") ?? entry.Value<double?>("duration") ?? 1.0;
 
@@ -576,7 +577,7 @@ public sealed class ExercisePlaybackPlanner
 /// <param name="PlaybackPlans">
 /// Mixer plans, in playback order. Empty list means the question is shown
 /// as sheet music instead (SolfegeMelody). Most exercises produce one plan;
-/// GuessMissingNote produces two (melody1, melody2).
+/// GuessMissingNote and GuessChangedNote produce two (melody1, melody2).
 /// </param>
 public sealed record ExercisePlan(
     string ExpectedAnswerJson,

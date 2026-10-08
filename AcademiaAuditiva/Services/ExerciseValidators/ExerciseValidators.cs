@@ -91,6 +91,17 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
             => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "answer");
     }
 
+    /// <summary>
+    /// Which note of the melody changed, from 1, and where it went: "3|up" or "3|down". Both
+    /// parts must be right.
+    /// </summary>
+    public sealed class GuessChangedNoteValidator : IExerciseValidator
+    {
+        public string ExerciseName => "GuessChangedNote";
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+            => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "answer");
+    }
+
     public sealed class GuessFullIntervalValidator : IExerciseValidator
     {
         public string ExerciseName => "GuessFullInterval";

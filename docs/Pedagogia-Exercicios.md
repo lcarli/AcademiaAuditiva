@@ -29,7 +29,7 @@
 - **GuessFullInterval** - Adivinhe o intervalo completo (segunda menor, quinta justa...), melódico ou harmônico
 - **GuessDegree** - Qual o grau da nota na tonalidade?
 - **GuessMissingNote** - Diga se duas melodias são iguais ou diferentes
-- **GuessMelodyComparison** - Identifique qual nota mudou entre duas melodias
+- **GuessChangedNote** - Qual nota mudou entre duas melodias, e ela subiu ou desceu?
 - **IntervalDirection** *(novo)* - O intervalo sobe ou desce?
 
 ### Harmonia
