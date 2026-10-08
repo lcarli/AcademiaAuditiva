@@ -200,6 +200,31 @@ All sources used in one A/B pair must have the same sample rate and channel
 layout. The ingestion process should reject invalid files rather than
 silently converting or normalizing them differently.
 
+As built in slice 2:
+
+- `AcademiaAuditiva/Audio/Sources/sources.json` lists every source (key,
+  description, kind, tags, uses, difficulties, origin, license and the
+  measurements of its file) and `{key}.wav` sits next to it. The folder ships
+  with the app outside `wwwroot`, like `Audio/Instruments`, so no URL reaches
+  it; `LICENSE.txt` covers it.
+- Every file is 16- or 24-bit integer PCM WAV at 44.1 kHz, mono or stereo,
+  2 to 20 s long, peaking at or below -1 dBFS and between -36 and -14 LUFS
+  (`AudioSourceRules`). The app refuses to start on a catalog that breaks a
+  rule, and the `audio-sources` readiness check fails when a file is missing
+  or its SHA-256 differs from the catalog's.
+- The mixer reads a source through `AudioSourceLibrary` as the input
+  `source:{key}`; only listed keys resolve, never a path. The source's
+  SHA-256 is part of the mix hash, so a replaced recording never reuses old
+  mixes, while every other mix keeps its name.
+- `dotnet run --no-cache scripts/audio-sources.cs generate` synthesizes the
+  repository's own sources from a fixed seed (pink noise, a drum loop, a bass
+  line, synth chords and a stereo mix of the three, all MIT); `ingest <key>
+  <file.wav>` adds a recording obtained elsewhere once its entry, license and
+  source URL are in the catalog; `measure` rewrites the measurements. Every
+  source is set to -23 LUFS, or lower when its peak would pass -1.5 dBFS.
+- Loudness is the integrated loudness of ITU-R BS.1770-4 (`Loudness`), with
+  its K-weighting derived for any sample rate as libebur128 does.
+
 ### Processing plans
 
 Keep musical scheduling and technical audio processing separate. Extend the
@@ -413,6 +438,12 @@ Do not build all slices on one long-running branch.
 - production can read sources without exposing their storage address;
 - replacing a source cannot reuse output generated from its old bytes.
 
+**Status:** done. It resolves decision 2: the source masters are committed
+and ship inside the app image, so development, CI and production read the
+same files with no storage step; Git history is their backup. It settles the
+measurement half of decision 3 (BS.1770 integrated loudness); slice 7 still
+chooses the tolerance for matched clips.
+
 ### 3. Introduce the processing-plan pipeline
 
 **Work**
@@ -421,6 +452,9 @@ Do not build all slices on one long-running branch.
 - add validated gain and constant-power pan processors;
 - include processing plans in cache hashes;
 - preserve the current note-mixing and pitch-shifting behavior;
+- keep the audio endpoint's per-response random gain (`ClipVariation`,
+  between -2 dB and 0 dB) from changing the level difference between A and
+  B: give both clips of a round the same gain, or none;
 - record structured diagnostics without logging answer parameters at a level
   exposed to users.
 

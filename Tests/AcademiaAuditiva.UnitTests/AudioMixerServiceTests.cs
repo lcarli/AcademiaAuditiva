@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Services.Audio;
+using AcademiaAuditiva.Services.Audio.Sources;
 using Azure;
 using Azure.Storage;
 using Azure.Storage.Blobs;
@@ -31,6 +32,7 @@ public class AudioMixerServiceTests
     private readonly Mock<BlobContainerClient> _mixedContainer = new();
     private readonly Mock<BlobClient> _mixedBlob = new();
     private readonly List<string> _downloads = [];
+    private readonly BlobServiceClient _blobService;
     private readonly AudioMixerService _mixer;
 
     public AudioMixerServiceTests()
@@ -53,9 +55,12 @@ public class AudioMixerServiceTests
         var blobService = new Mock<BlobServiceClient>();
         blobService.Setup(s => s.GetBlobContainerClient(MixedContainer)).Returns(_mixedContainer.Object);
         blobService.Setup(s => s.GetBlobContainerClient("piano-audio")).Returns(sourceContainer.Object);
-        _mixer = new AudioMixerService(
-            blobService.Object, new BundledSamples(BundledSamplesTests.Root), _clock, NullLogger<AudioMixerService>.Instance);
+        _blobService = blobService.Object;
+        _mixer = Mixer(new AudioSourceLibrary(TempAudioSources.BundledRoot));
     }
+
+    private AudioMixerService Mixer(AudioSourceLibrary sources) =>
+        new(_blobService, new BundledSamples(BundledSamplesTests.Root), sources, _clock, NullLogger<AudioMixerService>.Instance);
 
     [Fact]
     public async Task FreshMix_IsReused_WithoutAskingStorageAgain()
@@ -252,6 +257,59 @@ public class AudioMixerServiceTests
     [InlineData("guitar/../../appsettings.json")]
     [InlineData("drums/C4.mp3")]
     public async Task OnlyInstrumentSamples_AreReadFromTheApp(string sampleName)
+    {
+        StorageAnswers(NotFound());
+
+        await FluentActions.Awaiting(() => _mixer.MixAsync([new(sampleName, 0, 1)])).Should().ThrowAsync<ArgumentException>();
+
+        _downloads.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("pink-noise", 1)]
+    [InlineData("full-mix", 2)]
+    public async Task AudioSource_IsReadFromTheApp_AsRecorded(string key, int channels)
+    {
+        StorageAnswers(NotFound());
+        var uploaded = CaptureUploads();
+        var sources = new AudioSourceLibrary(TempAudioSources.BundledRoot);
+        var source = await sources.ReadAsync(sources.Find(key)!);
+
+        await _mixer.MixAsync([new(AudioSourceLibrary.SampleName(key), 0)]);
+
+        _downloads.Should().BeEmpty("the audio sources ship with the app");
+        var mix = Wav.Parse(uploaded());
+        mix.SampleRate.Should().Be(SampleRate);
+        mix.Channels.Should().Be(channels);
+        mix.Samples.Should().HaveCount(source.Samples.Length);
+        // All but the last 25 ms, which the mixer fades out as it does every input.
+        var compared = source.Samples.Length - (int)(0.025 * SampleRate) * channels;
+        mix.Samples.Take(compared).Zip(source.Samples, (m, s) => Math.Abs(m - s)).Max().Should().BeLessThan(0.0002f);
+    }
+
+    [Fact]
+    public async Task ReplacedAudioSource_IsMixedUnderANewName()
+    {
+        StoredMixWrittenAt(Start);
+        MixInput[] plan = [new(AudioSourceLibrary.SampleName("pink-noise"), 0, 2)];
+        var original = (await _mixer.MixAsync(plan)).BlobName;
+
+        using var folder = new TempAudioSources();
+        var library = new AudioSourceLibrary(folder.Root);
+        var pink = await library.ReadAsync(library.Find("pink-noise")!);
+        (await Mixer(library).MixAsync(plan)).BlobName.Should().Be(original, "the recording is the same");
+
+        folder.Replace("pink-noise", pink with { Samples = [.. pink.Samples.Select(s => s / 2)] });
+
+        (await Mixer(new AudioSourceLibrary(folder.Root)).MixAsync(plan)).BlobName.Should().NotBe(original);
+    }
+
+    [Theory]
+    [InlineData("source:")]
+    [InlineData("source:unknown")]
+    [InlineData("source:../appsettings")]
+    [InlineData("source:pink-noise.wav")]
+    public async Task OnlyListedAudioSources_AreRead(string sampleName)
     {
         StorageAnswers(NotFound());
 

@@ -1,0 +1,173 @@
+{
+  "sources": [
+    {
+      "key": "pink-noise",
+      "description": "Pink noise: equal energy in every octave.",
+      "kind": "noise",
+      "tags": [
+        "noise",
+        "broadband"
+      ],
+      "uses": [
+        "level",
+        "pan",
+        "eq"
+      ],
+      "difficulties": [
+        1,
+        2
+      ],
+      "origin": "generated",
+      "license": {
+        "name": "MIT",
+        "author": "AcademiaAuditiva contributors",
+        "url": "https://opensource.org/license/mit"
+      },
+      "audio": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 352800,
+        "peakDbfs": -9.51,
+        "loudnessLufs": -23,
+        "sha256": "aad56892670968b748e5e4859e200555dac79baf341b89464aae2563474874d4"
+      }
+    },
+    {
+      "key": "drum-loop",
+      "description": "A drum loop at 120 bpm: kick, snare and eighth-note hi-hats.",
+      "kind": "drums",
+      "tags": [
+        "drums",
+        "kick",
+        "snare",
+        "hihat",
+        "percussion"
+      ],
+      "uses": [
+        "level",
+        "pan",
+        "eq"
+      ],
+      "difficulties": [
+        1,
+        2,
+        3
+      ],
+      "origin": "generated",
+      "license": {
+        "name": "MIT",
+        "author": "AcademiaAuditiva contributors",
+        "url": "https://opensource.org/license/mit"
+      },
+      "audio": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 352800,
+        "peakDbfs": -5.64,
+        "loudnessLufs": -23,
+        "sha256": "1c2e68fe7bb987ad792250d055f14b5366866e2d940e5ae982b7a3e11d5ee611"
+      }
+    },
+    {
+      "key": "bass-line",
+      "description": "A synthesized bass line over A, F, C and G.",
+      "kind": "bass",
+      "tags": [
+        "bass",
+        "synth"
+      ],
+      "uses": [
+        "level",
+        "pan",
+        "eq"
+      ],
+      "difficulties": [
+        1,
+        2,
+        3
+      ],
+      "origin": "generated",
+      "license": {
+        "name": "MIT",
+        "author": "AcademiaAuditiva contributors",
+        "url": "https://opensource.org/license/mit"
+      },
+      "audio": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 352800,
+        "peakDbfs": -16.01,
+        "loudnessLufs": -23,
+        "sha256": "dc0bb9e7d91da5283f17016ffd17ac34e3da5ac80e44a3e9c22fa9bfad92d8d7"
+      }
+    },
+    {
+      "key": "synth-chords",
+      "description": "Sustained synthesizer chords: Am, F, C and G.",
+      "kind": "keys",
+      "tags": [
+        "keys",
+        "chords",
+        "synth"
+      ],
+      "uses": [
+        "level",
+        "pan",
+        "eq"
+      ],
+      "difficulties": [
+        1,
+        2,
+        3
+      ],
+      "origin": "generated",
+      "license": {
+        "name": "MIT",
+        "author": "AcademiaAuditiva contributors",
+        "url": "https://opensource.org/license/mit"
+      },
+      "audio": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 352800,
+        "peakDbfs": -12.01,
+        "loudnessLufs": -23,
+        "sha256": "8ad5b53088781678b241d122543169d9436e806a52605cd73b76436e09706439"
+      }
+    },
+    {
+      "key": "full-mix",
+      "description": "The drum loop, bass line and chords mixed in stereo.",
+      "kind": "mix",
+      "tags": [
+        "full-mix",
+        "drums",
+        "bass",
+        "chords",
+        "synth"
+      ],
+      "uses": [
+        "level",
+        "eq"
+      ],
+      "difficulties": [
+        2,
+        3
+      ],
+      "origin": "generated",
+      "license": {
+        "name": "MIT",
+        "author": "AcademiaAuditiva contributors",
+        "url": "https://opensource.org/license/mit"
+      },
+      "audio": {
+        "sampleRate": 44100,
+        "channels": 2,
+        "frames": 352800,
+        "peakDbfs": -10.28,
+        "loudnessLufs": -23,
+        "sha256": "b67cd64033800c11865e00b6d90fb95e446f91596c6100a9fc89529f60deac96"
+      }
+    }
+  ]
+}

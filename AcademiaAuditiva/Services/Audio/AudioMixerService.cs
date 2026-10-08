@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using AcademiaAuditiva.Interfaces;
+using AcademiaAuditiva.Services.Audio.Sources;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -54,6 +55,7 @@ public sealed class AudioMixerService : IAudioMixerService
 
     private readonly BlobServiceClient _blobServiceClient;
     private readonly BundledSamples _bundledSamples;
+    private readonly AudioSourceLibrary _audioSources;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<AudioMixerService> _logger;
 
@@ -65,11 +67,13 @@ public sealed class AudioMixerService : IAudioMixerService
     public AudioMixerService(
         BlobServiceClient blobServiceClient,
         BundledSamples bundledSamples,
+        AudioSourceLibrary audioSources,
         TimeProvider timeProvider,
         ILogger<AudioMixerService> logger)
     {
         _blobServiceClient = blobServiceClient;
         _bundledSamples = bundledSamples;
+        _audioSources = audioSources;
         _timeProvider = timeProvider;
         _logger = logger;
     }
@@ -261,6 +265,12 @@ public sealed class AudioMixerService : IAudioMixerService
         string sampleName,
         CancellationToken cancellationToken)
     {
+        if (AudioSourceLibrary.IsSource(sampleName))
+        {
+            var audio = await _audioSources.ReadAsync(_audioSources.Resolve(sampleName), cancellationToken).ConfigureAwait(false);
+            return new DecodedSample(audio.SampleRate, audio.Channels, audio.Samples);
+        }
+
         using var ms = new MemoryStream();
         if (BundledSamples.IsBundled(sampleName))
         {
@@ -406,17 +416,21 @@ public sealed class AudioMixerService : IAudioMixerService
         return kernel;
     }
 
-    private static string ComputePlanHash(IReadOnlyList<MixInput> inputs)
+    private string ComputePlanHash(IReadOnlyList<MixInput> inputs)
     {
         // Invariant, so a plan maps to the same blob whatever the request culture
         // (pt-BR and fr-CA would otherwise write "0,4000"). Unshifted notes keep
-        // the names they had before notes could be shifted.
+        // the names they had before notes could be shifted, and an audio source
+        // adds its version, so a replaced recording is never served from old mixes.
         var canonical = MixVersion + ":" + string.Join("|", inputs
             .Select(i => string.Create(CultureInfo.InvariantCulture,
-                $"{i.SampleName}@{i.StartTimeSeconds:F4}/{i.DurationSeconds?.ToString("F4", CultureInfo.InvariantCulture) ?? "*"}{(i.Cents == 0 ? "" : $"~{i.Cents:F2}")}")));
+                $"{i.SampleName}{SourceVersion(i.SampleName)}@{i.StartTimeSeconds:F4}/{i.DurationSeconds?.ToString("F4", CultureInfo.InvariantCulture) ?? "*"}{(i.Cents == 0 ? "" : $"~{i.Cents:F2}")}")));
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
         return Convert.ToHexString(bytes).ToLowerInvariant();
     }
+
+    private string SourceVersion(string sampleName) =>
+        AudioSourceLibrary.IsSource(sampleName) ? "#" + _audioSources.Resolve(sampleName).Version : "";
 
     private sealed record DecodedSample(int SampleRate, int Channels, float[] Samples);
 

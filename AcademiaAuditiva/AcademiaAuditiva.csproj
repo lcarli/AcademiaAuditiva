@@ -50,6 +50,7 @@
   <!-- Samples of the instruments other than the piano (see BundledSamples), kept out of wwwroot: no page serves them. -->
   <ItemGroup>
     <None Update="Audio\Instruments\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Update="Audio\Sources\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
