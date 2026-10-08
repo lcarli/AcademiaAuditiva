@@ -1252,6 +1252,16 @@ a:focus-visible {
     }
 }
 
+.aa-ex-group + .aa-ex-group {
+    margin-top: 2rem;
+}
+
+.aa-ex-group-title {
+    margin: 0 0 .85rem;
+    font-size: 1.2rem;
+    letter-spacing: -.01em;
+}
+
 .aa-ex-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));

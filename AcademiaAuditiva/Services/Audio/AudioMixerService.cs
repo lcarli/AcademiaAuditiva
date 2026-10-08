@@ -35,6 +35,14 @@ public sealed class AudioMixerService : IAudioMixerService
     // sound different, so stored mixes made the old way are not reused.
     private const string MixVersion = "v2";
 
+    // A note shifted in pitch is resampled with a windowed sinc this many
+    // samples wide on each side, from a table of this many sub-sample
+    // positions. Linear interpolation would dull the shifted note and give
+    // its timbre away next to the untouched one.
+    private const int ResampleHalfWidth = 16;
+    private const int ResamplePhases = 1024;
+    private const double MaxCents = 1200;
+
     /// <summary>
     /// How long a mixed blob may go without a write before its name is
     /// handed out again unchecked. The storage lifecycle rule deletes mixed
@@ -74,6 +82,10 @@ public sealed class AudioMixerService : IAudioMixerService
         if (inputs.Count == 0)
         {
             throw new ArgumentException("At least one input is required.", nameof(inputs));
+        }
+        if (inputs.Any(i => !(Math.Abs(i.Cents) <= MaxCents)))
+        {
+            throw new ArgumentOutOfRangeException(nameof(inputs), $"A note can be shifted by {MaxCents} cents at most.");
         }
 
         // Even a single untrimmed note is mixed: the audio endpoint varies
@@ -115,6 +127,11 @@ public sealed class AudioMixerService : IAudioMixerService
                 throw new InvalidOperationException(
                     $"Source '{input.SampleName}' has format {sample.SampleRate}Hz/{sample.Channels}ch but the mix " +
                     $"uses {sampleRate.Value}Hz/{channels.Value}ch. All samples must share one format.");
+            }
+            if (input.Cents != 0)
+            {
+                int? maxFrames = input.DurationSeconds is { } d ? (int)Math.Round(d * sample.SampleRate) : null;
+                sample = sample with { Samples = ShiftPitch(sample.Samples, sample.Channels, input.Cents, maxFrames) };
             }
             decoded.Add(sample);
         }
@@ -316,13 +333,87 @@ public sealed class AudioMixerService : IAudioMixerService
         stream.Write(pcmBuffer);
     }
 
+    /// <summary>
+    /// Plays <paramref name="samples"/> <paramref name="cents"/> higher or
+    /// lower by reading them faster or slower, interpolating between the
+    /// recorded samples with a windowed sinc. Stops when the source runs
+    /// out or after <paramref name="maxFrames"/> frames.
+    /// </summary>
+    internal static float[] ShiftPitch(float[] samples, int channels, double cents, int? maxFrames)
+    {
+        var ratio = Math.Pow(2, cents / 1200);
+        var sourceFrames = samples.Length / channels;
+        var frames = Math.Max(0, (int)Math.Floor((sourceFrames - 1 - ResampleHalfWidth) / ratio));
+        if (maxFrames is { } max)
+        {
+            frames = Math.Min(frames, max);
+        }
+
+        // Read faster and the source has to lose what would fold back above
+        // the new Nyquist frequency.
+        var kernel = ResampleKernel(Math.Min(1.0, 1.0 / ratio));
+        const int taps = 2 * ResampleHalfWidth;
+        var output = new float[frames * channels];
+        for (var f = 0; f < frames; f++)
+        {
+            var position = f * ratio;
+            var whole = (int)position;
+            var row = (int)Math.Round((position - whole) * ResamplePhases) * taps;
+            var first = whole - ResampleHalfWidth + 1;
+            for (var c = 0; c < channels; c++)
+            {
+                var sum = 0f;
+                for (var t = Math.Max(0, -first); t < taps; t++)
+                {
+                    sum += kernel[row + t] * samples[(first + t) * channels + c];
+                }
+                output[f * channels + c] = sum;
+            }
+        }
+        return output;
+    }
+
+    /// <summary>
+    /// The weights of the <c>2 × ResampleHalfWidth</c> samples around each of
+    /// <c>ResamplePhases + 1</c> positions between two samples: a low-pass
+    /// sinc at <paramref name="cutoff"/> (a fraction of Nyquist) under a
+    /// Blackman window, scaled so each position's weights add up to one.
+    /// </summary>
+    private static float[] ResampleKernel(double cutoff)
+    {
+        const int taps = 2 * ResampleHalfWidth;
+        var kernel = new float[(ResamplePhases + 1) * taps];
+        var weights = new double[taps];
+        for (var p = 0; p <= ResamplePhases; p++)
+        {
+            var fraction = p / (double)ResamplePhases;
+            var total = 0.0;
+            for (var t = 0; t < taps; t++)
+            {
+                var distance = t - ResampleHalfWidth + 1 - fraction;
+                var x = Math.PI * cutoff * distance;
+                var sinc = Math.Abs(x) < 1e-12 ? 1.0 : Math.Sin(x) / x;
+                var w = Math.PI * distance / ResampleHalfWidth;
+                var window = 0.42 + 0.5 * Math.Cos(w) + 0.08 * Math.Cos(2 * w);
+                weights[t] = sinc * window;
+                total += weights[t];
+            }
+            for (var t = 0; t < taps; t++)
+            {
+                kernel[p * taps + t] = (float)(weights[t] / total);
+            }
+        }
+        return kernel;
+    }
+
     private static string ComputePlanHash(IReadOnlyList<MixInput> inputs)
     {
         // Invariant, so a plan maps to the same blob whatever the request culture
-        // (pt-BR and fr-CA would otherwise write "0,4000").
+        // (pt-BR and fr-CA would otherwise write "0,4000"). Unshifted notes keep
+        // the names they had before notes could be shifted.
         var canonical = MixVersion + ":" + string.Join("|", inputs
             .Select(i => string.Create(CultureInfo.InvariantCulture,
-                $"{i.SampleName}@{i.StartTimeSeconds:F4}/{i.DurationSeconds?.ToString("F4", CultureInfo.InvariantCulture) ?? "*"}")));
+                $"{i.SampleName}@{i.StartTimeSeconds:F4}/{i.DurationSeconds?.ToString("F4", CultureInfo.InvariantCulture) ?? "*"}{(i.Cents == 0 ? "" : $"~{i.Cents:F2}")}")));
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
         return Convert.ToHexString(bytes).ToLowerInvariant();
     }

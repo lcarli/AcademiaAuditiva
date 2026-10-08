@@ -16,7 +16,7 @@ The modernization plan is done (#47 to #83):
   with real SQL Server and Playwright (#47, #48, #51, #52, #59).
 - **Look and languages**: the visual identity, eight illustrations on the
   home page, and full en-US, pt-BR and fr-CA (#53, #56, #70, #82, #101).
-- **Exercises**: 29 exercises on piano, guitar and violin, plus Explore and
+- **Exercises**: 30 exercises on piano, guitar and violin, plus Explore and
   free practice (#58, #60, #75 to #78). The server times each answer, and the
   dashboard works out every figure from the answers themselves, so it shows
   real practice time and real error counts (#99, #100). Compare 2 melodies
@@ -57,7 +57,11 @@ The modernization plan is done (#47 to #83):
   YIN pitch detector of our own (`wwwroot/js/core/pitch-detector.js`, MIT),
   which replaced Essentia.js (AGPL-3.0, 2.15 MB) in sight-singing too; on
   synthetic voices it got 99.8% of the answers right, against Essentia's 56%
-  (#134).
+  (#134). GuessTuning plays a note, then the same note in tune, sharp or flat
+  by 50, 25, 10 or 5 cents, as the student picks; the mixer shifts the
+  sample's pitch by resampling it with a windowed sinc. The home page counts
+  and lists every exercise by category from the code, not the database
+  (#135).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -234,43 +238,48 @@ they appear in the data export.
 
 ## Exercises
 
-From the brainstorm of 2026-10-06. There are 29 exercises, four of them on
+From the brainstorm of 2026-10-06. There are 30 exercises, four of them on
 rhythm (RhythmDictation, GuessMeter, GuessRhythmPattern and RhythmTap), but
 the Games and Misc categories have none
-(`AcademiaAuditiva/Data/SeedData.cs:34-35`). GuessFunction (#122),
+(`AcademiaAuditiva/Data/SeedData.cs:83-84`). GuessFunction (#122),
 GuessDegree (#123) and GuessProgression (#124) play a cadence to set the key
 before the question. IntervalMelodico could play it too: its melody, 8 to 31
-notes, has to set the key on its own (`MusicTheoryService.cs:1127`), and
+notes, has to set the key on its own (`MusicTheoryService.cs:1559`), and
 GuessDegree could later ask for two or three notes in a row. RhythmDictation
 counts in and has levels up to 6/8 (#125), GuessMeter asks for the meter
 (#126), GuessRhythmPattern for the rhythm (#127), and RhythmTap has the
 student tap one back (#128). GuessQuality plays seventh, sus, 6 and add9
 chords (#129), GuessTopNote asks for the top note of a chord (#131),
 GuessInterval and GuessFullInterval play harmonic intervals too (#132),
-GuessChangedNote asks which note of a melody changed (#133), and SingNote,
-SingInterval and SingMelody have the student sing (#134).
+GuessChangedNote asks which note of a melody changed (#133), SingNote,
+SingInterval and SingMelody have the student sing (#134), and GuessTuning asks
+whether a note played again is in tune, sharp or flat, 50 to 5 cents off, which
+the mixer plays by shifting the sample's pitch (`MixInput.Cents`) (#135).
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
-| 4. In tune or not? | New exercise | Medium | – |
-| 5. Game modes | Games category | Medium to large | – |
+| 4. Game modes | Games category | Medium to large | – |
 
 **Adding an exercise.** A new exercise needs all of this, and tests that go
 through every seeded exercise check much of it:
 
-- Its row in `SeedData.cs`. Seeding adds the missing exercises, by name, and
-  updates the others (`SeedData.cs:959-979`), so it reaches production with
-  the deploy.
+- Its row in `SeedData.Exercises()`. Seeding adds the missing exercises, by
+  name, and updates the others (`SeedData.cs:46-68`), so it reaches production
+  with the deploy.
 - A case in `MusicTheoryService.GenerateNoteForExercise`, and one in
   `ExercisePlaybackPlanner.Plan`, which throws on an exercise it doesn't know
-  (`AcademiaAuditiva/Services/Audio/ExercisePlaybackPlanner.cs:186-188`).
-- An `IExerciseValidator`, registered in `AcademiaAuditiva/Program.cs:230-248`.
+  (`AcademiaAuditiva/Services/Audio/ExercisePlaybackPlanner.cs:303-305`).
+- An `IExerciseValidator`, registered in `AcademiaAuditiva/Program.cs:230-259`.
 - `Views/Exercise/<Name>.cshtml` and `wwwroot/js/Exercises/<Name>.js`.
 - In the three `.resx` files: its name
   (`Tests/AcademiaAuditiva.IntegrationTests/LocalizedNamesTests.cs:31-55`),
-  and `Exercise.<Name>.Instructions` and its tips, which otherwise fall back to
+  `Exercise.<Name>.Subtitle`, which the home page lists it with, and
+  `Exercise.<Name>.Instructions` and its tips, which otherwise fall back to
   the seed's Portuguese
   (`AcademiaAuditiva/Views/Exercise/_ExerciseInstructions.cshtml:4-16`).
+  The home page counts and lists the exercises by category on its own, from
+  the seed's list (`AcademiaAuditiva/Services/ExerciseCatalog.cs`), without
+  reading the database.
 - Exactly one step in
   `AcademiaAuditiva/Services/LearningPath/LearningPathCatalog.cs`
   (`Tests/AcademiaAuditiva.UnitTests/LearningPathServiceTests.cs:17-23`),
@@ -282,7 +291,7 @@ through every seeded exercise check much of it:
   and `wwwroot/js/core/pitch-detector.js`, as the Sing exercises do
   (`wwwroot/js/Exercises/SingExercise.js`).
 - An entry in `MusicTheoryService.UsesNoteRange`
-  (`AcademiaAuditiva/Services/MusicTheoryService.cs:183-192`), only if its
+  (`AcademiaAuditiva/Services/MusicTheoryService.cs:225-234`), only if its
   rounds follow the octave range
   (`Tests/AcademiaAuditiva.UnitTests/NoteRangeFilterTests.cs:92`).
 
@@ -302,20 +311,7 @@ cover it between them; and ties and triplets in the dictations (#125), which
 would each need a duration label of their own in the generator, the staff
 editor and the renderer.
 
-### 4. New exercise: in tune or not?
-
-**Why.** Violinists and singers tune by ear, and nothing trains it: every
-sample is in tune, one per semitone.
-
-**What.** A reference note, then the same note in tune, sharp or flat. The
-levels set how far off: 50, then 25, then 10 cents. The mixer needs to shift a
-sample's pitch by resampling it as it mixes (`AudioMixerService.cs:161-167`),
-with a new field on `MixInput`.
-
-**Done when.** It follows the list above, and a mixer test checks the shifted
-pitch.
-
-### 5. Game modes
+### 4. Game modes
 
 **Why.** The Games and Misc categories are empty. Modes that reuse the rounds
 of existing exercises add variety without new music code.

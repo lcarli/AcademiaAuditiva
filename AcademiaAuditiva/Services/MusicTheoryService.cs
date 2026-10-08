@@ -223,7 +223,7 @@ namespace AcademiaAuditiva.Services
 
         // The exercises whose notes GenerateNoteForExercise draws from the noteRange filter.
         private static readonly HashSet<string> NoteRangeExercises =
-            ["GuessNote", "HigherOrLower", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality", "GuessDegree", "GuessProgression", "GuessTopNote", "SingNote", "SingInterval"];
+            ["GuessNote", "HigherOrLower", "GuessTuning", "GuessChords", "GuessCadence", "GuessInversion", "GuessFunction", "GuessQuality", "GuessDegree", "GuessProgression", "GuessTopNote", "SingNote", "SingInterval"];
 
         /// <summary>
         /// Whether the notes of <paramref name="exerciseName"/> come from the <c>noteRange</c>
@@ -232,6 +232,15 @@ namespace AcademiaAuditiva.Services
         /// <c>ccOctave</c>, for instance).
         /// </summary>
         public static bool UsesNoteRange(string exerciseName) => NoteRangeExercises.Contains(exerciseName);
+
+        /// <summary>
+        /// How many cents off the second note of GuessTuning may be, one per level of its
+        /// <c>gtLevel</c> filter, the easiest first: a quarter tone down to a twentieth of a semitone.
+        /// </summary>
+        public static readonly IReadOnlyList<int> TuningLevels = [50, 25, 10, 5];
+
+        /// <summary>The answers of GuessTuning, each drawn as often as the others.</summary>
+        public static readonly string[] TuningAnswers = ["inTune", "sharp", "flat"];
 
         /// <summary>The semitones of each interval code up to the octave, "4A" for the tritone.</summary>
         public static readonly IReadOnlyDictionary<string, int> IntervalSemitones = new Dictionary<string, int>
@@ -1026,6 +1035,23 @@ namespace AcademiaAuditiva.Services
                         note2 = hlNote2,
                         answer = hlAnswer
                     };
+
+                case "GuessTuning":
+                {
+                    // The note plays twice: the second time in tune, or the level's cents sharp or flat.
+                    var gtNotes = instrument.NotesIn(instrument.Octaves(noteRange));
+                    var gtLevel = int.TryParse(filters.GetValueOrDefault("gtLevel"), out var gtParsed) && TuningLevels.Contains(gtParsed)
+                        ? gtParsed
+                        : TuningLevels[0];
+                    var gtAnswer = TuningAnswers[random.Next(TuningAnswers.Length)];
+
+                    return new
+                    {
+                        note = gtNotes[random.Next(gtNotes.Count)],
+                        cents = gtAnswer switch { "sharp" => gtLevel, "flat" => -gtLevel, _ => 0 },
+                        answer = gtAnswer
+                    };
+                }
 
                 case "GuessScaleType":
                     var gstAllRoots = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };

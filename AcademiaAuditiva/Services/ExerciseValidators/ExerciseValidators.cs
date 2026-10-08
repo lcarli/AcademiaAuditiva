@@ -159,6 +159,13 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
             => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "answer");
     }
 
+    public sealed class GuessTuningValidator : IExerciseValidator
+    {
+        public string ExerciseName => "GuessTuning";
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+            => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "answer");
+    }
+
     public sealed class GuessScaleTypeValidator : IExerciseValidator
     {
         public string ExerciseName => "GuessScaleType";

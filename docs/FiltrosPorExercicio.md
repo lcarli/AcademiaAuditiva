@@ -267,9 +267,17 @@ Nos três exercícios de canto, e no solfejo, a gravação é analisada no naveg
 
 ---
 
+### 30. Afinado ou não?
+O aluno ouve uma nota e, meio segundo depois do fim dela, a mesma nota outra vez: afinada, alta (sustenida) ou baixa (bemol), cada uma com a mesma chance. Diz como estava a segunda: afinada, alta ou baixa. O mixer toca a segunda nota fora do tom reamostrando o sample (sinc com janela de Blackman), o que muda a altura sem trocar de sample; um teste do mixer confere a altura tocada com meio cent de tolerância.
+- **Filtros aplicáveis**:
+  - Nível: quanto a segunda nota fica fora do tom, 50 cents (um quarto de tom, o padrão da página e da trilha de aprendizagem), 25, 10 ou 5 cents. Sem o filtro, 50
+  - Faixa de oitavas e instrumento (piano, violão ou violino)
+
+---
+
 ## Observações
 
 - Filtros devem ser opcionais e salvos por sessão de usuário
 - As combinações de filtros podem alterar a dificuldade automaticamente
 - Jogos podem desabilitar ou randomizar filtros
-- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Adivinhe o Grau, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão, a Nota de cima, a Cadência e a Progressão, Cante a nota e Cante o intervalo (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)
+- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Afinado ou não?, Adivinhe o Grau, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão, a Nota de cima, a Cadência e a Progressão, Cante a nota e Cante o intervalo (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)

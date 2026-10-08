@@ -183,6 +183,70 @@ public class AudioMixerServiceTests
         _downloads.Should().BeEmpty();
     }
 
+    // "In tune or not?" plays a note and then the same note a few cents off.
+    [Theory]
+    [InlineData(50)]
+    [InlineData(25)]
+    [InlineData(10)]
+    [InlineData(5)]
+    [InlineData(-5)]
+    [InlineData(-50)]
+    public async Task ShiftedNote_SoundsThatManyCentsAway(double cents)
+    {
+        StorageAnswers(NotFound());
+        var uploaded = CaptureUploads();
+        await _mixer.MixAsync([new("guitar/A4.mp3", 0, 1.5)]);
+        var original = Wav.Parse(uploaded()).Samples;
+
+        await _mixer.MixAsync([new("guitar/A4.mp3", 0, 1.5, cents)]);
+        var shifted = Wav.Parse(uploaded()).Samples;
+
+        shifted.Should().HaveCount((int)(1.5 * SampleRate), "the note still lasts as long as the plan says");
+        // The same stretch of the recording, which the shifted note plays sooner or later.
+        var ratio = Math.Pow(2, cents / 1200);
+        var measured = 1200 * Math.Log2(Period(original, 0.4, 0.9) / Period(shifted, 0.4 / ratio, 0.9 / ratio));
+        measured.Should().BeApproximately(cents, 0.5);
+    }
+
+    [Fact]
+    public void ShiftedNote_KeepsItsHighPartials()
+    {
+        // An 8 kHz partial, high among a note's overtones: interpolating
+        // linearly between samples would lose about a tenth of it.
+        var sine = Enumerable.Range(0, SampleRate)
+            .Select(i => (float)Math.Sin(2 * Math.PI * 8000 * i / SampleRate)).ToArray();
+
+        var shifted = AudioMixerService.ShiftPitch(sine, channels: 1, cents: 25, maxFrames: null);
+
+        var rms = Math.Sqrt(shifted.Skip(100).Take(SampleRate / 2).Average(s => (double)s * s));
+        rms.Should().BeApproximately(Math.Sqrt(0.5), 0.005);
+    }
+
+    [Fact]
+    public async Task ShiftedNote_IsMixedUnderItsOwnName()
+    {
+        StoredMixWrittenAt(Start);
+
+        var names = new List<string>();
+        foreach (var cents in new[] { 0, 10, -10 })
+        {
+            names.Add((await _mixer.MixAsync([new("C4.mp3", 0, 1.5, cents)])).BlobName);
+        }
+
+        names.Should().OnlyHaveUniqueItems();
+        (await _mixer.MixAsync([new("C4.mp3", 0, 1.5)])).BlobName.Should().Be(names[0]);
+    }
+
+    [Theory]
+    [InlineData(1201)]
+    [InlineData(-1201)]
+    [InlineData(double.NaN)]
+    public async Task NotesAreShifted_ByAnOctaveAtMost(double cents)
+    {
+        await FluentActions.Awaiting(() => _mixer.MixAsync([new("guitar/A4.mp3", 0, 1, cents)]))
+            .Should().ThrowAsync<ArgumentOutOfRangeException>();
+    }
+
     [Theory]
     [InlineData("../appsettings.json")]
     [InlineData("guitar/../../appsettings.json")]
@@ -200,6 +264,31 @@ public class AudioMixerServiceTests
         new(404, "The specified blob does not exist.", "BlobNotFound", null);
 
     private static float Peak(IEnumerable<float> samples) => samples.Max(Math.Abs);
+
+    /// <summary>
+    /// The period, in samples, of an A4 between two times: the lag at which the
+    /// signal best matches itself, refined between lags with a parabola.
+    /// </summary>
+    private static double Period(float[] samples, double from, double to)
+    {
+        var start = (int)(from * SampleRate);
+        var length = (int)((to - from) * SampleRate);
+        double Correlation(int lag)
+        {
+            var sum = 0.0;
+            for (var i = 0; i < length; i++)
+            {
+                sum += samples[start + i] * (double)samples[start + i + lag];
+            }
+            return sum;
+        }
+
+        // A4 repeats about every 100 samples; stay clear of its octaves.
+        var best = Enumerable.Range(70, 80).MaxBy(Correlation);
+        best.Should().BeInRange(71, 148);
+        var (before, at, after) = (Correlation(best - 1), Correlation(best), Correlation(best + 1));
+        return best + 0.5 * (before - after) / (before - 2 * at + after);
+    }
 
     /// <summary>Returns the last WAV the mixer uploaded.</summary>
     private Func<byte[]> CaptureUploads()

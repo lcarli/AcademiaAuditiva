@@ -70,6 +70,7 @@ public class ExerciseValidatorTests
     [InlineData(typeof(GuessProgressionValidator), "GuessProgression")]
     [InlineData(typeof(GuessQualityValidator), "GuessQuality")]
     [InlineData(typeof(HigherOrLowerValidator), "HigherOrLower")]
+    [InlineData(typeof(GuessTuningValidator), "GuessTuning")]
     public void SingleFieldValidators_MatchOnAnswerField_CaseInsensitive(System.Type validatorType, string expectedName)
     {
         var v = (IExerciseValidator)Activator.CreateInstance(validatorType)!;

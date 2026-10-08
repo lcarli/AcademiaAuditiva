@@ -888,6 +888,19 @@ namespace AcademiaAuditiva.Controllers
 		}
 		#endregion
 
+		#region GuessTuning
+		public IActionResult GuessTuning()
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessTuning");
+			if (exercise == null)
+				return NotFound();
+
+			var model = exercise.ToViewModel(_localizer);
+
+			return View(model);
+		}
+		#endregion
+
 		#region CompleteScale
 		public IActionResult CompleteScale()
 		{

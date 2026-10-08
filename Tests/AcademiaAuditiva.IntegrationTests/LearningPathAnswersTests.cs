@@ -43,9 +43,9 @@ public class LearningPathAnswersTests : IClassFixture<SignedInWebApplicationFact
             title: "Step complete!",
             icon: "bi-check2-circle",
             text: "You completed step 1: Higher or Lower.",
-            nextText: "Next step: Guess Interval",
+            nextText: "Next step: In tune or not?",
             actionText: "Go to the next step",
-            actionUrl: "/Exercise/GuessInterval?keySelect=C4&scaleTypeSelect=major");
+            actionUrl: "/Exercise/GuessTuning?gtLevel=50");
 
         (await AnswerAsync(client, "HigherOrLower", correct: true)).ValueKind
             .Should().Be(JsonValueKind.Null, "the step is already complete");
@@ -56,7 +56,7 @@ public class LearningPathAnswersTests : IClassFixture<SignedInWebApplicationFact
     [Fact]
     public async Task TheLastStepOfAUnit_CelebratesTheUnit()
     {
-        ResetAnswers(("HigherOrLower", 8), ("GuessInterval", 7), ("GuessChords", 8), ("GuessMissingNote", 7), ("GuessDegree", 7), ("GuessMeter", 6));
+        ResetAnswers(("HigherOrLower", 8), ("GuessTuning", 7), ("GuessInterval", 7), ("GuessChords", 8), ("GuessMissingNote", 7), ("GuessDegree", 7), ("GuessMeter", 6));
         var client = await CreateClientAsync();
 
         var path = await AnswerAsync(client, "GuessMeter", correct: true);
@@ -64,7 +64,7 @@ public class LearningPathAnswersTests : IClassFixture<SignedInWebApplicationFact
         ShouldCelebrate(path,
             title: "Unit complete!",
             icon: "bi-flag",
-            text: "You completed step 6: Guess Meter.",
+            text: "You completed step 7: Guess Meter.",
             nextText: "Next step: Which Note Changed?",
             actionText: "Go to the next step",
             actionUrl: "/Exercise/GuessChangedNote?melodyLength=4");
@@ -82,7 +82,7 @@ public class LearningPathAnswersTests : IClassFixture<SignedInWebApplicationFact
         ShouldCelebrate(path,
             title: "Path complete!",
             icon: "bi-trophy",
-            text: "You completed step 25: Guess Note.",
+            text: "You completed step 26: Guess Note.",
             nextText: null,
             actionText: "View the path",
             actionUrl: "/LearningPath");

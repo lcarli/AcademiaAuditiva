@@ -953,7 +953,7 @@
     <value>Afine seu ouvido.</value>
   </data>
   <data name="Home.Hero.Lead" xml:space="preserve">
-    <value>Exercícios curtos de notas, intervalos, acordes e funções harmônicas, com progresso que você enxerga.</value>
+    <value>Exercícios curtos de notas, intervalos, acordes, ritmo e melodia, com progresso que você enxerga.</value>
   </data>
   <data name="Home.How.Badge" xml:space="preserve">
     <value>Como funciona</value>
@@ -986,7 +986,7 @@
     <value>Exercícios</value>
   </data>
   <data name="Home.Exercises.Title" xml:space="preserve">
-    <value>Nove jeitos de treinar o ouvido</value>
+    <value>{0} jeitos de treinar o ouvido</value>
   </data>
   <data name="Home.Roles.Badge" xml:space="preserve">
     <value>Alunos e professores</value>
@@ -1055,7 +1055,7 @@
     <value>Funciona no celular?</value>
   </data>
   <data name="Home.Faq2.A" xml:space="preserve">
-    <value>Sim. Funciona no navegador do celular, do tablet ou do computador, sem instalar nada. Fones de ouvido ajudam.</value>
+    <value>Sim. Funciona no navegador do celular, do tablet ou do computador, sem instalar nada. Fones de ouvido ajudam. Os exercícios de canto usam o microfone, e a gravação nunca sai do seu aparelho.</value>
   </data>
   <data name="Home.Faq3.Q" xml:space="preserve">
     <value>Quais idiomas estão disponíveis?</value>
@@ -1073,7 +1073,7 @@
     <value>Quais exercícios existem?</value>
   </data>
   <data name="Home.Faq5.A" xml:space="preserve">
-    <value>Nove: reconhecimento de notas, intervalos (por número e pelo nome completo), intervalos melódicos, acordes, qualidade de acordes, função harmônica, comparação de duas melodias e solfejo.</value>
+    <value>{0}, agrupados por área: percepção, melodia, harmonia, escalas e ritmo. Vão de dizer se uma segunda nota é mais alta ou mais grave até ditados melódicos e rítmicos e cantar no microfone. A lista completa está acima.</value>
   </data>
   <data name="Home.Faq6.Q" xml:space="preserve">
     <value>É gratuito?</value>
@@ -1988,10 +1988,10 @@
     <value>Ver meu progresso</value>
   </data>
   <data name="Home.Feature1.Title" xml:space="preserve">
-    <value>9 exercícios</value>
+    <value>{0} exercícios</value>
   </data>
   <data name="Home.Feature1.Desc" xml:space="preserve">
-    <value>Notas, intervalos, acordes, funções harmônicas e solfejo.</value>
+    <value>Notas, intervalos, acordes, harmonia, escalas, ritmo, ditado e canto.</value>
   </data>
   <data name="Home.Feature2.Title" xml:space="preserve">
     <value>3 idiomas</value>
@@ -2006,7 +2006,7 @@
     <value>Turmas, convites e relatórios de progresso.</value>
   </data>
   <data name="Home.Exercises.Lead" xml:space="preserve">
-    <value>De notas isoladas ao solfejo, em três níveis de dificuldade.</value>
+    <value>De comparar duas notas a cantar uma melodia, em três níveis de dificuldade.</value>
   </data>
   <data name="Home.Badges.Badge" xml:space="preserve">
     <value>Conquistas</value>
@@ -4404,5 +4404,50 @@
   </data>
   <data name="Exercise.SingMelodyText" xml:space="preserve">
     <value>Cante a melodia que você ouve</value>
+  </data>
+  <data name="GuessTuning" xml:space="preserve">
+    <value>Afinado ou não?</value>
+  </data>
+  <data name="Exercise.GuessTuningText" xml:space="preserve">
+    <value>A segunda nota estava afinada, alta ou baixa?</value>
+  </data>
+  <data name="Exercise.SelectGuessTuningText" xml:space="preserve">
+    <value>Selecione se a segunda nota estava afinada, alta ou baixa.</value>
+  </data>
+  <data name="Exercise.GuessTuning.Subtitle" xml:space="preserve">
+    <value>Ouça uma nota duas vezes e diga se a segunda está afinada, alta ou baixa.</value>
+  </data>
+  <data name="Exercise.GuessTuning.Instructions" xml:space="preserve">
+    <value>Ouça a nota de referência e depois a mesma nota tocada outra vez. Diga se a segunda está afinada, alta (sustenida) ou baixa (bemol) em relação à primeira.</value>
+  </data>
+  <data name="Exercise.GuessTuning.Tip1" xml:space="preserve">
+    <value>Cante a primeira nota e mantenha-a na cabeça enquanto a segunda toca.</value>
+  </data>
+  <data name="Exercise.GuessTuning.Tip2" xml:space="preserve">
+    <value>Não procure uma nota nova: perceba se a segunda "puxa" para cima ou para baixo, como uma corda que precisa ser afinada.</value>
+  </data>
+  <data name="Exercise.GuessTuning.Tip3" xml:space="preserve">
+    <value>Comece com 50 cents (um quarto de tom) e só passe para uma diferença menor quando acertar quase sempre.</value>
+  </data>
+  <data name="Exercise.TuningLevel.50" xml:space="preserve">
+    <value>50 cents (um quarto de tom)</value>
+  </data>
+  <data name="Exercise.TuningLevel.25" xml:space="preserve">
+    <value>25 cents</value>
+  </data>
+  <data name="Exercise.TuningLevel.10" xml:space="preserve">
+    <value>10 cents</value>
+  </data>
+  <data name="Exercise.TuningLevel.5" xml:space="preserve">
+    <value>5 cents</value>
+  </data>
+  <data name="Exercise.Tuning.InTune" xml:space="preserve">
+    <value>Afinada</value>
+  </data>
+  <data name="Exercise.Tuning.Sharp" xml:space="preserve">
+    <value>Alta</value>
+  </data>
+  <data name="Exercise.Tuning.Flat" xml:space="preserve">
+    <value>Baixa</value>
   </data>
 </root>
