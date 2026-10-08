@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using AcademiaAuditiva.Controllers;
 using AcademiaAuditiva.Interfaces;
+using AcademiaAuditiva.Services.Audio;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -72,9 +73,53 @@ public class AudioControllerTests
         controller.Response.Headers.CacheControl.ToString().Should().Contain("no-store");
     }
 
+    // A round of the audio track compares the levels of its clips, which a random
+    // gain per clip would change; the rest of the variation still makes them unique.
+    [Fact]
+    public async Task StreamByToken_KeepsTheLevelOfAProcessedClip()
+    {
+        short[] samples = [.. Enumerable.Repeat<short[]>([20000, -20000, 15000, -15000, 10000, 5000], 10).SelectMany(s => s)];
+        const string processed = "proc-abc.wav";
+        TokenResolvesTo($"{MixedContainer}/{processed}");
+        StoreBlob(MixedContainer, processed, TestWav.Pcm16(channels: 1, sampleRate: 8_000, samples));
+        var controller = CreateController();
+
+        var responses = new List<byte[]>();
+        for (var i = 0; i < 5; i++)
+        {
+            var file = (await controller.StreamByToken(Token, CancellationToken.None)).Should().BeOfType<FileContentResult>().Subject;
+            responses.Add(file.FileContents);
+            var played = TestWav.ReadSamples(file.FileContents);
+            var start = Array.FindIndex(played, s => Math.Abs(s) > 1000);
+            played.Skip(start).Take(samples.Length).Zip(samples, (p, s) => Math.Abs(p - s)).Max()
+                .Should().BeLessThanOrEqualTo(1, "only the dither changes a sample");
+        }
+        responses.Should().OnlyHaveUniqueItems();
+    }
+
+    [Fact]
+    public async Task StreamByToken_StillVariesTheLevelOfAMix()
+    {
+        short[] samples = [.. Enumerable.Repeat<short>(20000, 60)];
+        TokenResolvesTo($"{MixedContainer}/{MixName}");
+        StoreBlob(MixedContainer, MixName, TestWav.Pcm16(channels: 1, sampleRate: 8_000, samples));
+        var controller = CreateController();
+
+        var peaks = new List<int>();
+        for (var i = 0; i < 10; i++)
+        {
+            var file = (await controller.StreamByToken(Token, CancellationToken.None)).Should().BeOfType<FileContentResult>().Subject;
+            peaks.Add(TestWav.ReadSamples(file.FileContents).Max(s => Math.Abs((int)s)));
+        }
+
+        peaks.Should().OnlyContain(p => p >= 20000 * ClipVariation.MinGain - 2 && p <= 20001);
+        peaks.Should().Contain(p => p < 19990, "a mix is streamed at a random gain");
+    }
+
     [Theory]
     [InlineData("piano-audio/C4.mp3")]
     [InlineData("other-container/mix-abc.wav")]
+    [InlineData("other-container/proc-abc.wav")]
     public async Task StreamByToken_OnlyServesMixedClips(string address)
     {
         TokenResolvesTo(address);
