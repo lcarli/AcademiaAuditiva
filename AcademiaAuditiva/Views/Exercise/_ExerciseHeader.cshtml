@@ -1,11 +1,15 @@
 @model AcademiaAuditiva.ViewModels.ExerciseViewModel
 @inject AcademiaAuditiva.Services.Routines.RoutinePage RoutinePage
+@inject AcademiaAuditiva.Services.Games.GamePage GamePage
 @{
     // A routine question (My Training links here with the routine in the query string) is taken
     // like a test: the routine banner replaces free practice and the suggested settings.
     var routine = await RoutinePage.ResolveAsync(Context, Model.ExerciseId);
+    // ?game=sprint and the other game modes (the Games hub links here) play scored rounds in a
+    // game bar, in place of free practice.
+    var game = routine is null ? await GamePage.ResolveAsync(Context, Model.ExerciseId, Model.Title) : null;
     // ?practice=free opens the exercise in free practice; wwwroot/js/core/practice.js keeps the URL in step with the switch.
-    var freePractice = routine is null
+    var freePractice = routine is null && game is null
         && string.Equals(Context.Request.Query["practice"].ToString(), "free", StringComparison.OrdinalIgnoreCase);
 }
 
@@ -28,7 +32,7 @@
             <i class="bi bi-sliders" aria-hidden="true"></i>
             @Localizer["Filters"]
         </button>
-        @if (routine is null)
+        @if (routine is null && game is null)
         {
             <label class="aa-chip aa-chip-switch form-switch" data-tour="free-practice">
                 <input class="form-check-input" type="checkbox" role="switch" id="aaFreePractice"
@@ -52,35 +56,42 @@
 }
 else
 {
-    <div class="aa-preset aa-free" id="aaFreeNote" role="note" hidden="@(!freePractice)"
-         data-reveal-title="@Localizer["Exercise.Free.RevealTitle"].Value"
-         data-result-note="@Localizer["Exercise.Free.ResultNote"].Value">
-        <i class="bi bi-headphones" aria-hidden="true"></i>
-        <div class="aa-preset-body">
-            <strong>@Localizer["Exercise.Free.Title"]</strong>
-            <span>@Localizer["Exercise.Free.Text"]</span>
+    if (game is not null)
+    {
+        @await Html.PartialAsync("_GameBar", game)
+    }
+    else
+    {
+        <div class="aa-preset aa-free" id="aaFreeNote" role="note" hidden="@(!freePractice)"
+             data-reveal-title="@Localizer["Exercise.Free.RevealTitle"].Value"
+             data-result-note="@Localizer["Exercise.Free.ResultNote"].Value">
+            <i class="bi bi-headphones" aria-hidden="true"></i>
+            <div class="aa-preset-body">
+                <strong>@Localizer["Exercise.Free.Title"]</strong>
+                <span>@Localizer["Exercise.Free.Text"]</span>
+            </div>
+            <div class="aa-chips" role="group" aria-label="@Localizer["Exercise.Free.Tally"]">
+                <span class="aa-chip aa-chip-ok">
+                    <i class="bi bi-check-lg" aria-hidden="true"></i>
+                    <span class="visually-hidden">@Localizer["Exercise.CorrectAnswers"]</span>
+                    <strong id="aaFreeCorrect">0</strong>
+                </span>
+                <span class="aa-chip aa-chip-err">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                    <span class="visually-hidden">@Localizer["Exercise.ErrorAnswers"]</span>
+                    <strong id="aaFreeWrong">0</strong>
+                </span>
+            </div>
         </div>
-        <div class="aa-chips" role="group" aria-label="@Localizer["Exercise.Free.Tally"]">
-            <span class="aa-chip aa-chip-ok">
-                <i class="bi bi-check-lg" aria-hidden="true"></i>
-                <span class="visually-hidden">@Localizer["Exercise.CorrectAnswers"]</span>
-                <strong id="aaFreeCorrect">0</strong>
-            </span>
-            <span class="aa-chip aa-chip-err">
-                <i class="bi bi-x-lg" aria-hidden="true"></i>
-                <span class="visually-hidden">@Localizer["Exercise.ErrorAnswers"]</span>
-                <strong id="aaFreeWrong">0</strong>
-            </span>
-        </div>
-    </div>
 
-    @* practice.js puts this button next to #validateGuess; it shows while a free round is on screen. *@
-    <template id="aaRevealTemplate">
-        <button type="button" class="btn btn-outline-secondary px-4" data-aa-reveal hidden>
-            <i class="bi bi-eye" aria-hidden="true"></i>
-            @Localizer["Exercise.Free.Reveal"]
-        </button>
-    </template>
+        @* practice.js puts this button next to #validateGuess; it shows while a free round is on screen. *@
+        <template id="aaRevealTemplate">
+            <button type="button" class="btn btn-outline-secondary px-4" data-aa-reveal hidden>
+                <i class="bi bi-eye" aria-hidden="true"></i>
+                @Localizer["Exercise.Free.Reveal"]
+            </button>
+        </template>
+    }
 
     // Learning path steps open the exercise with its filters in the query string.
     var appliedPresets = AcademiaAuditiva.Services.ExerciseFilterPresets.Describe(

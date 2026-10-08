@@ -66,10 +66,14 @@
 - **BuildScale** *(novo)* - Montar a escala a partir da tônica
 
 ### Jogos e Missões (Gamificação)
-- **RandomChallenge** - Mini teste com questões mistas
-- **SpeedTest** - Responda o máximo em 1 minuto
-- **MissionMode** - Resolver situações musicais baseadas em histórias
-- **ErrorTrainer** *(novo)* - Exercícios só com erros comuns do aluno
+Os jogos ficam na página Jogos e tocam os exercícios acima, menos os cantados.
+As respostas contam como as de qualquer exercício, e a página guarda os
+recordes de cada aluno.
+- **Sprint de 60 s** - Responda o máximo que puder em 1 minuto
+- **Morte súbita** - Rodadas até o primeiro erro
+- **Pontos fracos** - Dez rodadas nos filtros que o aluno mais erra nas últimas respostas
+- **Teste de nivelamento** - Até 18 questões de seis exercícios das duas primeiras unidades; sugere onde começar a trilha e pode dispensar as etapas antes dela
+- **MissionMode** *(novo)* - Resolver situações musicais baseadas em histórias
 
 ---
 

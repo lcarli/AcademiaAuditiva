@@ -81,6 +81,35 @@ public class LearningPathEvaluatorTests
         result.JustCompleted.Should().Be(0);
     }
 
+    [Fact]
+    public void PlacedSteps_AreCompleted_AndTheNextOneIsCurrent()
+    {
+        var result = LearningPathEvaluator.Evaluate(Steps, Ids, Answers(("C", true)), placedSteps: 2);
+
+        result.Steps.Select(s => (s.State, s.Placed)).Should().Equal(
+            (StepState.Completed, true), (StepState.Completed, true), (StepState.Completed, false));
+        result.JustCompleted.Should().Be(2, "the placed steps let the answer count for the next one");
+    }
+
+    [Fact]
+    public void PlacedSteps_ThatTheAnswersComplete_AreNotMarkedPlaced()
+    {
+        var result = LearningPathEvaluator.Evaluate(Steps, Ids, Answers(("A", true), ("A", true), ("C", true)), placedSteps: 1);
+
+        result.Steps.Select(s => (s.State, s.Placed)).Should().Equal(
+            (StepState.Completed, false), (StepState.Current, false), (StepState.Locked, false));
+        result.Steps[1].Answered.Should().Be(0);
+    }
+
+    [Fact]
+    public void PlacedSteps_KeepTheirProgress()
+    {
+        var result = LearningPathEvaluator.Evaluate(Steps, Ids, Answers(("A", true), ("A", false)), placedSteps: 1);
+
+        result.Steps[0].Should().BeEquivalentTo(new { State = StepState.Completed, Placed = true, Correct = 1, Answered = 2 });
+        result.Steps[1].State.Should().Be(StepState.Current);
+    }
+
     private static PathEvaluation Evaluate(params (string Exercise, bool Correct)[] answers)
         => LearningPathEvaluator.Evaluate(Steps, Ids, Answers(answers));
 

@@ -92,12 +92,14 @@
     if (counter) counter.textContent = String((parseInt(counter.textContent, 10) || 0) + 1);
   }
 
+  // A game run (game.js) asks for its rounds through send(), so they stay scored.
   function play(body) {
+    if (window.AAGame && window.AAGame.active()) return window.AAGame.play(body, (request) => send(body, request, false));
+
     const banner = routineBanner();
     const block = banner && routineBlock(banner);
     if (block) return Promise.resolve(block);
 
-    const input = toggle();
     const free = isFree();
     const request = banner
       ? Object.assign({}, body, {
@@ -106,6 +108,11 @@
           routineItemId: Number(banner.dataset.itemId),
         })
       : Object.assign({}, body, { free });
+    return send(body, request, free);
+  }
+
+  function send(body, request, free) {
+    const input = toggle();
     // The switch waits for every round asked for (Play may be clicked again meanwhile),
     // so no round lands in the other mode.
     pending += 1;
@@ -128,7 +135,7 @@
 
   // The server says whether the round was free; only then does the banner tally count it.
   function validate(body) {
-    return post("/Exercise/ValidateExercise", body).then((data) => {
+    const request = post("/Exercise/ValidateExercise", body).then((data) => {
       syncRoutine(data);
       if (data && data.success !== false) {
         round = null;
@@ -138,9 +145,11 @@
       }
       return data;
     });
+    return window.AAGame && window.AAGame.active() ? window.AAGame.track(request) : request;
   }
 
   // Turning the switch drops the round on screen: the next Play starts one in the new mode.
+  // A game run that ends drops it too (game.js).
   function reset() {
     round = null;
     showReveal();
@@ -289,6 +298,7 @@
     isFree,
     play,
     validate,
+    reset,
     staffNotes,
     answerSheet,
     decorate,

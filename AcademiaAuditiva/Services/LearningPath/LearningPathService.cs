@@ -1,4 +1,5 @@
 using AcademiaAuditiva.Data;
+using AcademiaAuditiva.Services.Games;
 using AcademiaAuditiva.Services.Gamification;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,9 @@ public sealed record StepProgress(
     public int Correct => Status.Correct;
     public int Answered => Status.Answered;
     public int Percent => Status.Percent;
+
+    /// <summary>Completed by the placement test rather than by answers.</summary>
+    public bool Placed => Status.Placed;
 }
 
 public sealed record UnitProgress(string Key, int Number, IReadOnlyList<StepProgress> Steps)
@@ -64,6 +68,8 @@ public interface ILearningPathService
 /// Evaluates <see cref="LearningPathCatalog"/> against the player's answers.
 /// Nothing is stored: progress is recomputed from the answers on each call, which come from
 /// <see cref="PracticeHistory"/>, so an answer reads them once for XP, badges and the path.
+/// A placement test the player applied (<see cref="Models.GameRun.AppliedAt"/>) completes the
+/// units before the one it suggested.
 /// </summary>
 public sealed class LearningPathService : ILearningPathService
 {
@@ -98,7 +104,9 @@ public sealed class LearningPathService : ILearningPathService
             .Where(a => ids.Contains(a.ExerciseId))
             .ToList();
 
-        var evaluation = LearningPathEvaluator.Evaluate(units.SelectMany(u => u.Steps).ToList(), exerciseIds, answers);
+        var evaluation = LearningPathEvaluator.Evaluate(
+            units.SelectMany(u => u.Steps).ToList(), exerciseIds, answers,
+            await PlacedStepsAsync(userId, units, ct));
 
         var index = 0;
         StepProgress? justCompleted = null;
@@ -124,5 +132,17 @@ public sealed class LearningPathService : ILearningPathService
         }
 
         return new LearningPathProgress(unitRows, justCompleted);
+    }
+
+    // The steps of the units before the furthest one a placement test the player applied suggested.
+    private async Task<int> PlacedStepsAsync(string userId, IReadOnlyList<PathUnit> units, CancellationToken ct)
+    {
+        var placedUnit = await _db.GameRuns.AsNoTracking()
+            .Where(r => r.UserId == userId && r.Mode == GameModes.Placement && r.AppliedAt != null)
+            .MaxAsync(r => r.PlacementUnit, ct);
+        if (placedUnit is not > 1) return 0;
+
+        var skipped = LearningPathCatalog.Units.Take(placedUnit.Value - 1).Select(u => u.Key).ToHashSet(StringComparer.Ordinal);
+        return units.Where(u => skipped.Contains(u.Key)).Sum(u => u.Steps.Count);
     }
 }

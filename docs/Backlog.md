@@ -64,7 +64,14 @@ The modernization plan is done (#47 to #83):
   (#135).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
-  challenge (#72 to #74, #94, #97).
+  challenge (#72 to #74, #94, #97). The games hub plays any exercise that
+  doesn't need a microphone as a 60-second sprint, as sudden death until the
+  first mistake, or as weak spots: ten rounds on the filters the student
+  misses most, from their last answers. Game answers count like any other,
+  and the hub keeps each student's best scores, worked out on the server. The
+  placement test asks up to 18 questions on six exercises of the first two
+  units, suggests where to start on the learning path, and can mark the steps
+  before it as placed out (#136).
 - **Accounts**: privacy policy, data export and deletion, admin lock, unlock
   and delete, and lockout after failed sign-ins with a rate limit on the
   account forms (#57, #65, #80, #81, #93).
@@ -241,7 +248,9 @@ they appear in the data export.
 From the brainstorm of 2026-10-06. There are 30 exercises, four of them on
 rhythm (RhythmDictation, GuessMeter, GuessRhythmPattern and RhythmTap), but
 the Games and Misc categories have none
-(`AcademiaAuditiva/Data/SeedData.cs:83-84`). GuessFunction (#122),
+(`AcademiaAuditiva/Data/SeedData.cs:83-84`): the game modes (#136) are pages
+of their own that play the other exercises
+(`AcademiaAuditiva/Services/Games/`). GuessFunction (#122),
 GuessDegree (#123) and GuessProgression (#124) play a cadence to set the key
 before the question. IntervalMelodico could play it too: its melody, 8 to 31
 notes, has to set the key on its own (`MusicTheoryService.cs:1559`), and
@@ -255,10 +264,7 @@ GuessChangedNote asks which note of a melody changed (#133), SingNote,
 SingInterval and SingMelody have the student sing (#134), and GuessTuning asks
 whether a note played again is in tune, sharp or flat, 50 to 5 cents off, which
 the mixer plays by shifting the sample's pitch (`MixInput.Cents`) (#135).
-
-| Item | Kind | Effort | Needs |
-| --- | --- | --- | --- |
-| 4. Game modes | Games category | Medium to large | – |
+Every exercise from that brainstorm is done; new ones go to GitHub issues.
 
 **Adding an exercise.** A new exercise needs all of this, and tests that go
 through every seeded exercise check much of it:
@@ -300,8 +306,11 @@ badges that stay hidden until their art is ready (#16): `explorer` asks for
 every exercise
 (`AcademiaAuditiva/Services/Gamification/BadgeRules.cs:80`), `total_mastery`
 for the whole learning path (`:103`), and `all_rounder` for 10 answers in
-every category that has an exercise (`:109` and `:330-333`), so the first game
-adds a category. Badges already earned are kept (`BadgeRules.cs:39`).
+every category that has an exercise (`:109` and `:330-333`), so the first
+exercise in the Games or Misc category adds one. Badges already earned are
+kept (`BadgeRules.cs:39`). `total_mastery` judges the path on answers alone
+(`BadgeRules.cs:156-161`), so steps placed out by the placement test (#136)
+still need practice to count for it.
 
 **Left out on purpose.** Reading drills without sound, since this is an
 ear-training site; the frequency and mixing module
@@ -310,29 +319,6 @@ ear-training site; the frequency and mixing module
 cover it between them; and ties and triplets in the dictations (#125), which
 would each need a duration label of their own in the generator, the staff
 editor and the renderer.
-
-### 4. Game modes
-
-**Why.** The Games and Misc categories are empty. Modes that reuse the rounds
-of existing exercises add variety without new music code.
-
-**What.**
-
-- **Sprint:** as many right answers as possible in 60 seconds
-  (`docs/Pedagogia-Exercicios.md:63`).
-- **Sudden death:** rounds until the first mistake
-  (`docs/archive/MapaDoProjeto.md:96`).
-- **Weak spots:** rounds built from what the student misses most, from
-  `ScoreSnapshots` and their recorded filters (#96;
-  `docs/Pedagogia-Exercicios.md:65`).
-- **Placement test:** a short mixed test that suggests where to start on the
-  learning path (`docs/archive/MapaDoProjeto.md:88`).
-
-**Decide first.** Whether they count for XP, streaks and badges, and whether
-they are exercises, which then follow the list above and bring the Games
-category into `all_rounder`, or pages of their own.
-
-**Done when.** The chosen modes are live in the three languages.
 
 ## E-mail
 

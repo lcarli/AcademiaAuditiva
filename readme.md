@@ -29,10 +29,14 @@ fr-CA). It runs at <https://academiaauditiva.com>.
   chords, barre chords or high on the neck. On the piano, the octave range
   moves the chords. The exercises about chords leave out the violin, which
   plays one note at a time.
-- 🧭 **Learning path**: 25 steps in 3 units, from *Higher or Lower* to
+- 🧭 **Learning path**: 26 steps in 3 units, from *Higher or Lower* to
   *Guess Note*, with progress and celebrations.
 - 📅 **Daily challenge**: three exercises from different categories every
   day, the same for every student, with progress on the dashboard.
+- 🎮 **Games**: a 60-second sprint, sudden death and weak spots on any
+  exercise that doesn't need a microphone, with each student's best scores;
+  a placement test suggests where to start on the learning path and can skip
+  the steps the student already knows.
 - 🏆 **Gamification**: XP, levels, practice streaks and badges.
 - 🔎 **Explore**: hear and see any note, interval, chord or scale.
 - 🆓 **Free practice**: answers are checked but not saved, and *Show answer*

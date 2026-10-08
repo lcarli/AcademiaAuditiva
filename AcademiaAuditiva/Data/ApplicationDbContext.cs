@@ -26,6 +26,21 @@ namespace AcademiaAuditiva.Data
             ConfigureTeachingDomain(modelBuilder);
             ConfigureBadges(modelBuilder);
             ConfigureTutorials(modelBuilder);
+            ConfigureGames(modelBuilder);
+        }
+
+        private static void ConfigureGames(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<GameRun>(b =>
+            {
+                b.Property(r => r.Mode).HasMaxLength(GameRun.ModeMaxLength);
+                b.Property(r => r.FilterJson).HasMaxLength(ScoreSnapshot.FilterJsonMaxLength);
+                b.HasIndex(r => new { r.UserId, r.Mode, r.ExerciseId });
+                b.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(r => r.Exercise).WithMany().HasForeignKey(r => r.ExerciseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
         // The unique index keeps one row per user and tour when two tabs close it at once.
@@ -158,6 +173,7 @@ namespace AcademiaAuditiva.Data
                 b.HasIndex(s => new { s.UserId, s.RoutineAssignmentId, s.RoutineItemId, s.RoutineQuestion })
                     .IsUnique()
                     .HasFilter("[RoutineAssignmentId] IS NOT NULL");
+                b.HasIndex(s => s.GameRunId).HasFilter("[GameRunId] IS NOT NULL");
                 b.HasOne(s => s.User).WithMany().HasForeignKey(s => s.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
                 b.HasOne(s => s.Exercise).WithMany().HasForeignKey(s => s.ExerciseId)
@@ -186,6 +202,7 @@ namespace AcademiaAuditiva.Data
         public DbSet<DifficultyLevel> DifficultyLevels { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<UserTutorial> UserTutorials => Set<UserTutorial>();
+        public DbSet<GameRun> GameRuns => Set<GameRun>();
 
         // Teaching domain
         public DbSet<Classroom> Classrooms => Set<Classroom>();

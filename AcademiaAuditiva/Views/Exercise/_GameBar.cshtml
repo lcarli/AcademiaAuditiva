@@ -1,0 +1,57 @@
+@using AcademiaAuditiva.Services.Games
+@model GamePageState
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
+@inject TimeProvider Clock
+@{
+    // wwwroot/js/core/game.js runs the game from these data attributes: it starts a run on the
+    // first Play (the placement test's run is already started), sends it with every round, and
+    // keeps the bar in step with the "game" status RequestPlay, ValidateExercise and the Games
+    // endpoints return. Play is stopped while data-blocked-title is not empty.
+    var mode = Model.Mode;
+    var key = GameDisplay.Key(mode);
+    var status = Model.Progress is { } progress
+        ? GameDisplay.Status(S, progress, Clock.GetUtcNow().UtcDateTime)
+        : null;
+    var text = Model.Stale ? Localizer["Game.Placement.Stale"].Value
+        : status?.Text ?? Localizer[$"Game.{key}.Ready"].Value;
+    var seconds = (int)GameRules.SprintLength.TotalSeconds;
+}
+
+<section class="aa-preset aa-game" id="aaGame" aria-labelledby="aaGameName"
+         data-mode="@mode" data-run="@(Model.Item is null ? null : Model.Progress?.Run.Id)"
+         data-start-url="@Url.Action("Start", "Games", new { area = "" })"
+         data-finish-url="@Url.Action("Finish", "Games", new { area = "" })"
+         data-hub-url="@Url.Action("Index", "Games", new { area = "" })"
+         data-seconds="@seconds"
+         data-blocked-title="@(Model.Stale ? Localizer["Game.Placement.StaleTitle"].Value : null)"
+         data-blocked-message="@(Model.Stale ? Localizer["Game.Placement.Stale"].Value : null)"
+         data-ready-text="@Localizer[$"Game.{key}.Ready"].Value"
+         data-next-text="@Localizer["Game.Next"].Value"
+         data-result-text="@Localizer["Game.SeeResult"].Value"
+         data-again-text="@Localizer["Game.PlayAgain"].Value"
+         data-hub-text="@Localizer["Game.BackToGames"].Value"
+         data-busy-title="@Localizer["Game.AnswerFirstTitle"].Value"
+         data-busy-text="@Localizer["Game.AnswerFirst"].Value"
+         data-error-title="@Localizer["Exercise.ValidationErrorTitle"].Value"
+         data-error-text="@Localizer["Game.StartError"].Value">
+    <i class="bi @GameDisplay.Icon(mode)" aria-hidden="true"></i>
+    <div class="aa-preset-body">
+        <strong id="aaGameName">@Localizer[$"Game.{key}.Title"]</strong>
+        <span class="aa-game-text" data-aa-game-text aria-live="polite">@text</span>
+    </div>
+    @if (mode == GameModes.Sprint)
+    {
+        <span class="aa-game-timer" data-aa-game-timer role="timer" aria-label="@Localizer["Game.TimeLeft"]">@TimeSpan.FromSeconds(seconds).ToString(@"m\:ss")</span>
+    }
+    @if (mode != GameModes.Placement)
+    {
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-aa-game-stop hidden>
+            <i class="bi bi-stop-fill" aria-hidden="true"></i>
+            @Localizer["Game.Stop"]
+        </button>
+    }
+    <a class="btn btn-link btn-sm aa-preset-change" asp-area="" asp-controller="Games" asp-action="Index"
+       asp-fragment="@(mode == GameModes.Placement ? "placement" : null)">
+        @Localizer["Game.BackToGames"]
+    </a>
+</section>

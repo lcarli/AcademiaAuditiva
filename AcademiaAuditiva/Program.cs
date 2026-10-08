@@ -270,6 +270,8 @@ builder.Services.AddScoped<IDailyChallengeService, DailyChallengeService>();
 builder.Services.AddScoped<ITutorialService, TutorialService>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Routines.RoutineRounds>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Routines.RoutinePage>();
+builder.Services.AddScoped<AcademiaAuditiva.Services.Games.GameService>();
+builder.Services.AddScoped<AcademiaAuditiva.Services.Games.GamePage>();
 builder.Services.AddScoped<AcademiaAuditiva.Areas.Teacher.Services.RoutineReports>();
 
 

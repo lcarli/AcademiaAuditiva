@@ -1330,6 +1330,145 @@ test('each tour step brings its element out from under the header', async ({ pag
   expect((await seen).status()).toBe(204);
 });
 
+test('the games hub offers each game, fits small screens and opens the exercise in the game picked', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.locator('#mainNavbar a[href="/Games"]').click();
+  await expect(page).toHaveURL(/\/Games$/);
+  await expect(page.locator('h1')).toHaveText('Games');
+  await expect(page.locator('#mainNavbar a[href="/Games"]')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('[data-game-mode] h2')).toHaveText(['60-second sprint', 'Sudden death', 'Weak spots', 'Placement test']);
+
+  for (const width of [360, 768, 1024]) {
+    await page.setViewportSize({ width, height: 740 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow, `/Games at ${width} px`).toBe(0);
+  }
+  await page.setViewportSize({ width: 1280, height: 720 });
+
+  const survival = page.locator('section[data-game-mode="survival"]');
+  await expect(survival.locator('option[value="SingNote"]'), 'a sung exercise is no game').toHaveCount(0);
+  await survival.locator('select[name="exercise"]').selectOption('GuessNote');
+  await survival.getByRole('button', { name: 'Play' }).click();
+  await expect(page).toHaveURL(/\/Exercise\/GuessNote\?game=survival$/);
+  await expect(page.locator('#aaGameName')).toHaveText('Sudden death');
+  await expect(page.locator('#aaFreePractice')).toHaveCount(0);
+});
+
+test('sudden death plays round after round until the first wrong answer, then shows the streak', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessNote?game=survival`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const bar = page.locator('#aaGame');
+  const text = bar.locator('[data-aa-game-text]');
+  await expect(text).toHaveText('One mistake ends the game.');
+  await expect(bar.locator('[data-aa-game-timer]')).toHaveCount(0);
+
+  const started = page.waitForResponse(response => response.url().includes('/Games/Start'));
+  let played = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  await page.click('#Play');
+  const runId = (await (await started).json()).game.runId;
+  for (let streak = 0; streak < 40; streak++) {
+    const play = await played;
+    expect(JSON.parse(play.request().postData() ?? '{}')).toMatchObject({ gameRunId: runId, free: false });
+    expect(Object.keys(await play.json()).sort()).toEqual(['game', 'playToken', 'roundId']);
+    await expect(bar.locator('[data-aa-game-stop]')).toBeVisible();
+
+    await page.locator('.aa-answer:visible').first().click();
+    const validated = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+    await page.click('#validateGuess');
+    const result = await (await validated).json();
+    expect(result.game).toMatchObject({ runId, answered: streak + 1, score: result.isCorrect ? streak + 1 : streak });
+    if (result.isCorrect) {
+      // The next round plays by itself once the answer dialog closes.
+      played = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+      await expect(text).toHaveText(`Streak: ${streak + 1}`);
+      continue;
+    }
+
+    expect(result.game.over).toBe(true);
+    await expect(page.locator('.swal2-confirm')).toHaveText('See the result');
+    await page.click('.swal2-confirm');
+    const end = page.locator('.aa-game-end-popup');
+    await expect(end.locator('.swal2-title')).toHaveText('Game over');
+    await expect(end.locator('.aa-game-end-text')).toHaveText(`Streak: ${streak} in a row.`);
+    await expect(end.locator('.swal2-confirm')).toHaveText('Play again');
+    await expect(end.locator('.swal2-cancel')).toHaveText('Back to games');
+    await expect(bar.locator('[data-aa-game-stop]')).toBeHidden();
+    return;
+  }
+  throw new Error('Forty right answers in a row picking the first note: the answers are not checked.');
+});
+
+test('a sprint runs its clock from the first Play, and stopping it ends it with the answers given', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessNote?game=sprint`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const bar = page.locator('#aaGame');
+  const timer = bar.locator('[data-aa-game-timer]');
+  await expect(timer).toHaveText('1:00');
+  await expect(bar.locator('[data-aa-game-text]')).toHaveText('The clock starts with the first round.');
+
+  const started = page.waitForResponse(response => response.url().includes('/Games/Start'));
+  let played = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  await page.click('#Play');
+  const runId = (await (await started).json()).game.runId;
+  expect(JSON.parse((await played).request().postData() ?? '{}').gameRunId).toBe(runId);
+  await expect(timer).toHaveText(/^0:5\d$/);
+
+  played = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  await page.locator('.aa-answer:visible').first().click();
+  const validated = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+  await page.click('#validateGuess');
+  const result = await (await validated).json();
+  const score = result.isCorrect ? 1 : 0;
+  expect(result.game).toMatchObject({ runId, score, answered: 1, over: false });
+  await expect(bar.locator('[data-aa-game-text]')).toHaveText(`Right answers: ${score}`);
+  // Right or wrong, the next round follows by itself.
+  expect(JSON.parse((await played).request().postData() ?? '{}').gameRunId).toBe(runId);
+
+  const finished = page.waitForResponse(response => response.url().includes('/Games/Finish'));
+  await bar.locator('[data-aa-game-stop]').click();
+  expect((await (await finished).json()).game).toMatchObject({ runId, over: true, secondsLeft: 0, answered: 1 });
+  const end = page.locator('.aa-game-end-popup');
+  await expect(end.locator('.swal2-title')).toHaveText('Sprint over');
+  await expect(end.locator('.aa-game-end-text')).toHaveText(`${score} right out of 1 answered.`);
+  await expect(timer).toHaveText('0:00');
+  await expect(bar.locator('[data-aa-game-stop]')).toBeHidden();
+});
+
+test('the placement test starts from the games hub on its first exercise and asks its questions in turn', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Games`, { waitUntil: 'networkidle' });
+  await page.locator('section[data-game-mode="placement"] form button[type="submit"]').click();
+  await expect(page).toHaveURL(/\/Exercise\/GuessInterval\?.*game=placement&run=\d+$/);
+  const runId = Number(new URL(page.url()).searchParams.get('run'));
+  await page.waitForLoadState('networkidle');
+  await closeTourIfStarted(page);
+
+  const bar = page.locator('#aaGame');
+  const text = bar.locator('[data-aa-game-text]');
+  await expect(page.locator('#aaGameName')).toHaveText('Placement test');
+  await expect(text).toHaveText('Exercise 1 of 6, question 1 of 3: Guess Interval');
+  await expect(bar.locator('[data-aa-game-stop]')).toHaveCount(0);
+
+  let played = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  await page.click('#Play');
+  expect(JSON.parse((await played).request().postData() ?? '{}')).toMatchObject({ gameRunId: runId, free: false });
+
+  played = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  await page.locator('.aa-answer:visible').first().click();
+  const validated = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+  await page.click('#validateGuess');
+  expect((await (await validated).json()).game).toMatchObject({ runId, answered: 1, over: false });
+  await expect(text).toHaveText('Exercise 1 of 6, question 2 of 3: Guess Interval');
+  expect(JSON.parse((await played).request().postData() ?? '{}').gameRunId).toBe(runId);
+
+  await page.goto(`${baseURL}/Games`, { waitUntil: 'networkidle' });
+  const placement = page.locator('section[data-game-mode="placement"]');
+  await expect(placement.getByRole('link', { name: 'Continue the test' })).toHaveAttribute('href', new RegExp(`game=placement&run=${runId}$`));
+  await expect(placement.getByRole('button', { name: 'Start over' })).toBeVisible();
+});
+
 // A page's guided tour starts over it on the first visit; close it as a student
 // would (Esc) and wait until the server remembers it.
 async function closeTourIfStarted(page: Page) {

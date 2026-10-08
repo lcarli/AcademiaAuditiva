@@ -4,6 +4,7 @@ using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Gamification;
+using AcademiaAuditiva.Services.Games;
 using AcademiaAuditiva.Services.LearningPath;
 using AcademiaAuditiva.Services.Routines;
 using AcademiaAuditiva.Services.Scoring;
@@ -39,6 +40,7 @@ namespace AcademiaAuditiva.Controllers
 		private readonly IGamificationService _gamification;
 		private readonly ILearningPathService _learningPath;
 		private readonly RoutineRounds _routines;
+		private readonly GameService _games;
 		private readonly TimeProvider _clock;
 		private readonly ILogger<ExerciseController> _logger;
 		// Expected-answer entries live for one round (15 min) and are
@@ -60,6 +62,7 @@ namespace AcademiaAuditiva.Controllers
 			IGamificationService gamification,
 			ILearningPathService learningPath,
 			RoutineRounds routines,
+			GameService games,
 			TimeProvider clock,
 			ILogger<ExerciseController> logger)
 		{
@@ -75,6 +78,7 @@ namespace AcademiaAuditiva.Controllers
 			_gamification = gamification;
 			_learningPath = learningPath;
 			_routines = routines;
+			_games = games;
 			_clock = clock;
 			_logger = logger;
 		}
@@ -108,6 +112,9 @@ namespace AcademiaAuditiva.Controllers
 			if ((request.RoutineAssignmentId is not null || request.RoutineItemId is not null)
 				&& (routineLink is null || request.Free))
 				return BadRequest();
+			// A game round is neither free practice nor a routine question.
+			if (request.GameRunId is not null && (request.Free || routineLink is not null))
+				return BadRequest();
 
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (string.IsNullOrEmpty(userId))
@@ -118,6 +125,44 @@ namespace AcademiaAuditiva.Controllers
 				return NotFound(_localizer["Exercise.NotFound"].Value);
 
 			var filters = request.Filters ?? new Dictionary<string, string>();
+
+			// A game round is asked of the run's exercise with the run's settings, while the run
+			// takes rounds; once it is over, the page is told so instead.
+			GameStatus? gameStatus = null;
+			if (request.GameRunId is { } gameRunId)
+			{
+				var gameRun = GameModes.Playable(exercise.Name)
+					? await _games.FindAsync(userId, gameRunId, HttpContext.RequestAborted)
+					: null;
+				if (gameRun is null)
+					return BadRequest();
+
+				var now = _clock.GetUtcNow().UtcDateTime;
+				var progress = await _games.ProgressAsync(gameRun, now, recount: false, HttpContext.RequestAborted);
+				gameStatus = await GameStatusAsync(progress, exercise, now);
+				if (progress.Over)
+					return Json(new { success = false, message = _localizer["Game.Over"].Value, game = gameStatus });
+
+				IReadOnlyDictionary<string, string>? gameFilters = null;
+				if (gameRun.Mode == GameModes.Placement)
+				{
+					var itemLink = progress.Placement?.Current is { } item && item.Exercise == exercise.Name
+						? await _games.ItemLinkAsync(item, HttpContext.RequestAborted)
+						: null;
+					if (itemLink is not null && itemLink.ExerciseId == exercise.ExerciseId)
+						gameFilters = itemLink.Filters;
+				}
+				else if (gameRun.ExerciseId == exercise.ExerciseId)
+				{
+					gameFilters = ExerciseFilterPresets.Parse(gameRun.FilterJson);
+				}
+				// The placement test moved on to another exercise (in another window, say).
+				if (gameFilters is null)
+					return Json(new { success = false, message = _localizer["Game.Moved"].Value, game = gameStatus });
+
+				foreach (var (group, option) in gameFilters)
+					filters[group] = option;
+			}
 
 			RoutineRoundStatus? routineStatus = null;
 			RoutineQuestion? routineQuestion = null;
@@ -184,6 +229,9 @@ namespace AcademiaAuditiva.Controllers
 			// the staff renderer, with a token for its starting note.
 			if (plan.PlaybackPlans.Count == 0)
 			{
+				// Sung exercises are never played as a game (GameModes.Playable).
+				if (gameStatus is not null)
+					return BadRequest();
 				// Mixed first, as a round's clips are: a melody whose note can't be played isn't kept.
 				var sheetResponse = await SheetMusicResponseAsync(userId, plan.ExpectedAnswerJson, routineStatus);
 				var sessionData = new ExerciseSessionData
@@ -225,11 +273,15 @@ namespace AcademiaAuditiva.Controllers
 				free: request.Free,
 				filterJson: filterJson,
 				routine: routineQuestion,
+				gameRunId: request.GameRunId,
 				cancellationToken: HttpContext.RequestAborted);
 			if (routineQuestion is { } roundQuestion)
 				await _routines.RememberQuestionAsync(userId, roundQuestion.Link, new PendingQuestion(RoundId: round.RoundId), HttpContext.RequestAborted);
 
-			return Json(PlayResponse(exercise, round, routineStatus));
+			var response = PlayResponse(exercise, round, routineStatus);
+			if (gameStatus is not null)
+				response["game"] = gameStatus;
+			return Json(response);
 		}
 
 		private static readonly HashSet<string> StaffExercises = new() {
@@ -371,6 +423,7 @@ namespace AcademiaAuditiva.Controllers
 			string? filterJson = null;
 			DateTimeOffset? issuedAt = null;
 			RoutineQuestion? routineQuestion = null;
+			int? gameRunId = null;
 
 			if (!string.IsNullOrEmpty(dto.RoundId))
 			{
@@ -383,6 +436,7 @@ namespace AcademiaAuditiva.Controllers
 					filterJson = round.FilterJson;
 					issuedAt = round.IssuedAt;
 					routineQuestion = round.Routine;
+					gameRunId = round.GameRunId;
 				}
 			}
 
@@ -461,6 +515,20 @@ namespace AcademiaAuditiva.Controllers
 
 			var answered = routine is null ? null : routineQuestion;
 
+			var answeredAt = _clock.GetUtcNow();
+			var now = answeredAt.UtcDateTime;
+
+			// A game round's answer counts for its run while the run takes it; otherwise (a
+			// sprint answered after the whistle, say) it is ordinary practice.
+			GameRun? gameRun = null;
+			var gameTakesAnswer = false;
+			if (gameRunId is { } runId)
+			{
+				gameRun = await _games.FindAsync(userId, runId, HttpContext.RequestAborted);
+				gameTakesAnswer = gameRun is not null
+					&& await _games.TakesAnswerAsync(gameRun, exercise, now, HttpContext.RequestAborted);
+			}
+
 			var existingScore = await _context.Scores
 				.Where(s => s.UserId == userId && s.ExerciseId == exercise.ExerciseId)
 				.OrderByDescending(s => s.Timestamp)
@@ -475,8 +543,6 @@ namespace AcademiaAuditiva.Controllers
 			int errorCount = update.ErrorCount;
 			int bestScore = update.BestScore;
 
-			var answeredAt = _clock.GetUtcNow();
-			var now = answeredAt.UtcDateTime;
 			// Measured here rather than sent by the client: from Play to this
 			// answer, at most five minutes.
 			var timeSpentSeconds = AnswerTime.Seconds(issuedAt, answeredAt);
@@ -505,7 +571,8 @@ namespace AcademiaAuditiva.Controllers
 				FilterJson = filterJson,
 				RoutineAssignmentId = answered?.Link.AssignmentId,
 				RoutineItemId = answered?.Link.ItemId,
-				RoutineQuestion = answered?.Number
+				RoutineQuestion = answered?.Number,
+				GameRunId = gameTakesAnswer ? gameRun!.Id : null
 			});
 
 			// Upsert the aggregate row (one per user+exercise).
@@ -599,6 +666,21 @@ namespace AcademiaAuditiva.Controllers
 				}
 			}
 
+			// The run's score is counted from its answers, this one included.
+			GameStatus? game = null;
+			if (gameRun is not null)
+			{
+				try
+				{
+					var progress = await _games.ProgressAsync(gameRun, now, recount: gameTakesAnswer, HttpContext.RequestAborted);
+					game = await GameStatusAsync(progress, exercise, now);
+				}
+				catch (Exception ex) when (ex is not OperationCanceledException)
+				{
+					_logger.LogWarning(ex, "Could not update game run {GameRunId} after exercise {ExerciseId}.", gameRun.Id, exercise.ExerciseId);
+				}
+			}
+
 			return Json(new
 			{
 				success = true,
@@ -611,8 +693,30 @@ namespace AcademiaAuditiva.Controllers
 				message = isCorrect ? _localizer["Exercise.CorrectAnswer"].Value : _localizer["Exercise.IncorrectAnswer"].Value,
 				rewards,
 				path,
-				routine = routine is null ? null : RoutineRoundStatus.From(routine.Item.Answered(isCorrect), _localizer)
+				routine = routine is null ? null : RoutineRoundStatus.From(routine.Item.Answered(isCorrect), _localizer),
+				game
 			});
+		}
+
+		/// <summary>
+		/// The run as the game bar shows it. A placement test that moved on to another exercise
+		/// links to that exercise's page, and once finished to its result.
+		/// </summary>
+		private async Task<GameStatus> GameStatusAsync(GameProgress progress, Exercise exercise, DateTime now)
+		{
+			string? nextUrl = null;
+			string? resultUrl = null;
+			if (progress.Run.Mode == GameModes.Placement)
+			{
+				if (progress.Placement?.Current is { } item && item.Exercise != exercise.Name
+					&& await _games.ItemLinkAsync(item, HttpContext.RequestAborted) is { } link)
+				{
+					nextUrl = Url.GameUrl(item.Exercise, GameModes.Placement, link.Filters, progress.Run.Id);
+				}
+				if (progress.Over)
+					resultUrl = Url.Action("Placement", "Games", new { id = progress.Run.Id, area = string.Empty });
+			}
+			return GameDisplay.Status(_localizer, progress, now, nextUrl, resultUrl);
 		}
 
 		/// <summary>

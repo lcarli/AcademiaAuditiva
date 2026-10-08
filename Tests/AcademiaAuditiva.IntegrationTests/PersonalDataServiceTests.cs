@@ -187,6 +187,20 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
                 new ScoreAggregate { UserId = student.Id, ExerciseId = exerciseId, CorrectCount = 3, ErrorCount = 1, BestScore = 3 },
                 new UserTutorial { UserId = student.Id, TutorialKey = "Dashboard", SeenAt = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc), Finished = true });
             await db.SaveChangesAsync();
+
+            var run = new GameRun
+            {
+                UserId = student.Id, Mode = "survival", ExerciseId = exerciseId, FilterJson = """{"level":"2"}""",
+                StartedAt = new DateTime(2026, 10, 2, 12, 0, 0, DateTimeKind.Utc), Score = 1, Answered = 2,
+            };
+            db.GameRuns.Add(run);
+            await db.SaveChangesAsync();
+            db.ScoreSnapshots.Add(new ScoreSnapshot
+            {
+                UserId = student.Id, ExerciseId = exerciseId, IsCorrect = true, GameRunId = run.Id,
+                Timestamp = new DateTime(2026, 10, 2, 12, 0, 5, DateTimeKind.Utc),
+            });
+            await db.SaveChangesAsync();
         }
 
         var studentJson = await ExportAsync(student.Id);
@@ -201,6 +215,15 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
             totals.GetArrayLength().Should().Be(1);
             totals[0].GetProperty("exercise").GetString().Should().Be(ExerciseName);
             totals[0].GetProperty("correctCount").GetInt32().Should().Be(3);
+
+            var games = root.GetProperty("games");
+            games.GetArrayLength().Should().Be(1);
+            games[0].GetProperty("mode").GetString().Should().Be("survival");
+            games[0].GetProperty("exercise").GetString().Should().Be(ExerciseName);
+            games[0].GetProperty("score").GetInt32().Should().Be(1);
+            var answers = root.GetProperty("practice").GetProperty("answers");
+            answers.GetArrayLength().Should().Be(1);
+            answers[0].GetProperty("gameRunId").GetInt32().Should().Be(games[0].GetProperty("id").GetInt32());
 
             var tutorials = root.GetProperty("tutorials");
             tutorials.GetArrayLength().Should().Be(1);

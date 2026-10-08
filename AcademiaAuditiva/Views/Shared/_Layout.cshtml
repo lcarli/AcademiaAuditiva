@@ -122,6 +122,10 @@
                                    asp-area="" asp-controller="Explore" asp-action="Index">@Localizer["Header.Explore"]</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link @(IsCurrent("", "Games") ? "active" : null)" aria-current="@(IsCurrent("", "Games") ? "page" : null)"
+                                   asp-area="" asp-controller="Games" asp-action="Index">@Localizer["Header.Games"]</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link @(IsCurrent("", "MyTraining") ? "active" : null)" aria-current="@(IsCurrent("", "MyTraining") ? "page" : null)"
                                    asp-area="" asp-controller="MyTraining" asp-action="Index" data-tour="nav-training">@Localizer["Header.MyTraining"]</a>
                             </li>
@@ -227,8 +231,8 @@
     <script src="~/js/core/i18n.js" asp-append-version="true"></script>
     <script src="~/js/core/rewards.js" asp-append-version="true"></script>
     <script src="~/js/core/practice.js" asp-append-version="true"></script>
+    <script src="~/js/core/game.js" asp-append-version="true"></script>
     <script src="~/js/core/alerts.js" asp-append-version="true"></script>
-    <script src="/js/games/game-engine.js?v=1.0.2"></script>
     <script src="/js/main/academia-auditiva.js?v=1.0.2"></script>
     <script src="~/js/AcademiaAuditiva.Filters.js" asp-append-version="true"></script>
     <script>

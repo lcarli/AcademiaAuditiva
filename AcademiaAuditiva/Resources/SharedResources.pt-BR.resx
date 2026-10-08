@@ -4450,4 +4450,244 @@
   <data name="Exercise.Tuning.Flat" xml:space="preserve">
     <value>Baixa</value>
   </data>
+  <data name="Header.Games" xml:space="preserve">
+    <value>Jogos</value>
+  </data>
+  <data name="Game.Sprint.Title" xml:space="preserve">
+    <value>Sprint de 60 s</value>
+  </data>
+  <data name="Game.Sprint.Description" xml:space="preserve">
+    <value>Acerte o máximo de rodadas que conseguir em 60 segundos. Errar só custa tempo.</value>
+  </data>
+  <data name="Game.Sprint.Ready" xml:space="preserve">
+    <value>O cronômetro começa na primeira rodada.</value>
+  </data>
+  <data name="Game.Sprint.EndTitle" xml:space="preserve">
+    <value>Fim do sprint</value>
+  </data>
+  <data name="Game.Sprint.EndText" xml:space="preserve">
+    <value>{0} acertos em {1} respostas.</value>
+  </data>
+  <data name="Game.Survival.Title" xml:space="preserve">
+    <value>Morte súbita</value>
+  </data>
+  <data name="Game.Survival.Description" xml:space="preserve">
+    <value>Responda até o primeiro erro. Até onde vai a sua sequência?</value>
+  </data>
+  <data name="Game.Survival.Ready" xml:space="preserve">
+    <value>Um erro encerra o jogo.</value>
+  </data>
+  <data name="Game.Survival.EndTitle" xml:space="preserve">
+    <value>Fim de jogo</value>
+  </data>
+  <data name="Game.Survival.EndText" xml:space="preserve">
+    <value>Sequência: {0} seguidos.</value>
+  </data>
+  <data name="Game.WeakSpots.Title" xml:space="preserve">
+    <value>Pontos fracos</value>
+  </data>
+  <data name="Game.WeakSpots.Description" xml:space="preserve">
+    <value>Séries de {0} perguntas nas configurações de exercício em que você mais erra, escolhidas a partir das suas respostas.</value>
+  </data>
+  <data name="Game.WeakSpots.Ready" xml:space="preserve">
+    <value>Responda todas as perguntas da série para terminá-la.</value>
+  </data>
+  <data name="Game.WeakSpots.EndTitle" xml:space="preserve">
+    <value>Série concluída</value>
+  </data>
+  <data name="Game.WeakSpots.EndText" xml:space="preserve">
+    <value>{0} acertos de {1}.</value>
+  </data>
+  <data name="Game.Placement.Title" xml:space="preserve">
+    <value>Teste de nivelamento</value>
+  </data>
+  <data name="Game.Placement.Description" xml:space="preserve">
+    <value>Algumas perguntas sobre cada uma das {0} primeiras unidades da trilha mostram por onde começar. Depois a trilha pode pular as unidades em que você passou.</value>
+  </data>
+  <data name="Game.Placement.Ready" xml:space="preserve">
+    <value>Responda cada pergunta: o teste avança sozinho.</value>
+  </data>
+  <data name="Game.Placement.EndTitle" xml:space="preserve">
+    <value>Teste de nivelamento concluído</value>
+  </data>
+  <data name="Game.Placement.EndText" xml:space="preserve">
+    <value>Veja por qual unidade começar.</value>
+  </data>
+  <data name="Game.Placement.StaleTitle" xml:space="preserve">
+    <value>O teste avançou</value>
+  </data>
+  <data name="Game.Placement.Stale" xml:space="preserve">
+    <value>O teste de nivelamento já está em outra pergunta. Volte à página de jogos para continuar.</value>
+  </data>
+  <data name="Game.Bar.Correct" xml:space="preserve">
+    <value>Acertos: {0}</value>
+  </data>
+  <data name="Game.Bar.Streak" xml:space="preserve">
+    <value>Sequência: {0}</value>
+  </data>
+  <data name="Game.Bar.Question" xml:space="preserve">
+    <value>Pergunta {0} de {1} · {2} acertos</value>
+  </data>
+  <data name="Game.Bar.Done" xml:space="preserve">
+    <value>{0} acertos de {1}</value>
+  </data>
+  <data name="Game.Bar.Placement" xml:space="preserve">
+    <value>Exercício {0} de {1}, pergunta {2} de {3}: {4}</value>
+  </data>
+  <data name="Game.Bar.PlacementDone" xml:space="preserve">
+    <value>Teste de nivelamento concluído.</value>
+  </data>
+  <data name="Game.End.NewBest" xml:space="preserve">
+    <value>Novo recorde pessoal!</value>
+  </data>
+  <data name="Game.End.Best" xml:space="preserve">
+    <value>Recorde pessoal: {0}</value>
+  </data>
+  <data name="Game.Over" xml:space="preserve">
+    <value>Este jogo terminou.</value>
+  </data>
+  <data name="Game.Moved" xml:space="preserve">
+    <value>Este jogo continua em outro exercício.</value>
+  </data>
+  <data name="Game.FilterLocked" xml:space="preserve">
+    <value>Definido pelo jogo.</value>
+  </data>
+  <data name="Game.Next" xml:space="preserve">
+    <value>Próxima</value>
+  </data>
+  <data name="Game.SeeResult" xml:space="preserve">
+    <value>Ver o resultado</value>
+  </data>
+  <data name="Game.PlayAgain" xml:space="preserve">
+    <value>Jogar de novo</value>
+  </data>
+  <data name="Game.BackToGames" xml:space="preserve">
+    <value>Voltar aos jogos</value>
+  </data>
+  <data name="Game.AnswerFirstTitle" xml:space="preserve">
+    <value>Responda primeiro</value>
+  </data>
+  <data name="Game.AnswerFirst" xml:space="preserve">
+    <value>Responda a pergunta atual antes de pedir a próxima.</value>
+  </data>
+  <data name="Game.StartError" xml:space="preserve">
+    <value>Não foi possível iniciar o jogo. Tente novamente.</value>
+  </data>
+  <data name="Game.TimeLeft" xml:space="preserve">
+    <value>Tempo restante</value>
+  </data>
+  <data name="Game.Stop" xml:space="preserve">
+    <value>Parar</value>
+  </data>
+  <data name="Games.Title" xml:space="preserve">
+    <value>Jogos</value>
+  </data>
+  <data name="Games.Subtitle" xml:space="preserve">
+    <value>Jogue os exercícios contra o relógio, em sequência ou nos seus pontos fracos. Toda resposta conta para suas estatísticas e XP.</value>
+  </data>
+  <data name="Games.Exercise" xml:space="preserve">
+    <value>Exercício</value>
+  </data>
+  <data name="Games.Play" xml:space="preserve">
+    <value>Jogar</value>
+  </data>
+  <data name="Games.Practice" xml:space="preserve">
+    <value>Praticar</value>
+  </data>
+  <data name="Games.WeakSpots.None" xml:space="preserve">
+    <value>Nenhum ponto fraco no momento. Um exercício em que você erra com frequência aparece aqui depois de respondido pelo menos {0} vezes com as mesmas configurações.</value>
+  </data>
+  <data name="Games.WeakSpots.Accuracy" xml:space="preserve">
+    <value>{0}% de acertos nas suas últimas {1} respostas</value>
+  </data>
+  <data name="Games.Placement.Unavailable" xml:space="preserve">
+    <value>O teste de nivelamento não está disponível no momento.</value>
+  </data>
+  <data name="Games.Placement.LastResult" xml:space="preserve">
+    <value>Último resultado: começar pela unidade {0}, {1}.</value>
+  </data>
+  <data name="Games.Placement.SeeResult" xml:space="preserve">
+    <value>Ver o resultado</value>
+  </data>
+  <data name="Games.Placement.Continue" xml:space="preserve">
+    <value>Continuar o teste</value>
+  </data>
+  <data name="Games.Placement.Start" xml:space="preserve">
+    <value>Começar o teste</value>
+  </data>
+  <data name="Games.Placement.Restart" xml:space="preserve">
+    <value>Recomeçar</value>
+  </data>
+  <data name="Games.Placement.Suggested" xml:space="preserve">
+    <value>Comece pela unidade {0}: {1}</value>
+  </data>
+  <data name="Games.Placement.FromStart" xml:space="preserve">
+    <value>A trilha começa pelo básico: um bom lugar para você começar.</value>
+  </data>
+  <data name="Games.Placement.OpenPath" xml:space="preserve">
+    <value>Abrir a trilha</value>
+  </data>
+  <data name="Games.Placement.ApplyText" xml:space="preserve">
+    <value>Desbloqueie a trilha até a unidade {0}: as etapas anteriores ficam dispensadas, para você começar por ela. Suas estatísticas e XP não mudam.</value>
+  </data>
+  <data name="Games.Placement.Apply" xml:space="preserve">
+    <value>Começar pela unidade {0}</value>
+  </data>
+  <data name="Games.Placement.Applied" xml:space="preserve">
+    <value>A trilha está desbloqueada até a unidade {0}.</value>
+  </data>
+  <data name="Games.Placement.InProgress" xml:space="preserve">
+    <value>Teste em andamento</value>
+  </data>
+  <data name="Games.Placement.Incomplete" xml:space="preserve">
+    <value>Este teste não foi concluído</value>
+  </data>
+  <data name="Games.Placement.Units" xml:space="preserve">
+    <value>Unidades testadas</value>
+  </data>
+  <data name="Games.Placement.Passed" xml:space="preserve">
+    <value>Aprovada</value>
+  </data>
+  <data name="Games.Placement.Failed" xml:space="preserve">
+    <value>Não aprovada</value>
+  </data>
+  <data name="Games.Placement.Testing" xml:space="preserve">
+    <value>Em teste</value>
+  </data>
+  <data name="Games.Placement.NotTested" xml:space="preserve">
+    <value>Não testada</value>
+  </data>
+  <data name="Games.Placement.UnitScore" xml:space="preserve">
+    <value>{0} acertos de {1}</value>
+  </data>
+  <data name="Games.Records.Title" xml:space="preserve">
+    <value>Recordes pessoais</value>
+  </data>
+  <data name="Games.Records.None" xml:space="preserve">
+    <value>Nenhum recorde ainda. Termine um sprint ou uma morte súbita para marcar o primeiro.</value>
+  </data>
+  <data name="Games.Records.Mode" xml:space="preserve">
+    <value>Jogo</value>
+  </data>
+  <data name="Games.Records.Best" xml:space="preserve">
+    <value>Recorde</value>
+  </data>
+  <data name="Games.Records.Runs" xml:space="preserve">
+    <value>Partidas</value>
+  </data>
+  <data name="Toast.PlacementApplied" xml:space="preserve">
+    <value>Trilha atualizada com o resultado do teste de nivelamento.</value>
+  </data>
+  <data name="Toast.PlacementUnavailable" xml:space="preserve">
+    <value>O teste de nivelamento não está disponível no momento.</value>
+  </data>
+  <data name="LearningPath.State.Placed" xml:space="preserve">
+    <value>Dispensada</value>
+  </data>
+  <data name="LearningPath.PlacementHint" xml:space="preserve">
+    <value>Já sabe o básico?</value>
+  </data>
+  <data name="LearningPath.PlacementLink" xml:space="preserve">
+    <value>Faça o teste de nivelamento</value>
+  </data>
 </root>

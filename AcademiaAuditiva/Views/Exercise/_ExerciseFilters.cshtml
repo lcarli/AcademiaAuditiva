@@ -2,6 +2,7 @@
 @using AcademiaAuditiva.Services.Audio
 @model AcademiaAuditiva.ViewModels.ExerciseFiltersViewModel
 @inject AcademiaAuditiva.Services.Routines.RoutinePage RoutinePage
+@inject AcademiaAuditiva.Services.Games.GamePage GamePage
 @{
     // Exercises about chords leave out the instruments that don't play them. When the exercise
     // plays chords, the guitar plays them where on the neck the student picks: the position
@@ -61,10 +62,12 @@
 
     @if (Model.Groups.Count > 0)
     {
-        // A routine question plays with the filters its teacher set (RequestPlay enforces them);
-        // the student picks the others.
+        // A routine question plays with the filters its teacher set (RequestPlay enforces them),
+        // and a placement test with its step's; the student picks the others.
         var routine = await RoutinePage.ResolveAsync(Context, Model.ExerciseId);
-        var locked = routine?.Round?.Item.Filters;
+        var game = routine is null ? await GamePage.ResolveAsync(Context, Model.ExerciseId) : null;
+        var locked = routine?.Round?.Item.Filters ?? game?.LockedFilters;
+        var lockedNote = routine is null ? "Game.FilterLocked" : "Routine.FilterLocked";
         IReadOnlyDictionary<string, string> presets = locked
             ?? AcademiaAuditiva.Services.ExerciseFilterPresets.FromQuery(Context.Request.Query, Model.Groups);
         <hr class="my-4" />
@@ -86,7 +89,7 @@
                 {
                     <div class="form-text" id="@(group.Name)Locked">
                         <i class="bi bi-lock" aria-hidden="true"></i>
-                        @Localizer["Routine.FilterLocked"]
+                        @Localizer[lockedNote]
                     </div>
                 }
             </div>

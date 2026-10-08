@@ -6,6 +6,9 @@
     var current = Model.Current;
 }
 
+@* The placement test's "skip to unit" redirects here with a message. *@
+<partial name="_TempDataAlerts" />
+
 <header class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
     <div class="aa-path-intro">
         <a class="aa-eyebrow text-decoration-none" asp-controller="Dashboard" asp-action="Index">
@@ -13,6 +16,13 @@
         </a>
         <h1 class="display-6 mt-2 mb-1 text-body-emphasis">@Localizer["LearningPath.Title"]</h1>
         <p class="text-secondary mb-0">@Localizer["LearningPath.Subtitle"]</p>
+        @if (!Model.HasStarted && Model.TotalSteps > 0)
+        {
+            <p class="small mt-2 mb-0">
+                <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>@Localizer["LearningPath.PlacementHint"]
+                <a asp-controller="Games" asp-action="Index" asp-fragment="placement">@Localizer["LearningPath.PlacementLink"]</a>
+            </p>
+        }
     </div>
     @if (Model.TotalSteps > 0)
     {
@@ -99,7 +109,7 @@ else if (Model.IsComplete)
                                     }
                                 </h3>
                             </div>
-                            <span class="aa-path-state is-@state">@Localizer[$"LearningPath.State.{step.State}"]</span>
+                            <span class="aa-path-state is-@state">@Localizer[step.Placed ? "LearningPath.State.Placed" : $"LearningPath.State.{step.State}"]</span>
                         </div>
                         <p class="small text-secondary mb-0">@S.StepSubtitle(step)</p>
                         @if (step.AppliedFilters.Count > 0)

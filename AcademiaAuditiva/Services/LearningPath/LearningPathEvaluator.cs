@@ -12,7 +12,8 @@ public enum StepState
 /// <summary>Where the player stands on one step.</summary>
 /// <param name="Correct">Right answers among the last <see cref="PathStep.Window"/> answers that count for the step.</param>
 /// <param name="Answered">Answers in that window (at most <see cref="PathStep.Window"/>).</param>
-public sealed record StepStatus(PathStep Step, StepState State, int Correct, int Answered)
+/// <param name="Placed">Completed by the placement test rather than by answers.</param>
+public sealed record StepStatus(PathStep Step, StepState State, int Correct, int Answered, bool Placed = false)
 {
     public int Percent => State switch
     {
@@ -32,15 +33,20 @@ public static class LearningPathEvaluator
     /// after the answer that completed the previous step, and is complete at the first
     /// answer where <see cref="PathStep.Required"/> of the last <see cref="PathStep.Window"/>
     /// are right. So one answer completes at most one step, and every step after the
-    /// first incomplete one is locked.
+    /// first incomplete one is locked. The first <paramref name="placedSteps"/> steps,
+    /// which the placement test let the player skip, are complete anyway: those the answers
+    /// don't complete are marked <see cref="StepStatus.Placed"/>, and the next step counts
+    /// answers from the same point as they did.
     /// </summary>
     /// <param name="steps">Steps whose exercise is in <paramref name="exerciseIds"/>.</param>
     /// <param name="exerciseIds">Exercise.Name → ExerciseId.</param>
     /// <param name="answers">The player's answers, oldest first.</param>
+    /// <param name="placedSteps">How many of the first steps the placement test completed.</param>
     public static PathEvaluation Evaluate(
         IReadOnlyList<PathStep> steps,
         IReadOnlyDictionary<string, int> exerciseIds,
-        IReadOnlyList<PracticeAnswer> answers)
+        IReadOnlyList<PracticeAnswer> answers,
+        int placedSteps = 0)
     {
         var statuses = new List<StepStatus>(steps.Count);
         int? justCompleted = null;
@@ -75,6 +81,12 @@ public static class LearningPathEvaluator
 
             if (completedBy < 0)
             {
+                if (statuses.Count < placedSteps)
+                {
+                    statuses.Add(new StepStatus(step, StepState.Completed, correct, window.Count, Placed: true));
+                    continue;
+                }
+
                 statuses.Add(new StepStatus(step, StepState.Current, correct, window.Count));
                 unlocked = false;
                 continue;
