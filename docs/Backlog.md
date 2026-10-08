@@ -61,7 +61,7 @@ The modernization plan is done (#47 to #83):
   by 50, 25, 10 or 5 cents, as the student picks; the mixer shifts the
   sample's pitch by resampling it with a windowed sinc. The home page counts
   and lists every exercise by category from the code, not the database
-  (#PR).
+  (#135).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -254,7 +254,7 @@ GuessInterval and GuessFullInterval play harmonic intervals too (#132),
 GuessChangedNote asks which note of a melody changed (#133), SingNote,
 SingInterval and SingMelody have the student sing (#134), and GuessTuning asks
 whether a note played again is in tune, sharp or flat, 50 to 5 cents off, which
-the mixer plays by shifting the sample's pitch (`MixInput.Cents`) (#PR).
+the mixer plays by shifting the sample's pitch (`MixInput.Cents`) (#135).
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
