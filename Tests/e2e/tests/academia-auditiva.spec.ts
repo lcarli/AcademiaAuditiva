@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { expect, test, type Browser, type Page } from '@playwright/test';
 
 const cultures = ['en-US', 'pt-BR', 'fr-CA'] as const;
@@ -892,6 +893,139 @@ test('sight-singing is silent on a new melody and plays its starting note on the
   await expect.poll(heard).toEqual(['decoded', 'clip']);
 });
 
+test('sight-singing hears the melody sung into the microphone and checks it', async ({ page, baseURL }) => {
+  test.setTimeout(90_000);
+  await fakeMicrophone(page);
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/SolfegeMelody`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  await page.click('#Generate');
+  const melody: { type: string; note: string }[] = (await (await playResponse).json()).melody;
+  const notes = melody.filter(item => item.type === 'note').map(item => noteMidi(item.note));
+  await expect(page.locator('#output-sheet svg')).toBeVisible();
+
+  const { guess, result } = await singAndValidate(page, notes.map(midi => ({ midi, seconds: 0.6 })));
+  expect(guess).toMatch(/^[A-G]#?\d(\|[A-G]#?\d)+$/);
+  expect(result).toMatchObject({ success: true, isCorrect: true });
+  await expect(page.locator('.swal2-popup .swal2-title')).toHaveText('Correct!');
+});
+
+test('sing the note shows the level while recording, then hears the note in any octave and how in tune it was', async ({ page, baseURL }) => {
+  test.setTimeout(90_000);
+  await fakeMicrophone(page);
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/SingNote?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const dialog = page.locator('.swal2-popup');
+
+  // Nothing to sing before a round, and nothing to check before singing.
+  await page.click('#recordAudio');
+  await expect(dialog.locator('.swal2-title')).toHaveText('No audio loaded');
+  await page.click('.swal2-confirm');
+  const { play, answer } = await playAndReveal(page);
+  expect(Object.keys(play).sort()).toEqual(['playToken', 'roundId']);
+  expect(answer).toMatch(/^[A-G]#?\d$/);
+  await page.click('#validateGuess');
+  await expect(dialog).toContainText('Record yourself singing first.');
+  await page.click('.swal2-confirm');
+
+  // Sung where a voice sings it, which may be another octave.
+  const sung = singable(noteMidi(answer));
+  const meter = page.locator('#micMeter');
+  await expect(meter).toBeHidden();
+  const { guess, result } = await singAndValidate(page, [{ midi: sung, seconds: 1.5 }], async () => {
+    await expect(meter).toBeVisible();
+    await expect.poll(() => meter.locator('.aa-mic-meter-level').evaluate(level =>
+      Number(/scaleX\(([\d.]+)\)/.exec((level as HTMLElement).style.transform)?.[1] ?? 0))).toBeGreaterThan(0.3);
+  });
+  await expect(meter).toBeHidden();
+  expect(guess).toBe(sharpName(sung));
+  expect(result).toMatchObject({ success: true, free: true, isCorrect: true, answer });
+  await expect(dialog.locator('.swal2-title')).toHaveText('Correct!');
+  await expect(dialog.locator('.swal2-html-container')).toHaveText(`We heard ${noteLabel(sung)}.You sang it in tune.`);
+  await page.click('.swal2-confirm');
+
+  // A note sung a tone too high is wrong, and the answer says which note was asked for.
+  const next = await playAndReveal(page);
+  const wrong = singable(noteMidi(next.answer)) + 2;
+  const second = await singAndValidate(page, [{ midi: wrong, seconds: 1.5 }]);
+  expect(second.result).toMatchObject({ success: true, free: true, isCorrect: false, answer: next.answer });
+  await expect(dialog.locator('.swal2-title')).toHaveText('Wrong!');
+  await expect(dialog.locator('.swal2-html-container')).toHaveText(
+    `The correct answer was ${noteLabel(noteMidi(next.answer))}.We heard ${noteLabel(wrong)}.`);
+  await page.click('.swal2-confirm');
+  await expect(page.locator('#aaFreeCorrect')).toHaveText('1');
+  await expect(page.locator('#aaFreeWrong')).toHaveText('1');
+});
+
+test('sing the interval shows the interval to sing but not its note, and checks the two notes sung', async ({ page, baseURL }) => {
+  test.setTimeout(90_000);
+  await fakeMicrophone(page);
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/SingInterval?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const dialog = page.locator('.swal2-popup');
+  const prompt = page.locator('#singIntervalPrompt');
+  await expect(prompt).toBeEmpty();
+
+  // Easy, ascending by default: the round names the interval and its direction only.
+  const names: Record<string, string> = { '2M': 'Major 2nd', '3M': 'Major 3rd', '4J': 'Perfect 4th', '5J': 'Perfect 5th', '8J': 'Perfect 8th' };
+  const steps: Record<string, number> = { '2M': 2, '3M': 4, '4J': 5, '5J': 7, '8J': 12 };
+  const { play, answer } = await playAndReveal(page, ' → ');
+  expect(Object.keys(play).sort()).toEqual(['direction', 'interval', 'playToken', 'roundId']);
+  expect(play.direction).toBe('asc');
+  expect(Object.keys(names)).toContain(play.interval);
+  await expect(prompt).toHaveText(`${names[play.interval]}Ascending`);
+  await expect(prompt.locator('.bi-arrow-up')).toBeVisible();
+  const [first, second] = answer.split('|').map(noteMidi);
+  expect(second - first).toBe(steps[play.interval]);
+
+  // One note is not an interval: the round stays to sing again.
+  const start = singable(first);
+  await record(page, [{ midi: start, seconds: 1.2 }]);
+  await page.click('#validateGuess');
+  await expect(dialog).toContainText('We heard only one note.');
+  await page.click('.swal2-confirm');
+  await expect(prompt).not.toBeEmpty();
+
+  // A semitone short is wrong, and the answer says which interval was sung.
+  const short = await singAndValidate(page, [{ midi: start, seconds: 1.1 }, { midi: start + steps[play.interval] - 1, seconds: 1.1 }]);
+  expect(short.guess).toBe(`${sharpName(start)}|${sharpName(start + steps[play.interval] - 1)}`);
+  expect(short.result).toMatchObject({ success: true, free: true, isCorrect: false, answer });
+  const semitoneShort: Record<string, string> = { '2M': 'Minor 2nd', '3M': 'Minor 3rd', '4J': 'Major 3rd', '5J': 'Augmented 4th', '8J': 'Major 7th' };
+  const sungName = semitoneShort[play.interval as string];
+  await expect(dialog.locator('.swal2-html-container')).toContainText(`Interval you sang: ${sungName}, ascending.`);
+  await page.click('.swal2-confirm');
+  await expect(prompt).toBeEmpty();
+
+  // Sung right, in another octave if need be.
+  const next = await playAndReveal(page, ' → ');
+  const [low, high] = next.answer.split('|').map(noteMidi);
+  const from = singable(low);
+  const right = await singAndValidate(page, [{ midi: from, seconds: 1.1 }, { midi: from + high - low, seconds: 1.1 }]);
+  expect(right.result).toMatchObject({ success: true, free: true, isCorrect: true, answer: next.answer });
+  await expect(dialog.locator('.swal2-title')).toHaveText('Correct!');
+  await expect(dialog.locator('.swal2-html-container')).toHaveText(`We heard ${noteLabel(from)} → ${noteLabel(from + high - low)}.`);
+});
+
+test('sing the melody plays the melody and checks the one sung back', async ({ page, baseURL }) => {
+  test.setTimeout(90_000);
+  await fakeMicrophone(page);
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/SingMelody?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  const { play, answer } = await playAndReveal(page);
+  expect(Object.keys(play).sort()).toEqual(['playToken', 'roundId']);
+  const melody = answer.split('|').map(noteMidi);
+  expect(melody).toHaveLength(4);
+  const { result } = await singAndValidate(page, melody.map(midi => ({ midi, seconds: 0.6 })));
+  expect(result).toMatchObject({ success: true, free: true, isCorrect: true, answer });
+  await expect(page.locator('.swal2-popup .swal2-title')).toHaveText('Correct!');
+});
+
 test('complete the chord is heard and written on the staff, above its root or whole', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   const editor = page.locator('#staffEditor');
@@ -1180,6 +1314,98 @@ function pitchClass(note: string) {
   const sharps: Record<string, string> = { Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#' };
   const name = note.replace(/\d+$/, '');
   return sharps[name] ?? name;
+}
+
+type Sung = { midi: number; seconds: number };
+
+// A student's microphone: getUserMedia gives the page the synthetic singer of
+// fixtures/synthetic-voice.js singing window.aaSing's notes in tune, from the
+// moment the page opens it; window.aaSung turns true once they are sung.
+async function fakeMicrophone(page: Page) {
+  await page.addInitScript({ path: path.join(__dirname, '..', 'fixtures', 'synthetic-voice.js') });
+  await page.addInitScript(() => {
+    type Voice = { sing(notes: Sung[], options: object): { samples: Float32Array; sampleRate: number } };
+    const w = window as unknown as { aaSing: Sung[]; aaSung: boolean; SyntheticVoice: Voice };
+    w.aaSing = [];
+    w.aaSung = false;
+    navigator.mediaDevices.getUserMedia = async () => {
+      const context = new AudioContext();
+      const { samples, sampleRate } = w.SyntheticVoice.sing(w.aaSing, { seed: 7, sampleRate: context.sampleRate, detuneCents: 0, driftCents: 0 });
+      const buffer = context.createBuffer(1, samples.length, sampleRate);
+      buffer.copyToChannel(samples, 0);
+      const source = context.createBufferSource();
+      source.buffer = buffer;
+      const microphone = context.createMediaStreamDestination();
+      source.connect(microphone);
+      w.aaSung = false;
+      source.onended = () => { w.aaSung = true; };
+      source.start();
+      return microphone.stream;
+    };
+  });
+}
+
+// "C#4" as its MIDI number, 61.
+function noteMidi(note: string) {
+  const naturals: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  const match = /^([A-G])([#b]?)(-?\d+)$/.exec(note);
+  expect(match, note).toBeTruthy();
+  const shift = match![2] === '#' ? 1 : match![2] === 'b' ? -1 : 0;
+  return (Number(match![3]) + 1) * 12 + naturals[match![1]] + shift;
+}
+
+const sharpNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+// 61 as the singing pages send it: "C#4".
+function sharpName(midi: number) {
+  return sharpNames[midi % 12] + (Math.floor(midi / 12) - 1);
+}
+
+// 61 as the English pages show it, without its octave: "C♯".
+function noteLabel(midi: number) {
+  return sharpNames[midi % 12].replace('#', '♯');
+}
+
+// The note moved by octaves to E3..D#4, where a voice sings it and the octave above it.
+function singable(midi: number) {
+  while (midi >= 64) midi -= 12;
+  while (midi < 52) midi += 12;
+  return midi;
+}
+
+// Plays a free practice round and reveals its answer, which the page names
+// without octaves, joined as given; returns the round and the answer.
+async function playAndReveal(page: Page, join = ' ') {
+  const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+  await page.click('#Play');
+  const play = await (await playResponse).json();
+  const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+  await page.locator('[data-aa-reveal]').click();
+  const answer: string = (await (await revealResponse).json()).answer;
+  const dialog = page.locator('.swal2-popup');
+  await expect(dialog.locator('.swal2-html-container')).toHaveText(answer.split('|').map(note => noteLabel(noteMidi(note))).join(join));
+  await page.click('.swal2-confirm');
+  await expect(dialog).toBeHidden();
+  return { play, answer };
+}
+
+// Records the student singing the notes; whileRecording runs as they sing.
+async function record(page: Page, notes: Sung[], whileRecording?: () => Promise<void>) {
+  await page.evaluate(notes => { (window as unknown as { aaSing: Sung[] }).aaSing = notes; }, notes);
+  await page.click('#recordAudio');
+  await expect(page.locator('#recordAudio')).toHaveAttribute('aria-pressed', 'true');
+  await whileRecording?.();
+  await page.waitForFunction(() => (window as unknown as { aaSung: boolean }).aaSung);
+}
+
+// Sings the notes and checks them: returns the note names sent and the server's answer.
+async function singAndValidate(page: Page, notes: Sung[], whileRecording?: () => Promise<void>) {
+  await record(page, notes, whileRecording);
+  const validated = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+  await page.click('#validateGuess');
+  const response = await validated;
+  const guess: string = JSON.parse(response.request().postData() ?? '{}').userGuess;
+  return { guess, result: await response.json() };
 }
 
 // Opens a dictation in free practice at a level (by default Advanced: every plain note value,

@@ -130,11 +130,12 @@ Nos quatro últimos níveis, cada figura começa num tempo e termina dentro do c
 
 ---
 
-### 14. Reproduza o Intervalo
+### 14. Cante o intervalo
+O aluno ouve uma nota e vê um intervalo, com uma seta para cima ou para baixo (a segunda nota não aparece nem toca). Ele grava a nota que ouviu e depois a nota a esse intervalo dela, na direção pedida. Pode cantar em qualquer oitava: a primeira nota vale pelo nome (Dó em qualquer oitava é Dó), e a segunda tem de estar a exatamente esse número de semitons da primeira que ele cantou. A página envia as duas notas que ouviu por mais tempo, na ordem cantada; se ouvir só uma, avisa e a questão continua. Uma resposta errada mostra as notas certas, as que ouviu e o intervalo que o aluno cantou.
 - **Filtros aplicáveis**:
-  - Intervalos sorteáveis
-  - Direção do intervalo
-  - Tom base
+  - Nível: fácil (2ª e 3ª maiores, 4ª, 5ª e 8ª justas; o padrão), médio (segundas, terças e sextas maiores e menores, 4ª, 5ª e 8ª justas) ou todos (todos os intervalos até a oitava, inclusive o trítono e as sétimas)
+  - Direção: ascendente (o padrão), descendente ou ambas, sorteada a cada questão
+  - Faixa de oitavas (a oitava da primeira nota; a segunda pode sair da faixa, já que só é cantada) e instrumento
 
 ---
 
@@ -249,9 +250,26 @@ O aluno ouve uma melodia como as de Comparar 2 melodias, num tom maior sorteado 
 
 ---
 
+### 28. Cante a nota
+O aluno ouve uma nota, grava-se cantando-a e valida. Pode cantar em qualquer oitava: a página envia a nota que ouviu por mais tempo, e ela vale pelo nome (Dó♯ e Ré♭ são a mesma). Um acerto diz se o aluno cantou afinado (a até 10 cents da altura exata) ou quantos cents acima ou abaixo dela. Enquanto grava, um medidor mostra o volume da voz.
+- **Filtros aplicáveis**:
+  - Faixa de oitavas e instrumento
+
+---
+
+### 29. Cante a melodia
+O aluno ouve uma melodia como as de Qual nota mudou? (num tom maior sorteado a cada questão, em graus e terças, terminando na tônica, entre G3 e F#5, em semínimas e uma mínima no fim) e a canta de volta, em qualquer oitava. A correção é a do solfejo: notas repetidas contam uma vez, porque o detector não distingue uma nota sustentada de uma repetida, e a partir de quatro notas uma nota errada, faltando ou a mais é perdoada.
+- **Filtros aplicáveis**:
+  - Número de notas: 4 (o padrão da página) a 8; sem o filtro, 5
+  - Instrumento
+
+Nos três exercícios de canto, e no solfejo, a gravação é analisada no navegador por um detector de altura próprio (YIN, `wwwroot/js/core/pitch-detector.js`) e nunca sai do dispositivo. Eles precisam de microfone, então ficam fora da trilha de aprendizagem, do desafio diário e dos badges que pedem todos os exercícios ou categorias.
+
+---
+
 ## Observações
 
 - Filtros devem ser opcionais e salvos por sessão de usuário
 - As combinações de filtros podem alterar a dificuldade automaticamente
 - Jogos podem desabilitar ou randomizar filtros
-- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Adivinhe o Grau, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão, a Nota de cima, a Cadência e a Progressão (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)
+- A **faixa de oitavas** (controle global de tessitura) só aparece nos exercícios cujas notas saem dela: Adivinhe a Nota, Mais alto ou mais grave, Adivinhe o Grau, Adivinhe o Acorde, a Qualidade, a Função Harmônica, a Inversão, a Nota de cima, a Cadência e a Progressão, Cante a nota e Cante o intervalo (`MusicTheoryService.UsesNoteRange`). Os demais fixam a oitava ou têm um filtro de oitava próprio (ex.: Complete o acorde)

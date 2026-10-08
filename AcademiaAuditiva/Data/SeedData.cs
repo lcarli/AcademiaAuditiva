@@ -1390,6 +1390,111 @@ public static class SeedData
                         }
                     }
                 })
+            },
+            // The singing exercises: the student records themselves and the browser sends the
+            // notes it heard (SingNote.js, SingInterval.js and SingMelody.js), so they have no
+            // answer buttons.
+            new Exercise {
+                Name = "SingNote",
+                Description = "Ouça uma nota e cante-a.",
+                ExerciseTypeId = 1,
+                ExerciseCategoryId = 4,
+                DifficultyLevelId = 1,
+                Instructions = "Clique em Tocar para ouvir uma nota. Clique em Gravar, cante a nota numa vogal como \"á\" e depois clique em Validar. Pode cantar em qualquer oitava.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Cantarole a nota baixinho antes de gravar e depois sustente-a firme por um ou dois segundos.",
+                    "Quando você acerta, o resultado mostra o quanto chegou perto da altura exata, em cents: cem cents formam um semitom.",
+                    "Se uma nota for aguda ou grave demais para sua voz, cante-a uma oitava abaixo ou acima, ou limite as oitavas nos filtros.",
+                    "Sua gravação é analisada no seu navegador e nunca sai do seu dispositivo."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
+                Name = "SingInterval",
+                Description = "Cante a nota que você ouve e depois o intervalo a partir dela.",
+                ExerciseTypeId = 3,
+                ExerciseCategoryId = 4,
+                DifficultyLevelId = 2,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    // The intervals of each level (MusicTheoryService.SingIntervalLevels).
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "siLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("easy", "Exercise.SingIntervalLevel.Easy"),
+                            new("medium", "Exercise.SingIntervalLevel.Medium"),
+                            new("all", "Exercise.SingIntervalLevel.All")
+                        }
+                    },
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Direction",
+                        Name = "intervalDirection",
+                        Options = new List<FilterOption>
+                        {
+                            new("asc", "Exercise.Direction.Asc"),
+                            new("desc", "Exercise.Direction.Desc"),
+                            new("both", "Exercise.Direction.Both")
+                        }
+                    }
+                }),
+                Instructions = "Clique em Tocar para ouvir uma nota e ver um intervalo. Clique em Gravar, cante a nota e depois a nota que fica a esse intervalo acima ou abaixo dela; então clique em Validar. Pode cantar em qualquer oitava.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Cante mentalmente a escala a partir da nota e pare no grau do intervalo: a quinta é a quinta nota.",
+                    "Respire rapidamente entre as duas notas e sustente cada uma por um segundo.",
+                    "O filtro Nível escolhe os intervalos, e o filtro Direção se eles sobem ou descem.",
+                    "Sua gravação é analisada no seu navegador e nunca sai do seu dispositivo."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
+                Name = "SingMelody",
+                Description = "Ouça uma melodia curta e repita-a cantando.",
+                ExerciseTypeId = 5,
+                ExerciseCategoryId = 2,
+                DifficultyLevelId = 2,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.MelodyLength",
+                        Name = "melodyLength",
+                        Options = new List<FilterOption>
+                        {
+                            new("4", "4"),
+                            new("5", "5"),
+                            new("6", "6"),
+                            new("7", "7"),
+                            new("8", "8")
+                        }
+                    }
+                }),
+                Instructions = "Clique em Tocar para ouvir uma melodia curta. Clique em Gravar, cante a melodia e depois clique em Validar. Pode cantar em qualquer oitava.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Ouça quantas vezes precisar antes de gravar: a melodia anda por graus e terças e termina na tônica.",
+                    "Cante cada nota numa sílaba própria, como \"lá\", para as notas não se misturarem.",
+                    "A partir de quatro notas, uma nota errada, faltando ou a mais é perdoada.",
+                    "Sua gravação é analisada no seu navegador e nunca sai do seu dispositivo."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>
+                {
+                    "Play",
+                    "Replay"
+                }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
             }
         };
 
@@ -1457,7 +1562,7 @@ public static class SeedData
         new Badge { BadgeKey = "marathon_20min", Title = "Maratona 20min", Description = "20 minutos sem parar" },
         new Badge { BadgeKey = "faithful_practitioner", Title = "Praticante Fiel", Description = "Completou 30 sessões" },
         new Badge { BadgeKey = "100_sessions", Title = "Disco de Ouro", Description = "Completou 100 sessões" },
-        new Badge { BadgeKey = "explorer", Title = "Explorador", Description = "Respondeu a todos os exercícios (menos o solfejo)" },
+        new Badge { BadgeKey = "explorer", Title = "Explorador", Description = "Respondeu a todos os exercícios (menos os de canto)" },
         new Badge { BadgeKey = "filter_ninja", Title = "Filtro Ninja", Description = "Usou filtros personalizados em 5 sessões" },
         new Badge { BadgeKey = "first_session", Title = "Iniciador de Jornada", Description = "Primeira sessão realizada" },
         new Badge { BadgeKey = "10_sessions_week", Title = "10 Sessões em 1 Semana", Description = "Alta frequência semanal" },

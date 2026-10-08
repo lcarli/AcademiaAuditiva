@@ -2812,16 +2812,16 @@
   <data name="Exercise.Solfege.NoMelodyText" xml:space="preserve">
     <value>Click “New melody” to get a melody to sing.</value>
   </data>
-  <data name="Exercise.Solfege.Analyzing" xml:space="preserve">
+  <data name="Exercise.Singing.Analyzing" xml:space="preserve">
     <value>Analyzing your recording…</value>
   </data>
-  <data name="Exercise.Solfege.AnalysisError" xml:space="preserve">
+  <data name="Exercise.Singing.AnalysisError" xml:space="preserve">
     <value>We couldn't analyze this recording. Please record again.</value>
   </data>
-  <data name="Exercise.Solfege.NothingHeardTitle" xml:space="preserve">
+  <data name="Exercise.Singing.NothingHeardTitle" xml:space="preserve">
     <value>No notes detected</value>
   </data>
-  <data name="Exercise.Solfege.NothingHeardText" xml:space="preserve">
+  <data name="Exercise.Singing.NothingHeardText" xml:space="preserve">
     <value>We couldn't hear any notes. Sing a little louder, close to the microphone, and record again.</value>
   </data>
   <data name="Lockout.Header" xml:space="preserve">
@@ -3764,7 +3764,7 @@
     <value>Explorer</value>
   </data>
   <data name="Badge.explorer.Description" xml:space="preserve">
-    <value>Answer every exercise at least once, except Solfege Melody.</value>
+    <value>Answer every exercise at least once, except the singing exercises.</value>
   </data>
   <data name="Badge.filter_ninja.Title" xml:space="preserve">
     <value>Filter ninja</value>
@@ -4302,5 +4302,107 @@
   </data>
   <data name="Exercise.GuessChangedNote.AnswerDown" xml:space="preserve">
     <value>note {{0}}, which went down</value>
+  </data>
+  <data name="Exercise.Singing.NoRecordingText" xml:space="preserve">
+    <value>Record yourself singing first.</value>
+  </data>
+  <data name="Exercise.Singing.Heard" xml:space="preserve">
+    <value>We heard {{0}}.</value>
+  </data>
+  <data name="Exercise.Singing.InTune" xml:space="preserve">
+    <value>You sang it in tune.</value>
+  </data>
+  <data name="Exercise.Singing.Sharp" xml:space="preserve">
+    <value>You sang {{0}} cents sharp.</value>
+  </data>
+  <data name="Exercise.Singing.Flat" xml:space="preserve">
+    <value>You sang {{0}} cents flat.</value>
+  </data>
+  <data name="SingNote" xml:space="preserve">
+    <value>Sing the Note</value>
+  </data>
+  <data name="Exercise.SingNote.Subtitle" xml:space="preserve">
+    <value>Listen to a note and sing it.</value>
+  </data>
+  <data name="Exercise.SingNote.Instructions" xml:space="preserve">
+    <value>Click Play to hear a note. Click “Record”, sing the note on a vowel such as “ah”, then click “Validate”. Any octave is fine.</value>
+  </data>
+  <data name="Exercise.SingNote.Tip1" xml:space="preserve">
+    <value>Hum the note quietly before you record, then hold it steady for a second or two.</value>
+  </data>
+  <data name="Exercise.SingNote.Tip2" xml:space="preserve">
+    <value>When you get it right, the result says how close to the pitch you were, in cents: a hundred cents make a semitone.</value>
+  </data>
+  <data name="Exercise.SingNote.Tip3" xml:space="preserve">
+    <value>If a note is too high or too low for your voice, sing it an octave down or up, or narrow the octaves in the filters.</value>
+  </data>
+  <data name="Exercise.SingNote.Tip4" xml:space="preserve">
+    <value>Your recording is analyzed in your browser and never leaves your device.</value>
+  </data>
+  <data name="Exercise.SingNoteText" xml:space="preserve">
+    <value>Sing the note you hear</value>
+  </data>
+  <data name="SingInterval" xml:space="preserve">
+    <value>Sing the Interval</value>
+  </data>
+  <data name="Exercise.SingInterval.Subtitle" xml:space="preserve">
+    <value>Sing the note you hear, then the interval from it.</value>
+  </data>
+  <data name="Exercise.SingInterval.Instructions" xml:space="preserve">
+    <value>Click Play to hear a note and see an interval. Click “Record”, sing the note, then the note that interval above or below it, and click “Validate”. Any octave is fine.</value>
+  </data>
+  <data name="Exercise.SingInterval.Tip1" xml:space="preserve">
+    <value>Sing the scale from the note in your head and stop on the interval’s degree: a 5th is the fifth note.</value>
+  </data>
+  <data name="Exercise.SingInterval.Tip2" xml:space="preserve">
+    <value>Take a short breath between the two notes, and hold each one for a second.</value>
+  </data>
+  <data name="Exercise.SingInterval.Tip3" xml:space="preserve">
+    <value>The Level filter chooses the intervals, and the Direction filter whether they go up or down.</value>
+  </data>
+  <data name="Exercise.SingInterval.Tip4" xml:space="preserve">
+    <value>Your recording is analyzed in your browser and never leaves your device.</value>
+  </data>
+  <data name="Exercise.SingIntervalText" xml:space="preserve">
+    <value>Sing the note you hear, then this interval</value>
+  </data>
+  <data name="Exercise.SingInterval.OneNoteText" xml:space="preserve">
+    <value>We heard only one note. Sing the note you hear, then the second note, with a short breath between them.</value>
+  </data>
+  <data name="Exercise.SingInterval.HeardInterval" xml:space="preserve">
+    <value>Interval you sang: {{0}}.</value>
+  </data>
+  <data name="Exercise.SingIntervalLevel.Easy" xml:space="preserve">
+    <value>Major 2nd and 3rd, perfect 4th, 5th and octave</value>
+  </data>
+  <data name="Exercise.SingIntervalLevel.Medium" xml:space="preserve">
+    <value>Major and minor 2nds, 3rds and 6ths, perfect 4th, 5th and octave</value>
+  </data>
+  <data name="Exercise.SingIntervalLevel.All" xml:space="preserve">
+    <value>Every interval up to the octave</value>
+  </data>
+  <data name="SingMelody" xml:space="preserve">
+    <value>Sing the Melody</value>
+  </data>
+  <data name="Exercise.SingMelody.Subtitle" xml:space="preserve">
+    <value>Listen to a short melody and sing it back.</value>
+  </data>
+  <data name="Exercise.SingMelody.Instructions" xml:space="preserve">
+    <value>Click Play to hear a short melody. Click “Record”, sing the melody, then click “Validate”. Any octave is fine.</value>
+  </data>
+  <data name="Exercise.SingMelody.Tip1" xml:space="preserve">
+    <value>Listen as many times as you need before you record: the melody moves by steps and thirds and ends on the tonic.</value>
+  </data>
+  <data name="Exercise.SingMelody.Tip2" xml:space="preserve">
+    <value>Sing each note on its own syllable, such as “la”, so the notes don’t blur together.</value>
+  </data>
+  <data name="Exercise.SingMelody.Tip3" xml:space="preserve">
+    <value>From four notes on, one wrong, missing or extra note is forgiven.</value>
+  </data>
+  <data name="Exercise.SingMelody.Tip4" xml:space="preserve">
+    <value>Your recording is analyzed in your browser and never leaves your device.</value>
+  </data>
+  <data name="Exercise.SingMelodyText" xml:space="preserve">
+    <value>Sing the melody you hear</value>
   </data>
 </root>

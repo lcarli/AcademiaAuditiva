@@ -1,41 +1,20 @@
 // Sight-singing: the student reads a short melody, plays its first note on
 // the piano when they want it, and records themselves singing it. The
-// recording is transcribed in the browser with essentia.js (PitchMelodia +
-// PitchContourSegmentation). Only the detected note names are sent to the
-// server; the audio never leaves the device (see the privacy policy).
+// recording is transcribed in the browser (singing.js and pitch-detector.js):
+// only the names of the notes sung are sent to the server, and the audio never
+// leaves the device (see the privacy policy).
 document.addEventListener("DOMContentLoaded", () => {
   const loc = AAi18n.localizer();
   const exerciseId = document.getElementById("exerciseId")?.value;
   const sheet = document.getElementById("output-sheet");
   const generateBtn = document.getElementById("Generate");
   const startingNoteBtn = document.getElementById("playStartingNote");
-  const recordBtn = document.getElementById("recordAudio");
-  const listenBtn = document.getElementById("listenAudio");
   const validateBtn = document.getElementById("validateGuess");
 
-  const SHARP_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
   const NATURAL_PITCHES = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
   const DURATIONS = { 4: "w", 2: "h", 1: "q", 0.5: "8", 0.25: "16" };
-  const localNoteNames = String(loc.noteNames || "").split("|");
-
-  const ANALYSIS_RATE = 44100;
-  const HOP_SIZE = 128;
-  const MIN_FREQUENCY = 70; // below a bass's low E2
-  const MAX_FREQUENCY = 1200; // above a soprano's C6
-  const MIN_NOTE_SECONDS = 0.12;
-  const MAX_RECORDING_MS = 30000;
-  // Frames quieter than about -50 dBFS count as silence: PitchMelodia fails
-  // on digital silence (a muted microphone) and reads pitches into room noise.
-  const SILENCE_RMS = 0.003;
-  const RMS_WINDOW = 1024;
 
   let round = null; // { melody, startingNoteToken }
-  let recorder = null;
-  let recorderStopped = Promise.resolve();
-  let recording = null; // { blob, url }
-  let player = null;
-  let essentiaReady = null;
-  let micPending = false;
   let busy = false;
 
   function parseNote(name) {
@@ -51,30 +30,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function midiToName(midi) {
-    return SHARP_NAMES[midi % 12] + (Math.floor(midi / 12) - 1);
-  }
-
-  // Octaves are left out: the server compares pitch classes, so a student
-  // who sings an octave lower is right and must not see different notes.
-  function displayName(midi) {
-    const pitchClass = ((midi % 12) + 12) % 12;
-    return localNoteNames[pitchClass] || SHARP_NAMES[pitchClass];
-  }
-
   function melodyNotes(melody) {
     return melody
       .filter((item) => item.type === "note")
       .map((item) => parseNote(item.note))
       .filter(Boolean);
-  }
-
-  function fill(text, value) {
-    return String(text || "{0}").replace("{0}", () => value);
-  }
-
-  function showError(text) {
-    Swal.fire({ icon: "error", title: loc.validationErrorTitle, text: text || loc.validationErrorText });
   }
 
   // ---------- Sheet music ----------
@@ -89,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (melody.length > 0) stave.addTimeSignature("4/4");
     stave.setContext(context).draw();
 
-    const names = melodyNotes(melody).map((note) => displayName(note.midi));
+    const names = melodyNotes(melody).map((note) => AASinging.pitchName(note.midi));
     if (names.length === 0) {
       sheet.removeAttribute("role");
       sheet.removeAttribute("aria-label");
@@ -123,231 +83,29 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------- Starting note ----------
 
   // The server mixes the melody's first note on the piano. It is fetched with
-  // the melody but only played when the student asks for it.
-  function playStartingNote() {
+  // the melody but only played when the student asks for it, and stops a
+  // recording first: the microphone would hear the piano (echo cancellation
+  // is off) and take it for a sung note.
+  async function playStartingNote() {
     if (!round) {
       AAi18n.noAudio(loc);
       return;
     }
+    await AASinging.stop();
     AudioEngine.playToken(round.startingNoteToken).catch((err) => {
       console.error("Starting note playback failed:", err);
-      showError();
+      AASinging.showError();
     });
   }
 
-  // ---------- Recording ----------
-
-  function setRecordButton(active) {
-    if (!recordBtn) return;
-    const icon = document.createElement("i");
-    icon.className = active ? "bi bi-stop-circle" : "bi bi-mic";
-    icon.setAttribute("aria-hidden", "true");
-    recordBtn.replaceChildren(icon, ` ${active ? loc.recordStopText : loc.recordStartText}`);
-    recordBtn.classList.toggle("is-recording", active);
-    recordBtn.setAttribute("aria-pressed", String(active));
-  }
-
-  function discardRecording() {
-    if (player) player.pause();
-    if (recording) URL.revokeObjectURL(recording.url);
-    recording = null;
-  }
-
-  async function startRecording() {
-    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-      showError(loc.microphoneUnsupportedText);
-      return;
-    }
-
-    let stream;
-    micPending = true;
-    try {
-      // Echo cancellation, noise suppression and auto gain smear sustained
-      // pitches, so ask for the raw signal when the browser allows it.
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-      });
-    } catch (err) {
-      console.error("Microphone access failed:", err);
-      showError(loc.microphoneAccessErrorText);
-      return;
-    } finally {
-      micPending = false;
-    }
-
-    let active;
-    try {
-      active = new MediaRecorder(stream);
-    } catch (err) {
-      console.error("MediaRecorder is not available:", err);
-      stream.getTracks().forEach((track) => track.stop());
-      showError(loc.microphoneUnsupportedText);
-      return;
-    }
-
-    discardRecording();
-    // The starting note must not ring into the microphone (echo cancellation is off).
-    AudioEngine.stop();
-    const chunks = [];
-    const timer = setTimeout(stopRecording, MAX_RECORDING_MS);
-    recorder = active;
-    recorderStopped = new Promise((resolve) => {
-      active.addEventListener("dataavailable", (event) => {
-        if (event.data && event.data.size > 0) chunks.push(event.data);
-      });
-      active.addEventListener("stop", () => {
-        clearTimeout(timer);
-        stream.getTracks().forEach((track) => track.stop());
-        if (recorder === active) recorder = null;
-        setRecordButton(false);
-        if (chunks.length > 0) {
-          // The browser picks the container (webm, ogg or mp4); keep its type so it can be decoded.
-          const blob = new Blob(chunks, { type: active.mimeType || chunks[0].type });
-          recording = { blob, url: URL.createObjectURL(blob) };
-        }
-        resolve();
-      });
-    });
-    active.start();
-    setRecordButton(true);
-  }
-
-  function stopRecording() {
-    if (recorder && recorder.state !== "inactive") recorder.stop();
-    return recorderStopped;
-  }
-
-  // ---------- Pitch analysis ----------
-
-  // essentia-wasm.web.js (loaded by the view) compiles its .wasm file
-  // asynchronously and resolves with the module.
-  function loadEssentia() {
-    if (!essentiaReady) {
-      if (typeof EssentiaWASM !== "function" || typeof Essentia !== "function") {
-        return Promise.reject(new Error("essentia.js is not loaded."));
-      }
-      essentiaReady = EssentiaWASM().then((wasm) => new Essentia(wasm));
-      essentiaReady.catch(() => {
-        essentiaReady = null;
-      });
-    }
-    return essentiaReady;
-  }
-
-  async function decodeMono(blob) {
-    // decodeAudioData resamples to the context's rate, which the analysis assumes.
-    const context = new OfflineAudioContext(1, 1, ANALYSIS_RATE);
-    const buffer = await context.decodeAudioData(await blob.arrayBuffer());
-    const mono = new Float32Array(buffer.length);
-    for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-      const data = buffer.getChannelData(channel);
-      for (let i = 0; i < data.length; i++) mono[i] += data[i] / buffer.numberOfChannels;
-    }
-    return mono;
-  }
-
-  // RMS around each analysis frame; PitchMelodia centres frame i on sample i * HOP_SIZE.
-  function frameLevels(samples) {
-    const frames = Math.ceil(samples.length / HOP_SIZE) + 2;
-    const levels = new Float32Array(frames);
-    const half = RMS_WINDOW / 2;
-    for (let i = 0; i < frames; i++) {
-      const from = Math.max(0, i * HOP_SIZE - half);
-      const to = Math.min(samples.length, i * HOP_SIZE + half);
-      let sum = 0;
-      for (let j = from; j < to; j++) sum += samples[j] * samples[j];
-      levels[i] = to > from ? Math.sqrt(sum / (to - from)) : 0;
-    }
-    return levels;
-  }
-
-  // MIDI numbers of the sung notes, without consecutive repeats (a held
-  // note and a repeated one sound the same to the tracker).
-  async function detectNotes(blob) {
-    const [essentia, samples] = await Promise.all([loadEssentia(), decodeMono(blob)]);
-    const levels = frameLevels(samples);
-    if (!levels.some((level) => level >= SILENCE_RMS)) return [];
-
-    const vectors = [];
-    try {
-      const signal = essentia.arrayToVector(samples);
-      vectors.push(signal);
-      // Positional arguments follow essentia.js's alphabetical order:
-      // binResolution, filterIterations, frameSize, guessUnvoiced,
-      // harmonicWeight, hopSize, magnitudeCompression, magnitudeThreshold,
-      // maxFrequency, minDuration, minFrequency, numberHarmonics,
-      // peakDistributionThreshold, peakFrameThreshold, pitchContinuity,
-      // referenceFrequency, sampleRate, timeContinuity.
-      const melodia = essentia.PitchMelodia(
-        signal, 10, 3, 2048, false, 0.8, HOP_SIZE, 1, 40, MAX_FREQUENCY, 100, MIN_FREQUENCY,
-        20, 0.9, 0.9, 27.5625, 55, ANALYSIS_RATE, 100);
-      vectors.push(melodia.pitch, melodia.pitchConfidence);
-
-      const pitch = essentia.vectorToArray(melodia.pitch);
-      let voiced = 0;
-      for (let i = 0; i < pitch.length; i++) {
-        if (pitch[i] > 0 && (levels[i] ?? 0) >= SILENCE_RMS) voiced++;
-        else pitch[i] = 0;
-      }
-      // PitchContourSegmentation throws on a contour without voiced frames.
-      if (voiced === 0) return [];
-      const contour = essentia.arrayToVector(pitch);
-      vectors.push(contour);
-
-      // hopSize, minDuration, pitchDistanceThreshold (cents), rmsThreshold, sampleRate, tuningFrequency.
-      const segments = essentia.PitchContourSegmentation(
-        contour, signal, HOP_SIZE, MIN_NOTE_SECONDS, 60, -2, ANALYSIS_RATE, 440);
-      vectors.push(segments.onset, segments.duration, segments.MIDIpitch);
-
-      const notes = [];
-      for (const value of essentia.vectorToArray(segments.MIDIpitch)) {
-        const midi = Math.round(value);
-        if (midi < 24 || midi > 108) continue;
-        if (notes[notes.length - 1] !== midi) notes.push(midi);
-      }
-      return notes;
-    } finally {
-      vectors.forEach((vector) => vector?.delete?.());
-    }
-  }
-
-  // ---------- Result ----------
-
-  // SweetAlert2 v10 leaves aria-hidden on the page when one dialog replaces
-  // another, so the "analysing" dialog is fully closed before the next one.
-  let analyzingClosed = null;
-
-  function showAnalyzing() {
-    analyzingClosed = new Promise((resolve) => {
-      Swal.fire({
-        title: loc.analyzingText,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false,
-        didOpen: () => Swal.showLoading(),
-        didClose: resolve,
-      });
-    });
-  }
-
-  async function hideAnalyzing() {
-    if (!analyzingClosed) return;
-    const closed = analyzingClosed;
-    analyzingClosed = null;
-    Swal.close();
-    await closed;
-  }
+  // ---------- Answer ----------
 
   function showWrongAnswer(data, sung) {
-    const expected = String(data.answer || "").split("|").map(parseNote).filter(Boolean);
-    const correct = document.createElement("p");
-    correct.textContent = fill(loc.wrongMessageText, expected.map((note) => displayName(note.midi)).join(" "));
-    const heard = document.createElement("p");
-    heard.className = "mb-0";
-    heard.textContent = fill(loc.heardText, sung.map(displayName).join(" "));
-    const body = document.createElement("div");
-    body.append(correct, heard);
-    Swal.fire(AAi18n.withRewards({ icon: "error", title: loc.wrongMessage, html: body }, data));
+    const expected = String(data.answer || "").split("|").map(AASinging.midi).filter((note) => note !== null);
+    AASinging.showResult(data, [
+      AASinging.format(loc.wrongMessageText, expected.map(AASinging.pitchName).join(" ")),
+      AASinging.format(loc.heardText, sung.map(AASinging.pitchName).join(" ")),
+    ]);
   }
 
   // ---------- Buttons ----------
@@ -359,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
     round = null;
     AudioEngine.stop();
     drawStaff([]);
-    stopRecording().then(discardRecording);
+    AASinging.cancel();
   });
 
   generateBtn?.addEventListener("click", async () => {
@@ -374,14 +132,13 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("The response has no melody.");
       }
 
-      await stopRecording();
-      discardRecording();
+      await AASinging.cancel();
       round = { melody: data.melody, startingNoteToken: data.startingNoteToken };
       drawStaff(round.melody);
       AudioEngine.preload(round.startingNoteToken);
     } catch (err) {
       console.error("SolfegeMelody request failed:", err);
-      showError();
+      AASinging.showError();
     } finally {
       generateBtn.disabled = false;
     }
@@ -389,28 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   startingNoteBtn?.addEventListener("click", () => playStartingNote());
 
-  recordBtn?.addEventListener("click", () => {
-    if (micPending || busy) return;
-    if (recorder) {
-      stopRecording();
-      return;
-    }
-    if (!round) {
-      AAi18n.noAudio(loc);
-      return;
-    }
-    startRecording();
-  });
-
-  listenBtn?.addEventListener("click", () => {
-    if (!recording) {
-      AAi18n.incomplete(loc);
-      return;
-    }
-    player = player || new Audio();
-    player.src = recording.url;
-    player.play().catch((err) => console.error("Playback failed:", err));
-  });
+  AASinging.attach({ ready: () => round !== null, busy: () => busy });
 
   validateBtn?.addEventListener("click", async () => {
     if (busy) return;
@@ -422,35 +158,17 @@ document.addEventListener("DOMContentLoaded", () => {
     busy = true;
     validateBtn.disabled = true;
     try {
-      await stopRecording();
-      if (!recording) {
-        AAi18n.incomplete(loc);
-        return;
-      }
-
-      showAnalyzing();
-      let sung;
-      try {
-        sung = await detectNotes(recording.blob);
-      } catch (err) {
-        console.error("Pitch analysis failed:", err);
-        await hideAnalyzing();
-        showError(loc.analysisErrorText);
-        return;
-      }
-      if (sung.length === 0) {
-        await hideAnalyzing();
-        Swal.fire({ icon: "warning", title: loc.nothingHeardTitle, text: loc.nothingHeardText });
-        return;
-      }
+      const notes = await AASinging.transcribe();
+      if (!notes) return;
+      const sung = AASinging.collapse(notes);
 
       const data = await AAPractice.validate({
         exerciseId,
-        userGuess: sung.map(midiToName).join("|"),
+        userGuess: sung.map(AASinging.noteName).join("|"),
       });
       // The server forgets the expected answer after one attempt.
       round = null;
-      await hideAnalyzing();
+      await AASinging.hideAnalyzing();
       if (AAi18n.serverError(data, loc)) return;
 
       if (data.isCorrect) {
@@ -460,8 +178,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       console.error("SolfegeMelody validation failed:", err);
-      await hideAnalyzing();
-      showError();
+      await AASinging.hideAnalyzing();
+      AASinging.showError();
     } finally {
       busy = false;
       validateBtn.disabled = false;
@@ -469,5 +187,4 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   drawStaff([]);
-  setRecordButton(false);
 });

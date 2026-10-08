@@ -291,6 +291,20 @@ namespace AcademiaAuditiva.Controllers
 				return new() { ["roundId"] = round.RoundId, ["playToken"] = round.Tokens[0], ["metadata"] = metadata };
 			}
 
+			// SingInterval plays its first note and says which interval to sing from it: the
+			// answer is the second note, which it never sends.
+			if (exercise.Name == "SingInterval")
+			{
+				var expected = JObject.Parse(round.ExpectedAnswerJson);
+				return new()
+				{
+					["roundId"] = round.RoundId,
+					["playToken"] = round.Tokens[0],
+					["interval"] = (string?)expected["interval"],
+					["direction"] = (string?)expected["direction"],
+				};
+			}
+
 			return new() { ["roundId"] = round.RoundId, ["playToken"] = round.Tokens[0] };
 		}
 
@@ -1156,6 +1170,23 @@ namespace AcademiaAuditiva.Controllers
 			return View(model);
 		}
 
+		#endregion
+
+		#region Singing
+		public IActionResult SingNote() => SingingPage("SingNote");
+
+		public IActionResult SingInterval() => SingingPage("SingInterval");
+
+		public IActionResult SingMelody() => SingingPage("SingMelody");
+
+		private IActionResult SingingPage(string name)
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == name);
+			if (exercise == null)
+				return NotFound();
+
+			return View(name, exercise.ToViewModel(_localizer));
+		}
 		#endregion
 	}
 }

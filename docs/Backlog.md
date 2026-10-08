@@ -2,8 +2,8 @@
 
 What is left to do on Academia Auditiva, in priority order. Written on
 2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`. Line
-numbers refer to `07d6776`, except in item 2 (`ef42bfa`) and in the items added
-on 2026-10-06: item 3 (the merge of #113), item 4 (`47f0a6d`) and the
+numbers refer to `07d6776`, except in item 1 (`ef42bfa`) and in the items added
+on 2026-10-06: item 2 (the merge of #113), item 3 (`47f0a6d`) and the
 [exercises](#exercises) (`21f9dff`). Each item says why it matters, where to
 look, what to do and when it is done. New ideas go to GitHub issues.
 
@@ -16,7 +16,7 @@ The modernization plan is done (#47 to #83):
   with real SQL Server and Playwright (#47, #48, #51, #52, #59).
 - **Look and languages**: the visual identity, eight illustrations on the
   home page, and full en-US, pt-BR and fr-CA (#53, #56, #70, #82, #101).
-- **Exercises**: 26 exercises on piano, guitar and violin, plus Explore and
+- **Exercises**: 29 exercises on piano, guitar and violin, plus Explore and
   free practice (#58, #60, #75 to #78). The server times each answer, and the
   dashboard works out every figure from the answers themselves, so it shows
   real practice time and real error counts (#99, #100). Compare 2 melodies
@@ -51,7 +51,13 @@ The modernization plan is done (#47 to #83):
   same melody with one note moved a step or a third along the scale, and asks
   which note changed and whether it went up or down. The daily challenge
   shuffles the turns of each category anew every round, so categories of the
-  same size no longer move in step (#133).
+  same size no longer move in step (#133). SingNote, SingInterval and
+  SingMelody have the student sing a note, the interval from a note, or a
+  short melody back, in any octave. The browser finds the sung notes with a
+  YIN pitch detector of our own (`wwwroot/js/core/pitch-detector.js`, MIT),
+  which replaced Essentia.js (AGPL-3.0, 2.15 MB) in sight-singing too; on
+  synthetic voices it got 99.8% of the answers right, against Essentia's 56%
+  (#134).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -96,37 +102,7 @@ pull requests and no open CodeQL or Dependabot alerts. The open issues are
 
 ## Next up
 
-### 1. Settle the Essentia.js license (AGPL-3.0)
-
-**Why.** Sight-singing (`SolfegeMelody`) detects the sung pitch with
-Essentia.js. Its files carry the AGPL-3.0 notice, while the app is MIT. The
-AGPL attaches source-sharing conditions to distributing the code, and serving
-these files to browsers may count. The repo does not yet say which upstream
-release the files are or where its source is. This is not legal advice; if in
-doubt, ask someone qualified.
-
-**Where.**
-
-- `AcademiaAuditiva/wwwroot/js/dist/`: `essentia.js-core.min.js`,
-  `essentia-wasm.web.js` and `essentia-wasm.web.wasm`, 2.15 MB together. They
-  came in with `c5009e9` and carry no version number.
-- Loaded only by `AcademiaAuditiva/Views/Exercise/SolfegeMelody.cshtml:72-73`.
-- Used in `AcademiaAuditiva/wwwroot/js/Exercises/SolfegeMelody.js:224-303`
-  (`PitchMelodia`, `PitchContourSegmentation`).
-
-**What.** Pick one:
-
-- **Keep it.** Identify the upstream release, put its license text and a link
-  to that release's source next to the files, and link both from the readme.
-- **Replace it** with a permissively licensed pitch detector, such as a small
-  YIN or McLeod implementation of our own. That also takes 2.15 MB off the
-  page.
-
-**Done when.** Either the notice and source link are in place, or Essentia.js is
-gone and sight-singing still recognizes sung notes. Either way, the readme's
-third-party table matches.
-
-### 2. Create the contato@ inbox
+### 1. Create the contato@ inbox
 
 **Why.** `contato@academiaauditiva.com` is the only address the site gives for
 reaching us, but the domain has no MX record, so mail to it bounces.
@@ -174,9 +150,9 @@ replies as `contato@`, its replies pass DMARC.
 The owner's notes of 2026-10-06, one issue each. The first two are done:
 routines that work like a test (#106, in #111 and #112), and teacher reports
 made only from the answers given in routines (#107, in #113). #111 tied
-answers to routines, which item 4 builds on; item 3 can go at any time.
+answers to routines, which item 3 builds on; item 2 can go at any time.
 
-### 3. Assign to a class or chosen students, and e-mail them (#108)
+### 2. Assign to a class or chosen students, and e-mail them (#108)
 
 **Why.** Assigning a routine saves the assignment and shows a toast, and
 nobody hears about it until they open My Training
@@ -226,7 +202,7 @@ those students, each in their own language, and the reports count exactly
 them; a failed send still saves the assignment; integration tests cover who
 gets the e-mail.
 
-### 4. Notifications on the site (#109)
+### 3. Notifications on the site (#109)
 
 **Why.** The site has no notifications: a student learns about a routine only
 on My Training, and a teacher learns about progress only in the reports.
@@ -244,7 +220,7 @@ on My Training, and a teacher learns about progress only in the reports.
 - First events. For students: a routine is assigned, or is due tomorrow and
   unfinished. For teachers: a student finished a routine, or accepted an
   invite.
-- Item 3's e-mail and this notification come from the same event, so build the
+- Item 2's e-mail and this notification come from the same event, so build the
   notifier once.
 - Notifications go into the data export and the account deletion
   (`AcademiaAuditiva/Services/PersonalDataService.cs:136` and `:49`), and are
@@ -258,7 +234,7 @@ they appear in the data export.
 
 ## Exercises
 
-From the brainstorm of 2026-10-06. There are 26 exercises, four of them on
+From the brainstorm of 2026-10-06. There are 29 exercises, four of them on
 rhythm (RhythmDictation, GuessMeter, GuessRhythmPattern and RhythmTap), but
 the Games and Misc categories have none
 (`AcademiaAuditiva/Data/SeedData.cs:34-35`). GuessFunction (#122),
@@ -270,14 +246,14 @@ counts in and has levels up to 6/8 (#125), GuessMeter asks for the meter
 (#126), GuessRhythmPattern for the rhythm (#127), and RhythmTap has the
 student tap one back (#128). GuessQuality plays seventh, sus, 6 and add9
 chords (#129), GuessTopNote asks for the top note of a chord (#131),
-GuessInterval and GuessFullInterval play harmonic intervals too (#132), and
-GuessChangedNote asks which note of a melody changed (#133).
+GuessInterval and GuessFullInterval play harmonic intervals too (#132),
+GuessChangedNote asks which note of a melody changed (#133), and SingNote,
+SingInterval and SingMelody have the student sing (#134).
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
-| 5. Singing exercises | New exercises | Medium | Item 1 |
-| 6. In tune or not? | New exercise | Medium | – |
-| 7. Game modes | Games category | Medium to large | – |
+| 4. In tune or not? | New exercise | Medium | – |
+| 5. Game modes | Games category | Medium to large | – |
 
 **Adding an exercise.** A new exercise needs all of this, and tests that go
 through every seeded exercise check much of it:
@@ -297,7 +273,14 @@ through every seeded exercise check much of it:
   (`AcademiaAuditiva/Views/Exercise/_ExerciseInstructions.cshtml:4-16`).
 - Exactly one step in
   `AcademiaAuditiva/Services/LearningPath/LearningPathCatalog.cs`
-  (`Tests/AcademiaAuditiva.UnitTests/LearningPathServiceTests.cs:17-23`).
+  (`Tests/AcademiaAuditiva.UnitTests/LearningPathServiceTests.cs:17-23`),
+  unless it needs a microphone. Such an exercise goes in
+  `AcademiaAuditiva/Services/MicrophoneExercises.cs` instead, which keeps it
+  out of the learning path, the daily challenge, and the badges that ask for
+  every exercise or category. Its page records with
+  `Views/Exercise/_MicrophoneControls.cshtml`, `wwwroot/js/core/singing.js`
+  and `wwwroot/js/core/pitch-detector.js`, as the Sing exercises do
+  (`wwwroot/js/Exercises/SingExercise.js`).
 - An entry in `MusicTheoryService.UsesNoteRange`
   (`AcademiaAuditiva/Services/MusicTheoryService.cs:183-192`), only if its
   rounds follow the octave range
@@ -319,33 +302,7 @@ cover it between them; and ties and triplets in the dictations (#125), which
 would each need a duration label of their own in the generator, the staff
 editor and the renderer.
 
-### 5. Singing exercises
-
-**Needs [item 1](#1-settle-the-essentiajs-license-agpl-30).** They would
-detect the sung pitch as sight-singing does (`detectNotes` in
-`AcademiaAuditiva/wwwroot/js/Exercises/SolfegeMelody.js:266`), so settle
-Essentia.js first. If it is replaced, the new detector serves them all.
-
-**What.**
-
-- Sing the note you hear.
-- Sing an interval above or below a given note
-  (`docs/FiltrosPorExercicio.md:128`, `docs/archive/MapaDoProjeto.md:25`).
-- Sing back a short melody (`docs/archive/MapaDoProjeto.md:39`).
-
-Microphone exercises stay out of the learning path, the daily challenge, and
-the badges that ask for every exercise or category. Add each one to
-`MicrophoneExercises` (`AcademiaAuditiva/Services/MicrophoneExercises.cs:9`),
-which the daily challenge and those badges check
-(`AcademiaAuditiva/Services/DailyChallenge/DailyChallengeRules.cs:120`,
-`BadgeRules.cs:315` and `:331`). The learning path just has no step for them,
-and its test names SolfegeMelody (`LearningPathServiceTests.cs:22`); make the
-test use `MicrophoneExercises`.
-
-**Done when.** Each one follows the list above, except the learning-path step,
-and recognizes sung notes as reliably as sight-singing does.
-
-### 6. New exercise: in tune or not?
+### 4. New exercise: in tune or not?
 
 **Why.** Violinists and singers tune by ear, and nothing trains it: every
 sample is in tune, one per semitone.
@@ -358,7 +315,7 @@ with a new field on `MixInput`.
 **Done when.** It follows the list above, and a mixer test checks the shifted
 pitch.
 
-### 7. Game modes
+### 5. Game modes
 
 **Why.** The Games and Misc categories are empty. Modes that reuse the rounds
 of existing exercises add variety without new music code.
@@ -409,7 +366,7 @@ API key with sending access to `academiaauditiva.com` only.
 
 **Still to do.**
 
-- The `contato@` inbox ([item 2](#2-create-the-contato-inbox)).
+- The `contato@` inbox ([item 1](#1-create-the-contato-inbox)).
 - Add a DMARC report address (`rua=`), and once the reports are clean, move
   from `p=none` to `quarantine`.
 
@@ -465,7 +422,7 @@ These are outside the repo:
   one is in the public git history (see the
   [runbook](Security.md#rotate-facebook-appsecret)).
 - Choose and create the `contato@` inbox, and add its DNS records (see
-  [item 2](#2-create-the-contato-inbox)).
+  [item 1](#1-create-the-contato-inbox)).
 
 ## Watch
 
