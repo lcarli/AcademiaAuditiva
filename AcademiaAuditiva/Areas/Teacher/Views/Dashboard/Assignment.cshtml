@@ -34,6 +34,7 @@
             @if (a.ClassroomId is int classroomId)
             {
                 <a asp-action="Classroom" asp-route-id="@classroomId"><i class="bi bi-people me-1" aria-hidden="true"></i>@a.ClassroomName</a>
+                @if (a.ChosenStudents is int chosen) { <text> · @Localizer["Teacher.Routines.ChosenCount", chosen]</text> }
             }
             else
             {

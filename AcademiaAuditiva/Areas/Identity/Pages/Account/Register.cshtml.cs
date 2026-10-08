@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -183,7 +184,9 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
                 return new ApplicationUser
                 {
                     FirstName = Input.FirstName,
-                    LastName = Input.LastName
+                    LastName = Input.LastName,
+                    // The language they signed up in, for the e-mails sent to them later.
+                    Language = CultureInfo.CurrentUICulture.Name
                 };
             }
             catch

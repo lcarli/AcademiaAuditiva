@@ -4,6 +4,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
@@ -212,7 +213,10 @@ namespace AcademiaAuditiva.Areas.Identity.Pages.Account
         {
             try
             {
-                return Activator.CreateInstance<ApplicationUser>();
+                var user = Activator.CreateInstance<ApplicationUser>();
+                // The language they signed up in, for the e-mails sent to them later.
+                user.Language = CultureInfo.CurrentUICulture.Name;
+                return user;
             }
             catch
             {

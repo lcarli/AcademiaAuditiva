@@ -3,9 +3,9 @@
 What is left to do on Academia Auditiva, in priority order. Written on
 2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`. Line
 numbers refer to `07d6776`, except in item 1 (`ef42bfa`) and in the items added
-on 2026-10-06: item 2 (the merge of #113), item 3 (`47f0a6d`) and the
-[exercises](#exercises) (`21f9dff`). Each item says why it matters, where to
-look, what to do and when it is done. New ideas go to GitHub issues.
+on 2026-10-06: item 2 (`47f0a6d`) and the [exercises](#exercises) (`21f9dff`).
+Each item says why it matters, where to look, what to do and when it is done.
+New ideas go to GitHub issues.
 
 ## Where things stand
 
@@ -82,13 +82,15 @@ The modernization plan is done (#47 to #83):
   change, nor can a student's adjustments to an item they have started; the
   teacher duplicates the routine to change a copy (#112). Teachers get reports
   per routine, per class and per student, made only from the answers given in
-  their own routines; a student's other practice stays private (#113).
+  their own routines; a student's other practice stays private (#113). A
+  routine goes to a whole class or to the students the teacher ticks in it,
+  and each of them gets an e-mail about it in their own language, unless they
+  turned these e-mails off (#137).
 
 E-mail is [on](#e-mail): production sends through Resend (#89), and every
 e-mail has the site's layout and a plain-text version (#92). There are no open
 pull requests and no open CodeQL or Dependabot alerts. The open issues are
-#16, #31 and the two in [Classrooms and teachers](#classrooms-and-teachers)
-(#108 and #109).
+#16, #31 and #109, in [Classrooms and teachers](#classrooms-and-teachers).
 
 ## How we work
 
@@ -158,62 +160,13 @@ replies as `contato@`, its replies pass DMARC.
 
 ## Classrooms and teachers
 
-The owner's notes of 2026-10-06, one issue each. The first two are done:
-routines that work like a test (#106, in #111 and #112), and teacher reports
-made only from the answers given in routines (#107, in #113). #111 tied
-answers to routines, which item 3 builds on; item 2 can go at any time.
+The owner's notes of 2026-10-06, one issue each. The first three are done:
+routines that work like a test (#106, in #111 and #112), teacher reports made
+only from the answers given in routines (#107, in #113), and routines assigned
+to a class or to chosen students, who get an e-mail about them (#108, in
+#137). #111 tied answers to routines, which item 2 builds on.
 
-### 2. Assign to a class or chosen students, and e-mail them (#108)
-
-**Why.** Assigning a routine saves the assignment and shows a toast, and
-nobody hears about it until they open My Training
-(`AcademiaAuditiva/Areas/Teacher/Controllers/RoutinesController.cs:365-418`).
-The form offers a whole class or one student
-(`AcademiaAuditiva/Areas/Teacher/Views/Routines/Assign.cshtml:16-36`), so
-giving a routine to three students takes three assignments, with three
-reports.
-
-**Rules agreed with the owner.** A routine goes to the whole class by default;
-the teacher can instead tick some of its students. The students it goes to get
-an e-mail.
-
-**What.**
-
-- The form: pick a class, then "Whole class" or tick students. One assignment
-  holds the ticked students (a join table); existing one-student assignments
-  keep working.
-- A student who joins the class later still gets its whole-class routines, as
-  today (`AcademiaAuditiva/Services/Routines/RoutineRounds.cs:124-129`), but no
-  e-mail.
-- The reports (#113) take a class assignment's students from the class's
-  current members, and a one-student assignment's from that student
-  (`AcademiaAuditiva/Areas/Teacher/Services/RoutineReports.cs:36-38`, `:65-73`
-  and `:104-107`). An assignment to ticked students must count only those of
-  them still in the class.
-- `EmailComposer.RoutineAssignedAsync`, like `ClassroomInviteAsync`
-  (`AcademiaAuditiva/Services/Email/EmailComposer.cs:40`): the teacher, the
-  routine, the due date and a button to My Training. Texts in the three `.resx`
-  files.
-- E-mails use the culture of the request that sends them
-  (`EmailComposer.cs:12`), which here is the teacher's. Save each user's
-  language when they sign up and when they switch, and write each student's
-  e-mail in theirs.
-- Send from a background queue after the response, so a class of 30 doesn't
-  hold up the page. A failed send never undoes the assignment.
-- Students can turn these e-mails off on their account page, and the e-mail's
-  footer says how.
-- Add these e-mails to the privacy policy's list (`Privacy.cshtml:82`, and the
-  same line in pt-BR and fr-CA).
-- Each assignment sends one e-mail per student, so check the Resend plan's
-  quota first (see [Watch](#watch)): when it runs out, sign-ups stop getting
-  their confirmation e-mail.
-
-**Done when.** Assigning to a class, or to ticked students, e-mails exactly
-those students, each in their own language, and the reports count exactly
-them; a failed send still saves the assignment; integration tests cover who
-gets the e-mail.
-
-### 3. Notifications on the site (#109)
+### 2. Notifications on the site (#109)
 
 **Why.** The site has no notifications: a student learns about a routine only
 on My Training, and a teacher learns about progress only in the reports.
@@ -231,14 +184,16 @@ on My Training, and a teacher learns about progress only in the reports.
 - First events. For students: a routine is assigned, or is due tomorrow and
   unfinished. For teachers: a student finished a routine, or accepted an
   invite.
-- Item 2's e-mail and this notification come from the same event, so build the
-  notifier once.
+- The routine e-mail (#108) comes from the same event:
+  `RoutinesController.Assign` calls `RoutineEmails.QueueAsync`, and
+  `BackgroundEmailQueue` sends the e-mails after the response. Build the
+  notifier once, on that event.
 - Notifications go into the data export and the account deletion
   (`AcademiaAuditiva/Services/PersonalDataService.cs:136` and `:49`), and are
   deleted after 90 days.
 
-**Decide first.** Which events, and whether "due tomorrow" is worked out when
-the page loads or needs a daily job.
+**Decided** with the owner on 2026-10-08: the four events above, and a daily
+background job finds the routines due tomorrow.
 
 **Done when.** The bell shows the chosen events in the three languages, and
 they appear in the data export.
@@ -331,9 +286,23 @@ API key with sending access to `academiaauditiva.com` only.
   bounces) are verified in Resend. DMARC is `p=none`.
 - Sign-up no longer shows the confirmation link on screen. Forgot password,
   resend confirmation, change e-mail and teacher invites send real mail.
+- Assigning a routine e-mails the students it goes to (#108), from
+  `RoutineEmails` (`Services/Routines/RoutineEmails.cs`): only those who
+  confirmed their address and didn't turn these e-mails off on Manage account →
+  Notifications, each in the language they last used on the site
+  (`ApplicationUser.Language`). `BackgroundEmailQueue` and
+  `BackgroundEmailWorker` send them after the response; the queue is in memory,
+  so a restart loses the e-mails still waiting.
+- These e-mails have a daily limit, `NotificationEmails:DailyLimit` (60 by
+  default; 0 turns them off), counted per UTC day in the `EmailDailyCounts`
+  table so that every replica shares it. Resend's free plan sends 100 e-mails a
+  day in all, so 60 leaves 40 for account e-mails and invites, which the limit
+  doesn't count. Past the limit, the assignment is saved, the teacher is told
+  how many students weren't e-mailed, and the log has a warning.
 - A failed send never breaks a page. The account pages answer as usual
   (`EmailSenderExtensions.TrySendEmailAsync`), the account e-mail page says the
-  e-mail could not be sent, and an invite shows its link.
+  e-mail could not be sent, an invite shows its link, and an assignment stays
+  saved.
 - Register, forgot password and resend confirmation share the per-IP limit on
   the account forms (#93). It slows a flood from one address but doesn't cap
   how much mail goes out in a day, so keep an eye on the quota (see
@@ -341,10 +310,12 @@ API key with sending access to `academiaauditiva.com` only.
 - Every e-mail has one layout (#92): the logo, a button, the link written out,
   and a footer that says why it was sent. `EmailComposer` renders
   `Services/Email/EmailLayout.razor` with `HtmlRenderer` and writes the same
-  texts as the plain-text version, in the culture of the page that sends it.
-  A new e-mail gets a method there and its texts in the three `.resx` files.
+  texts as the plain-text version, in the culture of the page that sends it,
+  or in the student's language for routine e-mails. A new e-mail gets a method
+  there and its texts in the three `.resx` files. Routine e-mails also link to
+  the page that turns them off.
 - Without the settings (locally and in CI), the app skips sending and shows the
-  confirmation link, as before.
+  confirmation link, as before; assigning a routine sends nothing.
 
 **Still to do.**
 
@@ -417,4 +388,7 @@ These are outside the repo:
 - Merge Dependabot pull requests through the same cycle.
 - Resend → Emails: bounces and spam complaints hurt the domain's reputation.
   Once the plan's sending quota runs out, sign-ups stop getting their
-  confirmation e-mail.
+  confirmation e-mail. Routine e-mails stop at `NotificationEmails:DailyLimit`
+  a day (see [E-mail](#e-mail)); lower it if account e-mails come close to the
+  rest, or raise it with the plan. The log warns when the limit skips
+  students.

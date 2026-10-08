@@ -1,0 +1,29 @@
+@page
+@model NotificationsModel
+@{
+    ViewData["Title"] = Localizer["Manage.Notifications.Title"].Value;
+    ViewData["ActivePage"] = ManageNavPages.Notifications;
+}
+
+<h3 class="mb-3 text-body-emphasis">@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row">
+    <div class="col-md-8">
+        <p>@Localizer["Manage.Notifications.Intro"]</p>
+        @if (!Model.EmailConfirmed)
+        {
+            <div class="alert alert-warning small" role="status">
+                @Localizer["Manage.Notifications.Unconfirmed"]
+                <a asp-page="./Email" class="alert-link">@Localizer["Manage.Email.SendVerification"]</a>
+            </div>
+        }
+        <form id="notifications-form" method="post">
+            <div class="form-check mb-3">
+                <input asp-for="RoutineEmails" class="form-check-input" aria-describedby="routineEmailsHelp" />
+                <label asp-for="RoutineEmails" class="form-check-label"></label>
+                <div id="routineEmailsHelp" class="form-text">@Localizer["Manage.Notifications.RoutineEmailsHelp"]</div>
+            </div>
+            <button id="save-notifications" type="submit" class="btn btn-primary">@Localizer["Manage.Index.Save"]</button>
+        </form>
+    </div>
+</div>

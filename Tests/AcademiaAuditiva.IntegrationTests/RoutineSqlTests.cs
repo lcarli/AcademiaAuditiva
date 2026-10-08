@@ -117,6 +117,45 @@ public sealed class RoutineSqlTests
         }
     }
 
+    [RealSqlFact]
+    public async Task AChosenStudentsRoutine_IsTheirsAlone()
+    {
+        var seeded = await SeedAsync();
+        var classmate = NewUser("routine-classmate");
+        int chosenOnly;
+        await using (var db = _fixture.CreateContext())
+        {
+            db.Users.Add(classmate);
+            var classroom = new Classroom
+            {
+                Name = "SQL chosen classroom",
+                OwnerId = seeded.TeacherId,
+                Members = { new ClassroomMember { StudentId = seeded.StudentId }, new ClassroomMember { StudentId = classmate.Id } }
+            };
+            var assignment = new RoutineAssignment
+            {
+                RoutineId = seeded.RoutineId,
+                Classroom = classroom,
+                ChosenStudentsOnly = true,
+                ChosenStudents = { new RoutineAssignmentStudent { StudentId = seeded.StudentId } }
+            };
+            db.RoutineAssignments.Add(assignment);
+            await db.SaveChangesAsync();
+            chosenOnly = assignment.Id;
+        }
+
+        await using (var db = _fixture.CreateContext())
+        {
+            var rounds = Rounds(db);
+            var link = new RoutineLink(chosenOnly, seeded.ItemIds[0]);
+
+            (await rounds.ListAsync(seeded.StudentId, TimeZoneInfo.Utc)).Select(r => r.AssignmentId).Should().Contain(chosenOnly);
+            (await rounds.FindAsync(seeded.StudentId, link, TimeZoneInfo.Utc)).Should().NotBeNull();
+            (await rounds.ListAsync(classmate.Id, TimeZoneInfo.Utc)).Should().BeEmpty("the teacher didn't choose the classmate");
+            (await rounds.FindAsync(classmate.Id, link, TimeZoneInfo.Utc)).Should().BeNull();
+        }
+    }
+
     private static RoutineRounds Rounds(ApplicationDbContext db)
         => new(db, new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())), TimeProvider.System);
 

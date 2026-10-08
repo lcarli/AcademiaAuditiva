@@ -337,6 +337,41 @@ public class TeacherReportTests : IClassFixture<TeacherReportTests.Factory>
             .And.NotContain($"href=\"{AssignmentUrl(oldId)}\"");
     }
 
+    [Fact]
+    public async Task ARoutineForChosenStudents_ReportsOnlyThoseStillInTheClass()
+    {
+        var teacher = await CreateUserAsync(RoleNames.Teacher);
+        var ana = await CreateUserAsync(RoleNames.Student, "ana");
+        var bruno = await CreateUserAsync(RoleNames.Student, "bruno");
+        var carla = await CreateUserAsync(RoleNames.Student, "carla");
+        var choir = await ClassroomAsync(teacher, "Choir", ana, bruno, carla);
+        var duet = await RoutineAsync(teacher, "Duet", ("GuessNote", 2));
+        var duetId = await AssignAsync(duet, classroomId: choir, chosen: [ana, carla]);
+        await AnswerAsync(duetId, duet, 0, ana, Now.AddHours(-1), 5, true, true);
+
+        var report = (await AssignmentReportAsync(teacher, duetId))!;
+        Students(report).Should().Equal(ana.Id, carla.Id);
+        report.Assignment.ChosenStudents.Should().Be(2);
+        var classroom = (await ClassroomReportAsync(teacher, choir))!;
+        classroom.Students.Select(s => (s.Student.Id, s.Totals.Takes)).Should().Equal((ana.Id, 1), (bruno.Id, 0), (carla.Id, 1));
+        Routines(await StudentReportAsync(teacher, bruno)).Should().BeEmpty();
+        Routines(await StudentReportAsync(teacher, carla)).Should().Equal("Duet");
+
+        var client = await SignedInClientAsync(teacher);
+        Text(await PageTextAsync(client, AssignmentUrl(duetId))).Should().Contain("Choir · chosen students: 2");
+        Text(await PageTextAsync(client, ClassroomUrl(choir))).Should().Contain("Duet chosen students: 2");
+        Text(await PageTextAsync(client, $"/Teacher/Routines/Details/{Id(duet.Id)}"))
+            .Should().Contain($"Chosen students: {ana.UserName}, {carla.UserName}");
+
+        await RemoveMemberAsync(client, choir, carla);
+
+        report = (await AssignmentReportAsync(teacher, duetId))!;
+        Students(report).Should().Equal(ana.Id);
+        report.Assignment.ChosenStudents.Should().Be(1);
+        Text(await PageTextAsync(client, $"/Teacher/Routines/Details/{Id(duet.Id)}"))
+            .Should().Contain($"Chosen students: {ana.UserName}").And.NotContain(carla.UserName!);
+    }
+
     // ----- Getting around -----
 
     [Fact]
@@ -470,14 +505,16 @@ public class TeacherReportTests : IClassFixture<TeacherReportTests.Factory>
         return new TestRoutine(routine.Id, ordered.Select(i => i.Id).ToArray(), ordered.Select(i => i.ExerciseId).ToArray());
     });
 
-    // Assigns the routine to a classroom or to a student, the day before unless told when.
+    // Assigns the routine to a classroom or to a student, the day before unless told when; to only
+    // the students chosen in the classroom when there are some.
     private Task<int> AssignAsync(
         TestRoutine routine,
         int? classroomId = null,
         string? studentId = null,
         DateTime? dueAt = null,
         bool allowLate = false,
-        DateTime? assignedAt = null) => DbAsync(async db =>
+        DateTime? assignedAt = null,
+        ApplicationUser[]? chosen = null) => DbAsync(async db =>
     {
         var assignment = new RoutineAssignment
         {
@@ -487,6 +524,8 @@ public class TeacherReportTests : IClassFixture<TeacherReportTests.Factory>
             AssignedAt = assignedAt ?? Now.AddDays(-1),
             DueAt = dueAt,
             AllowLate = allowLate,
+            ChosenStudentsOnly = chosen is not null,
+            ChosenStudents = (chosen ?? []).Select(s => new RoutineAssignmentStudent { StudentId = s.Id }).ToList(),
         };
         db.RoutineAssignments.Add(assignment);
         await db.SaveChangesAsync();

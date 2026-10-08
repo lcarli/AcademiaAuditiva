@@ -73,6 +73,8 @@ Set-Secret -Name 'Smtp--Port' -Prompt 'SMTP port (e.g. 465)'
 Set-Secret -Name 'Smtp--User' -Prompt 'SMTP user (e.g. resend)'
 Set-Secret -Name 'Smtp--Password' -Prompt 'SMTP password (a Resend API key with sending access)' -Mask
 Set-Secret -Name 'Smtp--FromAddress' -Prompt 'Sender address (e.g. no-reply@academiaauditiva.com)'
+Write-Host "  Routine e-mails per UTC day, for all replicas; 60 when not set, 0 turns them off." -ForegroundColor DarkGray
+Set-Secret -Name 'NotificationEmails--DailyLimit' -Prompt 'Daily limit of routine e-mails (e.g. 60)'
 
 Write-Host "`n— Bootstrap admin —" -ForegroundColor Yellow
 Write-Host "  Only used to create the Admin__Email account if it doesn't exist yet." -ForegroundColor DarkGray

@@ -108,6 +108,10 @@ a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !im
 <tr>
 <td style="padding:24px 4px 0 4px;">
 <p class="aa-muted" style="margin:0 0 8px 0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#53607A;">@Content.Reason</p>
+@if (Content.SettingsText is not null && Content.SettingsUrl is not null)
+{
+<p class="aa-muted" style="margin:0 0 8px 0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#53607A;"><a class="aa-muted" href="@Content.SettingsUrl" style="color:#53607A;text-decoration:underline;">@Content.SettingsText</a></p>
+}
 <p class="aa-muted" style="margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#53607A;"><a class="aa-muted" href="@EmailComposer.SiteUrl" style="color:#53607A;font-weight:700;text-decoration:underline;">Academia Auditiva</a> · @Content.Tagline</p>
 </td>
 </tr>

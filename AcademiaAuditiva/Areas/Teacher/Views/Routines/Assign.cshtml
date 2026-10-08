@@ -1,6 +1,8 @@
 @model AcademiaAuditiva.Areas.Teacher.Models.AssignRoutineViewModel
+@using AcademiaAuditiva.Areas.Teacher.Models
 @{
     ViewData["Title"] = string.Format(Localizer["Teacher.Routines.AssignTitle"].Value, Model.RoutineName);
+    var chosenOnly = Model.Recipients == AssignRoutineViewModel.ChosenStudents;
 }
 <h1 class="h4 mb-3">@string.Format(Localizer["Teacher.Routines.AssignTitle"].Value, Model.RoutineName)</h1>
 
@@ -11,18 +13,6 @@
         <input type="hidden" asp-for="RoutineName" />
 
         <div class="mb-3">
-            <label class="form-label">@Localizer["Teacher.Routines.Target"]</label>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" asp-for="Target" value="classroom" id="tgt-class" />
-                <label class="form-check-label" for="tgt-class">@Localizer["Teacher.Routines.TargetClassroom"]</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" asp-for="Target" value="student" id="tgt-stud" />
-                <label class="form-check-label" for="tgt-stud">@Localizer["Teacher.Routines.TargetStudent"]</label>
-            </div>
-        </div>
-
-        <div class="mb-3" id="block-classroom">
             <label asp-for="ClassroomId" class="form-label">@Localizer["Admin.Classrooms"]</label>
             <select asp-for="ClassroomId" class="form-select"
                     asp-items="@(new SelectList(Model.Classrooms, "Id", "Name", Model.ClassroomId))">
@@ -31,14 +21,42 @@
             <span asp-validation-for="ClassroomId" class="text-danger small"></span>
         </div>
 
-        <div class="mb-3" id="block-student">
-            <label asp-for="StudentId" class="form-label">@Localizer["Admin.Students"]</label>
-            <select asp-for="StudentId" class="form-select"
-                    asp-items="@(new SelectList(Model.Students, "Id", "Display", Model.StudentId))">
-                <option value="">@Localizer["Exercise.SelectOption"]</option>
-            </select>
-            <span asp-validation-for="StudentId" class="text-danger small"></span>
-        </div>
+        <fieldset class="mb-3">
+            <legend class="form-label fs-6">@Localizer["Teacher.Routines.Recipients"]</legend>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" asp-for="Recipients" value="@AssignRoutineViewModel.WholeClass" id="to-class" aria-describedby="wholeClassHelp" />
+                <label class="form-check-label" for="to-class">@Localizer["Teacher.Routines.WholeClass"]</label>
+                <div id="wholeClassHelp" class="form-text">@Localizer["Teacher.Routines.WholeClassHelp"]</div>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" asp-for="Recipients" value="@AssignRoutineViewModel.ChosenStudents" id="to-chosen" />
+                <label class="form-check-label" for="to-chosen">@Localizer["Teacher.Routines.ChosenStudents"]</label>
+            </div>
+        </fieldset>
+
+        @* One list per classroom; the script shows (and only posts) the chosen classroom's. *@
+        @foreach (var classroom in Model.Classrooms)
+        {
+            var shown = chosenOnly && classroom.Id == Model.ClassroomId;
+            <fieldset class="mb-3 ms-4" data-aa-students="@classroom.Id" hidden="@(!shown)" disabled="@(!shown)">
+                <legend class="form-label fs-6">@Localizer["Teacher.Routines.ChooseStudents"]</legend>
+                @if (classroom.Members.Count == 0)
+                {
+                    <p class="text-secondary small mb-0">@Localizer["Teacher.Overrides.NoStudents"]</p>
+                }
+                @for (var i = 0; i < classroom.Members.Count; i++)
+                {
+                    var student = classroom.Members[i];
+                    var id = $"s-{classroom.Id}-{i}";
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="StudentIds" value="@student.Id" id="@id"
+                               checked="@(shown && Model.StudentIds.Contains(student.Id))" />
+                        <label class="form-check-label" for="@id">@student.Display</label>
+                    </div>
+                }
+            </fieldset>
+        }
+        <span asp-validation-for="StudentIds" class="text-danger small"></span>
 
         <div class="mb-3">
             <label asp-for="DueAt" class="form-label"></label>
@@ -51,6 +69,11 @@
             <div id="allowLateHelp" class="form-text">@Localizer["Teacher.Routines.AllowLateHelp"]</div>
         </div>
 
+        @if (Model.EmailsOn)
+        {
+            <p class="form-text mb-3"><i class="bi bi-envelope me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.EmailNote"]</p>
+        }
+
         <button type="submit" class="btn btn-primary">@Localizer["Teacher.Routines.Assign"]</button>
         <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.RoutineId">@Localizer["Common.Cancel"]</a>
     </div>
@@ -60,12 +83,17 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         (function () {
+            var classroom = document.getElementById('ClassroomId');
+            var chosen = document.getElementById('to-chosen');
             function sync() {
-                var t = document.querySelector('input[name="Target"]:checked')?.value || 'classroom';
-                document.getElementById('block-classroom').style.display = t === 'classroom' ? '' : 'none';
-                document.getElementById('block-student').style.display = t === 'student' ? '' : 'none';
+                document.querySelectorAll('[data-aa-students]').forEach(function (list) {
+                    var shown = chosen.checked && list.dataset.aaStudents === classroom.value;
+                    list.hidden = !shown;
+                    list.disabled = !shown;
+                });
             }
-            document.querySelectorAll('input[name="Target"]').forEach(function (r) { r.addEventListener('change', sync); });
+            classroom.addEventListener('change', sync);
+            document.querySelectorAll('input[name="Recipients"]').forEach(function (r) { r.addEventListener('change', sync); });
             sync();
         })();
     </script>

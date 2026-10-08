@@ -120,6 +120,14 @@
                             <span>
                                 @if (a.ClassroomId != null) { <text>👥 @a.Classroom?.Name</text> }
                                 else { <text>👤 @a.Student?.UserName</text> }
+                                @if (a.ChosenStudentsOnly)
+                                {
+                                    var chosen = a.ChosenStudents
+                                        .Select(s => s.Student?.UserName ?? s.StudentId)
+                                        .Order(StringComparer.CurrentCultureIgnoreCase)
+                                        .ToList();
+                                    <div class="text-secondary"><i class="bi bi-person-check me-1" aria-hidden="true"></i>@Localizer["Teacher.Routines.ChosenList", chosen.Count > 0 ? string.Join(", ", chosen) : "—"]</div>
+                                }
                                 <div class="text-secondary">
                                     @Localizer["Teacher.Routines.Assigned"] @a.AssignedAt.ToString("yyyy-MM-dd")
                                     @if (a.DueAt.HasValue) { <text> · @Localizer["Teacher.Routines.Due"] @a.DueAt.Value.ToString("yyyy-MM-dd")</text> }

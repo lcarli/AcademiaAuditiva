@@ -219,6 +219,12 @@ builder.Services.AddTransient<IEmailMessageSender, EmailSender>();
 // Identity's default UI would otherwise fall back to its no-op sender.
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Email.EmailComposer>();
+// Notification e-mails (a routine assigned): counted per day in the database and sent in the background.
+builder.Services.Configure<AcademiaAuditiva.Services.Email.NotificationEmailOptions>(
+    builder.Configuration.GetSection(AcademiaAuditiva.Services.Email.NotificationEmailOptions.Section));
+builder.Services.AddSingleton<AcademiaAuditiva.Services.Email.NotificationEmailQuota>();
+builder.Services.AddSingleton<AcademiaAuditiva.Services.Email.BackgroundEmailQueue>();
+builder.Services.AddHostedService<AcademiaAuditiva.Services.Email.BackgroundEmailWorker>();
 
 //Inject AnalyticsService
 builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>();
@@ -270,6 +276,7 @@ builder.Services.AddScoped<IDailyChallengeService, DailyChallengeService>();
 builder.Services.AddScoped<ITutorialService, TutorialService>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Routines.RoutineRounds>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Routines.RoutinePage>();
+builder.Services.AddScoped<AcademiaAuditiva.Services.Routines.RoutineEmails>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Games.GameService>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Games.GamePage>();
 builder.Services.AddScoped<AcademiaAuditiva.Areas.Teacher.Services.RoutineReports>();

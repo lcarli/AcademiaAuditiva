@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Net;
 using System.Text.RegularExpressions;
 using AcademiaAuditiva.Data;
@@ -313,22 +312,5 @@ public class EmailPagesTests : IClassFixture<TestWebApplicationFactory>
         token.Success.Should().BeTrue("the page renders an antiforgery token");
         fields["__RequestVerificationToken"] = token.Groups[1].Value;
         return new FormUrlEncodedContent(fields);
-    }
-
-    private sealed class RecordingEmailSender(bool fail) : IEmailMessageSender, IEmailSender
-    {
-        public ConcurrentQueue<(string To, EmailMessage Message)> Sent { get; } = new();
-
-        public IEnumerable<string> Recipients => Sent.Select(s => s.To);
-
-        public Task SendEmailAsync(string email, EmailMessage message)
-        {
-            Sent.Enqueue((email, message));
-            return fail ? Task.FromException(new InvalidOperationException("SMTP is down")) : Task.CompletedTask;
-        }
-
-        // Only Identity's own pages send bare HTML, and the site replaces every one that sends e-mail.
-        public Task SendEmailAsync(string email, string subject, string htmlMessage) =>
-            throw new InvalidOperationException("The site's pages send composed messages.");
     }
 }

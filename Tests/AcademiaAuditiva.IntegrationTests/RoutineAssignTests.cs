@@ -78,7 +78,7 @@ public class RoutineAssignTests : IClassFixture<TestWebApplicationFactory>
         (await PageAsync(client, details)).Should().NotContain("Late answers accepted");
     }
 
-    private sealed record Seeded(ApplicationUser Teacher, string StudentId, int RoutineId);
+    private sealed record Seeded(ApplicationUser Teacher, string StudentId, int RoutineId, int ClassroomId);
 
     // A teacher with a routine, and a classroom with a student to assign it to.
     private async Task<Seeded> SeedAsync()
@@ -96,25 +96,26 @@ public class RoutineAssignTests : IClassFixture<TestWebApplicationFactory>
             Items = { new RoutineItem { ExerciseId = exerciseId, Order = 1, TargetCount = 5 } }
         };
         db.Routines.Add(routine);
-        db.Classrooms.Add(new Classroom
+        var classroom = new Classroom
         {
             Name = "Choir",
             OwnerId = teacher.Id,
             Members = { new ClassroomMember { StudentId = student.Id } }
-        });
+        };
+        db.Classrooms.Add(classroom);
         await db.SaveChangesAsync();
-        return new Seeded(teacher, student.Id, routine.Id);
+        return new Seeded(teacher, student.Id, routine.Id, classroom.Id);
     }
 
-    // Assigns the routine to the student alone and returns the routine page it redirects to.
+    // Assigns the routine to the whole classroom and returns the routine page it redirects to.
     private static async Task<string> AssignAsync(HttpClient client, Seeded seeded, string? dueAt, bool allowLate)
     {
         var form = await PageAsync(client, $"/Teacher/Routines/Assign?routineId={seeded.RoutineId}");
         var fields = new Dictionary<string, string>
         {
             ["RoutineId"] = seeded.RoutineId.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            ["Target"] = "student",
-            ["StudentId"] = seeded.StudentId,
+            ["ClassroomId"] = seeded.ClassroomId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ["Recipients"] = "class",
             ["DueAt"] = dueAt ?? string.Empty,
             ["__RequestVerificationToken"] = Token(form),
         };

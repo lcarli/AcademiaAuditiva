@@ -118,7 +118,8 @@ public class MembersController : TeacherAreaController
 
         try
         {
-            var invitedBy = DescribeTeacher(await _users.GetUserAsync(User));
+            var teacher = await _users.GetUserAsync(User);
+            var invitedBy = EmailComposer.DescribeTeacher(teacher?.FirstName, teacher?.LastName, teacher?.Email ?? User.Identity?.Name);
             await _email.SendEmailAsync(email,
                 await _emailComposer.ClassroomInviteAsync(invitedBy, classroom.Name, acceptUrl, invite.ExpiresAt));
         }
@@ -131,15 +132,6 @@ public class MembersController : TeacherAreaController
 
         TempData["Success"] = _l["Toast.InviteSent", email].Value;
         return RedirectToAction("Details", "Classrooms", new { id = classroom.Id });
-    }
-
-    // Name and address together: a student may know only one of them.
-    private string DescribeTeacher(ApplicationUser? teacher)
-    {
-        var address = teacher?.Email ?? User.Identity?.Name ?? "";
-        var name = $"{teacher?.FirstName} {teacher?.LastName}".Trim();
-        if (name.Length == 0) return address;
-        return address.Length == 0 ? name : $"{name} ({address})";
     }
 
     [HttpPost, ValidateAntiForgeryToken]

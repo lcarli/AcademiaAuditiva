@@ -27,6 +27,22 @@ namespace AcademiaAuditiva.Data
             ConfigureBadges(modelBuilder);
             ConfigureTutorials(modelBuilder);
             ConfigureGames(modelBuilder);
+            ConfigureEmails(modelBuilder);
+        }
+
+        private static void ConfigureEmails(ModelBuilder modelBuilder)
+        {
+            // ApplicationUser shares AspNetUsers with IdentityUser, so its columns are nullable:
+            // the default fills rows inserted without the column, e.g. by the previous revision
+            // while a deployment rolls out.
+            modelBuilder.Entity<ApplicationUser>(b =>
+                b.Property(u => u.RoutineEmailsOff).HasDefaultValue(false));
+
+            modelBuilder.Entity<EmailDailyCount>(b =>
+            {
+                b.HasKey(c => c.Day);
+                b.Property(c => c.Sent).IsConcurrencyToken();
+            });
         }
 
         private static void ConfigureGames(ModelBuilder modelBuilder)
@@ -143,6 +159,20 @@ namespace AcademiaAuditiva.Data
                     .OnDelete(DeleteBehavior.SetNull);
             });
 
+            modelBuilder.Entity<RoutineAssignmentStudent>(b =>
+            {
+                b.HasKey(s => new { s.RoutineAssignmentId, s.StudentId });
+                b.HasIndex(s => s.StudentId);
+                b.HasOne(s => s.RoutineAssignment)
+                    .WithMany(a => a.ChosenStudents)
+                    .HasForeignKey(s => s.RoutineAssignmentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(s => s.Student)
+                    .WithMany()
+                    .HasForeignKey(s => s.StudentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
             modelBuilder.Entity<RoutineAssignmentOverride>(b =>
             {
                 b.HasIndex(o => new { o.RoutineAssignmentId, o.StudentId, o.RoutineItemId }).IsUnique();
@@ -203,6 +233,7 @@ namespace AcademiaAuditiva.Data
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<UserTutorial> UserTutorials => Set<UserTutorial>();
         public DbSet<GameRun> GameRuns => Set<GameRun>();
+        public DbSet<EmailDailyCount> EmailDailyCounts => Set<EmailDailyCount>();
 
         // Teaching domain
         public DbSet<Classroom> Classrooms => Set<Classroom>();
@@ -211,6 +242,7 @@ namespace AcademiaAuditiva.Data
         public DbSet<Routine> Routines => Set<Routine>();
         public DbSet<RoutineItem> RoutineItems => Set<RoutineItem>();
         public DbSet<RoutineAssignment> RoutineAssignments => Set<RoutineAssignment>();
+        public DbSet<RoutineAssignmentStudent> RoutineAssignmentStudents => Set<RoutineAssignmentStudent>();
         public DbSet<RoutineAssignmentOverride> RoutineAssignmentOverrides => Set<RoutineAssignmentOverride>();
     }
 }

@@ -27,6 +27,8 @@ secrets in Key Vault and pulled by the app's user-assigned Managed Identity.
 │   • AudioTokenService     — one-shot audio rounds  │
 │   • EmailComposer         — localized HTML + text  │
 │   • EmailSender (MailKit) — invites + notifications│
+│   • RoutineEmails         — routine e-mails, capped│
+│   • BackgroundEmailWorker — sends after response   │
 └────────────────────────────┬───────────────────────┘
                              │
 ┌────────────────────────────▼───────────────────────┐
@@ -49,7 +51,8 @@ satisfies Student.
 
 ## Domain model (current)
 
-- `ApplicationUser` (Identity) — extends with `FirstName`, `LastName`
+- `ApplicationUser` (Identity) — extends with `FirstName`, `LastName`,
+  `Language` (for its e-mails) and `RoutineEmailsOff`
 - `Exercise`, `ExerciseType`, `ExerciseCategory`, `DifficultyLevel`
 - `Score`, `BadgesEarned`, `Badge`, `Subscription`
 

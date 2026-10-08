@@ -121,12 +121,14 @@ public sealed class RoutineRounds
 
     private sealed record AnsweredRound(int AssignmentId, int ItemId, int Number);
 
-    // Assigned to the student, or to a classroom they are in that is not archived.
+    // Assigned to the student, or to a classroom they are in that is not archived: to the whole
+    // class, or to some of its students, them included.
     private IQueryable<RoutineAssignment> Visible(string userId)
         => _db.RoutineAssignments.Where(a =>
             a.StudentId == userId ||
-            (a.ClassroomId != null && _db.ClassroomMembers.Any(m =>
-                m.ClassroomId == a.ClassroomId && m.StudentId == userId && !m.Classroom!.IsArchived)));
+            (a.ClassroomId != null
+                && _db.ClassroomMembers.Any(m => m.ClassroomId == a.ClassroomId && m.StudentId == userId && !m.Classroom!.IsArchived)
+                && (!a.ChosenStudentsOnly || a.ChosenStudents.Any(s => s.StudentId == userId))));
 
     private static IQueryable<RoutineAssignment> WithItems(IQueryable<RoutineAssignment> assignments)
         => assignments.AsNoTracking()

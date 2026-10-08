@@ -4,6 +4,7 @@ using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Routines;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +18,16 @@ public class RoutinesController : TeacherAreaController
     private readonly UserManager<ApplicationUser> _users;
     private readonly IStringLocalizer<SharedResources> _l;
     private readonly TimeProvider _clock;
+    private readonly RoutineEmails _emails;
 
-    public RoutinesController(ApplicationDbContext db, UserManager<ApplicationUser> users, IStringLocalizer<SharedResources> localizer, TimeProvider clock)
+    public RoutinesController(ApplicationDbContext db, UserManager<ApplicationUser> users, IStringLocalizer<SharedResources> localizer,
+        TimeProvider clock, RoutineEmails emails)
     {
         _db = db;
         _users = users;
         _l = localizer;
         _clock = clock;
+        _emails = emails;
     }
 
     private string TeacherId => _users.GetUserId(User)!;
@@ -117,13 +121,22 @@ public class RoutinesController : TeacherAreaController
             .Include(x => x.Items).ThenInclude(i => i.Exercise)
             .FirstOrDefaultAsync(x => x.Id == id && x.OwnerId == TeacherId);
         if (r == null) return NotFound();
-        ViewBag.Assignments = await _db.RoutineAssignments
+        var assignments = await _db.RoutineAssignments
             .Where(a => a.RoutineId == id)
             .Include(a => a.Classroom)
             .Include(a => a.Student)
             .Include(a => a.Overrides)
             .OrderByDescending(a => a.AssignedAt)
             .ToListAsync();
+        // Apart: a second collection above would repeat every override once per ticked student.
+        // Tracked, so EF puts them in each assignment's ChosenStudents. Only those still in the class, like the reports.
+        var chosenOnly = assignments.Where(a => a.ChosenStudentsOnly).Select(a => a.Id).ToList();
+        await _db.RoutineAssignmentStudents
+            .Where(s => chosenOnly.Contains(s.RoutineAssignmentId)
+                && _db.ClassroomMembers.Any(m => m.ClassroomId == s.RoutineAssignment!.ClassroomId && m.StudentId == s.StudentId))
+            .Include(s => s.Student)
+            .LoadAsync();
+        ViewBag.Assignments = assignments;
         return View(r);
     }
 
@@ -330,20 +343,29 @@ public class RoutinesController : TeacherAreaController
 
     // ----- Assignments -----
 
+    // How the teacher's pages name a student: by user name, with the address when it differs.
+    private static string StudentDisplay(string studentId, string? userName, string? email)
+        => string.IsNullOrEmpty(email) || email == userName ? (userName ?? studentId) : $"{userName} ({email})";
+
     private async Task PopulateAssignChoicesAsync(AssignRoutineViewModel vm)
     {
-        vm.Classrooms = await _db.Classrooms
+        var classrooms = await _db.Classrooms
             .Where(c => c.OwnerId == TeacherId && !c.IsArchived)
             .OrderBy(c => c.Name)
-            .Select(c => new ClassroomOption(c.Id, c.Name))
+            .Select(c => new
+            {
+                c.Id,
+                c.Name,
+                Members = c.Members.Select(m => new { m.StudentId, m.Student!.UserName, m.Student.Email }).ToList()
+            })
             .ToListAsync();
-        vm.Students = await _db.ClassroomMembers
-            .Where(m => m.Classroom!.OwnerId == TeacherId && !m.Classroom.IsArchived)
-            .Select(m => new { m.StudentId, m.Student!.UserName, m.Student.Email, Classroom = m.Classroom!.Name })
-            .Distinct()
-            .OrderBy(x => x.UserName)
-            .Select(x => new StudentOption(x.StudentId, x.UserName + " (" + x.Email + ") — " + x.Classroom))
-            .ToListAsync();
+        vm.Classrooms = classrooms
+            .Select(c => new AssignClassroomOption(c.Id, c.Name, c.Members
+                .Select(m => new StudentOption(m.StudentId, StudentDisplay(m.StudentId, m.UserName, m.Email)))
+                .OrderBy(s => s.Display, StringComparer.CurrentCultureIgnoreCase)
+                .ToList()))
+            .ToList();
+        vm.EmailsOn = _emails.Enabled;
     }
 
     // An empty routine would lock as soon as it is assigned, with nothing in it to answer.
@@ -361,6 +383,10 @@ public class RoutinesController : TeacherAreaController
         return View(vm);
     }
 
+    /// <summary>
+    /// Assigns the routine to one of the teacher's classrooms: to the whole class, or to the
+    /// students ticked in it. Then the students are e-mailed about it, in the background.
+    /// </summary>
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Assign(AssignRoutineViewModel model)
     {
@@ -368,31 +394,34 @@ public class RoutinesController : TeacherAreaController
         if (r == null) return NotFound();
         if (!await HasItemsAsync(r.Id)) return Refused(r.Id, "Toast.RoutineEmpty");
 
-        if (model.Target == "classroom")
+        if (model.ClassroomId is not int classroomId)
         {
-            if (model.ClassroomId is null)
-                ModelState.AddModelError(nameof(model.ClassroomId), _l["Teacher.Routines.SelectClassroom"]);
-            else
-            {
-                var ownsClass = await _db.Classrooms.AnyAsync(c =>
-                    c.Id == model.ClassroomId && c.OwnerId == TeacherId);
-                if (!ownsClass) return Forbid();
-            }
-        }
-        else if (model.Target == "student")
-        {
-            if (string.IsNullOrEmpty(model.StudentId))
-                ModelState.AddModelError(nameof(model.StudentId), _l["Teacher.Routines.SelectStudent"]);
-            else
-            {
-                var ownsStudent = await _db.ClassroomMembers.AnyAsync(m =>
-                    m.StudentId == model.StudentId && m.Classroom!.OwnerId == TeacherId);
-                if (!ownsStudent) return Forbid();
-            }
+            ModelState.AddModelError(nameof(model.ClassroomId), _l["Teacher.Routines.SelectClassroom"]);
         }
         else
         {
-            ModelState.AddModelError(nameof(model.Target), _l["Teacher.Routines.InvalidTarget"]);
+            var classroom = await _db.Classrooms
+                .Where(c => c.Id == classroomId && c.OwnerId == TeacherId)
+                .Select(c => new { c.IsArchived })
+                .FirstOrDefaultAsync();
+            if (classroom is null) return Forbid();
+            if (classroom.IsArchived)
+                ModelState.AddModelError(nameof(model.ClassroomId), _l["Teacher.Routines.SelectClassroom"]);
+        }
+
+        var chosenOnly = model.Recipients == AssignRoutineViewModel.ChosenStudents;
+        var studentIds = model.StudentIds.Where(s => !string.IsNullOrEmpty(s)).Distinct().ToList();
+        if (chosenOnly)
+        {
+            if (studentIds.Count == 0)
+                ModelState.AddModelError(nameof(model.StudentIds), _l["Teacher.Routines.SelectStudents"]);
+            else if (model.ClassroomId is int id
+                && await _db.ClassroomMembers.CountAsync(m => m.ClassroomId == id && studentIds.Contains(m.StudentId)) != studentIds.Count)
+                ModelState.AddModelError(nameof(model.StudentIds), _l["Teacher.Routines.NotInClassroom"]);
+        }
+        else if (model.Recipients != AssignRoutineViewModel.WholeClass)
+        {
+            ModelState.AddModelError(nameof(model.Recipients), _l["Teacher.Routines.InvalidTarget"]);
         }
 
         if (!ModelState.IsValid)
@@ -402,18 +431,29 @@ public class RoutinesController : TeacherAreaController
             return View(model);
         }
 
-        _db.RoutineAssignments.Add(new RoutineAssignment
+        var assignment = new RoutineAssignment
         {
             RoutineId = r.Id,
-            ClassroomId = model.Target == "classroom" ? model.ClassroomId : null,
-            StudentId = model.Target == "student" ? model.StudentId : null,
-            AssignedAt = DateTime.UtcNow,
+            ClassroomId = model.ClassroomId,
+            AssignedAt = _clock.GetUtcNow().UtcDateTime,
             DueAt = model.DueAt,
-            AllowLate = model.DueAt.HasValue && model.AllowLate
-        });
+            AllowLate = model.DueAt.HasValue && model.AllowLate,
+            ChosenStudentsOnly = chosenOnly,
+            ChosenStudents = chosenOnly
+                ? studentIds.Select(s => new RoutineAssignmentStudent { StudentId = s }).ToList()
+                : new List<RoutineAssignmentStudent>()
+        };
+        _db.RoutineAssignments.Add(assignment);
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = _l["Toast.RoutineAssigned"].Value;
+        var emails = await _emails.QueueAsync(assignment.Id);
+        TempData["Success"] = _l[emails.Queued > 0 && emails.Queued == emails.Students
+            ? "Toast.RoutineAssignedEmailed"
+            : "Toast.RoutineAssigned"].Value;
+        if (emails.Failed)
+            TempData["Error"] = _l["Toast.RoutineEmailFailed"].Value;
+        else if (emails.Queued < emails.Students)
+            TempData["Error"] = _l["Toast.RoutineEmailLimit", emails.Students - emails.Queued, emails.Students].Value;
         return RedirectToAction(nameof(Details), new { id = r.Id });
     }
 
@@ -450,8 +490,17 @@ public class RoutinesController : TeacherAreaController
         return (routine, assignment);
     }
 
-    private Task<bool> IsClassroomMemberAsync(int classroomId, string studentId)
-        => _db.ClassroomMembers.AnyAsync(m => m.ClassroomId == classroomId && m.StudentId == studentId);
+    // The students a classroom assignment goes to: the class's members, or those of them the teacher ticked.
+    private IQueryable<ClassroomMember> Recipients(RoutineAssignment assignment)
+    {
+        var members = _db.ClassroomMembers.Where(m => m.ClassroomId == assignment.ClassroomId);
+        return assignment.ChosenStudentsOnly
+            ? members.Where(m => _db.RoutineAssignmentStudents.Any(s => s.RoutineAssignmentId == assignment.Id && s.StudentId == m.StudentId))
+            : members;
+    }
+
+    private Task<bool> IsRecipientAsync(RoutineAssignment assignment, string studentId)
+        => Recipients(assignment).AnyAsync(m => m.StudentId == studentId);
 
     /// <summary>
     /// The items the student has answered in this assignment. Their adjustments stay as they
@@ -477,14 +526,13 @@ public class RoutinesController : TeacherAreaController
             .GroupBy(o => o.StudentId)
             .Select(g => new { StudentId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.StudentId, x => x.Count);
-        var members = await _db.ClassroomMembers
-            .Where(m => m.ClassroomId == assignment.ClassroomId)
+        var members = await Recipients(assignment)
             .Select(m => new { m.StudentId, m.Student!.UserName, m.Student.Email })
             .ToListAsync();
         vm.Students = members
             .Select(m => new OverrideStudentOption(
                 m.StudentId,
-                string.IsNullOrEmpty(m.Email) || m.Email == m.UserName ? (m.UserName ?? m.StudentId) : $"{m.UserName} ({m.Email})",
+                StudentDisplay(m.StudentId, m.UserName, m.Email),
                 counts.GetValueOrDefault(m.StudentId)))
             .OrderBy(s => s.Display, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
@@ -536,7 +584,7 @@ public class RoutinesController : TeacherAreaController
         var owned = await LoadOwnedClassroomAssignmentAsync(routineId, assignmentId);
         if (owned is null) return NotFound();
         var (routine, assignment) = owned.Value;
-        if (studentId != null && !await IsClassroomMemberAsync(assignment.ClassroomId!.Value, studentId)) return NotFound();
+        if (studentId != null && !await IsRecipientAsync(assignment, studentId)) return NotFound();
 
         var vm = new RoutineOverridesViewModel { RoutineId = routineId, AssignmentId = assignmentId, StudentId = studentId };
         await PopulateOverridesAsync(vm, routine, assignment, fromDb: true);
@@ -549,7 +597,7 @@ public class RoutinesController : TeacherAreaController
         var owned = await LoadOwnedClassroomAssignmentAsync(model.RoutineId, model.AssignmentId);
         if (owned is null) return NotFound();
         var (routine, assignment) = owned.Value;
-        if (string.IsNullOrEmpty(model.StudentId) || !await IsClassroomMemberAsync(assignment.ClassroomId!.Value, model.StudentId))
+        if (string.IsNullOrEmpty(model.StudentId) || !await IsRecipientAsync(assignment, model.StudentId))
             return NotFound();
 
         if (!ModelState.IsValid)
@@ -615,7 +663,7 @@ public class RoutinesController : TeacherAreaController
         var owned = await LoadOwnedClassroomAssignmentAsync(routineId, assignmentId);
         if (owned is null) return NotFound();
         var (routine, assignment) = owned.Value;
-        if (string.IsNullOrEmpty(studentId) || !await IsClassroomMemberAsync(assignment.ClassroomId!.Value, studentId))
+        if (string.IsNullOrEmpty(studentId) || !await IsRecipientAsync(assignment, studentId))
             return NotFound();
 
         var rows = await _db.RoutineAssignmentOverrides

@@ -11,8 +11,9 @@ namespace AcademiaAuditiva.Areas.Teacher.Services;
 /// The teacher's reports on the routines they assigned. They count only the answers given in
 /// those routines (tagged with the assignment, <see cref="AcademiaAuditiva.Models.ScoreSnapshot.RoutineAssignmentId"/>),
 /// never practice outside them nor another teacher's routines, and only from students still in
-/// one of the teacher's classrooms: a classroom's routine counts its current members, and a
-/// routine assigned to one student counts them while they are in one of the teacher's classrooms.
+/// one of the teacher's classrooms: a classroom's routine counts its current members (or those of
+/// them it was assigned to, when the teacher ticked some), and a routine assigned to one student
+/// counts them while they are in one of the teacher's classrooms.
 /// Each report is null when what it is about is not the teacher's.
 /// </summary>
 public sealed class RoutineReports
@@ -32,12 +33,13 @@ public sealed class RoutineReports
     {
         var assignment = await Owned(teacherId).FirstOrDefaultAsync(a => a.Id == assignmentId, cancellationToken);
         if (assignment is null) return null;
+        await LoadChosenStudentsAsync([assignment], cancellationToken);
 
         var members = assignment.ClassroomId is { } classroomId
             ? _db.ClassroomMembers.Where(m => m.ClassroomId == classroomId)
             : _db.ClassroomMembers.Where(m => m.StudentId == assignment.StudentId && m.Classroom!.OwnerId == teacherId);
         // A student can be in more than one of the teacher's classrooms.
-        var students = (await Students(members).ToListAsync(cancellationToken)).DistinctBy(s => s.Id).ToList();
+        var students = Recipients(assignment, await Students(members).ToListAsync(cancellationToken)).DistinctBy(s => s.Id).ToList();
 
         var takes = (await TakesAsync([assignment], _ => students, timeZone, cancellationToken))[assignment.Id];
         var items = ItemsOf(assignment)
@@ -67,10 +69,11 @@ public sealed class RoutineReports
         var assignments = await Owned(teacherId)
             .Where(a => a.ClassroomId == classroomId || (a.StudentId != null && memberIds.Contains(a.StudentId)))
             .ToListAsync(cancellationToken);
+        await LoadChosenStudentsAsync(assignments, cancellationToken);
 
         var takes = await TakesAsync(
             assignments,
-            a => a.ClassroomId == classroomId ? members : members.Where(m => m.Id == a.StudentId),
+            a => a.ClassroomId == classroomId ? Recipients(a, members) : members.Where(m => m.Id == a.StudentId),
             timeZone,
             cancellationToken);
 
@@ -89,7 +92,8 @@ public sealed class RoutineReports
 
     /// <summary>
     /// A student in one of the teacher's classrooms: the routines the teacher assigned to those
-    /// classrooms (archived ones included) or to the student.
+    /// classrooms (archived ones included) or to the student, apart from those that went to other
+    /// students the teacher ticked.
     /// </summary>
     public async Task<StudentReport?> StudentAsync(
         string teacherId, string studentId, TimeZoneInfo timeZone, CancellationToken cancellationToken = default)
@@ -103,8 +107,11 @@ public sealed class RoutineReports
         var student = new ReportStudent(studentId, memberships[0].UserName ?? string.Empty, memberships[0].Email ?? string.Empty);
         var classroomIds = memberships.Select(m => m.ClassroomId).ToList();
         var assignments = await Owned(teacherId)
-            .Where(a => (a.ClassroomId != null && classroomIds.Contains(a.ClassroomId.Value)) || a.StudentId == studentId)
+            .Where(a => (a.ClassroomId != null && classroomIds.Contains(a.ClassroomId.Value)
+                    && (!a.ChosenStudentsOnly || a.ChosenStudents.Any(s => s.StudentId == studentId)))
+                || a.StudentId == studentId)
             .ToListAsync(cancellationToken);
+        await LoadChosenStudentsAsync(assignments, cancellationToken);
 
         var takes = await TakesAsync(assignments, _ => [student], timeZone, cancellationToken);
         var routines = Latest(assignments)
@@ -130,6 +137,28 @@ public sealed class RoutineReports
             m.StudentId,
             m.Student!.UserName ?? string.Empty,
             m.Student.Email ?? string.Empty));
+
+    // Apart from Owned(): a second collection there would repeat each item once per ticked student.
+    private async Task LoadChosenStudentsAsync(IReadOnlyCollection<RoutineAssignment> assignments, CancellationToken cancellationToken)
+    {
+        var ids = assignments.Where(a => a.ChosenStudentsOnly).Select(a => a.Id).ToList();
+        if (ids.Count == 0) return;
+        // Those still in the class, like the roster: a student removed from it no longer gets the routine.
+        var chosen = await _db.RoutineAssignmentStudents.AsNoTracking()
+            .Where(s => ids.Contains(s.RoutineAssignmentId)
+                && _db.ClassroomMembers.Any(m => m.ClassroomId == s.RoutineAssignment!.ClassroomId && m.StudentId == s.StudentId))
+            .ToListAsync(cancellationToken);
+        foreach (var assignment in assignments)
+        {
+            assignment.ChosenStudents = chosen.Where(s => s.RoutineAssignmentId == assignment.Id).ToList();
+        }
+    }
+
+    // A classroom's routine goes to the whole class, or to the students the teacher ticked in it.
+    private static IEnumerable<ReportStudent> Recipients(RoutineAssignment assignment, IEnumerable<ReportStudent> members)
+        => assignment.ChosenStudentsOnly
+            ? members.Where(m => assignment.ChosenStudents.Any(s => s.StudentId == m.Id))
+            : members;
 
     /// <summary>
     /// Each assignment's takes, by user name: one per student of its roster who has at least one
@@ -219,7 +248,8 @@ public sealed class RoutineReports
         StudentName: assignment.ClassroomId == null ? assignment.Student?.UserName ?? string.Empty : null,
         AssignedOn: PracticeStreak.LocalDate(assignment.AssignedAt, timeZone),
         DueOn: assignment.DueAt is { } due ? DateOnly.FromDateTime(due) : null,
-        AllowLate: assignment.AllowLate);
+        AllowLate: assignment.AllowLate,
+        ChosenStudents: assignment.ChosenStudentsOnly ? assignment.ChosenStudents.Count : null);
 
     private static IEnumerable<RoutineAssignment> Latest(IEnumerable<RoutineAssignment> assignments)
         => assignments.OrderByDescending(a => a.AssignedAt).ThenByDescending(a => a.Id);
