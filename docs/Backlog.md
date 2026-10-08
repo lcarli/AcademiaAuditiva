@@ -16,7 +16,7 @@ The modernization plan is done (#47 to #83):
   with real SQL Server and Playwright (#47, #48, #51, #52, #59).
 - **Look and languages**: the visual identity, eight illustrations on the
   home page, and full en-US, pt-BR and fr-CA (#53, #56, #70, #82, #101).
-- **Exercises**: 25 exercises on piano, guitar and violin, plus Explore and
+- **Exercises**: 26 exercises on piano, guitar and violin, plus Explore and
   free practice (#58, #60, #75 to #78). The server times each answer, and the
   dashboard works out every figure from the answers themselves, so it shows
   real practice time and real error counts (#99, #100). Compare 2 melodies
@@ -47,7 +47,11 @@ The modernization plan is done (#47 to #83):
   GuessInterval and GuessFullInterval play their two notes one after the
   other, together, or either at random, as the student picks; together, the
   guitar plucks them from the lower up and the violin plays a double stop
-  (#132).
+  (#132). GuessChangedNote plays a melody of Compare 2 melodies, then the
+  same melody with one note moved a step or a third along the scale, and asks
+  which note changed and whether it went up or down. The daily challenge
+  shuffles the turns of each category anew every round, so categories of the
+  same size no longer move in step (#133).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -254,7 +258,7 @@ they appear in the data export.
 
 ## Exercises
 
-From the brainstorm of 2026-10-06. There are 25 exercises, four of them on
+From the brainstorm of 2026-10-06. There are 26 exercises, four of them on
 rhythm (RhythmDictation, GuessMeter, GuessRhythmPattern and RhythmTap), but
 the Games and Misc categories have none
 (`AcademiaAuditiva/Data/SeedData.cs:34-35`). GuessFunction (#122),
@@ -265,15 +269,15 @@ GuessDegree could later ask for two or three notes in a row. RhythmDictation
 counts in and has levels up to 6/8 (#125), GuessMeter asks for the meter
 (#126), GuessRhythmPattern for the rhythm (#127), and RhythmTap has the
 student tap one back (#128). GuessQuality plays seventh, sus, 6 and add9
-chords (#129), GuessTopNote asks for the top note of a chord (#131), and
-GuessInterval and GuessFullInterval play harmonic intervals too (#132).
+chords (#129), GuessTopNote asks for the top note of a chord (#131),
+GuessInterval and GuessFullInterval play harmonic intervals too (#132), and
+GuessChangedNote asks which note of a melody changed (#133).
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
-| 5. Which note changed? | New exercise | Small | – |
-| 6. Singing exercises | New exercises | Medium | Item 1 |
-| 7. In tune or not? | New exercise | Medium | – |
-| 8. Game modes | Games category | Medium to large | – |
+| 5. Singing exercises | New exercises | Medium | Item 1 |
+| 6. In tune or not? | New exercise | Medium | – |
+| 7. Game modes | Games category | Medium to large | – |
 
 **Adding an exercise.** A new exercise needs all of this, and tests that go
 through every seeded exercise check much of it:
@@ -315,21 +319,7 @@ cover it between them; and ties and triplets in the dictations (#125), which
 would each need a duration label of their own in the generator, the staff
 editor and the renderer.
 
-### 5. New exercise: which note changed?
-
-**Why.** Compare 2 melodies asks only whether two melodies differ: the second
-one leaves out a note or not (#120). The next step is to say where and how:
-which note changed, and whether it went up or down
-(`docs/Pedagogia-Exercicios.md:31`, `docs/archive/MapaDoProjeto.md:20`).
-
-**What.** The melodies of Compare 2 melodies (`GenerateComparisonMelody` in
-`MusicTheoryService.cs`), with one note moved by a step or a leap. The
-student picks its position (buttons 1 to n) and up or down. It could be a
-level of Compare 2 melodies instead, but its answer buttons are different.
-
-**Done when.** It follows the list above.
-
-### 6. Singing exercises
+### 5. Singing exercises
 
 **Needs [item 1](#1-settle-the-essentiajs-license-agpl-30).** They would
 detect the sung pitch as sight-singing does (`detectNotes` in
@@ -347,7 +337,7 @@ Microphone exercises stay out of the learning path, the daily challenge, and
 the badges that ask for every exercise or category. Add each one to
 `MicrophoneExercises` (`AcademiaAuditiva/Services/MicrophoneExercises.cs:9`),
 which the daily challenge and those badges check
-(`AcademiaAuditiva/Services/DailyChallenge/DailyChallengeRules.cs:118`,
+(`AcademiaAuditiva/Services/DailyChallenge/DailyChallengeRules.cs:120`,
 `BadgeRules.cs:315` and `:331`). The learning path just has no step for them,
 and its test names SolfegeMelody (`LearningPathServiceTests.cs:22`); make the
 test use `MicrophoneExercises`.
@@ -355,7 +345,7 @@ test use `MicrophoneExercises`.
 **Done when.** Each one follows the list above, except the learning-path step,
 and recognizes sung notes as reliably as sight-singing does.
 
-### 7. New exercise: in tune or not?
+### 6. New exercise: in tune or not?
 
 **Why.** Violinists and singers tune by ear, and nothing trains it: every
 sample is in tune, one per semitone.
@@ -368,7 +358,7 @@ with a new field on `MixInput`.
 **Done when.** It follows the list above, and a mixer test checks the shifted
 pitch.
 
-### 8. Game modes
+### 7. Game modes
 
 **Why.** The Games and Misc categories are empty. Modes that reuse the rounds
 of existing exercises add variety without new music code.

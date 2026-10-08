@@ -414,6 +414,76 @@ test('guess the top note plays the chord as written, on the guitar too, and chec
   expect(await answer(wrong)).toMatchObject({ success: true, free: true, isCorrect: false, answer: second });
 });
 
+test('which note changed plays two melodies, offers a button for each note and checks the note and where it went', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/GuessChangedNote?practice=free`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const positions = page.locator('.aa-answer.guessPosition:visible');
+  const shownPositions = () => positions.evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value));
+  // Four notes to start with, the shortest length, as Compare 2 melodies.
+  expect(await shownPositions()).toEqual(['1', '2', '3', '4']);
+  await expect(page.locator('.aa-answer.guessDirection:visible')).toHaveText(['Up', 'Down']);
+
+  // A button for each note of the length picked.
+  const filters = page.locator('#filtersModal');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await filters.locator('select[name="melodyLength"]').selectOption('7');
+  await filters.locator('.btn-close').click();
+  await expect(filters).toBeHidden();
+  expect(await shownPositions()).toEqual(['1', '2', '3', '4', '5', '6', '7']);
+
+  const dialog = page.locator('.swal2-popup');
+  const playAndReveal = async () => {
+    const playResponse = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay'));
+    const audioResponse = page.waitForResponse(response => response.url().includes('/audio/') && response.status() === 200);
+    await page.click('#Play');
+    const play = await playResponse;
+    expect(JSON.parse(play.request().postData() ?? '{}').filters.melodyLength).toBe('7');
+    // The two melodies and how many notes they have: the page can't tell which note changed.
+    const round = await play.json();
+    expect(Object.keys(round).sort()).toEqual(['melody1Token', 'melody2Token', 'notes', 'roundId']);
+    expect(round.notes).toBe(7);
+    const audio = await audioResponse;
+    expect(audio.headers()['content-type']).toContain('audio/');
+    expect((await audio.body()).length).toBeGreaterThan(1000);
+
+    const revealResponse = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer'));
+    await page.locator('[data-aa-reveal]').click();
+    const shown = await (await revealResponse).json();
+    expect(shown.answer).toMatch(/^[1-7]\|(up|down)$/);
+    const [note, moved] = shown.answer.split('|');
+    await expect(dialog.locator('.swal2-html-container')).toHaveText(`Note ${note}, which went ${moved}`);
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+    return shown.answer as string;
+  };
+  const answer = async (guess: string) => {
+    const [note, moved] = guess.split('|');
+    await page.locator(`.aa-answer.guessPosition:visible[value="${note}"]`).click();
+    await page.locator(`.aa-answer.guessDirection:visible[value="${moved}"]`).click();
+    const validateResponse = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise'));
+    await page.click('#validateGuess');
+    const result = await (await validateResponse).json();
+    await expect(dialog).toBeVisible();
+    return result;
+  };
+  const close = async () => {
+    await page.click('.swal2-confirm');
+    await expect(dialog).toBeHidden();
+  };
+
+  const first = await playAndReveal();
+  expect(await answer(first)).toMatchObject({ success: true, free: true, isCorrect: true, answer: first });
+  await close();
+  const second = await playAndReveal();
+  const [note, moved] = second.split('|');
+  const otherWay = moved === 'up' ? 'down' : 'up';
+  expect(await answer(`${note}|${otherWay}`)).toMatchObject({ success: true, free: true, isCorrect: false, answer: second });
+  await expect(dialog.locator('.swal2-html-container')).toContainText(`The correct answer was note ${note}, which went ${moved}.`);
+  await close();
+  await expect(page.locator('.aa-answer.selected')).toHaveCount(0);
+});
+
 test('the full interval plays its notes together when asked, with no direction, and checks the interval', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessFullInterval?practice=free`, { waitUntil: 'networkidle' });

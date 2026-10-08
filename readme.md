@@ -12,10 +12,11 @@ fr-CA). It runs at <https://academiaauditiva.com>.
 
 ## ✨ Features
 
-- 🎧 **25 exercises**: notes, higher or lower, melodic and harmonic
+- 🎧 **26 exercises**: notes, higher or lower, melodic and harmonic
   intervals, scale degrees,
   chords and their quality, inversions, top notes, harmonic functions,
   cadences, chord progressions, scale types, Greek modes, missing notes,
+  which note of a melody changed,
   melodic and rhythmic dictation, meters, rhythms to pick or tap back, staff
   exercises (complete a scale or a chord, transpose a scale) and
   sight-singing. Filters choose the key, scale, octave, level and more.
@@ -26,7 +27,7 @@ fr-CA). It runs at <https://academiaauditiva.com>.
   chords, barre chords or high on the neck. On the piano, the octave range
   moves the chords. The exercises about chords leave out the violin, which
   plays one note at a time.
-- 🧭 **Learning path**: 24 steps in 3 units, from *Higher or Lower* to
+- 🧭 **Learning path**: 25 steps in 3 units, from *Higher or Lower* to
   *Guess Note*, with progress and celebrations.
 - 📅 **Daily challenge**: three exercises from different categories every
   day, the same for every student, with progress on the dashboard.

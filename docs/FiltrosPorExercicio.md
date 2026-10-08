@@ -241,6 +241,14 @@ O aluno ouve uma tríade maior ou menor a quatro vozes, com a fundamental no bai
 
 ---
 
+### 27. Qual nota mudou?
+O aluno ouve uma melodia como as de Comparar 2 melodias, num tom maior sorteado a cada questão: cada nota a um grau ou a uma terça da anterior, terminando na tônica, entre a quinta abaixo e a quinta acima dela. Depois ouve a mesma melodia com uma nota movida ao longo da escala, um grau duas vezes em três, senão uma terça, para cima ou para baixo (na beira dessa extensão, para o outro lado). Qualquer nota pode mudar, inclusive a primeira e a última. O aluno diz qual nota mudou, contando a partir da primeira, e se ela subiu ou desceu, e só acerta com as duas certas. Uma resposta errada diz qual era: "a nota 3, que subiu".
+- **Filtros aplicáveis**:
+  - Número de notas: 4 (o padrão da página) a 8; sem o filtro, 5. A página mostra um botão para cada nota da melodia
+  - Instrumento: as notas ficam entre G3 e F#5, que todos tocam, então não há faixa de oitavas
+
+---
+
 ## Observações
 
 - Filtros devem ser opcionais e salvos por sessão de usuário

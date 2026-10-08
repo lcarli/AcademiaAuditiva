@@ -4264,4 +4264,43 @@
   <data name="Exercise.GuessFullInterval.Tip4" xml:space="preserve">
     <value>Played together, seconds and sevenths sound harsh, thirds and sixths sound sweet, and fourths, fifths and octaves sound hollow.</value>
   </data>
+  <data name="GuessChangedNote" xml:space="preserve">
+    <value>Which Note Changed?</value>
+  </data>
+  <data name="Exercise.GuessChangedNoteText" xml:space="preserve">
+    <value>Which note changed, and did it go up or down?</value>
+  </data>
+  <data name="Exercise.SelectGuessChangedNoteText" xml:space="preserve">
+    <value>Please select the note that changed and whether it went up or down.</value>
+  </data>
+  <data name="Exercise.GuessChangedNote.Subtitle" xml:space="preserve">
+    <value>Listen to two melodies and say which note changed and whether it went up or down.</value>
+  </data>
+  <data name="Exercise.GuessChangedNote.Instructions" xml:space="preserve">
+    <value>Listen to a melody, then to the same melody with one note changed. Say which note changed, counting from the first, and whether it went up or down.</value>
+  </data>
+  <data name="Exercise.GuessChangedNote.Tip1" xml:space="preserve">
+    <value>Count the notes as you listen: only one of them changes.</value>
+  </data>
+  <data name="Exercise.GuessChangedNote.Tip2" xml:space="preserve">
+    <value>Listen to each melody on its own with the Melody 1 and Melody 2 buttons.</value>
+  </data>
+  <data name="Exercise.GuessChangedNote.Tip3" xml:space="preserve">
+    <value>The note that changed moved one step along the scale or leapt a third; the others stay the same.</value>
+  </data>
+  <data name="Exercise.GuessChangedNote.Tip4" xml:space="preserve">
+    <value>The melodies end on the tonic: if the last note changed, the second melody doesn't sound finished.</value>
+  </data>
+  <data name="Exercise.ChangedNote.Up" xml:space="preserve">
+    <value>Up</value>
+  </data>
+  <data name="Exercise.ChangedNote.Down" xml:space="preserve">
+    <value>Down</value>
+  </data>
+  <data name="Exercise.GuessChangedNote.AnswerUp" xml:space="preserve">
+    <value>note {{0}}, which went up</value>
+  </data>
+  <data name="Exercise.GuessChangedNote.AnswerDown" xml:space="preserve">
+    <value>note {{0}}, which went down</value>
+  </data>
 </root>

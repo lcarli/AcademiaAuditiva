@@ -32,6 +32,7 @@ public static class LearningPathCatalog
         ]),
         new("BuildingBlocks",
         [
+            Step("GuessChangedNote", 10, 7, ("melodyLength", "4")),
             Step("IntervalMelodico", 10, 7, ("keySelect", "C"), ("scaleTypeSelect", "major")),
             Step("GuessQuality", 10, 7, ("chordGroup", "triadsSevenths")),
             Step("CompleteChord", 10, 7, ("ccQuality", "both")),

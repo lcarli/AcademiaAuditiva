@@ -341,36 +341,56 @@ namespace AcademiaAuditiva.Services
         }
 
         /// <summary>
-        /// The melody of a Compare 2 melodies round (GuessMissingNote): <paramref name="length"/>
-        /// notes in a random major key, each a step or a third from the one before, ending on the
-        /// tonic. They stay between the fifth degree below the tonic and the one above it (G3 to
-        /// G4 in C major), so from G3 to F#5 at most, which every instrument plays.
+        /// The melody of a Compare 2 melodies round (GuessMissingNote) or a Which note changed?
+        /// round (GuessChangedNote): <paramref name="length"/> notes in a random major key, each a
+        /// step or a third from the one before, ending on the tonic. They stay between the fifth
+        /// degree below the tonic and the one above it (G3 to G4 in C major), so from G3 to F#5 at
+        /// most, which every instrument plays.
         /// </summary>
-        private static List<string> GenerateComparisonMelody(int length, Random random)
+        /// <returns>
+        /// The key's notes in that range (<c>Scale</c>: sol, la and ti below the tonic, then do
+        /// to sol) and the melody as indices into them (<c>Melody</c>), so a note can be moved
+        /// along the scale.
+        /// </returns>
+        private static (List<string> Scale, List<int> Melody) GenerateComparisonMelody(int length, Random random)
         {
             var keys = new[] { "C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B" };
             var key = keys[random.Next(keys.Length)];
 
-            // Sol, la and ti below the tonic, then do to sol.
             var degrees = GetScaleNotes(key + "3", "major").Skip(4).Take(3)
                 .Concat(GetScaleNotes(key + "4", "major").Take(5))
                 .ToList();
             var degree = 3; // the tonic
 
             // Written backwards from the tonic, so that the melody ends on it.
-            var melody = new List<string> { degrees[degree] };
+            var melody = new List<int> { degree };
             while (melody.Count < length)
             {
                 // A step three times in four, otherwise a third; it turns back at the edges.
                 var interval = random.Next(4) == 0 ? 2 : 1;
                 var next = random.Next(2) == 0 ? degree - interval : degree + interval;
                 degree = next >= 0 && next < degrees.Count ? next : 2 * degree - next;
-                melody.Add(degrees[degree]);
+                melody.Add(degree);
             }
 
             melody.Reverse();
-            return melody;
+            return (degrees, melody);
         }
+
+        /// <summary>The notes of a comparison melody, 4 to 8 (SeedData.cs), 5 without the filter.</summary>
+        private static int ComparisonMelodyLength(Dictionary<string, string> filters) =>
+            filters.TryGetValue("melodyLength", out var raw) && int.TryParse(raw, out var length)
+                ? Math.Clamp(length, 4, 8)
+                : 5;
+
+        /// <summary>A comparison melody to play: quarter notes, and a half note to end.</summary>
+        private static List<object> ComparisonMelodyEntries(List<string> scale, List<int> melody) =>
+            [.. melody.Select((degree, i) => (object)new
+            {
+                type = "note",
+                note = scale[degree],
+                duration = i == melody.Count - 1 ? 2.0 : 1.0
+            })];
 
         /// <summary>
         /// Gera uma melodia vocal dentro de um certo número de compassos, com time signature, tessitura vocal e nível de dificuldade.
@@ -1164,23 +1184,18 @@ namespace AcademiaAuditiva.Services
                     };
                 case "GuessMissingNote":
                 {
-                    // The number of notes: 4 to 8 (SeedData.cs), 5 without the filter.
-                    var melodyLength = filters.TryGetValue("melodyLength", out var rawLen) && int.TryParse(rawLen, out var len)
-                        ? Math.Clamp(len, 4, 8)
-                        : 5;
-                    // Quarter notes, and a half note to end.
-                    var melody1 = GenerateComparisonMelody(melodyLength, random)
-                        .Select((note, i) => new { type = "note", note, duration = i == melodyLength - 1 ? 2.0 : 1.0 })
-                        .ToList();
+                    var melodyLength = ComparisonMelodyLength(filters);
+                    var (missingScale, missingDegrees) = GenerateComparisonMelody(melodyLength, random);
+                    var melody1 = ComparisonMelodyEntries(missingScale, missingDegrees);
 
                     // Half the rounds leave out a note, never the first or the last: a beat of the
-                    // pulse goes silent, which the student hears.
+                    // pulse goes silent, which the student hears. Only the last note is longer.
                     var melody2 = melody1.ToList();
                     var noteLeftOut = random.NextDouble() < 0.5;
                     if (noteLeftOut)
                     {
                         var leftOut = random.Next(1, melodyLength - 1);
-                        melody2[leftOut] = new { type = "rest", note = "rest", duration = melody1[leftOut].duration };
+                        melody2[leftOut] = new { type = "rest", note = "rest", duration = 1.0 };
                     }
 
                     return new
@@ -1188,6 +1203,33 @@ namespace AcademiaAuditiva.Services
                         melody1,
                         melody2,
                         answer = noteLeftOut ? "diff" : "same"
+                    };
+                }
+                case "GuessChangedNote":
+                {
+                    var changedLength = ComparisonMelodyLength(filters);
+                    var (changedScale, changedDegrees) = GenerateComparisonMelody(changedLength, random);
+                    var original = ComparisonMelodyEntries(changedScale, changedDegrees);
+
+                    // Any one note moves along the scale, a step two times in three, otherwise a
+                    // third. Past either end of the scale's range it moves the other way instead.
+                    var changedAt = random.Next(changedLength);
+                    var move = random.Next(3) == 0 ? 2 : 1;
+                    var up = random.Next(2) == 0;
+                    var movedTo = changedDegrees[changedAt] + (up ? move : -move);
+                    if (movedTo < 0 || movedTo >= changedScale.Count)
+                    {
+                        up = !up;
+                        movedTo = changedDegrees[changedAt] + (up ? move : -move);
+                    }
+                    changedDegrees[changedAt] = movedTo;
+
+                    return new
+                    {
+                        melody1 = original,
+                        melody2 = ComparisonMelodyEntries(changedScale, changedDegrees),
+                        // The note's place in the melody, from 1, and where it went.
+                        answer = $"{changedAt + 1}|{(up ? "up" : "down")}"
                     };
                 }
                 case "GuessFullInterval":

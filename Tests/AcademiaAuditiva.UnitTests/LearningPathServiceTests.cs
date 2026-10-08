@@ -101,9 +101,9 @@ public class LearningPathServiceTests
 
         progress.JustCompleted!.Number.Should().Be(6);
         progress.UnitOf(progress.JustCompleted).State.Should().Be(StepState.Completed);
-        progress.Current!.Should().BeEquivalentTo(new { Number = 7, Exercise = "IntervalMelodico" });
+        progress.Current!.Should().BeEquivalentTo(new { Number = 7, Exercise = "GuessChangedNote" });
         progress.UnitOf(progress.Current).Key.Should().Be("BuildingBlocks");
-        progress.Should().BeEquivalentTo(new { CompletedSteps = 6, Percent = 25 });
+        progress.Should().BeEquivalentTo(new { CompletedSteps = 6, Percent = 24 });
     }
 
     [Fact]

@@ -231,6 +231,7 @@ builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.Exer
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessChordsValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessIntervalValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessMissingNoteValidator>();
+builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessChangedNoteValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessFullIntervalValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessFunctionValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessDegreeValidator>();

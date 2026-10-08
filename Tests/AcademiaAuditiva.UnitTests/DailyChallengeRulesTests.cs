@@ -27,6 +27,7 @@ public class DailyChallengeRulesTests
         var drawn = new Dictionary<string, int>(StringComparer.Ordinal);
         var challenges = new HashSet<string>(StringComparer.Ordinal);
         var days = 0;
+        IReadOnlyList<ChallengeExercise> yesterday = [];
 
         for (var date = new DateOnly(2026, 1, 1); date.Year == 2026; date = date.AddDays(1), days++)
         {
@@ -34,6 +35,8 @@ public class DailyChallengeRulesTests
 
             picked.Should().HaveCount(DailyChallengeRules.ExercisesPerDay);
             picked.Select(e => e.Category).Should().OnlyHaveUniqueItems($"{date} draws from different categories");
+            picked.Should().NotIntersectWith(yesterday, $"no exercise of {date} was drawn the day before");
+            yesterday = picked;
             foreach (var exercise in picked) drawn[exercise.Name] = drawn.GetValueOrDefault(exercise.Name) + 1;
             challenges.Add(string.Join(",", picked.Select(e => e.Name).Order(StringComparer.Ordinal)));
         }
@@ -98,15 +101,38 @@ public class DailyChallengeRulesTests
             new(5, "RhythmDictation", "Rhythm"),
         ];
 
+        // Thirty days from Day, whose DayNumber is a multiple of 3: ten rounds of turns.
         var earTraining = Enumerable.Range(0, 30)
             .Select(i => DailyChallengeRules.Pick(Day.AddDays(i), exercises).Single(e => e.Category == "EarTraining").Name)
             .ToList();
 
         earTraining.Zip(earTraining.Skip(1)).Should().OnlyContain(days => days.First != days.Second,
             "an exercise doesn't come up two days in a row");
+        earTraining.Chunk(3).Should().AllSatisfy(round => round.Should().OnlyHaveUniqueItems(),
+            "each exercise of the category takes its turn once a round");
+        earTraining.Chunk(3).Select(round => string.Join(",", round)).Distinct().Should().HaveCountGreaterThan(1,
+            "the order changes from round to round");
         earTraining.CountBy(name => name).ToDictionary().Should().BeEquivalentTo(
             new Dictionary<string, int> { ["GuessInterval"] = 10, ["GuessNote"] = 10, ["HigherOrLower"] = 10 },
             "each exercise of the category takes its turn");
+    }
+
+    [Fact]
+    public void Pick_DoesNotMoveCategoriesOfTheSameSizeInStep()
+    {
+        // Three categories of four exercises: all three are drawn every day.
+        ChallengeExercise[] exercises =
+        [
+            .. new[] { "Melody", "Rhythm", "Scales" }.SelectMany((category, c) =>
+                Enumerable.Range(1, 4).Select(i => new ChallengeExercise(c * 4 + i, $"{category}{i}", category))),
+        ];
+
+        var pairs = Enumerable.Range(0, 365)
+            .Select(i => DailyChallengeRules.Pick(Day.AddDays(i), exercises))
+            .Select(picked => (picked.Single(e => e.Category == "Melody").Name, picked.Single(e => e.Category == "Rhythm").Name))
+            .ToHashSet();
+
+        pairs.Should().HaveCount(16, "each exercise of one category comes up with every exercise of the other");
     }
 
     [Fact]
@@ -129,6 +155,7 @@ public class DailyChallengeRulesTests
     [InlineData("GuessRhythmPattern", 5)]
     [InlineData("RhythmTap", 5)]
     [InlineData("GuessTopNote", 5)]
+    [InlineData("GuessChangedNote", 5)]
     public void Target_IsLowerForTheExercisesAnsweredOnAStaff(string exercise, int target) =>
         DailyChallengeRules.Target(exercise).Should().Be(target);
 
