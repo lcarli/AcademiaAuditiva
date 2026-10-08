@@ -25,8 +25,8 @@
 ### Percepção Auditiva
 - **GuessNote** - Adivinhe a nota
 - **HigherOrLower** - Diga se a segunda nota é mais alta ou mais grave
-- **GuessInterval** - Adivinhe o intervalo simples (1, 2, 3...)
-- **GuessFullInterval** - Adivinhe o intervalo completo (segunda menor, quinta justa...)
+- **GuessInterval** - Adivinhe o intervalo simples (1, 2, 3...), melódico ou harmônico
+- **GuessFullInterval** - Adivinhe o intervalo completo (segunda menor, quinta justa...), melódico ou harmônico
 - **GuessDegree** - Qual o grau da nota na tonalidade?
 - **GuessMissingNote** - Diga se duas melodias são iguais ou diferentes
 - **GuessMelodyComparison** - Identifique qual nota mudou entre duas melodias

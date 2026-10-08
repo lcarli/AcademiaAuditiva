@@ -44,6 +44,10 @@ The modernization plan is done (#47 to #83):
   learning path asks for the triads and the sevenths (#129). GuessTopNote
   plays a major or minor triad in four voices, the root in the bass, and asks
   which of its tones is on top: the root, the third or the fifth (#131).
+  GuessInterval and GuessFullInterval play their two notes one after the
+  other, together, or either at random, as the student picks; together, the
+  guitar plucks them from the lower up and the violin plays a double stop
+  (#132).
 - **Engagement**: XP, levels, streaks, 18 badges with their own medal art (15
   more wait for theirs), the learning path, the tutorial and the daily
   challenge (#72 to #74, #94, #97).
@@ -261,15 +265,15 @@ GuessDegree could later ask for two or three notes in a row. RhythmDictation
 counts in and has levels up to 6/8 (#125), GuessMeter asks for the meter
 (#126), GuessRhythmPattern for the rhythm (#127), and RhythmTap has the
 student tap one back (#128). GuessQuality plays seventh, sus, 6 and add9
-chords (#129), and GuessTopNote asks for the top note of a chord (#131).
+chords (#129), GuessTopNote asks for the top note of a chord (#131), and
+GuessInterval and GuessFullInterval play harmonic intervals too (#132).
 
 | Item | Kind | Effort | Needs |
 | --- | --- | --- | --- |
-| 5. Harmonic intervals | New filter | Small | – |
-| 6. Which note changed? | New exercise | Small | – |
-| 7. Singing exercises | New exercises | Medium | Item 1 |
-| 8. In tune or not? | New exercise | Medium | – |
-| 9. Game modes | Games category | Medium to large | – |
+| 5. Which note changed? | New exercise | Small | – |
+| 6. Singing exercises | New exercises | Medium | Item 1 |
+| 7. In tune or not? | New exercise | Medium | – |
+| 8. Game modes | Games category | Medium to large | – |
 
 **Adding an exercise.** A new exercise needs all of this, and tests that go
 through every seeded exercise check much of it:
@@ -311,24 +315,7 @@ cover it between them; and ties and triplets in the dictations (#125), which
 would each need a duration label of their own in the generator, the staff
 editor and the renderer.
 
-### 5. Harmonic intervals
-
-**Why.** GuessInterval and GuessFullInterval always play one note after the
-other (`ExercisePlaybackPlanner.cs:131-139`). Two notes at once, a harmonic
-interval, is what students hear in two-part music and inside chords.
-`docs/FiltrosPorExercicio.md:39` planned the filter.
-
-**What.** A filter on both: melodic as today, harmonic, or either at random.
-Harmonic plays both notes at the same time, in the octaves written, as
-`WrittenChord` does (`ExercisePlaybackPlanner.cs:244`). `Chord` won't do: on
-the guitar it strums a shape of four to six strings, in octaves of its own,
-which changes the interval. The direction filter doesn't apply to harmonic
-intervals. HigherOrLower shares the planner case and stays melodic.
-
-**Done when.** Both exercises play harmonic intervals when chosen, a planner
-test checks the start times, and the new texts exist in the three languages.
-
-### 6. New exercise: which note changed?
+### 5. New exercise: which note changed?
 
 **Why.** Compare 2 melodies asks only whether two melodies differ: the second
 one leaves out a note or not (#120). The next step is to say where and how:
@@ -342,7 +329,7 @@ level of Compare 2 melodies instead, but its answer buttons are different.
 
 **Done when.** It follows the list above.
 
-### 7. Singing exercises
+### 6. Singing exercises
 
 **Needs [item 1](#1-settle-the-essentiajs-license-agpl-30).** They would
 detect the sung pitch as sight-singing does (`detectNotes` in
@@ -368,7 +355,7 @@ test use `MicrophoneExercises`.
 **Done when.** Each one follows the list above, except the learning-path step,
 and recognizes sung notes as reliably as sight-singing does.
 
-### 8. New exercise: in tune or not?
+### 7. New exercise: in tune or not?
 
 **Why.** Violinists and singers tune by ear, and nothing trains it: every
 sample is in tune, one per semitone.
@@ -381,7 +368,7 @@ with a new field on `MixInput`.
 **Done when.** It follows the list above, and a mixer test checks the shifted
 pitch.
 
-### 9. Game modes
+### 8. Game modes
 
 **Why.** The Games and Misc categories are empty. Modes that reuse the rounds
 of existing exercises add variety without new music code.

@@ -4246,4 +4246,22 @@
   <data name="Exercise.TopNote.Fifth" xml:space="preserve">
     <value>Fifth</value>
   </data>
+  <data name="Exercise.IntervalMode" xml:space="preserve">
+    <value>Playback</value>
+  </data>
+  <data name="Exercise.IntervalMode.Melodic" xml:space="preserve">
+    <value>Melodic (one note after the other)</value>
+  </data>
+  <data name="Exercise.IntervalMode.Harmonic" xml:space="preserve">
+    <value>Harmonic (both notes together)</value>
+  </data>
+  <data name="Exercise.IntervalMode.Both" xml:space="preserve">
+    <value>Both, at random</value>
+  </data>
+  <data name="Exercise.GuessInterval.Tip4" xml:space="preserve">
+    <value>In a harmonic interval, sing the lower note, then the upper one: it becomes a melodic interval.</value>
+  </data>
+  <data name="Exercise.GuessFullInterval.Tip4" xml:space="preserve">
+    <value>Played together, seconds and sevenths sound harsh, thirds and sixths sound sweet, and fourths, fifths and octaves sound hollow.</value>
+  </data>
 </root>

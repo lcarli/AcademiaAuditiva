@@ -12,7 +12,8 @@ fr-CA). It runs at <https://academiaauditiva.com>.
 
 ## ✨ Features
 
-- 🎧 **25 exercises**: notes, higher or lower, intervals, scale degrees,
+- 🎧 **25 exercises**: notes, higher or lower, melodic and harmonic
+  intervals, scale degrees,
   chords and their quality, inversions, top notes, harmonic functions,
   cadences, chord progressions, scale types, Greek modes, missing notes,
   melodic and rhythmic dictation, meters, rhythms to pick or tap back, staff

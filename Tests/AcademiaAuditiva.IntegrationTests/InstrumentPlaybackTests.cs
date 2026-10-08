@@ -216,6 +216,27 @@ public class InstrumentPlaybackTests : IClassFixture<ExploreWebApplicationFactor
             .And.AllSatisfy(input => input.SampleName.Should().MatchRegex(@"^[A-G]s?\d\.mp3$"));
     }
 
+    // Not a chord exercise: the violin plays the harmonic interval itself, as a double stop.
+    [Theory]
+    [InlineData("GuessInterval")]
+    [InlineData("GuessFullInterval")]
+    public async Task HarmonicInterval_OnTheViolin_IsADoubleStop(string exerciseName)
+    {
+        var exerciseId = ExerciseId(exerciseName);
+        var client = await ClientAsync(("instrument", "Violin"));
+        var filters = new Dictionary<string, string> { ["intervalMode"] = "harmonic" };
+
+        var play = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new { exerciseId, filters }));
+
+        play.GetProperty("playToken").GetString().Should().NotBeNullOrEmpty();
+        _factory.Mixer.Plans.Should().ContainSingle().Which.Should().HaveCount(2)
+            .And.AllSatisfy(input =>
+            {
+                input.SampleName.Should().MatchRegex(@"^violin/[A-G]s?\d\.mp3$");
+                input.StartTimeSeconds.Should().Be(0.0);
+            });
+    }
+
     [Fact]
     public async Task ChordRound_OnTheGuitar_IsStrummed()
     {

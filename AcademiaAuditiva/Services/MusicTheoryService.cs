@@ -891,6 +891,20 @@ namespace AcademiaAuditiva.Services
 
 
         #region Métodos de geração de som por exercicio
+        /// <summary>
+        /// Whether a round of GuessInterval or GuessFullInterval plays its two notes together, a
+        /// harmonic interval, rather than one after the other: as its <c>intervalMode</c> filter
+        /// says, <c>melodic</c> (also without the filter), <c>harmonic</c>, or <c>both</c>, drawn
+        /// for each round.
+        /// </summary>
+        private static bool PlaysTogether(Dictionary<string, string> filters, Random random) =>
+            filters.GetValueOrDefault("intervalMode") switch
+            {
+                "harmonic" => true,
+                "both" => random.Next(2) == 0,
+                _ => false,
+            };
+
         /// <param name="instrument">
         /// Instrument the exercise is played on (the piano when <c>null</c>). The notes drawn one
         /// at a time stay in its note range, and HigherOrLower widens a one-octave
@@ -1145,7 +1159,8 @@ namespace AcademiaAuditiva.Services
                     {
                         note1,
                         note2,
-                        answer = degree.ToString()
+                        answer = degree.ToString(),
+                        harmonic = PlaysTogether(filters, random)
                     };
                 case "GuessMissingNote":
                 {
@@ -1177,8 +1192,12 @@ namespace AcademiaAuditiva.Services
                 }
                 case "GuessFullInterval":
                     var tonicNote = filters.TryGetValue("keySelect", out var root) ? root + "4" : "C4";
+                    var fullHarmonic = PlaysTogether(filters, random);
                     var direction = filters.TryGetValue("intervalDirection", out var dir) ? dir : "asc";
-                    if (direction == "both")
+                    // Two notes played together have no direction: the note of the key is the lower one.
+                    if (fullHarmonic)
+                        direction = "asc";
+                    else if (direction == "both")
                         direction = random.NextDouble() < 0.5 ? "asc" : "desc";
 
                     var intervalOptions = new Dictionary<string, int>
@@ -1207,7 +1226,8 @@ namespace AcademiaAuditiva.Services
                     {
                         note1 = noteA,
                         note2 = noteB,
-                        answer = chosenInterval
+                        answer = chosenInterval,
+                        harmonic = fullHarmonic
                     };
                 case "GuessFunction":
                 {
