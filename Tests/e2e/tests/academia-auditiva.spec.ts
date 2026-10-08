@@ -907,7 +907,8 @@ test('sight-singing hears the melody sung into the microphone and checks it', as
   await expect(page.locator('#output-sheet svg')).toBeVisible();
 
   const { guess, result } = await singAndValidate(page, notes.map(midi => ({ midi, seconds: 0.6 })));
-  expect(guess).toMatch(/^[A-G]#?\d(\|[A-G]#?\d)+$/);
+  // A one-bar melody may be a single whole note, and repeated notes are heard as one.
+  expect(guess).toMatch(/^[A-G]#?\d(\|[A-G]#?\d)*$/);
   expect(result).toMatchObject({ success: true, isCorrect: true });
   await expect(page.locator('.swal2-popup .swal2-title')).toHaveText('Correct!');
 });
