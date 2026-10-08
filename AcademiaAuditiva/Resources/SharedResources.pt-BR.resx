@@ -4771,4 +4771,46 @@
   <data name="Identity.Status.NotificationsError" xml:space="preserve">
     <value>Erro inesperado ao salvar suas preferências de notificação.</value>
   </data>
+  <data name="Notifications.Title" xml:space="preserve">
+    <value>Notificações</value>
+  </data>
+  <data name="Notifications.Subtitle" xml:space="preserve">
+    <value>Novidades das suas rotinas e turmas.</value>
+  </data>
+  <data name="Notifications.Bell" xml:space="preserve">
+    <value>Notificações</value>
+  </data>
+  <data name="Notifications.BellUnread" xml:space="preserve">
+    <value>Notificações (não lidas: {0})</value>
+  </data>
+  <data name="Notifications.MarkAllRead" xml:space="preserve">
+    <value>Marcar todas como lidas</value>
+  </data>
+  <data name="Notifications.EmailSettings" xml:space="preserve">
+    <value>Configurar emails</value>
+  </data>
+  <data name="Notifications.Empty" xml:space="preserve">
+    <value>Você não tem notificações.</value>
+  </data>
+  <data name="Notifications.UnreadLabel" xml:space="preserve">
+    <value>Não lida.</value>
+  </data>
+  <data name="Notifications.Due" xml:space="preserve">
+    <value>Prazo até {0}</value>
+  </data>
+  <data name="Notifications.RoutineAssigned" xml:space="preserve">
+    <value>&lt;strong&gt;{0}&lt;/strong&gt; atribuiu a você a rotina &lt;strong&gt;{1}&lt;/strong&gt;.</value>
+  </data>
+  <data name="Notifications.RoutineDueTomorrow" xml:space="preserve">
+    <value>Lembrete: o prazo da rotina &lt;strong&gt;{0}&lt;/strong&gt; vai até {1}.</value>
+  </data>
+  <data name="Notifications.StudentFinishedRoutine" xml:space="preserve">
+    <value>&lt;strong&gt;{0}&lt;/strong&gt; concluiu a rotina &lt;strong&gt;{1}&lt;/strong&gt;.</value>
+  </data>
+  <data name="Notifications.InviteAccepted" xml:space="preserve">
+    <value>&lt;strong&gt;{0}&lt;/strong&gt; entrou na sua turma &lt;strong&gt;{1}&lt;/strong&gt;.</value>
+  </data>
+  <data name="Toast.NotificationsRead" xml:space="preserve">
+    <value>Todas as notificações foram marcadas como lidas.</value>
+  </data>
 </root>

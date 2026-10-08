@@ -41,10 +41,10 @@ public class PersonalDataService
     /// <summary>
     /// Deletes the user together with the classes and routines they own.
     /// Practice data and the Identity tables cascade in the database, but the
-    /// teaching tables restrict user deletes (or would be left orphaned by
-    /// SET NULL), so they are removed here. The user store shares this scoped
-    /// DbContext, so everything is written by the single SaveChanges inside
-    /// <see cref="UserManager{TUser}.DeleteAsync"/>, in one transaction.
+    /// teaching tables and the notifications about the user restrict user deletes
+    /// (or would be left orphaned by SET NULL), so they are removed here. The user
+    /// store shares this scoped DbContext, so everything is written by the single
+    /// SaveChanges inside <see cref="UserManager{TUser}.DeleteAsync"/>, in one transaction.
     /// </summary>
     public async Task<IdentityResult> DeleteAccountAsync(ApplicationUser user, CancellationToken ct = default)
     {
@@ -90,6 +90,16 @@ public class PersonalDataService
                 || (email != null && i.Email == email))
             .ToListAsync(ct);
 
+        // The user's own, those about them in their teachers' lists, and those about the
+        // classes and assignments removed.
+        var notifications = await _db.Notifications
+            .Where(n => n.UserId == userId
+                || n.StudentId == userId
+                || (n.RoutineAssignmentId != null && assignmentIds.Contains(n.RoutineAssignmentId.Value))
+                || (n.ClassroomId != null && classroomIds.Contains(n.ClassroomId.Value)))
+            .ToListAsync(ct);
+
+        _db.Notifications.RemoveRange(notifications);
         _db.RoutineAssignmentOverrides.RemoveRange(overrides);
         _db.RoutineAssignmentStudents.RemoveRange(chosen);
         _db.RoutineAssignments.RemoveRange(assignments);
@@ -263,6 +273,24 @@ public class PersonalDataService
             })
             .ToListAsync(ct);
 
+        // Those about the user's students name the routine or classroom, not the student.
+        var notifications = (await _db.Notifications.AsNoTracking()
+            .Where(n => n.UserId == userId)
+            .OrderBy(n => n.CreatedAt).ThenBy(n => n.Id)
+            .Select(n => new
+            {
+                n.Kind,
+                n.CreatedAt,
+                n.ReadAt,
+                Routine = n.RoutineAssignment != null ? n.RoutineAssignment.Routine!.Name : null,
+                Classroom = n.Classroom != null
+                    ? n.Classroom.Name
+                    : n.RoutineAssignment != null && n.RoutineAssignment.Classroom != null ? n.RoutineAssignment.Classroom.Name : null
+            })
+            .ToListAsync(ct))
+            .Select(n => new { Kind = n.Kind.ToString(), n.CreatedAt, n.ReadAt, n.Routine, n.Classroom })
+            .ToList();
+
         var export = new Dictionary<string, object?>
         {
             ["profile"] = profile,
@@ -284,7 +312,8 @@ public class PersonalDataService
                 AssignedRoutines = assignedRoutines,
                 Invitations = invitations
             },
-            ["teacher"] = new { Classrooms = ownedClassrooms, Routines = ownedRoutines }
+            ["teacher"] = new { Classrooms = ownedClassrooms, Routines = ownedRoutines },
+            ["notifications"] = notifications
         };
 
         return JsonSerializer.SerializeToUtf8Bytes(export, ExportJsonOptions);

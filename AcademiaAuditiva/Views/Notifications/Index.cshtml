@@ -1,0 +1,101 @@
+@model IReadOnlyList<AcademiaAuditiva.Services.Notifications.NotificationItem>
+@using System.Globalization
+@using AcademiaAuditiva.Services.Gamification
+@using AcademiaAuditiva.Services.Notifications
+@using Microsoft.AspNetCore.Html
+@{
+    ViewData["Title"] = Localizer["Notifications.Title"].Value;
+    var timeZone = (TimeZoneInfo)ViewBag.TimeZone;
+    var unread = (int)ViewBag.Unread;
+}
+
+<header class="mb-4 d-flex justify-content-between align-items-end flex-wrap gap-3">
+    <div>
+        <h1 class="display-6 mb-1 text-body-emphasis">@Localizer["Notifications.Title"]</h1>
+        <p class="text-secondary mb-0">@Localizer["Notifications.Subtitle"]</p>
+    </div>
+    <div class="d-flex align-items-center flex-wrap gap-2">
+        <a class="btn btn-sm aa-ghost-btn" asp-area="Identity" asp-page="/Account/Manage/Notifications">
+            <i class="bi bi-envelope me-1" aria-hidden="true"></i>@Localizer["Notifications.EmailSettings"]
+        </a>
+        @if (unread > 0)
+        {
+            <form method="post" asp-area="" asp-controller="Notifications" asp-action="MarkAllRead">
+                <button type="submit" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-check2-all me-1" aria-hidden="true"></i>@Localizer["Notifications.MarkAllRead"]
+                </button>
+            </form>
+        }
+    </div>
+</header>
+
+<partial name="_TempDataAlerts" />
+
+<div class="aa-card-flat">
+    @if (Model.Count == 0)
+    {
+        <div class="p-4 text-center text-secondary">
+            <i class="bi bi-bell fs-2 d-block mb-2" aria-hidden="true"></i>
+            @Localizer["Notifications.Empty"]
+        </div>
+    }
+    else
+    {
+        <div class="list-group list-group-flush aa-notifications">
+            @foreach (var n in Model)
+            {
+                var createdAt = PracticeStreak.LocalTime(n.CreatedAt, timeZone);
+                <a class="list-group-item list-group-item-action d-flex align-items-start gap-3 py-3 @(n.IsRead ? null : "aa-notification-unread")"
+                   asp-area="" asp-controller="Notifications" asp-action="Open" asp-route-id="@n.Id">
+                    <span class="aa-icon-pill" aria-hidden="true"><i class="bi @Icon(n.Kind)"></i></span>
+                    <span class="flex-grow-1">
+                        <span class="d-block text-body">
+                            @if (!n.IsRead)
+                            {
+                                <span class="visually-hidden">@Localizer["Notifications.UnreadLabel"]</span>
+                            }
+                            @Text(n)
+                        </span>
+                        <small class="d-block text-secondary mt-1">
+                            @if (n.Kind != NotificationKind.InviteAccepted && n.Classroom is not null)
+                            {
+                                <text>@Localizer["MyTraining.Source.Classroom", n.Classroom] · </text>
+                            }
+                            @if (n.Kind == NotificationKind.RoutineAssigned && n.DueAt is { } dueAt)
+                            {
+                                <text>@Localizer["Notifications.Due", dueAt.ToString("D", CultureInfo.CurrentCulture)] · </text>
+                            }
+                            <time datetime="@DateTime.SpecifyKind(n.CreatedAt, DateTimeKind.Utc).ToString("o", CultureInfo.InvariantCulture)">@createdAt.ToString("g", CultureInfo.CurrentCulture)</time>
+                        </small>
+                    </span>
+                    @if (!n.IsRead)
+                    {
+                        <span class="aa-notification-dot" aria-hidden="true"></span>
+                    }
+                </a>
+            }
+        </div>
+    }
+</div>
+
+@functions {
+    private static string Icon(NotificationKind kind) => kind switch
+    {
+        NotificationKind.RoutineAssigned => "bi-list-check",
+        NotificationKind.RoutineDueTomorrow => "bi-alarm",
+        NotificationKind.StudentFinishedRoutine => "bi-check2-circle",
+        NotificationKind.InviteAccepted => "bi-person-plus",
+        _ => "bi-bell",
+    };
+
+    // The names are the arguments, so they are encoded; the texts may hold markup such as <strong>.
+    private IHtmlContent Text(NotificationItem n) => n.Kind switch
+    {
+        NotificationKind.RoutineAssigned => Localizer["Notifications.RoutineAssigned", n.Teacher ?? "", n.Routine ?? ""],
+        NotificationKind.RoutineDueTomorrow => Localizer["Notifications.RoutineDueTomorrow", n.Routine ?? "",
+            n.DueAt?.ToString("D", CultureInfo.CurrentCulture) ?? ""],
+        NotificationKind.StudentFinishedRoutine => Localizer["Notifications.StudentFinishedRoutine", n.Student ?? "", n.Routine ?? ""],
+        NotificationKind.InviteAccepted => Localizer["Notifications.InviteAccepted", n.Student ?? "", n.Classroom ?? ""],
+        _ => HtmlString.Empty,
+    };
+}

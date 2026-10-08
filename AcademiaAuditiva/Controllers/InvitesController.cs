@@ -3,6 +3,7 @@ using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
 using AcademiaAuditiva.Resources;
+using AcademiaAuditiva.Services.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,19 +21,22 @@ public class InvitesController : Controller
     private readonly SignInManager<ApplicationUser> _signIn;
     private readonly ILogger<InvitesController> _logger;
     private readonly IStringLocalizer<SharedResources> _l;
+    private readonly Notifier _notifier;
 
     public InvitesController(
         ApplicationDbContext db,
         UserManager<ApplicationUser> users,
         SignInManager<ApplicationUser> signIn,
         ILogger<InvitesController> logger,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        Notifier notifier)
     {
         _db = db;
         _users = users;
         _signIn = signIn;
         _logger = logger;
         _l = localizer;
+        _notifier = notifier;
     }
 
     /// <summary>
@@ -104,6 +108,11 @@ public class InvitesController : Controller
 
         invite.AcceptedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
+
+        if (!alreadyMember && invite.Classroom is { } classroom)
+        {
+            await _notifier.InviteAcceptedAsync(classroom.Id, classroom.OwnerId, user.Id);
+        }
 
         // Refresh the auth cookie so the new role takes effect immediately.
         await _signIn.RefreshSignInAsync(user);

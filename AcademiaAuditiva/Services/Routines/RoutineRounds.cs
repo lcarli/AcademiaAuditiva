@@ -54,13 +54,18 @@ public sealed class RoutineRounds
     public async Task<RoutineRoundContext?> FindAsync(
         string userId, RoutineLink link, TimeZoneInfo timeZone, CancellationToken cancellationToken = default)
     {
-        var assignment = await WithItems(Visible(userId).Where(a => a.Id == link.AssignmentId))
-            .FirstOrDefaultAsync(cancellationToken);
-        if (assignment is null) return null;
+        var routine = await FindRoutineAsync(userId, link.AssignmentId, timeZone, cancellationToken);
+        var item = routine?.Items.FirstOrDefault(i => i.ItemId == link.ItemId);
+        return item is null ? null : new RoutineRoundContext(routine!, item);
+    }
 
-        var routine = (await BuildAsync(userId, [assignment], timeZone, cancellationToken))[0];
-        var item = routine.Items.FirstOrDefault(i => i.ItemId == link.ItemId);
-        return item is null ? null : new RoutineRoundContext(routine, item);
+    /// <summary>One of the student's routines; null when it is not (or no longer) assigned to them.</summary>
+    public async Task<AssignedRoutine?> FindRoutineAsync(
+        string userId, int assignmentId, TimeZoneInfo timeZone, CancellationToken cancellationToken = default)
+    {
+        var assignment = await WithItems(Visible(userId).Where(a => a.Id == assignmentId))
+            .FirstOrDefaultAsync(cancellationToken);
+        return assignment is null ? null : (await BuildAsync(userId, [assignment], timeZone, cancellationToken))[0];
     }
 
     /// <summary>The item's question that was played but not answered yet, if any.</summary>

@@ -4,6 +4,7 @@ using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Notifications;
 using AcademiaAuditiva.Services.Routines;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,15 +20,17 @@ public class RoutinesController : TeacherAreaController
     private readonly IStringLocalizer<SharedResources> _l;
     private readonly TimeProvider _clock;
     private readonly RoutineEmails _emails;
+    private readonly Notifier _notifier;
 
     public RoutinesController(ApplicationDbContext db, UserManager<ApplicationUser> users, IStringLocalizer<SharedResources> localizer,
-        TimeProvider clock, RoutineEmails emails)
+        TimeProvider clock, RoutineEmails emails, Notifier notifier)
     {
         _db = db;
         _users = users;
         _l = localizer;
         _clock = clock;
         _emails = emails;
+        _notifier = notifier;
     }
 
     private string TeacherId => _users.GetUserId(User)!;
@@ -446,6 +449,7 @@ public class RoutinesController : TeacherAreaController
         _db.RoutineAssignments.Add(assignment);
         await _db.SaveChangesAsync();
 
+        await _notifier.RoutineAssignedAsync(assignment.Id);
         var emails = await _emails.QueueAsync(assignment.Id);
         TempData["Success"] = _l[emails.Queued > 0 && emails.Queued == emails.Students
             ? "Toast.RoutineAssignedEmailed"

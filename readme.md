@@ -52,6 +52,9 @@ fr-CA). It runs at <https://academiaauditiva.com>.
 - 📊 **Teacher reports**: per routine, per class and per student, made only
   from the answers given in the teacher's own routines; a student's other
   practice stays private.
+- 🔔 **Notifications**: a bell in the top bar counts the unread ones. Students
+  hear of new routines and of those due the next day, and teachers of students
+  who finish a routine or join a classroom.
 - 🛡️ **Answers stay on the server**: the server mixes each round's audio and
   streams it through opaque tokens, so the page never holds the answer
   before the student replies.

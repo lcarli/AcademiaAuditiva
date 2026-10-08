@@ -96,6 +96,14 @@
                     <span class="aa-brand-text">Academia Auditiva</span>
                 </a>
 
+                @* Next to the menu button on small screens, so the unread count shows without opening the menu; last on wide ones. *@
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <div class="ms-auto me-2 order-lg-last ms-lg-2 me-lg-0">
+                        @await Component.InvokeAsync("NotificationBell")
+                    </div>
+                }
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
                         aria-controls="mainNavbar" aria-expanded="false" aria-label="@Localizer["Layout.ToggleNav"]">
                     <span class="navbar-toggler-icon"></span>
