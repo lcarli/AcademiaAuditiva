@@ -1,0 +1,170 @@
+@model AcademiaAuditiva.ViewModels.GamesHubViewModel
+@using AcademiaAuditiva.Services.Games
+@using AcademiaAuditiva.Services.LearningPath
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
+@{
+    ViewData["Title"] = Localizer["Games.Title"].Value;
+    var placement = Model.Placement;
+}
+
+<partial name="_TempDataAlerts" />
+
+<header class="mb-4">
+    <h1 class="display-6 mb-1 text-body-emphasis">@Localizer["Games.Title"]</h1>
+    <p class="text-secondary mb-0">@Localizer["Games.Subtitle"]</p>
+</header>
+
+<div class="row g-4 mb-5">
+    @foreach (var mode in GameModes.RecordModes)
+    {
+        var key = GameDisplay.Key(mode);
+        <div class="col-md-6">
+            <section class="aa-card-flat aa-game-card h-100" aria-labelledby="game-@mode" data-game-mode="@mode">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="aa-icon-pill" aria-hidden="true"><i class="bi @GameDisplay.Icon(mode)"></i></span>
+                    <h2 id="game-@mode" class="h5 mb-0 text-body-emphasis">@Localizer[$"Game.{key}.Title"]</h2>
+                </div>
+                <p class="text-secondary">@Localizer[$"Game.{key}.Description"]</p>
+                <form method="get" asp-action="Play" class="aa-game-form">
+                    <input type="hidden" name="mode" value="@mode" />
+                    <div class="flex-grow-1">
+                        <label class="form-label small" for="exercise-@mode">@Localizer["Games.Exercise"]</label>
+                        <select class="form-select" id="exercise-@mode" name="exercise">
+                            @foreach (var category in Model.Exercises)
+                            {
+                                <optgroup label="@Localizer[$"ExerciseCategory.{category.Name}"].Value">
+                                    @foreach (var exercise in category.Exercises)
+                                    {
+                                        <option value="@exercise.Name">@S.ExerciseTitle(exercise.Name)</option>
+                                    }
+                                </optgroup>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-play-fill" aria-hidden="true"></i>
+                        @Localizer["Games.Play"]
+                    </button>
+                </form>
+            </section>
+        </div>
+    }
+</div>
+
+<section class="mb-5" aria-labelledby="games-weakspots" data-game-mode="@GameModes.WeakSpots">
+    <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="aa-icon-pill" aria-hidden="true"><i class="bi @GameDisplay.Icon(GameModes.WeakSpots)"></i></span>
+        <h2 id="games-weakspots" class="h4 mb-0 text-body-emphasis">@Localizer["Game.WeakSpots.Title"]</h2>
+    </div>
+    <p class="text-secondary">@Localizer["Game.WeakSpots.Description", GameRules.WeakSpotQuestions]</p>
+    @if (Model.WeakSpots.Count == 0)
+    {
+        <p class="aa-card-flat p-3 small text-secondary mb-0">@Localizer["Games.WeakSpots.None", WeakSpotRules.MinAnswers]</p>
+    }
+    else
+    {
+        <ul class="aa-weak-spots">
+            @foreach (var spot in Model.WeakSpots)
+            {
+                <li class="aa-card-flat aa-weak-spot">
+                    <div class="aa-weak-spot-body">
+                        <strong class="text-body-emphasis">@S.ExerciseTitle(spot.Exercise)</strong>
+                        @if (spot.AppliedFilters.Count > 0)
+                        {
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var applied in spot.AppliedFilters)
+                                {
+                                    <span class="aa-badge-soft">@Localizer["Common.LabelValue", Localizer[applied.Group.Label], Localizer[applied.Option.Text]]</span>
+                                }
+                            </div>
+                        }
+                        <span class="small text-secondary">@Localizer["Games.WeakSpots.Accuracy", spot.Spot.Percent, spot.Spot.Answered]</span>
+                    </div>
+                    <a class="btn btn-outline-primary btn-sm" href="@Url.GameUrl(spot.Exercise, GameModes.WeakSpots, spot.Filters)">
+                        <i class="bi bi-play-fill" aria-hidden="true"></i>
+                        @Localizer["Games.Practice"]
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+<section id="placement" class="aa-card-flat aa-game-card mb-5" aria-labelledby="games-placement" data-game-mode="@GameModes.Placement">
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="aa-icon-pill" aria-hidden="true"><i class="bi @GameDisplay.Icon(GameModes.Placement)"></i></span>
+        <h2 id="games-placement" class="h4 mb-0 text-body-emphasis">@Localizer["Game.Placement.Title"]</h2>
+    </div>
+    <p class="text-secondary">@Localizer["Game.Placement.Description", PlacementTest.UnitCount]</p>
+    @if (!placement.Available)
+    {
+        <p class="small text-secondary mb-0">@Localizer["Games.Placement.Unavailable"]</p>
+    }
+    else
+    {
+        if (placement.Finished && placement.Latest is { PlacementUnit: int unit } latest)
+        {
+            var unitKey = LearningPathCatalog.Units[Math.Min(unit, LearningPathCatalog.Units.Count) - 1].Key;
+            <p class="mb-3">
+                @Localizer["Games.Placement.LastResult", unit, Localizer[$"LearningPath.Unit.{unitKey}.Title"]]
+                <a asp-action="Placement" asp-route-id="@latest.Id">@Localizer["Games.Placement.SeeResult"]</a>
+            </p>
+        }
+        <div class="d-flex flex-wrap gap-2">
+            @if (placement.InProgress)
+            {
+                <a class="btn btn-primary" href="@placement.ContinueUrl">
+                    <i class="bi bi-play-fill" aria-hidden="true"></i>
+                    @Localizer["Games.Placement.Continue"]
+                </a>
+            }
+            <form method="post" asp-action="StartPlacement">
+                <button type="submit" class="btn @(placement.InProgress ? "btn-outline-secondary" : "btn-primary")">
+                    <i class="bi @(placement.Latest is null ? "bi-play-fill" : "bi-arrow-repeat")" aria-hidden="true"></i>
+                    @Localizer[placement.Latest is null ? "Games.Placement.Start" : "Games.Placement.Restart"]
+                </button>
+            </form>
+        </div>
+    }
+</section>
+
+<section class="mb-5" aria-labelledby="games-records">
+    <h2 id="games-records" class="h4 text-body-emphasis">@Localizer["Games.Records.Title"]</h2>
+    @if (Model.Records.Count == 0)
+    {
+        <p class="aa-card-flat p-3 small text-secondary mb-0">@Localizer["Games.Records.None"]</p>
+    }
+    else
+    {
+        <div class="aa-card-flat table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">@Localizer["Games.Records.Mode"]</th>
+                        <th scope="col">@Localizer["Games.Exercise"]</th>
+                        <th scope="col" class="text-end">@Localizer["Games.Records.Best"]</th>
+                        <th scope="col" class="text-end">@Localizer["Games.Records.Runs"]</th>
+                        <th scope="col"><span class="visually-hidden">@Localizer["Games.Play"]</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in Model.Records)
+                    {
+                        <tr>
+                            <td>
+                                <i class="bi @GameDisplay.Icon(record.Mode) me-1" aria-hidden="true"></i>
+                                @Localizer[$"Game.{GameDisplay.Key(record.Mode)}.Title"]
+                            </td>
+                            <td>@S.ExerciseTitle(record.Exercise)</td>
+                            <td class="text-end fw-semibold">@record.Best</td>
+                            <td class="text-end">@record.Runs</td>
+                            <td class="text-end">
+                                <a class="btn btn-link btn-sm" href="@Url.GameUrl(record.Exercise, record.Mode)">@Localizer["Games.Play"]</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

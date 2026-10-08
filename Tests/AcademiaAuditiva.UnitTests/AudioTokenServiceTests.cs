@@ -152,6 +152,18 @@ public class AudioTokenServiceTests
     }
 
     [Fact]
+    public async Task Rounds_RememberTheGameRunTheyBelongTo()
+    {
+        var game = await _service.CreateRoundAsync("alice", 7, "{}", ["C4.mp3"], gameRunId: 42);
+        var practice = await _service.CreateRoundAsync("alice", 7, "{}", ["C4.mp3"]);
+
+        game.GameRunId.Should().Be(42);
+        practice.GameRunId.Should().BeNull();
+        (await _service.GetRoundAsync("alice", 7, game.RoundId))!.GameRunId.Should().Be(42);
+        (await _service.GetRoundAsync("alice", 7, practice.RoundId))!.GameRunId.Should().BeNull();
+    }
+
+    [Fact]
     public async Task RoundsCachedBeforeRoutineQuestions_AreOrdinaryPractice()
     {
         var cache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));

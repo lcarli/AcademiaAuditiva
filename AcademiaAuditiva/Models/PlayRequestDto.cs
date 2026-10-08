@@ -20,4 +20,10 @@ public class PlayRequestDto
 
     /// <inheritdoc cref="RoutineAssignmentId"/>
     public int? RoutineItemId { get; set; }
+
+    /// <summary>
+    /// The game run to ask a question of (see <see cref="GameRun"/>). Never with
+    /// <see cref="Free"/> or a routine.
+    /// </summary>
+    public int? GameRunId { get; set; }
 }

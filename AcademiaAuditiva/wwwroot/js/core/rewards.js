@@ -175,6 +175,8 @@
 
       if ((r && r.celebration) || (p && p.celebration)) {
         if (r && Array.isArray(r.badges)) preloadArt(r.badges);
+        // A game run keeps it until the round's dialog closes or the run ends (game.js).
+        if (window.AAGame && window.AAGame.defer(r, p, data)) return options;
         const didClose = options.didClose;
         options.didClose = function () {
           if (typeof didClose === "function") didClose.apply(this, arguments);

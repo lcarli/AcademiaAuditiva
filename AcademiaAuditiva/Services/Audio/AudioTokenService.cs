@@ -30,6 +30,7 @@ public sealed class AudioTokenService : IAudioTokenService
         bool free = false,
         string? filterJson = null,
         RoutineQuestion? routine = null,
+        int? gameRunId = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(userId);
@@ -50,7 +51,7 @@ public sealed class AudioTokenService : IAudioTokenService
         var issuedAt = _clock.GetUtcNow();
         var round = new RoundEnvelope(
             roundId, expectedAnswerJson, tokenToBlob, free, filterJson, issuedAt,
-            routine?.Link.AssignmentId, routine?.Link.ItemId, routine?.Number);
+            routine?.Link.AssignmentId, routine?.Link.ItemId, routine?.Number, gameRunId);
         var roundJson = JsonConvert.SerializeObject(round);
 
         // Persist the round itself (lookup by user+exercise+round)…
@@ -73,7 +74,7 @@ public sealed class AudioTokenService : IAudioTokenService
                 cancellationToken);
         }
 
-        return new AudioRound(roundId, expectedAnswerJson, tokens, tokenToBlob, free, filterJson, issuedAt, routine);
+        return new AudioRound(roundId, expectedAnswerJson, tokens, tokenToBlob, free, filterJson, issuedAt, routine, gameRunId);
     }
 
     public async Task<string> IssueTokenAsync(
@@ -159,7 +160,8 @@ public sealed class AudioTokenService : IAudioTokenService
             : new AudioRound(
                 envelope.RoundId, envelope.ExpectedAnswerJson, envelope.TokenToBlob.Keys.ToArray(), envelope.TokenToBlob,
                 envelope.Free, envelope.FilterJson, envelope.IssuedAt,
-                RoutineQuestion.From(envelope.RoutineAssignmentId, envelope.RoutineItemId, envelope.RoutineQuestion));
+                RoutineQuestion.From(envelope.RoutineAssignmentId, envelope.RoutineItemId, envelope.RoutineQuestion),
+                envelope.GameRunId);
     }
 
     public async Task RemoveRoundAsync(
@@ -216,7 +218,7 @@ public sealed class AudioTokenService : IAudioTokenService
     // Rounds cached before free practice existed have no Free field and stay scored;
     // rounds cached before filters were saved have no FilterJson, those cached
     // before answer times were measured have no IssuedAt, and those cached before
-    // routine rounds existed belong to no routine.
+    // routine rounds existed belong to no routine (nor game run).
     private sealed record RoundEnvelope(
         string RoundId,
         string ExpectedAnswerJson,
@@ -226,7 +228,8 @@ public sealed class AudioTokenService : IAudioTokenService
         DateTimeOffset? IssuedAt = null,
         int? RoutineAssignmentId = null,
         int? RoutineItemId = null,
-        int? RoutineQuestion = null);
+        int? RoutineQuestion = null,
+        int? GameRunId = null);
 
     // Round tokens point at their round; standalone tokens (IssueTokenAsync)
     // carry the clip address themselves.

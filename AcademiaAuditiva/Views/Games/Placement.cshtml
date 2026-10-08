@@ -1,0 +1,96 @@
+@model AcademiaAuditiva.ViewModels.PlacementResultViewModel
+@using AcademiaAuditiva.Services.Games
+@using AcademiaAuditiva.Services.LearningPath
+@{
+    ViewData["Title"] = Localizer["Game.Placement.Title"].Value;
+    var suggested = Model.Run.PlacementUnit;
+    string UnitKey(int unit) => LearningPathCatalog.Units[Math.Min(unit, LearningPathCatalog.Units.Count) - 1].Key;
+}
+
+<header class="mb-4">
+    <a class="aa-eyebrow text-decoration-none" asp-action="Index" asp-fragment="placement">
+        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>@Localizer["Games.Title"]
+    </a>
+    <h1 class="display-6 mt-2 mb-1 text-body-emphasis">@Localizer["Game.Placement.Title"]</h1>
+</header>
+
+<section class="aa-card-flat aa-game-card mb-4" aria-labelledby="placement-result" data-placement-result>
+    @if (suggested is int unit)
+    {
+        <h2 id="placement-result" class="h4 text-body-emphasis">
+            @Localizer["Games.Placement.Suggested", unit, Localizer[$"LearningPath.Unit.{UnitKey(unit)}.Title"]]
+        </h2>
+        @if (unit <= 1)
+        {
+            <p class="text-secondary">@Localizer["Games.Placement.FromStart"]</p>
+            <a class="btn btn-primary" asp-controller="LearningPath" asp-action="Index">
+                <i class="bi bi-signpost-split" aria-hidden="true"></i>
+                @Localizer["Games.Placement.OpenPath"]
+            </a>
+        }
+        else if (Model.CanApply)
+        {
+            <p class="text-secondary">@Localizer["Games.Placement.ApplyText", unit]</p>
+            <div class="d-flex flex-wrap gap-2">
+                <form method="post" asp-action="ApplyPlacement" asp-route-id="@Model.Run.Id">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-skip-forward-fill" aria-hidden="true"></i>
+                        @Localizer["Games.Placement.Apply", unit]
+                    </button>
+                </form>
+                <a class="btn btn-outline-secondary" asp-controller="LearningPath" asp-action="Index">
+                    @Localizer["Games.Placement.OpenPath"]
+                </a>
+            </div>
+        }
+        else
+        {
+            <p class="text-secondary">@Localizer["Games.Placement.Applied", unit]</p>
+            <a class="btn btn-primary" asp-controller="LearningPath" asp-action="Index">
+                <i class="bi bi-signpost-split" aria-hidden="true"></i>
+                @Localizer["Games.Placement.OpenPath"]
+            </a>
+        }
+    }
+    else if (Model.ContinueUrl is { } continueUrl)
+    {
+        <h2 id="placement-result" class="h4 text-body-emphasis">@Localizer["Games.Placement.InProgress"]</h2>
+        <a class="btn btn-primary" href="@continueUrl">
+            <i class="bi bi-play-fill" aria-hidden="true"></i>
+            @Localizer["Games.Placement.Continue"]
+        </a>
+    }
+    else
+    {
+        <h2 id="placement-result" class="h4 text-body-emphasis">@Localizer["Games.Placement.Incomplete"]</h2>
+        <form method="post" asp-action="StartPlacement">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                @Localizer["Games.Placement.Restart"]
+            </button>
+        </form>
+    }
+</section>
+
+<h2 class="h5 text-body-emphasis">@Localizer["Games.Placement.Units"]</h2>
+<ul class="aa-placement-units">
+    @foreach (var result in Model.State.Units)
+    {
+        var (state, icon) = result.Passed switch
+        {
+            true => ("Games.Placement.Passed", "bi-check-circle-fill"),
+            false => ("Games.Placement.Failed", "bi-x-circle"),
+            _ when result.Answered > 0 => ("Games.Placement.Testing", "bi-hourglass-split"),
+            _ => ("Games.Placement.NotTested", "bi-dash-circle"),
+        };
+        <li class="aa-card-flat aa-placement-unit@(result.Passed == true ? " is-passed" : result.Passed == false ? " is-failed" : "")">
+            <i class="bi @icon" aria-hidden="true"></i>
+            <div class="flex-grow-1">
+                <span class="aa-eyebrow">@Localizer["LearningPath.UnitNumber", result.Unit]</span>
+                <strong class="d-block text-body-emphasis">@Localizer[$"LearningPath.Unit.{UnitKey(result.Unit)}.Title"]</strong>
+                <span class="small text-secondary">@Localizer["Games.Placement.UnitScore", result.Correct, result.Answered]</span>
+            </div>
+            <span class="aa-badge-soft">@Localizer[state]</span>
+        </li>
+    }
+</ul>

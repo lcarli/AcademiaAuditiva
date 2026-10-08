@@ -159,7 +159,25 @@ public class PersonalDataService
         var answers = await _db.ScoreSnapshots.AsNoTracking()
             .Where(s => s.UserId == userId)
             .OrderBy(s => s.Timestamp)
-            .Select(s => new { Exercise = s.Exercise!.Name, s.IsCorrect, s.TimeSpentSeconds, s.Timestamp, s.FilterJson })
+            .Select(s => new { Exercise = s.Exercise!.Name, s.IsCorrect, s.TimeSpentSeconds, s.Timestamp, s.FilterJson, s.GameRunId })
+            .ToListAsync(ct);
+
+        var games = await _db.GameRuns.AsNoTracking()
+            .Where(r => r.UserId == userId)
+            .OrderBy(r => r.StartedAt)
+            .Select(r => new
+            {
+                r.Id,
+                r.Mode,
+                Exercise = r.Exercise != null ? r.Exercise.Name : null,
+                r.FilterJson,
+                r.StartedAt,
+                r.EndedAt,
+                r.Score,
+                r.Answered,
+                r.PlacementUnit,
+                r.AppliedAt
+            })
             .ToListAsync(ct);
 
         var sessions = await _db.Scores.AsNoTracking()
@@ -249,6 +267,7 @@ public class PersonalDataService
                 Sessions = sessions,
                 AttemptLogs = await _analytics.GetAttemptsAsync(userId)
             },
+            ["games"] = games,
             ["badges"] = badges,
             ["tutorials"] = tutorials,
             ["subscriptions"] = subscriptions,

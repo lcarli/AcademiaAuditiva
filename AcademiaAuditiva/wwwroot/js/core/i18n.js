@@ -108,7 +108,10 @@
           text: format(message(loc, "wrongMessageText", "The correct answer was {0}."), answerLabel(data.answer))
         };
       }
-      return Swal.fire(withRewards(options, data));
+      options = withRewards(options, data);
+      // A game run shows the answer briefly and moves on to the next round (game.js).
+      if (window.AAGame && window.AAGame.shows(data)) return window.AAGame.show(options, data);
+      return Swal.fire(options);
     },
     withRewards
   };

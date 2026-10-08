@@ -23,7 +23,8 @@ public interface IAudioTokenService
     /// round (free practice) is checked but never scored, and its answer
     /// may be revealed before it is answered. <paramref name="filterJson"/>
     /// (the exercise filters it was played with) is saved with its answer,
-    /// and so is <paramref name="routine"/>, the routine question it asks.
+    /// and so are <paramref name="routine"/>, the routine question it asks, and
+    /// <paramref name="gameRunId"/>, the game run it belongs to.
     /// </summary>
     Task<AudioRound> CreateRoundAsync(
         string userId,
@@ -33,6 +34,7 @@ public interface IAudioTokenService
         bool free = false,
         string? filterJson = null,
         RoutineQuestion? routine = null,
+        int? gameRunId = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -85,7 +87,8 @@ public interface IAudioTokenService
 /// preset of exercise filters it was played with (<c>ScoreSnapshot.FilterJson</c>).
 /// <paramref name="IssuedAt"/> is when the round was created, which the answer's time is
 /// measured from; rounds cached before it was recorded have none. <paramref name="Routine"/>
-/// is the routine question the round asks (see <see cref="RoutineRounds"/>).
+/// is the routine question the round asks (see <see cref="RoutineRounds"/>), and
+/// <paramref name="GameRunId"/> the game run it belongs to (see <see cref="Models.GameRun"/>).
 /// </summary>
 public sealed record AudioRound(
     string RoundId,
@@ -95,4 +98,5 @@ public sealed record AudioRound(
     bool Free = false,
     string? FilterJson = null,
     DateTimeOffset? IssuedAt = null,
-    RoutineQuestion? Routine = null);
+    RoutineQuestion? Routine = null,
+    int? GameRunId = null);

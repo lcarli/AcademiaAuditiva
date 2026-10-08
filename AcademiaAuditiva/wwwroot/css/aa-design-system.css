@@ -2900,6 +2900,105 @@ a:focus-visible {
     color: var(--aa-ok);
 }
 
+/* ---------- Games (Views/Games, Views/Exercise/_GameBar, js/core/game.js) ---------- */
+.aa-game {
+    border-color: var(--aa-accent);
+}
+
+.aa-game-text {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.aa-game-timer {
+    min-width: 3.5ch;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--aa-ink);
+}
+
+.aa-game-timer.is-low {
+    color: var(--aa-err);
+}
+
+.aa-game-card {
+    padding: 1.25rem;
+}
+
+.aa-game-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: .75rem;
+}
+
+.aa-game-form .flex-grow-1 {
+    min-width: min(100%, 14rem);
+}
+
+.aa-weak-spots,
+.aa-placement-units {
+    display: grid;
+    gap: .75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.aa-weak-spot,
+.aa-placement-unit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem 1rem;
+    padding: .9rem 1rem;
+}
+
+.aa-weak-spot-body {
+    display: flex;
+    flex: 1 1 16rem;
+    flex-direction: column;
+    gap: .3rem;
+}
+
+.aa-placement-unit > .bi {
+    font-size: 1.4rem;
+    color: var(--aa-muted);
+}
+
+.aa-placement-unit.is-passed > .bi {
+    color: var(--aa-ok);
+}
+
+.aa-placement-unit.is-failed > .bi {
+    color: var(--aa-err);
+}
+
+.aa-game-end-score {
+    margin-bottom: .25rem;
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--aa-accent-text);
+}
+
+.aa-game-end-text {
+    margin-bottom: .5rem;
+}
+
+.aa-game-end-record {
+    margin-bottom: 0;
+    font-weight: 600;
+    color: var(--aa-muted);
+}
+
+.aa-game-end-record.is-new {
+    color: var(--aa-ok);
+}
+
 /* ---------- Guided tour (js/core/tutorial.js) ----------
    Above Bootstrap modals, SweetAlert and tooltips; below the skip link. The
    highlight's wide shadow dims the rest of the page. */

@@ -4450,4 +4450,244 @@
   <data name="Exercise.Tuning.Flat" xml:space="preserve">
     <value>Trop basse</value>
   </data>
+  <data name="Header.Games" xml:space="preserve">
+    <value>Jeux</value>
+  </data>
+  <data name="Game.Sprint.Title" xml:space="preserve">
+    <value>Sprint de 60 s</value>
+  </data>
+  <data name="Game.Sprint.Description" xml:space="preserve">
+    <value>Réussissez le plus de questions possible en 60 secondes. Une erreur ne vous coûte que du temps.</value>
+  </data>
+  <data name="Game.Sprint.Ready" xml:space="preserve">
+    <value>Le chrono démarre à la première question.</value>
+  </data>
+  <data name="Game.Sprint.EndTitle" xml:space="preserve">
+    <value>Fin du sprint</value>
+  </data>
+  <data name="Game.Sprint.EndText" xml:space="preserve">
+    <value>{0} bonnes réponses sur {1}.</value>
+  </data>
+  <data name="Game.Survival.Title" xml:space="preserve">
+    <value>Mort subite</value>
+  </data>
+  <data name="Game.Survival.Description" xml:space="preserve">
+    <value>Répondez jusqu’à la première erreur. Jusqu’où ira votre série ?</value>
+  </data>
+  <data name="Game.Survival.Ready" xml:space="preserve">
+    <value>Une erreur termine la partie.</value>
+  </data>
+  <data name="Game.Survival.EndTitle" xml:space="preserve">
+    <value>Partie terminée</value>
+  </data>
+  <data name="Game.Survival.EndText" xml:space="preserve">
+    <value>Série : {0} de suite.</value>
+  </data>
+  <data name="Game.WeakSpots.Title" xml:space="preserve">
+    <value>Points faibles</value>
+  </data>
+  <data name="Game.WeakSpots.Description" xml:space="preserve">
+    <value>Des séries de {0} questions sur les réglages d’exercice où vous vous trompez le plus, choisis d’après vos réponses.</value>
+  </data>
+  <data name="Game.WeakSpots.Ready" xml:space="preserve">
+    <value>Répondez à toutes les questions de la série pour la terminer.</value>
+  </data>
+  <data name="Game.WeakSpots.EndTitle" xml:space="preserve">
+    <value>Série terminée</value>
+  </data>
+  <data name="Game.WeakSpots.EndText" xml:space="preserve">
+    <value>{0} bonnes réponses sur {1}.</value>
+  </data>
+  <data name="Game.Placement.Title" xml:space="preserve">
+    <value>Test de classement</value>
+  </data>
+  <data name="Game.Placement.Description" xml:space="preserve">
+    <value>Quelques questions sur chacune des {0} premières unités du parcours indiquent où commencer. Le parcours peut ensuite sauter les unités réussies.</value>
+  </data>
+  <data name="Game.Placement.Ready" xml:space="preserve">
+    <value>Répondez à chaque question : le test avance de lui-même.</value>
+  </data>
+  <data name="Game.Placement.EndTitle" xml:space="preserve">
+    <value>Test de classement terminé</value>
+  </data>
+  <data name="Game.Placement.EndText" xml:space="preserve">
+    <value>Découvrez par quelle unité commencer.</value>
+  </data>
+  <data name="Game.Placement.StaleTitle" xml:space="preserve">
+    <value>Le test a avancé</value>
+  </data>
+  <data name="Game.Placement.Stale" xml:space="preserve">
+    <value>Le test de classement est maintenant à une autre question. Retournez à la page des jeux pour continuer.</value>
+  </data>
+  <data name="Game.Bar.Correct" xml:space="preserve">
+    <value>Bonnes réponses : {0}</value>
+  </data>
+  <data name="Game.Bar.Streak" xml:space="preserve">
+    <value>Série : {0}</value>
+  </data>
+  <data name="Game.Bar.Question" xml:space="preserve">
+    <value>Question {0} sur {1} · {2} bonnes réponses</value>
+  </data>
+  <data name="Game.Bar.Done" xml:space="preserve">
+    <value>{0} bonnes réponses sur {1}</value>
+  </data>
+  <data name="Game.Bar.Placement" xml:space="preserve">
+    <value>Exercice {0} sur {1}, question {2} sur {3} : {4}</value>
+  </data>
+  <data name="Game.Bar.PlacementDone" xml:space="preserve">
+    <value>Test de classement terminé.</value>
+  </data>
+  <data name="Game.End.NewBest" xml:space="preserve">
+    <value>Nouveau record personnel !</value>
+  </data>
+  <data name="Game.End.Best" xml:space="preserve">
+    <value>Record personnel : {0}</value>
+  </data>
+  <data name="Game.Over" xml:space="preserve">
+    <value>Cette partie est terminée.</value>
+  </data>
+  <data name="Game.Moved" xml:space="preserve">
+    <value>Cette partie se poursuit dans un autre exercice.</value>
+  </data>
+  <data name="Game.FilterLocked" xml:space="preserve">
+    <value>Choisi par le jeu.</value>
+  </data>
+  <data name="Game.Next" xml:space="preserve">
+    <value>Suivante</value>
+  </data>
+  <data name="Game.SeeResult" xml:space="preserve">
+    <value>Voir le résultat</value>
+  </data>
+  <data name="Game.PlayAgain" xml:space="preserve">
+    <value>Rejouer</value>
+  </data>
+  <data name="Game.BackToGames" xml:space="preserve">
+    <value>Retour aux jeux</value>
+  </data>
+  <data name="Game.AnswerFirstTitle" xml:space="preserve">
+    <value>Répondez d’abord</value>
+  </data>
+  <data name="Game.AnswerFirst" xml:space="preserve">
+    <value>Répondez à la question en cours avant de passer à la suivante.</value>
+  </data>
+  <data name="Game.StartError" xml:space="preserve">
+    <value>Impossible de lancer la partie. Veuillez réessayer.</value>
+  </data>
+  <data name="Game.TimeLeft" xml:space="preserve">
+    <value>Temps restant</value>
+  </data>
+  <data name="Game.Stop" xml:space="preserve">
+    <value>Arrêter</value>
+  </data>
+  <data name="Games.Title" xml:space="preserve">
+    <value>Jeux</value>
+  </data>
+  <data name="Games.Subtitle" xml:space="preserve">
+    <value>Jouez les exercices contre la montre, en série ou sur vos points faibles. Chaque réponse compte pour vos statistiques et votre XP.</value>
+  </data>
+  <data name="Games.Exercise" xml:space="preserve">
+    <value>Exercice</value>
+  </data>
+  <data name="Games.Play" xml:space="preserve">
+    <value>Jouer</value>
+  </data>
+  <data name="Games.Practice" xml:space="preserve">
+    <value>S’exercer</value>
+  </data>
+  <data name="Games.WeakSpots.None" xml:space="preserve">
+    <value>Aucun point faible pour l’instant. Un exercice où vous vous trompez souvent apparaît ici une fois répondu au moins {0} fois avec les mêmes réglages.</value>
+  </data>
+  <data name="Games.WeakSpots.Accuracy" xml:space="preserve">
+    <value>{0} % de bonnes réponses sur vos {1} dernières réponses</value>
+  </data>
+  <data name="Games.Placement.Unavailable" xml:space="preserve">
+    <value>Le test de classement n’est pas disponible pour le moment.</value>
+  </data>
+  <data name="Games.Placement.LastResult" xml:space="preserve">
+    <value>Dernier résultat : commencer à l’unité {0}, {1}.</value>
+  </data>
+  <data name="Games.Placement.SeeResult" xml:space="preserve">
+    <value>Voir le résultat</value>
+  </data>
+  <data name="Games.Placement.Continue" xml:space="preserve">
+    <value>Continuer le test</value>
+  </data>
+  <data name="Games.Placement.Start" xml:space="preserve">
+    <value>Commencer le test</value>
+  </data>
+  <data name="Games.Placement.Restart" xml:space="preserve">
+    <value>Recommencer</value>
+  </data>
+  <data name="Games.Placement.Suggested" xml:space="preserve">
+    <value>Commencez à l’unité {0} : {1}</value>
+  </data>
+  <data name="Games.Placement.FromStart" xml:space="preserve">
+    <value>Le parcours commence par les bases : un bon point de départ pour vous.</value>
+  </data>
+  <data name="Games.Placement.OpenPath" xml:space="preserve">
+    <value>Ouvrir le parcours</value>
+  </data>
+  <data name="Games.Placement.ApplyText" xml:space="preserve">
+    <value>Débloquez le parcours jusqu’à l’unité {0} : les étapes précédentes sont dispensées, pour que vous puissiez commencer là. Vos statistiques et votre XP ne changent pas.</value>
+  </data>
+  <data name="Games.Placement.Apply" xml:space="preserve">
+    <value>Commencer à l’unité {0}</value>
+  </data>
+  <data name="Games.Placement.Applied" xml:space="preserve">
+    <value>Le parcours est débloqué jusqu’à l’unité {0}.</value>
+  </data>
+  <data name="Games.Placement.InProgress" xml:space="preserve">
+    <value>Test en cours</value>
+  </data>
+  <data name="Games.Placement.Incomplete" xml:space="preserve">
+    <value>Ce test n’a pas été terminé</value>
+  </data>
+  <data name="Games.Placement.Units" xml:space="preserve">
+    <value>Unités testées</value>
+  </data>
+  <data name="Games.Placement.Passed" xml:space="preserve">
+    <value>Réussie</value>
+  </data>
+  <data name="Games.Placement.Failed" xml:space="preserve">
+    <value>Non réussie</value>
+  </data>
+  <data name="Games.Placement.Testing" xml:space="preserve">
+    <value>En test</value>
+  </data>
+  <data name="Games.Placement.NotTested" xml:space="preserve">
+    <value>Non testée</value>
+  </data>
+  <data name="Games.Placement.UnitScore" xml:space="preserve">
+    <value>{0} bonnes réponses sur {1}</value>
+  </data>
+  <data name="Games.Records.Title" xml:space="preserve">
+    <value>Records personnels</value>
+  </data>
+  <data name="Games.Records.None" xml:space="preserve">
+    <value>Aucun record pour l’instant. Terminez un sprint ou une partie de mort subite pour en établir un.</value>
+  </data>
+  <data name="Games.Records.Mode" xml:space="preserve">
+    <value>Jeu</value>
+  </data>
+  <data name="Games.Records.Best" xml:space="preserve">
+    <value>Record</value>
+  </data>
+  <data name="Games.Records.Runs" xml:space="preserve">
+    <value>Parties</value>
+  </data>
+  <data name="Toast.PlacementApplied" xml:space="preserve">
+    <value>Parcours mis à jour d’après votre test de classement.</value>
+  </data>
+  <data name="Toast.PlacementUnavailable" xml:space="preserve">
+    <value>Le test de classement n’est pas disponible pour le moment.</value>
+  </data>
+  <data name="LearningPath.State.Placed" xml:space="preserve">
+    <value>Dispensée</value>
+  </data>
+  <data name="LearningPath.PlacementHint" xml:space="preserve">
+    <value>Vous connaissez déjà les bases ?</value>
+  </data>
+  <data name="LearningPath.PlacementLink" xml:space="preserve">
+    <value>Faites le test de classement</value>
+  </data>
 </root>

@@ -46,6 +46,12 @@ namespace AcademiaAuditiva.Models
 
         /// <inheritdoc cref="RoutineAssignmentId"/>
         public int? RoutineQuestion { get; set; }
+
+        /// <summary>
+        /// The game run the answer was given in (see <see cref="GameRun"/>), or null. Like the
+        /// routine columns there is no foreign key.
+        /// </summary>
+        public int? GameRunId { get; set; }
     }
 
     /// <summary>
