@@ -820,6 +820,7 @@ a:focus-visible {
 }
 
 .aa-theme-toggle,
+.aa-bell,
 .aa-lang-btn {
     display: inline-flex;
     align-items: center;
@@ -832,9 +833,31 @@ a:focus-visible {
     transition: color .15s ease, background-color .15s ease, border-color .15s ease;
 }
 
-.aa-theme-toggle {
+.aa-theme-toggle,
+.aa-bell {
     width: 36px;
     padding: 0;
+}
+
+.aa-bell {
+    position: relative;
+    text-decoration: none;
+}
+
+.aa-bell-count {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--aa-accent);
+    color: var(--aa-on-accent);
+    font-size: .68rem;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
 }
 
 .aa-lang-btn {
@@ -850,6 +873,8 @@ a:focus-visible {
 }
 
 .aa-theme-toggle:hover,
+.aa-bell:hover,
+.aa-bell[aria-current="page"],
 .aa-lang-btn:hover,
 .aa-lang-btn.show {
     color: var(--aa-ink);
@@ -858,9 +883,28 @@ a:focus-visible {
 }
 
 .aa-theme-toggle:focus-visible,
+.aa-bell:focus-visible,
 .aa-lang-btn:focus-visible {
     outline: 0;
     box-shadow: 0 0 0 .25rem var(--aa-focus-ring);
+}
+
+/* The notifications page: unread ones are tinted, and still change on hover. */
+.list-group.aa-notifications {
+    --bs-list-group-bg: transparent;
+}
+
+.aa-notifications .aa-notification-unread {
+    --bs-list-group-bg: rgba(var(--aa-accent-rgb), .07);
+}
+
+.aa-notification-dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    margin-top: .55rem;
+    border-radius: 50%;
+    background: var(--aa-accent);
 }
 
 .aa-footer {

@@ -29,6 +29,9 @@ secrets in Key Vault and pulled by the app's user-assigned Managed Identity.
 │   • EmailSender (MailKit) — invites + notifications│
 │   • RoutineEmails         — routine e-mails, capped│
 │   • BackgroundEmailWorker — sends after response   │
+│   • Notifier              — site notifications     │
+│   • NotificationInbox     — the bell and its page  │
+│   • NotificationsJob      — hourly reminders, purge│
 └────────────────────────────┬───────────────────────┘
                              │
 ┌────────────────────────────▼───────────────────────┐
@@ -55,6 +58,8 @@ satisfies Student.
   `Language` (for its e-mails) and `RoutineEmailsOff`
 - `Exercise`, `ExerciseType`, `ExerciseCategory`, `DifficultyLevel`
 - `Score`, `BadgesEarned`, `Badge`, `Subscription`
+- `Notification` — what the bell shows a user: its kind, the student and the
+  routine assignment or classroom it's about, and when it was created and read
 
 Planned (v2):
 - `Classroom`, `ClassroomMember` — Teacher-owned cohorts
@@ -63,6 +68,41 @@ Planned (v2):
 - `RoutineAssignment` — who is doing which routine, with per-student
   overrides for class-wide assignments
 - `Invite` — pending student invitations (email + token)
+
+## Notifications
+
+`Notifier` (`Services/Notifications/`) writes a `Notification` on four events:
+
+| Event | Who is told | Where |
+|---|---|---|
+| A routine is assigned | each student it goes to | `RoutinesController.Assign`, after the save, next to the routine e-mails |
+| A routine is due the next day | each of its students who hasn't finished it | `NotificationsJob` |
+| A student answers the last question of a routine | the routine's teacher | `ExerciseController.ValidateExercise` |
+| A student accepts an invite | the classroom's teacher | `InvitesController.Accept` |
+
+- The bell in the top bar (`NotificationBellViewComponent`, in
+  `Views/Shared/_Layout.cshtml`) counts the unread ones, up to "9+", when a
+  page loads; nothing is pushed. It opens `/Notifications`, which lists the
+  newest 100. Opening one marks it read and goes to what it is about: the
+  routine on My Training, the student's report or the classroom.
+- The texts come from the three `.resx` files when shown, with the current
+  names of the routine, classroom and people, so they follow the reader's
+  language.
+- Notifications are a bonus: `Notifier` logs a failure rather than throw, so
+  the assignment, the answer or the invite stands without them.
+- `NotificationsJob` runs when the app starts, then every hour, on every
+  replica (not in the Testing environment). It deletes the notifications older
+  than 90 days, read or not, then reminds students of the routines due the
+  next day. A filtered unique index on (`RoutineAssignmentId`, `Kind`,
+  `StudentId`) tells each student once, even when replicas race.
+- Students' time zones aren't stored, so days are UTC days. Reminders start at
+  12:00 UTC (`Notifier.ReminderHourUtc`), when the next UTC day is the next
+  day from Canada to France and Brazil, and may come up to an hour later. A
+  routine assigned the day before it is due gets no reminder: its students
+  were just told of it, with its due date.
+- Unassigning a routine deletes its notifications. Deleting an account deletes
+  those it received and those about it (`PersonalDataService`), and the data
+  export lists the user's own.
 
 ## Azure topology
 
@@ -125,4 +165,6 @@ by `dbo.AppCache`, whose schema is created by EF migration. The Testing
 environment uses the in-memory distributed cache to keep ordinary integration
 tests self-contained. ASP.NET Core Data Protection keys are already shared in
 Blob Storage and wrapped by Key Vault; sticky sessions remain enabled in
-Container Apps to reduce audio-cache churn.
+Container Apps to reduce audio-cache churn. Every replica runs
+`NotificationsJob`; the database keeps their reminders from doubling up (see
+[Notifications](#notifications)).

@@ -225,6 +225,13 @@ builder.Services.Configure<AcademiaAuditiva.Services.Email.NotificationEmailOpti
 builder.Services.AddSingleton<AcademiaAuditiva.Services.Email.NotificationEmailQuota>();
 builder.Services.AddSingleton<AcademiaAuditiva.Services.Email.BackgroundEmailQueue>();
 builder.Services.AddHostedService<AcademiaAuditiva.Services.Email.BackgroundEmailWorker>();
+// Site notifications (the bell) are written as things happen; this job reminds students of the
+// routines due the next day and deletes old notifications. Tests call the notifier themselves,
+// with their own clock, and their in-memory database cannot run its bulk delete.
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddHostedService<AcademiaAuditiva.Services.Notifications.NotificationsJob>();
+}
 
 //Inject AnalyticsService
 builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>();
@@ -277,6 +284,8 @@ builder.Services.AddScoped<ITutorialService, TutorialService>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Routines.RoutineRounds>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Routines.RoutinePage>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Routines.RoutineEmails>();
+builder.Services.AddScoped<AcademiaAuditiva.Services.Notifications.Notifier>();
+builder.Services.AddScoped<AcademiaAuditiva.Services.Notifications.NotificationInbox>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Games.GameService>();
 builder.Services.AddScoped<AcademiaAuditiva.Services.Games.GamePage>();
 builder.Services.AddScoped<AcademiaAuditiva.Areas.Teacher.Services.RoutineReports>();

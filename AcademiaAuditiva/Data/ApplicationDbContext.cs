@@ -28,6 +28,31 @@ namespace AcademiaAuditiva.Data
             ConfigureTutorials(modelBuilder);
             ConfigureGames(modelBuilder);
             ConfigureEmails(modelBuilder);
+            ConfigureNotifications(modelBuilder);
+        }
+
+        // A notification goes with its reader, assignment or classroom. SQL Server allows one
+        // cascade path from the users table, which the reader takes, so deleting an account first
+        // removes the notifications about that student (PersonalDataService). The unique index keeps
+        // one notification per assignment, kind and student when two replicas or answers race.
+        private static void ConfigureNotifications(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Notification>(b =>
+            {
+                b.HasIndex(n => new { n.UserId, n.ReadAt });
+                b.HasIndex(n => n.CreatedAt);
+                b.HasIndex(n => new { n.RoutineAssignmentId, n.Kind, n.StudentId })
+                    .IsUnique()
+                    .HasFilter("[RoutineAssignmentId] IS NOT NULL");
+                b.HasOne(n => n.User).WithMany().HasForeignKey(n => n.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(n => n.Student).WithMany().HasForeignKey(n => n.StudentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(n => n.RoutineAssignment).WithMany().HasForeignKey(n => n.RoutineAssignmentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                b.HasOne(n => n.Classroom).WithMany().HasForeignKey(n => n.ClassroomId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
 
         private static void ConfigureEmails(ModelBuilder modelBuilder)
@@ -234,6 +259,7 @@ namespace AcademiaAuditiva.Data
         public DbSet<UserTutorial> UserTutorials => Set<UserTutorial>();
         public DbSet<GameRun> GameRuns => Set<GameRun>();
         public DbSet<EmailDailyCount> EmailDailyCounts => Set<EmailDailyCount>();
+        public DbSet<Notification> Notifications => Set<Notification>();
 
         // Teaching domain
         public DbSet<Classroom> Classrooms => Set<Classroom>();

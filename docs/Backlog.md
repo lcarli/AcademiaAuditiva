@@ -2,10 +2,10 @@
 
 What is left to do on Academia Auditiva, in priority order. Written on
 2026-10-02, when `master` was at `07d6776` and production ran `c44fafb`. Line
-numbers refer to `07d6776`, except in item 1 (`ef42bfa`) and in the items added
-on 2026-10-06: item 2 (`47f0a6d`) and the [exercises](#exercises) (`21f9dff`).
-Each item says why it matters, where to look, what to do and when it is done.
-New ideas go to GitHub issues.
+numbers refer to `07d6776`, except in item 1 (`ef42bfa`) and in the
+[exercises](#exercises), added on 2026-10-06 (`21f9dff`). Each item says why
+it matters, where to look, what to do and when it is done. New ideas go to
+GitHub issues.
 
 ## Where things stand
 
@@ -85,12 +85,15 @@ The modernization plan is done (#47 to #83):
   their own routines; a student's other practice stays private (#113). A
   routine goes to a whole class or to the students the teacher ticks in it,
   and each of them gets an e-mail about it in their own language, unless they
-  turned these e-mails off (#137).
+  turned these e-mails off (#137). A bell in the top bar counts the unread
+  notifications: students are told of new routines and of those due the next
+  day that they haven't finished, and teachers of students who finish a
+  routine or join a classroom (#138).
 
 E-mail is [on](#e-mail): production sends through Resend (#89), and every
 e-mail has the site's layout and a plain-text version (#92). There are no open
-pull requests and no open CodeQL or Dependabot alerts. The open issues are
-#16, #31 and #109, in [Classrooms and teachers](#classrooms-and-teachers).
+pull requests and no open CodeQL or Dependabot alerts. The open issues are #16
+and #31, in [Later, or needs a decision](#later-or-needs-a-decision).
 
 ## How we work
 
@@ -160,43 +163,21 @@ replies as `contato@`, its replies pass DMARC.
 
 ## Classrooms and teachers
 
-The owner's notes of 2026-10-06, one issue each. The first three are done:
-routines that work like a test (#106, in #111 and #112), teacher reports made
-only from the answers given in routines (#107, in #113), and routines assigned
-to a class or to chosen students, who get an e-mail about them (#108, in
-#137). #111 tied answers to routines, which item 2 builds on.
+The owner's notes of 2026-10-06, one issue each, are done: routines that work
+like a test (#106, in #111 and #112), teacher reports made only from the
+answers given in routines (#107, in #113), routines assigned to a class or to
+chosen students, who get an e-mail about them (#108, in #137), and
+notifications on the site (#109, in #138). The events that notify, who gets
+them and when the job reminds students are in
+[Architecture.md](Architecture.md#notifications).
 
-### 2. Notifications on the site (#109)
+**Left out on purpose.**
 
-**Why.** The site has no notifications: a student learns about a routine only
-on My Training, and a teacher learns about progress only in the reports.
-
-**Proposal.**
-
-- A `Notification` table: the user, the kind, the routine, assignment or class
-  it's about, and when it was created and read. The texts come from the `.resx`
-  files when shown, so they follow the reader's language.
-- A bell with the unread count in the top bar
-  (`AcademiaAuditiva/Views/Shared/_Layout.cshtml` and
-  `AcademiaAuditiva/Areas/Teacher/Views/Shared/_TeacherLayout.cshtml`), and a
-  page that lists them. Opening one marks it read. The count updates when a
-  page loads; no real-time push at first.
-- First events. For students: a routine is assigned, or is due tomorrow and
-  unfinished. For teachers: a student finished a routine, or accepted an
-  invite.
-- The routine e-mail (#108) comes from the same event:
-  `RoutinesController.Assign` calls `RoutineEmails.QueueAsync`, and
-  `BackgroundEmailQueue` sends the e-mails after the response. Build the
-  notifier once, on that event.
-- Notifications go into the data export and the account deletion
-  (`AcademiaAuditiva/Services/PersonalDataService.cs:136` and `:49`), and are
-  deleted after 90 days.
-
-**Decided** with the owner on 2026-10-08: the four events above, and a daily
-background job finds the routines due tomorrow.
-
-**Done when.** The bell shows the chosen events in the three languages, and
-they appear in the data export.
+- Real-time push: the bell's count updates when a page loads.
+- Reminders in each student's time zone, which the site doesn't store: they
+  start at noon UTC the day before the due date.
+- A student who joins a class later isn't told of its earlier routines, as with
+  the e-mail (#108); My Training lists them, and the reminder still comes.
 
 ## Exercises
 

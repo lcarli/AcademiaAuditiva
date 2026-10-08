@@ -39,7 +39,7 @@ public class RoutinePagesTests : IClassFixture<RoutineWebApplicationFactory>
 
         var html = await PageAsync("/MyTraining");
 
-        var block = Block(html, started.Name);
+        var block = Block(html, started);
         block.Should().Contain($"Classroom: {classroom.Name}")
             .And.Contain("aria-valuenow=\"66\"", "the items are 100% and 33% done")
             .And.NotContain("aa-routine-finished").And.NotContain("aa-routine-closed").And.NotContain("aa-routine-late");
@@ -49,19 +49,19 @@ public class RoutinePagesTests : IClassFixture<RoutineWebApplicationFactory>
             .And.Contain("1 of 3 answered", "practice outside the routine does not count")
             .And.Contain("Minimum accuracy: 60%");
 
-        block = Block(html, finished.Name);
+        block = Block(html, finished);
         block.Should().Contain("Personal")
             .And.Contain("<span class=\"aa-badge-soft aa-routine-finished\">Finished</span>")
             .And.Contain("aria-valuenow=\"100\"")
             .And.Contain("Done: 1 of 1 correct (100%)")
             .And.NotContain("href=\"/Exercise/");
 
-        block = Block(html, closed.Name);
+        block = Block(html, closed);
         block.Should().Contain("<span class=\"aa-badge-soft aa-routine-closed\">Closed</span>")
             .And.Contain("0 of 2 answered")
             .And.NotContain("href=\"/Exercise/", "a closed routine takes no answers");
 
-        block = Block(html, late.Name);
+        block = Block(html, late);
         block.Should().Contain("<span class=\"aa-badge-soft aa-routine-late\">Late answers accepted</span>")
             .And.Contain($"href=\"/Exercise/GuessNote?{Html(late.Query())}\"");
     }
@@ -135,13 +135,16 @@ public class RoutinePagesTests : IClassFixture<RoutineWebApplicationFactory>
         html.Should().NotContain("id=\"aaRoutine\"").And.Contain("id=\"aaFreePractice\"");
     }
 
-    // A routine's part of My Training, from its name to the next routine.
-    private static string Block(string html, string routineName)
+    // A routine's part of My Training, from its anchor (which a notification about it opens) to the next routine's.
+    private static string Block(string html, SeededRoutine routine)
     {
-        var start = html.IndexOf($"<strong class=\"text-body-emphasis\">{routineName}</strong>", StringComparison.Ordinal);
-        start.Should().BeGreaterThan(-1, "My Training lists {0}", routineName);
-        var end = html.IndexOf("<div class=\"mb-4\">", start, StringComparison.Ordinal);
-        return end < 0 ? html[start..] : html[start..end];
+        var anchor = $" id=\"routine-{routine.AssignmentId}\"";
+        var start = html.IndexOf(anchor, StringComparison.Ordinal);
+        start.Should().BeGreaterThan(-1, "My Training lists {0} under its anchor", routine.Name);
+        var end = html.IndexOf(" id=\"routine-", start + anchor.Length, StringComparison.Ordinal);
+        var block = end < 0 ? html[start..] : html[start..end];
+        block.Should().Contain($"<strong class=\"text-body-emphasis\">{routine.Name}</strong>");
+        return block;
     }
 
     private static string Html(string query) => query.Replace("&", "&amp;", StringComparison.Ordinal);

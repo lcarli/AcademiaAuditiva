@@ -6,6 +6,7 @@ using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Gamification;
 using AcademiaAuditiva.Services.Games;
 using AcademiaAuditiva.Services.LearningPath;
+using AcademiaAuditiva.Services.Notifications;
 using AcademiaAuditiva.Services.Routines;
 using AcademiaAuditiva.Services.Scoring;
 using AcademiaAuditiva.ViewModels;
@@ -41,6 +42,7 @@ namespace AcademiaAuditiva.Controllers
 		private readonly ILearningPathService _learningPath;
 		private readonly RoutineRounds _routines;
 		private readonly GameService _games;
+		private readonly Notifier _notifier;
 		private readonly TimeProvider _clock;
 		private readonly ILogger<ExerciseController> _logger;
 		// Expected-answer entries live for one round (15 min) and are
@@ -63,6 +65,7 @@ namespace AcademiaAuditiva.Controllers
 			ILearningPathService learningPath,
 			RoutineRounds routines,
 			GameService games,
+			Notifier notifier,
 			TimeProvider clock,
 			ILogger<ExerciseController> logger)
 		{
@@ -79,6 +82,7 @@ namespace AcademiaAuditiva.Controllers
 			_learningPath = learningPath;
 			_routines = routines;
 			_games = games;
+			_notifier = notifier;
 			_clock = clock;
 			_logger = logger;
 		}
@@ -621,6 +625,12 @@ namespace AcademiaAuditiva.Controllers
 			}
 
 			await ForgetRoundAsync();
+
+			// The teacher is told once every question of the routine is answered.
+			if (routine is not null && routine.Item.Answered(isCorrect).Progress.IsComplete)
+			{
+				await _notifier.RoutineItemCompletedAsync(userId, routine.Routine.AssignmentId);
+			}
 			
 			await _analyticsService.SaveAttemptAsync(new ExerciseAttemptLog
 			{

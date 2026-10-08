@@ -343,6 +343,115 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
             .Should().Equal(["Whole class", "Ticked"], "a routine the teacher gave only to other students isn't the student's");
     }
 
+    [Fact]
+    public async Task Export_IncludesTheUsersNotifications_ButNotTheStudentsTheyAreAbout()
+    {
+        var exerciseId = await EnsureExerciseAsync();
+        var teacher = await CreateUserAsync("teacher");
+        var student = await CreateUserAsync("student");
+        var classmate = await CreateUserAsync("classmate");
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = Db(scope);
+            var choir = new Classroom { Name = "Choir", OwnerId = teacher.Id };
+            var intervals = new Routine { Name = "Intervals", OwnerId = teacher.Id };
+            var solo = new Routine { Name = "Solo", OwnerId = teacher.Id };
+            var toClass = new RoutineAssignment { Routine = intervals, Classroom = choir };
+            var toStudent = new RoutineAssignment { Routine = solo, StudentId = student.Id };
+            db.AddRange(choir, intervals, solo, toClass, toStudent,
+                new RoutineItem { Routine = intervals, ExerciseId = exerciseId, Order = 1 },
+                new RoutineItem { Routine = solo, ExerciseId = exerciseId, Order = 1 },
+                new ClassroomMember { Classroom = choir, StudentId = student.Id },
+                new ClassroomMember { Classroom = choir, StudentId = classmate.Id });
+            // Newest first, to be listed oldest first.
+            db.Notifications.AddRange(
+                Notice(student, NotificationKind.RoutineDueTomorrow, student, Utc(2026, 10, 5, 12), toStudent),
+                Notice(student, NotificationKind.RoutineAssigned, student, Utc(2026, 10, 3, 9), toClass, readAt: Utc(2026, 10, 3, 10)),
+                Notice(teacher, NotificationKind.StudentFinishedRoutine, student, Utc(2026, 10, 6, 18), toClass),
+                Notice(teacher, NotificationKind.InviteAccepted, classmate, Utc(2026, 10, 2, 8), classroom: choir),
+                Notice(classmate, NotificationKind.RoutineAssigned, classmate, Utc(2026, 10, 3, 9), toClass));
+            await db.SaveChangesAsync();
+        }
+
+        using (var doc = JsonDocument.Parse(await ExportAsync(student.Id)))
+        {
+            var notifications = doc.RootElement.GetProperty("notifications");
+            foreach (var notification in notifications.EnumerateArray())
+            {
+                notification.EnumerateObject().Select(p => p.Name).Should().Equal("kind", "createdAt", "readAt", "routine", "classroom");
+            }
+            Notices(notifications).Should().Equal(
+                ("RoutineAssigned", Utc(2026, 10, 3, 9), Utc(2026, 10, 3, 10), "Intervals", "Choir"),
+                ("RoutineDueTomorrow", Utc(2026, 10, 5, 12), null, "Solo", null));
+        }
+
+        var teacherJson = await ExportAsync(teacher.Id);
+        foreach (var someone in new[] { student, classmate })
+        {
+            teacherJson.Should().NotContain(someone.Id).And.NotContainEquivalentOf(someone.Email!,
+                "the teacher's notifications name the routine or the classroom, not the student");
+        }
+        using (var doc = JsonDocument.Parse(teacherJson))
+        {
+            Notices(doc.RootElement.GetProperty("notifications")).Should().Equal(
+                ("InviteAccepted", Utc(2026, 10, 2, 8), null, null, "Choir"),
+                ("StudentFinishedRoutine", Utc(2026, 10, 6, 18), null, "Intervals", "Choir"));
+        }
+    }
+
+    [Fact]
+    public async Task DeleteAccount_RemovesTheUsersNotifications_AndThoseAboutThem()
+    {
+        var exerciseId = await EnsureExerciseAsync();
+        var teacher = await CreateUserAsync("teacher");
+        var colleague = await CreateUserAsync("colleague");
+        var student = await CreateUserAsync("student");
+        var classmate = await CreateUserAsync("classmate");
+        var at = Utc(2026, 10, 5, 12);
+
+        Notification[] notifications;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = Db(scope);
+            var choir = new Classroom { Name = "Choir", OwnerId = teacher.Id };
+            var band = new Classroom { Name = "Band", OwnerId = colleague.Id };
+            var intervals = new Routine { Name = "Intervals", OwnerId = teacher.Id };
+            var chords = new Routine { Name = "Chords", OwnerId = colleague.Id };
+            var own = new RoutineAssignment { Routine = intervals, Classroom = choir };
+            var colleagues = new RoutineAssignment { Routine = chords, Classroom = band };
+            db.AddRange(choir, band, intervals, chords, own, colleagues,
+                new RoutineItem { Routine = intervals, ExerciseId = exerciseId, Order = 1 },
+                new RoutineItem { Routine = chords, ExerciseId = exerciseId, Order = 1 });
+            foreach (var classroom in new[] { choir, band })
+            {
+                db.AddRange(new[] { student, classmate }.Select(s => new ClassroomMember { Classroom = classroom, StudentId = s.Id }));
+            }
+            notifications =
+            [
+                Notice(student, NotificationKind.RoutineAssigned, student, at, own),
+                Notice(classmate, NotificationKind.RoutineAssigned, classmate, at, own),
+                Notice(teacher, NotificationKind.StudentFinishedRoutine, student, at, own),
+                Notice(teacher, NotificationKind.InviteAccepted, classmate, at, classroom: choir),
+                Notice(colleague, NotificationKind.StudentFinishedRoutine, student, at, colleagues),
+                Notice(colleague, NotificationKind.InviteAccepted, classmate, at, classroom: band),
+                Notice(classmate, NotificationKind.RoutineAssigned, classmate, at, colleagues),
+            ];
+            db.Notifications.AddRange(notifications);
+            await db.SaveChangesAsync();
+        }
+
+        (await DeleteAsync(student.Id)).Succeeded.Should().BeTrue();
+        (await RemainingAsync(notifications)).Should().BeEquivalentTo(
+            [notifications[1].Id, notifications[3].Id, notifications[5].Id, notifications[6].Id],
+            "the student's own notifications go, and those their teachers had about them");
+
+        (await DeleteAsync(teacher.Id)).Succeeded.Should().BeTrue();
+        (await RemainingAsync(notifications)).Should().BeEquivalentTo(
+            [notifications[5].Id, notifications[6].Id],
+            "the teacher's own go, and those about the assignments and classrooms removed with the teacher");
+    }
+
     private static RoutineAssignment ChosenOnly(int routineId, int classroomId, params ApplicationUser[] students) => new()
     {
         RoutineId = routineId,
@@ -353,6 +462,37 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
 
     private static Task<List<string>> ChosenAsync(ApplicationDbContext db, int assignmentId) =>
         db.RoutineAssignmentStudents.Where(s => s.RoutineAssignmentId == assignmentId).Select(s => s.StudentId).ToListAsync();
+
+    private static DateTime Utc(int year, int month, int day, int hour) => new(year, month, day, hour, 0, 0, DateTimeKind.Utc);
+
+    private static Notification Notice(ApplicationUser reader, NotificationKind kind, ApplicationUser student, DateTime createdAt,
+        RoutineAssignment? assignment = null, Classroom? classroom = null, DateTime? readAt = null) => new()
+    {
+        UserId = reader.Id,
+        Kind = kind,
+        StudentId = student.Id,
+        RoutineAssignment = assignment,
+        Classroom = classroom,
+        CreatedAt = createdAt,
+        ReadAt = readAt,
+    };
+
+    private static List<(string? Kind, DateTime CreatedAt, DateTime? ReadAt, string? Routine, string? Classroom)> Notices(JsonElement notifications) =>
+        notifications.EnumerateArray()
+            .Select(n => (
+                n.GetProperty("kind").GetString(),
+                n.GetProperty("createdAt").GetDateTime(),
+                n.GetProperty("readAt").ValueKind == JsonValueKind.Null ? (DateTime?)null : n.GetProperty("readAt").GetDateTime(),
+                n.GetProperty("routine").GetString(),
+                n.GetProperty("classroom").GetString()))
+            .ToList();
+
+    private async Task<List<int>> RemainingAsync(IEnumerable<Notification> notifications)
+    {
+        var ids = notifications.Select(n => n.Id).ToList();
+        using var scope = _factory.Services.CreateScope();
+        return await Db(scope).Notifications.Where(n => ids.Contains(n.Id)).Select(n => n.Id).ToListAsync();
+    }
 
     private static ApplicationDbContext Db(IServiceScope scope)
         => scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

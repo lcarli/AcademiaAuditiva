@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Interfaces;
+using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Models.Teaching;
 using AcademiaAuditiva.Services.Gamification;
 using AcademiaAuditiva.Services.Routines;
@@ -343,6 +344,24 @@ public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
             .Should().Be(SessionExpired, "the round is used up and its routine gone");
     }
 
+    [Fact]
+    public async Task AnsweringTheRoutinesLastQuestion_TellsTheTeacher()
+    {
+        var exerciseId = _factory.ExerciseId("GuessNote");
+        var routine = await _factory.AssignAsync(_factory.Item("GuessNote", target: 1), _factory.Item("GuessNote", target: 1));
+        var client = await ClientAsync();
+
+        var first = await AnswerAsync(client, exerciseId, RoundId(await PlayAsync(client, exerciseId, routine)), correct: false);
+        StatusOf(first).State.Should().Be("done");
+        (await NotificationsAsync(routine.AssignmentId)).Should().BeEmpty("the routine's other exercise is left");
+
+        var last = await AnswerAsync(client, exerciseId, RoundId(await PlayAsync(client, exerciseId, routine, item: 1)), correct: true);
+
+        StatusOf(last).State.Should().Be("done");
+        (await NotificationsAsync(routine.AssignmentId)).Should().Equal(
+            (RoutineWebApplicationFactory.TeacherId, NotificationKind.StudentFinishedRoutine, UserId, RoutineWebApplicationFactory.Now.UtcDateTime));
+    }
+
     private sealed record Status(string State, string Text, int Answered, int Correct, int Target, int Percent);
 
     private static Status StatusOf(JsonElement response)
@@ -399,6 +418,17 @@ public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         return await db.ScoreSnapshots.CountAsync(s => s.UserId == UserId && s.RoutineAssignmentId == null);
+    }
+
+    private async Task<List<(string UserId, NotificationKind Kind, string StudentId, DateTime CreatedAt)>> NotificationsAsync(int assignmentId)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var notifications = await db.Notifications.AsNoTracking()
+            .Where(n => n.RoutineAssignmentId == assignmentId)
+            .OrderBy(n => n.Id)
+            .ToListAsync();
+        return notifications.Select(n => (n.UserId, n.Kind, n.StudentId, n.CreatedAt)).ToList();
     }
 
     private Task<HttpClient> ClientAsync(string? timeZone = null)

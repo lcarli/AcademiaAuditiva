@@ -1,0 +1,19 @@
+@model int
+@using System.Globalization
+@using AcademiaAuditiva.Services.Notifications
+@{
+    var count = Model > NotificationInbox.MostCounted
+        ? $"{NotificationInbox.MostCounted}+"
+        : Model.ToString(CultureInfo.InvariantCulture);
+    var label = Model > 0 ? Localizer["Notifications.BellUnread", count] : Localizer["Notifications.Bell"];
+    var isCurrent = string.IsNullOrEmpty(ViewContext.RouteData.Values["area"] as string)
+        && string.Equals(ViewContext.RouteData.Values["controller"] as string, "Notifications", StringComparison.OrdinalIgnoreCase);
+}
+<a id="notificationBell" class="aa-bell" asp-area="" asp-controller="Notifications" asp-action="Index"
+   aria-label="@label" title="@label" aria-current="@(isCurrent ? "page" : null)">
+    <i class="bi @(Model > 0 ? "bi-bell-fill" : "bi-bell")" aria-hidden="true"></i>
+    @if (Model > 0)
+    {
+        <span class="aa-bell-count" aria-hidden="true">@count</span>
+    }
+</a>

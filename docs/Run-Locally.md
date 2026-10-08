@@ -121,7 +121,9 @@ Open <http://localhost:5063> (the `http` launch profile that `dotnet run` uses).
 `--launch-profile https` also serves <https://localhost:7253>, and the VS Code
 F5 configuration listens on <http://localhost:5000>.
 The bootstrap admin user will be created on first launch — sign in with
-the credentials you set under `Admin:*`.
+the credentials you set under `Admin:*`. When the app starts, and every hour
+after, it deletes the notifications older than 90 days and, from 12:00 UTC,
+reminds students of the routines due the next day (`NotificationsJob`).
 
 ## 5. Run the tests
 
@@ -180,6 +182,7 @@ link that registration shows only while email is off.
 | Facebook button missing | `Facebook:AppId` / `Facebook:AppSecret` not set — expected for local dev |
 | Emails not sent | `Smtp:*` is optional; the Console log's warning lists the settings it needs. With Resend, `Smtp:FromAddress` is required, because the user is `resend`. A failed send logs `Failed to send email` and the page carries on. |
 | A student got no routine e-mail | Only students who confirmed their address and kept routine e-mails on (Manage account → Notifications) get one, up to `NotificationEmails:DailyLimit` a UTC day; the log warns when the limit skips students. The count is in the `EmailDailyCounts` table. |
+| No "due tomorrow" notification | The reminder comes from 12:00 UTC the day before the due date (a UTC day), only for routines assigned before that day that the student hasn't finished. The job runs when the app starts and every hour, so restart the app to run it now. |
 | *Play* spins for ~20 s and no sound plays | No audio storage configured: run `./scripts/local-audio.ps1` (step 3) |
 | *Play* stopped working (Azurite container stopped) | `docker start aa-azurite` |
 | SQL Server integration tests are skipped | Set `AA_TEST_SQL_CONNECTION` in the same process running `dotnet test` |

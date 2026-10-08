@@ -53,7 +53,8 @@
                 <div class="p-3">
                     @foreach (var a in assignments)
                     {
-                        <div class="mb-4">
+                        @* The anchor a notification about this routine opens. *@
+                        <div class="mb-4" id="routine-@a.AssignmentId">
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                 <div>
                                     <strong class="text-body-emphasis">@a.RoutineName</strong>

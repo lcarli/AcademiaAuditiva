@@ -1254,6 +1254,35 @@ test('public pages never scroll sideways on phones, tablets or small laptops', a
   }
 });
 
+test('the bell sits beside the menu button on a phone, opens the notifications, and they fit every screen', async ({ page, baseURL }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Games`, { waitUntil: 'networkidle' });
+  // The unread count shows without opening the menu.
+  const bell = page.locator('#notificationBell');
+  await expect(bell).toBeVisible();
+  const bellBox = (await bell.boundingBox())!;
+  const togglerBox = (await page.locator('.navbar-toggler').boundingBox())!;
+  expect(Math.abs(bellBox.y + bellBox.height / 2 - (togglerBox.y + togglerBox.height / 2)), 'on the menu button\'s row').toBeLessThan(2);
+  expect(bellBox.x + bellBox.width, 'before the menu button').toBeLessThanOrEqual(togglerBox.x);
+
+  await bell.click();
+  await expect(page).toHaveURL(/\/Notifications$/);
+  await expect(page.locator('h1')).toHaveText('Notifications');
+  await expect(bell).toHaveAttribute('aria-current', 'page');
+
+  for (const culture of cultures) {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await page.goto(`${baseURL}/Notifications?culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
+    for (const width of [360, 768, 1024, 1280]) {
+      await page.setViewportSize({ width, height: 740 });
+      await expect(bell, `the bell at ${width} px`).toBeInViewport({ ratio: 1 });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, `/Notifications ${culture} at ${width} px`).toBe(0);
+    }
+  }
+});
+
 test('teacher and admin menus fit every label on one line and sit beside the page on wide screens', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   for (const culture of cultures) {
