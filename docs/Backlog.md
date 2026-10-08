@@ -249,12 +249,15 @@ kept (`BadgeRules.cs:39`). `total_mastery` judges the path on answers alone
 still need practice to count for it.
 
 **Left out on purpose.** Reading drills without sound, since this is an
-ear-training site; the frequency and mixing module
-(`docs/archive/MapaDoProjeto.md:150`); a melodic contour exercise
+ear-training site; a melodic contour exercise
 (`docs/Pedagogia-Exercicios.md:45`), since HigherOrLower and the dictations
 cover it between them; and ties and triplets in the dictations (#125), which
 would each need a duration label of their own in the generator, the staff
 editor and the renderer.
+
+The frequency and mixing module now has a separate implementation plan in
+[Audio-Ear-Training.md](Audio-Ear-Training.md). Its delivery slices should be
+tracked as GitHub issues before they are added to this prioritized backlog.
 
 ## E-mail
 
