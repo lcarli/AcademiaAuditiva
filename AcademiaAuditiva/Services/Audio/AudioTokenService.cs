@@ -2,12 +2,17 @@ using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Services.Routines;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace AcademiaAuditiva.Services.Audio;
 
 /// <inheritdoc />
 public sealed class AudioTokenService : IAudioTokenService
 {
+    private static readonly Regex ClipKeyPattern = new(
+        "^[A-Za-z][A-Za-z0-9_-]{0,15}$",
+        RegexOptions.CultureInvariant | RegexOptions.NonBacktracking);
+
     // 15 min — long enough for a round (Play + a few replays + Validate),
     // short enough that a leaked token expires before it matters.
     private static readonly DistributedCacheEntryOptions RoundTtl =
@@ -31,11 +36,25 @@ public sealed class AudioTokenService : IAudioTokenService
         string? filterJson = null,
         RoutineQuestion? routine = null,
         int? gameRunId = null,
+        IReadOnlyList<string>? clipKeys = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(userId);
         ArgumentNullException.ThrowIfNull(expectedAnswerJson);
         ArgumentNullException.ThrowIfNull(blobNames);
+        if (clipKeys is not null)
+        {
+            if (clipKeys.Count != blobNames.Count)
+            {
+                throw new ArgumentException("Clip keys must be parallel to blob names.", nameof(clipKeys));
+            }
+            if (clipKeys.Any(k => string.IsNullOrWhiteSpace(k) || !ClipKeyPattern.IsMatch(k))
+                || clipKeys.Distinct(StringComparer.OrdinalIgnoreCase).Count() != clipKeys.Count)
+            {
+                throw new ArgumentException("Clip keys must be distinct safe control names.", nameof(clipKeys));
+            }
+        }
+        var storedClipKeys = clipKeys?.ToArray();
 
         var roundId = Guid.NewGuid().ToString("N");
         var tokens = new string[blobNames.Count];
@@ -51,7 +70,8 @@ public sealed class AudioTokenService : IAudioTokenService
         var issuedAt = _clock.GetUtcNow();
         var round = new RoundEnvelope(
             roundId, expectedAnswerJson, tokenToBlob, free, filterJson, issuedAt,
-            routine?.Link.AssignmentId, routine?.Link.ItemId, routine?.Number, gameRunId);
+            routine?.Link.AssignmentId, routine?.Link.ItemId, routine?.Number, gameRunId,
+            storedClipKeys);
         var roundJson = JsonConvert.SerializeObject(round);
 
         // Persist the round itself (lookup by user+exercise+round)…
@@ -74,7 +94,10 @@ public sealed class AudioTokenService : IAudioTokenService
                 cancellationToken);
         }
 
-        return new AudioRound(roundId, expectedAnswerJson, tokens, tokenToBlob, free, filterJson, issuedAt, routine, gameRunId);
+        return new AudioRound(
+            roundId, expectedAnswerJson, tokens, tokenToBlob, free, filterJson,
+            issuedAt, routine, gameRunId,
+            storedClipKeys is null ? null : Array.AsReadOnly(storedClipKeys));
     }
 
     public async Task<string> IssueTokenAsync(
@@ -161,7 +184,8 @@ public sealed class AudioTokenService : IAudioTokenService
                 envelope.RoundId, envelope.ExpectedAnswerJson, envelope.TokenToBlob.Keys.ToArray(), envelope.TokenToBlob,
                 envelope.Free, envelope.FilterJson, envelope.IssuedAt,
                 RoutineQuestion.From(envelope.RoutineAssignmentId, envelope.RoutineItemId, envelope.RoutineQuestion),
-                envelope.GameRunId);
+                envelope.GameRunId,
+                envelope.ClipKeys is null ? null : Array.AsReadOnly(envelope.ClipKeys));
     }
 
     public async Task RemoveRoundAsync(
@@ -218,7 +242,8 @@ public sealed class AudioTokenService : IAudioTokenService
     // Rounds cached before free practice existed have no Free field and stay scored;
     // rounds cached before filters were saved have no FilterJson, those cached
     // before answer times were measured have no IssuedAt, and those cached before
-    // routine rounds existed belong to no routine (nor game run).
+    // routine rounds existed belong to no routine (nor game run), and rounds
+    // cached before named clips use the legacy response shape.
     private sealed record RoundEnvelope(
         string RoundId,
         string ExpectedAnswerJson,
@@ -229,7 +254,8 @@ public sealed class AudioTokenService : IAudioTokenService
         int? RoutineAssignmentId = null,
         int? RoutineItemId = null,
         int? RoutineQuestion = null,
-        int? GameRunId = null);
+        int? GameRunId = null,
+        string[]? ClipKeys = null);
 
     // Round tokens point at their round; standalone tokens (IssueTokenAsync)
     // carry the clip address themselves.

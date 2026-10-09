@@ -541,6 +541,13 @@ in slice 3" under Processing plans).
 - Playwright covers mouse, keyboard, loading, replay and error behavior;
 - existing one-clip and two-melody exercises are unchanged.
 
+**Status:** done. Named clip keys are validated and persisted with the
+server-side round, while responses expose only opaque `{ key, token }`
+pairs. Existing unnamed rounds keep their original response shapes. The
+reusable A/B control preloads both clips, stops the previous clip when
+switching, supports replay plus A/B/Space shortcuts, and reports loading and
+playback errors through one accessible live region.
+
 ### 5. Ship Level Match
 
 **Work**

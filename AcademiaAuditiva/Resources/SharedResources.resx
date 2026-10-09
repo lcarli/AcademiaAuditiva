@@ -4852,4 +4852,28 @@
   <data name="Toast.NotificationsRead" xml:space="preserve">
     <value>All notifications marked as read.</value>
   </data>
+  <data name="Exercise.AB.Label" xml:space="preserve">
+    <value>Compare clips</value>
+  </data>
+  <data name="Exercise.AB.Play" xml:space="preserve">
+    <value>Play {0}</value>
+  </data>
+  <data name="Exercise.AB.Replay" xml:space="preserve">
+    <value>Replay last clip</value>
+  </data>
+  <data name="Exercise.AB.Ready" xml:space="preserve">
+    <value>A and B are ready.</value>
+  </data>
+  <data name="Exercise.AB.Loading" xml:space="preserve">
+    <value>Loading {0}…</value>
+  </data>
+  <data name="Exercise.AB.Playing" xml:space="preserve">
+    <value>Playing {0}.</value>
+  </data>
+  <data name="Exercise.AB.Error" xml:space="preserve">
+    <value>Audio could not be played. Generate a new comparison and try again.</value>
+  </data>
+  <data name="Exercise.AB.Shortcuts" xml:space="preserve">
+    <value>Keyboard: A, B, and Space to replay.</value>
+  </data>
 </root>

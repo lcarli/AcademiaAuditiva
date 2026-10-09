@@ -1900,6 +1900,73 @@ a:focus-visible {
     color: var(--aa-on-accent);
 }
 
+.aa-ab-playback {
+    display: grid;
+    justify-items: center;
+    gap: .65rem;
+}
+
+.aa-ab-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+}
+
+.aa-ab-clip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    min-width: 92px;
+    height: 52px;
+    padding: 0 1.25rem;
+    border: 1px solid var(--aa-line-strong);
+    border-radius: 999px;
+    background: var(--aa-bg);
+    color: var(--aa-ink);
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color .15s ease, background-color .15s ease, border-color .15s ease, transform .1s ease;
+}
+
+.aa-ab-clip:hover,
+.aa-ab-clip[aria-pressed="true"] {
+    border-color: var(--aa-accent);
+    background: color-mix(in srgb, var(--aa-accent) 12%, var(--aa-bg));
+    color: var(--aa-accent);
+}
+
+.aa-ab-clip:active {
+    transform: scale(.97);
+}
+
+.aa-ab-clip svg {
+    width: 18px;
+    height: 18px;
+}
+
+.aa-ab-clip:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 .25rem var(--aa-focus-ring);
+}
+
+.aa-ab-clip:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.aa-ab-status {
+    min-height: 1.5em;
+    text-align: center;
+}
+
+.aa-ab-playback[data-state="error"] .aa-ab-status {
+    color: var(--aa-err-hover) !important;
+}
+
 /* Microphone button while recording (the singing exercises). */
 .aa-audio-pill.is-recording,
 .aa-audio-pill.is-recording:hover {
