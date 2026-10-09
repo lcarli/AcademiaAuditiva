@@ -111,6 +111,12 @@ read from disk. They still need Azurite, because every mix is stored in the
 `AcademiaAuditiva/Audio/Instruments/LICENSE.txt`;
 `scripts/build-instrument-samples.ps1` (PowerShell 7 and `ffmpeg`) rebuilds them.
 
+The recordings of the audio-engineering track are in git too, under
+`AcademiaAuditiva/Audio/Sources`, listed with their licenses in
+`sources.json`. `dotnet run --no-cache scripts/audio-sources.cs generate`
+rebuilds the generated ones, and `ingest <key> <file.wav>` adds one obtained
+elsewhere (see the script's header and `docs/Audio-Ear-Training.md`).
+
 ## 4. Run the app
 
 ```powershell
