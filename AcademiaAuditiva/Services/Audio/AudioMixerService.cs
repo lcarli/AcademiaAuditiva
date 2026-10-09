@@ -146,9 +146,8 @@ public sealed class AudioMixerService : IAudioMixerService
         started = _timeProvider.GetTimestamp();
         var processed = AudioProcessing.Process(audio, plan.Processors);
 
-        // Validate predicts the peak from the source's measurement; this is the
-        // guard behind it. Nothing is ever scaled to fit, and nothing unprocessed
-        // is stored in its place.
+        // EQ transients and loudness matching need this measured final-PCM guard.
+        // Nothing is scaled to fit, and no unprocessed fallback is stored.
         foreach (var sample in processed.Samples)
         {
             if (!(Math.Abs(sample) <= MaxPeak))

@@ -39,3 +39,19 @@ public sealed record PanProcessor(double Position) : AudioProcessor
 {
     public override string Name => "pan";
 }
+
+/// <summary>A peaking EQ band, with the requested gain at its centre frequency.</summary>
+public sealed record PeakingEqProcessor(double FrequencyHz, double GainDb, double Q) : AudioProcessor
+{
+    public override string Name => "peaking-eq";
+}
+
+/// <summary>
+/// Matches BS.1770 integrated loudness to <paramref name="TargetLufs"/>.
+/// Explicit and last in a plan: it must not erase a level-training difference.
+/// A target that would clip is refused, never replaced by peak normalization.
+/// </summary>
+public sealed record LoudnessMatchProcessor(double TargetLufs) : AudioProcessor
+{
+    public override string Name => "loudness-match";
+}

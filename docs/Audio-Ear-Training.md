@@ -261,6 +261,8 @@ public sealed record PeakingEqProcessor(
     double FrequencyHz,
     double GainDb,
     double Q) : AudioProcessor;
+public sealed record LoudnessMatchProcessor(
+    double TargetLufs) : AudioProcessor;
 ```
 
 The exact types may change during implementation, but the following invariants
@@ -297,11 +299,11 @@ As built in slice 3:
   measurement before any audio is read or storage is asked: a listed source,
   at most 8 processors, finite values, each gain and the sum of gains within
   -24 to +12 dB, pan within -1 to 1 and only on a mono signal (pan makes it
-  stereo, so a second pan is refused), and the source's measured peak plus the
-  gains at or below -0.2 dBFS. A plan that would clip is refused, never scaled
-  down, since scaling would change the level it asks for. After processing,
-  any sample past the mixer's 0.98 guard still throws; nothing unprocessed is
-  stored in its place.
+  stereo, so a second pan is refused). Gain/pan-only plans also require the
+  source's measured peak plus the gains at or below -0.2 dBFS. A plan that
+  would clip is refused, never scaled down, since scaling would change the
+  level it asks for. After processing, any sample past the mixer's 0.98 guard
+  still throws; nothing unprocessed is stored in its place.
 - Gain is `10^(dB/20)`; pan is the sine/cosine law, so the centre gives each
   side -3 dB and the power is constant. A processed clip is neither trimmed nor
   faded.
@@ -316,6 +318,55 @@ As built in slice 3:
   absolute level does not tell which clip changed.
 - Failures are logged with the source key and the processors' names only;
   read and DSP times, and encoding and upload times, are logged at Debug.
+
+As built in slice 7:
+
+- `PeakingEqProcessor(FrequencyHz, GainDb, Q)` uses the peaking coefficients
+  from the [W3C Audio EQ Cookbook](https://www.w3.org/TR/audio-eq-cookbook/).
+  The shared direct-form-I `Biquad` also runs the existing BS.1770 K-weighting,
+  with double-precision coefficients and independent state per channel.
+  Nonfinite coefficients or poles outside the open unit circle are refused.
+- EQ frequency is 20 to 20,000 Hz, additionally capped at `0.45 * sampleRate`
+  (19,845 Hz for the 44.1 kHz catalog). EQ gain is -12 to +12 dB and Q is 0.25
+  to 8. All parameters and the eight-stage limit are checked before source
+  decoding or storage access. Decoded processing input must contain complete,
+  finite mono/stereo frames at 44.1 kHz and last at most 20 seconds.
+- `LoudnessMatchProcessor(TargetLufs)` is explicit, allowed once, and must be
+  last. Both reference and EQ plans choose the same target: -23 LUFS by
+  default, with targets from -36 to -14 LUFS permitted. It uses the existing
+  BS.1770-4 integrated measurement, not RMS or peak normalization, and permits
+  a total matching gain of -24 to +12 dB. At most two corrections are made,
+  with a fresh measurement after each; silence, unmeasurable audio, unsafe
+  gain and failure to reach tolerance throw instead of returning a reference.
+- Each canonical rendered clip is within 0.1 LU of its target, so a pair
+  differs by at most 0.2 LU, including 16-bit WAV encoding. The endpoint
+  already streams every `proc-` clip at gain 1; its dither and added silence
+  do not change the tested processing gain. The tolerance describes the
+  rendered audio body, before that per-delivery silence is added.
+- EQ transients and matching gain cannot be predicted safely from catalog
+  measurements alone. These plans therefore use the final measured-PCM peak
+  guard: any nonfinite sample or peak above 0.98 refuses the render before
+  upload, with no limiter, peak normalization or unprocessed fallback.
+  Gain/pan-only preflight headroom checks remain unchanged; Level Match and
+  Stereo Position do not request matching.
+- Same-layout stages share one private working buffer; the source is never
+  mutated, and pan allocates its new stereo layout only once. Engine version
+  `p2`, independent of exercise content, invalidates prior processed cache
+  entries. The hash includes source SHA-256, every EQ/matching parameter and
+  processor order; existing musical `mix-` blob names are unchanged.
+- The cold-cache DSP budget is less than 2 seconds and 64 MiB of managed
+  allocations per clip, excluding source decoding, WAV encoding and storage
+  I/O (whose timings remain separate). A Release microbenchmark uses the
+  longest permitted source (20 seconds), all eight stages and warmed JIT.
+  On Linux/ARM64 Alpine at the Container App's 0.5 CPU / 1 GiB limits, mono
+  input with pan, six EQ bands and matching took 289 ms / 37.02 MiB; stereo
+  input with seven EQ bands and matching took 220 ms / 33.66 MiB.
+  These are local measurements, not production-throughput claims.
+  CI repeats the numerical/reference-vector, rendering, tolerance and budget
+  tests in Alpine with those resource limits, in addition to its normal suite.
+  The `AudioDspBudget` category runs without coverage instrumentation in that
+  container; the normal coverage suite excludes it so timing measures the
+  production DSP, not the instrumentation overhead.
 
 ### Round generation
 
@@ -629,6 +680,13 @@ learning path as the `StereoFoundations` unit.
 - processing stays within the request-time and memory budgets;
 - Linux container output is equivalent within tolerance to test output.
 
+**Status:** done. Shared peaking EQ and explicit BS.1770 loudness matching
+are available through processing plans, with numerical frequency-response,
+stability, channel-isolation, matching, encoded-WAV, cache and clipping tests.
+The maximum-length/eight-stage workload is within the documented DSP budgets
+on Windows and production-like Linux containers. This slice adds processing
+infrastructure only; Guess Frequency remains slice 8.
+
 ### 8. Ship Guess Frequency
 
 **Work**
@@ -772,7 +830,9 @@ Resolve these in the first GitHub issue:
    category, no migration;
 2. where licensed source masters live and how they reach development, CI and
    production;
-3. the loudness measurement and tolerance used for matched A/B clips;
+3. ~~the loudness measurement and tolerance used for matched A/B clips;~~
+   **Resolved in slice 7:** BS.1770-4 integrated loudness, -23 LUFS default
+   target, 0.1 LU per canonical rendered clip and at most 0.2 LU between clips;
 4. whether the first release is visible as soon as Level Match ships or only
    after all three Foundations exercises are ready (slice 1 default: the
    Audio tab appears as soon as an Audio exercise is seeded);

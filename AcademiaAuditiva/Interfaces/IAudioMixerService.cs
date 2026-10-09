@@ -29,12 +29,14 @@ public interface IAudioMixerService
     /// Renders <paramref name="plan"/>: one training recording of the audio
     /// track through its processors, in order, into a 16-bit PCM WAV, and
     /// returns its address like <see cref="MixAsync"/>. The plan is checked
-    /// before any audio is read; a plan that is malformed, out of range or
-    /// would clip throws instead of being adjusted, and nothing unprocessed
-    /// is ever returned in its place. The same plan on the same version of
-    /// the source reuses the cached clip.
+    /// before any audio is read; malformed or out-of-range parameters throw.
+    /// Loudness matching runs only when explicitly requested, and the final
+    /// PCM is refused if it would clip, never peak-normalized or replaced by
+    /// unprocessed audio. The same plan on the same source and processing-engine
+    /// versions reuses the cached clip.
     /// </summary>
     /// <exception cref="ArgumentException">The plan is invalid (see <see cref="AudioProcessing.Validate"/>).</exception>
+    /// <exception cref="InvalidOperationException">Matching cannot reach a safe target, or final PCM would clip.</exception>
     Task<MixedAudio> RenderAsync(
         AudioProcessingPlan plan,
         CancellationToken cancellationToken = default);

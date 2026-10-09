@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Globalization;
 using AcademiaAuditiva.Services.Audio.Processing;
 using AcademiaAuditiva.Services.Audio.Sources;
+using Xunit.Abstractions;
 
 namespace AcademiaAuditiva.UnitTests;
 
@@ -10,7 +12,7 @@ namespace AcademiaAuditiva.UnitTests;
 /// power, and a plan that could not be rendered safely is refused before any audio
 /// is read (docs/Audio-Ear-Training.md, slice 3).
 /// </summary>
-public class AudioProcessingTests
+public class AudioProcessingTests(ITestOutputHelper output)
 {
     private const int SampleRate = 44100;
 
@@ -221,6 +223,103 @@ public class AudioProcessingTests
     {
         AudioProcessing.Describe(new("pink-noise", [new GainProcessor(1.0000001)]), "v")
             .Should().NotBe(AudioProcessing.Describe(new("pink-noise", [new GainProcessor(1)]), "v"));
+    }
+
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("pt-BR")]
+    [InlineData("fr-CA")]
+    public void EqAndMatchingDescriptions_IncludeEveryParameterInvariantly(string culture)
+    {
+        var previous = CultureInfo.CurrentCulture;
+        CultureInfo.CurrentCulture = new CultureInfo(culture);
+        try
+        {
+            AudioProcessingPlan plan = new("pink-noise",
+                [new GainProcessor(-1.5), new PeakingEqProcessor(1000.5, 6.25, 1.125), new LoudnessMatchProcessor(-23.5)]);
+
+            AudioProcessing.Describe(plan, "v").Should()
+                .Be($"{AudioProcessing.EngineVersion}:pink-noise#v:gain(-1.5)|peaking-eq(1000.5,6.25,1.125)|loudness-match(-23.5)");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previous;
+        }
+    }
+
+    [Theory]
+    [InlineData(0, 1, 1)]
+    [InlineData(48000, 1, 1)]
+    [InlineData(SampleRate, 0, 1)]
+    [InlineData(SampleRate, 3, 3)]
+    [InlineData(SampleRate, 2, 3)]
+    [InlineData(SampleRate, 1, SampleRate * 20 + 1)]
+    public void InvalidOrOversizedPcm_IsRefusedBeforeAllocatingOutput(int rate, int channels, int samples)
+    {
+        var audio = new PcmAudio(rate, channels, new float[samples]);
+
+        FluentActions.Invoking(() => AudioProcessing.Process(audio, [new PeakingEqProcessor(1000, 6, 1)]))
+            .Should().Throw<ArgumentException>().WithMessage("*complete mono or stereo frames*");
+    }
+
+    [Theory]
+    [InlineData(float.NaN)]
+    [InlineData(float.PositiveInfinity)]
+    [InlineData(float.NegativeInfinity)]
+    [InlineData(1.01f)]
+    public void NonfiniteOrOverrangePcm_IsRefused(float sample)
+    {
+        FluentActions.Invoking(() => AudioProcessing.Process(new(SampleRate, 1, [sample]), [new PeakingEqProcessor(1000, 6, 1)]))
+            .Should().Throw<ArgumentException>().WithMessage("*finite PCM*");
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [Trait("Category", "AudioDspBudget")]
+    public void LongestSourceAndLargestChain_StayWithinDspTimeAndAllocationBudgets(int channels)
+    {
+        var frames = (int)(AudioSourceRules.MaxSeconds * SampleRate);
+        var samples = new float[frames * channels];
+        for (var f = 0; f < frames; f++)
+        {
+            samples[f * channels] = (float)(0.01 * Math.Sin(2 * Math.PI * 220 * f / SampleRate)
+                + 0.025 * Math.Sin(2 * Math.PI * 1000 * f / SampleRate));
+            if (channels == 2)
+            {
+                samples[f * channels + 1] = (float)(0.03 * Math.Sin(2 * Math.PI * 4000 * f / SampleRate));
+            }
+        }
+        var audio = new PcmAudio(SampleRate, channels, samples);
+        var processors = new List<AudioProcessor>();
+        if (channels == 1)
+        {
+            processors.Add(new PanProcessor(0.3));
+        }
+        double[] frequencies = [40, 100, 250, 1000, 2500, 6000, 10000];
+        foreach (var frequency in frequencies.Take(AudioProcessing.MaxProcessors - processors.Count - 1))
+        {
+            processors.Add(new PeakingEqProcessor(frequency, 6, 1));
+        }
+        processors.Add(new LoudnessMatchProcessor(AudioProcessing.DefaultLoudnessLufs));
+        processors.Should().HaveCount(AudioProcessing.MaxProcessors);
+        AudioProcessing.Process(audio with { Samples = samples.Take(SampleRate * channels).ToArray() }, processors);
+
+        var timer = new Stopwatch();
+        var startAllocation = GC.GetAllocatedBytesForCurrentThread();
+        timer.Start();
+        var processed = AudioProcessing.Process(audio, processors);
+        timer.Stop();
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - startAllocation;
+        output.WriteLine("20 s, {0} input channels, 8 stages: {1:F1} ms DSP, {2:F2} MiB allocated.",
+            channels, timer.Elapsed.TotalMilliseconds, allocated / (1024.0 * 1024));
+
+        timer.Elapsed.TotalSeconds.Should().BeLessThan(2, "the cold-DSP budget is 2 seconds per clip");
+        allocated.Should().BeLessThan(64 * 1024 * 1024, "the per-clip DSP allocation budget is 64 MiB");
+        processed.Frames.Should().Be(frames);
+        processed.Channels.Should().Be(2);
+        Loudness.IntegratedLufs(processed).Should()
+            .BeApproximately(AudioProcessing.DefaultLoudnessLufs, AudioProcessing.LoudnessToleranceLu);
     }
 
     /// <summary>One second of a 1 kHz sine on every channel.</summary>
