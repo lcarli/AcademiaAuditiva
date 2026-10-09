@@ -49,6 +49,37 @@ public sealed class DashboardSqlTests
     }
 
     [RealSqlFact]
+    public async Task TrackQueries_TranslateToSql_AndKeepAudioAnswersOutOfMusic()
+    {
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+        using var scope = _fixture.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var userId = await CreatePlayerAsync(db);
+        var ids = await db.Exercises.ToDictionaryAsync(e => e.Name, e => e.ExerciseId);
+        AddAnswers(db, userId, ids["HigherOrLower"], At, "11111111", 30);
+        AddAnswers(db, userId, ids["GuessFrequency"], At.AddHours(1), "10000", 10);
+        foreach (var answer in db.ScoreSnapshots.Local.Where(s => s.ExerciseId == ids["GuessFrequency"]))
+            answer.FilterJson = """{"gfLevel":"advanced","gfFrequencyHz":"1000"}""";
+        db.ScoreAggregates.AddRange(
+            new ScoreAggregate { UserId = userId, ExerciseId = ids["HigherOrLower"], CorrectCount = 8, BestScore = 8, LastAttemptAt = At },
+            new ScoreAggregate { UserId = userId, ExerciseId = ids["GuessFrequency"], CorrectCount = 1, ErrorCount = 4, BestScore = 1, LastAttemptAt = At });
+        await db.SaveChangesAsync();
+        var service = scope.ServiceProvider.GetRequiredService<UserReportService>();
+
+        (await service.GetSummaryAsync(userId, track: TrainingTracks.Music)).Should().Be(new DashboardSummary(8, 8, 240));
+        (await service.GetSummaryAsync(userId, track: TrainingTracks.Audio)).Should().Be(new DashboardSummary(5, 1, 50));
+        (await service.GetSkillProfileAsync(userId, track: TrainingTracks.Audio)).ByCategory
+            .Should().BeEquivalentTo(new Dictionary<string, double> { ["FrequencyEq"] = 20 });
+        (await service.GetAccuracyByDifficultyAsync(userId, track: TrainingTracks.Audio))
+            .Should().Equal(new DifficultyAccuracy("Advanced", 20));
+        (await service.GetRecentSessionsAsync(userId, track: TrainingTracks.Audio)).Select(s => s.Exercise)
+            .Should().Equal("GuessFrequency");
+        (await service.GetTimelineAsync(userId, TimeZoneInfo.Utc, track: TrainingTracks.Music)).Sum(s => s.Answers).Should().Be(8);
+        (await service.GetStrugglesAsync(userId, track: TrainingTracks.Audio)).Select(s => s.Exercise).Should().Equal("GuessFrequency");
+        (await service.GetRecommendationsAsync(userId, track: TrainingTracks.Audio)).Should().Equal("Review the exercise: Guess Frequency");
+    }
+
+    [RealSqlFact]
     public async Task Dashboard_OfANewPlayer_IsEmpty()
     {
         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");

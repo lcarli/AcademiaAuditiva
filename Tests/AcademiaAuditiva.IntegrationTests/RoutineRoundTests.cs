@@ -73,6 +73,42 @@ public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
     }
 
     [Fact]
+    public async Task OneRoutine_CanIntentionallyMixMusicAndAudio_WithTheTeachersAudioProfile()
+    {
+        var noteId = _factory.ExerciseId("GuessNote");
+        var frequencyId = _factory.ExerciseId("GuessFrequency");
+        var routine = await _factory.AssignAsync(
+            _factory.Item("GuessNote", target: 1),
+            _factory.Item("GuessFrequency", target: 1, filterJson: """{"gfLevel":"intermediate"}"""));
+        var client = await ClientAsync();
+        var music = await PlayAsync(client, noteId, routine);
+        (await AnswerAsync(client, noteId, RoundId(music), correct: true)).GetProperty("success").GetBoolean().Should().BeTrue();
+        _factory.AudioRandom.Use(3, 0, 1, 0);
+
+        var audio = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new
+        {
+            exerciseId = frequencyId,
+            routineAssignmentId = routine.AssignmentId,
+            routineItemId = routine.ItemIds[1],
+            filters = new Dictionary<string, string> { ["gfLevel"] = "beginner" },
+        }));
+        audio.EnumerateObject().Select(p => p.Name).Should().Equal("roundId", "clips", "routine");
+        var repeated = await PlayAsync(client, frequencyId, routine, item: 1);
+        RoundId(repeated).Should().Be(RoundId(audio), "returning to a routine must not generate an easier question");
+        var result = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
+            new { exerciseId = frequencyId, roundId = RoundId(audio), userGuess = "1000" }));
+
+        result.GetProperty("isCorrect").GetBoolean().Should().BeTrue();
+        StatusOf(result).Should().Be(new Status("done", "Done: 1 of 1 correct (100%)", 1, 1, 1, 100));
+        var answers = await _factory.AnswersAsync(routine.AssignmentId);
+        answers.Select(a => (a.ExerciseId, a.RoutineItemId, a.IsCorrect))
+            .Should().Equal((noteId, routine.ItemIds[0], true), (frequencyId, routine.ItemIds[1], true));
+        var filters = JObject.Parse(answers[1].FilterJson!);
+        filters["gfLevel"]!.Value<string>().Should().Be("intermediate");
+        filters["gfFrequencyHz"]!.Value<string>().Should().Be("1000");
+    }
+
+    [Fact]
     public async Task PracticeOutsideTheRoutine_DoesNotCountTowardsIt()
     {
         var exerciseId = _factory.ExerciseId("GuessNote");

@@ -35,7 +35,7 @@ public class ExerciseCatalogTests
     {
         ExerciseCatalog.ByCategory.SelectMany(c => c.Exercises).Should().BeEquivalentTo(ExerciseCatalog.All);
         ExerciseCatalog.ByCategory.Select(c => c.Name).Should().Equal(
-            "EarTraining", "Melody", "Harmony", "Scales", "Rhythm", "Level", "StereoPhase");
+            "EarTraining", "Melody", "Harmony", "Scales", "Rhythm", "Level", "FrequencyEq", "StereoPhase");
         ExerciseCatalog.ByCategory.Should().AllSatisfy(c =>
         {
             c.Exercises.Should().NotBeEmpty().And.OnlyContain(e => e.Category == c.Name);

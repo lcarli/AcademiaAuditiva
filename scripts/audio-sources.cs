@@ -6,9 +6,9 @@
 // repository, with the .NET 10 SDK (--no-cache, since the cached build would miss changes
 // to the app code it reuses):
 //
-//   dotnet run --no-cache scripts/audio-sources.cs generate
+//   dotnet run --no-cache scripts/audio-sources.cs generate [key]
 //       Synthesizes the repository's own recordings (origin "generated", MIT) from a fixed
-//       seed, then measures every source.
+//       seed, then measures every source. With a key, only that WAV is written.
 //
 //   dotnet run --no-cache scripts/audio-sources.cs ingest <key> <file.wav>
 //       Adds a recording obtained elsewhere (origin "external"). Its entry, with everything
@@ -40,6 +40,9 @@ try
         case ["generate"]:
             Generate();
             break;
+        case ["generate", var generatedKey]:
+            Generate(generatedKey);
+            break;
         case ["ingest", var key, var file]:
             Ingest(key, file);
             break;
@@ -47,7 +50,7 @@ try
             Measure();
             break;
         default:
-            Console.Error.WriteLine("Usage: dotnet run --no-cache scripts/audio-sources.cs generate | ingest <key> <file.wav> | measure");
+            Console.Error.WriteLine("Usage: dotnet run --no-cache scripts/audio-sources.cs generate [key] | ingest <key> <file.wav> | measure");
             return 2;
     }
 }
@@ -58,7 +61,7 @@ catch (InvalidDataException ex)
 }
 return 0;
 
-void Generate()
+void Generate(string? selectedKey = null)
 {
     var drums = Drums(new Random64(1));
     var bass = Bass();
@@ -72,6 +75,11 @@ void Generate()
     for (var v = 0; v < chordVoices.Count; v++)
         AddPanned(full, Normalized(chords, TargetLufs - 5, chordVoices[v]), (v - 1) * 0.6);
 
+    // A broadband bed makes every offered EQ band meaningful, including gaps
+    // between the musical parts' harmonics, without changing the original mix.
+    var eqMix = Scaled(full, TargetLufs - 2 - Loudness.IntegratedLufs(new PcmAudio(Rate, 2, full)));
+    AddPanned(eqMix, Normalized(PinkNoise(new Random64(3), 8), TargetLufs), 0);
+
     var generated = new (string Key, string Description, string Kind, string[] Tags, string[] Uses, int[] Difficulties, PcmAudio Audio)[]
     {
         ("pink-noise", "Pink noise: equal energy in every octave.", "noise", ["noise", "broadband"], ["level", "pan", "eq"], [1, 2],
@@ -84,10 +92,15 @@ void Generate()
             Mono(chords)),
         ("full-mix", "The drum loop, bass line and chords mixed in stereo.", "mix", ["full-mix", "drums", "bass", "chords", "synth"], ["level", "eq"], [2, 3],
             new PcmAudio(Rate, 2, Fit(full, 2))),
+        ("eq-reference-mix", "A stereo mix of drums, bass and chords over a pink-noise bed for broadband EQ practice.", "mix",
+            ["full-mix", "broadband", "drums", "bass", "chords", "synth", "noise"], ["eq"], [1, 2, 3],
+            new PcmAudio(Rate, 2, Fit(eqMix, 2))),
     };
 
+    var selection = generated.Where(g => selectedKey is null || g.Key == selectedKey).ToArray();
+    if (selection.Length == 0) throw new InvalidDataException($"No generated source named '{selectedKey}'.");
     List<JsonObject> sources = File.Exists(catalogPath) ? ReadEntries() : [];
-    foreach (var g in generated)
+    foreach (var g in selection)
     {
         File.WriteAllBytes(Path.Combine(root, $"{g.Key}.wav"), WavFile.Write(g.Audio));
         var entry = new AudioSource(g.Key, g.Description, g.Kind, g.Tags, g.Uses, g.Difficulties, AudioSourceRules.Generated,

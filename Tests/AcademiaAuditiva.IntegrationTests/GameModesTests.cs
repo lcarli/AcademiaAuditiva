@@ -44,6 +44,8 @@ public class GameModesTests : IClassFixture<GameModesTests.Factory>
             .And.Contain("data-game-mode=\"weakspots\"").And.Contain("data-game-mode=\"placement\"");
         html.Should().Contain("<option value=\"GuessNote\">").And.NotContain("<option value=\"SingNote\">",
             "a sung exercise can't be played as a game");
+        foreach (var name in new[] { "LevelMatch", "StereoPosition", "GuessFrequency" })
+            html.Should().NotContain($"<option value=\"{name}\">", "Audio games are intentionally not enabled");
         text.Should().NotMatchRegex(@"\bGames?\.[A-Z]\w+", "every text has a resource");
     }
 
@@ -53,6 +55,9 @@ public class GameModesTests : IClassFixture<GameModesTests.Factory>
     [InlineData("survival", "SingNote", "/Games")]
     [InlineData("placement", "GuessNote", "/Games")]
     [InlineData("sprint", "NoSuchExercise", "/Games")]
+    [InlineData("sprint", "LevelMatch", "/Games")]
+    [InlineData("survival", "StereoPosition", "/Games")]
+    [InlineData("weakspots", "GuessFrequency", "/Games")]
     public async Task HubForm_OpensTheExerciseInTheMode(string mode, string exercise, string location)
     {
         var player = await GamePlayer.CreateAsync(_factory);

@@ -169,13 +169,23 @@ public class PersonalDataService
         var totals = await _db.ScoreAggregates.AsNoTracking()
             .Where(a => a.UserId == userId)
             .OrderBy(a => a.ExerciseId)
-            .Select(a => new { Exercise = a.Exercise!.Name, a.CorrectCount, a.ErrorCount, a.BestScore, a.LastAttemptAt })
+            .Select(a => new
+            {
+                Exercise = a.Exercise!.Name,
+                Track = TrainingTracks.OfCategory(a.Exercise.ExerciseCategory.Name) ?? TrainingTracks.Music,
+                a.CorrectCount, a.ErrorCount, a.BestScore, a.LastAttemptAt
+            })
             .ToListAsync(ct);
 
         var answers = await _db.ScoreSnapshots.AsNoTracking()
             .Where(s => s.UserId == userId)
             .OrderBy(s => s.Timestamp)
-            .Select(s => new { Exercise = s.Exercise!.Name, s.IsCorrect, s.TimeSpentSeconds, s.Timestamp, s.FilterJson, s.GameRunId })
+            .Select(s => new
+            {
+                Exercise = s.Exercise!.Name,
+                Track = TrainingTracks.OfCategory(s.Exercise.ExerciseCategory.Name) ?? TrainingTracks.Music,
+                s.IsCorrect, s.TimeSpentSeconds, s.Timestamp, s.FilterJson, s.GameRunId
+            })
             .ToListAsync(ct);
 
         var games = await _db.GameRuns.AsNoTracking()

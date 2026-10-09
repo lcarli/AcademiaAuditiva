@@ -1110,6 +1110,17 @@ namespace AcademiaAuditiva.Controllers
 		}
 		#endregion
 
+		#region GuessFrequency
+		public IActionResult GuessFrequency()
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "GuessFrequency");
+			if (exercise == null)
+				return NotFound();
+
+			return View(exercise.ToViewModel(_localizer));
+		}
+		#endregion
+
 		#region CompleteScale
 		public IActionResult CompleteScale()
 		{

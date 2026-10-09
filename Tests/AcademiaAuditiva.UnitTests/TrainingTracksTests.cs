@@ -32,14 +32,14 @@ public class TrainingTracksTests
     public void ExercisesAndLearningPaths_BelongToTheirTracks()
     {
         ExerciseCatalog.All.Single(e => e.Name == "LevelMatch").Track.Should().Be(TrainingTracks.Audio);
-        ExerciseCatalog.All.Where(e => e.Name is "LevelMatch" or "StereoPosition")
+        ExerciseCatalog.All.Where(e => e.Name is "LevelMatch" or "StereoPosition" or "GuessFrequency")
             .Should().OnlyContain(e => e.Track == TrainingTracks.Audio);
-        ExerciseCatalog.All.Where(e => e.Name is not ("LevelMatch" or "StereoPosition"))
+        ExerciseCatalog.All.Where(e => e.Name is not ("LevelMatch" or "StereoPosition" or "GuessFrequency"))
             .Should().OnlyContain(e => e.Track == TrainingTracks.Music);
         LearningPathCatalog.Steps.Should().OnlyContain(s => ExerciseCatalog.TrackOf(s.Exercise) == TrainingTracks.Music,
             "the legacy path is the Music path");
         LearningPathCatalog.StepsFor(TrainingTracks.Audio).Select(s => s.Exercise)
-            .Should().Equal("LevelMatch", "StereoPosition");
+            .Should().Equal("LevelMatch", "StereoPosition", "GuessFrequency");
     }
 
     [Fact]
@@ -47,9 +47,9 @@ public class TrainingTracksTests
     {
         ExerciseCatalog.ByTrack.Select(t => t.Key).Should().Equal(TrainingTracks.All.Select(t => t.Key));
         ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Music).Exercises
-            .Select(e => e.Name).Should().NotContain(["LevelMatch", "StereoPosition"]);
+            .Select(e => e.Name).Should().NotContain(["LevelMatch", "StereoPosition", "GuessFrequency"]);
         ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Audio).Categories
-            .Select(c => c.Name).Should().Equal("Level", "StereoPhase");
+            .Select(c => c.Name).Should().Equal("Level", "FrequencyEq", "StereoPhase");
         ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Mix).Categories.Should().BeEmpty();
     }
 

@@ -1,0 +1,68 @@
+@using AcademiaAuditiva.Services.Audio
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+@{
+    ViewData["Title"] = Localizer[Model.Title].Value;
+    ViewData["FiltersPartial"] = "_ExerciseFilters";
+    var levels = new[] { "beginner", "intermediate", "advanced" };
+    var frequencies = levels.SelectMany(TechnicalListeningRoundGenerator.FrequenciesFor).Distinct().Order().ToArray();
+}
+
+@await Html.PartialAsync("_ExerciseHeader", Model)
+<input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+
+<div class="row g-4">
+    <div class="col-lg-8 order-lg-2">
+        <section class="aa-panel" aria-labelledby="aa-question">
+            <h2 id="aa-question" class="aa-question">@Localizer["Exercise.GuessFrequency.Question"]</h2>
+
+            <div class="d-flex justify-content-center mb-4">
+                <button type="button" id="Play" class="btn btn-primary px-4" data-aa-audio-unlock>
+                    <i class="bi bi-shuffle me-1" aria-hidden="true"></i>@Localizer["Exercise.GuessFrequency.New"]
+                </button>
+            </div>
+
+            @await Html.PartialAsync("_ABPlayback")
+
+            <div class="aa-answer-grid mt-4" role="group" aria-label="@Localizer["Exercise.GuessFrequency.Question"]">
+                @foreach (var frequency in frequencies)
+                {
+                    var activeLevels = string.Join(" ", levels.Where(level => TechnicalListeningRoundGenerator.FrequenciesFor(level).Contains(frequency)));
+                    <button type="button" class="aa-answer guessAnswer" value="@frequency" data-levels="@activeLevels">
+                        @Localizer["Exercise.GuessFrequency.Frequency", frequency.ToString("N0")]
+                    </button>
+                }
+            </div>
+
+            <div class="aa-validate">
+                <button type="button" id="validateGuess" class="btn btn-primary px-4">@Localizer["Exercise.ValidationButton"]</button>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-4 order-lg-1">
+        @await Html.PartialAsync("_ExerciseInstructions", Model)
+    </div>
+</div>
+
+@await Html.PartialAsync("_ExerciseFiltersModal", Model)
+
+<div id="localizer"
+     data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+     data-incomplete-text="@Localizer["Exercise.GuessFrequency.Incomplete"]"
+     data-validation-error-title="@Localizer["Exercise.ValidationErrorTitle"]"
+     data-validation-error-text="@Localizer["Exercise.ValidationErrorText"]"
+     data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+     data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+     data-feedback="@Localizer["Exercise.GuessFrequency.Feedback"].Value"
+     data-region-bass="@Localizer["Exercise.GuessFrequency.Region.bass"]"
+     data-region-low-mids="@Localizer["Exercise.GuessFrequency.Region.lowMids"]"
+     data-region-mids="@Localizer["Exercise.GuessFrequency.Region.mids"]"
+     data-region-presence="@Localizer["Exercise.GuessFrequency.Region.presence"]"
+     data-region-air="@Localizer["Exercise.GuessFrequency.Region.air"]"
+     data-cue-noise="@Localizer["Exercise.GuessFrequency.Cue.noise"]"
+     data-cue-keys="@Localizer["Exercise.GuessFrequency.Cue.keys"]"
+     data-cue-mix="@Localizer["Exercise.GuessFrequency.Cue.mix"]">
+</div>
+
+@section Scripts {
+    <script src="~/js/Exercises/GuessFrequency.js" asp-append-version="true"></script>
+}

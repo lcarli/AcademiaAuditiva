@@ -2,7 +2,8 @@
 
 ## Status
 
-Proposed implementation plan, written on 2026-10-08.
+Implementation plan, started on 2026-10-08. Slices 1-9 implement
+**Audio Ear Training: Foundations**; slice 10 is the next expansion.
 
 This document turns the audio-engineering training concept into incremental
 work that fits the current Academia Auditiva architecture. GitHub issues
@@ -232,9 +233,10 @@ As built in slice 2:
   `source:{key}`; only listed keys resolve, never a path. The source's
   SHA-256 is part of the mix hash, so a replaced recording never reuses old
   mixes, while every other mix keeps its name.
-- `dotnet run --no-cache scripts/audio-sources.cs generate` synthesizes the
+- `dotnet run --no-cache scripts/audio-sources.cs generate [key]` synthesizes the
   repository's own sources from a fixed seed (pink noise, a drum loop, a bass
-  line, synth chords and a stereo mix of the three, all MIT); `ingest <key>
+  line, synth chords, a stereo mix and a broadband EQ reference mix, all MIT).
+  A key writes only that WAV, preserving the other sources; `ingest <key>
   <file.wav>` adds a recording obtained elsewhere once its entry, license and
   source URL are in the catalog; `measure` rewrites the measurements. Every
   source is set to -23 LUFS, or lower when its peak would pass -1.5 dBFS.
@@ -478,6 +480,37 @@ Intermediate: 125 Hz, 250 Hz, 500 Hz, 1 kHz, 2 kHz, 4 kHz, 8 kHz
 Advanced:     selected adjacent ISO third-octave bands
 ```
 
+As built in slices 8 and 9 (combined in one PR):
+
+| Profile | Frequencies (Hz) | Boost | Q | Eligible sources |
+| --- | --- | --- | --- | --- |
+| Beginner | 100, 500, 1000, 5000, 10000 | +9 dB | 1 | pink-noise, eq-reference-mix |
+| Intermediate | 125, 250, 500, 1000, 2000, 4000, 8000 | +6 dB | 1 | pink-noise, eq-reference-mix |
+| Advanced | 500, 630, 800, 1000, 1250, 1600, 2000 | +6 dB | 2 | synth-chords, full-mix, eq-reference-mix |
+
+Eligibility is curated per source and **must cover the entire profile**, not
+only the randomly selected answer. A source's timbre therefore cannot rule out
+answer buttons. The original drums have insufficient mid-band energy and the
+original chords lack useful upper-band energy; neither is offered outside its
+measured bands. `eq-reference-mix` adds a deterministic pink-noise bed to a
+stereo drum/bass/chord mix, is licensed MIT and supports only `eq`, leaving the
+Level Match and Stereo Position pools unchanged.
+
+Every eligible source/band pair is checked numerically: at least 0.1% of the
+analyzed spectrum's energy in the target third-octave band, at least +1 dB of
+remaining target-band emphasis after matching, and the measured response in
+all other offered bands within 0.25 dB of the peaking filter's independently
+computed response plus its common loudness correction. Measurement uses a
+settled Hann-windowed FFT, independently of the production filters.
+
+The reference and boosted versions share their source and a random common
+target from -26 to -32 LUFS in 0.5-LU steps, leaving extra EQ headroom. Both
+plans end in an explicit `LoudnessMatchProcessor`. Canonical and 16-bit-encoded
+clips must meet the existing 0.1-LU-per-clip / 0.2-LU-per-pair tolerance and the
+final 0.98 sample-peak guard. A/B placement is randomized. Only opaque clip
+keys/tokens reach the play response; frequency, placement, region and
+source-appropriate feedback are disclosed after validation.
+
 The first version uses a fixed positive gain and Q within each difficulty so
 frequency is the only changing variable. Gain and Q become variable only
 after the user has exercises that train them separately.
@@ -706,6 +739,16 @@ infrastructure only; Guess Frequency remains slice 8.
 - all three exercises contribute to Audio-track progress;
 - integration and Playwright tests cover a complete Audio practice session.
 
+**Status:** done, combined with slice 9 in issue #152. Guess Frequency is the
+third Foundations exercise and completes the three-step Audio learning path.
+Its shared profile table drives both the server generator and the answer
+buttons; changing profile resets the pending comparison and selection.
+Three-culture feedback names the band, processed side and a listening cue
+appropriate to the source. Unit and production-like Alpine tests protect
+every curated source/band pair; browser coverage plays and scores all three
+Audio exercises, changes profiles and checks localization and responsive
+layout.
+
 ### 9. Integrate progress and engagement
 
 **Work**
@@ -723,6 +766,36 @@ infrastructure only; Guess Frequency remains slice 8.
 - routines can intentionally include exercises from either track;
 - track-wide badges do not silently become harder for existing users;
 - personal-data export and deletion include any new stored fields.
+
+**Engagement policy:** Audio has its own daily challenge, selected on the
+Audio dashboard. All three Foundations exercises participate, with progress
+counted on the player's local date independently of the Music challenge.
+Games (including the weak-spots game), placement and the legacy all-exercise,
+all-category, total-mastery and daily-challenge badges remain Music-only.
+No new achievements are introduced without finished art and rules.
+
+The dashboard defaults to Music and has a track selector. KPIs, timelines,
+history, categories, difficulty, weak-spots analysis and recommendations are
+filtered before analysis; the learning-path and daily-challenge cards follow
+the same selection. Audio difficulty uses the recorded `lmLevel`, `spLevel`
+or `gfLevel` instead of calling every answer Beginner from its seed row.
+XP, general practice streaks and the shared badge collection stay global and
+are labeled as such. Music learning-path percentages and placement never use
+Audio answers.
+
+Teacher routines can intentionally mix both tracks and fix an Audio profile;
+the routine still owns its question and overrides the student's filter.
+Snapshots reuse the existing `FilterJson` for trusted frequency/source
+metadata, so there is no schema migration. Personal-data exports add a
+derived track label to practice totals/answers and retain these metadata;
+account deletion uses the existing user cascades, verified with Audio rows.
+
+**Status:** done, combined with slice 8 in issue #152. SQL-backed tests verify
+the shared track filter, dashboard queries and owner-only export/deletion.
+Browser coverage checks all six report requests use the selected track,
+and confirms an Audio session changes Audio totals without changing Music.
+Tests also complete the entire Audio learning path while preserving Music
+placement/percentages and the legacy badge requirements.
 
 ### 10. Expand the track
 
@@ -828,17 +901,20 @@ Resolve these in the first GitHub issue:
    code-first catalog with a migration only when relational queries require
    it;~~ **Resolved in slice 1:** code-first `TrainingTracks` table keyed by
    category, no migration;
-2. where licensed source masters live and how they reach development, CI and
-   production;
+2. ~~where licensed source masters live and how they reach development, CI and
+   production;~~ **Resolved in slice 2:** private repository assets under
+   `Audio/Sources`, with licenses, checksums and measurements; copied to build
+   and publish output, never served directly from `wwwroot`;
 3. ~~the loudness measurement and tolerance used for matched A/B clips;~~
    **Resolved in slice 7:** BS.1770-4 integrated loudness, -23 LUFS default
    target, 0.1 LU per canonical rendered clip and at most 0.2 LU between clips;
-4. whether the first release is visible as soon as Level Match ships or only
-   after all three Foundations exercises are ready (slice 1 default: the
-   Audio tab appears as soon as an Audio exercise is seeded);
-5. which current engagement features include Audio exercises at launch
-   (slice 1 default: none; daily challenge, games, placement and the
-   all-exercises badges stay Music-only until slice 9).
+4. ~~whether the first release is visible as soon as Level Match ships or only
+   after all three Foundations exercises are ready;~~ **Resolved in slice 5:**
+   the Audio tab appears as soon as an Audio exercise is seeded;
+5. ~~which current engagement features include Audio exercises at launch;~~
+   **Resolved in slice 9:** separate Audio daily challenge and reports;
+   games, placement and legacy Music-wide/daily badges remain Music-only,
+   with global XP and general practice streaks.
 
 ## First milestone
 
