@@ -31,7 +31,7 @@ jobs:
         run: dotnet build AcademiaAuditiva.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test AcademiaAuditiva.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx" --collect "XPlat Code Coverage"
+        run: dotnet test AcademiaAuditiva.sln --configuration Release --no-build --filter "Category!=AudioDspBudget" --logger "trx;LogFileName=test-results.trx" --collect "XPlat Code Coverage"
 
       - name: Verify audio DSP in production-like Linux container
         run: |

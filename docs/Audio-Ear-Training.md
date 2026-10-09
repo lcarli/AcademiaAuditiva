@@ -364,6 +364,9 @@ As built in slice 7:
   These are local measurements, not production-throughput claims.
   CI repeats the numerical/reference-vector, rendering, tolerance and budget
   tests in Alpine with those resource limits, in addition to its normal suite.
+  The `AudioDspBudget` category runs without coverage instrumentation in that
+  container; the normal coverage suite excludes it so timing measures the
+  production DSP, not the instrumentation overhead.
 
 ### Round generation
 

@@ -276,6 +276,7 @@ public class AudioProcessingTests(ITestOutputHelper output)
     [Theory]
     [InlineData(1)]
     [InlineData(2)]
+    [Trait("Category", "AudioDspBudget")]
     public void LongestSourceAndLargestChain_StayWithinDspTimeAndAllocationBudgets(int channels)
     {
         var frames = (int)(AudioSourceRules.MaxSeconds * SampleRate);
