@@ -322,7 +322,7 @@ test('Stereo Position plays one opaque stereo clip and names the position', asyn
 
   const dialog = page.locator('.swal2-popup');
   await expect(page.locator('#aa-question')).toHaveText('Where is the sound in the stereo field?');
-  await expect(page.locator('[role="note"]')).toContainText('mono output');
+  await expect(page.locator('[data-aa-device-note]')).toContainText('mono output');
   await expect(page.locator('.guessAnswer:visible')).toHaveText(['Left', 'Center', 'Right']);
 
   const playResponse = page.waitForResponse(response =>

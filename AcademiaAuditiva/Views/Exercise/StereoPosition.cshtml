@@ -33,7 +33,7 @@
 
             @await Html.PartialAsync("_ABPlayback", new ViewDataDictionary(ViewData) { ["ABSingle"] = true })
 
-            <p class="small text-secondary text-center mt-3 mb-0" role="note">
+            <p class="small text-secondary text-center mt-3 mb-0" role="note" data-aa-device-note>
                 <i class="bi bi-headphones me-1" aria-hidden="true"></i>@Localizer["Exercise.StereoPosition.DeviceNote"]
             </p>
 
