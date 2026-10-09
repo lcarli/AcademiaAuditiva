@@ -1,3 +1,4 @@
+using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Services.Audio;
 using AcademiaAuditiva.Services.Routines;
 using Microsoft.Extensions.Caching.Distributed;
@@ -84,6 +85,66 @@ public class AudioTokenServiceTests
     }
 
     [Fact]
+    public async Task NamedRoundClips_KeepTheirKeysAndOpaqueTokensInPlaybackOrder()
+    {
+        var keys = new[] { "A", "B" };
+
+        var created = await _service.CreateRoundAsync(
+            "alice", 7, """{"louder":"B"}""", ["reference.wav", "processed.wav"], clipKeys: keys);
+        keys[0] = "changed-after-creation";
+        var restored = await _service.GetRoundAsync("alice", 7, created.RoundId);
+
+        created.ClipKeys.Should().Equal("A", "B");
+        created.Clips.Should().Equal(
+            new AudioRoundClip("A", created.Tokens[0]),
+            new AudioRoundClip("B", created.Tokens[1]));
+        restored!.Clips.Should().Equal(
+            new AudioRoundClip("A", created.Tokens[0]),
+            new AudioRoundClip("B", created.Tokens[1]));
+        restored.Clips.Should().OnlyContain(c => !c.Token.Contains("wav", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task NamedRoundAndItsTokens_ExpireTogetherAfterFifteenMinutes()
+    {
+        var cache = new Mock<IDistributedCache>();
+        var service = new AudioTokenService(cache.Object, TimeProvider.System);
+
+        await service.CreateRoundAsync(
+            "alice", 7, "{}", ["a.wav", "b.wav"], clipKeys: ["A", "B"]);
+
+        cache.Verify(c => c.SetAsync(
+            It.Is<string>(key => key.StartsWith("ExerciseRound:alice:7:", StringComparison.Ordinal)
+                || key.StartsWith("AudioToken:alice:", StringComparison.Ordinal)),
+            It.IsAny<byte[]>(),
+            It.Is<DistributedCacheEntryOptions>(o =>
+                o.AbsoluteExpirationRelativeToNow == TimeSpan.FromMinutes(15)
+                && o.AbsoluteExpiration == null
+                && o.SlidingExpiration == null),
+            It.IsAny<CancellationToken>()), Times.Exactly(3));
+        cache.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [MemberData(nameof(InvalidClipKeys))]
+    public async Task NamedRoundClips_RequireParallelDistinctSafeKeys(string[] keys)
+    {
+        await FluentActions.Awaiting(() => _service.CreateRoundAsync(
+                "alice", 7, "{}", ["a.wav", "b.wav"], clipKeys: keys))
+            .Should().ThrowAsync<ArgumentException>();
+    }
+
+    public static TheoryData<string[]> InvalidClipKeys => new()
+    {
+        new[] { "A" },
+        new[] { "A", "A" },
+        new[] { "A", "a" },
+        new[] { "A", "" },
+        new[] { "A", "../B" },
+        new[] { "A", "0123456789abcdefg" }
+    };
+
+    [Fact]
     public async Task Rounds_RememberWhetherTheyAreFreePractice()
     {
         var scored = await _service.CreateRoundAsync("alice", 7, "{}", ["C4.mp3"]);
@@ -110,6 +171,8 @@ public class AudioTokenServiceTests
         round.IssuedAt.Should().BeNull("rounds cached before answer times were measured have none");
         round.ExpectedAnswerJson.Should().Be("""{"note":"C4"}""");
         round.Tokens.Should().Equal("t1");
+        round.ClipKeys.Should().BeNull("rounds cached before named clips use the legacy response contract");
+        round.Clips.Should().BeNull();
     }
 
     [Fact]

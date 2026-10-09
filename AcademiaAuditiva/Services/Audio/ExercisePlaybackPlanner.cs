@@ -605,4 +605,5 @@ public sealed class ExercisePlaybackPlanner
 /// </param>
 public sealed record ExercisePlan(
     string ExpectedAnswerJson,
-    IReadOnlyList<IReadOnlyList<MixInput>> PlaybackPlans);
+    IReadOnlyList<IReadOnlyList<MixInput>> PlaybackPlans,
+    IReadOnlyList<string>? ClipKeys = null);

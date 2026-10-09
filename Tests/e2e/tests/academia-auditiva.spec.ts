@@ -55,6 +55,86 @@ test('health endpoints expose the running app version', async ({ request }) => {
   }
 });
 
+test('generic A/B playback supports mouse, keyboard, switching, replay and errors', async ({ page, baseURL }) => {
+  const fetched: string[] = [];
+  let releaseInitialAudio!: () => void;
+  const initialAudio = new Promise<void>(resolve => { releaseInitialAudio = resolve; });
+  await page.route('**/audio/token/*', async route => {
+    const token = decodeURIComponent(new URL(route.request().url()).pathname.split('/').pop()!);
+    fetched.push(token);
+    if (token === 'opaque-a' || token === 'opaque-b') await initialAudio;
+    await route.fulfill({
+      status: 200,
+      contentType: 'audio/wav',
+      body: token === 'broken' ? Buffer.from('not audio') : silentWav()
+    });
+  });
+  await page.goto(`${baseURL}/Home/Privacy?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
+  await page.evaluate(() => {
+    document.querySelector('main')!.innerHTML = `
+      <input id="typing" aria-label="Typing test">
+      <div data-aa-ab data-ready="A and B are ready." data-loading="Loading {0}…"
+           data-playing="Playing {0}." data-error="Audio could not be played.">
+        <div role="group" aria-label="Compare clips">
+          <button type="button" data-aa-ab-play="A" aria-pressed="false" disabled>Play A</button>
+          <button type="button" data-aa-ab-play="B" aria-pressed="false" disabled>Play B</button>
+          <button type="button" data-aa-ab-replay disabled>Replay</button>
+        </div>
+        <p data-aa-ab-status role="status" aria-live="polite"></p>
+      </div>`;
+    const appWindow = window as typeof window & {
+      ABPlayback: { create: (root: Element) => { setRound: (clips: { key: string; token: string }[]) => void } }
+    };
+    appWindow.ABPlayback.create(document.querySelector('[data-aa-ab]')!).setRound([
+      { key: 'A', token: 'opaque-a' },
+      { key: 'B', token: 'opaque-b' }
+    ]);
+  });
+
+  const component = page.locator('[data-aa-ab]');
+  const status = component.locator('[data-aa-ab-status]');
+  const a = component.locator('[data-aa-ab-play="A"]');
+  const b = component.locator('[data-aa-ab-play="B"]');
+  const replay = component.locator('[data-aa-ab-replay]');
+  await expect(a).toBeEnabled();
+  await expect(b).toBeEnabled();
+  await expect(replay).toBeDisabled();
+  await expect(status).toHaveText('A and B are ready.');
+
+  await a.click();
+  await expect(status).toHaveText('Loading A…');
+  releaseInitialAudio();
+  await expect(status).toHaveText('Playing A.');
+  await page.keyboard.press('b');
+  await expect(b).toHaveAttribute('aria-pressed', 'true');
+  await expect(a).toHaveAttribute('aria-pressed', 'false');
+  await expect(status).toHaveText('Playing B.');
+  await expect(status).toHaveText('A and B are ready.');
+  await expect(replay).toBeEnabled();
+
+  await page.keyboard.press('Space');
+  await expect(status).toHaveText('Playing B.');
+  await expect(status).toHaveText('A and B are ready.');
+  expect(fetched.sort()).toEqual(['opaque-a', 'opaque-b']);
+
+  await page.locator('#typing').focus();
+  await page.keyboard.press('a');
+  await expect(status).toHaveText('A and B are ready.');
+
+  await page.evaluate(() => {
+    const root = document.querySelector('[data-aa-ab]') as Element & {
+      aaABPlayback: { setRound: (clips: { key: string; token: string }[]) => void }
+    };
+    root.aaABPlayback.setRound([
+      { key: 'A', token: 'broken' },
+      { key: 'B', token: 'opaque-b-2' }
+    ]);
+  });
+  await a.click();
+  await expect(component).toHaveAttribute('data-state', 'error');
+  await expect(status).toHaveText('Audio could not be played.');
+});
+
 test('register page works and bootstrapped admin can log in', async ({ page, baseURL }) => {
   const stamp = Date.now().toString(36);
   await page.goto(`${baseURL}/Identity/Account/Register`, { waitUntil: 'networkidle' });
@@ -1856,6 +1936,27 @@ function collectErrors(page: Page, errors: string[]) {
     }
   });
   return errors;
+}
+
+function silentWav() {
+  const sampleRate = 8_000;
+  const samples = Math.round(sampleRate * 0.6);
+  const dataBytes = samples * 2;
+  const wav = Buffer.alloc(44 + dataBytes);
+  wav.write('RIFF', 0);
+  wav.writeUInt32LE(36 + dataBytes, 4);
+  wav.write('WAVE', 8);
+  wav.write('fmt ', 12);
+  wav.writeUInt32LE(16, 16);
+  wav.writeUInt16LE(1, 20);
+  wav.writeUInt16LE(1, 22);
+  wav.writeUInt32LE(sampleRate, 24);
+  wav.writeUInt32LE(sampleRate * 2, 28);
+  wav.writeUInt16LE(2, 32);
+  wav.writeUInt16LE(16, 34);
+  wav.write('data', 36);
+  wav.writeUInt32LE(dataBytes, 40);
+  return wav;
 }
 
 // Signs in from a browser of its own, as the account's owner would, and runs

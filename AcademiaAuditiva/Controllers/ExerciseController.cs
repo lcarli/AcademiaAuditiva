@@ -297,6 +297,7 @@ namespace AcademiaAuditiva.Controllers
 				filterJson: filterJson,
 				routine: routineQuestion,
 				gameRunId: request.GameRunId,
+				clipKeys: plan.ClipKeys,
 				cancellationToken: HttpContext.RequestAborted);
 			if (routineQuestion is { } roundQuestion)
 				await _routines.RememberQuestionAsync(userId, roundQuestion.Link, new PendingQuestion(RoundId: round.RoundId), HttpContext.RequestAborted);
@@ -328,8 +329,17 @@ namespace AcademiaAuditiva.Controllers
 			return response;
 		}
 
-		private static Dictionary<string, object?> PlayTokens(Exercise exercise, AudioRound round)
+		internal static Dictionary<string, object?> PlayTokens(Exercise exercise, AudioRound round)
 		{
+			if (round.Clips is { } clips)
+			{
+				return new()
+				{
+					["roundId"] = round.RoundId,
+					["clips"] = clips.Select(c => new { key = c.Key, token = c.Token }).ToArray()
+				};
+			}
+
 			if (exercise.Name is "GuessMissingNote" or "GuessChangedNote")
 			{
 				var melodies = new Dictionary<string, object?> { ["roundId"] = round.RoundId, ["melody1Token"] = round.Tokens[0], ["melody2Token"] = round.Tokens[1] };

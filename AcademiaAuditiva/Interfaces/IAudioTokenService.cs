@@ -19,7 +19,10 @@ public interface IAudioTokenService
     /// Creates a new round for the given user/exercise, persists the
     /// expected answer JSON and the playback token map, and returns the
     /// round identifier together with the issued tokens (parallel to the
-    /// supplied <paramref name="blobNames"/>). A <paramref name="free"/>
+    /// supplied <paramref name="blobNames"/>). Optional
+    /// <paramref name="clipKeys"/> give those tokens safe control names such
+    /// as A and B; they never describe which clip is the answer. A
+    /// <paramref name="free"/>
     /// round (free practice) is checked but never scored, and its answer
     /// may be revealed before it is answered. <paramref name="filterJson"/>
     /// (the exercise filters it was played with) is saved with its answer,
@@ -35,6 +38,7 @@ public interface IAudioTokenService
         string? filterJson = null,
         RoutineQuestion? routine = null,
         int? gameRunId = null,
+        IReadOnlyList<string>? clipKeys = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -99,4 +103,21 @@ public sealed record AudioRound(
     string? FilterJson = null,
     DateTimeOffset? IssuedAt = null,
     RoutineQuestion? Routine = null,
-    int? GameRunId = null);
+    int? GameRunId = null,
+    IReadOnlyList<string>? ClipKeys = null)
+{
+    /// <summary>
+    /// Named controls in playback order. Null means the legacy exercise-
+    /// specific response shape (<c>playToken</c>, <c>melody1Token</c>, etc.).
+    /// </summary>
+    public IReadOnlyList<AudioRoundClip>? Clips =>
+        ClipKeys is null || ClipKeys.Count != Tokens.Count
+            ? null
+            : ClipKeys.Zip(Tokens, (key, token) => new AudioRoundClip(key, token)).ToArray();
+}
+
+/// <summary>
+/// One opaque clip as the browser sees it. <paramref name="Key"/> identifies
+/// a playback control, never whether the clip is reference or processed.
+/// </summary>
+public sealed record AudioRoundClip(string Key, string Token);
