@@ -599,6 +599,18 @@ profile.
 - center and edge positions stay within the loudness tolerance;
 - the exercise works through practice and teacher routines.
 
+**Status:** done. Stereo Position is the second visible Audio exercise
+(`spLevel` profiles: beginner `L`/`C`/`R`, intermediate five positions,
+advanced seven). The pan convention is -1 left, 0 centre, +1 right, applied to
+a mono catalog source by the constant-power `PanProcessor`, so every position
+has the same total power and the peak never rises (no gain compensation).
+`TechnicalListeningRoundGenerator` renders one clip named `A`; the position
+stays in the server-side round and in the answer metadata (`spPosition`,
+`spSourceKind`), never in the response. The page reuses the generic playback
+control in single-clip mode, shows the output-device limitation note (a mono
+output hides the position; this trains level-based pan only) and joins the Audio
+learning path as the `StereoFoundations` unit.
+
 ### 7. Add parametric EQ and loudness matching
 
 **Work**

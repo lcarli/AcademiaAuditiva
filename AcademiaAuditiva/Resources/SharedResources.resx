@@ -4942,4 +4942,88 @@
   <data name="LearningPath.Unit.LevelFoundations.Description" xml:space="preserve">
     <value>Build a reliable sense of relative level before moving on to smaller mix decisions.</value>
   </data>
+  <data name="LearningPath.Unit.StereoFoundations.Title" xml:space="preserve">
+    <value>Stereo foundations</value>
+  </data>
+  <data name="LearningPath.Unit.StereoFoundations.Description" xml:space="preserve">
+    <value>Learn to hear where a source sits between the left and right speakers.</value>
+  </data>
+  <data name="Exercise.AB.Single.Label" xml:space="preserve">
+    <value>Play the sound</value>
+  </data>
+  <data name="Exercise.AB.Single.Play" xml:space="preserve">
+    <value>Play the sound</value>
+  </data>
+  <data name="Exercise.AB.Single.Ready" xml:space="preserve">
+    <value>The sound is ready.</value>
+  </data>
+  <data name="Exercise.AB.Single.Loading" xml:space="preserve">
+    <value>Loading…</value>
+  </data>
+  <data name="Exercise.AB.Single.Playing" xml:space="preserve">
+    <value>Playing.</value>
+  </data>
+  <data name="Exercise.AB.Single.Error" xml:space="preserve">
+    <value>Audio could not be played. Generate a new sound and try again.</value>
+  </data>
+  <data name="Exercise.AB.Single.Shortcuts" xml:space="preserve">
+    <value>Keyboard: A to play, Space to replay.</value>
+  </data>
+  <data name="StereoPosition" xml:space="preserve">
+    <value>Stereo Position</value>
+  </data>
+  <data name="Exercise.StereoPosition.Subtitle" xml:space="preserve">
+    <value>Hear a mono source and identify where it sits between the left and right speakers.</value>
+  </data>
+  <data name="Exercise.StereoPosition.Instructions" xml:space="preserve">
+    <value>Use headphones or two speakers. Generate a sound, replay it as often as you like, and choose its position between left and right.</value>
+  </data>
+  <data name="Exercise.StereoPosition.Tip1" xml:space="preserve">
+    <value>Use headphones or two speakers: a mono output cannot show position.</value>
+  </data>
+  <data name="Exercise.StereoPosition.Tip2" xml:space="preserve">
+    <value>Compare the level between the two sides rather than the source’s timbre.</value>
+  </data>
+  <data name="Exercise.StereoPosition.Tip3" xml:space="preserve">
+    <value>This trains level-based panning, not every form of spatial localization.</value>
+  </data>
+  <data name="Exercise.StereoPosition.Question" xml:space="preserve">
+    <value>Where is the sound in the stereo field?</value>
+  </data>
+  <data name="Exercise.StereoPosition.New" xml:space="preserve">
+    <value>New sound</value>
+  </data>
+  <data name="Exercise.StereoPosition.DeviceNote" xml:space="preserve">
+    <value>Results are only reliable on headphones or two speakers. A mono output, such as a phone speaker or a single earbud, hides the position.</value>
+  </data>
+  <data name="Exercise.StereoPosition.Incomplete" xml:space="preserve">
+    <value>Generate a sound and choose its position before checking.</value>
+  </data>
+  <data name="Exercise.StereoPosition.Feedback" xml:space="preserve">
+    <value>The sound was panned {0}. Panning shifts the level between the two sides; it is one of several cues for location.</value>
+  </data>
+  <data name="Exercise.StereoPosition.Answer.Left" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="Exercise.StereoPosition.Answer.Center" xml:space="preserve">
+    <value>Center</value>
+  </data>
+  <data name="Exercise.StereoPosition.Answer.Right" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="Exercise.StereoPosition.Answer.LeftPercent" xml:space="preserve">
+    <value>L{0}</value>
+  </data>
+  <data name="Exercise.StereoPosition.Answer.RightPercent" xml:space="preserve">
+    <value>R{0}</value>
+  </data>
+  <data name="Exercise.StereoPosition.Level.Beginner" xml:space="preserve">
+    <value>Beginner · left, center, right</value>
+  </data>
+  <data name="Exercise.StereoPosition.Level.Intermediate" xml:space="preserve">
+    <value>Intermediate · 5 positions</value>
+  </data>
+  <data name="Exercise.StereoPosition.Level.Advanced" xml:space="preserve">
+    <value>Advanced · 7 positions</value>
+  </data>
 </root>

@@ -199,6 +199,25 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
         double DifferenceDb,
         bool RequiresDifference);
 
+    public sealed class StereoPositionValidator : IExerciseValidator
+    {
+        public string ExerciseName => "StereoPosition";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var expected = JObject.Parse(expectedAnswerJson);
+            var answer = (string?)expected["answer"] ?? "";
+            var position = (double?)expected["position"] ?? 0;
+            return new ExerciseValidationResult(
+                string.Equals((userGuess ?? "").Trim(), answer, StringComparison.OrdinalIgnoreCase),
+                answer,
+                new StereoPositionValidationDetail(answer, position));
+        }
+    }
+
+    /// <summary>The position the source sat at: its answer code and its pan (-1 left, +1 right).</summary>
+    public sealed record StereoPositionValidationDetail(string Answer, double Position);
+
     public sealed class GuessScaleTypeValidator : IExerciseValidator
     {
         public string ExerciseName => "GuessScaleType";

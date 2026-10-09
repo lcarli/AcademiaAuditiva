@@ -1,25 +1,33 @@
 @inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
+@{
+    // A round of one clip (a single-source exercise) has one control and its own texts.
+    var single = ViewData["ABSingle"] as bool? == true;
+    var keys = single ? new[] { "A" } : new[] { "A", "B" };
+}
 
 <div class="aa-ab-playback"
      data-aa-ab
-     data-ready="@S["Exercise.AB.Ready"]"
-     data-loading="@S["Exercise.AB.Loading"]"
-     data-playing="@S["Exercise.AB.Playing"]"
-     data-error="@S["Exercise.AB.Error"]">
-    <div class="aa-ab-controls" role="group" aria-label="@S["Exercise.AB.Label"]">
-        @foreach (var key in new[] { "A", "B" })
+     data-ready="@S[single ? "Exercise.AB.Single.Ready" : "Exercise.AB.Ready"]"
+     data-loading="@S[single ? "Exercise.AB.Single.Loading" : "Exercise.AB.Loading"]"
+     data-playing="@S[single ? "Exercise.AB.Single.Playing" : "Exercise.AB.Playing"]"
+     data-error="@S[single ? "Exercise.AB.Single.Error" : "Exercise.AB.Error"]">
+    <div class="aa-ab-controls" role="group" aria-label="@S[single ? "Exercise.AB.Single.Label" : "Exercise.AB.Label"]">
+        @foreach (var key in keys)
         {
             <button type="button"
                     class="aa-ab-clip"
                     data-aa-ab-play="@key"
-                    aria-label="@S["Exercise.AB.Play", key]"
+                    aria-label="@(single ? S["Exercise.AB.Single.Play"].Value : S["Exercise.AB.Play", key].Value)"
                     aria-keyshortcuts="@key"
                     aria-pressed="false"
                     disabled>
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     <path d="M7 5l12 7-12 7z" fill="currentColor" />
                 </svg>
-                <span>@key</span>
+                @if (!single)
+                {
+                    <span>@key</span>
+                }
             </button>
         }
         <button type="button"
@@ -39,5 +47,5 @@
     <p class="aa-ab-status small text-secondary mb-0"
        data-aa-ab-status
        role="status"
-       aria-live="polite">@S["Exercise.AB.Shortcuts"]</p>
+       aria-live="polite">@S[single ? "Exercise.AB.Single.Shortcuts" : "Exercise.AB.Shortcuts"]</p>
 </div>

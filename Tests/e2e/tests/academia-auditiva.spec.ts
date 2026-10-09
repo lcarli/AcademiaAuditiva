@@ -315,6 +315,49 @@ test('Level Match keeps A/B opaque and requires the profile-specific answer', as
   expect((await (await intermediateValidation).json()).detail.requiresDifference).toBe(true);
 });
 
+test('Stereo Position plays one opaque stereo clip and names the position', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/StereoPosition?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  const dialog = page.locator('.swal2-popup');
+  await expect(page.locator('#aa-question')).toHaveText('Where is the sound in the stereo field?');
+  await expect(page.locator('[role="note"]')).toContainText('mono output');
+  await expect(page.locator('.guessAnswer:visible')).toHaveText(['Left', 'Center', 'Right']);
+
+  const playResponse = page.waitForResponse(response =>
+    response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
+  const audioResponse = page.waitForResponse(response =>
+    response.url().includes('/audio/token/') && response.status() === 200);
+  await page.click('#Play');
+  const play = await playResponse;
+  expect(JSON.parse(play.request().postData() ?? '{}').filters).toEqual({ spLevel: 'beginner' });
+  const round = await play.json();
+  expect(Object.keys(round)).toEqual(['roundId', 'clips']);
+  expect(round.clips).toEqual([{ key: 'A', token: expect.stringMatching(/^[0-9a-f]{32}$/) }]);
+  expect(JSON.stringify(round)).not.toMatch(/position|pan|left|right|source|\.wav/i);
+  const wav = await (await audioResponse).body();
+  expect(wav.length).toBeGreaterThan(1000);
+  // The rendered clip is a stereo WAV: the source is mono and the pan made it two channels.
+  expect(wav.readUInt16LE(22)).toBe(2);
+
+  await page.locator('.guessAnswer[value="C"]').click();
+  const validateResponse = page.waitForResponse(response =>
+    response.url().includes('/Exercise/ValidateExercise') && response.status() === 200);
+  await page.click('#validateGuess');
+  const result = await (await validateResponse).json();
+  expect(result.success).toBe(true);
+  expect(['L', 'C', 'R']).toContain(result.detail.answer);
+  await expect(dialog.locator('.swal2-html-container')).toContainText('The sound was panned');
+  await page.click('.swal2-confirm');
+
+  const filters = page.locator('#filtersModal');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await filters.locator('select[name="spLevel"]').selectOption('advanced');
+  await filters.locator('.btn-close').click();
+  await expect(page.locator('.guessAnswer:visible')).toHaveCount(7);
+});
+
 test('the chosen instrument plays the round and is remembered', async ({ page, baseURL, context }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessNote`, { waitUntil: 'networkidle' });
