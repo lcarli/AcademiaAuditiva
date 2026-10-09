@@ -357,6 +357,98 @@ public class AudioMixerServiceTests
         uploaded().Should().Equal(first);
     }
 
+    [Theory]
+    [InlineData("pink-noise")]
+    [InlineData("full-mix")]
+    public async Task EqAndMatching_AreDeterministic_AndStayMatchedAfterWavEncoding(string key)
+    {
+        StorageAnswers(NotFound());
+        var uploaded = CaptureUploads();
+        AudioProcessingPlan plan = new(key, [new PeakingEqProcessor(1000, 6, 1), new LoudnessMatchProcessor(-23)]);
+
+        await _mixer.RenderAsync(plan);
+        var first = uploaded();
+        var processed = WavFile.Read(first);
+        await Mixer(new AudioSourceLibrary(TempAudioSources.BundledRoot)).RenderAsync(plan);
+        uploaded().Should().Equal(first);
+        await _mixer.RenderAsync(new(key, [new LoudnessMatchProcessor(-23)]));
+        var reference = WavFile.Read(uploaded());
+
+        processed.Channels.Should().Be(reference.Channels);
+        processed.Frames.Should().Be(reference.Frames);
+        Loudness.IntegratedLufs(processed).Should().BeApproximately(-23, AudioProcessing.LoudnessToleranceLu);
+        Loudness.IntegratedLufs(reference).Should().BeApproximately(-23, AudioProcessing.LoudnessToleranceLu);
+        Math.Abs(Loudness.IntegratedLufs(processed) - Loudness.IntegratedLufs(reference))
+            .Should().BeLessThanOrEqualTo(2 * AudioProcessing.LoudnessToleranceLu);
+        Peak(processed.Samples).Should().BeLessThanOrEqualTo(0.98f);
+    }
+
+    [Fact]
+    public async Task EveryEqAndMatchingParameter_AndStageOrder_ChangeTheCacheName()
+    {
+        StoredMixWrittenAt(Start);
+        AudioProcessingPlan plan = new("pink-noise",
+            [new GainProcessor(-3), new PeakingEqProcessor(1000, 6, 1), new LoudnessMatchProcessor(-23)]);
+        AudioProcessingPlan[] plans =
+        [
+            plan,
+            plan with { Processors = [new GainProcessor(-3), new PeakingEqProcessor(1001, 6, 1), new LoudnessMatchProcessor(-23)] },
+            plan with { Processors = [new GainProcessor(-3), new PeakingEqProcessor(1000, 6.1, 1), new LoudnessMatchProcessor(-23)] },
+            plan with { Processors = [new GainProcessor(-3), new PeakingEqProcessor(1000, 6, 1.1), new LoudnessMatchProcessor(-23)] },
+            plan with { Processors = [new GainProcessor(-3), new PeakingEqProcessor(1000, 6, 1), new LoudnessMatchProcessor(-23.1)] },
+            plan with { Processors = [new PeakingEqProcessor(1000, 6, 1), new GainProcessor(-3), new LoudnessMatchProcessor(-23)] },
+            plan with { Processors = [new GainProcessor(-3), new PeakingEqProcessor(1000, 6, 1)] },
+        ];
+        var names = new List<string>();
+        foreach (var other in plans)
+        {
+            names.Add((await _mixer.RenderAsync(other)).BlobName);
+        }
+
+        names.Should().OnlyHaveUniqueItems();
+        (await _mixer.RenderAsync(plan)).BlobName.Should().Be(names[0]);
+    }
+
+    [Fact]
+    public async Task EqThatWouldClip_IsRefusedBeforeUpload_AndCanBeExplicitlyMatched()
+    {
+        StorageAnswers(NotFound());
+        var uploaded = CaptureUploads();
+        using var folder = new TempAudioSources();
+        var tone = new PcmAudio(SampleRate, 1,
+            [.. Enumerable.Range(0, 3 * SampleRate).Select(f => (float)(0.28 * Math.Sin(2 * Math.PI * 997 * f / SampleRate)))]);
+        folder.Replace("pink-noise", tone);
+        var mixer = Mixer(new AudioSourceLibrary(folder.Root));
+        AudioProcessingPlan unsafePlan = new("pink-noise", [new PeakingEqProcessor(997, 12, 1)]);
+
+        await FluentActions.Awaiting(() => mixer.RenderAsync(unsafePlan))
+            .Should().ThrowAsync<InvalidOperationException>().WithMessage("*would clip*");
+        FluentActions.Invoking(() => uploaded()).Should().Throw<InvalidOperationException>();
+        await mixer.RenderAsync(unsafePlan with
+        {
+            Processors = [new PeakingEqProcessor(997, 12, 1), new LoudnessMatchProcessor(-23)],
+        });
+
+        Loudness.IntegratedLufs(WavFile.Read(uploaded())).Should().BeApproximately(-23, AudioProcessing.LoudnessToleranceLu);
+    }
+
+    [Fact]
+    public async Task MatchingThatWouldClip_IsRefused_NotPeakNormalizedOrStoredAsAReference()
+    {
+        StorageAnswers(NotFound());
+        var uploaded = CaptureUploads();
+        using var folder = new TempAudioSources();
+        var samples = Enumerable.Range(0, 3 * SampleRate)
+            .Select(f => (float)(0.05 * Math.Sin(2 * Math.PI * 997 * f / SampleRate))).ToArray();
+        samples[SampleRate] = 0.8f;
+        folder.Replace("pink-noise", new(SampleRate, 1, samples));
+        var mixer = Mixer(new AudioSourceLibrary(folder.Root));
+
+        await FluentActions.Awaiting(() => mixer.RenderAsync(new("pink-noise", [new LoudnessMatchProcessor(-23)])))
+            .Should().ThrowAsync<InvalidOperationException>().WithMessage("*would clip*");
+        FluentActions.Invoking(() => uploaded()).Should().Throw<InvalidOperationException>();
+    }
+
     [Fact]
     public async Task SameProcessingPlan_ReusesTheStoredClip()
     {
@@ -456,6 +548,13 @@ public class AudioMixerServiceTests
         { "an out-of-range pan", new("pink-noise", [new PanProcessor(-2)]) },
         { "a gain that would clip", new("pink-noise", [new GainProcessor(12)]) },
         { "a stereo source panned", new("full-mix", [new PanProcessor(0.5)]) },
+        { "a nonfinite EQ frequency", new("pink-noise", [new PeakingEqProcessor(double.NaN, 6, 1)]) },
+        { "an EQ frequency too near Nyquist", new("pink-noise", [new PeakingEqProcessor(20000, 6, 1)]) },
+        { "an unsafe EQ gain", new("pink-noise", [new PeakingEqProcessor(1000, 12.01, 1)]) },
+        { "an unsafe EQ Q", new("pink-noise", [new PeakingEqProcessor(1000, 6, 0)]) },
+        { "a nonfinite loudness target", new("pink-noise", [new LoudnessMatchProcessor(double.PositiveInfinity)]) },
+        { "an unsafe loudness target", new("pink-noise", [new LoudnessMatchProcessor(-10)]) },
+        { "a stage after matching", new("pink-noise", [new LoudnessMatchProcessor(-23), new GainProcessor(-3)]) },
     };
 
     [Theory]
@@ -485,6 +584,26 @@ public class AudioMixerServiceTests
         entry.Message.Should().Contain("pink-noise").And.Contain("pan,gain");
         var logged = entry.Message + entry.Exception?.Message;
         logged.Should().NotContain("9.75").And.NotContain("9,75").And.NotContain("0.375").And.NotContain("0,375");
+    }
+
+    [Fact]
+    public async Task FailedEqProcessing_LogsOnlyProcessorNames_NotAnswerParameters()
+    {
+        var logger = new RecordingLogger();
+        var mixer = new AudioMixerService(_blobService, new BundledSamples(BundledSamplesTests.Root),
+            new AudioSourceLibrary(TempAudioSources.BundledRoot), _clock, logger);
+
+        await FluentActions.Awaiting(() => mixer.RenderAsync(new("pink-noise",
+            [new PeakingEqProcessor(12345.625, 4.75, 8.25), new LoudnessMatchProcessor(-23.125)])))
+            .Should().ThrowAsync<ArgumentException>();
+
+        var entry = logger.Entries.Should().ContainSingle(e => e.Level == LogLevel.Error).Which;
+        entry.Message.Should().Contain("pink-noise").And.Contain("peaking-eq,loudness-match");
+        var logged = entry.Message + entry.Exception?.Message;
+        foreach (var parameter in new[] { "12345.625", "12345,625", "4.75", "4,75", "8.25", "8,25", "-23.125", "-23,125" })
+        {
+            logged.Should().NotContain(parameter);
+        }
     }
 
     private static RequestFailedException NotFound() =>

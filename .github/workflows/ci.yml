@@ -33,6 +33,15 @@ jobs:
       - name: Test
         run: dotnet test AcademiaAuditiva.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx" --collect "XPlat Code Coverage"
 
+      - name: Verify audio DSP in production-like Linux container
+        run: |
+          docker run --rm --cpus=0.5 --memory=1g \
+            --mount "type=bind,source=$PWD,target=/repo,readonly" \
+            --workdir /repo \
+            --env DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
+            mcr.microsoft.com/dotnet/sdk:10.0-alpine \
+            sh -c 'apk add --no-cache icu-libs icu-data-full tzdata >/dev/null && dotnet vstest Tests/AcademiaAuditiva.UnitTests/bin/Release/net10.0/AcademiaAuditiva.UnitTests.dll --TestCaseFilter:"FullyQualifiedName~AudioProcessingTests|FullyQualifiedName~ParametricEqTests|FullyQualifiedName~LoudnessTests|FullyQualifiedName~LoudnessMatchingTests|FullyQualifiedName~AudioMixerServiceTests"'
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
