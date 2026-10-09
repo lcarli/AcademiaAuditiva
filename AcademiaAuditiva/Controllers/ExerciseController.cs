@@ -1099,6 +1099,17 @@ namespace AcademiaAuditiva.Controllers
 		}
 		#endregion
 
+		#region StereoPosition
+		public IActionResult StereoPosition()
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "StereoPosition");
+			if (exercise == null)
+				return NotFound();
+
+			return View(exercise.ToViewModel(_localizer));
+		}
+		#endregion
+
 		#region CompleteScale
 		public IActionResult CompleteScale()
 		{

@@ -1629,6 +1629,35 @@ public static class SeedData
                 }),
                 AudioButtonsJson = JsonConvert.SerializeObject(new List<string>()),
                 AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
+                Name = "StereoPosition",
+                Description = "Ouça uma fonte mono e identifique em que ponto do campo estéreo, entre esquerda e direita, ela está.",
+                ExerciseTypeId = 9,
+                ExerciseCategoryId = 11,
+                DifficultyLevelId = 1,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "spLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("beginner", "Exercise.StereoPosition.Level.Beginner"),
+                            new("intermediate", "Exercise.StereoPosition.Level.Intermediate"),
+                            new("advanced", "Exercise.StereoPosition.Level.Advanced")
+                        }
+                    }
+                }),
+                Instructions = "Use fones de ouvido ou duas caixas de som. Gere um som, ouça quantas vezes quiser e escolha a posição entre esquerda e direita.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Use fones de ouvido ou duas caixas de som: uma saída mono não mostra a posição.",
+                    "Compare o volume entre os dois lados, não o timbre da fonte.",
+                    "Este exercício treina o panorama por nível, não toda a localização espacial."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>()),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
             }
         };
     }

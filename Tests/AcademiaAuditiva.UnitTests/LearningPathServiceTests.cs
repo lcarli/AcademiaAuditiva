@@ -53,7 +53,7 @@ public class LearningPathServiceTests
         var audio = await Service(db).GetProgressAsync(UserId, TrainingTracks.Audio);
         var music = await Service(db).GetProgressAsync(UserId);
 
-        audio.Units.Should().ContainSingle().Which.Key.Should().Be("LevelFoundations");
+        audio.Units.Select(u => u.Key).Should().Equal("LevelFoundations", "StereoFoundations");
         audio.Current.Should().BeEquivalentTo(new
         {
             Exercise = "LevelMatch",
