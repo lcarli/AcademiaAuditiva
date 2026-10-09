@@ -90,15 +90,34 @@ namespace AcademiaAuditiva.Controllers
 		private static string ExpectedAnswerCacheKey(string userId, int exerciseId)
 			=> $"ExerciseAnswer:{userId}:{exerciseId}";
 
-		public async Task<IActionResult> Index()
+		/// <summary>
+		/// The exercises of one training track (<see cref="TrainingTracks"/>), Music unless
+		/// <paramref name="track"/> names another. The track selector lists the tracks that have
+		/// exercises, and the one asked for, when that makes more than one.
+		/// </summary>
+		public async Task<IActionResult> Index(string? track = null)
 		{
-			var exercises = _context.Exercises.ToList();
+			var current = string.IsNullOrWhiteSpace(track) ? TrainingTracks.All[0] : TrainingTracks.Find(track);
+			if (current is null)
+				return NotFound();
+
+			var all = await _context.Exercises.Include(e => e.ExerciseCategory).ToListAsync();
+			var exercises = all.Where(e => TrackOf(e) == current.Key).ToList();
+			var tracks = TrainingTracks.All
+				.Where(t => t == current || all.Any(e => TrackOf(e) == t.Key))
+				.ToList();
+			ViewBag.Track = current.Key;
+			ViewBag.Tracks = tracks.Count > 1 ? tracks : new List<TrainingTrack>();
 			var difficulties = await _context.DifficultyLevels.OrderBy(d => d.Id).ToListAsync();
 			ViewBag.DifficultyLevels = difficulties;
 			var exerciseTypes = await _context.ExerciseTypes.OrderBy(t => t.Id).ToListAsync();
 			ViewBag.ExerciseTypes = exerciseTypes;
 			return View(exercises);
 		}
+
+		// A category no track lists counts as Music, as TrainingTracks.IsMusic.
+		private static string TrackOf(Exercise exercise) =>
+			TrainingTracks.OfCategory(exercise.ExerciseCategory?.Name ?? "") ?? TrainingTracks.Music;
 
 		#region General Play and Validate
 		

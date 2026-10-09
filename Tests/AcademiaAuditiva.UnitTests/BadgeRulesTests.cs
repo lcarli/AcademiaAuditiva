@@ -435,6 +435,17 @@ public class BadgeRulesTests
             .Earns(BadgeKeys.AllRounder).Should().BeFalse("there is no category to cover");
     }
 
+    [Fact]
+    public void AllRounder_AndExplorer_SkipTheExercisesOfTheOtherTracks()
+    {
+        var history = new History()
+            .Exercise(1, category: "Harmony", name: "GuessChords").Exercise(2, category: "Level", name: "LevelMatch")
+            .Answer(1, Ones(10));
+
+        history.Earns(BadgeKeys.AllRounder).Should().BeTrue("only Music categories count so far");
+        history.Earns(BadgeKeys.Explorer).Should().BeTrue("only Music exercises count so far");
+    }
+
     [Theory]
     [InlineData(21, 59, false)]
     [InlineData(22, 0, true)]

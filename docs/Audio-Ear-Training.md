@@ -166,6 +166,22 @@ code-first catalog consistent with the current `ExerciseCatalog`; persist a
 new field only where database relationships, teacher routines or reports need
 it. Do not infer a track from category names.
 
+**Implemented (slice 1).** `TrainingTracks` (`Services/TrainingTracks.cs`) is
+an explicit, code-first table: each track lists its category names in display
+order, a category belongs to exactly one track, and an exercise gets the track
+of its category. No column or migration was added. `ExerciseCatalog` fails at
+startup on a seeded category that no track lists, `CatalogExercise.Track`
+exposes the track and `ExerciseCatalog.ByTrack` groups categories by track.
+The Audio categories (`Level`, `FrequencyEq`, `Dynamics`, `StereoPhase`,
+`SpaceTime`, `CriticalListening`) are declared and named in all cultures but
+not seeded yet; Mix categories wait for Phase 3.
+
+`/Exercise` keeps listing Music; `/Exercise?track=audio` (case-insensitive)
+lists another track and an unknown track is a 404. The track selector only
+shows when more than one track has exercises, or when an empty track is asked
+for, in which case that track renders a localized empty state. The Audio tab
+therefore appears by itself once the first Audio exercise is seeded.
+
 The first change must preserve all current URLs, scores, routines, badges and
 the Music learning path. Existing exercises default to the `Music` track.
 
@@ -396,6 +412,12 @@ Do not build all slices on one long-running branch.
 - localized track names exist in all three cultures;
 - tests prevent an exercise from having an unknown track.
 
+**Status:** implemented. The inclusion rules are Music-only for now: the
+learning path (the current path is the Music path), the daily challenge pool,
+the game modes (`GameModes.Playable`, which also gates placement) and the
+Explorer and All-Rounder badges skip exercises of other tracks
+(`TrainingTracks.IsMusic`). Slice 9 revisits them.
+
 ### 2. Add the licensed audio-source catalog
 
 **Work**
@@ -455,6 +477,10 @@ Do not build all slices on one long-running branch.
 **Work**
 
 - add the generator, validator, seed rows, views, scripts and resources;
+- seed the Audio categories into existing databases: `SeedData` only inserts
+  `ExerciseCategories()` into an empty table and exercises reference a
+  category by its 1-based position in that list, so seeding must add missing
+  categories by name and resolve ids by name;
 - implement difficulty profiles and source selection;
 - record the gain difference and source type in answer filter metadata where
   appropriate for weak-spots reporting;
@@ -639,15 +665,19 @@ releasing an exercise, perform a documented listening review with:
 
 Resolve these in the first GitHub issue:
 
-1. whether `TrainingTrack` is persisted on `Exercise` or supplied by a
+1. ~~whether `TrainingTrack` is persisted on `Exercise` or supplied by a
    code-first catalog with a migration only when relational queries require
-   it;
+   it;~~ **Resolved in slice 1:** code-first `TrainingTracks` table keyed by
+   category, no migration;
 2. where licensed source masters live and how they reach development, CI and
    production;
 3. the loudness measurement and tolerance used for matched A/B clips;
 4. whether the first release is visible as soon as Level Match ships or only
-   after all three Foundations exercises are ready;
-5. which current engagement features include Audio exercises at launch.
+   after all three Foundations exercises are ready (slice 1 default: the
+   Audio tab appears as soon as an Audio exercise is seeded);
+5. which current engagement features include Audio exercises at launch
+   (slice 1 default: none; daily challenge, games, placement and the
+   all-exercises badges stay Music-only until slice 9).
 
 ## First milestone
 

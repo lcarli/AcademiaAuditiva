@@ -34,6 +34,11 @@ public static class GameModes
         return IsKnown(mode) ? mode : null;
     }
 
-    /// <summary>Exercises that can't be played as a game: the sung ones need a microphone.</summary>
-    public static bool Playable(string exerciseName) => !MicrophoneExercises.Contains(exerciseName);
+    /// <summary>
+    /// Exercises that can't be played as a game: the sung ones need a microphone, and the games only
+    /// take Music exercises so far (<see cref="TrainingTracks"/>).
+    /// </summary>
+    public static bool Playable(string exerciseName) =>
+        !MicrophoneExercises.Contains(exerciseName)
+        && ExerciseCatalog.TrackOf(exerciseName) is null or TrainingTracks.Music;
 }

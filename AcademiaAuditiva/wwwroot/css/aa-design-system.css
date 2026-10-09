@@ -1094,7 +1094,8 @@ a:focus-visible {
     background: var(--aa-surface);
 }
 
-.aa-pill-tab > button {
+.aa-pill-tab > button,
+.aa-pill-tab > a {
     appearance: none;
     border: 0;
     border-radius: 999px;
@@ -1107,19 +1108,26 @@ a:focus-visible {
     transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
 }
 
-.aa-pill-tab > button:hover {
+.aa-pill-tab > a {
+    text-decoration: none;
+}
+
+.aa-pill-tab > button:hover,
+.aa-pill-tab > a:hover {
     color: var(--aa-ink);
 }
 
 .aa-pill-tab > button.active,
 .aa-pill-tab > button[aria-pressed="true"],
-.aa-pill-tab > button[aria-selected="true"] {
+.aa-pill-tab > button[aria-selected="true"],
+.aa-pill-tab > a.active {
     background: var(--aa-raised);
     color: var(--aa-ink);
     box-shadow: var(--aa-shadow-sm), 0 0 0 1px var(--aa-line);
 }
 
-.aa-pill-tab > button:focus-visible {
+.aa-pill-tab > button:focus-visible,
+.aa-pill-tab > a:focus-visible {
     outline: 0;
     box-shadow: 0 0 0 .2rem var(--aa-focus-ring);
 }
