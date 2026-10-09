@@ -15,6 +15,8 @@
 }
 
 <form>
+    @if (Model.UsesInstrument)
+    {
     <div class="mb-4">
         <div class="form-label" id="instrumentLabel">@Localizer["Instrument"]</div>
         <div class="aa-pill-tab" role="group" id="instrumentButtons" aria-labelledby="instrumentLabel">
@@ -58,6 +60,7 @@
                 <span id="rangeEndLabel" class="fw-semibold">@activeInstrument.OctaveLabel(startOctave)</span>
             </div>
         </div>
+    }
     }
 
     @if (Model.Groups.Count > 0)

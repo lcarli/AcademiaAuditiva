@@ -2,7 +2,15 @@
 @using AcademiaAuditiva.Services.LearningPath
 @inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
 @{
-    ViewBag.Title = Localizer["LearningPath.Title"].Value;
+    var track = (string)ViewBag.Track;
+    var tracks = (List<AcademiaAuditiva.Services.TrainingTrack>)ViewBag.Tracks;
+    var titleKey = track == AcademiaAuditiva.Services.TrainingTracks.Music
+        ? "LearningPath.Title"
+        : $"LearningPath.{track}.Title";
+    var subtitleKey = track == AcademiaAuditiva.Services.TrainingTracks.Music
+        ? "LearningPath.Subtitle"
+        : $"LearningPath.{track}.Subtitle";
+    ViewBag.Title = Localizer[titleKey].Value;
     var current = Model.Current;
 }
 
@@ -14,9 +22,9 @@
         <a class="aa-eyebrow text-decoration-none" asp-controller="Dashboard" asp-action="Index">
             <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>@Localizer["Dashboard.Title"]
         </a>
-        <h1 class="display-6 mt-2 mb-1 text-body-emphasis">@Localizer["LearningPath.Title"]</h1>
-        <p class="text-secondary mb-0">@Localizer["LearningPath.Subtitle"]</p>
-        @if (!Model.HasStarted && Model.TotalSteps > 0)
+        <h1 class="display-6 mt-2 mb-1 text-body-emphasis">@Localizer[titleKey]</h1>
+        <p class="text-secondary mb-0">@Localizer[subtitleKey]</p>
+        @if (track == AcademiaAuditiva.Services.TrainingTracks.Music && !Model.HasStarted && Model.TotalSteps > 0)
         {
             <p class="small mt-2 mb-0">
                 <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>@Localizer["LearningPath.PlacementHint"]
@@ -41,6 +49,18 @@
         </div>
     }
 </header>
+
+<nav class="d-flex justify-content-center mb-4" aria-label="@Localizer["TrainingTrack.Label"]">
+    <div class="aa-pill-tab">
+        @foreach (var item in tracks)
+        {
+            var isCurrent = item.Key == track;
+            <a class="@(isCurrent ? "active" : null)"
+               href="@Url.Action("Index", "LearningPath", new { track = item.Key == AcademiaAuditiva.Services.TrainingTracks.Music ? null : item.Key.ToLowerInvariant() })"
+               aria-current="@(isCurrent ? "page" : null)">@Localizer["TrainingTrack." + item.Key]</a>
+        }
+    </div>
+</nav>
 
 @if (Model.TotalSteps == 0)
 {

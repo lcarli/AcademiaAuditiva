@@ -55,7 +55,8 @@ public class HomePageTests : IClassFixture<TestWebApplicationFactory>
 
         var html = WebUtility.HtmlDecode(await _factory.CreateClient().GetStringAsync($"/?culture={culture}"));
 
-        var count = ExerciseCatalog.Count;
+        var music = ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Music);
+        var count = music.Exercises.Count();
         count.Should().BeGreaterThan(29);
         html.Should().Contain(string.Format(feature, count) + "</h2>")
             .And.Contain(string.Format(title, count) + "</h2>")
@@ -70,7 +71,7 @@ public class HomePageTests : IClassFixture<TestWebApplicationFactory>
 
         groups.Select(g => g.Title).Should().Equal(categories.Split('|'));
         groups.Select(g => (g.Category, g.Exercises)).Should().BeEquivalentTo(
-            ExerciseCatalog.ByCategory.Select(c => (c.Name, c.Exercises.Select(e => e.Name).ToList())),
+            music.Categories.Select(c => (c.Name, c.Exercises.Select(e => e.Name).ToList())),
             options => options.WithStrictOrdering());
         groups.SelectMany(g => g.Exercises).Should().HaveCount(count).And.OnlyHaveUniqueItems();
         html.Should().Contain($"<span class=\"aa-ex-item-title\">{guessTuning}</span>");

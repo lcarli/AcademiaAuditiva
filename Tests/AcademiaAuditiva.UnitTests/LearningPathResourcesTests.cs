@@ -35,14 +35,16 @@ public class LearningPathResourcesTests
         "LearningPath.Continue", "LearningPath.ViewPath", "LearningPath.LockedHint", "LearningPath.Done",
         "LearningPath.DoneText", "LearningPath.Empty", "LearningPath.StepComplete.Title",
         "LearningPath.UnitComplete.Title", "LearningPath.PathComplete.Title", "LearningPath.GoToNext",
+        "LearningPath.Audio.Title", "LearningPath.Audio.Subtitle",
     ];
 
-    private static IEnumerable<string> CatalogKeys => LearningPathCatalog.Units
+    private static IEnumerable<string> CatalogKeys => LearningPathCatalog.AllUnits
         .SelectMany(u => new[] { $"LearningPath.Unit.{u.Key}.Title", $"LearningPath.Unit.{u.Key}.Description" })
         .Concat(Enum.GetNames<StepState>().Select(state => $"LearningPath.State.{state}"));
 
     // Step titles and subtitles are the exercise's own texts.
-    private static IEnumerable<string> ExerciseKeys => LearningPathCatalog.Steps
+    private static IEnumerable<string> ExerciseKeys => LearningPathCatalog.ByTrack.Values
+        .SelectMany(units => units).SelectMany(unit => unit.Steps)
         .SelectMany(s => new[] { s.Exercise, $"Exercise.{s.Exercise}.Subtitle" });
 
     [Theory]

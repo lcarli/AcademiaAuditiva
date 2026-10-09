@@ -12,9 +12,9 @@ public sealed record PathStep(string Exercise, IReadOnlyDictionary<string, strin
 public sealed record PathUnit(string Key, IReadOnlyList<PathStep> Steps);
 
 /// <summary>
-/// The learning path of the Music track (<see cref="TrainingTracks"/>): every Music exercise
-/// except the singing ones (they need a microphone, <see cref="MicrophoneExercises"/>), from
-/// pitch direction to an absolute pitch challenge. Each exercise appears once.
+/// The guided paths of the training tracks. The legacy <see cref="Units"/> and
+/// <see cref="Steps"/> properties remain the Music path, which placement tests
+/// and the total-mastery badge use.
 /// Presets are guidance, like routine items: any answer on the step's exercise counts,
 /// whatever filters it was played with (older answers don't record them).
 /// </summary>
@@ -60,6 +60,30 @@ public static class LearningPathCatalog
     ];
 
     public static IReadOnlyList<PathStep> Steps { get; } = Units.SelectMany(u => u.Steps).ToList();
+
+    public static IReadOnlyList<PathUnit> AudioUnits { get; } =
+    [
+        new("LevelFoundations",
+        [
+            Step("LevelMatch", 10, 7, ("lmLevel", "beginner")),
+        ]),
+    ];
+
+    public static IReadOnlyDictionary<string, IReadOnlyList<PathUnit>> ByTrack { get; } =
+        new Dictionary<string, IReadOnlyList<PathUnit>>(StringComparer.OrdinalIgnoreCase)
+        {
+            [TrainingTracks.Music] = Units,
+            [TrainingTracks.Audio] = AudioUnits,
+        };
+
+    public static IReadOnlyList<PathUnit> AllUnits { get; } =
+        ByTrack.Values.SelectMany(units => units).ToList();
+
+    public static IReadOnlyList<PathUnit> UnitsFor(string track) =>
+        ByTrack.GetValueOrDefault(track) ?? Array.Empty<PathUnit>();
+
+    public static IReadOnlyList<PathStep> StepsFor(string track) =>
+        UnitsFor(track).SelectMany(unit => unit.Steps).ToList();
 
     private static PathStep Step(string exercise, int window, int required, params (string Group, string Value)[] filters)
         => new(exercise, filters.ToDictionary(f => f.Group, f => f.Value, StringComparer.Ordinal), window, required);

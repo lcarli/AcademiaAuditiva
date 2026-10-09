@@ -31,10 +31,11 @@ public class ExerciseCatalogTests
     }
 
     [Fact]
-    public void ByCategory_ListsEveryExerciseOnce_FromSingleNotesToRhythm_TheEasiestFirst()
+    public void ByCategory_ListsEveryExerciseOnce_TrackByTrack_TheEasiestFirst()
     {
         ExerciseCatalog.ByCategory.SelectMany(c => c.Exercises).Should().BeEquivalentTo(ExerciseCatalog.All);
-        ExerciseCatalog.ByCategory.Select(c => c.Name).Should().Equal("EarTraining", "Melody", "Harmony", "Scales", "Rhythm");
+        ExerciseCatalog.ByCategory.Select(c => c.Name).Should().Equal(
+            "EarTraining", "Melody", "Harmony", "Scales", "Rhythm", "Level");
         ExerciseCatalog.ByCategory.Should().AllSatisfy(c =>
         {
             c.Exercises.Should().NotBeEmpty().And.OnlyContain(e => e.Category == c.Name);

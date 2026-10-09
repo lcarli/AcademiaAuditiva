@@ -60,8 +60,11 @@ public sealed record LearningPathProgress(IReadOnlyList<UnitProgress> Units, Ste
 
 public interface ILearningPathService
 {
-    /// <summary>The player's progress on every step of the learning path.</summary>
+    /// <summary>The player's progress on the Music learning path.</summary>
     Task<LearningPathProgress> GetProgressAsync(string userId, CancellationToken ct = default);
+
+    /// <summary>The player's progress on one training track's learning path.</summary>
+    Task<LearningPathProgress> GetProgressAsync(string userId, string track, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -83,8 +86,15 @@ public sealed class LearningPathService : ILearningPathService
     }
 
     public async Task<LearningPathProgress> GetProgressAsync(string userId, CancellationToken ct = default)
+        => await GetProgressAsync(userId, TrainingTracks.Music, ct);
+
+    public async Task<LearningPathProgress> GetProgressAsync(
+        string userId,
+        string track,
+        CancellationToken ct = default)
     {
-        var names = LearningPathCatalog.Steps.Select(s => s.Exercise).ToList();
+        var catalogUnits = LearningPathCatalog.UnitsFor(track);
+        var names = catalogUnits.SelectMany(u => u.Steps).Select(s => s.Exercise).ToList();
         var exercises = (await _db.Exercises.AsNoTracking()
                 .Where(e => names.Contains(e.Name))
                 .Select(e => new { e.ExerciseId, e.Name, e.FiltersJson })
@@ -93,7 +103,7 @@ public sealed class LearningPathService : ILearningPathService
             .ToDictionary(g => g.Key, g => g.OrderBy(e => e.ExerciseId).First(), StringComparer.Ordinal);
 
         // A step whose exercise is not seeded is left out instead of blocking the path.
-        var units = LearningPathCatalog.Units
+        var units = catalogUnits
             .Select(u => new PathUnit(u.Key, u.Steps.Where(s => exercises.ContainsKey(s.Exercise)).ToList()))
             .Where(u => u.Steps.Count > 0)
             .ToList();
@@ -106,7 +116,9 @@ public sealed class LearningPathService : ILearningPathService
 
         var evaluation = LearningPathEvaluator.Evaluate(
             units.SelectMany(u => u.Steps).ToList(), exerciseIds, answers,
-            await PlacedStepsAsync(userId, units, ct));
+            string.Equals(track, TrainingTracks.Music, StringComparison.OrdinalIgnoreCase)
+                ? await PlacedStepsAsync(userId, catalogUnits, units, ct)
+                : 0);
 
         var index = 0;
         StepProgress? justCompleted = null;
@@ -135,14 +147,18 @@ public sealed class LearningPathService : ILearningPathService
     }
 
     // The steps of the units before the furthest one a placement test the player applied suggested.
-    private async Task<int> PlacedStepsAsync(string userId, IReadOnlyList<PathUnit> units, CancellationToken ct)
+    private async Task<int> PlacedStepsAsync(
+        string userId,
+        IReadOnlyList<PathUnit> catalogUnits,
+        IReadOnlyList<PathUnit> units,
+        CancellationToken ct)
     {
         var placedUnit = await _db.GameRuns.AsNoTracking()
             .Where(r => r.UserId == userId && r.Mode == GameModes.Placement && r.AppliedAt != null)
             .MaxAsync(r => r.PlacementUnit, ct);
         if (placedUnit is not > 1) return 0;
 
-        var skipped = LearningPathCatalog.Units.Take(placedUnit.Value - 1).Select(u => u.Key).ToHashSet(StringComparer.Ordinal);
+        var skipped = catalogUnits.Take(placedUnit.Value - 1).Select(u => u.Key).ToHashSet(StringComparer.Ordinal);
         return units.Where(u => skipped.Contains(u.Key)).Sum(u => u.Steps.Count);
     }
 }

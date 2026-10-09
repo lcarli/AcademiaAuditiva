@@ -4876,4 +4876,70 @@
   <data name="Exercise.AB.Shortcuts" xml:space="preserve">
     <value>Clavier : A, B et Espace pour réécouter.</value>
   </data>
+  <data name="LevelMatch" xml:space="preserve">
+    <value>Comparaison de niveau</value>
+  </data>
+  <data name="Exercise.LevelMatch.Subtitle" xml:space="preserve">
+    <value>Comparez deux versions de la même source et déterminez laquelle est la plus forte.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Instructions" xml:space="preserve">
+    <value>Générez une comparaison, alternez entre A et B, puis choisissez le signal le plus fort. Aux niveaux intermédiaire et avancé, estimez aussi la différence en décibels.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Tip1" xml:space="preserve">
+    <value>Alternez rapidement entre A et B pour comparer le même passage.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Tip2" xml:space="preserve">
+    <value>Concentrez-vous sur le volume perçu plutôt que sur le timbre de la source.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Tip3" xml:space="preserve">
+    <value>Pour les petits écarts, utilisez la différence précédente comme repère mental.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Question" xml:space="preserve">
+    <value>Quel signal est le plus fort ?</value>
+  </data>
+  <data name="Exercise.LevelMatch.New" xml:space="preserve">
+    <value>Nouvelle comparaison</value>
+  </data>
+  <data name="Exercise.LevelMatch.DifferenceQuestion" xml:space="preserve">
+    <value>De combien de décibels ?</value>
+  </data>
+  <data name="Exercise.LevelMatch.Answer.A" xml:space="preserve">
+    <value>A est plus fort</value>
+  </data>
+  <data name="Exercise.LevelMatch.Answer.B" xml:space="preserve">
+    <value>B est plus fort</value>
+  </data>
+  <data name="Exercise.LevelMatch.Incomplete" xml:space="preserve">
+    <value>Générez une comparaison, choisissez le signal le plus fort et, lorsque demandé, la différence en dB.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Feedback.A" xml:space="preserve">
+    <value>A était {0} dB plus fort que B.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Feedback.B" xml:space="preserve">
+    <value>B était {0} dB plus fort que A.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Level.Beginner" xml:space="preserve">
+    <value>Débutant · 6–12 dB</value>
+  </data>
+  <data name="Exercise.LevelMatch.Level.Intermediate" xml:space="preserve">
+    <value>Intermédiaire · 2–6 dB</value>
+  </data>
+  <data name="Exercise.LevelMatch.Level.Advanced" xml:space="preserve">
+    <value>Avancé · 0,5–2 dB</value>
+  </data>
+  <data name="ExerciseType.AudioComparison" xml:space="preserve">
+    <value>Comparaison audio</value>
+  </data>
+  <data name="LearningPath.Audio.Title" xml:space="preserve">
+    <value>Parcours d’apprentissage audio</value>
+  </data>
+  <data name="LearningPath.Audio.Subtitle" xml:space="preserve">
+    <value>Un parcours guidé pour travailler le niveau, les fréquences, la dynamique, la stéréo, l’espace et l’écoute critique.</value>
+  </data>
+  <data name="LearningPath.Unit.LevelFoundations.Title" xml:space="preserve">
+    <value>Fondements du niveau</value>
+  </data>
+  <data name="LearningPath.Unit.LevelFoundations.Description" xml:space="preserve">
+    <value>Développez une perception fiable du niveau relatif avant de passer à des décisions de mixage plus fines.</value>
+  </data>
 </root>

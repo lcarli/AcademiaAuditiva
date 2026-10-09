@@ -44,8 +44,11 @@ public class DailyChallengeRulesTests
         }
 
         drawn.Keys.Should().BeEquivalentTo(
-            exercises.Select(e => e.Name).Where(n => !MicrophoneExercises.Contains(n)).Distinct(),
-            "every exercise but the singing ones, which need a microphone, gets drawn");
+            exercises
+                .Where(e => TrainingTracks.IsMusic(e.Category) && !MicrophoneExercises.Contains(e.Name))
+                .Select(e => e.Name)
+                .Distinct(),
+            "every eligible Music exercise gets drawn");
         // The draw goes by category, so an exercise of a big category comes up less often than one
         // of a small category: each is drawn at least half, and at most twice, as often as it
         // would be if every exercise were drawn alike.

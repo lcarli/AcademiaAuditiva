@@ -4876,4 +4876,70 @@
   <data name="Exercise.AB.Shortcuts" xml:space="preserve">
     <value>Keyboard: A, B, and Space to replay.</value>
   </data>
+  <data name="LevelMatch" xml:space="preserve">
+    <value>Level Match</value>
+  </data>
+  <data name="Exercise.LevelMatch.Subtitle" xml:space="preserve">
+    <value>Compare two versions of the same source and identify which one is louder.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Instructions" xml:space="preserve">
+    <value>Generate a comparison, switch between A and B, and choose the louder signal. At intermediate and advanced levels, also estimate the difference in decibels.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Tip1" xml:space="preserve">
+    <value>Switch quickly between A and B to compare the same passage.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Tip2" xml:space="preserve">
+    <value>Focus on perceived loudness rather than the source’s timbre.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Tip3" xml:space="preserve">
+    <value>For smaller changes, use the previous difference as a mental reference.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Question" xml:space="preserve">
+    <value>Which signal is louder?</value>
+  </data>
+  <data name="Exercise.LevelMatch.New" xml:space="preserve">
+    <value>New comparison</value>
+  </data>
+  <data name="Exercise.LevelMatch.DifferenceQuestion" xml:space="preserve">
+    <value>By how many decibels?</value>
+  </data>
+  <data name="Exercise.LevelMatch.Answer.A" xml:space="preserve">
+    <value>A is louder</value>
+  </data>
+  <data name="Exercise.LevelMatch.Answer.B" xml:space="preserve">
+    <value>B is louder</value>
+  </data>
+  <data name="Exercise.LevelMatch.Incomplete" xml:space="preserve">
+    <value>Generate a comparison, choose the louder signal and, when asked, the difference in dB.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Feedback.A" xml:space="preserve">
+    <value>A was {0} dB louder than B.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Feedback.B" xml:space="preserve">
+    <value>B was {0} dB louder than A.</value>
+  </data>
+  <data name="Exercise.LevelMatch.Level.Beginner" xml:space="preserve">
+    <value>Beginner · 6–12 dB</value>
+  </data>
+  <data name="Exercise.LevelMatch.Level.Intermediate" xml:space="preserve">
+    <value>Intermediate · 2–6 dB</value>
+  </data>
+  <data name="Exercise.LevelMatch.Level.Advanced" xml:space="preserve">
+    <value>Advanced · 0.5–2 dB</value>
+  </data>
+  <data name="ExerciseType.AudioComparison" xml:space="preserve">
+    <value>Audio comparison</value>
+  </data>
+  <data name="LearningPath.Audio.Title" xml:space="preserve">
+    <value>Audio learning path</value>
+  </data>
+  <data name="LearningPath.Audio.Subtitle" xml:space="preserve">
+    <value>A guided path for level, frequency, dynamics, stereo, space and critical-listening skills.</value>
+  </data>
+  <data name="LearningPath.Unit.LevelFoundations.Title" xml:space="preserve">
+    <value>Level foundations</value>
+  </data>
+  <data name="LearningPath.Unit.LevelFoundations.Description" xml:space="preserve">
+    <value>Build a reliable sense of relative level before moving on to smaller mix decisions.</value>
+  </data>
 </root>

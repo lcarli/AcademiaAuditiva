@@ -78,6 +78,26 @@ public class LearningPathPagesTests : IClassFixture<SignedInWebApplicationFactor
         html.Should().NotMatchRegex(@"LearningPath\.\w");
     }
 
+    [Fact]
+    public async Task AudioPage_HasItsOwnFirstUnitAndBeginnerPreset()
+    {
+        EnsureSeeded();
+
+        var html = await GetPageAsync("/LearningPath?track=audio");
+
+        html.Should().Contain("Audio learning path")
+            .And.Contain("Level foundations")
+            .And.Contain("0 of 1 steps")
+            .And.Contain("Level Match")
+            .And.Contain("Level: Beginner · 6–12 dB")
+            .And.Contain("href=\"/Exercise/LevelMatch?lmLevel=beginner\"")
+            .And.Contain("href=\"/LearningPath\"")
+            .And.Contain("href=\"/LearningPath?track=audio\"")
+            .And.NotContain("Take the placement test");
+        Regex.Count(html, "class=\"aa-path-step is-current\" aria-current=\"step\"").Should().Be(1);
+        html.Should().NotMatchRegex(@"LearningPath\.\w");
+    }
+
     // Each class gets its own factory, so its database only holds this player.
     private void EnsureSeeded()
     {

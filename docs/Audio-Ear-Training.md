@@ -572,6 +572,17 @@ playback errors through one accessible live region.
 - feedback names the correct signal and difference;
 - dashboards, routines and ordinary practice record answers correctly.
 
+**Status:** done. Level Match is the first visible Audio exercise, with
+beginner, intermediate and advanced profiles, deterministic source/difference
+coverage and safe server-side gain plans. A and B always use the same source
+and a shared random half-dB offset; only opaque clip tokens reach the browser,
+while the expected side, difference and source type remain in the server-side
+round and answer metadata. Existing databases receive missing lookup rows by
+name, the Audio catalog tab now lists the exercise, and the separate Audio
+learning path starts with its beginner profile. The localized page reuses the
+generic accessible A/B control and requires a dB estimate outside the beginner
+profile.
+
 ### 6. Ship Stereo Position
 
 **Work**

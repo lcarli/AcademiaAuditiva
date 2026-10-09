@@ -43,7 +43,7 @@ public static class TutorialCatalog
         ]),
         new(Exercise,
         [
-            new("Listen", ".aa-audio-buttons"),
+            new("Listen", ".aa-audio-buttons, .aa-ab-playback"),
             // Answer buttons, the piano keyboard, the staff editor, or a page's own controls.
             new("Answer", ".aa-answer-toolbar, .aa-answers-chromatic, .aa-answer-grid, #staffEditor, [data-tour=answer]"),
             new("Check", "#validateGuess"),

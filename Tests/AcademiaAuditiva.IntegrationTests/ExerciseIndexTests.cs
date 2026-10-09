@@ -7,8 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AcademiaAuditiva.IntegrationTests;
 
 /// <summary>
-/// /Exercise lists the exercises of one training track, Music by default; the selector only
-/// shows up when another track has exercises or is asked for, and an empty track says so.
+/// /Exercise lists the exercises of one training track, Music by default, and offers every
+/// track that currently has exercises.
 /// </summary>
 public class ExerciseIndexTests : IClassFixture<ExerciseRequestBodyTests.AuthenticatedFactory>
 {
@@ -25,25 +25,26 @@ public class ExerciseIndexTests : IClassFixture<ExerciseRequestBodyTests.Authent
     [Theory]
     [InlineData("/Exercise")]
     [InlineData("/Exercise?track=MUSIC")]
-    public async Task Music_ListsEveryExercise_WithoutTheSelector(string url)
+    public async Task Music_ListsOnlyMusicExercises_WithTheTrackSelector(string url)
     {
         var html = await _factory.CreateClient().GetStringAsync(url);
 
-        foreach (var exercise in ExerciseCatalog.All)
+        foreach (var exercise in ExerciseCatalog.All.Where(e => e.Track == TrainingTracks.Music))
             html.Should().Contain($"href=\"/Exercise/{exercise.Name}\"");
-        html.Should().NotContain("id=\"trackTabs\"", "no other track has exercises yet")
-            .And.NotContain("id=\"trackEmpty\"");
+        html.Should().NotContain("href=\"/Exercise/LevelMatch\"", "Audio has its own catalog tab");
+        html.Should().Contain("id=\"trackTabs\"").And.NotContain("id=\"trackEmpty\"");
     }
 
     [Theory]
-    [InlineData("en-US", "The Audio track is coming soon", "Music")]
-    [InlineData("pt-BR", "A trilha Áudio está chegando", "Música")]
-    [InlineData("fr-CA", "Le parcours Audio arrive bientôt", "Musique")]
-    public async Task Audio_ShowsTheEmptyState_AndTheWayBackToMusic(string culture, string title, string music)
+    [InlineData("en-US", "Level Match", "Music")]
+    [InlineData("pt-BR", "Comparação de nível", "Música")]
+    [InlineData("fr-CA", "Comparaison de niveau", "Musique")]
+    public async Task Audio_ListsLevelMatch_AndTheWayBackToMusic(string culture, string levelMatch, string music)
     {
         var html = WebUtility.HtmlDecode(await _factory.CreateClient().GetStringAsync($"/Exercise?track=audio&culture={culture}"));
 
-        html.Should().Contain("id=\"trackEmpty\"").And.Contain(title)
+        html.Should().NotContain("id=\"trackEmpty\"").And.Contain(levelMatch)
+            .And.Contain("href=\"/Exercise/LevelMatch\"")
             .And.Contain("id=\"trackTabs\"").And.Contain(music).And.Contain("aria-current=\"page\"");
         html.Should().NotContain("href=\"/Exercise/GuessNote\"", "no Music exercise is listed under Audio");
         html.Should().NotContain("TrainingTrack.", "every text has a resource");

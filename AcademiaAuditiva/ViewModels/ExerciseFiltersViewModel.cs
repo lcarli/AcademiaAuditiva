@@ -11,6 +11,9 @@ namespace AcademiaAuditiva.ViewModels
         /// <summary>The exercise-specific filter selects declared in <c>Exercise.FiltersJson</c>.</summary>
         public IReadOnlyList<FilterOptionGroup> Groups { get; set; } = Array.Empty<FilterOptionGroup>();
 
+        /// <summary>Whether the exercise uses the musical instrument selector.</summary>
+        public bool UsesInstrument { get; set; } = true;
+
         /// <summary>
         /// Whether the exercise is about chords: it then only offers the instruments that play them.
         /// </summary>
