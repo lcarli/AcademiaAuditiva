@@ -1,6 +1,7 @@
 using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Services;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace AcademiaAuditiva.Services.ExerciseValidators
 {
@@ -165,6 +166,38 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
         public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
             => ValidatorHelpers.MatchSingleField(userGuess, expectedAnswerJson, "answer");
     }
+
+    public sealed class LevelMatchValidator : IExerciseValidator
+    {
+        public string ExerciseName => "LevelMatch";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var expected = JObject.Parse(expectedAnswerJson);
+            var louder = ((string?)expected["louder"] ?? "").ToUpperInvariant();
+            var differenceDb = (double?)expected["differenceDb"] ?? 0;
+            var requiresDifference = (bool?)expected["requiresDifference"] ?? false;
+            var parts = (userGuess ?? "").Split('|', StringSplitOptions.TrimEntries);
+            var sideMatches = parts.Length == (requiresDifference ? 2 : 1)
+                && string.Equals(parts[0], louder, StringComparison.OrdinalIgnoreCase);
+            var differenceMatches = !requiresDifference
+                || (parts.Length == 2
+                    && double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var guessedDb)
+                    && Math.Abs(guessedDb - differenceDb) < 0.001);
+            var canonical = requiresDifference
+                ? $"{louder}|{differenceDb.ToString("0.#", CultureInfo.InvariantCulture)}"
+                : louder;
+            return new ExerciseValidationResult(
+                sideMatches && differenceMatches,
+                canonical,
+                new LevelMatchValidationDetail(louder, differenceDb, requiresDifference));
+        }
+    }
+
+    public sealed record LevelMatchValidationDetail(
+        string Louder,
+        double DifferenceDb,
+        bool RequiresDifference);
 
     public sealed class GuessScaleTypeValidator : IExerciseValidator
     {

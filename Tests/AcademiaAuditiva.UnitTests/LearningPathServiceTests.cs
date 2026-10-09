@@ -32,13 +32,39 @@ public class LearningPathServiceTests
         using var db = SeededDatabase();
         var filters = db.Exercises.ToDictionary(e => e.Name, e => e.FiltersJson);
 
-        foreach (var step in LearningPathCatalog.Steps)
+        foreach (var step in LearningPathCatalog.ByTrack.Values.SelectMany(units => units).SelectMany(unit => unit.Steps))
         {
             step.Required.Should().BeInRange(1, step.Window, "{0} needs a reachable goal", step.Exercise);
             var groups = ExerciseFilterPresets.Groups(filters[step.Exercise]);
             ExerciseFilterPresets.Sanitize(step.Filters.Select(kv => new KeyValuePair<string, string?>(kv.Key, kv.Value)), groups)
                 .Should().BeEquivalentTo(step.Filters, "the {0} preset only uses its own filter options", step.Exercise);
         }
+    }
+
+    [Fact]
+    public async Task AudioPath_StartsWithBeginnerLevelMatch_IndependentlyOfMusic()
+    {
+        await using var db = SeededDatabase();
+        var answers = new Answers(db);
+        answers.Add("HigherOrLower", correct: true, count: 8);
+        answers.Add("LevelMatch", correct: true, count: 3);
+        await db.SaveChangesAsync();
+
+        var audio = await Service(db).GetProgressAsync(UserId, TrainingTracks.Audio);
+        var music = await Service(db).GetProgressAsync(UserId);
+
+        audio.Units.Should().ContainSingle().Which.Key.Should().Be("LevelFoundations");
+        audio.Current.Should().BeEquivalentTo(new
+        {
+            Exercise = "LevelMatch",
+            Correct = 3,
+            Answered = 3,
+            Required = 7,
+            Window = 10,
+        });
+        audio.Current!.Filters.Should().BeEquivalentTo(new Dictionary<string, string> { ["lmLevel"] = "beginner" });
+        music.CompletedSteps.Should().Be(1);
+        music.Current!.Exercise.Should().Be("GuessTuning");
     }
 
     [Fact]

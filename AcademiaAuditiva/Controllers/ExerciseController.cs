@@ -38,6 +38,7 @@ namespace AcademiaAuditiva.Controllers
 		private readonly IAudioTokenService _audioTokens;
 		private readonly IAudioMixerService _audioMixer;
 		private readonly AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner _playbackPlanner;
+		private readonly AcademiaAuditiva.Services.Audio.TechnicalListeningRoundGenerator _technicalListening;
 		private readonly IGamificationService _gamification;
 		private readonly ILearningPathService _learningPath;
 		private readonly RoutineRounds _routines;
@@ -61,6 +62,7 @@ namespace AcademiaAuditiva.Controllers
 			IAudioTokenService audioTokens,
 			IAudioMixerService audioMixer,
 			AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner playbackPlanner,
+			AcademiaAuditiva.Services.Audio.TechnicalListeningRoundGenerator technicalListening,
 			IGamificationService gamification,
 			ILearningPathService learningPath,
 			RoutineRounds routines,
@@ -78,6 +80,7 @@ namespace AcademiaAuditiva.Controllers
 			_audioTokens = audioTokens;
 			_audioMixer = audioMixer;
 			_playbackPlanner = playbackPlanner;
+			_technicalListening = technicalListening;
 			_gamification = gamification;
 			_learningPath = learningPath;
 			_routines = routines;
@@ -244,13 +247,16 @@ namespace AcademiaAuditiva.Controllers
 			// The round's answer is saved with the exercise filters it was played with.
 			var filterJson = ExerciseFilterPresets.ForAnswer(filters, exercise.FiltersJson);
 
-			var plan = _playbackPlanner.Plan(exercise, filters);
+			var technicalPlan = _technicalListening.Supports(exercise.Name)
+				? _technicalListening.Plan(exercise, filters)
+				: null;
+			var plan = technicalPlan is null ? _playbackPlanner.Plan(exercise, filters) : null;
 
 			// SolfegeMelody shows its melody as sheet music for the student
 			// to sing, so it gets no round: the expected answer is cached for
 			// ValidateExercise and the melody is returned in clear text for
 			// the staff renderer, with a token for its starting note.
-			if (plan.PlaybackPlans.Count == 0)
+			if (plan is { PlaybackPlans.Count: 0 })
 			{
 				// Sung exercises are never played as a game (GameModes.Playable).
 				if (gameStatus is not null)
@@ -281,23 +287,43 @@ namespace AcademiaAuditiva.Controllers
 			// Mix every plan into a single playable blob, then collect
 			// "container/blobName" strings so the token service stores
 			// only opaque references.
-			var mixedAddresses = new string[plan.PlaybackPlans.Count];
-			for (var i = 0; i < plan.PlaybackPlans.Count; i++)
+			string expectedAnswerJson;
+			IReadOnlyList<string>? clipKeys;
+			string[] mixedAddresses;
+			if (technicalPlan is not null)
 			{
-				var mixed = await _audioMixer.MixAsync(plan.PlaybackPlans[i], HttpContext.RequestAborted);
-				mixedAddresses[i] = $"{mixed.Container}/{mixed.BlobName}";
+				expectedAnswerJson = technicalPlan.ExpectedAnswerJson;
+				clipKeys = technicalPlan.Clips.Select(c => c.Key).ToArray();
+				mixedAddresses = new string[technicalPlan.Clips.Count];
+				for (var i = 0; i < technicalPlan.Clips.Count; i++)
+				{
+					var mixed = await _audioMixer.RenderAsync(technicalPlan.Clips[i].Plan, HttpContext.RequestAborted);
+					mixedAddresses[i] = $"{mixed.Container}/{mixed.BlobName}";
+				}
+				filterJson = MergeAnswerMetadata(filterJson, technicalPlan.AnswerMetadata);
+			}
+			else
+			{
+				expectedAnswerJson = plan!.ExpectedAnswerJson;
+				clipKeys = plan.ClipKeys;
+				mixedAddresses = new string[plan.PlaybackPlans.Count];
+				for (var i = 0; i < plan.PlaybackPlans.Count; i++)
+				{
+					var mixed = await _audioMixer.MixAsync(plan.PlaybackPlans[i], HttpContext.RequestAborted);
+					mixedAddresses[i] = $"{mixed.Container}/{mixed.BlobName}";
+				}
 			}
 
 			var round = await _audioTokens.CreateRoundAsync(
 				userId,
 				request.ExerciseId,
-				plan.ExpectedAnswerJson,
+				expectedAnswerJson,
 				mixedAddresses,
 				free: request.Free,
 				filterJson: filterJson,
 				routine: routineQuestion,
 				gameRunId: request.GameRunId,
-				clipKeys: plan.ClipKeys,
+				clipKeys: clipKeys,
 				cancellationToken: HttpContext.RequestAborted);
 			if (routineQuestion is { } roundQuestion)
 				await _routines.RememberQuestionAsync(userId, roundQuestion.Link, new PendingQuestion(RoundId: round.RoundId), HttpContext.RequestAborted);
@@ -418,6 +444,18 @@ namespace AcademiaAuditiva.Controllers
 				JObject obj => obj.Properties().ToDictionary(p => p.Name, p => ToPlainJsonValue(p.Value)),
 				_ => token.ToString()
 			};
+
+		private static string MergeAnswerMetadata(
+			string? filterJson,
+			IReadOnlyDictionary<string, string> metadata)
+		{
+			var filters = string.IsNullOrWhiteSpace(filterJson) ? new JObject() : JObject.Parse(filterJson);
+			foreach (var (key, value) in metadata)
+			{
+				filters[key] = value;
+			}
+			return filters.ToString(Formatting.None);
+		}
 
 
 		[HttpPost]
@@ -692,12 +730,13 @@ namespace AcademiaAuditiva.Controllers
 
 			// Learning path progress is a bonus too, and independent of the rewards.
 			object? path = null;
-			if (LearningPathCatalog.Steps.Any(s => s.Exercise == exercise.Name))
+			var pathTrack = ExerciseCatalog.TrackOf(exercise.Name);
+			if (pathTrack is not null && LearningPathCatalog.StepsFor(pathTrack).Any(s => s.Exercise == exercise.Name))
 			{
 				try
 				{
-					var progress = await _learningPath.GetProgressAsync(userId, HttpContext.RequestAborted);
-					path = BuildPathFeedback(progress, exercise.Name);
+					var progress = await _learningPath.GetProgressAsync(userId, pathTrack, HttpContext.RequestAborted);
+					path = BuildPathFeedback(progress, exercise.Name, pathTrack);
 				}
 				catch (Exception ex) when (ex is not OperationCanceledException)
 				{
@@ -832,9 +871,12 @@ namespace AcademiaAuditiva.Controllers
 
 		// Shape read by wwwroot/js/core/rewards.js. Null unless the answered exercise is
 		// the player's current step or the answer just completed its step.
-		private object? BuildPathFeedback(LearningPathProgress progress, string exerciseName)
+		private object? BuildPathFeedback(
+			LearningPathProgress progress,
+			string exerciseName,
+			string track)
 		{
-			var label = _localizer["LearningPath.Title"].Value;
+			var label = _localizer[track == TrainingTracks.Music ? "LearningPath.Title" : $"LearningPath.{track}.Title"].Value;
 			var done = progress.JustCompleted;
 			if (done is not null && done.Exercise == exerciseName)
 			{
@@ -857,7 +899,9 @@ namespace AcademiaAuditiva.Controllers
 						text = _localizer["LearningPath.StepCompleteText", done.Number, _localizer.StepTitle(done)].Value,
 						nextText = next is null ? null : _localizer["LearningPath.NextStep", _localizer.StepTitle(next)].Value,
 						actionText = next is null ? _localizer["LearningPath.ViewPath"].Value : _localizer["LearningPath.GoToNext"].Value,
-						actionUrl = next is null ? Url.Action("Index", "LearningPath") : Url.StepUrl(next),
+						actionUrl = next is null
+							? Url.Action("Index", "LearningPath", new { track = track == TrainingTracks.Music ? null : track.ToLowerInvariant() })
+							: Url.StepUrl(next),
 						closeText = _localizer["Gamification.Continue"].Value
 					}
 				};
@@ -1041,6 +1085,17 @@ namespace AcademiaAuditiva.Controllers
 			var model = exercise.ToViewModel(_localizer);
 
 			return View(model);
+		}
+		#endregion
+
+		#region LevelMatch
+		public IActionResult LevelMatch()
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == "LevelMatch");
+			if (exercise == null)
+				return NotFound();
+
+			return View(exercise.ToViewModel(_localizer));
 		}
 		#endregion
 

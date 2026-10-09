@@ -259,6 +259,7 @@ builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.Exer
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessQualityValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.HigherOrLowerValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessTuningValidator>();
+builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.LevelMatchValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessScaleTypeValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessGreekModeValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessCadenceValidator>();
@@ -427,6 +428,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 // Maps GenerateNoteForExercise output to a tokenizable mixer plan.
 // Stateless — singleton is fine.
 builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.ExercisePlaybackPlanner>();
+builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.IAudioExerciseRandom,
+    AcademiaAuditiva.Services.Audio.CryptoAudioExerciseRandom>();
+builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.TechnicalListeningRoundGenerator>();
 
 // Turns Explore page choices into spelled notes and mixer plans. Pure — singleton.
 builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.ExploreSoundBuilder>();

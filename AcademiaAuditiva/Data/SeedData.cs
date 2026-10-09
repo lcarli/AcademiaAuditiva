@@ -7,36 +7,28 @@ public static class SeedData
 {
     public static void SeedExercises(ApplicationDbContext context)
     {
-        // Seed para ExerciseType
-        if (!context.ExerciseTypes.Any())
-        {
-            context.ExerciseTypes.AddRange(
-                new ExerciseType { Name = "NoteRecognition", DisplayName = "Reconhecimento de Notas" },
-                new ExerciseType { Name = "ChordRecognition", DisplayName = "Reconhecimento de Acordes" },
-                new ExerciseType { Name = "IntervalRecognition", DisplayName = "Reconhecimento de Intervalos" },
-                new ExerciseType { Name = "FunctionRecognition", DisplayName = "Reconhecimento de Funções Harmônicas" },
-                new ExerciseType { Name = "MelodyReproduction", DisplayName = "Reprodução de Melodias" },
-                new ExerciseType { Name = "RhythmPatterns", DisplayName = "Padrões Rítmos" },
-                new ExerciseType { Name = "HarmonicField", DisplayName = "Campo Harmônico" },
-                new ExerciseType { Name = "ScaleRecognition", DisplayName = "Reconhecimento de Escalas" }
-            );
-        }
+        // Add missing lookup rows by stable name. Production databases are
+        // already non-empty, so an "only when empty" seed would never receive
+        // new Audio categories or exercise types.
+        var exerciseTypes = ExerciseTypes();
+        var seededTypes = context.ExerciseTypes.Select(t => t.Name).AsEnumerable()
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        context.ExerciseTypes.AddRange(exerciseTypes.Where(t => !seededTypes.Contains(t.Name)));
 
-        // Seed para ExerciseCategory
-        if (!context.ExerciseCategories.Any())
-        {
-            context.ExerciseCategories.AddRange(ExerciseCategories());
-        }
+        var exerciseCategories = ExerciseCategories();
+        var seededCategories = context.ExerciseCategories.Select(c => c.Name).AsEnumerable()
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        context.ExerciseCategories.AddRange(exerciseCategories.Where(c => !seededCategories.Contains(c.Name)));
 
-        // Seed para DifficultyLevel
-        if (!context.DifficultyLevels.Any())
-        {
-            context.DifficultyLevels.AddRange(
-                new DifficultyLevel { Name = "Beginner", DisplayName = "Iniciante" },
-                new DifficultyLevel { Name = "Intermediate", DisplayName = "Intermediário" },
-                new DifficultyLevel { Name = "Advanced", DisplayName = "Avançado" }
-            );
-        }
+        var difficultyLevels = DifficultyLevels();
+        var seededDifficulties = context.DifficultyLevels.Select(d => d.Name).AsEnumerable()
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        context.DifficultyLevels.AddRange(difficultyLevels.Where(d => !seededDifficulties.Contains(d.Name)));
+        context.SaveChanges();
+
+        var typeIds = context.ExerciseTypes.ToDictionary(t => t.Name, t => t.Id, StringComparer.OrdinalIgnoreCase);
+        var categoryIds = context.ExerciseCategories.ToDictionary(c => c.Name, c => c.Id, StringComparer.OrdinalIgnoreCase);
+        var difficultyIds = context.DifficultyLevels.ToDictionary(d => d.Name, d => d.Id, StringComparer.OrdinalIgnoreCase);
 
         // Badges: add the keys that are missing; existing rows keep their texts.
         // Players see the localized texts from the resource files (BadgeCatalog).
@@ -45,6 +37,9 @@ public static class SeedData
 
         foreach (var ex in Exercises())
         {
+            ex.ExerciseTypeId = typeIds[exerciseTypes[ex.ExerciseTypeId - 1].Name];
+            ex.ExerciseCategoryId = categoryIds[exerciseCategories[ex.ExerciseCategoryId - 1].Name];
+            ex.DifficultyLevelId = difficultyIds[difficultyLevels[ex.DifficultyLevelId - 1].Name];
             var existing = context.Exercises.FirstOrDefault(e => e.Name == ex.Name);
             if (existing == null)
             {
@@ -81,7 +76,33 @@ public static class SeedData
         new ExerciseCategory { Name = "EarTraining", DisplayName = "Treinamento Auditivo" },
         new ExerciseCategory { Name = "Scales", DisplayName = "Escalas" },
         new ExerciseCategory { Name = "Games", DisplayName = "Jogos" },
-        new ExerciseCategory { Name = "Misc", DisplayName = "Diversos" }
+        new ExerciseCategory { Name = "Misc", DisplayName = "Diversos" },
+        new ExerciseCategory { Name = "Level", DisplayName = "Nível" },
+        new ExerciseCategory { Name = "FrequencyEq", DisplayName = "Frequência e equalização" },
+        new ExerciseCategory { Name = "Dynamics", DisplayName = "Dinâmica" },
+        new ExerciseCategory { Name = "StereoPhase", DisplayName = "Estéreo e fase" },
+        new ExerciseCategory { Name = "SpaceTime", DisplayName = "Espaço e tempo" },
+        new ExerciseCategory { Name = "CriticalListening", DisplayName = "Escuta crítica" }
+    ];
+
+    public static List<ExerciseType> ExerciseTypes() =>
+    [
+        new ExerciseType { Name = "NoteRecognition", DisplayName = "Reconhecimento de Notas" },
+        new ExerciseType { Name = "ChordRecognition", DisplayName = "Reconhecimento de Acordes" },
+        new ExerciseType { Name = "IntervalRecognition", DisplayName = "Reconhecimento de Intervalos" },
+        new ExerciseType { Name = "FunctionRecognition", DisplayName = "Reconhecimento de Funções Harmônicas" },
+        new ExerciseType { Name = "MelodyReproduction", DisplayName = "Reprodução de Melodias" },
+        new ExerciseType { Name = "RhythmPatterns", DisplayName = "Padrões Rítmicos" },
+        new ExerciseType { Name = "HarmonicField", DisplayName = "Campo Harmônico" },
+        new ExerciseType { Name = "ScaleRecognition", DisplayName = "Reconhecimento de Escalas" },
+        new ExerciseType { Name = "AudioComparison", DisplayName = "Comparação de áudio" }
+    ];
+
+    public static List<DifficultyLevel> DifficultyLevels() =>
+    [
+        new DifficultyLevel { Name = "Beginner", DisplayName = "Iniciante" },
+        new DifficultyLevel { Name = "Intermediate", DisplayName = "Intermediário" },
+        new DifficultyLevel { Name = "Advanced", DisplayName = "Avançado" }
     ];
 
     /// <summary>
@@ -1578,6 +1599,35 @@ public static class SeedData
                     "Play",
                     "Replay"
                 }),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
+                Name = "LevelMatch",
+                Description = "Compare dois sinais e identifique qual está mais alto e, nos níveis seguintes, por quantos decibéis.",
+                ExerciseTypeId = 9,
+                ExerciseCategoryId = 8,
+                DifficultyLevelId = 1,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "lmLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("beginner", "Exercise.LevelMatch.Level.Beginner"),
+                            new("intermediate", "Exercise.LevelMatch.Level.Intermediate"),
+                            new("advanced", "Exercise.LevelMatch.Level.Advanced")
+                        }
+                    }
+                }),
+                Instructions = "Gere uma comparação, alterne entre A e B e escolha qual sinal está mais alto. Nos níveis intermediário e avançado, estime também a diferença em decibéis.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Alterne rapidamente entre A e B para comparar o mesmo trecho.",
+                    "Concentre-se no volume percebido, não no timbre da fonte.",
+                    "Nos níveis menores, use a diferença anterior como referência mental."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>()),
                 AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
             }
         };

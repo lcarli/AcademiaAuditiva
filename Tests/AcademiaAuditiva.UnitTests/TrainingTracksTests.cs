@@ -9,8 +9,7 @@ using AcademiaAuditiva.Services.LearningPath;
 namespace AcademiaAuditiva.UnitTests;
 
 /// <summary>
-/// Every exercise belongs to one training track through its category; the current ones, and the
-/// learning path, are Music.
+/// Every exercise belongs to one training track through its category.
 /// </summary>
 public class TrainingTracksTests
 {
@@ -30,19 +29,25 @@ public class TrainingTracksTests
     }
 
     [Fact]
-    public void EveryCurrentExercise_IsMusic()
+    public void ExercisesAndLearningPaths_BelongToTheirTracks()
     {
-        ExerciseCatalog.All.Should().OnlyContain(e => e.Track == TrainingTracks.Music);
+        ExerciseCatalog.All.Single(e => e.Name == "LevelMatch").Track.Should().Be(TrainingTracks.Audio);
+        ExerciseCatalog.All.Where(e => e.Name != "LevelMatch").Should().OnlyContain(e => e.Track == TrainingTracks.Music);
         LearningPathCatalog.Steps.Should().OnlyContain(s => ExerciseCatalog.TrackOf(s.Exercise) == TrainingTracks.Music,
-            "the learning path is the Music path");
+            "the legacy path is the Music path");
+        LearningPathCatalog.StepsFor(TrainingTracks.Audio).Should().ContainSingle()
+            .Which.Exercise.Should().Be("LevelMatch");
     }
 
     [Fact]
     public void ByTrack_ListsEveryTrack_WithItsCategoriesThatHaveExercises()
     {
         ExerciseCatalog.ByTrack.Select(t => t.Key).Should().Equal(TrainingTracks.All.Select(t => t.Key));
-        ExerciseCatalog.ByTrack[0].Categories.Should().Equal(ExerciseCatalog.ByCategory);
-        ExerciseCatalog.ByTrack.Skip(1).Should().OnlyContain(t => t.Categories.Count == 0, "no Audio or Mix exercise exists yet");
+        ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Music).Exercises
+            .Should().NotContain(e => e.Name == "LevelMatch");
+        ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Audio).Categories
+            .Should().ContainSingle().Which.Name.Should().Be("Level");
+        ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Mix).Categories.Should().BeEmpty();
     }
 
     [Theory]

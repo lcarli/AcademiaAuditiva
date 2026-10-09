@@ -9,8 +9,9 @@
 
     var features = new[] { 1, 2, 3 };
     var steps = new[] { 1, 2, 3 };
-    // Counted once from the seeded exercises (ExerciseCatalog), not from the database.
-    var exerciseCount = ExerciseCatalog.Count;
+    // The main landing page is the Music landing page. Other tracks have their own catalog tabs.
+    var music = ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Music);
+    var exerciseCount = music.Exercises.Count();
     var roles = new[]
     {
         (Id: "student", Tab: "Home.Roles.TabStudent", Prefix: "Home.Roles.Student", Note: (string?)null),
@@ -89,7 +90,7 @@
         <h2 id="aa-ex-title" class="aa-section-title">@Localizer["Home.Exercises.Title", exerciseCount]</h2>
         <p>@Localizer["Home.Exercises.Lead"]</p>
     </div>
-    @foreach (var category in ExerciseCatalog.ByCategory)
+    @foreach (var category in music.Categories)
     {
         <div class="aa-ex-group">
             <h3 class="aa-ex-group-title" id="aa-ex-@category.Name">@Localizer[$"ExerciseCategory.{category.Name}"]</h3>

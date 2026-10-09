@@ -246,6 +246,75 @@ test('one real-audio GuessNote round returns playable audio and validates', asyn
   expect(result.success).toBe(true);
 });
 
+test('Level Match keeps A/B opaque and requires the profile-specific answer', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/LevelMatch?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+
+  const difference = page.locator('[data-aa-lm-difference]');
+  const dialog = page.locator('.swal2-popup');
+  await expect(page.locator('#aa-question')).toHaveText('Which signal is louder?');
+  await expect(difference).toBeHidden();
+
+  const playResponse = page.waitForResponse(response =>
+    response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
+  const audioResponse = page.waitForResponse(response =>
+    response.url().includes('/audio/token/') && response.status() === 200);
+  await page.click('#Play');
+  const play = await playResponse;
+  expect(JSON.parse(play.request().postData() ?? '{}').filters).toEqual({ lmLevel: 'beginner' });
+  const round = await play.json();
+  expect(Object.keys(round)).toEqual(['roundId', 'clips']);
+  expect(round.roundId).toMatch(/^[0-9a-f]{32}$/);
+  expect(round.clips).toEqual([
+    { key: 'A', token: expect.stringMatching(/^[0-9a-f]{32}$/) },
+    { key: 'B', token: expect.stringMatching(/^[0-9a-f]{32}$/) }
+  ]);
+  expect(JSON.stringify(round)).not.toMatch(/louder|difference|source|gain|\.wav/i);
+  expect((await (await audioResponse).body()).length).toBeGreaterThan(1000);
+  await expect(page.locator('[data-aa-ab-play="A"]')).toBeEnabled();
+  await expect(page.locator('[data-aa-ab-play="B"]')).toBeEnabled();
+
+  await page.locator('.guessAnswer[value="A"]').click();
+  const validateResponse = page.waitForResponse(response =>
+    response.url().includes('/Exercise/ValidateExercise') && response.status() === 200);
+  await page.click('#validateGuess');
+  const result = await (await validateResponse).json();
+  expect(result).toMatchObject({
+    success: true,
+    detail: { requiresDifference: false }
+  });
+  expect(['A', 'B']).toContain(result.detail.louder);
+  expect([6, 9, 12]).toContain(result.detail.differenceDb);
+  const other = result.detail.louder === 'A' ? 'B' : 'A';
+  await expect(dialog.locator('.swal2-html-container'))
+    .toHaveText(`${result.detail.louder} was ${result.detail.differenceDb} dB louder than ${other}.`);
+  await page.click('.swal2-confirm');
+
+  const filters = page.locator('#filtersModal');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await filters.locator('select[name="lmLevel"]').selectOption('intermediate');
+  await filters.locator('.btn-close').click();
+  await expect(difference).toBeVisible();
+
+  const intermediatePlay = page.waitForResponse(response =>
+    response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
+  await page.click('#Play');
+  expect(JSON.parse((await intermediatePlay).request().postData() ?? '{}').filters)
+    .toEqual({ lmLevel: 'intermediate' });
+  await page.locator('.guessAnswer[value="A"]').click();
+  await page.click('#validateGuess');
+  await expect(dialog.locator('.swal2-title')).toHaveText('Incomplete answer');
+  await expect(dialog.locator('.swal2-html-container')).toContainText('difference in dB');
+  await page.click('.swal2-confirm');
+
+  await difference.locator('.differenceAnswer:visible').first().click();
+  const intermediateValidation = page.waitForResponse(response =>
+    response.url().includes('/Exercise/ValidateExercise') && response.status() === 200);
+  await page.click('#validateGuess');
+  expect((await (await intermediateValidation).json()).detail.requiresDifference).toBe(true);
+});
+
 test('the chosen instrument plays the round and is remembered', async ({ page, baseURL, context }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessNote`, { waitUntil: 'networkidle' });

@@ -3,6 +3,7 @@ using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Audio;
+using AcademiaAuditiva.Services.Audio.Sources;
 using AcademiaAuditiva.Services.ExerciseValidators;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
@@ -17,6 +18,8 @@ namespace AcademiaAuditiva.UnitTests;
 public class FreePracticeAnswerTests
 {
     private static readonly IMusicTheoryService Theory = new MusicTheoryServiceAdapter();
+    private static readonly TechnicalListeningRoundGenerator TechnicalListening =
+        new(new AudioSourceLibrary(TempAudioSources.BundledRoot), new FirstAudioRandom());
 
     private static readonly ExerciseValidatorRegistry Registry = new(
         typeof(IExerciseValidator).Assembly.GetTypes()
@@ -56,7 +59,9 @@ public class FreePracticeAnswerTests
         {
             // The filters RequestPlay always adds.
             var filters = new Dictionary<string, string> { ["instrument"] = "Piano", ["noteRange"] = "C4-C4" };
-            var json = planner.Plan(exercise, filters).ExpectedAnswerJson;
+            var json = TechnicalListening.Supports(exerciseName)
+                ? TechnicalListening.Plan(exercise, filters).ExpectedAnswerJson
+                : planner.Plan(exercise, filters).ExpectedAnswerJson;
 
             var answer = validator!.AnswerOf(json);
             // RhythmTap shows the rhythm played, and the student taps it: a tap on each note plays it.
@@ -70,6 +75,11 @@ public class FreePracticeAnswerTests
 
     private static string TapsOnTheNotes(string json) =>
         string.Join(",", RhythmTaps.Onsets(JObject.Parse(json)).Select(onset => (int)Math.Round(onset)));
+
+    private sealed class FirstAudioRandom : IAudioExerciseRandom
+    {
+        public int Next(int exclusiveMaximum) => 0;
+    }
 
     [Fact]
     public void TheAnswerShown_IsTheAnswerReported_ForAnEmptyGuess()

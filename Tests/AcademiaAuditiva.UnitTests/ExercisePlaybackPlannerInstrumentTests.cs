@@ -40,13 +40,10 @@ public class ExercisePlaybackPlannerInstrumentTests
     };
 
     private static List<string> SeededExerciseNames()
-    {
-        using var db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase($"instruments-{Guid.NewGuid():N}")
-            .Options);
-        SeedData.SeedExercises(db);
-        return [.. db.Exercises.Select(e => e.Name).OrderBy(n => n)];
-    }
+        => [.. ExerciseCatalog.All
+            .Where(e => e.Track == TrainingTracks.Music)
+            .Select(e => e.Name)
+            .OrderBy(n => n)];
 
     public static TheoryData<string> SeededExercises
     {
