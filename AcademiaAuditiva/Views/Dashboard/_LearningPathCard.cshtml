@@ -3,6 +3,7 @@
 @inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
 @{
     var current = Model.Current;
+    var track = (string)ViewBag.Track;
 }
 
 <section class="aa-card aa-path-card p-4 mb-4" data-tour="path" aria-labelledby="aa-path-card-title">
@@ -11,7 +12,7 @@
             <div class="d-flex align-items-start gap-3">
                 <span class="aa-icon-pill" aria-hidden="true"><i class="bi @(current is null ? "bi-trophy" : "bi-signpost-split")"></i></span>
                 <div class="flex-grow-1">
-                    <h2 id="aa-path-card-title" class="h6 text-uppercase small text-secondary mb-1">@Localizer["LearningPath.Title"]</h2>
+                    <h2 id="aa-path-card-title" class="h6 text-uppercase small text-secondary mb-1">@Localizer[track == AcademiaAuditiva.Services.TrainingTracks.Music ? "LearningPath.Title" : $"LearningPath.{track}.Title"]</h2>
                     @if (current is null)
                     {
                         <p class="h4 fw-bold mb-1 text-body-emphasis">@Localizer["LearningPath.Done"]</p>
@@ -46,7 +47,7 @@
                         <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer[Model.HasStarted ? "LearningPath.Continue" : "LearningPath.Start"]
                     </a>
                 }
-                <a class="btn btn-outline-secondary" asp-area="" asp-controller="LearningPath" asp-action="Index">@Localizer["LearningPath.ViewPath"]</a>
+                <a class="btn btn-outline-secondary" asp-area="" asp-controller="LearningPath" asp-action="Index" asp-route-track="@(track == AcademiaAuditiva.Services.TrainingTracks.Music ? null : track.ToLowerInvariant())">@Localizer["LearningPath.ViewPath"]</a>
             </div>
         </div>
     </div>

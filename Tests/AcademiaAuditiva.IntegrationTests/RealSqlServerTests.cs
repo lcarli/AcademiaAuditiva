@@ -138,6 +138,58 @@ public sealed class RealSqlServerTests
     }
 
     [RealSqlFact]
+    public async Task AudioPersonalData_ExportsTrustedFiltersAndTrack_ThenDeletesOnlyTheOwnersPractice()
+    {
+        using (var scope = _fixture.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await db.Database.MigrateAsync();
+            SeedData.SeedExercises(db);
+        }
+        var owner = await CreateUserAsync("audio-owner");
+        var other = await CreateUserAsync("audio-other");
+        const string metadata = """{"gfLevel":"advanced","gfFrequencyHz":"1000","gfSourceKind":"keys"}""";
+        using (var scope = _fixture.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var ids = await db.Exercises.ToDictionaryAsync(e => e.Name, e => e.ExerciseId);
+            foreach (var name in new[] { "GuessNote", "LevelMatch", "StereoPosition", "GuessFrequency" })
+            {
+                db.ScoreSnapshots.Add(new ScoreSnapshot
+                {
+                    UserId = owner.Id, ExerciseId = ids[name], IsCorrect = true,
+                    FilterJson = name == "GuessFrequency" ? metadata : null,
+                });
+                db.ScoreAggregates.Add(new ScoreAggregate { UserId = owner.Id, ExerciseId = ids[name], CorrectCount = 1 });
+            }
+            db.ScoreSnapshots.Add(new ScoreSnapshot { UserId = other.Id, ExerciseId = ids["GuessFrequency"], FilterJson = metadata });
+            db.ScoreAggregates.Add(new ScoreAggregate { UserId = other.Id, ExerciseId = ids["GuessFrequency"], ErrorCount = 1 });
+            await db.SaveChangesAsync();
+        }
+        using (var export = JsonDocument.Parse(await ExportAsync(owner.Id)))
+        {
+            var answers = export.RootElement.GetProperty("practice").GetProperty("answers").EnumerateArray().ToArray();
+            answers.Should().HaveCount(4);
+            answers.Single(a => a.GetProperty("exercise").GetString() == "GuessFrequency")
+                .GetProperty("filterJson").GetString().Should().Be(metadata);
+            foreach (var answer in answers)
+                answer.GetProperty("track").GetString().Should().Be(
+                    answer.GetProperty("exercise").GetString() == "GuessNote" ? "Music" : "Audio");
+        }
+        using (var scope = _fixture.Services.CreateScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<PersonalDataService>();
+            var user = await scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>().FindByIdAsync(owner.Id);
+            (await service.DeleteAccountAsync(user!)).Succeeded.Should().BeTrue();
+        }
+        await using var check = _fixture.CreateContext();
+        (await check.ScoreSnapshots.AnyAsync(s => s.UserId == owner.Id)).Should().BeFalse();
+        (await check.ScoreAggregates.AnyAsync(s => s.UserId == owner.Id)).Should().BeFalse();
+        (await check.ScoreSnapshots.CountAsync(s => s.UserId == other.Id)).Should().Be(1);
+        (await check.ScoreAggregates.CountAsync(s => s.UserId == other.Id)).Should().Be(1);
+    }
+
+    [RealSqlFact]
     public async Task PersonalDataDeletion_IsAllOrNothing_WhenTheCommitFails()
     {
         using (var scope = _fixture.Services.CreateScope())

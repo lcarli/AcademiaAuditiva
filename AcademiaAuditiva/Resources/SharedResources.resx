@@ -5026,4 +5026,82 @@
   <data name="Exercise.StereoPosition.Level.Advanced" xml:space="preserve">
     <value>Advanced · 7 positions</value>
   </data>
+  <data name="GuessFrequency" xml:space="preserve">
+    <value>Guess Frequency</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Subtitle" xml:space="preserve">
+    <value>Compare a reference and an equalized version and identify the boosted center frequency.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Instructions" xml:space="preserve">
+    <value>Generate a comparison, switch between A and B, and choose the boosted center frequency. Both clips have matched loudness: compare their tone, not their volume.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Tip1" xml:space="preserve">
+    <value>Switch between A and B at the same point and listen for the region that stands out.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Tip2" xml:space="preserve">
+    <value>Low frequencies add weight, mids add body and presence, and highs add brightness.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Tip3" xml:space="preserve">
+    <value>Filter gain and width stay fixed within each level; only the center frequency changes.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Question" xml:space="preserve">
+    <value>Which center frequency was boosted?</value>
+  </data>
+  <data name="Exercise.GuessFrequency.New" xml:space="preserve">
+    <value>New comparison</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Frequency" xml:space="preserve">
+    <value>{0} Hz</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Incomplete" xml:space="preserve">
+    <value>Generate a comparison and choose a frequency before checking.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Feedback" xml:space="preserve">
+    <value>Clip {0} was boosted at {1} Hz ({2}). {3}</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Region.bass" xml:space="preserve">
+    <value>bass: weight and warmth</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Region.lowMids" xml:space="preserve">
+    <value>low mids: body and boxiness</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Region.mids" xml:space="preserve">
+    <value>mids: definition and forwardness</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Region.presence" xml:space="preserve">
+    <value>presence: attack and bite</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Region.air" xml:space="preserve">
+    <value>highs: brightness and air</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Cue.noise" xml:space="preserve">
+    <value>Listen to how the noise’s color changes; the emphasized region is the clue, not a louder overall signal.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Cue.mix" xml:space="preserve">
+    <value>Listen for which part of the mix becomes more prominent: low-end weight, instrument body, attack or brightness.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Cue.keys" xml:space="preserve">
+    <value>Listen for a change in the chords’ body and upper harmonics, rather than how loudly they play.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Level.Beginner" xml:space="preserve">
+    <value>Beginner · 5 broad frequency regions</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Level.Intermediate" xml:space="preserve">
+    <value>Intermediate · 7 octave-spaced bands</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Level.Advanced" xml:space="preserve">
+    <value>Advanced · 7 adjacent third-octave bands</value>
+  </data>
+  <data name="LearningPath.Unit.FrequencyFoundations.Title" xml:space="preserve">
+    <value>Frequency foundations</value>
+  </data>
+  <data name="LearningPath.Unit.FrequencyFoundations.Description" xml:space="preserve">
+    <value>Learn to identify EQ boosts by their spectral region rather than overall loudness.</value>
+  </data>
+  <data name="Dashboard.TrackHint" xml:space="preserve">
+    <value>Stats, learning paths and daily challenges are separate for each track. XP, streaks and badges are shared; games and placement remain Music-only.</value>
+  </data>
+  <data name="DailyChallenge.Audio.Title" xml:space="preserve">
+    <value>Audio daily challenge</value>
+  </data>
 </root>

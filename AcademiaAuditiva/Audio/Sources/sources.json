@@ -168,6 +168,42 @@
         "loudnessLufs": -23,
         "sha256": "b67cd64033800c11865e00b6d90fb95e446f91596c6100a9fc89529f60deac96"
       }
+    },
+    {
+      "key": "eq-reference-mix",
+      "description": "A stereo mix of drums, bass and chords over a pink-noise bed for broadband EQ practice.",
+      "kind": "mix",
+      "tags": [
+        "full-mix",
+        "broadband",
+        "drums",
+        "bass",
+        "chords",
+        "synth",
+        "noise"
+      ],
+      "uses": [
+        "eq"
+      ],
+      "difficulties": [
+        1,
+        2,
+        3
+      ],
+      "origin": "generated",
+      "license": {
+        "name": "MIT",
+        "author": "AcademiaAuditiva contributors",
+        "url": "https://opensource.org/license/mit"
+      },
+      "audio": {
+        "sampleRate": 44100,
+        "channels": 2,
+        "frames": 352800,
+        "peakDbfs": -10.59,
+        "loudnessLufs": -23,
+        "sha256": "26594d8e051286f6612182d00a02e63bc7a9dbe7a73423020d389ee537473e70"
+      }
     }
   ]
 }

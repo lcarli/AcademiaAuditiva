@@ -136,7 +136,9 @@ public class AnswerTimeTests : IClassFixture<AnswerTimeTests.Factory>
     {
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var exercise = new Exercise { Name = name, Description = name };
+        var category = db.ExerciseCategories.SingleOrDefault(c => c.Name == "EarTraining")
+            ?? new ExerciseCategory { Name = "EarTraining", DisplayName = "Ear Training" };
+        var exercise = new Exercise { Name = name, Description = name, ExerciseCategory = category };
         db.Exercises.Add(exercise);
         db.SaveChanges();
         return exercise.ExerciseId;

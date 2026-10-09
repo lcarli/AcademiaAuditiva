@@ -5026,4 +5026,82 @@
   <data name="Exercise.StereoPosition.Level.Advanced" xml:space="preserve">
     <value>Avancé · 7 positions</value>
   </data>
+  <data name="GuessFrequency" xml:space="preserve">
+    <value>Identification de fréquence</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Subtitle" xml:space="preserve">
+    <value>Comparez une référence et une version égalisée pour identifier la fréquence centrale accentuée.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Instructions" xml:space="preserve">
+    <value>Générez une comparaison, alternez entre A et B et choisissez la fréquence centrale accentuée. Les deux signaux ont une sonie équivalente : comparez leur timbre, pas leur volume.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Tip1" xml:space="preserve">
+    <value>Alternez entre A et B au même endroit et écoutez quelle région ressort.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Tip2" xml:space="preserve">
+    <value>Les graves donnent du poids, les médiums du corps et de la présence, et les aigus de la brillance.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Tip3" xml:space="preserve">
+    <value>Le gain et la largeur du filtre restent fixes à chaque niveau ; seule la fréquence change.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Question" xml:space="preserve">
+    <value>Quelle fréquence centrale a été accentuée ?</value>
+  </data>
+  <data name="Exercise.GuessFrequency.New" xml:space="preserve">
+    <value>Nouvelle comparaison</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Frequency" xml:space="preserve">
+    <value>{0} Hz</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Incomplete" xml:space="preserve">
+    <value>Générez une comparaison et choisissez une fréquence avant de valider.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Feedback" xml:space="preserve">
+    <value>Le signal {0} a été accentué à {1} Hz ({2}). {3}</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Region.bass" xml:space="preserve">
+    <value>graves : poids et chaleur</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Region.lowMids" xml:space="preserve">
+    <value>bas médiums : corps et son encaissé</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Region.mids" xml:space="preserve">
+    <value>médiums : définition et mise en avant</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Region.presence" xml:space="preserve">
+    <value>présence : attaque et mordant</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Region.air" xml:space="preserve">
+    <value>aigus : brillance et air</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Cue.noise" xml:space="preserve">
+    <value>Écoutez le changement de couleur du bruit ; la région accentuée est l’indice, pas un signal globalement plus fort.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Cue.mix" xml:space="preserve">
+    <value>Écoutez quelle partie du mix ressort : poids des graves, corps des instruments, attaque ou brillance.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Cue.keys" xml:space="preserve">
+    <value>Écoutez le changement de corps et d’harmoniques supérieures des accords, plutôt que leur volume.</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Level.Beginner" xml:space="preserve">
+    <value>Débutant · 5 régions de fréquence</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Level.Intermediate" xml:space="preserve">
+    <value>Intermédiaire · 7 bandes espacées d’une octave</value>
+  </data>
+  <data name="Exercise.GuessFrequency.Level.Advanced" xml:space="preserve">
+    <value>Avancé · 7 bandes adjacentes de tiers d’octave</value>
+  </data>
+  <data name="LearningPath.Unit.FrequencyFoundations.Title" xml:space="preserve">
+    <value>Fondements de fréquence</value>
+  </data>
+  <data name="LearningPath.Unit.FrequencyFoundations.Description" xml:space="preserve">
+    <value>Apprenez à reconnaître les accentuations d’égalisation par leur région spectrale plutôt que leur volume global.</value>
+  </data>
+  <data name="Dashboard.TrackHint" xml:space="preserve">
+    <value>Statistiques, parcours guidés et défis quotidiens sont séparés par parcours. XP, séries de pratique et médailles sont partagés ; jeux et classement restent réservés à la musique.</value>
+  </data>
+  <data name="DailyChallenge.Audio.Title" xml:space="preserve">
+    <value>Défi quotidien audio</value>
+  </data>
 </root>

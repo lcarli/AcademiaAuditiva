@@ -5,14 +5,14 @@
 [![Azure Container Apps](https://img.shields.io/badge/Azure-Container%20Apps-0078d4)](https://learn.microsoft.com/azure/container-apps)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Academia Auditiva** is a web-based ear-training platform for musicians and
-music students: interactive exercises, a guided learning path, gamified
+**Academia Auditiva** is a web-based ear-training platform for musicians,
+music students and audio engineers: interactive exercises, guided learning paths, gamified
 progress and classrooms for teachers, in three languages (en-US / pt-BR /
 fr-CA). It runs at <https://academiaauditiva.com>.
 
 ## ✨ Features
 
-- 🎧 **30 exercises**: notes, higher or lower, whether a note is in tune,
+- 🎧 **30 Music exercises**: notes, higher or lower, whether a note is in tune,
   melodic and harmonic
   intervals, scale degrees,
   chords and their quality, inversions, top notes, harmonic functions,
@@ -22,22 +22,28 @@ fr-CA). It runs at <https://academiaauditiva.com>.
   exercises (complete a scale or a chord, transpose a scale), sight-singing
   and singing back a note, an interval or a melody, which the browser checks
   through the microphone. Filters choose the key, scale, octave, level and more.
-- 🎸 **Piano, guitar or violin**: every exercise with audio plays on the
+- 🎛️ **Audio Foundations**: Level Match, Stereo Position and Guess Frequency,
+  with three difficulty profiles, opaque playback tokens and educational
+  feedback. EQ comparisons use matched loudness, and every offered frequency
+  has multiple numerically verified sources.
+- 🎸 **Piano, guitar or violin**: Music exercises with audio play on the
   instrument the student picks, in the notes it has (the guitar from its
   low E string, the violin from its G string). The guitar strums chords on
   the shapes a guitarist plays, where on the neck the student picks: open
   chords, barre chords or high on the neck. On the piano, the octave range
   moves the chords. The exercises about chords leave out the violin, which
   plays one note at a time.
-- 🧭 **Learning path**: 26 steps in 3 units, from *Higher or Lower* to
-  *Guess Note*, with progress and celebrations.
+- 🧭 **Learning paths**: 26 Music steps in 3 units, from *Higher or Lower* to
+  *Guess Note*, plus 3 independent Audio Foundations steps, with progress and celebrations.
 - 📅 **Daily challenge**: three exercises from different categories every
-  day, the same for every student, with progress on the dashboard.
-- 🎮 **Games**: a 60-second sprint, sudden death and weak spots on any
-  exercise that doesn't need a microphone, with each student's best scores;
-  a placement test suggests where to start on the learning path and can skip
+  day, the same for every student within each track, with separate Music/Audio
+  progress on the dashboard.
+- 🎮 **Music games**: a 60-second sprint, sudden death and weak spots on any
+  Music exercise that doesn't need a microphone, with each student's best scores;
+  a placement test suggests where to start on the Music learning path and can skip
   the steps the student already knows.
-- 🏆 **Gamification**: XP, levels, practice streaks and badges.
+- 🏆 **Gamification**: shared XP, levels, practice streaks and badges, while
+  dashboard statistics, weak-spots analysis and recommendations are separate by track.
 - 🔎 **Explore**: hear and see any note, interval, chord or scale.
 - 🆓 **Free practice**: answers are checked but not saved, and *Show answer*
   reveals the answer.
@@ -47,7 +53,7 @@ fr-CA). It runs at <https://academiaauditiva.com>.
   unlock or delete accounts.
 - 📝 **Routines**: students take a routine like a test: each exercise with the
   number of questions and the filters the teacher set, by a due date that may
-  accept late answers. Once assigned, a routine's exercises stay fixed;
+  accept late answers. Routines can mix Music and Audio. Once assigned, their exercises stay fixed;
   teachers duplicate it to change a copy.
 - 📊 **Teacher reports**: per routine, per class and per student, made only
   from the answers given in the teacher's own routines; a student's other
@@ -79,6 +85,7 @@ fr-CA). It runs at <https://academiaauditiva.com>.
 | [docs/Security.md](docs/Security.md) | Threat model, secret rotation runbook |
 | [docs/Pedagogia-Exercicios.md](docs/Pedagogia-Exercicios.md) (PT) | Exercise categories, levels and badges |
 | [docs/FiltrosPorExercicio.md](docs/FiltrosPorExercicio.md) (PT) | The filters of each exercise |
+| [docs/Audio-Ear-Training.md](docs/Audio-Ear-Training.md) | Audio Foundations, DSP contracts and the track expansion roadmap |
 | [docs/landing-art.md](docs/landing-art.md) | ChatGPT prompts and style guide for the home page illustrations |
 | [docs/Backlog.md](docs/Backlog.md) | What is left to do, in priority order |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, commits, tests and pull requests |

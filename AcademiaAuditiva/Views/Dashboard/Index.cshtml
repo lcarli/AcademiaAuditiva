@@ -3,6 +3,8 @@
 @inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
 @{
     ViewBag.Title = Localizer["Dashboard.Title"].Value;
+    var track = (string)ViewBag.Track;
+    var tracks = (List<AcademiaAuditiva.Services.TrainingTrack>)ViewBag.Tracks;
 
     // French uses the singular for 0 and 1 ("0 jour"); English and Portuguese only for 1.
     string Days(int count)
@@ -28,11 +30,25 @@
         <button type="button" class="btn btn-outline-secondary" data-aa-tour-start hidden>
             <i class="bi bi-question-circle me-2" aria-hidden="true"></i>@Localizer["Tutorial.Replay"]
         </button>
-        <a class="btn btn-primary" asp-controller="Exercise" asp-action="Index">
+        <a class="btn btn-primary" asp-controller="Exercise" asp-action="Index" asp-route-track="@(track == AcademiaAuditiva.Services.TrainingTracks.Music ? null : track.ToLowerInvariant())">
             <i class="bi bi-play-circle me-2" aria-hidden="true"></i>@Localizer["Dashboard.StartTraining"]
         </a>
     </div>
 </header>
+
+<nav class="d-flex justify-content-center mb-3" aria-label="@Localizer["TrainingTrack.Label"]">
+    <div class="aa-pill-tab" id="dashboardTrackTabs">
+        @foreach (var item in tracks)
+        {
+            <a class="@(item.Key == track ? "active" : null)"
+               asp-action="Index" asp-route-track="@item.Key.ToLowerInvariant()"
+               aria-current="@(item.Key == track ? "page" : null)">
+                @Localizer["TrainingTrack." + item.Key]
+            </a>
+        }
+    </div>
+</nav>
+<p class="small text-secondary text-center mb-4">@Localizer["Dashboard.TrackHint"]</p>
 
 @await Component.InvokeAsync("Tutorial", new { key = AcademiaAuditiva.Services.Tutorials.TutorialCatalog.Dashboard })
 
@@ -254,6 +270,7 @@
 </div>
 
 <div id="localizer"
+     data-track="@track"
      data-culture="@System.Globalization.CultureInfo.CurrentCulture.Name"
      data-answers="@Localizer["Dashboard.TotalAnswers"]"
      data-chart-daily-accuracy="@Localizer["Dashboard.ChartDailyAccuracy"]"
@@ -265,8 +282,8 @@
      data-diff-Advanced="@Localizer["Exercise.Advanced"]"></div>
 
 @{
-    var skillNames = new[] { "NoteRecognition", "ChordRecognition", "IntervalRecognition", "FunctionRecognition", "MelodyReproduction", "RhythmPatterns", "HarmonicField", "ScaleRecognition" };
-    var categoryNames = new[] { "Harmony", "Melody", "Rhythm", "EarTraining", "Scales", "Games", "Misc" };
+    var skillNames = new[] { "NoteRecognition", "ChordRecognition", "IntervalRecognition", "FunctionRecognition", "MelodyReproduction", "RhythmPatterns", "HarmonicField", "ScaleRecognition", "AudioComparison" };
+    var categoryNames = AcademiaAuditiva.Services.TrainingTracks.All.SelectMany(t => t.Categories);
     var i18nMap = new {
         skills = skillNames.ToDictionary(n => n, n => S["ExerciseType." + n].Value),
         categories = categoryNames.ToDictionary(n => n, n => S["ExerciseCategory." + n].Value),
@@ -366,6 +383,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             const loc = document.getElementById("localizer")?.dataset;
             const culture = loc.culture || undefined;
+            const reportUrl = action => `/Dashboard/${action}?track=${encodeURIComponent(loc.track)}`;
 
             // Days arrive as yyyy-MM-dd in the student's time zone: build them as local
             // dates, since parsing the string would read it as midnight UTC.
@@ -375,7 +393,7 @@
                 return new Date(year, month - 1, day);
             };
 
-            fetch("/Dashboard/GetUserTimeline")
+            fetch(reportUrl("GetUserTimeline"))
                 .then(res => res.json())
                 .then(data => {
                     const ctx = document.getElementById("learningTimelineChart");
@@ -409,7 +427,7 @@
                 });
 
             // Radar técnico
-            fetch("/Dashboard/GetUserProgress")
+            fetch(reportUrl("GetUserProgress"))
                 .then(res => res.json())
                 .then(data => {
                     const radarCtx = document.getElementById("radarTechnicalChart");
@@ -417,7 +435,7 @@
                     const values = Object.values(data.radar);
 
                     aaChart(radarCtx, {
-                        type: 'radar',
+                        type: loc.track === 'Audio' ? 'bar' : 'radar',
                         data: {
                             labels: labels,
                             datasets: [{
@@ -428,7 +446,7 @@
                         options: {
                             responsive: true,
                             scales: {
-                                r: { min: 0, max: 100 }
+                                [loc.track === 'Audio' ? 'y' : 'r']: { min: 0, max: 100 }
                             }
                         }
                     });
@@ -438,7 +456,7 @@
                     const catValues = Object.values(data.byCategory);
 
                     aaChart(radarCat, {
-                        type: 'radar',
+                        type: loc.track === 'Audio' ? 'bar' : 'radar',
                         data: {
                             labels: catLabels,
                             datasets: [{
@@ -449,7 +467,7 @@
                         options: {
                             responsive: true,
                             scales: {
-                                r: { min: 0, max: 100 }
+                                [loc.track === 'Audio' ? 'y' : 'r']: { min: 0, max: 100 }
                             }
                         }
                     });
@@ -470,7 +488,7 @@
                 }
                 return td;
             };
-            fetch("/Dashboard/GetScoreHistory")
+            fetch(reportUrl("GetScoreHistory"))
                 .then(res => res.json())
                 .then(data => {
                     const tbody = document.getElementById("scoreHistoryTable");
@@ -488,7 +506,7 @@
                 });
 
             // Dificuldade
-            fetch("/Dashboard/GetPerformanceByDifficulty")
+            fetch(reportUrl("GetPerformanceByDifficulty"))
                 .then(res => res.json())
                 .then(data => {
                     const ctx = document.getElementById("difficultyChart");
@@ -521,7 +539,7 @@
 
             // Maiores dificuldades
             const shareFormat = new Intl.NumberFormat(culture, { style: 'percent', maximumFractionDigits: 0 });
-            fetch("/Dashboard/GetMostMissedItems")
+            fetch(reportUrl("GetMostMissedItems"))
                 .then(res => res.json())
                 .then(data => {
                     const list = document.getElementById("mostMissedList");
@@ -540,7 +558,7 @@
                 });
 
             // Recomendações
-            fetch("/Dashboard/GetRecommendations")
+            fetch(reportUrl("GetRecommendations"))
                 .then(res => res.json())
                 .then(data => {
                     const list = document.getElementById("recommendationsList");

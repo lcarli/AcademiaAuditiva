@@ -47,14 +47,19 @@ namespace AcademiaAuditiva.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? track = null)
         {
+            var current = string.IsNullOrWhiteSpace(track) ? TrainingTracks.Find(TrainingTracks.Music) : TrainingTracks.Find(track);
+            if (current is null || LearningPathCatalog.UnitsFor(current.Key).Count == 0)
+                return NotFound();
+            ViewBag.Track = current.Key;
+            ViewBag.Tracks = TrainingTracks.All.Where(t => LearningPathCatalog.UnitsFor(t.Key).Count > 0).ToList();
             var userId = _userManager.GetUserId(User)!;
             var user = await _userManager.FindByIdAsync(userId);
 
             ViewBag.FirstName = user?.FirstName;
 
-            var summary = await _userReportService.GetSummaryAsync(userId, HttpContext.RequestAborted);
+            var summary = await _userReportService.GetSummaryAsync(userId, HttpContext.RequestAborted, current.Key);
             ViewBag.TotalAnswers = summary.Answers;
             ViewBag.BestScore = summary.BestScore;
             ViewBag.TotalTime = summary.TotalSeconds / 60;
@@ -83,7 +88,7 @@ namespace AcademiaAuditiva.Controllers
             // So is the learning path card.
             try
             {
-                ViewBag.LearningPath = await _learningPath.GetProgressAsync(userId, HttpContext.RequestAborted);
+                ViewBag.LearningPath = await _learningPath.GetProgressAsync(userId, current.Key, HttpContext.RequestAborted);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -93,7 +98,7 @@ namespace AcademiaAuditiva.Controllers
             // And the daily challenge card.
             try
             {
-                ViewBag.DailyChallenge = await _dailyChallenge.GetTodayAsync(userId, timeZone, HttpContext.RequestAborted);
+                ViewBag.DailyChallenge = await _dailyChallenge.GetTodayAsync(userId, timeZone, current.Key, HttpContext.RequestAborted);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -155,30 +160,42 @@ namespace AcademiaAuditiva.Controllers
 
         // Accuracy per exercise type (radar) and per category.
         [HttpGet]
-        public async Task<IActionResult> GetUserProgress(CancellationToken ct) =>
-            Json(await _userReportService.GetSkillProfileAsync(_userManager.GetUserId(User)!, ct));
+        public async Task<IActionResult> GetUserProgress(CancellationToken ct, string track = TrainingTracks.Music) =>
+            TrainingTracks.Find(track) is { } current
+                ? Json(await _userReportService.GetSkillProfileAsync(_userManager.GetUserId(User)!, ct, current.Key))
+                : NotFound();
 
         // Answers and accuracy per day, by the student's calendar.
         [HttpGet]
-        public async Task<IActionResult> GetUserTimeline(CancellationToken ct) =>
-            Json(await _userReportService.GetTimelineAsync(_userManager.GetUserId(User)!, UserTimeZone.FromRequest(Request), ct));
+        public async Task<IActionResult> GetUserTimeline(CancellationToken ct, string track = TrainingTracks.Music) =>
+            TrainingTracks.Find(track) is { } current
+                ? Json(await _userReportService.GetTimelineAsync(_userManager.GetUserId(User)!, UserTimeZone.FromRequest(Request), ct, current.Key))
+                : NotFound();
 
         // The latest practice sessions.
         [HttpGet]
-        public async Task<IActionResult> GetScoreHistory(CancellationToken ct) =>
-            Json(await _userReportService.GetRecentSessionsAsync(_userManager.GetUserId(User)!, ct));
+        public async Task<IActionResult> GetScoreHistory(CancellationToken ct, string track = TrainingTracks.Music) =>
+            TrainingTracks.Find(track) is { } current
+                ? Json(await _userReportService.GetRecentSessionsAsync(_userManager.GetUserId(User)!, ct, current.Key))
+                : NotFound();
 
         [HttpGet]
-        public async Task<IActionResult> GetPerformanceByDifficulty(CancellationToken ct) =>
-            Json(await _userReportService.GetAccuracyByDifficultyAsync(_userManager.GetUserId(User)!, ct));
+        public async Task<IActionResult> GetPerformanceByDifficulty(CancellationToken ct, string track = TrainingTracks.Music) =>
+            TrainingTracks.Find(track) is { } current
+                ? Json(await _userReportService.GetAccuracyByDifficultyAsync(_userManager.GetUserId(User)!, ct, current.Key))
+                : NotFound();
 
         // The exercises most often answered wrong lately.
         [HttpGet]
-        public async Task<IActionResult> GetMostMissedItems(CancellationToken ct) =>
-            Json(await _userReportService.GetStrugglesAsync(_userManager.GetUserId(User)!, ct));
+        public async Task<IActionResult> GetMostMissedItems(CancellationToken ct, string track = TrainingTracks.Music) =>
+            TrainingTracks.Find(track) is { } current
+                ? Json(await _userReportService.GetStrugglesAsync(_userManager.GetUserId(User)!, ct, current.Key))
+                : NotFound();
 
         [HttpGet]
-        public async Task<IActionResult> GetRecommendations(CancellationToken ct) =>
-            Json(await _userReportService.GetRecommendationsAsync(_userManager.GetUserId(User)!, ct));
+        public async Task<IActionResult> GetRecommendations(CancellationToken ct, string track = TrainingTracks.Music) =>
+            TrainingTracks.Find(track) is { } current
+                ? Json(await _userReportService.GetRecommendationsAsync(_userManager.GetUserId(User)!, ct, current.Key))
+                : NotFound();
     }
 }

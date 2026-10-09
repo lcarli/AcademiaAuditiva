@@ -94,6 +94,51 @@ public class DailyChallengeRulesTests
     }
 
     [Fact]
+    public void AudioChallenge_HasItsOwnPool_AndDoesNotChangeTheMusicDrawOrCompletion()
+    {
+        var exercises = Seeded.Value;
+        var musicOnly = exercises.Where(e => TrainingTracks.IsMusic(e.Category)).ToList();
+        var audio = DailyChallengeRules.Pick(Day, exercises, TrainingTracks.Audio);
+        audio.Select(e => e.Name).Should().BeEquivalentTo("LevelMatch", "StereoPosition", "GuessFrequency");
+        audio.Select(e => e.Category).Should().OnlyHaveUniqueItems();
+        DailyChallengeRules.Pick(Day, exercises, "audio").Should().Equal(audio);
+        DailyChallengeRules.Pick(Day, exercises).Should().Equal(DailyChallengeRules.Pick(Day, musicOnly));
+
+        var audioAnswers = Complete(Noon, audio);
+        var progress = DailyChallengeRules.Evaluate(Day, exercises, audioAnswers, TimeZoneInfo.Utc, TrainingTracks.Audio);
+        progress.Track.Should().Be(TrainingTracks.Audio);
+        progress.IsComplete.Should().BeTrue();
+        DailyChallengeRules.Evaluate(Day, exercises, audioAnswers, TimeZoneInfo.Utc).IsComplete.Should().BeFalse();
+        DailyChallengeRules.CompletedDays(exercises, audioAnswers, TimeZoneInfo.Utc).Should().BeEmpty(
+            "legacy daily challenge badges still ask for the Music challenge, not both tracks");
+        DailyChallengeRules.CompletedDays(exercises, audioAnswers, TimeZoneInfo.Utc, TrainingTracks.Audio).Should().Equal(Day);
+    }
+
+    [Fact]
+    public void AnswersUnderARepeatedName_CannotCompleteTheOtherTracksChallenge()
+    {
+        ChallengeExercise[] exercises = [new(1, "SharedName", "EarTraining"), new(2, "SharedName", "Level")];
+        foreach (var (ownTrack, otherTrack, exercise) in new[]
+        {
+            (TrainingTracks.Music, TrainingTracks.Audio, exercises[0]),
+            (TrainingTracks.Audio, TrainingTracks.Music, exercises[1]),
+        })
+        {
+            var answers = Complete(Noon, [exercise]);
+            DailyChallengeRules.Evaluate(Day, exercises, answers, TimeZoneInfo.Utc, ownTrack).IsComplete.Should().BeTrue();
+            DailyChallengeRules.Evaluate(Day, exercises, answers, TimeZoneInfo.Utc, otherTrack).IsComplete.Should().BeFalse();
+            DailyChallengeRules.CompletedDays(exercises, answers, TimeZoneInfo.Utc, otherTrack).Should().BeEmpty();
+        }
+    }
+
+    [Fact]
+    public void InvalidTrack_IsNotAnEmptyOrMixedChallenge()
+    {
+        FluentActions.Invoking(() => DailyChallengeRules.Pick(Day, Seeded.Value, "bogus"))
+            .Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void Pick_WithFewerCategoriesThanExercises_FillsTheDayWithOtherExercises()
     {
         ChallengeExercise[] exercises =

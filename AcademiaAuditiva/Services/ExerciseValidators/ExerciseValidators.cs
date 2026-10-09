@@ -218,6 +218,32 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
     /// <summary>The position the source sat at: its answer code and its pan (-1 left, +1 right).</summary>
     public sealed record StereoPositionValidationDetail(string Answer, double Position);
 
+    public sealed class GuessFrequencyValidator : IExerciseValidator
+    {
+        public string ExerciseName => "GuessFrequency";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var expected = JObject.Parse(expectedAnswerJson);
+            var frequency = expected["frequencyHz"]!.Value<int>();
+            var answer = frequency.ToString(CultureInfo.InvariantCulture);
+            return new ExerciseValidationResult(
+                string.Equals((userGuess ?? "").Trim(), answer, StringComparison.Ordinal),
+                answer,
+                new GuessFrequencyValidationDetail(
+                    frequency,
+                    expected["boostedClip"]!.Value<string>()!,
+                    expected["region"]!.Value<string>()!,
+                    expected["sourceKind"]!.Value<string>()!));
+        }
+    }
+
+    public sealed record GuessFrequencyValidationDetail(
+        int FrequencyHz,
+        string BoostedClip,
+        string Region,
+        string SourceKind);
+
     public sealed class GuessScaleTypeValidator : IExerciseValidator
     {
         public string ExerciseName => "GuessScaleType";

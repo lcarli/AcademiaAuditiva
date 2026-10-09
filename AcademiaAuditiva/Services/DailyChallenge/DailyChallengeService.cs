@@ -8,6 +8,8 @@ public interface IDailyChallengeService
 {
     /// <summary>Today's challenge in the player's time zone, with the player's progress on it.</summary>
     Task<DailyChallengeProgress> GetTodayAsync(string userId, TimeZoneInfo timeZone, CancellationToken ct = default);
+
+    Task<DailyChallengeProgress> GetTodayAsync(string userId, TimeZoneInfo timeZone, string track, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -27,7 +29,11 @@ public sealed class DailyChallengeService : IDailyChallengeService
         _clock = clock;
     }
 
-    public async Task<DailyChallengeProgress> GetTodayAsync(string userId, TimeZoneInfo timeZone, CancellationToken ct = default)
+    public Task<DailyChallengeProgress> GetTodayAsync(string userId, TimeZoneInfo timeZone, CancellationToken ct = default) =>
+        GetTodayAsync(userId, timeZone, TrainingTracks.Music, ct);
+
+    public async Task<DailyChallengeProgress> GetTodayAsync(
+        string userId, TimeZoneInfo timeZone, string track, CancellationToken ct = default)
     {
         var today = PracticeStreak.LocalDate(_clock.GetUtcNow().UtcDateTime, timeZone);
         var exercises = await _db.Exercises.AsNoTracking()
@@ -38,6 +44,6 @@ public sealed class DailyChallengeService : IDailyChallengeService
             .ToListAsync(ct);
         var answers = await _history.GetAsync(userId, ct);
 
-        return DailyChallengeRules.Evaluate(today, exercises, answers, timeZone);
+        return DailyChallengeRules.Evaluate(today, exercises, answers, timeZone, track);
     }
 }

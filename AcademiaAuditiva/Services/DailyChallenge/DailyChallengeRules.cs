@@ -18,6 +18,8 @@ public sealed record ChallengeItem(string Exercise, string Category, int Answere
 /// <param name="Date">The player's local date.</param>
 public sealed record DailyChallengeProgress(DateOnly Date, IReadOnlyList<ChallengeItem> Items)
 {
+    public string Track { get; init; } = TrainingTracks.Music;
+
     public bool IsComplete => Items.Count > 0 && Items.All(i => i.Done);
 }
 
@@ -52,8 +54,9 @@ public static class DailyChallengeRules
     /// less often than the others of its category, nor two days in a row. With fewer categories
     /// than exercises per day, the rest of the shuffle fills the remaining places.
     /// </summary>
-    public static IReadOnlyList<ChallengeExercise> Pick(DateOnly date, IEnumerable<ChallengeExercise> exercises) =>
-        Draw(date, Pool(exercises));
+    public static IReadOnlyList<ChallengeExercise> Pick(
+        DateOnly date, IEnumerable<ChallengeExercise> exercises, string track = TrainingTracks.Music) =>
+        Draw(date, Pool(exercises, track));
 
     /// <summary>The player's progress on the challenge of <paramref name="date"/>.</summary>
     /// <param name="answers">The player's answers, with UTC timestamps; only those on that local date count.</param>
@@ -61,10 +64,12 @@ public static class DailyChallengeRules
         DateOnly date,
         IReadOnlyCollection<ChallengeExercise> exercises,
         IEnumerable<PracticeAnswer> answers,
-        TimeZoneInfo timeZone)
+        TimeZoneInfo timeZone,
+        string track = TrainingTracks.Music)
     {
         var answersThatDay = answers.Where(a => PracticeStreak.LocalDate(a.Timestamp, timeZone) == date);
-        return Progress(date, Pick(date, exercises), CountByName(Names(exercises), answersThatDay));
+        return Progress(date, Pick(date, exercises, track), CountByName(Names(InTrack(exercises, track)), answersThatDay))
+            with { Track = TrainingTracks.Find(track)!.Key };
     }
 
     /// <summary>The local dates whose challenge the player completed, oldest first.</summary>
@@ -72,10 +77,11 @@ public static class DailyChallengeRules
     public static IReadOnlyList<DateOnly> CompletedDays(
         IReadOnlyCollection<ChallengeExercise> exercises,
         IEnumerable<PracticeAnswer> answers,
-        TimeZoneInfo timeZone)
+        TimeZoneInfo timeZone,
+        string track = TrainingTracks.Music)
     {
-        var names = Names(exercises);
-        var pool = Pool(exercises);
+        var names = Names(InTrack(exercises, track));
+        var pool = Pool(exercises, track);
         return answers
             .GroupBy(a => PracticeStreak.LocalDate(a.Timestamp, timeZone))
             .Select(day => Progress(day.Key, Draw(day.Key, pool), CountByName(names, day)))
@@ -114,14 +120,24 @@ public static class DailyChallengeRules
 
     /// <summary>
     /// One exercise per name (the lowest id, like the learning path), in a fixed order so the order of
-    /// the database rows doesn't change the draw. Only Music exercises take part so far (<see cref="TrainingTracks"/>).
+    /// the database rows doesn't change the draw. Tracks have independent pools;
+    /// the default remains Music, including the legacy daily-challenge badges.
     /// </summary>
-    private static ChallengeExercise[] Pool(IEnumerable<ChallengeExercise> exercises) => exercises
-        .Where(e => !MicrophoneExercises.Contains(e.Name) && TrainingTracks.IsMusic(e.Category))
-        .GroupBy(e => e.Name, StringComparer.Ordinal)
-        .Select(g => g.MinBy(e => e.ExerciseId)!)
-        .OrderBy(e => e.Name, StringComparer.Ordinal)
-        .ToArray();
+    private static ChallengeExercise[] Pool(IEnumerable<ChallengeExercise> exercises, string track)
+    {
+        return InTrack(exercises, track)
+            .Where(e => !MicrophoneExercises.Contains(e.Name))
+            .GroupBy(e => e.Name, StringComparer.Ordinal)
+            .Select(g => g.MinBy(e => e.ExerciseId)!)
+            .OrderBy(e => e.Name, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IEnumerable<ChallengeExercise> InTrack(IEnumerable<ChallengeExercise> exercises, string track)
+    {
+        var current = TrainingTracks.Find(track) ?? throw new ArgumentException("Unknown training track.", nameof(track));
+        return exercises.Where(e => (TrainingTracks.OfCategory(e.Category) ?? TrainingTracks.Music) == current.Key);
+    }
 
     private static List<ChallengeExercise> Draw(DateOnly date, ChallengeExercise[] pool)
     {

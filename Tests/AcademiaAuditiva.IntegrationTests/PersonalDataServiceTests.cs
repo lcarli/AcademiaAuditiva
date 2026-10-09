@@ -246,6 +246,45 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
     }
 
     [Fact]
+    public async Task Export_IncludesEveryAudioExercisesMetadata_AndDistinguishesItsTrackFromMusic()
+    {
+        var student = await CreateUserAsync("audio-export");
+        var filters = new Dictionary<string, string>
+        {
+            ["GuessNote"] = """{"keySelect":"C4"}""",
+            ["LevelMatch"] = """{"lmLevel":"intermediate","lmDifferenceDb":"4","lmSourceKind":"drums"}""",
+            ["StereoPosition"] = """{"spLevel":"advanced","spPosition":"-0.25","spSourceKind":"keys"}""",
+            ["GuessFrequency"] = """{"gfLevel":"advanced","gfFrequencyHz":"1000","gfSourceKind":"keys"}""",
+        };
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = Db(scope);
+            SeedData.SeedExercises(db);
+            foreach (var (name, json) in filters)
+            {
+                var id = db.Exercises.Single(e => e.Name == name).ExerciseId;
+                db.ScoreSnapshots.Add(new ScoreSnapshot { UserId = student.Id, ExerciseId = id, IsCorrect = true, FilterJson = json });
+                db.ScoreAggregates.Add(new ScoreAggregate { UserId = student.Id, ExerciseId = id, CorrectCount = 1 });
+            }
+            await db.SaveChangesAsync();
+        }
+
+        using var export = JsonDocument.Parse(await ExportAsync(student.Id));
+        var practice = export.RootElement.GetProperty("practice");
+        foreach (var section in new[] { "totals", "answers" })
+        {
+            var rows = practice.GetProperty(section).EnumerateArray().ToArray();
+            rows.Should().HaveCount(4);
+            foreach (var row in rows)
+            {
+                var name = row.GetProperty("exercise").GetString()!;
+                row.GetProperty("track").GetString().Should().Be(name == "GuessNote" ? "Music" : "Audio");
+                if (section == "answers") row.GetProperty("filterJson").GetString().Should().Be(filters[name]);
+            }
+        }
+    }
+
+    [Fact]
     public async Task DeleteAccount_RemovesTheStudentsTicks_AndEveryTickOfTheTeachersAssignments()
     {
         var exerciseId = await EnsureExerciseAsync();

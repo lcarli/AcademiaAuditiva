@@ -1,3 +1,5 @@
+using AcademiaAuditiva.Models;
+
 namespace AcademiaAuditiva.Services;
 
 /// <summary>
@@ -5,9 +7,9 @@ namespace AcademiaAuditiva.Services;
 /// Mix Challenges. Each exercise category belongs to exactly one track, which lists it here in the
 /// order its pages show the categories, and an exercise belongs to its category's track.
 /// <para>
-/// Until each track's place in them is decided, the learning path, the daily challenge, the game
-/// modes and the badges that ask for every exercise or category take Music exercises only
-/// (<see cref="IsMusic"/>), so exercises of the other tracks don't change them.
+/// Learning paths, daily challenges and dashboard figures are separate per track.
+/// Game modes, placement and legacy all-exercise/category badges remain Music-only,
+/// so Audio practice does not change their requirements.
 /// </para>
 /// </summary>
 public static class TrainingTracks
@@ -41,6 +43,20 @@ public static class TrainingTracks
     /// listed (ExerciseCatalog fails on any other).
     /// </summary>
     public static bool IsMusic(string category) => OfCategory(category) is null or Music;
+
+    /// <summary>A database-translatable track filter, including unlisted legacy categories in Music.</summary>
+    public static IQueryable<Exercise> Filter(IQueryable<Exercise> exercises, string track)
+    {
+        var current = Find(track) ?? throw new ArgumentException("Unknown training track.", nameof(track));
+        if (current.Key == Music)
+        {
+            var excluded = All.Where(t => t.Key != Music).SelectMany(t => t.Categories).ToArray();
+            return exercises.Where(e => !excluded.Contains(e.ExerciseCategory.Name));
+        }
+
+        var included = current.Categories.ToArray();
+        return exercises.Where(e => included.Contains(e.ExerciseCategory.Name));
+    }
 }
 
 /// <param name="Key">Its key, used in <c>/Exercise?track=</c> and in its texts (<c>TrainingTrack.{Key}</c>).</param>

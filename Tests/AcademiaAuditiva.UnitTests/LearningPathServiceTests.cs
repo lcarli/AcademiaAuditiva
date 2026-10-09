@@ -53,7 +53,7 @@ public class LearningPathServiceTests
         var audio = await Service(db).GetProgressAsync(UserId, TrainingTracks.Audio);
         var music = await Service(db).GetProgressAsync(UserId);
 
-        audio.Units.Select(u => u.Key).Should().Equal("LevelFoundations", "StereoFoundations");
+        audio.Units.Select(u => u.Key).Should().Equal("LevelFoundations", "StereoFoundations", "FrequencyFoundations");
         audio.Current.Should().BeEquivalentTo(new
         {
             Exercise = "LevelMatch",
@@ -64,6 +64,27 @@ public class LearningPathServiceTests
         });
         audio.Current!.Filters.Should().BeEquivalentTo(new Dictionary<string, string> { ["lmLevel"] = "beginner" });
         music.CompletedSteps.Should().Be(1);
+        music.Current!.Exercise.Should().Be("GuessTuning");
+    }
+
+    [Fact]
+    public async Task AllThreeAudioExercises_CompleteTheirPath_WithoutChangingMusicOrPlacement()
+    {
+        await using var db = SeededDatabase();
+        var answers = new Answers(db);
+        answers.Add("HigherOrLower", correct: true, count: 8);
+        foreach (var step in LearningPathCatalog.StepsFor(TrainingTracks.Audio))
+            answers.Add(step.Exercise, correct: true, count: step.Required);
+        await db.SaveChangesAsync();
+
+        var audio = await Service(db).GetProgressAsync(UserId, TrainingTracks.Audio);
+        var music = await Service(db).GetProgressAsync(UserId);
+
+        audio.Should().BeEquivalentTo(new { TotalSteps = 3, CompletedSteps = 3, Percent = 100, IsComplete = true });
+        audio.JustCompleted!.Exercise.Should().Be("GuessFrequency");
+        audio.Steps.Should().OnlyContain(s => !s.Placed);
+        music.CompletedSteps.Should().Be(1);
+        music.Percent.Should().Be(100 / LearningPathCatalog.Steps.Count);
         music.Current!.Exercise.Should().Be("GuessTuning");
     }
 

@@ -1658,6 +1658,35 @@ public static class SeedData
                 }),
                 AudioButtonsJson = JsonConvert.SerializeObject(new List<string>()),
                 AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
+            },
+            new Exercise {
+                Name = "GuessFrequency",
+                Description = "Compare uma referência e uma versão equalizada e identifique a frequência central realçada.",
+                ExerciseTypeId = 9,
+                ExerciseCategoryId = 9,
+                DifficultyLevelId = 1,
+                FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+                {
+                    new FilterOptionGroup
+                    {
+                        Label = "Exercise.Level",
+                        Name = "gfLevel",
+                        Options = new List<FilterOption>
+                        {
+                            new("beginner", "Exercise.GuessFrequency.Level.Beginner"),
+                            new("intermediate", "Exercise.GuessFrequency.Level.Intermediate"),
+                            new("advanced", "Exercise.GuessFrequency.Level.Advanced")
+                        }
+                    }
+                }),
+                Instructions = "Gere uma comparação, alterne entre A e B e escolha a frequência central realçada. Os dois sinais têm loudness equivalente: compare o timbre, não o volume.",
+                TipsJson = JsonConvert.SerializeObject(new[] {
+                    "Alterne entre A e B no mesmo trecho e ouça qual região ficou mais evidente.",
+                    "Graves dão peso, médios dão corpo e presença, e agudos dão brilho.",
+                    "O ganho e a largura do filtro são fixos em cada nível; só a frequência muda."
+                }),
+                AudioButtonsJson = JsonConvert.SerializeObject(new List<string>()),
+                AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
             }
         };
     }

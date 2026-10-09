@@ -358,6 +358,127 @@ test('Stereo Position plays one opaque stereo clip and names the position', asyn
   await expect(page.locator('.guessAnswer:visible')).toHaveCount(7);
 });
 
+test('an Audio foundations session scores all three exercises and keeps Music progress independent', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  const dashboard = `${baseURL}/Dashboard?culture=en-US&ui-culture=en-US`;
+  const answers = async () => Number(await page.getByText('Total Answers', { exact: true })
+    .locator('..').locator('h3').innerText());
+  await page.goto(dashboard, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const musicBefore = await answers();
+  await page.goto(`${dashboard}&track=audio`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  const audioBefore = await answers();
+
+  for (const [exercise, guess] of [['LevelMatch', 'A'], ['StereoPosition', 'C'], ['GuessFrequency', '1000']]) {
+    await page.goto(`${baseURL}/Exercise/${exercise}?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
+    await closeTourIfStarted(page);
+    await page.locator('#aaFreePractice').uncheck();
+    if (exercise === 'GuessFrequency') {
+      await expect(page.locator('#aa-question')).toHaveText('Which center frequency was boosted?');
+      await expect(page.locator('.guessAnswer:visible')).toHaveText(['100 Hz', '500 Hz', '1,000 Hz', '5,000 Hz', '10,000 Hz']);
+    }
+    const playResponse = page.waitForResponse(response =>
+      response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
+    const audioResponse = page.waitForResponse(response =>
+      response.url().includes('/audio/token/') && response.status() === 200);
+    await page.click('#Play');
+    const round = await (await playResponse).json();
+    expect(Object.keys(round)).toEqual(['roundId', 'clips']);
+    expect(round.clips).toHaveLength(exercise === 'StereoPosition' ? 1 : 2);
+    expect(JSON.stringify(round)).not.toMatch(/frequency|boosted|source|gain|lufs|\.wav/i);
+    expect((await (await audioResponse).body()).length).toBeGreaterThan(1000);
+    await page.locator(`.guessAnswer[value="${guess}"]`).click();
+    const validation = page.waitForResponse(response =>
+      response.url().includes('/Exercise/ValidateExercise') && response.status() === 200);
+    await page.click('#validateGuess');
+    const result = await (await validation).json();
+    expect(result.success).toBe(true);
+    expect(result.free).not.toBe(true);
+    if (exercise === 'GuessFrequency') {
+      expect([100, 500, 1000, 5000, 10000]).toContain(result.detail.frequencyHz);
+      expect(['A', 'B']).toContain(result.detail.boostedClip);
+      expect(['noise', 'mix']).toContain(result.detail.sourceKind);
+      await expect(page.locator('.swal2-html-container')).toContainText(`Clip ${result.detail.boostedClip} was boosted at`);
+      await expect(page.locator('.swal2-html-container')).toContainText('Hz (');
+    }
+    await page.click('.swal2-confirm');
+  }
+
+  await page.locator('#aaFreePractice').check();
+  const pendingPlay = page.waitForResponse(response =>
+    response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
+  await page.click('#Play');
+  await pendingPlay;
+  await page.locator('.guessAnswer[value="1000"]').click();
+  const filters = page.locator('#filtersModal');
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await filters.locator('select[name="gfLevel"]').selectOption('intermediate');
+  await filters.locator('.btn-close').click();
+  await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
+  await expect(page.locator('.guessAnswer.selected')).toHaveCount(0);
+  expect(await page.locator('.guessAnswer:visible').evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value)))
+    .toEqual(['125', '250', '500', '1000', '2000', '4000', '8000']);
+  const intermediatePlay = page.waitForResponse(response =>
+    response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
+  await page.click('#Play');
+  const intermediate = await intermediatePlay;
+  expect(JSON.parse(intermediate.request().postData()!).filters).toEqual({ gfLevel: 'intermediate' });
+  await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+  await filters.locator('select[name="gfLevel"]').selectOption('advanced');
+  await filters.locator('.btn-close').click();
+  expect(await page.locator('.guessAnswer:visible').evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value)))
+    .toEqual(['500', '630', '800', '1000', '1250', '1600', '2000']);
+  await page.click('#validateGuess');
+  await expect(page.locator('.swal2-title')).toHaveText('Incomplete answer');
+  await page.click('.swal2-confirm');
+
+  const reportActions = ['GetUserProgress', 'GetUserTimeline', 'GetScoreHistory',
+    'GetPerformanceByDifficulty', 'GetMostMissedItems', 'GetRecommendations'];
+  const reportResponses = Promise.all(reportActions.map(action => page.waitForResponse(response =>
+    new URL(response.url()).pathname === `/Dashboard/${action}` && response.status() === 200)));
+  await page.goto(`${dashboard}&track=audio`, { waitUntil: 'networkidle' });
+  expect(await answers()).toBe(audioBefore + 3);
+  const reports = await reportResponses;
+  for (const response of reports) expect(new URL(response.url()).searchParams.get('track')).toBe('Audio');
+  const progress = await reports[0].json();
+  expect(Object.keys(progress.byCategory)).toEqual(expect.arrayContaining(['Level', 'FrequencyEq', 'StereoPhase']));
+  await expect(page.locator('#dashboardTrackTabs [aria-current="page"]')).toHaveText('Audio');
+  await expect(page.locator('#aa-path-card-title')).toHaveText('Audio learning path');
+  await expect(page.locator('#aa-challenge-card-title')).toHaveText('Audio daily challenge');
+  await expect(page.locator('.aa-challenge-title')).toHaveCount(3);
+  expect(await page.locator('.aa-challenge-title').evaluateAll(links => links.map(link => link.getAttribute('href'))))
+    .toEqual(expect.arrayContaining(['/Exercise/LevelMatch', '/Exercise/StereoPosition', '/Exercise/GuessFrequency']));
+  await page.goto(dashboard, { waitUntil: 'networkidle' });
+  expect(await answers()).toBe(musicBefore);
+});
+
+test('Guess Frequency and Audio progress localize and fit every supported screen', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  for (const culture of cultures) {
+    for (const path of ['/Exercise/GuessFrequency', '/Dashboard?track=audio']) {
+      const separator = path.includes('?') ? '&' : '?';
+      await page.goto(`${baseURL}${path}${separator}culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
+      await closeTourIfStarted(page);
+      await expect(page.locator('body')).not.toContainText('Exercise.GuessFrequency.');
+      await expect(page.locator('body')).not.toContainText('DailyChallenge.Audio.Title');
+      for (const width of [360, 768, 1024, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth),
+          { message: `${path} ${culture} at ${width} px` }).toBe(0);
+      }
+      if (path.startsWith('/Dashboard')) {
+        const map = JSON.parse((await page.locator('#aa-i18n-map').textContent())!);
+        expect(map.skills.AudioComparison).not.toBe('ExerciseType.AudioComparison');
+        expect(map.categories.FrequencyEq).not.toBe('ExerciseCategory.FrequencyEq');
+        await expect(page.locator('#aa-challenge-card-title')).toBeVisible();
+      } else {
+        await expect(page.locator('.guessAnswer:visible')).toHaveCount(5);
+      }
+    }
+  }
+});
+
 test('the chosen instrument plays the round and is remembered', async ({ page, baseURL, context }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   await page.goto(`${baseURL}/Exercise/GuessNote`, { waitUntil: 'networkidle' });

@@ -13,7 +13,7 @@
     <div class="d-flex align-items-start gap-3 mb-4">
         <span class="aa-icon-pill" aria-hidden="true"><i class="bi @(Model.IsComplete ? "bi-trophy" : "bi-calendar-check")"></i></span>
         <div>
-            <h2 id="aa-challenge-card-title" class="h6 text-uppercase small text-secondary mb-1">@Localizer["DailyChallenge.Title"]</h2>
+            <h2 id="aa-challenge-card-title" class="h6 text-uppercase small text-secondary mb-1">@Localizer[Model.Track == AcademiaAuditiva.Services.TrainingTracks.Audio ? "DailyChallenge.Audio.Title" : "DailyChallenge.Title"]</h2>
             <p class="h4 fw-bold mb-1 text-body-emphasis">@Localizer[Model.IsComplete ? "DailyChallenge.Done" : "DailyChallenge.Heading"]</p>
             <p class="small text-secondary mb-0">@Localizer[Model.IsComplete ? "DailyChallenge.DoneText" : "DailyChallenge.Text"]</p>
         </div>

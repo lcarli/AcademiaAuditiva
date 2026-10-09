@@ -113,9 +113,12 @@ read from disk. They still need Azurite, because every mix is stored in the
 
 The recordings of the audio-engineering track are in git too, under
 `AcademiaAuditiva/Audio/Sources`, listed with their licenses in
-`sources.json`. `dotnet run --no-cache scripts/audio-sources.cs generate`
+`sources.json`. `dotnet run --no-cache scripts/audio-sources.cs generate [key]`
 rebuilds the generated ones, and `ingest <key> <file.wav>` adds one obtained
 elsewhere (see the script's header and `docs/Audio-Ear-Training.md`).
+With a key, only that source WAV is written; for example,
+`generate eq-reference-mix` rebuilds the broadband EQ practice mix without
+rewriting the original recordings.
 
 ## 4. Run the app
 

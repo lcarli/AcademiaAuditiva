@@ -440,6 +440,8 @@ public class BadgeRulesTests
     {
         var history = new History()
             .Exercise(1, category: "Harmony", name: "GuessChords").Exercise(2, category: "Level", name: "LevelMatch")
+            .Exercise(3, category: "FrequencyEq", name: "GuessFrequency")
+            .Exercise(4, category: "StereoPhase", name: "StereoPosition")
             .Answer(1, Ones(10));
 
         history.Earns(BadgeKeys.AllRounder).Should().BeTrue("only Music categories count so far");

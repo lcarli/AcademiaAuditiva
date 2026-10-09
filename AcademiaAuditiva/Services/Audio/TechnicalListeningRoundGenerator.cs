@@ -50,6 +50,25 @@ public sealed class TechnicalListeningRoundGenerator
             ]),
         };
 
+    private static readonly IReadOnlyDictionary<string, GuessFrequencyProfile> GuessFrequencyProfiles =
+        new Dictionary<string, GuessFrequencyProfile>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["beginner"] = new(1, [100, 500, 1000, 5000, 10000], 9, 1),
+            ["intermediate"] = new(2, [125, 250, 500, 1000, 2000, 4000, 8000], 6, 1),
+            ["advanced"] = new(3, [500, 630, 800, 1000, 1250, 1600, 2000], 6, 2),
+        };
+
+    // A source must support every offered band of the profile, not just the
+    // answer: identifying its timbre must not rule out buttons. Tests measure every pair.
+    private static readonly IReadOnlyDictionary<string, IReadOnlyList<int>> FrequencySourceBands =
+        new Dictionary<string, IReadOnlyList<int>>(StringComparer.Ordinal)
+        {
+            ["pink-noise"] = [100, 125, 250, 500, 1000, 2000, 4000, 5000, 8000, 10000],
+            ["synth-chords"] = [500, 630, 800, 1000, 1250, 1600, 2000],
+            ["full-mix"] = [125, 250, 500, 630, 800, 1000, 1250, 1600, 2000, 8000],
+            ["eq-reference-mix"] = [100, 125, 250, 500, 630, 800, 1000, 1250, 1600, 2000, 4000, 5000, 8000, 10000],
+        };
+
     private readonly AudioSourceLibrary _sources;
     private readonly IAudioExerciseRandom _random;
 
@@ -59,21 +78,85 @@ public sealed class TechnicalListeningRoundGenerator
         _random = random;
     }
 
-    public bool Supports(string exerciseName) => exerciseName is "LevelMatch" or "StereoPosition";
+    public bool Supports(string exerciseName) => exerciseName is "LevelMatch" or "StereoPosition" or "GuessFrequency";
 
     public TechnicalListeningRoundPlan Plan(
         Exercise exercise,
         IReadOnlyDictionary<string, string> filters)
     {
-        if (!Supports(exercise.Name))
+        return exercise.Name switch
         {
-            throw new ArgumentException($"No technical-listening generator exists for '{exercise.Name}'.", nameof(exercise));
+            "LevelMatch" => PlanLevelMatch(filters),
+            "StereoPosition" => PlanStereoPosition(filters),
+            "GuessFrequency" => PlanGuessFrequency(filters),
+            _ => throw new ArgumentException($"No technical-listening generator exists for '{exercise.Name}'.", nameof(exercise)),
+        };
+    }
+
+    private TechnicalListeningRoundPlan PlanGuessFrequency(IReadOnlyDictionary<string, string> filters)
+    {
+        var requestedLevel = filters.GetValueOrDefault("gfLevel");
+        var level = requestedLevel is not null && GuessFrequencyProfiles.ContainsKey(requestedLevel)
+            ? requestedLevel.ToLowerInvariant()
+            : "beginner";
+        var profile = GuessFrequencyProfiles[level];
+        var frequency = profile.Frequencies[_random.Next(profile.Frequencies.Count)];
+        var eligible = FrequencySourcesFor(level, frequency);
+        if (eligible.Count < 2)
+        {
+            throw new InvalidOperationException($"Frequency {frequency} Hz at {level} needs at least two eligible EQ sources.");
         }
 
-        return exercise.Name == "StereoPosition"
-            ? PlanStereoPosition(filters)
-            : PlanLevelMatch(filters);
+        var source = eligible[_random.Next(eligible.Count)];
+        var boostedClip = _random.Next(2) == 0 ? "A" : "B";
+        // Both clips get the same randomized target, with extra headroom for EQ.
+        var targetLufs = -26 - _random.Next(13) / 2.0;
+        var clips = new[] { "A", "B" }.Select(key => new NamedAudioProcessingPlan(
+            key,
+            new AudioProcessingPlan(source.Key, key == boostedClip
+                ? [new PeakingEqProcessor(frequency, profile.GainDb, profile.Q), new LoudnessMatchProcessor(targetLufs)]
+                : [new LoudnessMatchProcessor(targetLufs)]))).ToArray();
+        foreach (var clip in clips)
+        {
+            AudioProcessing.Validate(clip.Plan, source);
+        }
+
+        var region = frequency switch
+        {
+            <= 250 => "bass",
+            <= 500 => "lowMids",
+            <= 2000 => "mids",
+            <= 5000 => "presence",
+            _ => "air",
+        };
+        var expected = JsonConvert.SerializeObject(new
+        {
+            answer = frequency.ToString(CultureInfo.InvariantCulture),
+            frequencyHz = frequency,
+            boostedClip,
+            region,
+            level,
+            sourceKind = source.Kind,
+        });
+        var answerMetadata = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["gfFrequencyHz"] = frequency.ToString(CultureInfo.InvariantCulture),
+            ["gfSourceKind"] = source.Kind,
+        };
+        return new TechnicalListeningRoundPlan(expected, clips, answerMetadata);
     }
+
+    public static IReadOnlyList<int> FrequenciesFor(string level) =>
+        GuessFrequencyProfiles[level].Frequencies;
+
+    internal IReadOnlyList<AudioSource> FrequencySourcesFor(string level, int frequency) =>
+        _sources.Sources.Where(source =>
+            GuessFrequencyProfiles[level].Frequencies.Contains(frequency)
+            && source.Uses.Contains("eq", StringComparer.Ordinal)
+            && source.Difficulties.Contains(GuessFrequencyProfiles[level].Difficulty)
+            && FrequencySourceBands.TryGetValue(source.Key, out var bands)
+            && GuessFrequencyProfiles[level].Frequencies.All(bands.Contains)
+            && frequency <= AudioProcessing.MaxEqFrequencyRateRatio * source.Audio.SampleRate).ToArray();
 
     private TechnicalListeningRoundPlan PlanStereoPosition(IReadOnlyDictionary<string, string> filters)
     {
@@ -191,6 +274,12 @@ public sealed class TechnicalListeningRoundGenerator
         int Difficulty,
         IReadOnlyList<double> DifferencesDb,
         bool RequiresDifference);
+
+    private sealed record GuessFrequencyProfile(
+        int Difficulty,
+        IReadOnlyList<int> Frequencies,
+        double GainDb,
+        double Q);
 }
 
 public sealed record NamedAudioProcessingPlan(string Key, AudioProcessingPlan Plan);

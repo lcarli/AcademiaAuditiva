@@ -71,6 +71,10 @@ public static class LearningPathCatalog
         [
             Step("StereoPosition", 10, 7, ("spLevel", "beginner")),
         ]),
+        new("FrequencyFoundations",
+        [
+            Step("GuessFrequency", 10, 7, ("gfLevel", "beginner")),
+        ]),
     ];
 
     public static IReadOnlyDictionary<string, IReadOnlyList<PathUnit>> ByTrack { get; } =
