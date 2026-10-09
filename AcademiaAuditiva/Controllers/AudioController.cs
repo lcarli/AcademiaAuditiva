@@ -102,8 +102,15 @@ public sealed class AudioController : ControllerBase
         }
 
         // The same notes must never mean the same bytes (see ClipVariation).
-        // Every response is unique, so range requests are not supported.
-        var varied = ClipVariation.CreateRandom().Apply(clip);
+        // Every response is unique, so range requests are not supported. A
+        // processed clip keeps its level, since its level is what a round
+        // compares: a random gain per clip would change the difference.
+        var variation = ClipVariation.CreateRandom();
+        if (blobName.StartsWith(AudioMixerService.ProcessedBlobPrefix, StringComparison.Ordinal))
+        {
+            variation = variation with { Gain = 1f };
+        }
+        var varied = variation.Apply(clip);
         if (varied is null)
         {
             _logger.LogError("Audio clip {Container}/{Blob} is not a 16-bit PCM WAV; not streaming it.", container, blobName);

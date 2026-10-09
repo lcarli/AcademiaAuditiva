@@ -286,6 +286,37 @@ floating-point PCM already used by `AudioMixerService`:
 Loudness matching should be an explicit step with a documented target and
 tolerance. Peak normalization alone is not an acceptable substitute.
 
+As built in slice 3:
+
+- `AudioProcessingPlan(SourceKey, Processors)` with `GainProcessor(Decibels)`
+  and `PanProcessor(Position)` (`Services/Audio/Processing`);
+  `IAudioMixerService.RenderAsync(plan)` renders one, beside `MixAsync`, which
+  keeps its behavior and its blob names. Both share the same storage step:
+  memo, freshness check, encoding and upload to `piano-audio-mixed`.
+- `AudioProcessing.Validate` checks a plan against the source's catalog
+  measurement before any audio is read or storage is asked: a listed source,
+  at most 8 processors, finite values, each gain and the sum of gains within
+  -24 to +12 dB, pan within -1 to 1 and only on a mono signal (pan makes it
+  stereo, so a second pan is refused), and the source's measured peak plus the
+  gains at or below -0.2 dBFS. A plan that would clip is refused, never scaled
+  down, since scaling would change the level it asks for. After processing,
+  any sample past the mixer's 0.98 guard still throws; nothing unprocessed is
+  stored in its place.
+- Gain is `10^(dB/20)`; pan is the sine/cosine law, so the centre gives each
+  side -3 dB and the power is constant. A processed clip is neither trimmed nor
+  faded.
+- A processed clip is stored as `proc-{sha256}.wav`; the hash covers
+  `AudioProcessing.EngineVersion`, the source key and SHA-256, and every
+  processor in order, written invariantly.
+- The audio endpoint streams `proc-` clips with a gain of 1, keeping the random
+  lead-in, tail and dither, so the level difference between A and B is the one
+  the plans ask for. Since the sources share one loudness, an untouched
+  reference would always be at the catalog level: round generation (slices 4
+  and 5) should give both clips of a round the same random offset gain, so the
+  absolute level does not tell which clip changed.
+- Failures are logged with the source key and the processors' names only;
+  read and DSP times, and encoding and upload times, are logged at Debug.
+
 ### Round generation
 
 Create a technical-listening round generator separate from
@@ -488,6 +519,10 @@ chooses the tolerance for matched clips.
 - current `AudioMixerService` tests still pass;
 - the same plan reuses a cached blob and a changed parameter does not.
 
+**Status:** done. Both clips of a round now keep the level their plans give
+them: the endpoint applies no random gain to processed clips (see "As built
+in slice 3" under Processing plans).
+
 ### 4. Add generic A/B rounds and controls
 
 **Work**
@@ -516,6 +551,8 @@ chooses the tolerance for matched clips.
   category by its 1-based position in that list, so seeding must add missing
   categories by name and resolve ids by name;
 - implement difficulty profiles and source selection;
+- give both clips of a round the same random offset gain, so neither is
+  always at the catalog's loudness (see "As built in slice 3");
 - record the gain difference and source type in answer filter metadata where
   appropriate for weak-spots reporting;
 - add the first Audio learning-path unit.

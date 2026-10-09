@@ -1,5 +1,7 @@
 namespace AcademiaAuditiva.Interfaces;
 
+using AcademiaAuditiva.Services.Audio.Processing;
+
 /// <summary>
 /// Composes one playable audio file from a list of source notes: piano
 /// samples from the <c>piano-audio</c> container, or samples of another
@@ -21,6 +23,20 @@ public interface IAudioMixerService
     /// </summary>
     Task<MixedAudio> MixAsync(
         IReadOnlyList<MixInput> inputs,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Renders <paramref name="plan"/>: one training recording of the audio
+    /// track through its processors, in order, into a 16-bit PCM WAV, and
+    /// returns its address like <see cref="MixAsync"/>. The plan is checked
+    /// before any audio is read; a plan that is malformed, out of range or
+    /// would clip throws instead of being adjusted, and nothing unprocessed
+    /// is ever returned in its place. The same plan on the same version of
+    /// the source reuses the cached clip.
+    /// </summary>
+    /// <exception cref="ArgumentException">The plan is invalid (see <see cref="AudioProcessing.Validate"/>).</exception>
+    Task<MixedAudio> RenderAsync(
+        AudioProcessingPlan plan,
         CancellationToken cancellationToken = default);
 }
 

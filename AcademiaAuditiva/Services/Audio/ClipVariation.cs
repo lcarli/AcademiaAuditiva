@@ -12,7 +12,11 @@ namespace AcademiaAuditiva.Services.Audio;
 /// tail of silence, and inaudible dither, so neither the bytes nor the length
 /// repeat. Recognising the sound itself stays the student's job.
 /// </summary>
-/// <param name="Gain">Linear gain applied to every sample (≤ 1, so it never clips).</param>
+/// <param name="Gain">
+/// Linear gain applied to every sample (≤ 1, so it never clips). The audio
+/// endpoint uses 1 for processed clips of the audio track, whose level is the
+/// question (<see cref="AudioMixerService.ProcessedBlobPrefix"/>).
+/// </param>
 /// <param name="LeadInMilliseconds">Silence added before the clip.</param>
 /// <param name="TailMilliseconds">Silence added after the clip.</param>
 /// <param name="DitherSeed">Seed of the ±1 LSB triangular dither.</param>

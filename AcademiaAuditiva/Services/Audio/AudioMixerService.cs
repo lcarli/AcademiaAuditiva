@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using AcademiaAuditiva.Interfaces;
+using AcademiaAuditiva.Services.Audio.Processing;
 using AcademiaAuditiva.Services.Audio.Sources;
 using Azure;
 using Azure.Storage.Blobs;
@@ -36,6 +37,14 @@ public sealed class AudioMixerService : IAudioMixerService
     // sound different, so stored mixes made the old way are not reused.
     private const string MixVersion = "v2";
 
+    /// <summary>
+    /// Starts the name of every clip rendered from an
+    /// <see cref="AudioProcessingPlan"/>. The audio endpoint streams these at
+    /// their own level (see <see cref="ClipVariation"/>): their level is what
+    /// a round compares.
+    /// </summary>
+    public const string ProcessedBlobPrefix = "proc-";
+
     // A note shifted in pitch is resampled with a windowed sinc this many
     // samples wide on each side, from a table of this many sub-sample
     // positions. Linear interpolation would dull the shifted note and give
@@ -59,10 +68,10 @@ public sealed class AudioMixerService : IAudioMixerService
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<AudioMixerService> _logger;
 
-    // Process-local memo: once we've mixed a given (sorted) input plan,
-    // we keep the resulting blob name in memory so replays don't even
-    // need to HEAD the storage account while the blob is fresh.
-    private readonly ConcurrentDictionary<string, MixMemo> _planToMix = new();
+    // Process-local memo: once we've stored a clip, we keep its name in
+    // memory so replays don't even need to HEAD the storage account while
+    // the blob is fresh. Keyed by blob name, which hashes the whole plan.
+    private readonly ConcurrentDictionary<string, MixMemo> _memo = new();
 
     public AudioMixerService(
         BlobServiceClient blobServiceClient,
@@ -95,25 +104,122 @@ public sealed class AudioMixerService : IAudioMixerService
         // Even a single untrimmed note is mixed: the audio endpoint varies
         // every clip it streams (ClipVariation) and needs PCM WAV to do it.
         var planHash = ComputePlanHash(inputs);
-        if (_planToMix.TryGetValue(planHash, out var memo)
+        return await StoreAsync($"mix-{planHash}.wav", token => MixInputsAsync(inputs, token), cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<MixedAudio> RenderAsync(
+        AudioProcessingPlan plan,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(plan);
+        try
+        {
+            var source = (plan.SourceKey is null ? null : _audioSources.Find(plan.SourceKey))
+                ?? throw new ArgumentException("The plan names no listed audio source.", nameof(plan));
+            AudioProcessing.Validate(plan, source);
+
+            var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(AudioProcessing.Describe(plan, source.Version))));
+            return await StoreAsync($"{ProcessedBlobPrefix}{hash}.wav", token => ProcessAsync(source, plan, token), cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException && LogFailure(ex, plan))
+        {
+            throw;
+        }
+    }
+
+    // The parameters can be a round's answer: only the processors' names are logged.
+    private bool LogFailure(Exception ex, AudioProcessingPlan plan)
+    {
+        _logger.LogError(ex, "Processing audio source {Source} with {Processors} failed.", plan.SourceKey, ProcessorNames(plan));
+        return false;
+    }
+
+    private static string ProcessorNames(AudioProcessingPlan plan) =>
+        plan.Processors is null ? "" : string.Join(",", plan.Processors.Select(p => p?.Name ?? "null"));
+
+    private async Task<PcmAudio> ProcessAsync(AudioSource source, AudioProcessingPlan plan, CancellationToken cancellationToken)
+    {
+        var started = _timeProvider.GetTimestamp();
+        var audio = await _audioSources.ReadAsync(source, cancellationToken).ConfigureAwait(false);
+        var read = _timeProvider.GetElapsedTime(started);
+
+        started = _timeProvider.GetTimestamp();
+        var processed = AudioProcessing.Process(audio, plan.Processors);
+
+        // Validate predicts the peak from the source's measurement; this is the
+        // guard behind it. Nothing is ever scaled to fit, and nothing unprocessed
+        // is stored in its place.
+        foreach (var sample in processed.Samples)
+        {
+            if (!(Math.Abs(sample) <= MaxPeak))
+            {
+                throw new InvalidOperationException($"Processing audio source '{source.Key}' would clip.");
+            }
+        }
+
+        _logger.LogDebug("Processed audio source {Source} with {Processors}: read {ReadMs:F1} ms, DSP {DspMs:F1} ms.",
+            source.Key, ProcessorNames(plan), read.TotalMilliseconds, _timeProvider.GetElapsedTime(started).TotalMilliseconds);
+        return processed;
+    }
+
+    /// <summary>
+    /// Returns the stored clip named <paramref name="blobName"/>, rendering,
+    /// encoding and uploading it first when it is not stored or about to expire.
+    /// </summary>
+    private async Task<MixedAudio> StoreAsync(
+        string blobName,
+        Func<CancellationToken, Task<PcmAudio>> render,
+        CancellationToken cancellationToken)
+    {
+        if (_memo.TryGetValue(blobName, out var memo)
             && _timeProvider.GetUtcNow() - memo.WrittenAt < FreshFor)
         {
             return memo.Mix;
         }
 
-        var mixedBlobName = $"mix-{planHash}.wav";
-        var result = new MixedAudio(MixedContainerName, mixedBlobName);
-        var sourceContainer = _blobServiceClient.GetBlobContainerClient(SourceContainerName);
-        var mixedContainer = _blobServiceClient.GetBlobContainerClient(MixedContainerName);
-        var mixedBlob = mixedContainer.GetBlobClient(mixedBlobName);
+        var result = new MixedAudio(MixedContainerName, blobName);
+        var blob = _blobServiceClient.GetBlobContainerClient(MixedContainerName).GetBlobClient(blobName);
 
         // If a previous request (or replica) already produced this exact
-        // mix and the lifecycle rule hasn't deleted it, skip the work.
-        if (await KeepExistingAsync(mixedBlob, cancellationToken).ConfigureAwait(false) is { } writtenAt)
+        // clip and the lifecycle rule hasn't deleted it, skip the work.
+        if (await KeepExistingAsync(blob, cancellationToken).ConfigureAwait(false) is { } writtenAt)
         {
-            _planToMix[planHash] = new MixMemo(result, writtenAt);
+            _memo[blobName] = new MixMemo(result, writtenAt);
             return result;
         }
+
+        var audio = await render(cancellationToken).ConfigureAwait(false);
+
+        var started = _timeProvider.GetTimestamp();
+        using var wavStream = EncodeWav(audio);
+        var encoded = _timeProvider.GetElapsedTime(started);
+
+        // Upload, overwriting any copy that is about to expire. These blobs
+        // are short-lived; the lifecycle rule on the container deletes them,
+        // so the default tier is right.
+        started = _timeProvider.GetTimestamp();
+        try
+        {
+            await blob.UploadAsync(
+                wavStream,
+                new BlobHttpHeaders { ContentType = "audio/wav" },
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+        catch (RequestFailedException ex) when (ex.ErrorCode == BlobErrorCode.BlobAlreadyExists)
+        {
+            // Race against another request that produced the same hash.
+            // Both blobs would be byte-equivalent; nothing to do.
+        }
+
+        _memo[blobName] = new MixMemo(result, _timeProvider.GetUtcNow());
+        _logger.LogDebug("Stored {Container}/{Blob}: encode {EncodeMs:F1} ms, upload {UploadMs:F1} ms.",
+            result.Container, result.BlobName, encoded.TotalMilliseconds, _timeProvider.GetElapsedTime(started).TotalMilliseconds);
+        return result;
+    }
+
+    private async Task<PcmAudio> MixInputsAsync(IReadOnlyList<MixInput> inputs, CancellationToken cancellationToken)
+    {
+        var sourceContainer = _blobServiceClient.GetBlobContainerClient(SourceContainerName);
 
         // 1) Decode every source mp3 into float PCM. Honour the first
         //    sample's format as canonical; mismatched inputs would
@@ -205,32 +311,17 @@ public sealed class AudioMixerService : IAudioMixerService
             }
         }
 
-        // 5) Encode WAV (RIFF/PCM int16).
-        using var wavStream = new MemoryStream(44 + accum.Length * 2);
-        WriteWavHeader(wavStream, sr, ch, accum.Length);
-        WritePcm16(wavStream, accum);
+        _logger.LogDebug("Mixed {InputCount} sources ({Duration:F2}s)", inputs.Count, totalLengthSamples / (double)sr);
+        return new PcmAudio(sr, ch, accum);
+    }
+
+    private static MemoryStream EncodeWav(PcmAudio audio)
+    {
+        var wavStream = new MemoryStream(44 + audio.Samples.Length * 2);
+        WriteWavHeader(wavStream, audio.SampleRate, audio.Channels, audio.Samples.Length);
+        WritePcm16(wavStream, audio.Samples);
         wavStream.Position = 0;
-
-        // 6) Upload, overwriting any copy that is about to expire. These
-        //    blobs are short-lived; the lifecycle rule on the container
-        //    deletes them, so the default tier is right.
-        try
-        {
-            await mixedBlob.UploadAsync(
-                wavStream,
-                new BlobHttpHeaders { ContentType = "audio/wav" },
-                cancellationToken: cancellationToken).ConfigureAwait(false);
-        }
-        catch (RequestFailedException ex) when (ex.ErrorCode == BlobErrorCode.BlobAlreadyExists)
-        {
-            // Race against another request that produced the same hash.
-            // Both blobs would be byte-equivalent; nothing to do.
-        }
-
-        _planToMix[planHash] = new MixMemo(result, _timeProvider.GetUtcNow());
-        _logger.LogDebug("Mixed {InputCount} sources → {Container}/{Blob} ({Duration:F2}s)",
-            inputs.Count, result.Container, result.BlobName, totalLengthSamples / (double)sr);
-        return result;
+        return wavStream;
     }
 
     /// <summary>
