@@ -24,6 +24,10 @@ public sealed class AudioSourcesHealthCheck(AudioSourceLibrary library) : IHealt
             _complete = true;
         }
 
-        return Task.FromResult(HealthCheckResult.Healthy());
+        return Task.FromResult(HealthCheckResult.Healthy(data: new Dictionary<string, object>
+        {
+            ["privateStorage"] = library.UsesPrivateStorage,
+            ["preparedChunks"] = library.Sources.Count(source => source.IsRemote),
+        }));
     }
 }

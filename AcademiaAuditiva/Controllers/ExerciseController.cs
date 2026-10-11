@@ -1123,6 +1123,20 @@ namespace AcademiaAuditiva.Controllers
 		}
 		#endregion
 
+		#region AudioComparison
+		public IActionResult BoostOrCut() => AudioComparison("BoostOrCut");
+
+		public IActionResult GuessQ() => AudioComparison("GuessQ");
+
+		public IActionResult Compression() => AudioComparison("Compression");
+
+		private IActionResult AudioComparison(string name)
+		{
+			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == name);
+			return exercise == null ? NotFound() : View("AudioComparison", exercise.ToViewModel(_localizer));
+		}
+		#endregion
+
 		#region CompleteScale
 		public IActionResult CompleteScale()
 		{

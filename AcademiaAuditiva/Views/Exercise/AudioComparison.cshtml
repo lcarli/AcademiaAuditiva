@@ -1,0 +1,71 @@
+@using AcademiaAuditiva.Services.Audio
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+@{
+    ViewData["Title"] = Localizer[Model.Title].Value;
+    ViewData["FiltersPartial"] = "_ExerciseFilters";
+    var name = Model.Title;
+    var prefix = $"Exercise.{name}.";
+    var options = name switch
+    {
+        "BoostOrCut" => new[] { "boost|bass", "cut|bass", "boost|mids", "cut|mids", "boost|air", "cut|air" },
+        "GuessQ" => new[] { "broad", "medium", "narrow" },
+        "Compression" => new[] { "A", "B" },
+        _ => throw new InvalidOperationException("Unknown Audio comparison."),
+    };
+}
+
+@await Html.PartialAsync("_ExerciseHeader", Model)
+<input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+<div class="row g-4">
+    <div class="col-lg-8 order-lg-2">
+        <section class="aa-panel" aria-labelledby="aa-question">
+            <h2 id="aa-question" class="aa-question">@Localizer[prefix + "Question"]</h2>
+            <div class="d-flex justify-content-center mb-4">
+                <button type="button" id="Play" class="btn btn-primary px-4" data-aa-audio-unlock>
+                    <i class="bi bi-shuffle me-1" aria-hidden="true"></i>@Localizer[prefix + "New"]
+                </button>
+            </div>
+            @if (name != "Compression")
+            {
+                <p class="text-center text-body-secondary">@Localizer["Exercise.AudioComparison.Reference"]</p>
+            }
+            @await Html.PartialAsync("_ABPlayback")
+            <div class="aa-answer-grid mt-4" role="group" aria-label="@Localizer[prefix + "Question"]">
+                @foreach (var option in options)
+                {
+                    <button type="button" class="aa-answer guessAnswer" value="@option" aria-pressed="false">@Localizer[prefix + "Option." + option]</button>
+                }
+            </div>
+            <div class="aa-validate">
+                <button type="button" id="validateGuess" class="btn btn-primary px-4">@Localizer["Exercise.ValidationButton"]</button>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-4 order-lg-1">
+        @await Html.PartialAsync("_ExerciseInstructions", Model)
+    </div>
+</div>
+@await Html.PartialAsync("_ExerciseFiltersModal", Model)
+
+<div id="localizer"
+     data-exercise="@name"
+     data-level-filter="@TechnicalListeningRoundGenerator.LevelFilterFor(name)"
+     data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+     data-incomplete-text="@Localizer[prefix + "Incomplete"]"
+     data-validation-error-title="@Localizer["Exercise.ValidationErrorTitle"]"
+     data-validation-error-text="@Localizer["Exercise.ValidationErrorText"]"
+     data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+     data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+     data-feedback="@Localizer[prefix + "Feedback"].Value"
+     data-boost="@Localizer["Exercise.BoostOrCut.Direction.boost"]"
+     data-cut="@Localizer["Exercise.BoostOrCut.Direction.cut"]"
+     data-bass="@Localizer["Exercise.GuessFrequency.Region.bass"]"
+     data-mids="@Localizer["Exercise.GuessFrequency.Region.mids"]"
+     data-air="@Localizer["Exercise.GuessFrequency.Region.air"]"
+     data-broad="@Localizer["Exercise.GuessQ.Option.broad"]"
+     data-medium="@Localizer["Exercise.GuessQ.Option.medium"]"
+     data-narrow="@Localizer["Exercise.GuessQ.Option.narrow"]">
+</div>
+@section Scripts {
+    <script src="~/js/Exercises/AudioComparison.js" asp-append-version="true"></script>
+}

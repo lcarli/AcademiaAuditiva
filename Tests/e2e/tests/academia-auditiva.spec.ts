@@ -48,6 +48,9 @@ test('health endpoints expose the running app version', async ({ request }) => {
     const body = await response.json();
     expect(body.status).toBeTruthy();
     expect(body.version).toBeTruthy();
+    if (path === '/health/ready' && process.env.E2E_EXPECT_PRIVATE_SOURCES === '1') {
+      expect(body.audioSources).toEqual({ privateStorage: true, preparedChunks: 96 });
+    }
     if (process.env.E2E_EXPECT_VERSION) {
       expect(body.version).toBe(process.env.E2E_EXPECT_VERSION);
       expect(response.headers()['x-app-version']).toBe(process.env.E2E_EXPECT_VERSION);
@@ -271,7 +274,9 @@ test('Level Match keeps A/B opaque and requires the profile-specific answer', as
     { key: 'B', token: expect.stringMatching(/^[0-9a-f]{32}$/) }
   ]);
   expect(JSON.stringify(round)).not.toMatch(/louder|difference|source|gain|\.wav/i);
-  expect((await (await audioResponse).body()).length).toBeGreaterThan(1000);
+  const audioBytes = await (await audioResponse).body();
+  expect(audioBytes.length).toBeGreaterThan(1000);
+  verifyPrivateChunk(audioBytes);
   await expect(page.locator('[data-aa-ab-play="A"]')).toBeEnabled();
   await expect(page.locator('[data-aa-ab-play="B"]')).toBeEnabled();
 
@@ -397,7 +402,9 @@ test('an Audio foundations session scores all three exercises and keeps Music pr
         .toEqual(round.options);
     }
     expect(JSON.stringify(round)).not.toMatch(/frequency|boosted|source|gain|lufs|\.wav/i);
-    expect((await (await audioResponse).body()).length).toBeGreaterThan(1000);
+    const audioBytes = await (await audioResponse).body();
+    expect(audioBytes.length).toBeGreaterThan(1000);
+    verifyPrivateChunk(audioBytes);
     if (exercise === 'GuessFrequency') {
       await page.locator('.guessAnswer:visible').first().click();
     } else {
@@ -460,20 +467,26 @@ test('an Audio foundations session scores all three exercises and keeps Music pr
   await expect(page.locator('#aa-path-card-title')).toHaveText('Audio learning path');
   await expect(page.locator('#aa-challenge-card-title')).toHaveText('Audio daily challenge');
   await expect(page.locator('.aa-challenge-title')).toHaveCount(3);
-  expect(await page.locator('.aa-challenge-title').evaluateAll(links => links.map(link => link.getAttribute('href'))))
-    .toEqual(expect.arrayContaining(['/Exercise/LevelMatch', '/Exercise/StereoPosition', '/Exercise/GuessFrequency']));
+  for (const href of await page.locator('.aa-challenge-title').evaluateAll(links => links.map(link => link.getAttribute('href')))) {
+    expect(['/Exercise/LevelMatch', '/Exercise/StereoPosition', '/Exercise/GuessFrequency',
+      '/Exercise/BoostOrCut', '/Exercise/GuessQ', '/Exercise/Compression']).toContain(href);
+  }
   await page.goto(dashboard, { waitUntil: 'networkidle' });
   expect(await answers()).toBe(musicBefore);
 });
 
-test('Guess Frequency and Audio progress localize and fit every supported screen', async ({ page, baseURL }) => {
+test('Audio comparisons and progress localize and fit every supported screen', async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   for (const culture of cultures) {
-    for (const path of ['/Exercise/GuessFrequency', '/Dashboard?track=audio']) {
+    for (const path of ['/Exercise/GuessFrequency', '/Exercise/BoostOrCut', '/Exercise/GuessQ',
+      '/Exercise/Compression', '/Dashboard?track=audio']) {
       const separator = path.includes('?') ? '&' : '?';
       await page.goto(`${baseURL}${path}${separator}culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
       await closeTourIfStarted(page);
       await expect(page.locator('body')).not.toContainText('Exercise.GuessFrequency.');
+      await expect(page.locator('body')).not.toContainText('Exercise.BoostOrCut.');
+      await expect(page.locator('body')).not.toContainText('Exercise.GuessQ.');
+      await expect(page.locator('body')).not.toContainText('Exercise.Compression.');
       await expect(page.locator('body')).not.toContainText('DailyChallenge.Audio.Title');
       for (const width of [360, 768, 1024, 1280]) {
         await page.setViewportSize({ width, height: 900 });
@@ -485,12 +498,92 @@ test('Guess Frequency and Audio progress localize and fit every supported screen
         expect(map.skills.AudioComparison).not.toBe('ExerciseType.AudioComparison');
         expect(map.categories.FrequencyEq).not.toBe('ExerciseCategory.FrequencyEq');
         await expect(page.locator('#aa-challenge-card-title')).toBeVisible();
-      } else {
+      } else if (path.endsWith('GuessFrequency')) {
         await expect(page.locator('.guessAnswer:visible')).toHaveCount(0);
       }
     }
   }
 });
+
+test('EQ direction, Q and Compression play, score, reset and report failures', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  for (const [exercise, count, filter] of [
+    ['BoostOrCut', 6, 'bcLevel'], ['GuessQ', 3, 'gqLevel'], ['Compression', 2, 'cpLevel'],
+  ] as const) {
+    await page.goto(`${baseURL}/Exercise/${exercise}?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
+    await closeTourIfStarted(page);
+    await page.locator('#aaFreePractice').uncheck();
+    await expect(page.locator('.guessAnswer')).toHaveCount(count);
+    await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
+    const play = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
+    const audio = page.waitForResponse(response => response.url().includes('/audio/token/') && response.status() === 200);
+    await page.click('#Play');
+    const round = await (await play).json();
+    expect(Object.keys(round)).toEqual(['roundId', 'clips']);
+    expect(round.clips).toHaveLength(2);
+    expect(JSON.stringify(round)).not.toMatch(/source|ratio|direction|threshold|frequency|width|\.wav/i);
+    const audioBytes = await (await audio).body();
+    expect(audioBytes.length).toBeGreaterThan(1000);
+    verifyPrivateChunk(audioBytes);
+    await page.locator('[data-aa-ab-play="B"]').click();
+    await page.locator('.guessAnswer').first().focus();
+    await page.keyboard.press('Enter');
+    const validated = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise') && response.status() === 200);
+    await page.click('#validateGuess');
+    const result = await (await validated).json();
+    expect(result.success).toBe(true);
+    expect(result.free).not.toBe(true);
+    const feedback = page.locator('.swal2-html-container');
+    await expect(feedback).not.toContainText('undefined');
+    await expect(feedback).toContainText(exercise === 'BoostOrCut' ? 'dB' : exercise === 'GuessQ' ? 'Q ' : 'ratio');
+    await page.click('.swal2-confirm');
+    await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
+    await expect(page.locator('.guessAnswer.selected')).toHaveCount(0);
+    const pending = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
+    await page.click('#Play');
+    await pending;
+    await page.locator('.guessAnswer').first().click();
+    const filters = page.locator('#filtersModal');
+    await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+    await filters.locator(`select[name="${filter}"]`).selectOption('advanced');
+    await filters.locator('.btn-close').click();
+    await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
+    await expect(page.locator('.guessAnswer.selected')).toHaveCount(0);
+  }
+  await page.route('**/Exercise/RequestPlay', route => route.fulfill({
+    json: { success: false, title: 'Audio unavailable', message: 'Could not prepare the comparison.' },
+  }));
+  await page.click('#Play');
+  await expect(page.locator('.swal2-title')).toHaveText('Audio unavailable');
+  await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
+});
+
+function verifyPrivateChunk(wav: Buffer) {
+  if (process.env.E2E_EXPECT_PRIVATE_SOURCES !== '1') return;
+  expect(wav.toString('ascii', 0, 4)).toBe('RIFF');
+  expect(wav.toString('ascii', 8, 12)).toBe('WAVE');
+  let sampleRate = 0;
+  let channels = 0;
+  let blockAlign = 0;
+  let dataLength = 0;
+  for (let offset = 12; offset + 8 <= wav.length;) {
+    const size = wav.readUInt32LE(offset + 4);
+    const chunk = wav.toString('ascii', offset, offset + 4);
+    if (chunk === 'fmt ') {
+      channels = wav.readUInt16LE(offset + 10);
+      sampleRate = wav.readUInt32LE(offset + 12);
+      blockAlign = wav.readUInt16LE(offset + 20);
+    }
+    if (chunk === 'data') dataLength = size;
+    offset += 8 + size + (size % 2);
+  }
+  expect(channels).toBe(2);
+  expect(sampleRate).toBe(44100);
+  const frames = dataLength / blockAlign;
+  // The token endpoint adds up to 25 ms lead-in and 250 ms tail for anti-cheat.
+  expect(frames).toBeGreaterThanOrEqual(441000);
+  expect(frames).toBeLessThanOrEqual(441000 + Math.floor(44100 * 0.025) + Math.floor(44100 * 0.250));
+}
 
 test('the chosen instrument plays the round and is remembered', async ({ page, baseURL, context }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);

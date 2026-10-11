@@ -5104,4 +5104,63 @@
   <data name="DailyChallenge.Audio.Title" xml:space="preserve">
     <value>Défi quotidien audio</value>
   </data>
+  <data name="BoostOrCut" xml:space="preserve"><value>Accentuation ou atténuation</value></data>
+  <data name="GuessQ" xml:space="preserve"><value>Identification du Q</value></data>
+  <data name="Compression" xml:space="preserve"><value>Compression</value></data>
+  <data name="Exercise.AudioComparison.Reference" xml:space="preserve"><value>A est la référence. B est égalisé. Les deux ont une sonie équivalente.</value></data>
+  <data name="Exercise.BoostOrCut.Subtitle" xml:space="preserve"><value>Identifiez une accentuation ou une atténuation des graves, médiums ou aigus.</value></data>
+  <data name="Exercise.BoostOrCut.Instructions" xml:space="preserve"><value>Alternez entre A (référence) et B (égalisé). Choisissez la direction et la région affectée. La sonie est équivalente : une atténuation ne signifie pas simplement un signal plus faible.</value></data>
+  <data name="Exercise.BoostOrCut.Tip1" xml:space="preserve"><value>Écoutez le poids des graves, le corps des médiums ou la brillance des aigus.</value></data>
+  <data name="Exercise.BoostOrCut.Tip2" xml:space="preserve"><value>Une accentuation met une région en avant ; une atténuation la retire par rapport au reste.</value></data>
+  <data name="Exercise.BoostOrCut.Tip3" xml:space="preserve"><value>Les fréquences centrales sont 125 Hz, 1 kHz et 8 kHz. Le gain passe de 9 à 6 puis à 3 dB avec la difficulté.</value></data>
+  <data name="Exercise.BoostOrCut.Question" xml:space="preserve"><value>Quel changement entendez-vous dans B ?</value></data>
+  <data name="Exercise.BoostOrCut.New" xml:space="preserve"><value>Nouvelle comparaison</value></data>
+  <data name="Exercise.BoostOrCut.Incomplete" xml:space="preserve"><value>Générez une comparaison et choisissez une direction et une région avant de valider.</value></data>
+  <data name="Exercise.BoostOrCut.Level.Beginner" xml:space="preserve"><value>Débutant · 9 dB</value></data>
+  <data name="Exercise.BoostOrCut.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 6 dB</value></data>
+  <data name="Exercise.BoostOrCut.Level.Advanced" xml:space="preserve"><value>Avancé · 3 dB</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|bass" xml:space="preserve"><value>Graves accentués</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|bass" xml:space="preserve"><value>Graves atténués</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|mids" xml:space="preserve"><value>Médiums accentués</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|mids" xml:space="preserve"><value>Médiums atténués</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|air" xml:space="preserve"><value>Aigus accentués</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|air" xml:space="preserve"><value>Aigus atténués</value></data>
+  <data name="Exercise.BoostOrCut.Direction.boost" xml:space="preserve"><value>accentuation</value></data>
+  <data name="Exercise.BoostOrCut.Direction.cut" xml:space="preserve"><value>atténuation</value></data>
+  <data name="Exercise.BoostOrCut.Feedback" xml:space="preserve"><value>B a reçu une {0} dans les {1} ({2} Hz, {3} dB). Comparez cette région avec A, plutôt que le volume global.</value></data>
+  <data name="Exercise.GuessQ.Subtitle" xml:space="preserve"><value>Reconnaissez une accentuation large, moyenne ou étroite par son effet sur le timbre.</value></data>
+  <data name="Exercise.GuessQ.Instructions" xml:space="preserve"><value>Comparez A (référence) et B (égalisé), puis choisissez la largeur de la bande dans B. Toutes les accentuations ont le même gain central de 9 dB ; un Q plus élevé signifie une bande plus étroite.</value></data>
+  <data name="Exercise.GuessQ.Tip1" xml:space="preserve"><value>Une bande large change une grande partie du timbre ; une bande étroite semble plus concentrée ou résonante.</value></data>
+  <data name="Exercise.GuessQ.Tip2" xml:space="preserve"><value>Écoutez autour de la fréquence accentuée, pas seulement au centre.</value></data>
+  <data name="Exercise.GuessQ.Tip3" xml:space="preserve"><value>Les centres varient entre 500 Hz, 1 kHz et 2 kHz. Les largeurs se rapprochent aux niveaux supérieurs.</value></data>
+  <data name="Exercise.GuessQ.Question" xml:space="preserve"><value>Quelle est la largeur de la bande accentuée dans B ?</value></data>
+  <data name="Exercise.GuessQ.New" xml:space="preserve"><value>Nouvelle comparaison</value></data>
+  <data name="Exercise.GuessQ.Incomplete" xml:space="preserve"><value>Générez une comparaison et choisissez une largeur avant de valider.</value></data>
+  <data name="Exercise.GuessQ.Level.Beginner" xml:space="preserve"><value>Débutant · Q 0,35 / 1 / 4</value></data>
+  <data name="Exercise.GuessQ.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · Q 0,5 / 1,5 / 4</value></data>
+  <data name="Exercise.GuessQ.Level.Advanced" xml:space="preserve"><value>Avancé · Q 0,7 / 1,4 / 2,8</value></data>
+  <data name="Exercise.GuessQ.Option.broad" xml:space="preserve"><value>Large</value></data>
+  <data name="Exercise.GuessQ.Option.medium" xml:space="preserve"><value>Moyenne</value></data>
+  <data name="Exercise.GuessQ.Option.narrow" xml:space="preserve"><value>Étroite</value></data>
+  <data name="Exercise.GuessQ.Feedback" xml:space="preserve"><value>B avait une bande {0} à {1} Hz (Q {2}). Un Q plus faible affecte davantage de fréquences voisines ; un Q plus élevé concentre le changement.</value></data>
+  <data name="Exercise.Compression.Subtitle" xml:space="preserve"><value>Entendez les changements de transitoires et de sustain sans avantage de sonie.</value></data>
+  <data name="Exercise.Compression.Instructions" xml:space="preserve"><value>Alternez entre A et B et choisissez le signal comprimé. Les versions originale et comprimée ont une sonie équivalente. Écoutez les attaques adoucies et le sustain plus dense et régulier.</value></data>
+  <data name="Exercise.Compression.Tip1" xml:space="preserve"><value>Comparez les attaques de batterie et les espaces entre les coups, pas le volume global.</value></data>
+  <data name="Exercise.Compression.Tip2" xml:space="preserve"><value>La compression réduit les crêtes fortes ; le réglage de sonie peut faire ressortir les détails plus faibles.</value></data>
+  <data name="Exercise.Compression.Tip3" xml:space="preserve"><value>Le côté traité est tiré au sort. Aux niveaux supérieurs, le seuil monte et le ratio diminue pour des changements plus subtils.</value></data>
+  <data name="Exercise.Compression.Question" xml:space="preserve"><value>Quel signal a été comprimé ?</value></data>
+  <data name="Exercise.Compression.New" xml:space="preserve"><value>Nouvelle comparaison</value></data>
+  <data name="Exercise.Compression.Incomplete" xml:space="preserve"><value>Générez une comparaison et choisissez A ou B avant de valider.</value></data>
+  <data name="Exercise.Compression.Level.Beginner" xml:space="preserve"><value>Débutant · compression forte</value></data>
+  <data name="Exercise.Compression.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · compression modérée</value></data>
+  <data name="Exercise.Compression.Level.Advanced" xml:space="preserve"><value>Avancé · compression subtile</value></data>
+  <data name="Exercise.Compression.Option.A" xml:space="preserve"><value>A a été comprimé</value></data>
+  <data name="Exercise.Compression.Option.B" xml:space="preserve"><value>B a été comprimé</value></data>
+  <data name="Exercise.Compression.Feedback" xml:space="preserve"><value>Le signal {0} a été comprimé (ratio {1} :1, attaque {2} ms, relâchement {3} ms). Écoutez le contraste réduit des transitoires et le sustain plus régulier à sonie équivalente.</value></data>
+  <data name="LearningPath.Unit.EqDirection.Title" xml:space="preserve"><value>Direction de l’égalisation</value></data>
+  <data name="LearningPath.Unit.EqDirection.Description" xml:space="preserve"><value>Distinguez les accentuations des atténuations dans trois régions spectrales.</value></data>
+  <data name="LearningPath.Unit.EqWidth.Title" xml:space="preserve"><value>Largeur de l’égalisation</value></data>
+  <data name="LearningPath.Unit.EqWidth.Description" xml:space="preserve"><value>Entendez comment le Q change la largeur de la bande.</value></data>
+  <data name="LearningPath.Unit.CompressionFoundations.Title" xml:space="preserve"><value>Fondements de compression</value></data>
+  <data name="LearningPath.Unit.CompressionFoundations.Description" xml:space="preserve"><value>Reconnaissez les changements de dynamique sans vous fier au volume.</value></data>
 </root>

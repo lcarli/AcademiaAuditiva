@@ -5104,4 +5104,63 @@
   <data name="DailyChallenge.Audio.Title" xml:space="preserve">
     <value>Audio daily challenge</value>
   </data>
+  <data name="BoostOrCut" xml:space="preserve"><value>Boost or Cut</value></data>
+  <data name="GuessQ" xml:space="preserve"><value>Guess the Q</value></data>
+  <data name="Compression" xml:space="preserve"><value>Compression</value></data>
+  <data name="Exercise.AudioComparison.Reference" xml:space="preserve"><value>A is the reference. B has the EQ change. Both have matched loudness.</value></data>
+  <data name="Exercise.BoostOrCut.Subtitle" xml:space="preserve"><value>Identify whether EQ boosted or cut the bass, mids or highs.</value></data>
+  <data name="Exercise.BoostOrCut.Instructions" xml:space="preserve"><value>Switch between A (reference) and B (equalized). Choose both the direction and the affected region. Loudness is matched, so a cut does not simply mean a quieter clip.</value></data>
+  <data name="Exercise.BoostOrCut.Tip1" xml:space="preserve"><value>Listen for bass weight, midrange body or high-frequency brightness.</value></data>
+  <data name="Exercise.BoostOrCut.Tip2" xml:space="preserve"><value>A boost brings a region forward; a cut takes that region away relative to the rest.</value></data>
+  <data name="Exercise.BoostOrCut.Tip3" xml:space="preserve"><value>The center frequencies are 125 Hz, 1 kHz and 8 kHz. Gain changes from 9 to 6 to 3 dB as difficulty increases.</value></data>
+  <data name="Exercise.BoostOrCut.Question" xml:space="preserve"><value>What changed in B?</value></data>
+  <data name="Exercise.BoostOrCut.New" xml:space="preserve"><value>New comparison</value></data>
+  <data name="Exercise.BoostOrCut.Incomplete" xml:space="preserve"><value>Generate a comparison and choose a direction and region before checking.</value></data>
+  <data name="Exercise.BoostOrCut.Level.Beginner" xml:space="preserve"><value>Beginner · 9 dB</value></data>
+  <data name="Exercise.BoostOrCut.Level.Intermediate" xml:space="preserve"><value>Intermediate · 6 dB</value></data>
+  <data name="Exercise.BoostOrCut.Level.Advanced" xml:space="preserve"><value>Advanced · 3 dB</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|bass" xml:space="preserve"><value>Bass boost</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|bass" xml:space="preserve"><value>Bass cut</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|mids" xml:space="preserve"><value>Midrange boost</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|mids" xml:space="preserve"><value>Midrange cut</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|air" xml:space="preserve"><value>High-frequency boost</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|air" xml:space="preserve"><value>High-frequency cut</value></data>
+  <data name="Exercise.BoostOrCut.Direction.boost" xml:space="preserve"><value>boost</value></data>
+  <data name="Exercise.BoostOrCut.Direction.cut" xml:space="preserve"><value>cut</value></data>
+  <data name="Exercise.BoostOrCut.Feedback" xml:space="preserve"><value>B had a {0} in the {1} region ({2} Hz, {3} dB). Compare that region with A, rather than judging the overall volume.</value></data>
+  <data name="Exercise.GuessQ.Subtitle" xml:space="preserve"><value>Recognize a broad, medium or narrow EQ boost by its tonal footprint.</value></data>
+  <data name="Exercise.GuessQ.Instructions" xml:space="preserve"><value>Compare A (reference) and B (equalized), then choose the width of the boost in B. All boosts have the same center gain of 9 dB; a higher Q means a narrower band.</value></data>
+  <data name="Exercise.GuessQ.Tip1" xml:space="preserve"><value>A broad boost changes a large part of the tone; a narrow boost sounds more focused or resonant.</value></data>
+  <data name="Exercise.GuessQ.Tip2" xml:space="preserve"><value>Listen around the emphasized frequency, not only at its center.</value></data>
+  <data name="Exercise.GuessQ.Tip3" xml:space="preserve"><value>Centers vary between 500 Hz, 1 kHz and 2 kHz. Widths get closer together at higher levels.</value></data>
+  <data name="Exercise.GuessQ.Question" xml:space="preserve"><value>How wide is the EQ boost in B?</value></data>
+  <data name="Exercise.GuessQ.New" xml:space="preserve"><value>New comparison</value></data>
+  <data name="Exercise.GuessQ.Incomplete" xml:space="preserve"><value>Generate a comparison and choose a width before checking.</value></data>
+  <data name="Exercise.GuessQ.Level.Beginner" xml:space="preserve"><value>Beginner · Q 0.35 / 1 / 4</value></data>
+  <data name="Exercise.GuessQ.Level.Intermediate" xml:space="preserve"><value>Intermediate · Q 0.5 / 1.5 / 4</value></data>
+  <data name="Exercise.GuessQ.Level.Advanced" xml:space="preserve"><value>Advanced · Q 0.7 / 1.4 / 2.8</value></data>
+  <data name="Exercise.GuessQ.Option.broad" xml:space="preserve"><value>Broad</value></data>
+  <data name="Exercise.GuessQ.Option.medium" xml:space="preserve"><value>Medium</value></data>
+  <data name="Exercise.GuessQ.Option.narrow" xml:space="preserve"><value>Narrow</value></data>
+  <data name="Exercise.GuessQ.Feedback" xml:space="preserve"><value>B had a {0} boost at {1} Hz (Q {2}). A lower Q affects more neighboring frequencies; a higher Q concentrates the change.</value></data>
+  <data name="Exercise.Compression.Subtitle" xml:space="preserve"><value>Hear how compression changes transients and sustain without a loudness advantage.</value></data>
+  <data name="Exercise.Compression.Instructions" xml:space="preserve"><value>Switch between A and B and choose which clip was compressed. The original and compressed versions have matched loudness. Listen for softened attacks and a denser, steadier sustain.</value></data>
+  <data name="Exercise.Compression.Tip1" xml:space="preserve"><value>Compare drum attacks and the space between hits, not the overall volume.</value></data>
+  <data name="Exercise.Compression.Tip2" xml:space="preserve"><value>Compression reduces louder peaks; loudness matching can make quieter details more noticeable.</value></data>
+  <data name="Exercise.Compression.Tip3" xml:space="preserve"><value>The processed side is randomized. Higher levels use a higher threshold and lower ratio for subtler changes.</value></data>
+  <data name="Exercise.Compression.Question" xml:space="preserve"><value>Which clip was compressed?</value></data>
+  <data name="Exercise.Compression.New" xml:space="preserve"><value>New comparison</value></data>
+  <data name="Exercise.Compression.Incomplete" xml:space="preserve"><value>Generate a comparison and choose A or B before checking.</value></data>
+  <data name="Exercise.Compression.Level.Beginner" xml:space="preserve"><value>Beginner · strong compression</value></data>
+  <data name="Exercise.Compression.Level.Intermediate" xml:space="preserve"><value>Intermediate · moderate compression</value></data>
+  <data name="Exercise.Compression.Level.Advanced" xml:space="preserve"><value>Advanced · subtle compression</value></data>
+  <data name="Exercise.Compression.Option.A" xml:space="preserve"><value>A was compressed</value></data>
+  <data name="Exercise.Compression.Option.B" xml:space="preserve"><value>B was compressed</value></data>
+  <data name="Exercise.Compression.Feedback" xml:space="preserve"><value>Clip {0} was compressed (ratio {1}:1, attack {2} ms, release {3} ms). Listen for reduced transient contrast and steadier sustain at matched loudness.</value></data>
+  <data name="LearningPath.Unit.EqDirection.Title" xml:space="preserve"><value>EQ direction</value></data>
+  <data name="LearningPath.Unit.EqDirection.Description" xml:space="preserve"><value>Distinguish boosts from cuts in three spectral regions.</value></data>
+  <data name="LearningPath.Unit.EqWidth.Title" xml:space="preserve"><value>EQ width</value></data>
+  <data name="LearningPath.Unit.EqWidth.Description" xml:space="preserve"><value>Hear how Q changes the width of an EQ band.</value></data>
+  <data name="LearningPath.Unit.CompressionFoundations.Title" xml:space="preserve"><value>Compression foundations</value></data>
+  <data name="LearningPath.Unit.CompressionFoundations.Description" xml:space="preserve"><value>Recognize changes in dynamics without relying on loudness.</value></data>
 </root>

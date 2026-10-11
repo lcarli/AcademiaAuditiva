@@ -244,6 +244,60 @@ namespace AcademiaAuditiva.Services.ExerciseValidators
         string Region,
         string SourceKind);
 
+    public sealed class BoostOrCutValidator : IExerciseValidator
+    {
+        public string ExerciseName => "BoostOrCut";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var expected = JObject.Parse(expectedAnswerJson);
+            return ValidatorHelpers.MatchSingleField((userGuess ?? "").Trim(), expectedAnswerJson, "answer") with
+            {
+                Detail = new BoostOrCutValidationDetail(
+                    expected["direction"]!.Value<string>()!, expected["region"]!.Value<string>()!,
+                    expected["frequencyHz"]!.Value<int>(), expected["gainDb"]!.Value<double>()),
+            };
+        }
+    }
+
+    public sealed record BoostOrCutValidationDetail(string Direction, string Region, int FrequencyHz, double GainDb);
+
+    public sealed class GuessQValidator : IExerciseValidator
+    {
+        public string ExerciseName => "GuessQ";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var expected = JObject.Parse(expectedAnswerJson);
+            return ValidatorHelpers.MatchSingleField((userGuess ?? "").Trim(), expectedAnswerJson, "answer") with
+            {
+                Detail = new GuessQValidationDetail(
+                    expected["answer"]!.Value<string>()!, expected["q"]!.Value<double>(),
+                    expected["frequencyHz"]!.Value<int>()),
+            };
+        }
+    }
+
+    public sealed record GuessQValidationDetail(string Width, double Q, int FrequencyHz);
+
+    public sealed class CompressionValidator : IExerciseValidator
+    {
+        public string ExerciseName => "Compression";
+
+        public ExerciseValidationResult Validate(string userGuess, string expectedAnswerJson)
+        {
+            var expected = JObject.Parse(expectedAnswerJson);
+            return ValidatorHelpers.MatchSingleField((userGuess ?? "").Trim(), expectedAnswerJson, "answer") with
+            {
+                Detail = new CompressionValidationDetail(
+                    expected["compressedClip"]!.Value<string>()!, expected["ratio"]!.Value<double>(),
+                    expected["attackMs"]!.Value<double>(), expected["releaseMs"]!.Value<double>()),
+            };
+        }
+    }
+
+    public sealed record CompressionValidationDetail(string CompressedClip, double Ratio, double AttackMs, double ReleaseMs);
+
     public sealed class GuessScaleTypeValidator : IExerciseValidator
     {
         public string ExerciseName => "GuessScaleType";

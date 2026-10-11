@@ -126,6 +126,9 @@ public class UserReportService
                 "LevelMatch" => "lmLevel",
                 "StereoPosition" => "spLevel",
                 "GuessFrequency" => "gfLevel",
+                "BoostOrCut" => "bcLevel",
+                "GuessQ" => "gqLevel",
+                "Compression" => "cpLevel",
                 _ => "",
             };
             var level = ExerciseFilterPresets.Parse(answer.FilterJson).GetValueOrDefault(key);

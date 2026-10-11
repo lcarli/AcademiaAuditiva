@@ -14,7 +14,7 @@ public static class AudioProcessing
     /// Part of every processed clip's name. Change it whenever the same plan
     /// starts to sound different, so clips processed the old way are not reused.
     /// </summary>
-    public const string EngineVersion = "p2";
+    public const string EngineVersion = "p3";
 
     public const int MaxProcessors = 8;
 
@@ -111,6 +111,17 @@ public static class AudioProcessing
                     ValidateEq(eq, sampleRate);
                     measurePeak = true;
                     break;
+                case CompressorProcessor compressor:
+                    if (!(compressor.ThresholdDbfs is >= -60 and <= 0)
+                        || !(compressor.Ratio is >= 1 and <= 20)
+                        || !(compressor.AttackMs is >= 0 and <= 200)
+                        || !(compressor.ReleaseMs is >= 5 and <= 2000))
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(processors),
+                            "Compression needs a threshold from -60 to 0 dBFS, ratio from 1 to 20, attack from 0 to 200 ms and release from 5 to 2000 ms.");
+                    }
+                    measurePeak = true;
+                    break;
                 case LoudnessMatchProcessor match:
                     if (!(match.TargetLufs is >= AudioSourceRules.MinLoudnessLufs and <= AudioSourceRules.MaxLoudnessLufs))
                     {
@@ -178,6 +189,7 @@ public static class AudioProcessing
                 GainProcessor gain => Gain(audio, gain.Decibels),
                 PanProcessor pan => Pan(audio, pan.Position),
                 PeakingEqProcessor eq => PeakingEq(audio, eq),
+                CompressorProcessor compressor => Compress(audio, compressor),
                 LoudnessMatchProcessor match => MatchLoudness(audio, match.TargetLufs),
                 _ => throw new ArgumentException($"Unknown processor {processor?.GetType().Name ?? "null"}.", nameof(processors)),
             };
@@ -235,6 +247,7 @@ public static class AudioProcessing
         GainProcessor gain => $"gain({Number(gain.Decibels)})",
         PanProcessor pan => $"pan({Number(pan.Position)})",
         PeakingEqProcessor eq => $"peaking-eq({Number(eq.FrequencyHz)},{Number(eq.GainDb)},{Number(eq.Q)})",
+        CompressorProcessor compressor => $"compressor({Number(compressor.ThresholdDbfs)},{Number(compressor.Ratio)},{Number(compressor.AttackMs)},{Number(compressor.ReleaseMs)})",
         LoudnessMatchProcessor match => $"loudness-match({Number(match.TargetLufs)})",
         _ => throw new ArgumentException($"Unknown processor {processor?.GetType().Name ?? "null"}.", nameof(processor)),
     };
@@ -298,6 +311,28 @@ public static class AudioProcessing
                 var i = f * audio.Channels + c;
                 audio.Samples[i] = (float)filters[c].Next(audio.Samples[i]);
             }
+        }
+        return audio;
+    }
+
+    private static PcmAudio Compress(PcmAudio audio, CompressorProcessor compressor)
+    {
+        var attack = compressor.AttackMs == 0 ? 0 : Math.Exp(-1 / (audio.SampleRate * compressor.AttackMs / 1000));
+        var release = Math.Exp(-1 / (audio.SampleRate * compressor.ReleaseMs / 1000));
+        var envelope = 0.0;
+        for (var frame = 0; frame < audio.Frames; frame++)
+        {
+            var offset = frame * audio.Channels;
+            var peak = 0.0;
+            for (var channel = 0; channel < audio.Channels; channel++)
+                peak = Math.Max(peak, Math.Abs(audio.Samples[offset + channel]));
+            var coefficient = peak > envelope ? attack : release;
+            envelope = coefficient * envelope + (1 - coefficient) * peak;
+            var inputDb = envelope > 0 ? 20 * Math.Log10(envelope) : double.NegativeInfinity;
+            var desiredDb = -Math.Max(0, inputDb - compressor.ThresholdDbfs) * (1 - 1 / compressor.Ratio);
+            var gain = LinearGain(desiredDb);
+            for (var channel = 0; channel < audio.Channels; channel++)
+                audio.Samples[offset + channel] = (float)(audio.Samples[offset + channel] * gain);
         }
         return audio;
     }

@@ -48,7 +48,9 @@ public class LocalizedNamesTests : IClassFixture<TestWebApplicationFactory>
         foreach (var (id, name) in names)
         {
             name.Should().Be(resources.GetString(id, CultureInfo.GetCultureInfo(culture)), "{0} needs a {1} name", id, culture)
-                .And.NotBe(id);
+                .And.NotBeNullOrWhiteSpace();
+            // Compression is also the natural English and French display name.
+            if (id != "Compression") name.Should().NotBe(id);
         }
         names["HigherOrLower"].Should().Be(higherOrLower);
         html.Should().NotContain("GetExerciseTranslations", "no list waits for another request to name exercises");

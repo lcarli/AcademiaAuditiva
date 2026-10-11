@@ -123,7 +123,21 @@ Production additionally discovers licensed music chunks from the private
 `audio-training-sources` container. Local development deliberately uses only
 the bundled sources unless `Storage:TrainingSourcesContainer` names a container
 with the complete 96-chunk catalog; when configured, the readiness check fails
-instead of silently falling back if that catalog cannot be listed.
+instead of silently falling back if its approved manifest or any listed chunk is
+missing. With private storage enabled, qualified music excerpts take precedence
+over bundled sources in all six Audio exercises. `/health/ready` reports the
+private-storage flag and prepared-chunk count.
+
+To numerically verify the privately prepared originals without copying them into
+git, set `AA_TEST_TRAINING_SOURCES` to the folder containing `storage-manifest.json`
+and its 96 WAVs, then run:
+
+```powershell
+dotnet test Tests\AcademiaAuditiva.UnitTests --filter FullyQualifiedName~PrivateTrainingSourcesTests
+```
+
+Those private-file checks are explicitly skipped when the variable is absent;
+generated-source DSP and application coverage still run in normal CI.
 
 ## 4. Run the app
 

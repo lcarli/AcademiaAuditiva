@@ -296,6 +296,7 @@ public class AudioProcessingTests(ITestOutputHelper output)
         {
             processors.Add(new PanProcessor(0.3));
         }
+        processors.Add(new CompressorProcessor(-36, 2, 1, 50));
         double[] frequencies = [40, 100, 250, 1000, 2500, 6000, 10000];
         foreach (var frequency in frequencies.Take(AudioProcessing.MaxProcessors - processors.Count - 1))
         {

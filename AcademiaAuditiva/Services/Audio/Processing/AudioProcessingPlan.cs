@@ -46,6 +46,13 @@ public sealed record PeakingEqProcessor(double FrequencyHz, double GainDb, doubl
     public override string Name => "peaking-eq";
 }
 
+/// <summary>A stereo-linked peak compressor without makeup gain, lookahead or a limiter.</summary>
+public sealed record CompressorProcessor(
+    double ThresholdDbfs, double Ratio, double AttackMs, double ReleaseMs) : AudioProcessor
+{
+    public override string Name => "compressor";
+}
+
 /// <summary>
 /// Matches BS.1770 integrated loudness to <paramref name="TargetLufs"/>.
 /// Explicit and last in a plan: it must not erase a level-training difference.

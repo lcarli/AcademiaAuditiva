@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Azure;
 using Azure.Storage.Blobs;
@@ -19,8 +20,12 @@ public sealed partial class AudioSourceLibrary
     private readonly Dictionary<string, AudioSource> _byKey;
     private readonly BlobContainerClient? _storage;
     private readonly object _storageLock = new();
-    private IReadOnlyList<AudioSource>? _sources;
+    private volatile IReadOnlyList<AudioSource>? _sources;
     private string? _storageProblem;
+    internal const string StorageManifestBlob = "manifests/prepared-180c2f40f596.json";
+    private const string StorageManifestSha256 = "180c2f40f5964cf664fb643f3438ee51b6ede8e83cc7d2f3fa90db178449acf4";
+
+    public bool UsesPrivateStorage => _storage is not null;
 
     /// <param name="root">The <c>Audio/Sources</c> folder.</param>
     /// <exception cref="InvalidDataException">The catalog is malformed, or a source breaks a rule.</exception>
@@ -76,9 +81,12 @@ public sealed partial class AudioSourceLibrary
                 .ConfigureAwait(false);
             var remoteBytes = response.Value.Content.ToArray();
             var hash = Convert.ToHexStringLower(SHA256.HashData(remoteBytes));
-            if (!hash.StartsWith(source.Audio.Sha256, StringComparison.Ordinal))
-                throw new InvalidDataException($"The remote audio source '{source.Key}' does not match its content-addressed name.");
-            return WavFile.Read(remoteBytes);
+            if (hash != source.Audio.Sha256)
+                throw new InvalidDataException($"The remote audio source '{source.Key}' does not match its approved SHA-256.");
+            var audio = WavFile.Read(remoteBytes);
+            if (audio.SampleRate != source.Audio.SampleRate || audio.Channels != source.Audio.Channels || audio.Frames != source.Audio.Frames)
+                throw new InvalidDataException($"The remote audio source '{source.Key}' does not match its approved PCM layout.");
+            return audio;
         }
 
         var bytes = await File.ReadAllBytesAsync(PathOf(source), cancellationToken).ConfigureAwait(false);
@@ -122,16 +130,18 @@ public sealed partial class AudioSourceLibrary
 
             try
             {
-                var remote = _storage!.GetBlobs(BlobTraits.None, BlobStates.None, "chunks/", CancellationToken.None)
-                    .Select(item => FromStorageBlob(item.Name))
-                    .Where(source => source is not null)
-                    .Cast<AudioSource>()
-                    .ToArray();
-                _storageProblem = null;
-                if (remote.Length != 96)
-                    _storageProblem = $"{_storage.Name}: expected 96 prepared chunks but found {remote.Length}";
+                var manifest = _storage!.GetBlobClient(StorageManifestBlob).DownloadContent(CancellationToken.None).Value.Content.ToArray();
+                if (Convert.ToHexStringLower(SHA256.HashData(manifest)) != StorageManifestSha256)
+                    throw new InvalidDataException("The private training manifest does not match the approved SHA-256.");
+                var remote = FromStorageManifest(manifest);
+                var available = _storage.GetBlobs(BlobTraits.None, BlobStates.None, "chunks/", CancellationToken.None)
+                    .Select(item => item.Name).ToHashSet(StringComparer.Ordinal);
+                var missing = remote.Count(source => !available.Contains(source.BlobName!));
+                if (missing != 0)
+                    throw new InvalidDataException($"The private training catalog is missing {missing} approved chunks.");
                 foreach (var source in remote)
                     _byKey.Add(source.Key, source);
+                _storageProblem = null;
             }
             catch (RequestFailedException ex)
             {
@@ -140,12 +150,52 @@ public sealed partial class AudioSourceLibrary
                     throw new InvalidOperationException(_storageProblem, ex);
                 return;
             }
+            catch (InvalidDataException ex)
+            {
+                _storageProblem = ex.Message;
+                if (throwOnFailure) throw;
+                return;
+            }
 
             _sources = _byKey.Values.ToArray();
         }
     }
 
-    internal static AudioSource? FromStorageBlob(string blobName)
+    internal static IReadOnlyList<AudioSource> FromStorageManifest(byte[] bytes)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(bytes);
+            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            var sources = document.RootElement.GetProperty("chunks").EnumerateArray().Select(chunk =>
+            {
+                var measurement = chunk.GetProperty("audio").Deserialize<AudioSourceMeasurement>(options)
+                    ?? throw new InvalidDataException("A prepared chunk has no measurements.");
+                var blobName = chunk.GetProperty("blobName").GetString()!;
+                var source = FromStorageBlob(blobName, measurement)
+                    ?? throw new InvalidDataException("The manifest contains an unapproved prepared chunk.");
+                if (source.Key != chunk.GetProperty("key").GetString())
+                    throw new InvalidDataException("A prepared chunk key differs from its blob name.");
+                var problems = AudioSourceRules.Check(source).ToArray();
+                if (problems.Length > 0)
+                    throw new InvalidDataException(string.Join("; ", problems));
+                return source;
+            }).ToArray();
+            if (sources.Length != 96 || sources.Select(source => source.Key).Distinct().Count() != 96)
+                throw new InvalidDataException("The private training manifest must contain 96 distinct approved chunks.");
+            return sources;
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidDataException("The private training manifest is malformed.", ex);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            throw new InvalidDataException("The private training manifest is incomplete.", ex);
+        }
+    }
+
+    internal static AudioSource? FromStorageBlob(string blobName, AudioSourceMeasurement measurement)
     {
         var match = StorageBlobPattern().Match(blobName);
         if (!match.Success)
@@ -155,6 +205,13 @@ public sealed partial class AudioSourceLibrary
         var layout = match.Groups["layout"].Value;
         var hashPrefix = match.Groups["hash"].Value;
         var stereo = layout == "stereo";
+        var recording = key[..key.LastIndexOf("-w", StringComparison.Ordinal)];
+        if (!StorageAuthors.TryGetValue(recording, out var author))
+            return null;
+        if (!measurement.Sha256.StartsWith(hashPrefix, StringComparison.Ordinal)
+            || measurement.Channels != (stereo ? 2 : 1)
+            || measurement.Frames != 441000 || measurement.SampleRate != 44100)
+            throw new InvalidDataException("A prepared chunk does not match its content-addressed name or ten-second PCM layout.");
         return new AudioSource(
             key,
             "Licensed ten-second music excerpt.",
@@ -165,29 +222,30 @@ public sealed partial class AudioSourceLibrary
             AudioSourceRules.External,
             new AudioSourceLicense(
                 "Pixabay Content License",
-                RecordingAuthor(key),
+                author,
                 "https://pixabay.com/service/license-summary/",
                 "https://pixabay.com/music/"),
-            new AudioSourceMeasurement(44100, stereo ? 2 : 1, 441000, -1.5, -23, hashPrefix),
+            measurement,
             blobName);
     }
 
     internal static bool SupportsStorageEqDifficulty(string key, int difficulty)
     {
-        if (AdvancedOnlyPrefixes.Any(prefix => key.StartsWith(prefix, StringComparison.Ordinal)))
-            return difficulty == 3;
-        if (IntermediateAndAdvancedPrefixes.Any(prefix => key.StartsWith(prefix, StringComparison.Ordinal)))
-            return difficulty >= 2;
         if (UnsupportedEqPrefixes.Any(prefix => key.StartsWith(prefix, StringComparison.Ordinal)))
             return false;
+        if (IntermediateAndAdvancedPrefixes.Any(prefix => key.StartsWith(prefix, StringComparison.Ordinal)))
+            return difficulty >= 2;
+        if (AdvancedOnlyPrefixes.Any(prefix => key.StartsWith(prefix, StringComparison.Ordinal)))
+            return difficulty == 3;
         return true;
     }
 
-    private static string RecordingAuthor(string key)
-    {
-        var recording = key[..key.LastIndexOf("-w", StringComparison.Ordinal)];
-        return StorageAuthors.GetValueOrDefault(recording, "Pixabay contributor");
-    }
+    internal static bool SupportsStorageCompression(string key) =>
+        key.EndsWith("-stereo", StringComparison.Ordinal)
+        && !key.StartsWith("pixabay-513718-3631fce6b19c-w02-", StringComparison.Ordinal)
+        && !key.StartsWith("pixabay-541097-de26e9ce6782-w03-", StringComparison.Ordinal)
+        && new[] { "pixabay-513717-", "pixabay-513718-", "pixabay-513744-", "pixabay-541097-" }
+            .Any(prefix => key.StartsWith(prefix, StringComparison.Ordinal));
 
     private static readonly string[] AdvancedOnlyPrefixes =
     [
