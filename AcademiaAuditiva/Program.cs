@@ -177,8 +177,16 @@ hcBuilder.AddCheck<AcademiaAuditiva.Services.Audio.InstrumentSamplesHealthCheck>
     "instrument-samples",
     tags: new[] { "ready" });
 
-builder.Services.AddSingleton(new AcademiaAuditiva.Services.Audio.Sources.AudioSourceLibrary(
-    Path.Combine(builder.Environment.ContentRootPath, "Audio", "Sources")));
+builder.Services.AddSingleton(sp =>
+{
+    var containerName = builder.Configuration["Storage:TrainingSourcesContainer"];
+    var storage = string.IsNullOrWhiteSpace(containerName)
+        ? null
+        : sp.GetRequiredService<Azure.Storage.Blobs.BlobServiceClient>().GetBlobContainerClient(containerName);
+    return new AcademiaAuditiva.Services.Audio.Sources.AudioSourceLibrary(
+        Path.Combine(builder.Environment.ContentRootPath, "Audio", "Sources"),
+        storage);
+});
 builder.Services.AddSingleton<AcademiaAuditiva.Services.Audio.Sources.AudioSourcesHealthCheck>();
 hcBuilder.AddCheck<AcademiaAuditiva.Services.Audio.Sources.AudioSourcesHealthCheck>(
     "audio-sources",

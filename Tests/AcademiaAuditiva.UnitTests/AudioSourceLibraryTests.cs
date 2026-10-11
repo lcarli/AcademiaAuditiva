@@ -63,7 +63,7 @@ public class AudioSourceLibraryTests
 
         result.Status.Should().Be(HealthStatus.Unhealthy);
         result.Description.Should().Be(
-            $"1 audio sources are not as measured in {library.Root}, such as full-mix: full-mix.wav is missing.");
+            "1 audio source problems were found, such as full-mix: full-mix.wav is missing.");
     }
 
     [Fact]
@@ -81,5 +81,45 @@ public class AudioSourceLibraryTests
 
         FluentActions.Invoking(() => new AudioSourceLibrary(folder.Root))
             .Should().Throw<InvalidDataException>().WithMessage("*48000 Hz*");
+    }
+
+    [Theory]
+    [InlineData(
+        "chunks/pixabay-484622-fe69012eef59-w01-stereo-4702345f3bb0.wav",
+        "pixabay-484622-fe69012eef59-w01-stereo",
+        2,
+        "level",
+        "eq")]
+    [InlineData(
+        "chunks/pixabay-484622-fe69012eef59-w01-mono-48df51886a7d.wav",
+        "pixabay-484622-fe69012eef59-w01-mono",
+        1,
+        "pan",
+        null)]
+    public void PreparedStorageChunks_BecomePrivateCatalogSources(
+        string blobName,
+        string key,
+        int channels,
+        string firstUse,
+        string? secondUse)
+    {
+        var source = AudioSourceLibrary.FromStorageBlob(blobName);
+
+        source.Should().NotBeNull();
+        source!.Key.Should().Be(key);
+        source.BlobName.Should().Be(blobName);
+        source.Audio.Channels.Should().Be(channels);
+        source.Uses.Should().Contain(firstUse);
+        if (secondUse is not null)
+            source.Uses.Should().Contain(secondUse);
+    }
+
+    [Theory]
+    [InlineData("chunks/readme.txt")]
+    [InlineData("masters/pixabay-484622.mp3")]
+    [InlineData("chunks/pixabay-484622-w01-stereo-not-a-hash.wav")]
+    public void NonPreparedStorageBlobs_AreIgnored(string blobName)
+    {
+        AudioSourceLibrary.FromStorageBlob(blobName).Should().BeNull();
     }
 }

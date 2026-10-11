@@ -243,6 +243,16 @@ As built in slice 2:
 - Loudness is the integrated loudness of ITU-R BS.1770-4 (`Loudness`), with
   its K-weighting derived for any sample rate as libebur128 does.
 
+As expanded on 2026-10-11, production also uses 96 private, content-addressed
+ten-second WAV chunks in the `audio-training-sources` container: three windows
+from each of 16 licensed recordings, in stereo and mono. The Container App
+lists only `chunks/` through its managed identity; masters and manifests are
+never playable sources. Stereo chunks join Level Match and, after profile-wide
+spectral qualification, Guess Frequency. Mono chunks join Stereo Position.
+The readiness probe requires all 96 chunks, and each download must match the
+SHA-256 prefix in its blob name. Local development and CI keep using the
+bundled catalog unless `Storage:TrainingSourcesContainer` is configured.
+
 ### Processing plans
 
 Keep musical scheduling and technical audio processing separate. Extend the
@@ -484,9 +494,9 @@ As built in slices 8 and 9 (combined in one PR):
 
 | Profile | Frequencies (Hz) | Boost | Q | Eligible sources |
 | --- | --- | --- | --- | --- |
-| Beginner | 100, 500, 1000, 5000, 10000 | +9 dB | 1 | pink-noise, eq-reference-mix |
-| Intermediate | 125, 250, 500, 1000, 2000, 4000, 8000 | +6 dB | 1 | pink-noise, eq-reference-mix |
-| Advanced | 500, 630, 800, 1000, 1250, 1600, 2000 | +6 dB | 2 | synth-chords, full-mix, eq-reference-mix |
+| Beginner | 100, 500, 1000, 5000, 10000 | +9 dB | 1 | pink-noise, eq-reference-mix, 30 qualified music chunks |
+| Intermediate | 125, 250, 500, 1000, 2000, 4000, 8000 | +6 dB | 1 | pink-noise, eq-reference-mix, 33 qualified music chunks |
+| Advanced | 500, 630, 800, 1000, 1250, 1600, 2000 | +6 dB | 2 | synth-chords, full-mix, eq-reference-mix, 47 qualified music chunks |
 
 Eligibility is curated per source and **must cover the entire profile**, not
 only the randomly selected answer. A source's timbre therefore cannot rule out
@@ -510,6 +520,13 @@ clips must meet the existing 0.1-LU-per-clip / 0.2-LU-per-pair tolerance and the
 final 0.98 sample-peak guard. A/B placement is randomized. Only opaque clip
 keys/tokens reach the play response; frequency, placement, region and
 source-appropriate feedback are disclosed after validation.
+
+The page renders the union of all profile frequencies but hides every answer
+until a round starts. Each round returns four distinct options: the correct
+frequency plus three alternatives selected from that profile, with both the
+set and the correct answer's position varying. Changing the profile clears the
+round and hides the old options, so neither a fixed button set nor stale
+answers can be memorized.
 
 The first version uses a fixed positive gain and Q within each difficulty so
 frequency is the only changing variable. Gain and Q become variable only

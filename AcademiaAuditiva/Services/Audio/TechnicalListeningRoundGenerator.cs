@@ -24,6 +24,8 @@ public sealed class CryptoAudioExerciseRandom : IAudioExerciseRandom
 /// </summary>
 public sealed class TechnicalListeningRoundGenerator
 {
+    private const int GuessFrequencyAnswerCount = 4;
+
     private static readonly IReadOnlyDictionary<string, LevelMatchProfile> LevelMatchProfiles =
         new Dictionary<string, LevelMatchProfile>(StringComparer.OrdinalIgnoreCase)
         {
@@ -143,7 +145,10 @@ public sealed class TechnicalListeningRoundGenerator
             ["gfFrequencyHz"] = frequency.ToString(CultureInfo.InvariantCulture),
             ["gfSourceKind"] = source.Kind,
         };
-        return new TechnicalListeningRoundPlan(expected, clips, answerMetadata);
+        var options = FrequencyOptions(profile.Frequencies, frequency)
+            .Select(value => value.ToString(CultureInfo.InvariantCulture))
+            .ToArray();
+        return new TechnicalListeningRoundPlan(expected, clips, answerMetadata, options);
     }
 
     public static IReadOnlyList<int> FrequenciesFor(string level) =>
@@ -154,9 +159,26 @@ public sealed class TechnicalListeningRoundGenerator
             GuessFrequencyProfiles[level].Frequencies.Contains(frequency)
             && source.Uses.Contains("eq", StringComparer.Ordinal)
             && source.Difficulties.Contains(GuessFrequencyProfiles[level].Difficulty)
-            && FrequencySourceBands.TryGetValue(source.Key, out var bands)
-            && GuessFrequencyProfiles[level].Frequencies.All(bands.Contains)
+            && (source.IsRemote
+                && AudioSourceLibrary.SupportsStorageEqDifficulty(source.Key, GuessFrequencyProfiles[level].Difficulty)
+                || FrequencySourceBands.TryGetValue(source.Key, out var bands)
+                    && GuessFrequencyProfiles[level].Frequencies.All(bands.Contains))
             && frequency <= AudioProcessing.MaxEqFrequencyRateRatio * source.Audio.SampleRate).ToArray();
+
+    private IReadOnlyList<int> FrequencyOptions(IReadOnlyList<int> frequencies, int answer)
+    {
+        var alternatives = frequencies.Where(frequency => frequency != answer).ToArray();
+        var start = _random.Next(alternatives.Length);
+        var answerAt = _random.Next(GuessFrequencyAnswerCount);
+        var options = new int[GuessFrequencyAnswerCount];
+        for (var i = 0; i < options.Length; i++)
+        {
+            options[i] = i == answerAt
+                ? answer
+                : alternatives[(start + (i < answerAt ? i : i - 1)) % alternatives.Length];
+        }
+        return options;
+    }
 
     private TechnicalListeningRoundPlan PlanStereoPosition(IReadOnlyDictionary<string, string> filters)
     {
@@ -287,4 +309,5 @@ public sealed record NamedAudioProcessingPlan(string Key, AudioProcessingPlan Pl
 public sealed record TechnicalListeningRoundPlan(
     string ExpectedAnswerJson,
     IReadOnlyList<NamedAudioProcessingPlan> Clips,
-    IReadOnlyDictionary<string, string> AnswerMetadata);
+    IReadOnlyDictionary<string, string> AnswerMetadata,
+    IReadOnlyList<string>? AnswerOptions = null);

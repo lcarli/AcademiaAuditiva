@@ -376,7 +376,7 @@ test('an Audio foundations session scores all three exercises and keeps Music pr
     await page.locator('#aaFreePractice').uncheck();
     if (exercise === 'GuessFrequency') {
       await expect(page.locator('#aa-question')).toHaveText('Which center frequency was boosted?');
-      await expect(page.locator('.guessAnswer:visible')).toHaveText(['100 Hz', '500 Hz', '1,000 Hz', '5,000 Hz', '10,000 Hz']);
+      await expect(page.locator('.guessAnswer:visible')).toHaveCount(0);
     }
     const playResponse = page.waitForResponse(response =>
       response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
@@ -384,11 +384,25 @@ test('an Audio foundations session scores all three exercises and keeps Music pr
       response.url().includes('/audio/token/') && response.status() === 200);
     await page.click('#Play');
     const round = await (await playResponse).json();
-    expect(Object.keys(round)).toEqual(['roundId', 'clips']);
+    expect(Object.keys(round)).toEqual(exercise === 'GuessFrequency'
+      ? ['roundId', 'clips', 'options']
+      : ['roundId', 'clips']);
     expect(round.clips).toHaveLength(exercise === 'StereoPosition' ? 1 : 2);
+    if (exercise === 'GuessFrequency') {
+      expect(round.options).toHaveLength(4);
+      expect(new Set(round.options).size).toBe(4);
+      await expect(page.locator('.guessAnswer:visible')).toHaveCount(4);
+      expect(await page.locator('.guessAnswer:visible')
+        .evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value)))
+        .toEqual(round.options);
+    }
     expect(JSON.stringify(round)).not.toMatch(/frequency|boosted|source|gain|lufs|\.wav/i);
     expect((await (await audioResponse).body()).length).toBeGreaterThan(1000);
-    await page.locator(`.guessAnswer[value="${guess}"]`).click();
+    if (exercise === 'GuessFrequency') {
+      await page.locator('.guessAnswer:visible').first().click();
+    } else {
+      await page.locator(`.guessAnswer[value="${guess}"]`).click();
+    }
     const validation = page.waitForResponse(response =>
       response.url().includes('/Exercise/ValidateExercise') && response.status() === 200);
     await page.click('#validateGuess');
@@ -410,25 +424,24 @@ test('an Audio foundations session scores all three exercises and keeps Music pr
     response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
   await page.click('#Play');
   await pendingPlay;
-  await page.locator('.guessAnswer[value="1000"]').click();
+  await page.locator('.guessAnswer:visible').first().click();
   const filters = page.locator('#filtersModal');
   await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
   await filters.locator('select[name="gfLevel"]').selectOption('intermediate');
   await filters.locator('.btn-close').click();
   await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
   await expect(page.locator('.guessAnswer.selected')).toHaveCount(0);
-  expect(await page.locator('.guessAnswer:visible').evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value)))
-    .toEqual(['125', '250', '500', '1000', '2000', '4000', '8000']);
+  await expect(page.locator('.guessAnswer:visible')).toHaveCount(0);
   const intermediatePlay = page.waitForResponse(response =>
     response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
   await page.click('#Play');
   const intermediate = await intermediatePlay;
   expect(JSON.parse(intermediate.request().postData()!).filters).toEqual({ gfLevel: 'intermediate' });
+  await expect(page.locator('.guessAnswer:visible')).toHaveCount(4);
   await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
   await filters.locator('select[name="gfLevel"]').selectOption('advanced');
   await filters.locator('.btn-close').click();
-  expect(await page.locator('.guessAnswer:visible').evaluateAll(buttons => buttons.map(button => (button as HTMLButtonElement).value)))
-    .toEqual(['500', '630', '800', '1000', '1250', '1600', '2000']);
+  await expect(page.locator('.guessAnswer:visible')).toHaveCount(0);
   await page.click('#validateGuess');
   await expect(page.locator('.swal2-title')).toHaveText('Incomplete answer');
   await page.click('.swal2-confirm');

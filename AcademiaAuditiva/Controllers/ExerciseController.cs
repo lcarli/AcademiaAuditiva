@@ -329,6 +329,8 @@ namespace AcademiaAuditiva.Controllers
 				await _routines.RememberQuestionAsync(userId, roundQuestion.Link, new PendingQuestion(RoundId: round.RoundId), HttpContext.RequestAborted);
 
 			var response = PlayResponse(exercise, round, routineStatus);
+			if (technicalPlan?.AnswerOptions is { } answerOptions)
+				response["options"] = answerOptions;
 			if (gameStatus is not null)
 				response["game"] = gameStatus;
 			return Json(response);
