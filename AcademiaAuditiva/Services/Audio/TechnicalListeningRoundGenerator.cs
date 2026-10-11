@@ -22,7 +22,7 @@ public sealed class CryptoAudioExerciseRandom : IAudioExerciseRandom
 /// parameters remain in the server-side expected answer and never become
 /// response metadata.
 /// </summary>
-public sealed class TechnicalListeningRoundGenerator
+public sealed partial class TechnicalListeningRoundGenerator
 {
     private const int GuessFrequencyAnswerCount = 4;
 
@@ -81,7 +81,7 @@ public sealed class TechnicalListeningRoundGenerator
     }
 
     public bool Supports(string exerciseName) => exerciseName is
-        "LevelMatch" or "StereoPosition" or "GuessFrequency" or "BoostOrCut" or "GuessQ" or "Compression";
+        "LevelMatch" or "StereoPosition" or "GuessFrequency" || AudioComparisonCatalog.Find(exerciseName) is not null;
 
     public TechnicalListeningRoundPlan Plan(
         Exercise exercise,
@@ -95,6 +95,7 @@ public sealed class TechnicalListeningRoundGenerator
             "BoostOrCut" => PlanBoostOrCut(filters),
             "GuessQ" => PlanGuessQ(filters),
             "Compression" => PlanCompression(filters),
+            _ when AudioComparisonCatalog.Find(exercise.Name) is { } definition => PlanExpansion(definition, filters),
             _ => throw new ArgumentException($"No technical-listening generator exists for '{exercise.Name}'.", nameof(exercise)),
         };
     }
@@ -184,7 +185,8 @@ public sealed class TechnicalListeningRoundGenerator
         "BoostOrCut" => "bcLevel",
         "GuessQ" => "gqLevel",
         "Compression" => "cpLevel",
-        _ => throw new ArgumentException("Unknown Audio exercise.", nameof(exerciseName)),
+        _ => AudioComparisonCatalog.Find(exerciseName)?.LevelFilter
+            ?? throw new ArgumentException("Unknown Audio exercise.", nameof(exerciseName)),
     };
 
     private static string Level(IReadOnlyDictionary<string, string> filters, string key) =>

@@ -1130,6 +1130,17 @@ namespace AcademiaAuditiva.Controllers
 
 		public IActionResult Compression() => AudioComparison("Compression");
 
+		public IActionResult CompressorAttack() => AudioComparison("CompressorAttack");
+		public IActionResult CompressorRelease() => AudioComparison("CompressorRelease");
+		public IActionResult CompressionRatio() => AudioComparison("CompressionRatio");
+		public IActionResult StereoWidth() => AudioComparison("StereoWidth");
+		public IActionResult ChannelPolarity() => AudioComparison("ChannelPolarity");
+		public IActionResult ReverbPresence() => AudioComparison("ReverbPresence");
+		public IActionResult ReverbDecay() => AudioComparison("ReverbDecay");
+		public IActionResult ReverbPreDelay() => AudioComparison("ReverbPreDelay");
+		public IActionResult EchoTime() => AudioComparison("EchoTime");
+		public IActionResult Distortion() => AudioComparison("Distortion");
+
 		private IActionResult AudioComparison(string name)
 		{
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == name);

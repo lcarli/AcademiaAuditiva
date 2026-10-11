@@ -1,6 +1,7 @@
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
+using AcademiaAuditiva.Services.Audio;
 using Newtonsoft.Json;
 
 public static class SeedData
@@ -112,7 +113,7 @@ public static class SeedData
     /// </summary>
     public static List<Exercise> Exercises()
     {
-        return new List<Exercise>
+        var exercises = new List<Exercise>
         {
             new Exercise {
                 Name = "GuessNote",
@@ -1692,6 +1693,9 @@ public static class SeedData
             AudioComparison("GuessQ", "gqLevel", 9),
             AudioComparison("Compression", "cpLevel", 10)
         };
+        exercises.AddRange(AudioComparisonCatalog.Expansion.Select(definition =>
+            AudioComparison(definition.Name, definition.LevelFilter, definition.CategoryId)));
+        return exercises;
     }
 
     private static Exercise AudioComparison(string name, string levelKey, int category) => new()
@@ -1716,7 +1720,9 @@ public static class SeedData
             },
         }),
         Instructions = $"Exercise.{name}.Instructions",
-        TipsJson = JsonConvert.SerializeObject(new[] { $"Exercise.{name}.Tip1", $"Exercise.{name}.Tip2", $"Exercise.{name}.Tip3" }),
+        TipsJson = JsonConvert.SerializeObject(new[] { $"Exercise.{name}.Tip1", $"Exercise.{name}.Tip2",
+            AudioComparisonCatalog.Expansion.Any(definition => definition.Name == name)
+                ? "Exercise.AudioComparison.Safe" : $"Exercise.{name}.Tip3" }),
         AudioButtonsJson = "[]",
         AnswerButtonsJson = "{}",
     };

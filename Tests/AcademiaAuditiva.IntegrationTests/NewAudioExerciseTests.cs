@@ -1,6 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Globalization;
+using System.Resources;
 using AcademiaAuditiva.Data;
+using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Interfaces;
 using AcademiaAuditiva.Services.Audio;
 using AcademiaAuditiva.Services.Audio.Processing;
@@ -9,19 +12,21 @@ using Newtonsoft.Json.Linq;
 
 namespace AcademiaAuditiva.IntegrationTests;
 
-public class NewAudioExerciseTests : IClassFixture<ExploreWebApplicationFactory>
+public class NewAudioExerciseTests : IDisposable
 {
-    private readonly ExploreWebApplicationFactory _factory;
+    private readonly ExploreWebApplicationFactory _factory = new();
 
-    public NewAudioExerciseTests(ExploreWebApplicationFactory factory)
+    public NewAudioExerciseTests()
     {
-        _factory = factory;
-        using var scope = factory.Services.CreateScope();
+        using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         if (!db.Exercises.Any()) SeedData.SeedExercises(db);
     }
 
+    public void Dispose() => _factory.Dispose();
+
     [Theory]
+    [MemberData(nameof(ExpandedPages))]
     [InlineData("BoostOrCut", "en-US", "Boost or Cut")]
     [InlineData("BoostOrCut", "pt-BR", "Realce ou corte")]
     [InlineData("BoostOrCut", "fr-CA", "Accentuation ou atténuation")]
@@ -41,9 +46,16 @@ public class NewAudioExerciseTests : IClassFixture<ExploreWebApplicationFactory>
         html.Should().NotMatchRegex(@"Exercise\.(BoostOrCut|GuessQ|Compression|AudioComparison|AB)\.");
         if (exercise == "BoostOrCut") html.Should().Contain("value=\"cut|bass\"").And.Contain("value=\"boost|air\"");
         if (exercise == "GuessQ") html.Should().Contain("value=\"broad\"").And.Contain("value=\"narrow\"");
+        if (AudioComparisonCatalog.Expansion.Any(definition => definition.Name == exercise))
+        {
+            html.Should().NotContain($"Exercise.{exercise}.").And.NotContain("LearningPath.Unit.");
+            foreach (var answer in AudioComparisonCatalog.Find(exercise)!.Answers)
+                html.Should().Contain($"value=\"{answer}\"");
+        }
     }
 
     [Theory]
+    [MemberData(nameof(ExpandedRounds))]
     [InlineData("BoostOrCut", "beginner")]
     [InlineData("BoostOrCut", "intermediate")]
     [InlineData("BoostOrCut", "advanced")]
@@ -81,6 +93,8 @@ public class NewAudioExerciseTests : IClassFixture<ExploreWebApplicationFactory>
         plans.Select(plan => plan.SourceKey).Distinct().Should().ContainSingle();
         plans.Should().OnlyContain(plan => plan.Processors.Last() is LoudnessMatchProcessor);
         var roundId = play.GetProperty("roundId").GetString()!;
+        var reveal = await client.PostAsJsonAsync("/Exercise/RevealAnswer", new { exerciseId, roundId });
+        reveal.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var stored = await scope.ServiceProvider.GetRequiredService<IAudioTokenService>()
             .GetRoundAsync(SignedInWebApplicationFactory.UserId, exerciseId, roundId);
         var expected = JObject.Parse(stored!.ExpectedAnswerJson);
@@ -98,5 +112,54 @@ public class NewAudioExerciseTests : IClassFixture<ExploreWebApplicationFactory>
         var filters = JObject.Parse(snapshot.FilterJson!);
         filters[filterKey]!.Value<string>().Should().Be(level);
         filters.ToString().Should().NotContain("fake");
+        if (AudioComparisonCatalog.Expansion.Any(definition => definition.Name == name))
+        {
+            filters["audioAnswer"]!.Value<string>().Should().Be(answer);
+            filters["audioParameters"]!.Value<string>().Should().Be(expected["parameters"]!.ToString(Newtonsoft.Json.Formatting.None));
+        }
+    }
+
+    public static IEnumerable<object[]> ExpandedPages =>
+        AudioComparisonCatalog.Expansion.SelectMany(definition => new[] { "en-US", "pt-BR", "fr-CA" }
+            .Select(culture => new object[] { definition.Name, culture,
+                new ResourceManager(typeof(SharedResources)).GetString(definition.Name, CultureInfo.GetCultureInfo(culture))! }));
+
+    public static IEnumerable<object[]> ExpandedRounds =>
+        AudioComparisonCatalog.Expansion.SelectMany(definition => new[] { "beginner", "intermediate", "advanced" }
+            .Select(level => new object[] { definition.Name, level }));
+
+    [Theory]
+    [MemberData(nameof(ExpandedRounds))]
+    public async Task ExpandedFreePractice_RevealsAnswer_WithoutScoresOrRewards(string name, string level)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var exerciseId = db.Exercises.Single(exercise => exercise.Name == name).ExerciseId;
+        var before = db.ScoreSnapshots.Count(snapshot => snapshot.ExerciseId == exerciseId);
+        var client = await IntegrationHttp.WithAntiforgeryHeaderAsync(_factory.CreateClient());
+        var play = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new
+        {
+            exerciseId, free = true,
+            filters = new Dictionary<string, string> { [TechnicalListeningRoundGenerator.LevelFilterFor(name)] = level },
+        }));
+        play.EnumerateObject().Select(property => property.Name).Should().Equal("roundId", "clips");
+        var roundId = play.GetProperty("roundId").GetString()!;
+        var revealed = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RevealAnswer", new
+        {
+            exerciseId, roundId,
+        }));
+        revealed.GetProperty("success").GetBoolean().Should().BeTrue();
+        var answer = revealed.GetProperty("answer").GetString()!;
+        AudioComparisonCatalog.Find(name)!.Answers.Should().Contain(answer);
+        var result = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise", new
+        {
+            exerciseId, roundId, userGuess = answer,
+        }));
+        result.GetProperty("success").GetBoolean().Should().BeTrue();
+        result.GetProperty("isCorrect").GetBoolean().Should().BeTrue();
+        result.GetProperty("free").GetBoolean().Should().BeTrue();
+        result.TryGetProperty("rewards", out _).Should().BeFalse();
+        result.TryGetProperty("newCorrectCount", out _).Should().BeFalse();
+        db.ScoreSnapshots.Count(snapshot => snapshot.ExerciseId == exerciseId).Should().Be(before);
     }
 }

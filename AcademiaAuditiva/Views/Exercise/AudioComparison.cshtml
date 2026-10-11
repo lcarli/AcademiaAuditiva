@@ -5,13 +5,9 @@
     ViewData["FiltersPartial"] = "_ExerciseFilters";
     var name = Model.Title;
     var prefix = $"Exercise.{name}.";
-    var options = name switch
-    {
-        "BoostOrCut" => new[] { "boost|bass", "cut|bass", "boost|mids", "cut|mids", "boost|air", "cut|air" },
-        "GuessQ" => new[] { "broad", "medium", "narrow" },
-        "Compression" => new[] { "A", "B" },
-        _ => throw new InvalidOperationException("Unknown Audio comparison."),
-    };
+    var definition = AudioComparisonCatalog.Find(name) ?? throw new InvalidOperationException("Unknown Audio comparison.");
+    var expanded = AudioComparisonCatalog.Expansion.Contains(definition);
+    var options = definition.Answers;
 }
 
 @await Html.PartialAsync("_ExerciseHeader", Model)
@@ -22,12 +18,12 @@
             <h2 id="aa-question" class="aa-question">@Localizer[prefix + "Question"]</h2>
             <div class="d-flex justify-content-center mb-4">
                 <button type="button" id="Play" class="btn btn-primary px-4" data-aa-audio-unlock>
-                    <i class="bi bi-shuffle me-1" aria-hidden="true"></i>@Localizer[prefix + "New"]
+                    <i class="bi bi-shuffle me-1" aria-hidden="true"></i>@Localizer[expanded ? "Exercise.AudioComparison.New" : prefix + "New"]
                 </button>
             </div>
-            @if (name != "Compression")
+            @if (definition.ReferenceIsA)
             {
-                <p class="text-center text-body-secondary">@Localizer["Exercise.AudioComparison.Reference"]</p>
+                <p class="text-center text-body-secondary">@Localizer[expanded ? "Exercise.AudioComparison.ReferenceGeneric" : "Exercise.AudioComparison.Reference"]</p>
             }
             @await Html.PartialAsync("_ABPlayback")
             <div class="aa-answer-grid mt-4" role="group" aria-label="@Localizer[prefix + "Question"]">
@@ -51,7 +47,7 @@
      data-exercise="@name"
      data-level-filter="@TechnicalListeningRoundGenerator.LevelFilterFor(name)"
      data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
-     data-incomplete-text="@Localizer[prefix + "Incomplete"]"
+     data-incomplete-text="@Localizer[expanded ? "Exercise.AudioComparison.Incomplete" : prefix + "Incomplete"]"
      data-validation-error-title="@Localizer["Exercise.ValidationErrorTitle"]"
      data-validation-error-text="@Localizer["Exercise.ValidationErrorText"]"
      data-correct-message="@Localizer["Exercise.CorrectMessage"]"

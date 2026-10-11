@@ -23,10 +23,12 @@ public class FreePracticeAnswerTests
 
     private static readonly ExerciseValidatorRegistry Registry = new(
         typeof(IExerciseValidator).Assembly.GetTypes()
-            .Where(type => type.IsClass && !type.IsAbstract && typeof(IExerciseValidator).IsAssignableFrom(type))
+            .Where(type => type.IsClass && !type.IsAbstract && type != typeof(ExpandedAudioExerciseValidator)
+                && typeof(IExerciseValidator).IsAssignableFrom(type))
             .Select(type => type.GetConstructor([typeof(IMusicTheoryService)]) is { } withTheory
                 ? (IExerciseValidator)withTheory.Invoke([Theory])
-                : (IExerciseValidator)Activator.CreateInstance(type)!));
+                : (IExerciseValidator)Activator.CreateInstance(type)!)
+            .Concat(AudioComparisonCatalog.Expansion.Select(definition => new ExpandedAudioExerciseValidator(definition.Name))));
 
     public static TheoryData<string> SeededExercises
     {

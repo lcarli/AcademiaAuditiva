@@ -74,16 +74,19 @@ exercises:
 These exercises deliberately establish the reusable DSP primitives needed by
 the rest of the track: gain, pan and parametric EQ.
 
-### Next exercises
+### Expanded track
 
-After the first release is stable:
+The track now includes sixteen exercises, reusing the foundations:
 
 1. **Boost or Cut** - identify the direction and region of an EQ change.
 2. **Guess the Q** - identify broad, medium and narrow EQ curves.
 3. **Compression** - identify the processed signal at matched loudness.
-4. **Attack and Release** - distinguish compressor timing.
-5. **Reverb** - distinguish dry, light and heavy ambience.
-6. **Find the Mix Problem** - diagnose one intentionally introduced problem.
+4. **Compressor Attack, Compressor Release and Compression Ratio** - distinguish timing and compression strength.
+5. **Stereo Width and Channel Polarity** - compare stereo imaging and relative channel polarity.
+6. **Reverb Presence, Reverb Decay and Reverb Pre-delay** - recognize added ambience and its timing.
+7. **Echo Timing and Find the Distortion** - identify repeat intervals and added saturation.
+
+**Find the Mix Problem**, diagnosing one intentionally introduced problem, remains on the roadmap.
 
 ### Not in the first release
 
@@ -96,8 +99,9 @@ After the first release is stable:
 - full interactive Mix Challenges;
 - user-uploaded audio or a browser-based DAW.
 
-These remain part of the long-term direction, but should not delay validating
-the foundations.
+These are outside the foundations release and are delivered incrementally;
+the expanded-track implementation below distinguishes delivered features from
+the remaining roadmap.
 
 ## Design principles
 
@@ -252,7 +256,7 @@ are never playable sources. Full file hashes, measured PCM layouts and the
 catalog rules are checked, rather than synthesizing measurements from filenames.
 Stereo chunks serve level/EQ, and mono chunks serve pan. Compression uses a
 qualified subset of stereo percussion/funk excerpts. Once configured, qualified
-music chunks take precedence over bundled recordings for all six Audio exercises.
+music chunks take precedence over bundled recordings for all sixteen Audio exercises.
 Discovery errors or missing assets block readiness and requests, with no bundled
 fallback. Local development and CI keep the bundled catalog by default.
 
@@ -849,7 +853,7 @@ stereo frame to derive hard-knee gain reduction, with attack/release exponential
 time constants on the linear peak envelope. One gain is applied to both channels, preserving stereo
 balance. It has no lookahead, limiter or implicit makeup gain. Threshold, ratio,
 attack and release are bounded/finite, and every parameter participates in the
-`p3` cache key. Final PCM must pass the existing 0.98 peak guard.
+versioned cache key. Final PCM must pass the existing 0.98 peak guard.
 The detection exercise fixes attack at zero so brief peaks cannot escape the
 detector and become misleading transient cues. The finite compression ratio is
 not a brickwall limiter. Two candidate windows that missed the crest-reduction
@@ -863,11 +867,54 @@ requires at least 3/2/1 dB crest-factor reduction by profile. Automated
 qualification is not an audition: headphone/speaker listening review remains
 pending during the user-approved production evaluation.
 
-Remaining expansion order:
+The second batch adds ten exercises, extending the Audio path from six to
+sixteen steps. Each profile below is beginner / intermediate / advanced:
 
-1. Attack and Release;
-2. Reverb;
-3. Find the Mix Problem.
+| Exercise | Question | Profiles |
+|---|---|---|
+| Compressor Attack | Which side has the faster attack? | 0 vs 60 / 1 vs 30 / 3 vs 15 ms; -28 dBFS, 6:1, 80 ms release. |
+| Compressor Release | Which side recovers faster? | 20 vs 350 / 40 vs 200 / 70 vs 130 ms; -28 dBFS, 6:1, instantaneous attack. |
+| Compression Ratio | Is B lighter, medium or stronger relative to this profile? | 2/4/8, 2/3/6, 2/3/4; -28 dBFS, instantaneous attack, 20 ms release. |
+| Stereo Width | Is B narrower, unchanged or wider than A? | Side multiplier 0.45/1/1.55, 0.65/1/1.35, 0.8/1/1.2. |
+| Channel Polarity | Is B unchanged or right-channel inverted? | Increasingly complex stereo recordings; the inversion itself is always exact. |
+| Hear the Reverb | Which side has added reverb? | Wet mix 55/40/25%; 1.1 s nominal decay, 15 ms pre-delay. |
+| Reverb Decay | Which side has longer decay? | 0.4 vs 3 / 0.7 vs 2 / 1 vs 1.5 s; 60% wet, 15 ms pre-delay. |
+| Reverb Pre-delay | Which side has a longer gap before reflections? | 0 vs 100 / 10 vs 70 / 25 vs 50 ms; 0.7 s nominal decay, 60% wet. |
+| Echo Timing | Is the echo in B short, medium or long within this profile? | 75/225/675, 100/200/400, 150/225/300 ms; feedback 0.3, 35% wet. |
+| Find the Distortion | Which side has added soft saturation? | Source peak 12/9/6 dB above the nonlinear knee. |
+
+Every new pair uses the same music excerpt and a common -30 to -34 LUFS
+target, randomized in half-LU steps. Comparison sides are randomized unless
+A is explicitly the original reference. Answers are randomized independently
+of the source; a source must support every choice at its permitted difficulty.
+An unchanged width/polarity answer really is unchanged. Ratio and echo labels
+are relative to the displayed profile, not a universal mix diagnosis.
+
+The shared `p4` processing engine adds mid/side width, right-channel polarity,
+feedback echo, damped algorithmic reverb, soft saturation and a 15 ms terminal
+fade. Width preserves the mid signal before explicit loudness matching.
+Polarity preserves each channel's energy; it tests **relative channel polarity**,
+not absolute recording polarity. Stereo headphones or correctly placed stereo
+speakers are necessary for these two exercises.
+
+Echo and reverb retain the original frame count, rather than appending a tail.
+The same short end fade is applied to both sides to avoid a truncated-tail click.
+Reverb uses four damped parallel combs followed by two all-pass diffusers,
+with independent channel state. Its decay parameter is a nominal feedback
+setting, **not a measured broadband RT60**; damping shortens high-frequency
+tails. Pre-delay adds an exact shift before this unchanged network.
+Saturation uses a smooth `tanh` transfer curve with a source-relative knee;
+it is a deliberately simple nonlinear coloration, not an oversampled analog
+compressor model.
+
+The shared comparison catalog owns answers, filters and reference semantics.
+Ten validators reuse its exact-answer contract. Scored responses hide source
+identities and processing parameters until validation; free practice reveals
+the answer without writing scores or granting rewards. Trusted snapshot
+metadata, played-difficulty reports, teacher routines and personal exports
+use the existing contracts without a database migration.
+
+The remaining roadmap item is Find the Mix Problem.
 
 Each exercise must reuse shared processors and A/B controls. Do not add a
 processor solely inside one exercise generator.

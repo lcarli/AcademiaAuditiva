@@ -247,6 +247,24 @@ public sealed partial class AudioSourceLibrary
         && new[] { "pixabay-513717-", "pixabay-513718-", "pixabay-513744-", "pixabay-541097-" }
             .Any(prefix => key.StartsWith(prefix, StringComparison.Ordinal));
 
+    internal static bool SupportsStorageWidth(string key) =>
+        key.EndsWith("-stereo", StringComparison.Ordinal)
+        && !key.StartsWith("pixabay-412230-", StringComparison.Ordinal)
+        && !key.StartsWith("pixabay-445661-", StringComparison.Ordinal);
+
+    internal static bool SupportsStoragePolarity(string key, string level)
+    {
+        if (!key.EndsWith("-stereo", StringComparison.Ordinal)) return false;
+        var prefixes = level switch
+        {
+            "beginner" => new[] { "pixabay-412230-", "pixabay-445661-" },
+            "intermediate" => ["pixabay-484622-", "pixabay-513718-", "pixabay-513744-", "pixabay-537751-"],
+            "advanced" => ["pixabay-323181-", "pixabay-513717-", "pixabay-541097-", "pixabay-550792-", "pixabay-597971-"],
+            _ => throw new ArgumentException("Unknown polarity level.", nameof(level)),
+        };
+        return prefixes.Any(prefix => key.StartsWith(prefix, StringComparison.Ordinal));
+    }
+
     private static readonly string[] AdvancedOnlyPrefixes =
     [
         "pixabay-571483-", "pixabay-550792-", "pixabay-445661-",
