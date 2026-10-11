@@ -480,6 +480,9 @@ const expandedAudioComparisons = [
   ['CompressorAttack', 2, 'caLevel'], ['CompressorRelease', 2, 'crLevel'], ['CompressionRatio', 3, 'raLevel'],
   ['StereoWidth', 3, 'swLevel'], ['ChannelPolarity', 2, 'poLevel'], ['ReverbPresence', 2, 'rvLevel'],
   ['ReverbDecay', 2, 'dcLevel'], ['ReverbPreDelay', 2, 'rpLevel'], ['EchoTime', 3, 'etLevel'], ['Distortion', 2, 'dsLevel'],
+  ['HighPassCutoff', 3, 'hpfLevel'], ['LowPassCutoff', 3, 'lpfLevel'], ['LowShelf', 2, 'lsLevel'],
+  ['HighShelf', 2, 'hsLevel'], ['EqGain', 3, 'egLevel'], ['CompressorThreshold', 2, 'ctLevel'],
+  ['EchoFeedback', 2, 'efLevel'], ['ReverbMix', 3, 'rmLevel'], ['NoiseDetection', 2, 'ndLevel'], ['MixProblem', 5, 'mpLevel'],
 ] as const;
 
 test('Audio comparisons and progress localize and fit every supported screen', async ({ page, baseURL }) => {

@@ -1140,6 +1140,16 @@ namespace AcademiaAuditiva.Controllers
 		public IActionResult ReverbPreDelay() => AudioComparison("ReverbPreDelay");
 		public IActionResult EchoTime() => AudioComparison("EchoTime");
 		public IActionResult Distortion() => AudioComparison("Distortion");
+		public IActionResult HighPassCutoff() => AudioComparison("HighPassCutoff");
+		public IActionResult LowPassCutoff() => AudioComparison("LowPassCutoff");
+		public IActionResult LowShelf() => AudioComparison("LowShelf");
+		public IActionResult HighShelf() => AudioComparison("HighShelf");
+		public IActionResult EqGain() => AudioComparison("EqGain");
+		public IActionResult CompressorThreshold() => AudioComparison("CompressorThreshold");
+		public IActionResult EchoFeedback() => AudioComparison("EchoFeedback");
+		public IActionResult ReverbMix() => AudioComparison("ReverbMix");
+		public IActionResult NoiseDetection() => AudioComparison("NoiseDetection");
+		public IActionResult MixProblem() => AudioComparison("MixProblem");
 
 		private IActionResult AudioComparison(string name)
 		{

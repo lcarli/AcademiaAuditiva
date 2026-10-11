@@ -34,7 +34,9 @@ public class TrainingTracksTests
         ExerciseCatalog.All.Single(e => e.Name == "LevelMatch").Track.Should().Be(TrainingTracks.Audio);
         string[] audioNames = ["LevelMatch", "StereoPosition", "GuessFrequency", "BoostOrCut", "GuessQ", "Compression",
             "CompressorAttack", "CompressorRelease", "CompressionRatio", "StereoWidth", "ChannelPolarity",
-            "ReverbPresence", "ReverbDecay", "ReverbPreDelay", "EchoTime", "Distortion"];
+            "ReverbPresence", "ReverbDecay", "ReverbPreDelay", "EchoTime", "Distortion",
+            "HighPassCutoff", "LowPassCutoff", "LowShelf", "HighShelf", "EqGain", "CompressorThreshold",
+            "EchoFeedback", "ReverbMix", "NoiseDetection", "MixProblem"];
         ExerciseCatalog.All.Where(e => audioNames.Contains(e.Name))
             .Should().OnlyContain(e => e.Track == TrainingTracks.Audio);
         ExerciseCatalog.All.Where(e => !audioNames.Contains(e.Name))

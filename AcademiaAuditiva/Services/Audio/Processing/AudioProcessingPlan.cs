@@ -46,6 +46,24 @@ public sealed record PeakingEqProcessor(double FrequencyHz, double GainDb, doubl
     public override string Name => "peaking-eq";
 }
 
+/// <summary>A second-order Butterworth high-pass or low-pass filter, -3 dB at its cutoff.</summary>
+public sealed record CutFilterProcessor(double FrequencyHz, bool HighPass) : AudioProcessor
+{
+    public override string Name => "cut-filter";
+}
+
+/// <summary>A low or high shelving EQ with fixed unit slope.</summary>
+public sealed record ShelfEqProcessor(double FrequencyHz, double GainDb, bool HighShelf) : AudioProcessor
+{
+    public override string Name => "shelf-eq";
+}
+
+/// <summary>Adds deterministic white noise at the requested RMS signal-to-noise ratio.</summary>
+public sealed record WhiteNoiseProcessor(double SignalToNoiseDb, int Seed) : AudioProcessor
+{
+    public override string Name => "white-noise";
+}
+
 /// <summary>A stereo-linked peak compressor without makeup gain, lookahead or a limiter.</summary>
 public sealed record CompressorProcessor(
     double ThresholdDbfs, double Ratio, double AttackMs, double ReleaseMs) : AudioProcessor

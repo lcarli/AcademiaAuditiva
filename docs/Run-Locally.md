@@ -125,7 +125,7 @@ the bundled sources unless `Storage:TrainingSourcesContainer` names a container
 with the complete 96-chunk catalog; when configured, the readiness check fails
 instead of silently falling back if its approved manifest or any listed chunk is
 missing. With private storage enabled, qualified music excerpts take precedence
-over bundled sources in all sixteen Audio exercises. `/health/ready` reports the
+over bundled sources in all twenty-six Audio exercises. `/health/ready` reports the
 private-storage flag and prepared-chunk count.
 
 To numerically verify the privately prepared originals without copying them into

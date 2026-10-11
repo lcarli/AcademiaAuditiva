@@ -17,6 +17,16 @@ public static class AudioComparisonCatalog
         new("ReverbPreDelay", "rpLevel", 12, ["A", "B"], false),
         new("EchoTime", "etLevel", 12, ["short", "medium", "long"], true),
         new("Distortion", "dsLevel", 13, ["A", "B"], false),
+        new("HighPassCutoff", "hpfLevel", 9, ["low", "medium", "high"], true),
+        new("LowPassCutoff", "lpfLevel", 9, ["low", "medium", "high"], true),
+        new("LowShelf", "lsLevel", 9, ["boost", "cut"], true),
+        new("HighShelf", "hsLevel", 9, ["boost", "cut"], true),
+        new("EqGain", "egLevel", 9, ["light", "medium", "strong"], true),
+        new("CompressorThreshold", "ctLevel", 10, ["A", "B"], false),
+        new("EchoFeedback", "efLevel", 12, ["A", "B"], false),
+        new("ReverbMix", "rmLevel", 12, ["light", "medium", "strong"], true),
+        new("NoiseDetection", "ndLevel", 13, ["A", "B"], false),
+        new("MixProblem", "mpLevel", 13, ["bass", "treble", "echo", "distortion", "noise"], true),
     ];
 
     public static IReadOnlyList<AudioComparisonDefinition> All { get; } =

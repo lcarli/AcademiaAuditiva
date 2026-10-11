@@ -66,7 +66,7 @@ public class ExpandedAudioExerciseTests
         var entries = new ResourceManager(typeof(SharedResources))
             .GetResourceSet(CultureInfo.GetCultureInfo(culture), true, false)!
             .Cast<DictionaryEntry>().ToDictionary(entry => (string)entry.Key, entry => (string)entry.Value!);
-        AudioComparisonCatalog.Expansion.Should().HaveCount(10);
+        AudioComparisonCatalog.Expansion.Should().HaveCount(20);
         foreach (var definition in AudioComparisonCatalog.Expansion)
         {
             entries.Should().ContainKey(definition.Name);
