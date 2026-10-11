@@ -14,7 +14,7 @@ public static class AudioProcessing
     /// Part of every processed clip's name. Change it whenever the same plan
     /// starts to sound different, so clips processed the old way are not reused.
     /// </summary>
-    public const string EngineVersion = "p4";
+    public const string EngineVersion = "p5";
 
     public const int MaxProcessors = 8;
 
@@ -111,6 +111,24 @@ public static class AudioProcessing
                     ValidateEq(eq, sampleRate);
                     measurePeak = true;
                     break;
+                case CutFilterProcessor cut:
+                    ValidateFilterFrequency(cut.FrequencyHz, sampleRate);
+                    _ = CutFilter(cut, sampleRate);
+                    measurePeak = true;
+                    break;
+                case ShelfEqProcessor shelf:
+                    ValidateFilterFrequency(shelf.FrequencyHz, sampleRate);
+                    if (!(shelf.GainDb is >= MinEqGainDb and <= MaxEqGainDb))
+                        throw new ArgumentOutOfRangeException(nameof(processors), "A shelf gain is between -12 and 12 dB.");
+                    _ = ShelfFilter(shelf, sampleRate);
+                    measurePeak = true;
+                    break;
+                case WhiteNoiseProcessor noise:
+                    if (!(noise.SignalToNoiseDb is >= 0 and <= 60) || noise.Seed <= 0)
+                        throw new ArgumentOutOfRangeException(nameof(processors),
+                            "White noise needs an SNR from 0 to 60 dB and a positive seed.");
+                    measurePeak = true;
+                    break;
                 case CompressorProcessor compressor:
                     if (!(compressor.ThresholdDbfs is >= -60 and <= 0)
                         || !(compressor.Ratio is >= 1 and <= 20)
@@ -184,12 +202,7 @@ public static class AudioProcessing
 
     private static void ValidateEq(PeakingEqProcessor eq, int sampleRate)
     {
-        if (!(eq.FrequencyHz is >= MinEqFrequencyHz and <= MaxEqFrequencyHz)
-            || eq.FrequencyHz > sampleRate * MaxEqFrequencyRateRatio)
-        {
-            throw new ArgumentOutOfRangeException(nameof(eq),
-                $"An EQ frequency is between {MinEqFrequencyHz} and {MaxEqFrequencyHz} Hz, and at most {MaxEqFrequencyRateRatio} times the sample rate.");
-        }
+        ValidateFilterFrequency(eq.FrequencyHz, sampleRate);
         if (!(eq.GainDb is >= MinEqGainDb and <= MaxEqGainDb))
         {
             throw new ArgumentOutOfRangeException(nameof(eq), $"An EQ gain is between {MinEqGainDb} and {MaxEqGainDb} dB.");
@@ -199,6 +212,14 @@ public static class AudioProcessing
             throw new ArgumentOutOfRangeException(nameof(eq), $"An EQ Q is between {MinEqQ} and {MaxEqQ}.");
         }
         _ = PeakingFilter(eq, sampleRate);
+    }
+
+    private static void ValidateFilterFrequency(double frequency, int sampleRate)
+    {
+        if (!(frequency is >= MinEqFrequencyHz and <= MaxEqFrequencyHz)
+            || frequency > sampleRate * MaxEqFrequencyRateRatio)
+            throw new ArgumentOutOfRangeException(nameof(frequency),
+                $"A filter frequency is between {MinEqFrequencyHz} and {MaxEqFrequencyHz} Hz, and at most {MaxEqFrequencyRateRatio} times the sample rate.");
     }
 
     /// <summary>
@@ -225,6 +246,9 @@ public static class AudioProcessing
                 GainProcessor gain => Gain(audio, gain.Decibels),
                 PanProcessor pan => Pan(audio, pan.Position),
                 PeakingEqProcessor eq => PeakingEq(audio, eq),
+                CutFilterProcessor cut => Filter(audio, () => CutFilter(cut, audio.SampleRate)),
+                ShelfEqProcessor shelf => shelf.GainDb == 0 ? audio : Filter(audio, () => ShelfFilter(shelf, audio.SampleRate)),
+                WhiteNoiseProcessor noise => WhiteNoise(audio, noise),
                 CompressorProcessor compressor => Compress(audio, compressor),
                 StereoWidthProcessor width => StereoWidth(audio, width.Width),
                 ChannelPolarityProcessor polarity => ChannelPolarity(audio, polarity.InvertRight),
@@ -289,6 +313,9 @@ public static class AudioProcessing
         GainProcessor gain => $"gain({Number(gain.Decibels)})",
         PanProcessor pan => $"pan({Number(pan.Position)})",
         PeakingEqProcessor eq => $"peaking-eq({Number(eq.FrequencyHz)},{Number(eq.GainDb)},{Number(eq.Q)})",
+        CutFilterProcessor cut => $"cut-filter({Number(cut.FrequencyHz)},{cut.HighPass})",
+        ShelfEqProcessor shelf => $"shelf-eq({Number(shelf.FrequencyHz)},{Number(shelf.GainDb)},{shelf.HighShelf})",
+        WhiteNoiseProcessor noise => $"white-noise({Number(noise.SignalToNoiseDb)},{noise.Seed})",
         CompressorProcessor compressor => $"compressor({Number(compressor.ThresholdDbfs)},{Number(compressor.Ratio)},{Number(compressor.AttackMs)},{Number(compressor.ReleaseMs)})",
         StereoWidthProcessor width => $"stereo-width({Number(width.Width)})",
         ChannelPolarityProcessor polarity => $"channel-polarity({polarity.InvertRight})",
@@ -347,11 +374,39 @@ public static class AudioProcessing
             return audio;
         }
 
-        var filters = new Biquad[audio.Channels];
-        for (var c = 0; c < filters.Length; c++)
-        {
-            filters[c] = PeakingFilter(eq, audio.SampleRate);
-        }
+        return Filter(audio, () => PeakingFilter(eq, audio.SampleRate));
+    }
+
+    private static Biquad CutFilter(CutFilterProcessor cut, int sampleRate)
+    {
+        var angle = 2 * Math.PI * cut.FrequencyHz / sampleRate;
+        var cosine = Math.Cos(angle);
+        var alpha = Math.Sin(angle) / Math.Sqrt(2);
+        var edge = cut.HighPass ? 1 + cosine : 1 - cosine;
+        return new Biquad(edge / 2, cut.HighPass ? -edge : edge, edge / 2,
+            1 + alpha, -2 * cosine, 1 - alpha);
+    }
+
+    private static Biquad ShelfFilter(ShelfEqProcessor shelf, int sampleRate)
+    {
+        var a = Math.Pow(10, shelf.GainDb / 40);
+        var angle = 2 * Math.PI * shelf.FrequencyHz / sampleRate;
+        var cosine = Math.Cos(angle);
+        var spread = Math.Sin(angle) * Math.Sqrt(2 * a);
+        var sum = a + 1;
+        var difference = a - 1;
+        return shelf.HighShelf
+            ? new Biquad(a * (sum + difference * cosine + spread), -2 * a * (difference + sum * cosine),
+                a * (sum + difference * cosine - spread), sum - difference * cosine + spread,
+                2 * (difference - sum * cosine), sum - difference * cosine - spread)
+            : new Biquad(a * (sum - difference * cosine + spread), 2 * a * (difference - sum * cosine),
+                a * (sum - difference * cosine - spread), sum + difference * cosine + spread,
+                -2 * (difference + sum * cosine), sum + difference * cosine - spread);
+    }
+
+    private static PcmAudio Filter(PcmAudio audio, Func<Biquad> create)
+    {
+        var filters = Enumerable.Range(0, audio.Channels).Select(_ => create()).ToArray();
         for (var f = 0; f < audio.Frames; f++)
         {
             for (var c = 0; c < filters.Length; c++)
@@ -359,6 +414,24 @@ public static class AudioProcessing
                 var i = f * audio.Channels + c;
                 audio.Samples[i] = (float)filters[c].Next(audio.Samples[i]);
             }
+        }
+        return audio;
+    }
+
+    private static PcmAudio WhiteNoise(PcmAudio audio, WhiteNoiseProcessor noise)
+    {
+        var power = audio.Samples.Sum(sample => (double)sample * sample) / audio.Samples.Length;
+        if (!(power > 0 && double.IsFinite(power)))
+            throw new InvalidOperationException("RMS-relative white noise requires non-silent audio.");
+        var amplitude = Math.Sqrt(3 * power) * LinearGain(-noise.SignalToNoiseDb);
+        var state = (uint)noise.Seed;
+        for (var index = 0; index < audio.Samples.Length; index++)
+        {
+            state ^= state << 13;
+            state ^= state >> 17;
+            state ^= state << 5;
+            var uniform = 2 * (state / (double)uint.MaxValue) - 1;
+            audio.Samples[index] = (float)(audio.Samples[index] + amplitude * uniform);
         }
         return audio;
     }

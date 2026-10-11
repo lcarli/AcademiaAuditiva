@@ -123,6 +123,16 @@ public class RoutineRoundTests : IDisposable
     [InlineData("ReverbPreDelay", "rpLevel")]
     [InlineData("EchoTime", "etLevel")]
     [InlineData("Distortion", "dsLevel")]
+    [InlineData("HighPassCutoff", "hpfLevel")]
+    [InlineData("LowPassCutoff", "lpfLevel")]
+    [InlineData("LowShelf", "lsLevel")]
+    [InlineData("HighShelf", "hsLevel")]
+    [InlineData("EqGain", "egLevel")]
+    [InlineData("CompressorThreshold", "ctLevel")]
+    [InlineData("EchoFeedback", "efLevel")]
+    [InlineData("ReverbMix", "rmLevel")]
+    [InlineData("NoiseDetection", "ndLevel")]
+    [InlineData("MixProblem", "mpLevel")]
     public async Task NewAudioExercises_RespectTeacherDifficulty_AndCompleteRoutineItems(string name, string levelKey)
     {
         var exerciseId = _factory.ExerciseId(name);

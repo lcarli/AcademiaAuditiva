@@ -76,7 +76,7 @@ the rest of the track: gain, pan and parametric EQ.
 
 ### Expanded track
 
-The track now includes sixteen exercises, reusing the foundations:
+The track now includes twenty-six exercises, reusing the foundations:
 
 1. **Boost or Cut** - identify the direction and region of an EQ change.
 2. **Guess the Q** - identify broad, medium and narrow EQ curves.
@@ -85,8 +85,14 @@ The track now includes sixteen exercises, reusing the foundations:
 5. **Stereo Width and Channel Polarity** - compare stereo imaging and relative channel polarity.
 6. **Reverb Presence, Reverb Decay and Reverb Pre-delay** - recognize added ambience and its timing.
 7. **Echo Timing and Find the Distortion** - identify repeat intervals and added saturation.
+8. **High-pass Cutoff, Low-pass Cutoff, Low Shelf, High Shelf and EQ Gain** - distinguish cutoff, broad tonal balance and boost strength.
+9. **Compressor Threshold, Echo Feedback and Reverb Mix** - distinguish onset of gain reduction, repeat persistence and direct/processed balance.
+10. **Find the Noise and Find the Mix Change** - detect added noise and diagnose one deliberately introduced change.
 
-**Find the Mix Problem**, diagnosing one intentionally introduced problem, remains on the roadmap.
+All ten exercises in the latest batch have beginner, intermediate and advanced
+profiles with progressively subtler differences. Continuous interactive mix
+challenges remain on the roadmap; the delivered diagnostic identifies one
+introduced change rather than judging the quality of the original recording.
 
 ### Not in the first release
 
@@ -256,7 +262,7 @@ are never playable sources. Full file hashes, measured PCM layouts and the
 catalog rules are checked, rather than synthesizing measurements from filenames.
 Stereo chunks serve level/EQ, and mono chunks serve pan. Compression uses a
 qualified subset of stereo percussion/funk excerpts. Once configured, qualified
-music chunks take precedence over bundled recordings for all sixteen Audio exercises.
+music chunks take precedence over bundled recordings for all twenty-six Audio exercises.
 Discovery errors or missing assets block readiness and requests, with no bundled
 fallback. Local development and CI keep the bundled catalog by default.
 
@@ -890,7 +896,7 @@ of the source; a source must support every choice at its permitted difficulty.
 An unchanged width/polarity answer really is unchanged. Ratio and echo labels
 are relative to the displayed profile, not a universal mix diagnosis.
 
-The shared `p4` processing engine adds mid/side width, right-channel polarity,
+The shared processing engine adds mid/side width, right-channel polarity,
 feedback echo, damped algorithmic reverb, soft saturation and a 15 ms terminal
 fade. Width preserves the mid signal before explicit loudness matching.
 Polarity preserves each channel's energy; it tests **relative channel polarity**,
@@ -908,13 +914,46 @@ it is a deliberately simple nonlinear coloration, not an oversampled analog
 compressor model.
 
 The shared comparison catalog owns answers, filters and reference semantics.
-Ten validators reuse its exact-answer contract. Scored responses hide source
+The expanded validators reuse its exact-answer contract. Scored responses hide source
 identities and processing parameters until validation; free practice reveals
 the answer without writing scores or granting rewards. Trusted snapshot
 metadata, played-difficulty reports, teacher routines and personal exports
 use the existing contracts without a database migration.
 
-The remaining roadmap item is Find the Mix Problem.
+The third batch adds ten more exercises, extending the Audio path to twenty-six
+steps. Profiles below are beginner / intermediate / advanced:
+
+| Exercise | Question | Profiles |
+|---|---|---|
+| High-pass Cutoff | Is B's cutoff low, medium or high? | 80/250/800, 120/250/500, 180/250/350 Hz. |
+| Low-pass Cutoff | Is B's cutoff low, medium or high? | 1500/4500/12000, 2500/4500/8000, 3500/4500/6000 Hz. |
+| Low Shelf | Does B boost or cut the bass? | +/-9/6/3 dB; 150 Hz transition. |
+| High Shelf | Does B boost or cut the treble? | +/-9/6/3 dB; 4000 Hz transition. |
+| EQ Gain | Is B's boost light, medium or strong? | 3/7.5/12, 3/6/9, 3/4.5/6 dB; 1000 Hz, Q 1. |
+| Compressor Threshold | Which side has the lower threshold? | Source peak minus 15 vs 3 / 12 vs 4 / 10 vs 5 dB; 4:1, 3 ms attack, 50 ms release. |
+| Echo Feedback | Which side has stronger feedback? | 10 vs 65 / 20 vs 50 / 30 vs 45%; 250 ms delay, 50% wet. |
+| Reverb Mix | Is B's wet mix light, medium or strong? | 15/40/70, 20/40/60, 30/40/50%; 1.2 s nominal decay, 20 ms pre-delay. |
+| Find the Noise | Which side has added white noise? | 12/21/30 dB RMS signal-to-noise ratio. |
+| Find the Mix Change | What was introduced in B? | Bass/treble shelf cut 9/6/3 dB; echo 45/30/20% wet; saturation knee 9/6/3 dB below the source peak; noise SNR 12/21/30 dB. |
+
+The `p5` processing engine adds second-order Butterworth high/low-pass filters
+(12 dB/octave; -3.01 dB at cutoff), unit-slope low/high shelving biquads, and
+deterministic, decorrelated stereo white noise. Noise amplitude is relative to
+the source's RMS; its seed and SNR participate in the cache key. All filters
+have independent channel state. Existing peaking EQ uses the same shared
+biquad application, without changing its transfer curve.
+
+These exercises reuse the same qualified stereo music subset at every level
+and for every answer. Qualification checks matched loudness, headroom and
+distinct alternatives, including at least 0.6 dB of neighboring tonal-balance
+contrast for cutoff/gain classifications, correct shelf sign, threshold gain
+reduction and measured noise SNR. The harder profiles narrow the processing
+differences, not the answer-dependent source pool. Automated qualification
+does not replace headphone/speaker audition.
+
+The diagnostic adds exactly one processor category to the original reference.
+Original music may already contain reverb, saturation or recording noise; the
+question concerns the difference from A, not the absence of such effects in A.
 
 Each exercise must reuse shared processors and A/B controls. Do not add a
 processor solely inside one exercise generator.

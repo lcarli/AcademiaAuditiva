@@ -5310,4 +5310,151 @@
   <data name="Exercise.Distortion.Feedback" xml:space="preserve"><value>{0} recebeu saturação suave, com picos de entrada {1} dB acima da curva. Ouça os picos remodelados e os harmônicos extras.</value></data>
   <data name="LearningPath.Unit.Distortion.Title" xml:space="preserve"><value>Ouça a coloração não linear</value></data>
   <data name="LearningPath.Unit.Distortion.Description" xml:space="preserve"><value>Distinga saturação adicionada da música original.</value></data>
+  <data name="HighPassCutoff" xml:space="preserve"><value>Corte passa-altas</value></data>
+  <data name="Exercise.HighPassCutoff.Subtitle" xml:space="preserve"><value>Identifique até onde chega um corte de graves.</value></data>
+  <data name="Exercise.HighPassCutoff.Instructions" xml:space="preserve"><value>A é o original. B tem um filtro passa-altas de 12 dB/oitava. Identifique a frequência de corte baixa, média ou alta dentro do perfil selecionado. O loudness é equivalente.</value></data>
+  <data name="Exercise.HighPassCutoff.Tip1" xml:space="preserve"><value>Um corte mais alto remove mais graves e corpo dos médios baixos. Ouça as notas do baixo e o peso do bumbo.</value></data>
+  <data name="Exercise.HighPassCutoff.Tip2" xml:space="preserve"><value>Os rótulos correspondem às três frequências exibidas, não ao volume geral de reprodução.</value></data>
+  <data name="Exercise.HighPassCutoff.Question" xml:space="preserve"><value>Qual frequência de corte passa-altas foi aplicada a B?</value></data>
+  <data name="Exercise.HighPassCutoff.Level.Beginner" xml:space="preserve"><value>Iniciante · 80 / 250 / 800 Hz</value></data>
+  <data name="Exercise.HighPassCutoff.Level.Intermediate" xml:space="preserve"><value>Intermediário · 120 / 250 / 500 Hz</value></data>
+  <data name="Exercise.HighPassCutoff.Level.Advanced" xml:space="preserve"><value>Avançado · 180 / 250 / 350 Hz</value></data>
+  <data name="Exercise.HighPassCutoff.Option.low" xml:space="preserve"><value>Corte baixo</value></data>
+  <data name="Exercise.HighPassCutoff.Option.medium" xml:space="preserve"><value>Corte médio</value></data>
+  <data name="Exercise.HighPassCutoff.Option.high" xml:space="preserve"><value>Corte alto</value></data>
+  <data name="Exercise.HighPassCutoff.Feedback" xml:space="preserve"><value>{0}: B usou corte passa-altas em {1} Hz. Ouça o corpo grave que foi removido.</value></data>
+  <data name="LearningPath.Unit.HighPassCutoff.Title" xml:space="preserve"><value>Encontre o corte de graves</value></data>
+  <data name="LearningPath.Unit.HighPassCutoff.Description" xml:space="preserve"><value>Identifique três cortes passa-altas sem depender do loudness.</value></data>
+  <data name="LowPassCutoff" xml:space="preserve"><value>Corte passa-baixas</value></data>
+  <data name="Exercise.LowPassCutoff.Subtitle" xml:space="preserve"><value>Identifique quanto detalhe agudo permanece.</value></data>
+  <data name="Exercise.LowPassCutoff.Instructions" xml:space="preserve"><value>A é o original. B tem um filtro passa-baixas de 12 dB/oitava. Identifique a frequência de corte baixa, média ou alta dentro do perfil selecionado, com loudness equivalente.</value></data>
+  <data name="Exercise.LowPassCutoff.Tip1" xml:space="preserve"><value>Um corte mais baixo remove mais brilho. Um corte mais alto preserva mais detalhes dos pratos e a sensação de ar.</value></data>
+  <data name="Exercise.LowPassCutoff.Tip2" xml:space="preserve"><value>Compare os mesmos momentos musicais; brilho não é o mesmo que volume.</value></data>
+  <data name="Exercise.LowPassCutoff.Question" xml:space="preserve"><value>Qual frequência de corte passa-baixas foi aplicada a B?</value></data>
+  <data name="Exercise.LowPassCutoff.Level.Beginner" xml:space="preserve"><value>Iniciante · 1.500 / 4.500 / 12.000 Hz</value></data>
+  <data name="Exercise.LowPassCutoff.Level.Intermediate" xml:space="preserve"><value>Intermediário · 2.500 / 4.500 / 8.000 Hz</value></data>
+  <data name="Exercise.LowPassCutoff.Level.Advanced" xml:space="preserve"><value>Avançado · 3.500 / 4.500 / 6.000 Hz</value></data>
+  <data name="Exercise.LowPassCutoff.Option.low" xml:space="preserve"><value>Corte baixo</value></data>
+  <data name="Exercise.LowPassCutoff.Option.medium" xml:space="preserve"><value>Corte médio</value></data>
+  <data name="Exercise.LowPassCutoff.Option.high" xml:space="preserve"><value>Corte alto</value></data>
+  <data name="Exercise.LowPassCutoff.Feedback" xml:space="preserve"><value>{0}: B usou corte passa-baixas em {1} Hz. Ouça quanto detalhe agudo permaneceu.</value></data>
+  <data name="LearningPath.Unit.LowPassCutoff.Title" xml:space="preserve"><value>Encontre o corte de agudos</value></data>
+  <data name="LearningPath.Unit.LowPassCutoff.Description" xml:space="preserve"><value>Distinga três cortes passa-baixas em música real.</value></data>
+  <data name="LowShelf" xml:space="preserve"><value>Shelf de graves</value></data>
+  <data name="Exercise.LowShelf.Subtitle" xml:space="preserve"><value>Reconheça realce ou corte amplo nos graves.</value></data>
+  <data name="Exercise.LowShelf.Instructions" xml:space="preserve"><value>A é o original. B tem um EQ low shelf centrado em 150 Hz. Decida se os graves foram realçados ou cortados. O shelf altera o patamar grave, não uma banda estreita de EQ paramétrico.</value></data>
+  <data name="Exercise.LowShelf.Tip1" xml:space="preserve"><value>Ouça o equilíbrio amplo dos graves em relação ao restante do arranjo.</value></data>
+  <data name="Exercise.LowShelf.Tip2" xml:space="preserve"><value>O ajuste de loudness elimina a vantagem de volume geral. Concentre-se no peso tonal.</value></data>
+  <data name="Exercise.LowShelf.Question" xml:space="preserve"><value>O low shelf em B realçou ou cortou os graves?</value></data>
+  <data name="Exercise.LowShelf.Level.Beginner" xml:space="preserve"><value>Iniciante · ±9 dB</value></data>
+  <data name="Exercise.LowShelf.Level.Intermediate" xml:space="preserve"><value>Intermediário · ±6 dB</value></data>
+  <data name="Exercise.LowShelf.Level.Advanced" xml:space="preserve"><value>Avançado · ±3 dB</value></data>
+  <data name="Exercise.LowShelf.Option.boost" xml:space="preserve"><value>Realce de graves</value></data>
+  <data name="Exercise.LowShelf.Option.cut" xml:space="preserve"><value>Corte de graves</value></data>
+  <data name="Exercise.LowShelf.Feedback" xml:space="preserve"><value>{0}: B usou low shelf de {1} dB em {2} Hz, antes do ajuste de loudness.</value></data>
+  <data name="LearningPath.Unit.LowShelf.Title" xml:space="preserve"><value>Modele o patamar grave</value></data>
+  <data name="LearningPath.Unit.LowShelf.Description" xml:space="preserve"><value>Reconheça realces e cortes amplos de graves.</value></data>
+  <data name="HighShelf" xml:space="preserve"><value>Shelf de agudos</value></data>
+  <data name="Exercise.HighShelf.Subtitle" xml:space="preserve"><value>Reconheça realce ou corte amplo nos agudos.</value></data>
+  <data name="Exercise.HighShelf.Instructions" xml:space="preserve"><value>A é o original. B tem um EQ high shelf centrado em 4.000 Hz. Decida se os agudos foram realçados ou cortados, com loudness equivalente.</value></data>
+  <data name="Exercise.HighShelf.Tip1" xml:space="preserve"><value>Ouça os pratos, as consoantes e o brilho geral da música.</value></data>
+  <data name="Exercise.HighShelf.Tip2" xml:space="preserve"><value>Um shelf altera o patamar agudo; não é uma banda estreita nem um filtro passa-baixas.</value></data>
+  <data name="Exercise.HighShelf.Question" xml:space="preserve"><value>O high shelf em B realçou ou cortou os agudos?</value></data>
+  <data name="Exercise.HighShelf.Level.Beginner" xml:space="preserve"><value>Iniciante · ±9 dB</value></data>
+  <data name="Exercise.HighShelf.Level.Intermediate" xml:space="preserve"><value>Intermediário · ±6 dB</value></data>
+  <data name="Exercise.HighShelf.Level.Advanced" xml:space="preserve"><value>Avançado · ±3 dB</value></data>
+  <data name="Exercise.HighShelf.Option.boost" xml:space="preserve"><value>Realce de agudos</value></data>
+  <data name="Exercise.HighShelf.Option.cut" xml:space="preserve"><value>Corte de agudos</value></data>
+  <data name="Exercise.HighShelf.Feedback" xml:space="preserve"><value>{0}: B usou high shelf de {1} dB em {2} Hz, antes do ajuste de loudness.</value></data>
+  <data name="LearningPath.Unit.HighShelf.Title" xml:space="preserve"><value>Modele o patamar agudo</value></data>
+  <data name="LearningPath.Unit.HighShelf.Description" xml:space="preserve"><value>Reconheça realces e cortes amplos de agudos.</value></data>
+  <data name="EqGain" xml:space="preserve"><value>Ganho do EQ</value></data>
+  <data name="Exercise.EqGain.Subtitle" xml:space="preserve"><value>Distinga a intensidade de um realce de EQ paramétrico.</value></data>
+  <data name="Exercise.EqGain.Instructions" xml:space="preserve"><value>A é o original. B tem realce em 1.000 Hz com Q 1. Escolha leve, médio ou forte dentro do perfil selecionado. Frequência e largura ficam fixas; somente o ganho do EQ muda.</value></data>
+  <data name="Exercise.EqGain.Tip1" xml:space="preserve"><value>Compare a presença dos médios, não o volume geral.</value></data>
+  <data name="Exercise.EqGain.Tip2" xml:space="preserve"><value>Os rótulos descrevem os três ganhos deste perfil; não são avaliações universais da mixagem.</value></data>
+  <data name="Exercise.EqGain.Question" xml:space="preserve"><value>Qual é a intensidade do realce de EQ em B?</value></data>
+  <data name="Exercise.EqGain.Level.Beginner" xml:space="preserve"><value>Iniciante · 3 / 7,5 / 12 dB</value></data>
+  <data name="Exercise.EqGain.Level.Intermediate" xml:space="preserve"><value>Intermediário · 3 / 6 / 9 dB</value></data>
+  <data name="Exercise.EqGain.Level.Advanced" xml:space="preserve"><value>Avançado · 3 / 4,5 / 6 dB</value></data>
+  <data name="Exercise.EqGain.Option.light" xml:space="preserve"><value>Leve</value></data>
+  <data name="Exercise.EqGain.Option.medium" xml:space="preserve"><value>Médio</value></data>
+  <data name="Exercise.EqGain.Option.strong" xml:space="preserve"><value>Forte</value></data>
+  <data name="Exercise.EqGain.Feedback" xml:space="preserve"><value>{0}: B usou realce de {1} dB em {2} Hz. Ouça a ênfase relativa dos médios.</value></data>
+  <data name="LearningPath.Unit.EqGain.Title" xml:space="preserve"><value>Meça a mudança tonal</value></data>
+  <data name="LearningPath.Unit.EqGain.Description" xml:space="preserve"><value>Distinga ganho de EQ mantendo frequência e Q fixos.</value></data>
+  <data name="CompressorThreshold" xml:space="preserve"><value>Limiar do compressor</value></data>
+  <data name="Exercise.CompressorThreshold.Subtitle" xml:space="preserve"><value>Ouça quando a compressão começa a agir.</value></data>
+  <data name="Exercise.CompressorThreshold.Instructions" xml:space="preserve"><value>Os dois sinais usam compressor 4:1, ataque de 3 ms e release de 50 ms. Escolha o limiar mais baixo. Os limiares são relativos ao pico do trecho, e o loudness é equivalente.</value></data>
+  <data name="Exercise.CompressorThreshold.Tip1" xml:space="preserve"><value>Um limiar mais baixo coloca uma parte maior do sinal sob redução de ganho.</value></data>
+  <data name="Exercise.CompressorThreshold.Tip2" xml:space="preserve"><value>Compare o controle dos picos e dos detalhes mais baixos. Não deduza a resposta pelo volume.</value></data>
+  <data name="Exercise.CompressorThreshold.Question" xml:space="preserve"><value>Qual sinal tem o limiar de compressor mais baixo?</value></data>
+  <data name="Exercise.CompressorThreshold.Level.Beginner" xml:space="preserve"><value>Iniciante · pico menos 15 / 3 dB</value></data>
+  <data name="Exercise.CompressorThreshold.Level.Intermediate" xml:space="preserve"><value>Intermediário · pico menos 12 / 4 dB</value></data>
+  <data name="Exercise.CompressorThreshold.Level.Advanced" xml:space="preserve"><value>Avançado · pico menos 10 / 5 dB</value></data>
+  <data name="Exercise.CompressorThreshold.Option.A" xml:space="preserve"><value>Sinal A</value></data>
+  <data name="Exercise.CompressorThreshold.Option.B" xml:space="preserve"><value>Sinal B</value></data>
+  <data name="Exercise.CompressorThreshold.Feedback" xml:space="preserve"><value>{0} usou limiar mais baixo: {1} dBFS contra {2} dBFS. Razão e tempos ficaram fixos.</value></data>
+  <data name="LearningPath.Unit.CompressorThreshold.Title" xml:space="preserve"><value>Encontre o início da compressão</value></data>
+  <data name="LearningPath.Unit.CompressorThreshold.Description" xml:space="preserve"><value>Ouça o efeito de baixar o limiar do compressor.</value></data>
+  <data name="EchoFeedback" xml:space="preserve"><value>Realimentação do eco</value></data>
+  <data name="Exercise.EchoFeedback.Subtitle" xml:space="preserve"><value>Ouça a intensidade com que o eco alimenta as repetições seguintes.</value></data>
+  <data name="Exercise.EchoFeedback.Instructions" xml:space="preserve"><value>Os dois sinais têm eco de 250 ms com 50% wet. Escolha a maior realimentação. Tempo de delay e mistura wet ficam fixos; o lado com repetições mais persistentes é sorteado.</value></data>
+  <data name="Exercise.EchoFeedback.Tip1" xml:space="preserve"><value>A primeira repetição tem o mesmo atraso; compare as repetições seguintes e sua persistência.</value></data>
+  <data name="Exercise.EchoFeedback.Tip2" xml:space="preserve"><value>A realimentação muda o decaimento das repetições, não a distância entre elas.</value></data>
+  <data name="Exercise.EchoFeedback.Question" xml:space="preserve"><value>Qual sinal tem a maior realimentação do eco?</value></data>
+  <data name="Exercise.EchoFeedback.Level.Beginner" xml:space="preserve"><value>Iniciante · 10% contra 65%</value></data>
+  <data name="Exercise.EchoFeedback.Level.Intermediate" xml:space="preserve"><value>Intermediário · 20% contra 50%</value></data>
+  <data name="Exercise.EchoFeedback.Level.Advanced" xml:space="preserve"><value>Avançado · 30% contra 45%</value></data>
+  <data name="Exercise.EchoFeedback.Option.A" xml:space="preserve"><value>Sinal A</value></data>
+  <data name="Exercise.EchoFeedback.Option.B" xml:space="preserve"><value>Sinal B</value></data>
+  <data name="Exercise.EchoFeedback.Feedback" xml:space="preserve"><value>{0} usou maior realimentação: {2}% contra {1}%, em {3} ms. Ouça as repetições seguintes.</value></data>
+  <data name="LearningPath.Unit.EchoFeedback.Title" xml:space="preserve"><value>Acompanhe as repetições</value></data>
+  <data name="LearningPath.Unit.EchoFeedback.Description" xml:space="preserve"><value>Distinga realimentação sem mudar o tempo do delay.</value></data>
+  <data name="ReverbMix" xml:space="preserve"><value>Mistura de reverb</value></data>
+  <data name="Exercise.ReverbMix.Subtitle" xml:space="preserve"><value>Classifique a quantidade de reverb adicionado.</value></data>
+  <data name="Exercise.ReverbMix.Instructions" xml:space="preserve"><value>A é o original. B tem o mesmo reverb nominal de 1,2 s e pré-delay de 20 ms, mas uma de três misturas wet. Escolha leve, média ou forte dentro do perfil selecionado.</value></data>
+  <data name="Exercise.ReverbMix.Tip1" xml:space="preserve"><value>Ouça o equilíbrio dos ataques diretos em relação às reflexões adicionadas.</value></data>
+  <data name="Exercise.ReverbMix.Tip2" xml:space="preserve"><value>A rede de decaimento fica fixa. Mais sinal wet não significa uma configuração de decaimento mais longo.</value></data>
+  <data name="Exercise.ReverbMix.Question" xml:space="preserve"><value>Quanto reverb foi misturado em B?</value></data>
+  <data name="Exercise.ReverbMix.Level.Beginner" xml:space="preserve"><value>Iniciante · 15% / 40% / 70% wet</value></data>
+  <data name="Exercise.ReverbMix.Level.Intermediate" xml:space="preserve"><value>Intermediário · 20% / 40% / 60% wet</value></data>
+  <data name="Exercise.ReverbMix.Level.Advanced" xml:space="preserve"><value>Avançado · 30% / 40% / 50% wet</value></data>
+  <data name="Exercise.ReverbMix.Option.light" xml:space="preserve"><value>Leve</value></data>
+  <data name="Exercise.ReverbMix.Option.medium" xml:space="preserve"><value>Média</value></data>
+  <data name="Exercise.ReverbMix.Option.strong" xml:space="preserve"><value>Forte</value></data>
+  <data name="Exercise.ReverbMix.Feedback" xml:space="preserve"><value>{0}: B usou {1}% wet com decaimento nominal de {2} s. Compare o equilíbrio do som direto e das reflexões.</value></data>
+  <data name="LearningPath.Unit.ReverbMix.Title" xml:space="preserve"><value>Equilibre som direto e espaço</value></data>
+  <data name="LearningPath.Unit.ReverbMix.Description" xml:space="preserve"><value>Classifique misturas wet mantendo os tempos do reverb fixos.</value></data>
+  <data name="NoiseDetection" xml:space="preserve"><value>Identificação de ruído</value></data>
+  <data name="Exercise.NoiseDetection.Subtitle" xml:space="preserve"><value>Reconheça chiado de banda larga adicionado à música.</value></data>
+  <data name="Exercise.NoiseDetection.Instructions" xml:space="preserve"><value>Escolha o sinal com ruído branco adicionado. O ruído é relativo ao RMS do trecho; o loudness dos dois sinais é equivalente. A gravação já pode ter ruído, então compare com o outro sinal.</value></data>
+  <data name="Exercise.NoiseDetection.Tip1" xml:space="preserve"><value>Ouça um chiado contínuo, principalmente nos momentos mais baixos e perto dos detalhes agudos.</value></data>
+  <data name="Exercise.NoiseDetection.Tip2" xml:space="preserve"><value>Uma relação sinal-ruído maior significa menos ruído adicionado, tornando o perfil avançado mais sutil.</value></data>
+  <data name="Exercise.NoiseDetection.Question" xml:space="preserve"><value>Qual sinal tem ruído branco adicionado?</value></data>
+  <data name="Exercise.NoiseDetection.Level.Beginner" xml:space="preserve"><value>Iniciante · 12 dB SNR</value></data>
+  <data name="Exercise.NoiseDetection.Level.Intermediate" xml:space="preserve"><value>Intermediário · 21 dB SNR</value></data>
+  <data name="Exercise.NoiseDetection.Level.Advanced" xml:space="preserve"><value>Avançado · 30 dB SNR</value></data>
+  <data name="Exercise.NoiseDetection.Option.A" xml:space="preserve"><value>Sinal A</value></data>
+  <data name="Exercise.NoiseDetection.Option.B" xml:space="preserve"><value>Sinal B</value></data>
+  <data name="Exercise.NoiseDetection.Feedback" xml:space="preserve"><value>{0} recebeu ruído branco em {1} dB de SNR RMS. Ouça o chiado de banda larga adicionado.</value></data>
+  <data name="LearningPath.Unit.NoiseDetection.Title" xml:space="preserve"><value>Encontre o piso de ruído</value></data>
+  <data name="LearningPath.Unit.NoiseDetection.Description" xml:space="preserve"><value>Reconheça chiado adicionado sem depender do volume geral.</value></data>
+  <data name="MixProblem" xml:space="preserve"><value>Diagnóstico da mixagem</value></data>
+  <data name="Exercise.MixProblem.Subtitle" xml:space="preserve"><value>Diagnostique uma alteração introduzida intencionalmente.</value></data>
+  <data name="Exercise.MixProblem.Instructions" xml:space="preserve"><value>A é o original. B tem exatamente uma alteração adicionada: menos graves, menos agudos, eco, distorção suave ou ruído branco. Identifique a alteração, não se a mixagem original é boa ou ruim.</value></data>
+  <data name="Exercise.MixProblem.Tip1" xml:space="preserve"><value>Comece pelo equilíbrio tonal, depois ouça repetições, coloração não linear ou chiado.</value></data>
+  <data name="Exercise.MixProblem.Tip2" xml:space="preserve"><value>Todos os trechos suportam as cinco respostas. O perfil avançado deixa cada alteração mais sutil.</value></data>
+  <data name="Exercise.MixProblem.Question" xml:space="preserve"><value>Qual alteração foi introduzida em B?</value></data>
+  <data name="Exercise.MixProblem.Level.Beginner" xml:space="preserve"><value>Iniciante · alterações evidentes</value></data>
+  <data name="Exercise.MixProblem.Level.Intermediate" xml:space="preserve"><value>Intermediário · alterações moderadas</value></data>
+  <data name="Exercise.MixProblem.Level.Advanced" xml:space="preserve"><value>Avançado · alterações sutis</value></data>
+  <data name="Exercise.MixProblem.Option.bass" xml:space="preserve"><value>Menos graves</value></data>
+  <data name="Exercise.MixProblem.Option.treble" xml:space="preserve"><value>Menos agudos</value></data>
+  <data name="Exercise.MixProblem.Option.echo" xml:space="preserve"><value>Eco adicionado</value></data>
+  <data name="Exercise.MixProblem.Option.distortion" xml:space="preserve"><value>Distorção adicionada</value></data>
+  <data name="Exercise.MixProblem.Option.noise" xml:space="preserve"><value>Ruído adicionado</value></data>
+  <data name="Exercise.MixProblem.Feedback" xml:space="preserve"><value>A alteração introduzida foi {0}. Compare B com A e isole essa pista; as outras categorias de processamento não foram adicionadas.</value></data>
+  <data name="LearningPath.Unit.MixProblem.Title" xml:space="preserve"><value>Diagnostique uma alteração</value></data>
+  <data name="LearningPath.Unit.MixProblem.Description" xml:space="preserve"><value>Aplique a escuta de timbre, tempo e textura para identificar uma mudança.</value></data>
 </root>

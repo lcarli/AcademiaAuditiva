@@ -97,6 +97,100 @@ public sealed partial class TechnicalListeningRoundGenerator
                 answer = "B";
                 parameters = [overdrive];
                 break;
+            case "HighPassCutoff":
+            case "LowPassCutoff":
+                var cutoffIndex = _random.Next(3);
+                var highPass = definition.Name == "HighPassCutoff";
+                var cutoffs = highPass
+                    ? difficulty switch
+                    {
+                        0 => new[] { 80.0, 250, 800 },
+                        1 => [120.0, 250, 500],
+                        _ => [180.0, 250, 350],
+                    }
+                    : difficulty switch
+                    {
+                        0 => new[] { 1500.0, 4500, 12000 },
+                        1 => [2500.0, 4500, 8000],
+                        _ => [3500.0, 4500, 6000],
+                    };
+                var cutoff = cutoffs[cutoffIndex];
+                second = [new CutFilterProcessor(cutoff, highPass)];
+                answer = definition.Answers[cutoffIndex];
+                parameters = [cutoff];
+                break;
+            case "LowShelf":
+            case "HighShelf":
+                var boost = _random.Next(2) == 0;
+                var shelfGain = new[] { 9.0, 6, 3 }[difficulty] * (boost ? 1 : -1);
+                var shelfFrequency = definition.Name == "HighShelf" ? 4000 : 150;
+                second = [new ShelfEqProcessor(shelfFrequency, shelfGain, definition.Name == "HighShelf")];
+                answer = boost ? "boost" : "cut";
+                parameters = [shelfGain, shelfFrequency];
+                break;
+            case "EqGain":
+                var gainIndex = _random.Next(3);
+                var gains = difficulty switch
+                {
+                    0 => new[] { 3.0, 7.5, 12 },
+                    1 => [3.0, 6, 9],
+                    _ => [3.0, 4.5, 6],
+                };
+                var eqGain = gains[gainIndex];
+                second = [new PeakingEqProcessor(1000, eqGain, 1)];
+                answer = definition.Answers[gainIndex];
+                parameters = [eqGain, 1000];
+                break;
+            case "CompressorThreshold":
+                var lowerThreshold = source.Audio.PeakDbfs - new[] { 15.0, 12, 10 }[difficulty];
+                var higherThreshold = source.Audio.PeakDbfs - new[] { 3.0, 4, 5 }[difficulty];
+                first = [new CompressorProcessor(lowerThreshold, 4, 3, 50)];
+                second = [new CompressorProcessor(higherThreshold, 4, 3, 50)];
+                answer = "A";
+                parameters = [lowerThreshold, higherThreshold];
+                break;
+            case "EchoFeedback":
+                var lowFeedback = new[] { 0.1, 0.2, 0.3 }[difficulty];
+                var highFeedback = new[] { 0.65, 0.5, 0.45 }[difficulty];
+                first = [new EchoProcessor(250, lowFeedback, 0.5)];
+                second = [new EchoProcessor(250, highFeedback, 0.5)];
+                answer = "B";
+                parameters = [lowFeedback * 100, highFeedback * 100, 250];
+                break;
+            case "ReverbMix":
+                var mixIndex = _random.Next(3);
+                var mixes = difficulty switch
+                {
+                    0 => new[] { 0.15, 0.4, 0.7 },
+                    1 => [0.2, 0.4, 0.6],
+                    _ => [0.3, 0.4, 0.5],
+                };
+                var mix = mixes[mixIndex];
+                second = [new ReverbProcessor(1.2, 20, mix)];
+                answer = definition.Answers[mixIndex];
+                parameters = [mix * 100, 1.2];
+                break;
+            case "NoiseDetection":
+                var snr = NoiseSnr(difficulty);
+                second = [new WhiteNoiseProcessor(snr, 1 + _random.Next(int.MaxValue - 1))];
+                answer = "B";
+                parameters = [snr];
+                break;
+            case "MixProblem":
+                var problemIndex = _random.Next(definition.Answers.Count);
+                answer = definition.Answers[problemIndex];
+                var change = new[] { 9.0, 6, 3 }[difficulty];
+                second = answer switch
+                {
+                    "bass" => [new ShelfEqProcessor(150, -change, false)],
+                    "treble" => [new ShelfEqProcessor(4000, -change, true)],
+                    "echo" => [new EchoProcessor(250, 0.3, new[] { 0.45, 0.3, 0.2 }[difficulty])],
+                    "distortion" => [new SaturationProcessor(source.Audio.PeakDbfs - change)],
+                    "noise" => [new WhiteNoiseProcessor(NoiseSnr(difficulty), 1 + _random.Next(int.MaxValue - 1))],
+                    _ => throw new InvalidOperationException("Unknown mix diagnostic answer."),
+                };
+                parameters = [];
+                break;
             default:
                 throw new ArgumentException("Unknown expanded Audio comparison.", nameof(definition));
         }
@@ -121,6 +215,8 @@ public sealed partial class TechnicalListeningRoundGenerator
                 ["audioSourceKind"] = source.Kind,
             });
     }
+
+    private static double NoiseSnr(int difficulty) => new[] { 12.0, 21, 30 }[difficulty];
 
     internal IReadOnlyList<AudioSource> ExpansionSourcesFor(string name, string level) =>
         PreferMusic(_sources.Sources.Where(source => source.Audio.Channels == 2 && (source.IsRemote
