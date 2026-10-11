@@ -54,6 +54,7 @@ var envVars = [
   { name: 'ConnectionStrings__DefaultConnection', value: sqlConnectionString }
   { name: 'Admin__Email', value: adminEmail }
   { name: 'Storage__BlobEndpoint', value: storageBlobEndpoint }
+  { name: 'Storage__TrainingSourcesContainer', value: 'audio-training-sources' }
   { name: 'DataProtection__BlobUri', value: dataProtectionBlobUri }
   { name: 'DataProtection__KeyIdentifier', value: dataProtectionKeyUri }
 ]

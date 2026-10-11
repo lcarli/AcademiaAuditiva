@@ -3,6 +3,7 @@
 //   - piano-audio          : private (source mp3 sample bank, accessed via MI)
 //   - piano-audio-mixed    : private (server-mixed per-round clips, 1h lifecycle)
 //   - piano-audio-crypto   : private (legacy — kept until consumers retire)
+//   - audio-training-sources: private licensed masters and prepared chunks
 //   - exercice-logs        : private (server-only writes)
 //   - dataprotection-keys  : private (ASP.NET Core Data Protection key ring)
 //
@@ -107,6 +108,14 @@ resource mixedLifecycle 'Microsoft.Storage/storageAccounts/managementPolicies@20
 resource pianoAudioCrypto 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
   parent: blobService
   name: 'piano-audio-crypto'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
+resource audioTrainingSources 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'audio-training-sources'
   properties: {
     publicAccess: 'None'
   }

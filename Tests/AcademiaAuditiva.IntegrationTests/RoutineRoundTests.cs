@@ -83,7 +83,7 @@ public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
         var client = await ClientAsync();
         var music = await PlayAsync(client, noteId, routine);
         (await AnswerAsync(client, noteId, RoundId(music), correct: true)).GetProperty("success").GetBoolean().Should().BeTrue();
-        _factory.AudioRandom.Use(3, 0, 1, 0);
+        _factory.AudioRandom.Use(3, 0, 1, 0, 0, 0);
 
         var audio = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new
         {
@@ -92,7 +92,8 @@ public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
             routineItemId = routine.ItemIds[1],
             filters = new Dictionary<string, string> { ["gfLevel"] = "beginner" },
         }));
-        audio.EnumerateObject().Select(p => p.Name).Should().Equal("roundId", "clips", "routine");
+        audio.EnumerateObject().Select(p => p.Name).Should().Equal("roundId", "clips", "routine", "options");
+        audio.GetProperty("options").EnumerateArray().Should().HaveCount(4);
         var repeated = await PlayAsync(client, frequencyId, routine, item: 1);
         RoundId(repeated).Should().Be(RoundId(audio), "returning to a routine must not generate an easier question");
         var result = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",

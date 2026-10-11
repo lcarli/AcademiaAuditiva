@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const levelSelect = document.getElementById("gfLevel");
   const ab = ABPlayback.create(document.querySelector("[data-aa-ab]"));
   const buttons = [...document.querySelectorAll(".guessAnswer")];
+  const answerGrid = buttons[0]?.parentElement;
   let roundId = null;
   let selectedFrequency = "";
 
@@ -26,11 +27,16 @@ document.addEventListener("DOMContentLoaded", () => {
     roundId = null;
     select(null);
     ab?.clear();
+    showOptions([]);
   }
 
-  function showLevel() {
-    buttons.forEach((button) => {
-      button.hidden = !button.dataset.levels.split(" ").includes(level());
+  function showOptions(options) {
+    buttons.forEach((button) => { button.hidden = true; });
+    (options || []).map(String).forEach((value) => {
+      const button = buttons.find((candidate) => candidate.value === value);
+      if (!button) return;
+      button.hidden = false;
+      answerGrid?.appendChild(button);
     });
   }
 
@@ -40,10 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   levelSelect?.addEventListener("change", () => {
     AAPractice.reset();
-    showLevel();
   });
   AAPractice.onReset(clearRound);
-  showLevel();
+  showOptions([]);
 
   document.getElementById("Play")?.addEventListener("click", () => {
     AAPractice.play({ exerciseId, filters: { gfLevel: level() } }).then((data) => {
@@ -62,6 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       roundId = data.roundId;
       select(null);
+      showOptions(data.options);
       ab.play("A");
     });
   });

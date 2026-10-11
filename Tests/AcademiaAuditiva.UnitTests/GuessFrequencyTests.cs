@@ -131,7 +131,22 @@ public class GuessFrequencyTests
             expected["frequencyHz"]!.Value<int>().Should().Be(frequency);
             plan.AnswerMetadata["gfFrequencyHz"].Should().Be(frequency.ToString(CultureInfo.InvariantCulture));
             plan.AnswerMetadata["gfSourceKind"].Should().Be(Sources.Find(boosted.Plan.SourceKey)!.Kind);
+            plan.AnswerOptions.Should().HaveCount(4).And.Contain(frequency.ToString(CultureInfo.InvariantCulture));
+            plan.AnswerOptions.Should().OnlyHaveUniqueItems();
+            plan.AnswerOptions!.Select(int.Parse).Should().OnlyContain(
+                option => TechnicalListeningRoundGenerator.FrequenciesFor(level).Contains(option));
         }
+    }
+
+    [Fact]
+    public void AnswerOptions_VaryTheirValuesAndCorrectAnswerPosition()
+    {
+        var first = Generate("intermediate", 1000, 0, side: 0, target: 0, optionStart: 0, answerAt: 0);
+        var second = Generate("intermediate", 1000, 0, side: 0, target: 0, optionStart: 2, answerAt: 3);
+
+        first.AnswerOptions.Should().NotEqual(second.AnswerOptions);
+        first.AnswerOptions![0].Should().Be("1000");
+        second.AnswerOptions![3].Should().Be("1000");
     }
 
     [Theory]
@@ -185,9 +200,21 @@ public class GuessFrequencyTests
         resources["Exercise.GuessFrequency.Frequency"].Should().Be("{0} Hz");
     }
 
-    private static TechnicalListeningRoundPlan Generate(string level, int frequency, int sourceIndex, int side, int target) =>
+    private static TechnicalListeningRoundPlan Generate(
+        string level,
+        int frequency,
+        int sourceIndex,
+        int side,
+        int target,
+        int optionStart = 0,
+        int answerAt = 0) =>
         new TechnicalListeningRoundGenerator(Sources, new SequenceRandom(
-            TechnicalListeningRoundGenerator.FrequenciesFor(level).ToList().IndexOf(frequency), sourceIndex, side, target))
+            TechnicalListeningRoundGenerator.FrequenciesFor(level).ToList().IndexOf(frequency),
+            sourceIndex,
+            side,
+            target,
+            optionStart,
+            answerAt))
         .Plan(Exercise, new Dictionary<string, string> { ["gfLevel"] = level });
 
     private const int FftSize = 32768;

@@ -46,11 +46,13 @@ public class GuessFrequencyTests : IClassFixture<ExploreWebApplicationFactory>
     public async Task Round_OnlyExposesOpaqueClips_WhileKeepingEQAndMatchedTargetOnTheServer()
     {
         var (exerciseId, client) = await StartAsync();
-        _factory.AudioRandom.Use(3, 0, 1, 0);
+        _factory.AudioRandom.Use(3, 0, 1, 0, 0, 2);
 
         var play = await PlayAsync(client, exerciseId, "intermediate");
 
-        play.EnumerateObject().Select(p => p.Name).Should().Equal("roundId", "clips");
+        play.EnumerateObject().Select(p => p.Name).Should().Equal("roundId", "clips", "options");
+        play.GetProperty("options").EnumerateArray().Select(option => option.GetString())
+            .Should().HaveCount(4).And.Contain("1000");
         var clips = play.GetProperty("clips").EnumerateArray().ToArray();
         clips.Select(c => c.GetProperty("key").GetString()).Should().Equal("A", "B");
         clips.Should().OnlyContain(c => c.EnumerateObject().Select(p => p.Name).SequenceEqual(new[] { "key", "token" }));
@@ -80,7 +82,7 @@ public class GuessFrequencyTests : IClassFixture<ExploreWebApplicationFactory>
         using var beforeScope = _factory.Services.CreateScope();
         var beforeCount = beforeScope.ServiceProvider.GetRequiredService<ApplicationDbContext>()
             .ScoreSnapshots.Count(s => s.UserId == SignedInWebApplicationFactory.UserId && s.ExerciseId == exerciseId);
-        _factory.AudioRandom.Use(3, 0, 1, 0);
+        _factory.AudioRandom.Use(3, 0, 1, 0, 0, 0);
         var play = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new
         {
             exerciseId,
@@ -119,7 +121,7 @@ public class GuessFrequencyTests : IClassFixture<ExploreWebApplicationFactory>
     public async Task WrongFrequency_IsRecordedAsWrong_AndReturnsTheActualFrequency()
     {
         var (exerciseId, client) = await StartAsync();
-        _factory.AudioRandom.Use(0, 0, 0, 0);
+        _factory.AudioRandom.Use(0, 0, 0, 0, 0, 0);
         var play = await PlayAsync(client, exerciseId, "beginner");
 
         var result = await ValidateAsync(client, exerciseId, play, "500");

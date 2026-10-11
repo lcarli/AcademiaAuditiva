@@ -25,14 +25,18 @@ public sealed record AudioSource(
     IReadOnlyList<int> Difficulties,
     string Origin,
     AudioSourceLicense License,
-    AudioSourceMeasurement Audio)
+    AudioSourceMeasurement Audio,
+    string? BlobName = null)
 {
     [JsonIgnore]
     public string FileName => $"{Key}.wav";
 
     /// <summary>Changes whenever its bytes do, so audio made from older bytes is never reused.</summary>
     [JsonIgnore]
-    public string Version => Audio.Sha256;
+    public string Version => BlobName ?? Audio.Sha256;
+
+    [JsonIgnore]
+    public bool IsRemote => BlobName is not null;
 }
 
 /// <param name="Name">An SPDX-style license name, such as <c>MIT</c>, <c>CC0-1.0</c> or <c>CC-BY-4.0</c>.</param>

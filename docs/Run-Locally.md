@@ -111,14 +111,19 @@ read from disk. They still need Azurite, because every mix is stored in the
 `AcademiaAuditiva/Audio/Instruments/LICENSE.txt`;
 `scripts/build-instrument-samples.ps1` (PowerShell 7 and `ffmpeg`) rebuilds them.
 
-The recordings of the audio-engineering track are in git too, under
-`AcademiaAuditiva/Audio/Sources`, listed with their licenses in
-`sources.json`. `dotnet run --no-cache scripts/audio-sources.cs generate [key]`
-rebuilds the generated ones, and `ingest <key> <file.wav>` adds one obtained
-elsewhere (see the script's header and `docs/Audio-Ear-Training.md`).
-With a key, only that source WAV is written; for example,
-`generate eq-reference-mix` rebuilds the broadband EQ practice mix without
-rewriting the original recordings.
+The baseline recordings of the audio-engineering track are in git under
+`AcademiaAuditiva/Audio/Sources`, listed with their licenses in `sources.json`.
+`dotnet run --no-cache scripts/audio-sources.cs generate [key]` rebuilds the
+generated ones, and `ingest <key> <file.wav>` adds one obtained elsewhere (see
+the script's header and `docs/Audio-Ear-Training.md`). With a key, only that
+source WAV is written; for example, `generate eq-reference-mix` rebuilds the
+broadband EQ practice mix without rewriting the original recordings.
+
+Production additionally discovers licensed music chunks from the private
+`audio-training-sources` container. Local development deliberately uses only
+the bundled sources unless `Storage:TrainingSourcesContainer` names a container
+with the complete 96-chunk catalog; when configured, the readiness check fails
+instead of silently falling back if that catalog cannot be listed.
 
 ## 4. Run the app
 
