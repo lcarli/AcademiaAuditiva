@@ -53,6 +53,36 @@ public sealed record CompressorProcessor(
     public override string Name => "compressor";
 }
 
+public sealed record StereoWidthProcessor(double Width) : AudioProcessor
+{
+    public override string Name => "stereo-width";
+}
+
+public sealed record ChannelPolarityProcessor(bool InvertRight) : AudioProcessor
+{
+    public override string Name => "channel-polarity";
+}
+
+public sealed record EchoProcessor(double DelayMs, double Feedback, double WetMix) : AudioProcessor
+{
+    public override string Name => "echo";
+}
+
+public sealed record ReverbProcessor(double DecaySeconds, double PreDelayMs, double WetMix) : AudioProcessor
+{
+    public override string Name => "reverb";
+}
+
+public sealed record SaturationProcessor(double ThresholdDbfs) : AudioProcessor
+{
+    public override string Name => "saturation";
+}
+
+public sealed record FadeOutProcessor(double DurationMs) : AudioProcessor
+{
+    public override string Name => "fade-out";
+}
+
 /// <summary>
 /// Matches BS.1770 integrated loudness to <paramref name="TargetLufs"/>.
 /// Explicit and last in a plan: it must not erase a level-training difference.

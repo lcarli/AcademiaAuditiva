@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.Audio;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AcademiaAuditiva.IntegrationTests;
@@ -75,6 +76,7 @@ public class AudioProgressTests : IClassFixture<SignedInWebApplicationFactory>
     }
 
     [Theory]
+    [MemberData(nameof(ExpandedDifficultyCases))]
     [InlineData("BoostOrCut", "bcLevel", "beginner", "Beginner")]
     [InlineData("BoostOrCut", "bcLevel", "intermediate", "Intermediate")]
     [InlineData("BoostOrCut", "bcLevel", "advanced", "Advanced")]
@@ -103,6 +105,11 @@ public class AudioProgressTests : IClassFixture<SignedInWebApplicationFactory>
             .GetAccuracyByDifficultyAsync(userId, track: TrainingTracks.Audio);
         report.Should().Equal(new DifficultyAccuracy(expectedDifficulty, 50));
     }
+
+    public static IEnumerable<object[]> ExpandedDifficultyCases =>
+        AudioComparisonCatalog.Expansion.SelectMany(definition => new[] { "beginner", "intermediate", "advanced" }
+            .Select(level => new object[] { definition.Name, definition.LevelFilter, level,
+                char.ToUpperInvariant(level[0]) + level[1..] }));
 
     [Fact]
     public async Task HistoryTimelineWeakSpotsAndRecommendations_AreScopedBeforeAnalysis()

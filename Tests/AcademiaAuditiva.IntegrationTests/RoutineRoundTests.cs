@@ -20,7 +20,7 @@ namespace AcademiaAuditiva.IntegrationTests;
 /// one at a time and each until it is answered, every answer counts, right or wrong, and none is
 /// taken past the item's target. Only the answers given in the routine count towards it.
 /// </summary>
-public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
+public class RoutineRoundTests : IDisposable
 {
     private const string UserId = SignedInWebApplicationFactory.UserId;
     private const string SessionExpired = "Session expired or no answer found.";
@@ -32,9 +32,9 @@ public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
 
     private static readonly Uri BaseAddress = new("http://localhost");
 
-    private readonly RoutineWebApplicationFactory _factory;
+    private readonly RoutineWebApplicationFactory _factory = new();
 
-    public RoutineRoundTests(RoutineWebApplicationFactory factory) => _factory = factory;
+    public void Dispose() => _factory.Dispose();
 
     [Fact]
     public async Task RoutineQuestions_AreEachAnsweredOnce_UpToTheTeachersTarget()
@@ -113,6 +113,16 @@ public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
     [InlineData("BoostOrCut", "bcLevel")]
     [InlineData("GuessQ", "gqLevel")]
     [InlineData("Compression", "cpLevel")]
+    [InlineData("CompressorAttack", "caLevel")]
+    [InlineData("CompressorRelease", "crLevel")]
+    [InlineData("CompressionRatio", "raLevel")]
+    [InlineData("StereoWidth", "swLevel")]
+    [InlineData("ChannelPolarity", "poLevel")]
+    [InlineData("ReverbPresence", "rvLevel")]
+    [InlineData("ReverbDecay", "dcLevel")]
+    [InlineData("ReverbPreDelay", "rpLevel")]
+    [InlineData("EchoTime", "etLevel")]
+    [InlineData("Distortion", "dsLevel")]
     public async Task NewAudioExercises_RespectTeacherDifficulty_AndCompleteRoutineItems(string name, string levelKey)
     {
         var exerciseId = _factory.ExerciseId(name);

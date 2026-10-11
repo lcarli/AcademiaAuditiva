@@ -121,7 +121,7 @@ public class UserReportService
             .ToListAsync(ct);
         return answers.Select(answer =>
         {
-            var key = answer.Name switch
+            var key = Audio.AudioComparisonCatalog.Find(answer.Name)?.LevelFilter ?? answer.Name switch
             {
                 "LevelMatch" => "lmLevel",
                 "StereoPosition" => "spLevel",

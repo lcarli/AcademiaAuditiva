@@ -58,7 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ? [loc[detail.direction], loc[detail.region], number(detail.frequencyHz), number(detail.gainDb)]
         : loc.exercise === "GuessQ"
           ? [loc[detail.width], number(detail.frequencyHz), number(detail.q)]
-          : [detail.compressedClip, number(detail.ratio), number(detail.attackMs), number(detail.releaseMs)];
+          : loc.exercise === "Compression"
+            ? [detail.compressedClip, number(detail.ratio), number(detail.attackMs), number(detail.releaseMs)]
+            : [buttons.find(button => button.value === detail.answer).textContent.trim(), ...detail.parameters.map(number)];
       const text = loc.feedback.replace(/\{(\d+)\}/g, (_, index) => values[Number(index)]);
       Swal.fire(AAi18n.withRewards({
         icon: data.isCorrect ? "success" : "error",

@@ -166,7 +166,7 @@ public class PrivateTrainingSourcesTests
 
     private static string Folder => Environment.GetEnvironmentVariable("AA_TEST_TRAINING_SOURCES")!;
 
-    private static (AudioSourceLibrary Library, Mock<BlobContainerClient> Storage, IReadOnlyList<AudioSource> Sources) Library()
+    internal static (AudioSourceLibrary Library, Mock<BlobContainerClient> Storage, IReadOnlyList<AudioSource> Sources) Library()
     {
         var bytes = File.ReadAllBytes(Path.Combine(Folder, "storage-manifest.json"));
         var sources = AudioSourceLibrary.FromStorageManifest(bytes);
@@ -190,7 +190,7 @@ public class PrivateTrainingSourcesTests
     private static Response<BlobDownloadResult> Downloaded(byte[] bytes) =>
         Response.FromValue(BlobsModelFactory.BlobDownloadResult(content: BinaryData.FromBytes(bytes)), Mock.Of<Response>());
 
-    private sealed class PrivateAudioFactAttribute : FactAttribute
+    internal sealed class PrivateAudioFactAttribute : FactAttribute
     {
         public PrivateAudioFactAttribute()
         {

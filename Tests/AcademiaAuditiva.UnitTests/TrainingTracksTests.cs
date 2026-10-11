@@ -32,7 +32,9 @@ public class TrainingTracksTests
     public void ExercisesAndLearningPaths_BelongToTheirTracks()
     {
         ExerciseCatalog.All.Single(e => e.Name == "LevelMatch").Track.Should().Be(TrainingTracks.Audio);
-        string[] audioNames = ["LevelMatch", "StereoPosition", "GuessFrequency", "BoostOrCut", "GuessQ", "Compression"];
+        string[] audioNames = ["LevelMatch", "StereoPosition", "GuessFrequency", "BoostOrCut", "GuessQ", "Compression",
+            "CompressorAttack", "CompressorRelease", "CompressionRatio", "StereoWidth", "ChannelPolarity",
+            "ReverbPresence", "ReverbDecay", "ReverbPreDelay", "EchoTime", "Distortion"];
         ExerciseCatalog.All.Where(e => audioNames.Contains(e.Name))
             .Should().OnlyContain(e => e.Track == TrainingTracks.Audio);
         ExerciseCatalog.All.Where(e => !audioNames.Contains(e.Name))
@@ -50,7 +52,7 @@ public class TrainingTracksTests
         ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Music).Exercises
             .Select(e => e.Name).Should().NotContain(["LevelMatch", "StereoPosition", "GuessFrequency"]);
         ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Audio).Categories
-            .Select(c => c.Name).Should().Equal("Level", "FrequencyEq", "Dynamics", "StereoPhase");
+            .Select(c => c.Name).Should().Equal("Level", "FrequencyEq", "Dynamics", "StereoPhase", "SpaceTime", "CriticalListening");
         ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Mix).Categories.Should().BeEmpty();
     }
 

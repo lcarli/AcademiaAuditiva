@@ -259,6 +259,11 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
             ["GuessQ"] = """{"gqLevel":"intermediate","gqQ":"1.5","gqWidth":"medium"}""",
             ["Compression"] = """{"cpLevel":"advanced","cpCompressedClip":"B","cpRatio":"2"}""",
         };
+        foreach (var definition in AcademiaAuditiva.Services.Audio.AudioComparisonCatalog.Expansion)
+            filters[definition.Name] = JsonSerializer.Serialize(new Dictionary<string, string>
+            {
+                [definition.LevelFilter] = "advanced", ["audioAnswer"] = definition.Answers[0], ["audioParameters"] = "[1,2]",
+            });
         using (var scope = _factory.Services.CreateScope())
         {
             var db = Db(scope);

@@ -5163,4 +5163,151 @@
   <data name="LearningPath.Unit.EqWidth.Description" xml:space="preserve"><value>Entendez comment le Q change la largeur de la bande.</value></data>
   <data name="LearningPath.Unit.CompressionFoundations.Title" xml:space="preserve"><value>Fondements de compression</value></data>
   <data name="LearningPath.Unit.CompressionFoundations.Description" xml:space="preserve"><value>Reconnaissez les changements de dynamique sans vous fier au volume.</value></data>
+  <data name="Exercise.AudioComparison.New" xml:space="preserve"><value>Nouvelle comparaison</value></data>
+  <data name="Exercise.AudioComparison.Incomplete" xml:space="preserve"><value>Générez une comparaison et choisissez une réponse avant de valider.</value></data>
+  <data name="Exercise.AudioComparison.Safe" xml:space="preserve"><value>Commencez à un volume confortable. Gardez le même volume pour les deux signaux ; leur sonie est équivalente.</value></data>
+  <data name="Exercise.AudioComparison.ReferenceGeneric" xml:space="preserve"><value>A est la référence. Comparez B au même volume de lecture.</value></data>
+  <data name="CompressorAttack" xml:space="preserve"><value>Attaque du compresseur</value></data>
+  <data name="Exercise.CompressorAttack.Subtitle" xml:space="preserve"><value>Entendez la vitesse de contrôle du début d’un coup.</value></data>
+  <data name="Exercise.CompressorAttack.Instructions" xml:space="preserve"><value>Les deux signaux sont comprimés à sonie équivalente. Choisissez l’attaque la plus rapide. Le seuil, le ratio et le relâchement sont identiques ; seule l’attaque change.</value></data>
+  <data name="Exercise.CompressorAttack.Tip1" xml:space="preserve"><value>L’attaque rapide contrôle la crête initiale ; l’attaque lente laisse davantage passer le début du coup.</value></data>
+  <data name="Exercise.CompressorAttack.Tip2" xml:space="preserve"><value>Comparez les coups de batterie, pas le volume global. Le côté rapide varie à chaque tour.</value></data>
+  <data name="Exercise.CompressorAttack.Question" xml:space="preserve"><value>Quel signal utilise l’attaque de compresseur la plus rapide ?</value></data>
+  <data name="Exercise.CompressorAttack.Level.Beginner" xml:space="preserve"><value>Débutant · 0 contre 60 ms</value></data>
+  <data name="Exercise.CompressorAttack.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 1 contre 30 ms</value></data>
+  <data name="Exercise.CompressorAttack.Level.Advanced" xml:space="preserve"><value>Avancé · 3 contre 15 ms</value></data>
+  <data name="Exercise.CompressorAttack.Option.A" xml:space="preserve"><value>Signal A</value></data>
+  <data name="Exercise.CompressorAttack.Option.B" xml:space="preserve"><value>Signal B</value></data>
+  <data name="Exercise.CompressorAttack.Feedback" xml:space="preserve"><value>{0} utilisait l’attaque rapide : {1} ms contre {2} ms. Écoutez le transitoire initial davantage retenu.</value></data>
+  <data name="LearningPath.Unit.CompressorAttack.Title" xml:space="preserve"><value>Contrôlez le transitoire</value></data>
+  <data name="LearningPath.Unit.CompressorAttack.Description" xml:space="preserve"><value>Distinguez les attaques rapides et lentes à sonie équivalente.</value></data>
+  <data name="CompressorRelease" xml:space="preserve"><value>Relâchement du compresseur</value></data>
+  <data name="Exercise.CompressorRelease.Subtitle" xml:space="preserve"><value>Entendez la récupération entre les coups.</value></data>
+  <data name="Exercise.CompressorRelease.Instructions" xml:space="preserve"><value>Choisissez le relâchement rapide. Le seuil, le ratio et l’attaque instantanée sont identiques. La sonie est équivalente.</value></data>
+  <data name="Exercise.CompressorRelease.Tip1" xml:space="preserve"><value>Un relâchement rapide restaure le gain plus tôt ; un relâchement lent prolonge la réduction.</value></data>
+  <data name="Exercise.CompressorRelease.Tip2" xml:space="preserve"><value>Concentrez-vous sur le sustain et la récupération après les coups, pas sur la crête initiale.</value></data>
+  <data name="Exercise.CompressorRelease.Question" xml:space="preserve"><value>Quel signal utilise le relâchement le plus rapide ?</value></data>
+  <data name="Exercise.CompressorRelease.Level.Beginner" xml:space="preserve"><value>Débutant · 20 contre 350 ms</value></data>
+  <data name="Exercise.CompressorRelease.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 40 contre 200 ms</value></data>
+  <data name="Exercise.CompressorRelease.Level.Advanced" xml:space="preserve"><value>Avancé · 70 contre 130 ms</value></data>
+  <data name="Exercise.CompressorRelease.Option.A" xml:space="preserve"><value>Signal A</value></data>
+  <data name="Exercise.CompressorRelease.Option.B" xml:space="preserve"><value>Signal B</value></data>
+  <data name="Exercise.CompressorRelease.Feedback" xml:space="preserve"><value>{0} utilisait le relâchement rapide : {1} ms contre {2} ms. Écoutez la récupération du gain entre les coups.</value></data>
+  <data name="LearningPath.Unit.CompressorRelease.Title" xml:space="preserve"><value>Entendez la récupération</value></data>
+  <data name="LearningPath.Unit.CompressorRelease.Description" xml:space="preserve"><value>Suivez la restauration du gain après un transitoire.</value></data>
+  <data name="CompressionRatio" xml:space="preserve"><value>Ratio de compression</value></data>
+  <data name="Exercise.CompressionRatio.Subtitle" xml:space="preserve"><value>Classez une compression légère, moyenne ou forte.</value></data>
+  <data name="Exercise.CompressionRatio.Instructions" xml:space="preserve"><value>A est la référence sans compression ajoutée. Classez le ratio de B dans le profil choisi. Le seuil et les temps restent fixes, à sonie équivalente.</value></data>
+  <data name="Exercise.CompressionRatio.Tip1" xml:space="preserve"><value>Un ratio élevé retient davantage les crêtes et fait ressortir relativement les détails faibles.</value></data>
+  <data name="Exercise.CompressionRatio.Tip2" xml:space="preserve"><value>Les étiquettes décrivent les trois ratios du profil, pas un jugement universel sur le mixage.</value></data>
+  <data name="Exercise.CompressionRatio.Question" xml:space="preserve"><value>Quelle est l’intensité du ratio de compression dans B ?</value></data>
+  <data name="Exercise.CompressionRatio.Level.Beginner" xml:space="preserve"><value>Débutant · 2 :1 / 4 :1 / 8 :1</value></data>
+  <data name="Exercise.CompressionRatio.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 2 :1 / 3 :1 / 6 :1</value></data>
+  <data name="Exercise.CompressionRatio.Level.Advanced" xml:space="preserve"><value>Avancé · 2 :1 / 3 :1 / 4 :1</value></data>
+  <data name="Exercise.CompressionRatio.Option.light" xml:space="preserve"><value>Légère</value></data>
+  <data name="Exercise.CompressionRatio.Option.medium" xml:space="preserve"><value>Moyenne</value></data>
+  <data name="Exercise.CompressionRatio.Option.strong" xml:space="preserve"><value>Forte</value></data>
+  <data name="Exercise.CompressionRatio.Feedback" xml:space="preserve"><value>{0} : B utilisait un ratio de {1} :1 à {2} dBFS. Écoutez la retenue des crêtes plutôt que le volume.</value></data>
+  <data name="LearningPath.Unit.CompressionRatio.Title" xml:space="preserve"><value>Intensité de compression</value></data>
+  <data name="LearningPath.Unit.CompressionRatio.Description" xml:space="preserve"><value>Distinguez trois ratios avec le même seuil et les mêmes temps.</value></data>
+  <data name="StereoWidth" xml:space="preserve"><value>Largeur stéréo</value></data>
+  <data name="Exercise.StereoWidth.Subtitle" xml:space="preserve"><value>Comparez la largeur d’une image stéréo musicale.</value></data>
+  <data name="Exercise.StereoWidth.Instructions" xml:space="preserve"><value>A est la référence stéréo originale. B est-il plus étroit, inchangé ou plus large ? Le traitement mid/side change la largeur, puis égalise la sonie.</value></data>
+  <data name="Exercise.StereoWidth.Tip1" xml:space="preserve"><value>Utilisez un casque stéréo ou des enceintes bien placées. La lecture mono supprime cet indice.</value></data>
+  <data name="Exercise.StereoWidth.Tip2" xml:space="preserve"><value>Suivez les sons latéraux, pas un déplacement de panoramique gauche ou droite.</value></data>
+  <data name="Exercise.StereoWidth.Question" xml:space="preserve"><value>Comment la largeur stéréo de B se compare-t-elle à A ?</value></data>
+  <data name="Exercise.StereoWidth.Level.Beginner" xml:space="preserve"><value>Débutant · 45 % / 100 % / 155 %</value></data>
+  <data name="Exercise.StereoWidth.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 65 % / 100 % / 135 %</value></data>
+  <data name="Exercise.StereoWidth.Level.Advanced" xml:space="preserve"><value>Avancé · 80 % / 100 % / 120 %</value></data>
+  <data name="Exercise.StereoWidth.Option.narrow" xml:space="preserve"><value>Plus étroit</value></data>
+  <data name="Exercise.StereoWidth.Option.same" xml:space="preserve"><value>Inchangé</value></data>
+  <data name="Exercise.StereoWidth.Option.wide" xml:space="preserve"><value>Plus large</value></data>
+  <data name="Exercise.StereoWidth.Feedback" xml:space="preserve"><value>{0} : B conservait {1} % du signal latéral original. Le signal central était préservé avant le réglage de sonie.</value></data>
+  <data name="LearningPath.Unit.StereoWidth.Title" xml:space="preserve"><value>Modelez l’image stéréo</value></data>
+  <data name="LearningPath.Unit.StereoWidth.Description" xml:space="preserve"><value>Reconnaissez une image étroite, inchangée ou large.</value></data>
+  <data name="ChannelPolarity" xml:space="preserve"><value>Polarité des canaux</value></data>
+  <data name="Exercise.ChannelPolarity.Subtitle" xml:space="preserve"><value>Entendez une inversion entre les canaux stéréo.</value></data>
+  <data name="Exercise.ChannelPolarity.Instructions" xml:space="preserve"><value>A est l’original. B conserve-t-il la polarité ou inverse-t-il le canal droit ? Utilisez la stéréo. Cet exercice porte sur la polarité relative des canaux, pas la polarité absolue de la prise.</value></data>
+  <data name="Exercise.ChannelPolarity.Tip1" xml:space="preserve"><value>L’inversion peut rendre le centre diffus ou creux. La somme mono peut annuler le contenu centré.</value></data>
+  <data name="Exercise.ChannelPolarity.Tip2" xml:space="preserve"><value>Au niveau débutant, la musique est très centrée ; au niveau avancé, l’image stéréo est plus complexe.</value></data>
+  <data name="Exercise.ChannelPolarity.Question" xml:space="preserve"><value>La polarité du canal droit de B a-t-elle été inversée ?</value></data>
+  <data name="Exercise.ChannelPolarity.Level.Beginner" xml:space="preserve"><value>Débutant · musique très centrée</value></data>
+  <data name="Exercise.ChannelPolarity.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · arrangements plus larges</value></data>
+  <data name="Exercise.ChannelPolarity.Level.Advanced" xml:space="preserve"><value>Avancé · image stéréo complexe</value></data>
+  <data name="Exercise.ChannelPolarity.Option.normal" xml:space="preserve"><value>Polarité conservée</value></data>
+  <data name="Exercise.ChannelPolarity.Option.inverted" xml:space="preserve"><value>Canal droit inversé</value></data>
+  <data name="Exercise.ChannelPolarity.Feedback" xml:space="preserve"><value>{0}. L’inversion droite conserve le niveau de chaque canal, mais change l’image stéréo et l’annulation mono.</value></data>
+  <data name="LearningPath.Unit.ChannelPolarity.Title" xml:space="preserve"><value>Polarité relative</value></data>
+  <data name="LearningPath.Unit.ChannelPolarity.Description" xml:space="preserve"><value>Entendez les changements du contenu central après inversion d’un canal.</value></data>
+  <data name="ReverbPresence" xml:space="preserve"><value>Identification de réverbération</value></data>
+  <data name="Exercise.ReverbPresence.Subtitle" xml:space="preserve"><value>Identifiez une ambiance ajoutée sans avantage de sonie.</value></data>
+  <data name="Exercise.ReverbPresence.Instructions" xml:space="preserve"><value>Choisissez le signal avec réverbération ajoutée. L’autre conserve la prise originale, qui peut déjà contenir de l’ambiance. La sonie est équivalente et le côté traité varie.</value></data>
+  <data name="Exercise.ReverbPresence.Tip1" xml:space="preserve"><value>Écoutez les réflexions après les coups et une sensation d’espace plus dense.</value></data>
+  <data name="Exercise.ReverbPresence.Tip2" xml:space="preserve"><value>Les niveaux élevés réduisent le mélange traité ; comparez les mêmes instants musicaux.</value></data>
+  <data name="Exercise.ReverbPresence.Question" xml:space="preserve"><value>Quel signal a une réverbération ajoutée ?</value></data>
+  <data name="Exercise.ReverbPresence.Level.Beginner" xml:space="preserve"><value>Débutant · 55 % traité</value></data>
+  <data name="Exercise.ReverbPresence.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 40 % traité</value></data>
+  <data name="Exercise.ReverbPresence.Level.Advanced" xml:space="preserve"><value>Avancé · 25 % traité</value></data>
+  <data name="Exercise.ReverbPresence.Option.A" xml:space="preserve"><value>Signal A</value></data>
+  <data name="Exercise.ReverbPresence.Option.B" xml:space="preserve"><value>Signal B</value></data>
+  <data name="Exercise.ReverbPresence.Feedback" xml:space="preserve"><value>{0} avait une réverbération ajoutée à {1} % traité et un déclin réglé à {2} s. Écoutez les réflexions supplémentaires.</value></data>
+  <data name="LearningPath.Unit.ReverbPresence.Title" xml:space="preserve"><value>Entendez l’espace ajouté</value></data>
+  <data name="LearningPath.Unit.ReverbPresence.Description" xml:space="preserve"><value>Reconnaissez une réverbération ajoutée à un extrait musical.</value></data>
+  <data name="ReverbDecay" xml:space="preserve"><value>Déclin de réverbération</value></data>
+  <data name="Exercise.ReverbDecay.Subtitle" xml:space="preserve"><value>Comparez des queues de réverbération courtes et longues.</value></data>
+  <data name="Exercise.ReverbDecay.Instructions" xml:space="preserve"><value>Les deux signaux ont de la réverbération. Choisissez le déclin long. Le mélange traité et le pré-délai restent fixes ; seul le déclin change.</value></data>
+  <data name="Exercise.ReverbDecay.Tip1" xml:space="preserve"><value>Suivez la durée des réflexions entre les attaques musicales.</value></data>
+  <data name="Exercise.ReverbDecay.Tip2" xml:space="preserve"><value>Le déclin est un réglage nominal de rétroaction ; l’amortissement fait décroître les aigus plus vite.</value></data>
+  <data name="Exercise.ReverbDecay.Question" xml:space="preserve"><value>Quel signal a le déclin de réverbération le plus long ?</value></data>
+  <data name="Exercise.ReverbDecay.Level.Beginner" xml:space="preserve"><value>Débutant · 0,4 contre 3 s</value></data>
+  <data name="Exercise.ReverbDecay.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 0,7 contre 2 s</value></data>
+  <data name="Exercise.ReverbDecay.Level.Advanced" xml:space="preserve"><value>Avancé · 1 contre 1,5 s</value></data>
+  <data name="Exercise.ReverbDecay.Option.A" xml:space="preserve"><value>Signal A</value></data>
+  <data name="Exercise.ReverbDecay.Option.B" xml:space="preserve"><value>Signal B</value></data>
+  <data name="Exercise.ReverbDecay.Feedback" xml:space="preserve"><value>{0} utilisait le déclin long : {2} s contre {1} s. Écoutez les réflexions persistant entre les coups.</value></data>
+  <data name="LearningPath.Unit.ReverbDecay.Title" xml:space="preserve"><value>Suivez la queue</value></data>
+  <data name="LearningPath.Unit.ReverbDecay.Description" xml:space="preserve"><value>Distinguez les déclins à mélange traité constant.</value></data>
+  <data name="ReverbPreDelay" xml:space="preserve"><value>Pré-délai de réverbération</value></data>
+  <data name="Exercise.ReverbPreDelay.Subtitle" xml:space="preserve"><value>Entendez la séparation avant les réflexions ajoutées.</value></data>
+  <data name="Exercise.ReverbPreDelay.Instructions" xml:space="preserve"><value>Les deux signaux ont le même déclin et le même mélange. Choisissez le pré-délai long, le délai ajouté avant le début de la réponse réverbérée.</value></data>
+  <data name="Exercise.ReverbPreDelay.Tip1" xml:space="preserve"><value>Un pré-délai long sépare l’attaque initiale de l’ambiance qui suit.</value></data>
+  <data name="Exercise.ReverbPreDelay.Tip2" xml:space="preserve"><value>Écoutez les coups isolés ; ne confondez pas un délai plus long avec un déclin plus long.</value></data>
+  <data name="Exercise.ReverbPreDelay.Question" xml:space="preserve"><value>Quel signal a le pré-délai de réverbération le plus long ?</value></data>
+  <data name="Exercise.ReverbPreDelay.Level.Beginner" xml:space="preserve"><value>Débutant · 0 contre 100 ms</value></data>
+  <data name="Exercise.ReverbPreDelay.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 10 contre 70 ms</value></data>
+  <data name="Exercise.ReverbPreDelay.Level.Advanced" xml:space="preserve"><value>Avancé · 25 contre 50 ms</value></data>
+  <data name="Exercise.ReverbPreDelay.Option.A" xml:space="preserve"><value>Signal A</value></data>
+  <data name="Exercise.ReverbPreDelay.Option.B" xml:space="preserve"><value>Signal B</value></data>
+  <data name="Exercise.ReverbPreDelay.Feedback" xml:space="preserve"><value>{0} utilisait le pré-délai long : {2} ms contre {1} ms. Le réseau de réverbération était inchangé.</value></data>
+  <data name="LearningPath.Unit.ReverbPreDelay.Title" xml:space="preserve"><value>Séparez attaque et espace</value></data>
+  <data name="LearningPath.Unit.ReverbPreDelay.Description" xml:space="preserve"><value>Reconnaissez un délai prolongé avant les réflexions.</value></data>
+  <data name="EchoTime" xml:space="preserve"><value>Temps de l’écho</value></data>
+  <data name="Exercise.EchoTime.Subtitle" xml:space="preserve"><value>Classez l’intervalle entre des échos distincts.</value></data>
+  <data name="Exercise.EchoTime.Instructions" xml:space="preserve"><value>A est la référence. B ajoute un écho avec un des trois temps du profil. Choisissez court, moyen ou long. La rétroaction et le mélange restent fixes.</value></data>
+  <data name="Exercise.EchoTime.Tip1" xml:space="preserve"><value>Écoutez les attaques répétées plutôt qu’une queue diffuse de réverbération.</value></data>
+  <data name="Exercise.EchoTime.Tip2" xml:space="preserve"><value>Le délai se mesure en millisecondes, pas en subdivisions musicales du tempo de la prise.</value></data>
+  <data name="Exercise.EchoTime.Question" xml:space="preserve"><value>Quel est le temps de l’écho dans B ?</value></data>
+  <data name="Exercise.EchoTime.Level.Beginner" xml:space="preserve"><value>Débutant · 75 / 225 / 675 ms</value></data>
+  <data name="Exercise.EchoTime.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 100 / 200 / 400 ms</value></data>
+  <data name="Exercise.EchoTime.Level.Advanced" xml:space="preserve"><value>Avancé · 150 / 225 / 300 ms</value></data>
+  <data name="Exercise.EchoTime.Option.short" xml:space="preserve"><value>Court</value></data>
+  <data name="Exercise.EchoTime.Option.medium" xml:space="preserve"><value>Moyen</value></data>
+  <data name="Exercise.EchoTime.Option.long" xml:space="preserve"><value>Long</value></data>
+  <data name="Exercise.EchoTime.Feedback" xml:space="preserve"><value>{0} : B utilisait un délai de {1} ms. Écoutez l’espacement entre les coups répétés.</value></data>
+  <data name="LearningPath.Unit.EchoTime.Title" xml:space="preserve"><value>Mesurez les échos</value></data>
+  <data name="LearningPath.Unit.EchoTime.Description" xml:space="preserve"><value>Identifiez trois temps d’écho dans chaque profil.</value></data>
+  <data name="Distortion" xml:space="preserve"><value>Repérage de la distorsion</value></data>
+  <data name="Exercise.Distortion.Subtitle" xml:space="preserve"><value>Entendez une saturation douce à sonie équivalente.</value></data>
+  <data name="Exercise.Distortion.Instructions" xml:space="preserve"><value>Choisissez le signal avec saturation douce ajoutée. Une courbe non linéaire remodèle les crêtes ; la prise originale peut déjà contenir de la distorsion. La sonie est équivalente.</value></data>
+  <data name="Exercise.Distortion.Tip1" xml:space="preserve"><value>Écoutez le grain et les harmoniques supplémentaires autour des attaques fortes, pas simplement le volume.</value></data>
+  <data name="Exercise.Distortion.Tip2" xml:space="preserve"><value>Le seuil suit la crête mesurée pour que les extraits faibles ne restent pas presque inchangés.</value></data>
+  <data name="Exercise.Distortion.Question" xml:space="preserve"><value>Quel signal a une saturation douce ajoutée ?</value></data>
+  <data name="Exercise.Distortion.Level.Beginner" xml:space="preserve"><value>Débutant · 12 dB au-dessus du coude</value></data>
+  <data name="Exercise.Distortion.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 9 dB au-dessus du coude</value></data>
+  <data name="Exercise.Distortion.Level.Advanced" xml:space="preserve"><value>Avancé · 6 dB au-dessus du coude</value></data>
+  <data name="Exercise.Distortion.Option.A" xml:space="preserve"><value>Signal A</value></data>
+  <data name="Exercise.Distortion.Option.B" xml:space="preserve"><value>Signal B</value></data>
+  <data name="Exercise.Distortion.Feedback" xml:space="preserve"><value>{0} avait une saturation douce ajoutée, avec des crêtes {1} dB au-dessus du coude. Écoutez les crêtes remodelées et les harmoniques supplémentaires.</value></data>
+  <data name="LearningPath.Unit.Distortion.Title" xml:space="preserve"><value>Entendez la coloration non linéaire</value></data>
+  <data name="LearningPath.Unit.Distortion.Description" xml:space="preserve"><value>Distinguez une saturation ajoutée de la musique originale.</value></data>
 </root>

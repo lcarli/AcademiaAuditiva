@@ -54,7 +54,8 @@ public class LearningPathServiceTests
         var music = await Service(db).GetProgressAsync(UserId);
 
         audio.Units.Select(u => u.Key).Should().Equal("LevelFoundations", "StereoFoundations", "FrequencyFoundations",
-            "EqDirection", "EqWidth", "CompressionFoundations");
+            "EqDirection", "EqWidth", "CompressionFoundations", "CompressorAttack", "CompressorRelease", "CompressionRatio",
+            "StereoWidth", "ChannelPolarity", "ReverbPresence", "ReverbDecay", "ReverbPreDelay", "EchoTime", "Distortion");
         audio.Current.Should().BeEquivalentTo(new
         {
             Exercise = "LevelMatch",
@@ -81,8 +82,8 @@ public class LearningPathServiceTests
         var audio = await Service(db).GetProgressAsync(UserId, TrainingTracks.Audio);
         var music = await Service(db).GetProgressAsync(UserId);
 
-        audio.Should().BeEquivalentTo(new { TotalSteps = 6, CompletedSteps = 6, Percent = 100, IsComplete = true });
-        audio.JustCompleted!.Exercise.Should().Be("Compression");
+        audio.Should().BeEquivalentTo(new { TotalSteps = 16, CompletedSteps = 16, Percent = 100, IsComplete = true });
+        audio.JustCompleted!.Exercise.Should().Be("Distortion");
         audio.Steps.Should().OnlyContain(s => !s.Placed);
         music.CompletedSteps.Should().Be(1);
         music.Percent.Should().Be(100 / LearningPathCatalog.Steps.Count);

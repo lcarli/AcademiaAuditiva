@@ -14,7 +14,7 @@ public static class AudioProcessing
     /// Part of every processed clip's name. Change it whenever the same plan
     /// starts to sound different, so clips processed the old way are not reused.
     /// </summary>
-    public const string EngineVersion = "p3";
+    public const string EngineVersion = "p4";
 
     public const int MaxProcessors = 8;
 
@@ -122,6 +122,42 @@ public static class AudioProcessing
                     }
                     measurePeak = true;
                     break;
+                case StereoWidthProcessor width:
+                    if (!(width.Width is >= 0 and <= 2))
+                        throw new ArgumentOutOfRangeException(nameof(processors), "Stereo width is between 0 and 2.");
+                    if (channels != 2)
+                        throw new ArgumentException("Stereo width requires two channels.", nameof(processors));
+                    measurePeak = true;
+                    break;
+                case ChannelPolarityProcessor:
+                    if (channels != 2)
+                        throw new ArgumentException("Channel polarity requires two channels.", nameof(processors));
+                    break;
+                case EchoProcessor echo:
+                    if (!(echo.DelayMs is >= 20 and <= 1000)
+                        || !(echo.Feedback is >= 0 and <= 0.75)
+                        || !(echo.WetMix is >= 0 and <= 1))
+                        throw new ArgumentOutOfRangeException(nameof(processors),
+                            "Echo needs a delay from 20 to 1000 ms, feedback from 0 to 0.75 and wet mix from 0 to 1.");
+                    measurePeak = true;
+                    break;
+                case ReverbProcessor reverb:
+                    if (!(reverb.DecaySeconds is >= 0.2 and <= 4)
+                        || !(reverb.PreDelayMs is >= 0 and <= 200)
+                        || !(reverb.WetMix is >= 0 and <= 1))
+                        throw new ArgumentOutOfRangeException(nameof(processors),
+                            "Reverb needs a decay from 0.2 to 4 seconds, pre-delay from 0 to 200 ms and wet mix from 0 to 1.");
+                    measurePeak = true;
+                    break;
+                case SaturationProcessor saturation:
+                    if (!(saturation.ThresholdDbfs is >= -60 and <= 0))
+                        throw new ArgumentOutOfRangeException(nameof(processors), "Saturation threshold is between -60 and 0 dBFS.");
+                    measurePeak = true;
+                    break;
+                case FadeOutProcessor fade:
+                    if (!(fade.DurationMs is >= 5 and <= 500))
+                        throw new ArgumentOutOfRangeException(nameof(processors), "Fade-out duration is between 5 and 500 ms.");
+                    break;
                 case LoudnessMatchProcessor match:
                     if (!(match.TargetLufs is >= AudioSourceRules.MinLoudnessLufs and <= AudioSourceRules.MaxLoudnessLufs))
                     {
@@ -190,6 +226,12 @@ public static class AudioProcessing
                 PanProcessor pan => Pan(audio, pan.Position),
                 PeakingEqProcessor eq => PeakingEq(audio, eq),
                 CompressorProcessor compressor => Compress(audio, compressor),
+                StereoWidthProcessor width => StereoWidth(audio, width.Width),
+                ChannelPolarityProcessor polarity => ChannelPolarity(audio, polarity.InvertRight),
+                EchoProcessor echo => TimeBasedAudioProcessing.Echo(audio, echo),
+                ReverbProcessor reverb => TimeBasedAudioProcessing.Reverb(audio, reverb),
+                SaturationProcessor saturation => Saturate(audio, saturation.ThresholdDbfs),
+                FadeOutProcessor fade => FadeOut(audio, fade.DurationMs),
                 LoudnessMatchProcessor match => MatchLoudness(audio, match.TargetLufs),
                 _ => throw new ArgumentException($"Unknown processor {processor?.GetType().Name ?? "null"}.", nameof(processors)),
             };
@@ -248,6 +290,12 @@ public static class AudioProcessing
         PanProcessor pan => $"pan({Number(pan.Position)})",
         PeakingEqProcessor eq => $"peaking-eq({Number(eq.FrequencyHz)},{Number(eq.GainDb)},{Number(eq.Q)})",
         CompressorProcessor compressor => $"compressor({Number(compressor.ThresholdDbfs)},{Number(compressor.Ratio)},{Number(compressor.AttackMs)},{Number(compressor.ReleaseMs)})",
+        StereoWidthProcessor width => $"stereo-width({Number(width.Width)})",
+        ChannelPolarityProcessor polarity => $"channel-polarity({polarity.InvertRight})",
+        EchoProcessor echo => $"echo({Number(echo.DelayMs)},{Number(echo.Feedback)},{Number(echo.WetMix)})",
+        ReverbProcessor reverb => $"reverb({Number(reverb.DecaySeconds)},{Number(reverb.PreDelayMs)},{Number(reverb.WetMix)})",
+        SaturationProcessor saturation => $"saturation({Number(saturation.ThresholdDbfs)})",
+        FadeOutProcessor fade => $"fade-out({Number(fade.DurationMs)})",
         LoudnessMatchProcessor match => $"loudness-match({Number(match.TargetLufs)})",
         _ => throw new ArgumentException($"Unknown processor {processor?.GetType().Name ?? "null"}.", nameof(processor)),
     };
@@ -331,6 +379,48 @@ public static class AudioProcessing
             var inputDb = envelope > 0 ? 20 * Math.Log10(envelope) : double.NegativeInfinity;
             var desiredDb = -Math.Max(0, inputDb - compressor.ThresholdDbfs) * (1 - 1 / compressor.Ratio);
             var gain = LinearGain(desiredDb);
+            for (var channel = 0; channel < audio.Channels; channel++)
+                audio.Samples[offset + channel] = (float)(audio.Samples[offset + channel] * gain);
+        }
+        return audio;
+    }
+
+    private static PcmAudio StereoWidth(PcmAudio audio, double width)
+    {
+        for (var frame = 0; frame < audio.Frames; frame++)
+        {
+            var offset = frame * 2;
+            var mid = (audio.Samples[offset] + audio.Samples[offset + 1]) / 2.0;
+            var side = (audio.Samples[offset] - audio.Samples[offset + 1]) / 2.0 * width;
+            audio.Samples[offset] = (float)(mid + side);
+            audio.Samples[offset + 1] = (float)(mid - side);
+        }
+        return audio;
+    }
+
+    private static PcmAudio ChannelPolarity(PcmAudio audio, bool invertRight)
+    {
+        if (invertRight)
+            for (var frame = 0; frame < audio.Frames; frame++)
+                audio.Samples[frame * 2 + 1] = -audio.Samples[frame * 2 + 1];
+        return audio;
+    }
+
+    private static PcmAudio Saturate(PcmAudio audio, double thresholdDbfs)
+    {
+        var threshold = LinearGain(thresholdDbfs);
+        for (var sample = 0; sample < audio.Samples.Length; sample++)
+            audio.Samples[sample] = (float)(threshold * Math.Tanh(audio.Samples[sample] / threshold));
+        return audio;
+    }
+
+    private static PcmAudio FadeOut(PcmAudio audio, double durationMs)
+    {
+        var frames = Math.Min(audio.Frames, (int)Math.Round(audio.SampleRate * durationMs / 1000));
+        for (var frame = 0; frame < frames; frame++)
+        {
+            var gain = frames == 1 ? 0 : (frames - 1 - frame) / (double)(frames - 1);
+            var offset = (audio.Frames - frames + frame) * audio.Channels;
             for (var channel = 0; channel < audio.Channels; channel++)
                 audio.Samples[offset + channel] = (float)(audio.Samples[offset + channel] * gain);
         }
