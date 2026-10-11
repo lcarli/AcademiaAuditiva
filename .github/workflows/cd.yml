@@ -69,7 +69,7 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --image "$IMAGE_TAG" \
-            --set-env-vars APP_VERSION=${{ github.sha }}
+            --set-env-vars APP_VERSION=${{ github.sha }} Storage__TrainingSourcesContainer=audio-training-sources
 
       - name: Wait for latest revision
         run: |
@@ -85,6 +85,7 @@ jobs:
             ready=$(jq -r '.properties.latestReadyRevisionName // ""' <<< "$app")
             image=$(jq -r '.properties.template.containers[0].image // ""' <<< "$app")
             traffic=$(jq -r '[.properties.configuration.ingress.traffic[]? | select((.latestRevision == true or .revisionName == "'"$latest"'") and .weight == 100)] | length' <<< "$app")
+            sources=$(jq -r '.properties.template.containers[0].env[]? | select(.name == "Storage__TrainingSourcesContainer") | .value' <<< "$app")
 
             revision=$(az containerapp revision list \
               --name ${{ env.CONTAINER_APP }} \
@@ -101,7 +102,7 @@ jobs:
               echo "Latest revision failed to provision or run."
               exit 1
             fi
-            if [ -n "$latest" ] && [ "$latest" = "$ready" ] && [ "$image" = "$IMAGE_TAG" ] && [ "$traffic" = "1" ]; then
+            if [ -n "$latest" ] && [ "$latest" = "$ready" ] && [ "$image" = "$IMAGE_TAG" ] && [ "$traffic" = "1" ] && [ "$sources" = "audio-training-sources" ]; then
               echo "Latest revision is ready on the new image with 100% traffic."
               exit 0
             fi
@@ -125,3 +126,5 @@ jobs:
           ready=$(curl -fsS "https://$FQDN/health/ready") || (echo "Readiness failed"; exit 1)
           ready_version=$(jq -r '.version // empty' <<< "$ready" 2>/dev/null || true)
           test "$ready_version" = "${{ github.sha }}" || (echo "Readiness returned the wrong version '${ready_version:-none}'"; exit 1)
+          test "$(jq -r '.audioSources.privateStorage' <<< "$ready")" = "true" || (echo "Private music sources are disabled"; exit 1)
+          test "$(jq -r '.audioSources.preparedChunks' <<< "$ready")" = "96" || (echo "Private music catalog is incomplete"; exit 1)

@@ -99,7 +99,7 @@ public class DailyChallengeRulesTests
         var exercises = Seeded.Value;
         var musicOnly = exercises.Where(e => TrainingTracks.IsMusic(e.Category)).ToList();
         var audio = DailyChallengeRules.Pick(Day, exercises, TrainingTracks.Audio);
-        audio.Select(e => e.Name).Should().BeEquivalentTo("LevelMatch", "StereoPosition", "GuessFrequency");
+        audio.Should().HaveCount(3).And.OnlyContain(e => ExerciseCatalog.TrackOf(e.Name) == TrainingTracks.Audio);
         audio.Select(e => e.Category).Should().OnlyHaveUniqueItems();
         DailyChallengeRules.Pick(Day, exercises, "audio").Should().Equal(audio);
         DailyChallengeRules.Pick(Day, exercises).Should().Equal(DailyChallengeRules.Pick(Day, musicOnly));

@@ -243,15 +243,27 @@ As built in slice 2:
 - Loudness is the integrated loudness of ITU-R BS.1770-4 (`Loudness`), with
   its K-weighting derived for any sample rate as libebur128 does.
 
-As expanded on 2026-10-11, production also uses 96 private, content-addressed
+When `Storage:TrainingSourcesContainer` is configured, the app uses 96 private, content-addressed
 ten-second WAV chunks in the `audio-training-sources` container: three windows
 from each of 16 licensed recordings, in stereo and mono. The Container App
-lists only `chunks/` through its managed identity; masters and manifests are
-never playable sources. Stereo chunks join Level Match and, after profile-wide
-spectral qualification, Guess Frequency. Mono chunks join Stereo Position.
-The readiness probe requires all 96 chunks, and each download must match the
-SHA-256 prefix in its blob name. Local development and CI keep using the
-bundled catalog unless `Storage:TrainingSourcesContainer` is configured.
+reads the approved, SHA-256-pinned manifest through its managed identity and
+requires every listed `chunks/` blob; masters, unknown recordings and manifests
+are never playable sources. Full file hashes, measured PCM layouts and the
+catalog rules are checked, rather than synthesizing measurements from filenames.
+Stereo chunks serve level/EQ, and mono chunks serve pan. Compression uses a
+qualified subset of stereo percussion/funk excerpts. Once configured, qualified
+music chunks take precedence over bundled recordings for all six Audio exercises.
+Discovery errors or missing assets block readiness and requests, with no bundled
+fallback. Local development and CI keep the bundled catalog by default.
+
+CD explicitly sets `Storage__TrainingSourcesContainer=audio-training-sources`.
+Adding this setting to Bicep alone does **not** enable it: the image-only CD
+workflow does not redeploy the infrastructure. Its smoke check now requires
+`audioSources.privateStorage=true` and `audioSources.preparedChunks=96` from
+`/health/ready`, in addition to the correct version and revision traffic.
+The source manifest predates the user's subsequent licensing/production approval;
+its original evaluation flags are preserved so preparation is not confused with
+a listening review.
 
 ### Processing plans
 
@@ -816,14 +828,46 @@ placement/percentages and the legacy badge requirements.
 
 ### 10. Expand the track
 
-Implement, in order:
+The first three expansion exercises are implemented as one batch:
 
-1. Boost or Cut;
-2. Guess the Q;
-3. Compression;
-4. Attack and Release;
-5. Reverb;
-6. Find the Mix Problem.
+| Exercise | Question and answers | Profiles |
+|---|---|---|
+| Boost or Cut | A is the reference; B has EQ. Choose boost/cut and bass/mids/highs (six answers). | 125/1000/8000 Hz, Q 1; gain magnitude 9/6/3 dB. |
+| Guess the Q | A is the reference; B has a +9 dB boost. Choose broad/medium/narrow. | Centers 500/1000/2000 Hz; Q sets 0.35/1/4, 0.5/1.5/4, 0.7/1.4/2.8. |
+| Compression | Identify the compressed side, randomized A/B. | Threshold/ratio: -28 dBFS/6:1, -24/3:1, -22/2:1; fixed instantaneous attack and 20 ms release. |
+
+All comparisons explicitly match BS.1770 loudness at a common randomized
+-28 to -32 LUFS target. EQ direction/Q use the profile-wide qualified
+intermediate EQ source set, independently of the correct answer. Processing
+parameters and source identities stay server-side until the answer is validated.
+Trusted result metadata enters snapshots, exports and played-difficulty reports.
+The three new beginner units extend the Audio path to six steps, without changing
+Music placement, badges or game eligibility. Teacher filters remain authoritative.
+
+The shared `CompressorProcessor` uses the maximum absolute sample of each
+stereo frame to derive hard-knee gain reduction, with attack/release exponential
+time constants on the linear peak envelope. One gain is applied to both channels, preserving stereo
+balance. It has no lookahead, limiter or implicit makeup gain. Threshold, ratio,
+attack and release are bounded/finite, and every parameter participates in the
+`p3` cache key. Final PCM must pass the existing 0.98 peak guard.
+The detection exercise fixes attack at zero so brief peaks cannot escape the
+detector and become misleading transient cues. The finite compression ratio is
+not a brickwall limiter. Two candidate windows that missed the crest-reduction
+thresholds are excluded at every difficulty; ten stereo chunks remain eligible.
+
+`PrivateTrainingSourcesTests` can opt into the actual prepared private assets
+with `AA_TEST_TRAINING_SOURCES`; no private WAV is committed. It exercises real
+catalog discovery, full hashes/layouts, recovery from missing chunks, every
+allowed EQ variant and loudness/peak/change thresholds. Compression qualification
+requires at least 3/2/1 dB crest-factor reduction by profile. Automated
+qualification is not an audition: headphone/speaker listening review remains
+pending during the user-approved production evaluation.
+
+Remaining expansion order:
+
+1. Attack and Release;
+2. Reverb;
+3. Find the Mix Problem.
 
 Each exercise must reuse shared processors and A/B controls. Do not add a
 processor solely inside one exercise generator.

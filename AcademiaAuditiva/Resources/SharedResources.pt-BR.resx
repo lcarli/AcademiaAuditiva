@@ -5104,4 +5104,63 @@
   <data name="DailyChallenge.Audio.Title" xml:space="preserve">
     <value>Desafio diário de Áudio</value>
   </data>
+  <data name="BoostOrCut" xml:space="preserve"><value>Realce ou corte</value></data>
+  <data name="GuessQ" xml:space="preserve"><value>Identificação de Q</value></data>
+  <data name="Compression" xml:space="preserve"><value>Compressão</value></data>
+  <data name="Exercise.AudioComparison.Reference" xml:space="preserve"><value>A é a referência. B tem a alteração de EQ. Os dois têm loudness equivalente.</value></data>
+  <data name="Exercise.BoostOrCut.Subtitle" xml:space="preserve"><value>Identifique se o EQ realçou ou cortou graves, médios ou agudos.</value></data>
+  <data name="Exercise.BoostOrCut.Instructions" xml:space="preserve"><value>Alterne entre A (referência) e B (equalizado). Escolha a direção e a região afetada. O loudness é equivalente: um corte não significa simplesmente um sinal mais baixo.</value></data>
+  <data name="Exercise.BoostOrCut.Tip1" xml:space="preserve"><value>Ouça o peso dos graves, o corpo dos médios ou o brilho dos agudos.</value></data>
+  <data name="Exercise.BoostOrCut.Tip2" xml:space="preserve"><value>Um realce destaca uma região; um corte retira essa região em relação ao restante.</value></data>
+  <data name="Exercise.BoostOrCut.Tip3" xml:space="preserve"><value>As frequências centrais são 125 Hz, 1 kHz e 8 kHz. O ganho passa de 9 para 6 e 3 dB conforme a dificuldade aumenta.</value></data>
+  <data name="Exercise.BoostOrCut.Question" xml:space="preserve"><value>O que mudou em B?</value></data>
+  <data name="Exercise.BoostOrCut.New" xml:space="preserve"><value>Nova comparação</value></data>
+  <data name="Exercise.BoostOrCut.Incomplete" xml:space="preserve"><value>Gere uma comparação e escolha uma direção e região antes de validar.</value></data>
+  <data name="Exercise.BoostOrCut.Level.Beginner" xml:space="preserve"><value>Iniciante · 9 dB</value></data>
+  <data name="Exercise.BoostOrCut.Level.Intermediate" xml:space="preserve"><value>Intermediário · 6 dB</value></data>
+  <data name="Exercise.BoostOrCut.Level.Advanced" xml:space="preserve"><value>Avançado · 3 dB</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|bass" xml:space="preserve"><value>Realce de graves</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|bass" xml:space="preserve"><value>Corte de graves</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|mids" xml:space="preserve"><value>Realce de médios</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|mids" xml:space="preserve"><value>Corte de médios</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|air" xml:space="preserve"><value>Realce de agudos</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|air" xml:space="preserve"><value>Corte de agudos</value></data>
+  <data name="Exercise.BoostOrCut.Direction.boost" xml:space="preserve"><value>realce</value></data>
+  <data name="Exercise.BoostOrCut.Direction.cut" xml:space="preserve"><value>corte</value></data>
+  <data name="Exercise.BoostOrCut.Feedback" xml:space="preserve"><value>B recebeu um {0} na região de {1} ({2} Hz, {3} dB). Compare essa região com A, não o volume geral.</value></data>
+  <data name="Exercise.GuessQ.Subtitle" xml:space="preserve"><value>Reconheça um realce de EQ largo, médio ou estreito pela alteração do timbre.</value></data>
+  <data name="Exercise.GuessQ.Instructions" xml:space="preserve"><value>Compare A (referência) e B (equalizado) e escolha a largura do realce em B. Todos os realces têm o mesmo ganho central de 9 dB; um Q maior significa uma banda mais estreita.</value></data>
+  <data name="Exercise.GuessQ.Tip1" xml:space="preserve"><value>Um realce largo altera boa parte do timbre; um realce estreito soa mais concentrado ou ressonante.</value></data>
+  <data name="Exercise.GuessQ.Tip2" xml:space="preserve"><value>Ouça ao redor da frequência enfatizada, não apenas no centro.</value></data>
+  <data name="Exercise.GuessQ.Tip3" xml:space="preserve"><value>Os centros variam entre 500 Hz, 1 kHz e 2 kHz. As larguras ficam mais próximas nos níveis superiores.</value></data>
+  <data name="Exercise.GuessQ.Question" xml:space="preserve"><value>Qual é a largura do realce de EQ em B?</value></data>
+  <data name="Exercise.GuessQ.New" xml:space="preserve"><value>Nova comparação</value></data>
+  <data name="Exercise.GuessQ.Incomplete" xml:space="preserve"><value>Gere uma comparação e escolha uma largura antes de validar.</value></data>
+  <data name="Exercise.GuessQ.Level.Beginner" xml:space="preserve"><value>Iniciante · Q 0,35 / 1 / 4</value></data>
+  <data name="Exercise.GuessQ.Level.Intermediate" xml:space="preserve"><value>Intermediário · Q 0,5 / 1,5 / 4</value></data>
+  <data name="Exercise.GuessQ.Level.Advanced" xml:space="preserve"><value>Avançado · Q 0,7 / 1,4 / 2,8</value></data>
+  <data name="Exercise.GuessQ.Option.broad" xml:space="preserve"><value>Largo</value></data>
+  <data name="Exercise.GuessQ.Option.medium" xml:space="preserve"><value>Médio</value></data>
+  <data name="Exercise.GuessQ.Option.narrow" xml:space="preserve"><value>Estreito</value></data>
+  <data name="Exercise.GuessQ.Feedback" xml:space="preserve"><value>B recebeu um realce {0} em {1} Hz (Q {2}). Um Q menor afeta mais frequências vizinhas; um Q maior concentra a alteração.</value></data>
+  <data name="Exercise.Compression.Subtitle" xml:space="preserve"><value>Ouça como a compressão altera transientes e sustentação sem vantagem de loudness.</value></data>
+  <data name="Exercise.Compression.Instructions" xml:space="preserve"><value>Alterne entre A e B e escolha qual sinal foi comprimido. As versões original e comprimida têm loudness equivalente. Ouça ataques suavizados e uma sustentação mais densa e constante.</value></data>
+  <data name="Exercise.Compression.Tip1" xml:space="preserve"><value>Compare os ataques da bateria e o espaço entre as batidas, não o volume geral.</value></data>
+  <data name="Exercise.Compression.Tip2" xml:space="preserve"><value>A compressão reduz os picos mais altos; o ajuste de loudness pode destacar detalhes mais baixos.</value></data>
+  <data name="Exercise.Compression.Tip3" xml:space="preserve"><value>O lado processado é sorteado. Os níveis superiores usam limiar mais alto e razão menor para mudanças mais sutis.</value></data>
+  <data name="Exercise.Compression.Question" xml:space="preserve"><value>Qual sinal foi comprimido?</value></data>
+  <data name="Exercise.Compression.New" xml:space="preserve"><value>Nova comparação</value></data>
+  <data name="Exercise.Compression.Incomplete" xml:space="preserve"><value>Gere uma comparação e escolha A ou B antes de validar.</value></data>
+  <data name="Exercise.Compression.Level.Beginner" xml:space="preserve"><value>Iniciante · compressão forte</value></data>
+  <data name="Exercise.Compression.Level.Intermediate" xml:space="preserve"><value>Intermediário · compressão moderada</value></data>
+  <data name="Exercise.Compression.Level.Advanced" xml:space="preserve"><value>Avançado · compressão sutil</value></data>
+  <data name="Exercise.Compression.Option.A" xml:space="preserve"><value>A foi comprimido</value></data>
+  <data name="Exercise.Compression.Option.B" xml:space="preserve"><value>B foi comprimido</value></data>
+  <data name="Exercise.Compression.Feedback" xml:space="preserve"><value>O sinal {0} foi comprimido (razão {1}:1, ataque {2} ms, release {3} ms). Ouça o menor contraste dos transientes e a sustentação mais constante com loudness equivalente.</value></data>
+  <data name="LearningPath.Unit.EqDirection.Title" xml:space="preserve"><value>Direção do EQ</value></data>
+  <data name="LearningPath.Unit.EqDirection.Description" xml:space="preserve"><value>Diferencie realces de cortes em três regiões espectrais.</value></data>
+  <data name="LearningPath.Unit.EqWidth.Title" xml:space="preserve"><value>Largura do EQ</value></data>
+  <data name="LearningPath.Unit.EqWidth.Description" xml:space="preserve"><value>Ouça como o Q altera a largura de uma banda de EQ.</value></data>
+  <data name="LearningPath.Unit.CompressionFoundations.Title" xml:space="preserve"><value>Fundamentos de compressão</value></data>
+  <data name="LearningPath.Unit.CompressionFoundations.Description" xml:space="preserve"><value>Reconheça mudanças de dinâmica sem depender do volume.</value></data>
 </root>

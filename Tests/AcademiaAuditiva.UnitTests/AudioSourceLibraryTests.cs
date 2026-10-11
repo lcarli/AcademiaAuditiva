@@ -103,7 +103,9 @@ public class AudioSourceLibraryTests
         string firstUse,
         string? secondUse)
     {
-        var source = AudioSourceLibrary.FromStorageBlob(blobName);
+        var hash = blobName.Split('-')[^1][..12] + new string('0', 52);
+        var source = AudioSourceLibrary.FromStorageBlob(blobName,
+            new AudioSourceMeasurement(44100, channels, 441000, -6, -23, hash));
 
         source.Should().NotBeNull();
         source!.Key.Should().Be(key);
@@ -120,6 +122,26 @@ public class AudioSourceLibraryTests
     [InlineData("chunks/pixabay-484622-w01-stereo-not-a-hash.wav")]
     public void NonPreparedStorageBlobs_AreIgnored(string blobName)
     {
-        AudioSourceLibrary.FromStorageBlob(blobName).Should().BeNull();
+        AudioSourceLibrary.FromStorageBlob(blobName,
+            new AudioSourceMeasurement(44100, 2, 441000, -6, -23, new string('0', 64))).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("pixabay-550792-5462037249c8-w03-stereo", 1, false)]
+    [InlineData("pixabay-550792-5462037249c8-w03-stereo", 2, true)]
+    [InlineData("pixabay-550792-5462037249c8-w01-stereo", 2, false)]
+    [InlineData("pixabay-554494-dd712bb896f7-w03-stereo", 3, false)]
+    [InlineData("pixabay-554494-dd712bb896f7-w02-stereo", 3, true)]
+    public void SpecificEligibilityExceptions_TakePrecedenceOverRecordingRules(string key, int difficulty, bool eligible)
+    {
+        AudioSourceLibrary.SupportsStorageEqDifficulty(key, difficulty).Should().Be(eligible);
+    }
+
+    [Fact]
+    public void UnknownRecordings_AreNotPlayable()
+    {
+        AudioSourceLibrary.FromStorageBlob("chunks/pixabay-123-abcdefabcdef-w01-stereo-abcdefabcdef.wav",
+            new AudioSourceMeasurement(44100, 2, 441000, -6, -23, "abcdefabcdef" + new string('0', 52)))
+            .Should().BeNull();
     }
 }

@@ -75,6 +75,9 @@ public static class LearningPathCatalog
         [
             Step("GuessFrequency", 10, 7, ("gfLevel", "beginner")),
         ]),
+        new("EqDirection", [Step("BoostOrCut", 10, 7, ("bcLevel", "beginner"))]),
+        new("EqWidth", [Step("GuessQ", 10, 7, ("gqLevel", "beginner"))]),
+        new("CompressionFoundations", [Step("Compression", 10, 7, ("cpLevel", "beginner"))]),
     ];
 
     public static IReadOnlyDictionary<string, IReadOnlyList<PathUnit>> ByTrack { get; } =

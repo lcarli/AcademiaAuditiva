@@ -49,8 +49,8 @@ public class AudioProgressTests : IClassFixture<SignedInWebApplicationFactory>
             .And.Contain("/LearningPath?track=audio").And.Contain("/Exercise?track=audio");
         audio.Should().Contain("reportUrl(\"GetMostMissedItems\")").And.Contain("reportUrl(\"GetRecommendations\")");
         var challenge = Regex.Match(audio, "<section class=\"aa-card aa-challenge-card.*?</section>", RegexOptions.Singleline).Value;
-        foreach (var exercise in new[] { "LevelMatch", "StereoPosition", "GuessFrequency" })
-            challenge.Should().Contain($"/Exercise/{exercise}");
+        Regex.Matches(challenge, "class=\"aa-challenge-title").Should().HaveCount(3);
+        challenge.Should().NotContainAny("/Exercise/GuessNote", "/Exercise/HigherOrLower");
         challenge.Should().NotContain("GuessNote");
 
         using var scope = _factory.Services.CreateScope();
@@ -72,6 +72,36 @@ public class AudioProgressTests : IClassFixture<SignedInWebApplicationFactory>
         var music = await GetJsonAsync("GetUserProgress", "music");
         music.GetProperty("byCategory").EnumerateObject().Select(p => (p.Name, p.Value.GetDouble()))
             .Should().Equal(("EarTraining", 100.0));
+    }
+
+    [Theory]
+    [InlineData("BoostOrCut", "bcLevel", "beginner", "Beginner")]
+    [InlineData("BoostOrCut", "bcLevel", "intermediate", "Intermediate")]
+    [InlineData("BoostOrCut", "bcLevel", "advanced", "Advanced")]
+    [InlineData("GuessQ", "gqLevel", "beginner", "Beginner")]
+    [InlineData("GuessQ", "gqLevel", "intermediate", "Intermediate")]
+    [InlineData("GuessQ", "gqLevel", "advanced", "Advanced")]
+    [InlineData("Compression", "cpLevel", "beginner", "Beginner")]
+    [InlineData("Compression", "cpLevel", "intermediate", "Intermediate")]
+    [InlineData("Compression", "cpLevel", "advanced", "Advanced")]
+    public async Task NewAudioDifficulty_UsesThePlayedLevelNotTheSeedDefault(
+        string name, string key, string level, string expectedDifficulty)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var userId = $"difficulty-{name}-{level}";
+        var id = db.Exercises.Single(exercise => exercise.Name == name).ExerciseId;
+        foreach (var correct in new[] { true, false })
+            db.ScoreSnapshots.Add(new ScoreSnapshot
+            {
+                UserId = userId, ExerciseId = id, IsCorrect = correct, Timestamp = At,
+                FilterJson = JsonSerializer.Serialize(new Dictionary<string, string> { [key] = level }),
+            });
+        await db.SaveChangesAsync();
+
+        var report = await scope.ServiceProvider.GetRequiredService<UserReportService>()
+            .GetAccuracyByDifficultyAsync(userId, track: TrainingTracks.Audio);
+        report.Should().Equal(new DifficultyAccuracy(expectedDifficulty, 50));
     }
 
     [Fact]

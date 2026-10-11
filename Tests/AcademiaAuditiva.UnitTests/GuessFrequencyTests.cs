@@ -219,36 +219,39 @@ public class GuessFrequencyTests
 
     private const int FftSize = 32768;
 
-    private static IEnumerable<int> BandBins(int frequency, int sampleRate)
+    internal static IEnumerable<int> BandBins(int frequency, int sampleRate, int fftSize = FftSize)
     {
         var halfBand = Math.Pow(2, 1 / 6.0);
-        var first = (int)Math.Ceiling(frequency / halfBand * FftSize / sampleRate);
-        var last = (int)Math.Floor(frequency * halfBand * FftSize / sampleRate);
+        var first = (int)Math.Ceiling(frequency / halfBand * fftSize / sampleRate);
+        var last = (int)Math.Floor(frequency * halfBand * fftSize / sampleRate);
         return Enumerable.Range(first, last - first + 1);
     }
 
     // A Hann-windowed spectrum after one second of settling, summed across
     // channels. Independent of the production biquad and BS.1770 filters.
-    private static double[] Spectrum(PcmAudio audio)
+    internal static double[] Spectrum(PcmAudio audio, bool fullClip = false)
     {
-        var power = new double[FftSize / 2 + 1];
+        var size = fullClip ? (int)BitOperations.RoundUpToPowerOf2((uint)audio.Frames) : FftSize;
+        var frames = fullClip ? audio.Frames : FftSize;
+        var offset = fullClip ? 0 : audio.SampleRate;
+        var power = new double[size / 2 + 1];
         for (var channel = 0; channel < audio.Channels; channel++)
         {
-            var bins = new Complex[FftSize];
-            for (var i = 0; i < FftSize; i++)
-                bins[i] = audio.Samples[(audio.SampleRate + i) * audio.Channels + channel]
-                    * (0.5 - 0.5 * Math.Cos(2 * Math.PI * i / (FftSize - 1)));
-            for (int i = 1, j = 0; i < FftSize; i++)
+            var bins = new Complex[size];
+            for (var i = 0; i < frames; i++)
+                bins[i] = audio.Samples[(offset + i) * audio.Channels + channel]
+                    * (0.5 - 0.5 * Math.Cos(2 * Math.PI * i / (frames - 1)));
+            for (int i = 1, j = 0; i < size; i++)
             {
-                var bit = FftSize >> 1;
+                var bit = size >> 1;
                 for (; (j & bit) != 0; bit >>= 1) j ^= bit;
                 j ^= bit;
                 if (i < j) (bins[i], bins[j]) = (bins[j], bins[i]);
             }
-            for (var length = 2; length <= FftSize; length <<= 1)
+            for (var length = 2; length <= size; length <<= 1)
             {
                 var step = Complex.FromPolarCoordinates(1, -2 * Math.PI / length);
-                for (var start = 0; start < FftSize; start += length)
+                for (var start = 0; start < size; start += length)
                 {
                     var phase = Complex.One;
                     for (var i = 0; i < length / 2; i++, phase *= step)

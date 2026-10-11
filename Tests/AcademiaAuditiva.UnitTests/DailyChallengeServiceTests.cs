@@ -54,10 +54,13 @@ public class DailyChallengeServiceTests
         SeedData.SeedExercises(db);
         var now = new DateTime(2026, 10, 6, 2, 0, 0, DateTimeKind.Utc);
         var ids = db.Exercises.ToDictionary(e => e.Name, e => e.ExerciseId);
+        var exercises = db.Exercises.Select(e => new ChallengeExercise(e.ExerciseId, e.Name, e.ExerciseCategory.Name)).ToList();
+        var picked = DailyChallengeRules.Pick(new DateOnly(2026, 10, 5), exercises, TrainingTracks.Audio);
+        var first = picked[0].Name;
         db.ScoreSnapshots.AddRange(
-            new ScoreSnapshot { UserId = UserId, ExerciseId = ids["GuessFrequency"], IsCorrect = false, Timestamp = now.AddHours(-1) },
-            new ScoreSnapshot { UserId = UserId, ExerciseId = ids["GuessFrequency"], IsCorrect = true, Timestamp = now.AddHours(-23) },
-            new ScoreSnapshot { UserId = "other", ExerciseId = ids["GuessFrequency"], IsCorrect = true, Timestamp = now.AddHours(-1) },
+            new ScoreSnapshot { UserId = UserId, ExerciseId = ids[first], IsCorrect = false, Timestamp = now.AddHours(-1) },
+            new ScoreSnapshot { UserId = UserId, ExerciseId = ids[first], IsCorrect = true, Timestamp = now.AddHours(-23) },
+            new ScoreSnapshot { UserId = "other", ExerciseId = ids[first], IsCorrect = true, Timestamp = now.AddHours(-1) },
             new ScoreSnapshot { UserId = UserId, ExerciseId = ids["GuessNote"], IsCorrect = true, Timestamp = now });
         await db.SaveChangesAsync();
         var service = new DailyChallengeService(db, new PracticeHistory(db), new FixedClock(now));
@@ -66,8 +69,8 @@ public class DailyChallengeServiceTests
 
         progress.Date.Should().Be(new DateOnly(2026, 10, 5));
         progress.Track.Should().Be(TrainingTracks.Audio);
-        progress.Items.Select(i => i.Exercise).Should().BeEquivalentTo("LevelMatch", "StereoPosition", "GuessFrequency");
-        progress.Items.Single(i => i.Exercise == "GuessFrequency").Answered.Should().Be(1);
-        progress.Items.Where(i => i.Exercise != "GuessFrequency").Should().OnlyContain(i => i.Answered == 0);
+        progress.Items.Select(i => i.Exercise).Should().Equal(picked.Select(e => e.Name));
+        progress.Items.Single(i => i.Exercise == first).Answered.Should().Be(1);
+        progress.Items.Where(i => i.Exercise != first).Should().OnlyContain(i => i.Answered == 0);
     }
 }

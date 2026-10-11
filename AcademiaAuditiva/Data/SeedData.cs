@@ -1687,9 +1687,39 @@ public static class SeedData
                 }),
                 AudioButtonsJson = JsonConvert.SerializeObject(new List<string>()),
                 AnswerButtonsJson = JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, string>>())
-            }
+            },
+            AudioComparison("BoostOrCut", "bcLevel", 9),
+            AudioComparison("GuessQ", "gqLevel", 9),
+            AudioComparison("Compression", "cpLevel", 10)
         };
     }
+
+    private static Exercise AudioComparison(string name, string levelKey, int category) => new()
+    {
+        Name = name,
+        Description = $"Exercise.{name}.Subtitle",
+        ExerciseTypeId = 9,
+        ExerciseCategoryId = category,
+        DifficultyLevelId = 1,
+        FiltersJson = JsonConvert.SerializeObject(new List<FilterOptionGroup>
+        {
+            new()
+            {
+                Label = "Exercise.Level",
+                Name = levelKey,
+                Options =
+                [
+                    new("beginner", $"Exercise.{name}.Level.Beginner"),
+                    new("intermediate", $"Exercise.{name}.Level.Intermediate"),
+                    new("advanced", $"Exercise.{name}.Level.Advanced"),
+                ],
+            },
+        }),
+        Instructions = $"Exercise.{name}.Instructions",
+        TipsJson = JsonConvert.SerializeObject(new[] { $"Exercise.{name}.Tip1", $"Exercise.{name}.Tip2", $"Exercise.{name}.Tip3" }),
+        AudioButtonsJson = "[]",
+        AnswerButtonsJson = "{}",
+    };
 
     /// <summary>
     /// How GuessInterval and GuessFullInterval play their two notes: one after the other (the

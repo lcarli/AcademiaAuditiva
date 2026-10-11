@@ -270,6 +270,9 @@ builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.Exer
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.LevelMatchValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.StereoPositionValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessFrequencyValidator>();
+builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.BoostOrCutValidator>();
+builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessQValidator>();
+builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.CompressionValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessScaleTypeValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessGreekModeValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessCadenceValidator>();
@@ -582,7 +585,8 @@ static Task WriteHealthResponse(HttpContext context, Microsoft.Extensions.Diagno
     return JsonSerializer.SerializeAsync(context.Response.Body, new
     {
         status = report.Status.ToString(),
-        version = context.Response.Headers["X-App-Version"].ToString()
+        version = context.Response.Headers["X-App-Version"].ToString(),
+        audioSources = report.Entries.TryGetValue("audio-sources", out var sources) ? sources.Data : null,
     });
 }
 

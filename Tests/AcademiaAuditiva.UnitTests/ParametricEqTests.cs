@@ -174,10 +174,10 @@ public class ParametricEqTests
         FluentActions.Invoking(() => new Biquad(1, 0, 0, a0, a1, a2)).Should().Throw<ArgumentException>();
     }
 
-    private static PcmAudio Tone(double frequency) => new(SampleRate, 1,
+    internal static PcmAudio Tone(double frequency) => new(SampleRate, 1,
         [.. Enumerable.Range(0, 4 * SampleRate).Select(f => (float)(0.025 * Math.Sin(2 * Math.PI * frequency * f / SampleRate)))]);
 
-    private static double MeasuredGain(PcmAudio input, PcmAudio output)
+    internal static double MeasuredGain(PcmAudio input, PcmAudio output)
     {
         // The slowest allowed filter (20 Hz, +12 dB, Q=8) has settled by the fourth second.
         var before = input.Samples.Skip(3 * SampleRate).Average(s => (double)s * s);

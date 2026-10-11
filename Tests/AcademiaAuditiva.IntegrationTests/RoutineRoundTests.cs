@@ -109,6 +109,29 @@ public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
         filters["gfFrequencyHz"]!.Value<string>().Should().Be("1000");
     }
 
+    [Theory]
+    [InlineData("BoostOrCut", "bcLevel")]
+    [InlineData("GuessQ", "gqLevel")]
+    [InlineData("Compression", "cpLevel")]
+    public async Task NewAudioExercises_RespectTeacherDifficulty_AndCompleteRoutineItems(string name, string levelKey)
+    {
+        var exerciseId = _factory.ExerciseId(name);
+        var routine = await _factory.AssignAsync(_factory.Item(name, target: 1, filterJson: $"{{\"{levelKey}\":\"advanced\"}}"));
+        var client = await ClientAsync();
+        var first = await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new
+        {
+            exerciseId, routineAssignmentId = routine.AssignmentId, routineItemId = routine.ItemId,
+            filters = new Dictionary<string, string> { [levelKey] = "beginner" },
+        }));
+        var repeated = await PlayAsync(client, exerciseId, routine);
+        RoundId(repeated).Should().Be(RoundId(first));
+        var result = await AnswerAsync(client, exerciseId, RoundId(first), correct: true);
+        result.GetProperty("success").GetBoolean().Should().BeTrue();
+        StatusOf(result).State.Should().Be("done");
+        var answer = (await _factory.AnswersAsync(routine.AssignmentId)).Single();
+        JObject.Parse(answer.FilterJson!)[levelKey]!.Value<string>().Should().Be("advanced");
+    }
+
     [Fact]
     public async Task PracticeOutsideTheRoutine_DoesNotCountTowardsIt()
     {
@@ -432,7 +455,8 @@ public class RoutineRoundTests : IClassFixture<RoutineWebApplicationFactory>
     {
         var round = await _factory.Tokens.GetRoundAsync(UserId, exerciseId, roundId);
         round.Should().NotBeNull();
-        var note = (string)JObject.Parse(round!.ExpectedAnswerJson)["note"]!;
+        var expected = JObject.Parse(round!.ExpectedAnswerJson);
+        var note = (string)(expected["note"] ?? expected["answer"])!;
         var guess = correct ? note : note.StartsWith('C') ? "D" : "C";
         return await ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise", new { exerciseId, roundId, userGuess = guess }));
     }

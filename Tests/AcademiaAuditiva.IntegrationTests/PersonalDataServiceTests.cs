@@ -255,6 +255,9 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
             ["LevelMatch"] = """{"lmLevel":"intermediate","lmDifferenceDb":"4","lmSourceKind":"drums"}""",
             ["StereoPosition"] = """{"spLevel":"advanced","spPosition":"-0.25","spSourceKind":"keys"}""",
             ["GuessFrequency"] = """{"gfLevel":"advanced","gfFrequencyHz":"1000","gfSourceKind":"keys"}""",
+            ["BoostOrCut"] = """{"bcLevel":"advanced","bcDirection":"cut","bcRegion":"bass"}""",
+            ["GuessQ"] = """{"gqLevel":"intermediate","gqQ":"1.5","gqWidth":"medium"}""",
+            ["Compression"] = """{"cpLevel":"advanced","cpCompressedClip":"B","cpRatio":"2"}""",
         };
         using (var scope = _factory.Services.CreateScope())
         {
@@ -274,7 +277,7 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
         foreach (var section in new[] { "totals", "answers" })
         {
             var rows = practice.GetProperty(section).EnumerateArray().ToArray();
-            rows.Should().HaveCount(4);
+            rows.Should().HaveCount(filters.Count);
             foreach (var row in rows)
             {
                 var name = row.GetProperty("exercise").GetString()!;
