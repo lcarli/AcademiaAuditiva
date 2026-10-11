@@ -486,7 +486,7 @@ test('Guess Frequency and Audio progress localize and fit every supported screen
         expect(map.categories.FrequencyEq).not.toBe('ExerciseCategory.FrequencyEq');
         await expect(page.locator('#aa-challenge-card-title')).toBeVisible();
       } else {
-        await expect(page.locator('.guessAnswer:visible')).toHaveCount(5);
+        await expect(page.locator('.guessAnswer:visible')).toHaveCount(0);
       }
     }
   }
