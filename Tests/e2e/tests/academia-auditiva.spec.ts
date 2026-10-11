@@ -485,6 +485,54 @@ const expandedAudioComparisons = [
   ['EchoFeedback', 2, 'efLevel'], ['ReverbMix', 3, 'rmLevel'], ['NoiseDetection', 2, 'ndLevel'], ['MixProblem', 5, 'mpLevel'],
 ] as const;
 
+test('Audio catalog lists all supported difficulties and opens the selected level', async ({ page, baseURL }) => {
+  test.setTimeout(120_000);
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  const exercises = [
+    ['LevelMatch', 'lmLevel'], ['StereoPosition', 'spLevel'], ['GuessFrequency', 'gfLevel'],
+    ['BoostOrCut', 'bcLevel'], ['GuessQ', 'gqLevel'], ['Compression', 'cpLevel'],
+    ...expandedAudioComparisons.map(([name, , filter]) => [name, filter]),
+  ];
+  const summaries = {
+    'en-US': 'Beginner / Intermediate / Advanced',
+    'pt-BR': 'Iniciante / Intermediário / Avançado',
+    'fr-CA': 'Débutant / Intermédiaire / Avancé',
+  };
+  const links: { href: string; filter: string; level: string }[] = [];
+  for (const culture of cultures) {
+    await page.goto(`${baseURL}/Exercise?track=audio&culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
+    for (const level of ['beginner', 'intermediate', 'advanced']) {
+      const section = page.locator(`#byDifficulty [data-aa-difficulty="${level}"]`);
+      await expect(section.locator('[data-aa-exercise]')).toHaveCount(exercises.length);
+      for (const [name, filter] of exercises) {
+        const href = `/Exercise/${name}?${filter}=${level}`;
+        await expect(section.locator(`[data-aa-exercise="${name}"] a`)).toHaveAttribute('href', href);
+        if (culture === 'en-US' && ['LevelMatch', 'CompressorThreshold', 'MixProblem'].includes(name)) {
+          links.push({ href, filter, level });
+        }
+      }
+    }
+    await page.locator('#type-tab').click();
+    await expect(page.locator('#byType')).toBeVisible();
+    await expect(page.locator('#byType [data-aa-exercise]')).toHaveCount(exercises.length);
+    for (const card of await page.locator('#byType [data-aa-exercise]').all()) {
+      await expect(card).toContainText(summaries[culture]);
+    }
+    for (const width of [360, 768, 1024, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth),
+        { message: `Audio catalog ${culture} at ${width} px` }).toBe(0);
+    }
+  }
+  for (const { href, filter, level } of links) {
+    await page.goto(`${baseURL}${href}`, { waitUntil: 'networkidle' });
+    await closeTourIfStarted(page);
+    await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
+    await expect(page.locator(`#filtersModal select[name="${filter}"]`)).toHaveValue(level);
+    await page.locator('#filtersModal .btn-close').click();
+  }
+});
+
 test('Audio comparisons and progress localize and fit every supported screen', async ({ page, baseURL }) => {
   test.setTimeout(180_000);
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);

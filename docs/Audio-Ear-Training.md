@@ -94,6 +94,13 @@ profiles with progressively subtler differences. Continuous interactive mix
 challenges remain on the roadmap; the delivered diagnostic identifies one
 introduced change rather than judging the quality of the original recording.
 
+The Audio catalog's difficulty view lists each exercise under every level
+declared by its difficulty filter. Each Start link preselects that level on
+the exercise page; the type view lists the available levels together. The
+legacy seeded difficulty remains the default entry level, not a claim that
+every round is beginner-only. Music retains its existing single catalog
+classification. No score history or database migration is changed.
+
 ### Not in the first release
 
 - continuous EQ matching;
