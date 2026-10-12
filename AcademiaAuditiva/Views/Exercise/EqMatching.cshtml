@@ -1,0 +1,127 @@
+@model AcademiaAuditiva.ViewModels.ExerciseViewModel
+@{
+    ViewData["Title"] = Localizer[Model.Title].Value;
+    ViewData["FiltersPartial"] = "_ExerciseFilters";
+}
+
+<link rel="stylesheet" href="~/css/eq-channel-strip.css" asp-append-version="true" />
+@await Html.PartialAsync("_ExerciseHeader", Model)
+<input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
+<div class="row g-4">
+    <div class="col-lg-8 order-lg-2">
+        <section class="aa-panel" aria-labelledby="aa-question">
+            <h2 id="aa-question" class="aa-question">@Localizer["Exercise.EqMatching.Question"]</h2>
+            <div class="d-flex justify-content-center mb-4">
+                <button type="button" id="Play" class="btn btn-primary px-4" data-aa-audio-unlock>
+                    <i class="bi bi-shuffle me-1" aria-hidden="true"></i>@Localizer["Exercise.EqMatching.New"]
+                </button>
+            </div>
+            <p class="text-center text-body-secondary">@Localizer["Exercise.EqMatching.Reference"]</p>
+            <div class="aa-channel-strip">
+                <header class="aa-channel-header">
+                    <span class="aa-channel-screw" aria-hidden="true"></span>
+                    <div>
+                        <span class="aa-channel-model">AA / EQ-01</span>
+                        <h3>@Localizer["Exercise.EqMatching.ChannelTitle"]</h3>
+                    </div>
+                    <span class="aa-channel-type">@Localizer["Exercise.EqMatching.BandType"]</span>
+                    <span class="aa-channel-screw" aria-hidden="true"></span>
+                </header>
+                <div class="aa-channel-display">
+                    <div class="aa-channel-display-label">
+                        <span><span class="aa-channel-led" aria-hidden="true"></span>@Localizer["Exercise.EqMatching.MyCurve"]</span>
+                        <span>±12 dB</span>
+                    </div>
+                    <svg class="aa-eq-response" viewBox="0 0 600 180" role="img"
+                         aria-label="@Localizer["Exercise.EqMatching.CurveDescription"]">
+                        <g class="aa-eq-grid" aria-hidden="true">
+                            <path d="M40 16H580 M40 90H580 M40 164H580 M40 16V164 M185 16V164 M326 16V164 M468 16V164 M580 16V164" />
+                            <text x="0" y="21">+12</text><text x="16" y="95">0</text><text x="4" y="169">−12</text>
+                        </g>
+                        <path id="eqResponseCurve" class="aa-eq-curve" d="M40 90H580" />
+                        <circle id="eqResponsePoint" class="aa-eq-point" cx="310" cy="90" r="4" />
+                    </svg>
+                    <div class="aa-eq-frequency-scale" aria-hidden="true">
+                        <span>60 Hz</span><span>250</span><span>1k</span><span>4k</span><span>12k Hz</span>
+                    </div>
+                </div>
+                <div class="aa-eq-controls">
+                    <div class="aa-eq-control">
+                        <label for="eqFrequency">@Localizer["Exercise.EqMatching.FrequencyLabel"]</label>
+                        <div class="aa-eq-knob" data-eq-knob>
+                            <svg viewBox="0 0 128 128" aria-hidden="true">
+                                <path class="aa-knob-track" d="M27.94 100.06A51 51 0 1 1 100.06 100.06" pathLength="100" />
+                                <path class="aa-knob-progress" d="M27.94 100.06A51 51 0 1 1 100.06 100.06" pathLength="100" />
+                            </svg>
+                            <span class="aa-knob-cap" aria-hidden="true"><span class="aa-knob-indicator"></span></span>
+                            <input type="range" id="eqFrequency" min="0" max="1000" step="1" value="500"
+                                   aria-describedby="eqKnobHelp" disabled />
+                        </div>
+                        <output id="eqFrequencyValue" for="eqFrequency">1 kHz</output>
+                        <span class="aa-knob-limits" aria-hidden="true"><span>60 Hz</span><span>12 kHz</span></span>
+                    </div>
+                    <div class="aa-eq-control">
+                        <label for="eqGain">@Localizer["Exercise.EqMatching.GainLabel"]</label>
+                        <div class="aa-eq-knob" data-eq-knob>
+                            <svg viewBox="0 0 128 128" aria-hidden="true">
+                                <path class="aa-knob-track" d="M27.94 100.06A51 51 0 1 1 100.06 100.06" pathLength="100" />
+                                <path class="aa-knob-progress" d="M27.94 100.06A51 51 0 1 1 100.06 100.06" pathLength="100" />
+                            </svg>
+                            <span class="aa-knob-cap" aria-hidden="true"><span class="aa-knob-indicator"></span></span>
+                            <input type="range" id="eqGain" min="-12" max="12" step="0.1" value="0"
+                                   aria-describedby="eqKnobHelp" disabled />
+                        </div>
+                        <output id="eqGainValue" for="eqGain">0 dB</output>
+                        <span class="aa-knob-limits" aria-hidden="true"><span>−12 dB</span><span>+12 dB</span></span>
+                    </div>
+                    <div class="aa-eq-control">
+                        <label for="eqQ">@Localizer["Exercise.EqMatching.QLabel"]</label>
+                        <div class="aa-eq-knob" data-eq-knob>
+                            <svg viewBox="0 0 128 128" aria-hidden="true">
+                                <path class="aa-knob-track" d="M27.94 100.06A51 51 0 1 1 100.06 100.06" pathLength="100" />
+                                <path class="aa-knob-progress" d="M27.94 100.06A51 51 0 1 1 100.06 100.06" pathLength="100" />
+                            </svg>
+                            <span class="aa-knob-cap" aria-hidden="true"><span class="aa-knob-indicator"></span></span>
+                            <input type="range" id="eqQ" min="0.25" max="8" step="0.05" value="1"
+                                   aria-describedby="eqKnobHelp" disabled />
+                        </div>
+                        <output id="eqQValue" for="eqQ">1</output>
+                        <span class="aa-knob-limits" aria-hidden="true"><span>0.25</span><span>8</span></span>
+                    </div>
+                </div>
+                <p class="aa-knob-help" id="eqKnobHelp">@Localizer["Exercise.EqMatching.KnobHelp"]</p>
+                <div class="aa-channel-monitor">
+                    @await Html.PartialAsync("_ABPlayback")
+                    <button type="button" id="previewEq" class="aa-channel-preview" data-aa-audio-unlock disabled>
+                        <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer["Exercise.EqMatching.Preview"]
+                    </button>
+                    <span class="aa-channel-preview-status" id="eqPreviewStatus" role="status" aria-live="polite"></span>
+                </div>
+            </div>
+            <div class="aa-validate">
+                <button type="button" id="validateGuess" class="btn btn-primary px-4">@Localizer["Exercise.ValidationButton"]</button>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-4 order-lg-1">
+        @await Html.PartialAsync("_ExerciseInstructions", Model)
+    </div>
+</div>
+@await Html.PartialAsync("_ExerciseFiltersModal", Model)
+
+<div id="localizer"
+     data-level-filter="eqmLevel"
+     data-incomplete-title="@Localizer["Exercise.IncompleteTitle"]"
+     data-incomplete-text="@Localizer["Exercise.EqMatching.Incomplete"]"
+     data-validation-error-title="@Localizer["Exercise.ValidationErrorTitle"]"
+     data-validation-error-text="@Localizer["Exercise.ValidationErrorText"]"
+     data-correct-message="@Localizer["Exercise.CorrectMessage"]"
+     data-wrong-message="@Localizer["Exercise.WrongMessage"]"
+     data-feedback="@Localizer["Exercise.EqMatching.Feedback"].Value"
+     data-preview-error="@Localizer["Exercise.EqMatching.PreviewError"]"
+     data-frequency-label="@Localizer["Exercise.EqMatching.FrequencyValue"].Value"
+     data-gain-label="@Localizer["Exercise.EqMatching.GainValue"].Value">
+</div>
+@section Scripts {
+    <script src="~/js/Exercises/EqMatching.js" asp-append-version="true"></script>
+}

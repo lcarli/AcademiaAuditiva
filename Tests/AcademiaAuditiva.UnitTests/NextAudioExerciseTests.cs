@@ -41,7 +41,7 @@ public class NextAudioExerciseTests
                     - ((ReverbProcessor)plans[0].Clips[1].Plan.Processors[0]).WetMix,
                 "NoiseDetection" => AudioProcessing.LinearGain(
                     -((WhiteNoiseProcessor)plans[0].Clips[1].Plan.Processors[0]).SignalToNoiseDb),
-                "MixProblem" => Math.Abs(((ShelfEqProcessor)plans[0].Clips[1].Plan.Processors[0]).GainDb),
+                "MixProblem" => Math.Abs(((PeakingEqProcessor)plans[0].Clips[1].Plan.Processors[0]).GainDb),
                 _ => throw new ArgumentException("Unknown next-batch exercise.", nameof(name)),
             };
         }).ToArray();

@@ -8,6 +8,13 @@
     var definition = AudioComparisonCatalog.Find(name) ?? throw new InvalidOperationException("Unknown Audio comparison.");
     var expanded = AudioComparisonCatalog.Expansion.Contains(definition);
     var options = definition.Answers;
+    if (name == "MixProblem")
+    {
+        ViewData["ABExtraClips"] = options.Select((option, index) => (
+            Key: ((char)('C' + index)).ToString(),
+            Label: Localizer[prefix + "Option." + option].Value,
+            Index: index + 1)).ToArray();
+    }
 }
 
 @await Html.PartialAsync("_ExerciseHeader", Model)
@@ -29,7 +36,16 @@
             <div class="aa-answer-grid mt-4" role="group" aria-label="@Localizer[prefix + "Question"]">
                 @foreach (var option in options)
                 {
-                    <button type="button" class="aa-answer guessAnswer" value="@option" aria-pressed="false">@Localizer[prefix + "Option." + option]</button>
+                    <button type="button" class="aa-answer guessAnswer" value="@option"
+                            data-levels="@(name == "GuessQ" ? "beginner intermediate" : null)"
+                            aria-pressed="false">@Localizer[prefix + "Option." + option]</button>
+                }
+                @if (name == "GuessQ")
+                {
+                    @foreach (var option in new[] { "0.5", "1", "2", "4", "8" })
+                    {
+                        <button type="button" class="aa-answer guessAnswer" value="@option" data-levels="advanced" aria-pressed="false">Q @option</button>
+                    }
                 }
             </div>
             <div class="aa-validate">
@@ -56,7 +72,11 @@
      data-boost="@Localizer["Exercise.BoostOrCut.Direction.boost"]"
      data-cut="@Localizer["Exercise.BoostOrCut.Direction.cut"]"
      data-bass="@Localizer["Exercise.GuessFrequency.Region.bass"]"
+     data-sub="@Localizer["Exercise.GuessFrequency.Region.sub"]"
+     data-low-mids="@Localizer["Exercise.GuessFrequency.Region.lowMids"]"
      data-mids="@Localizer["Exercise.GuessFrequency.Region.mids"]"
+     data-upper-mids="@Localizer["Exercise.GuessFrequency.Region.upperMids"]"
+     data-presence="@Localizer["Exercise.GuessFrequency.Region.presence"]"
      data-air="@Localizer["Exercise.GuessFrequency.Region.air"]"
      data-broad="@Localizer["Exercise.GuessQ.Option.broad"]"
      data-medium="@Localizer["Exercise.GuessQ.Option.medium"]"

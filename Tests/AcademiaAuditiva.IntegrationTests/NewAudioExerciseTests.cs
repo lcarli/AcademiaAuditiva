@@ -36,6 +36,9 @@ public class NewAudioExerciseTests : IDisposable
     [InlineData("Compression", "en-US", "Compression")]
     [InlineData("Compression", "pt-BR", "Compressão")]
     [InlineData("Compression", "fr-CA", "Compression")]
+    [InlineData("EqMatching", "en-US", "EQ Matching")]
+    [InlineData("EqMatching", "pt-BR", "Correspondência de EQ")]
+    [InlineData("EqMatching", "fr-CA", "Correspondance d’égalisation")]
     public async Task Pages_LocalizeControlsInstructionsAndAllAnswers(string exercise, string culture, string title)
     {
         var html = WebUtility.HtmlDecode(await _factory.CreateClient()
@@ -46,12 +49,57 @@ public class NewAudioExerciseTests : IDisposable
         html.Should().NotMatchRegex(@"Exercise\.(BoostOrCut|GuessQ|Compression|AudioComparison|AB)\.");
         if (exercise == "BoostOrCut") html.Should().Contain("value=\"cut|bass\"").And.Contain("value=\"boost|air\"");
         if (exercise == "GuessQ") html.Should().Contain("value=\"broad\"").And.Contain("value=\"narrow\"");
+        if (exercise == "EqMatching")
+            html.Should().Contain("id=\"eqFrequency\"").And.Contain("id=\"eqGain\"").And.Contain("id=\"eqQ\"")
+                .And.Contain("id=\"previewEq\"").And.Contain("aa-channel-strip")
+                .And.Contain("id=\"eqResponseCurve\"").And.Contain("aria-describedby=\"eqKnobHelp\"")
+                .And.NotContain("Exercise.EqMatching.");
         if (AudioComparisonCatalog.Expansion.Any(definition => definition.Name == exercise))
         {
             html.Should().NotContain($"Exercise.{exercise}.").And.NotContain("LearningPath.Unit.");
             foreach (var answer in AudioComparisonCatalog.Find(exercise)!.Answers)
                 html.Should().Contain($"value=\"{answer}\"");
         }
+    }
+
+    [Theory]
+    [InlineData("beginner")]
+    [InlineData("intermediate")]
+    [InlineData("advanced")]
+    public async Task EqMatchingRound_HidesTargetAndScoresAnExactCurveOnce(string level)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var exerciseId = db.Exercises.Single(exercise => exercise.Name == "EqMatching").ExerciseId;
+        var before = db.ScoreSnapshots.Count(snapshot => snapshot.ExerciseId == exerciseId);
+        var client = await IntegrationHttp.WithAntiforgeryHeaderAsync(_factory.CreateClient());
+        _factory.AudioRandom.Use(0, 0, 0, 0, 0, 0, 0);
+        _factory.Mixer.ProcessingPlans.Clear();
+
+        var play = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new
+        {
+            exerciseId, filters = new Dictionary<string, string> { ["eqmLevel"] = level },
+        }));
+        play.EnumerateObject().Select(property => property.Name).Should().Equal("roundId", "clips");
+        play.GetProperty("clips").GetArrayLength().Should().Be(2);
+        play.ToString().Should().NotContainAny("frequency", "gain", "source", ".wav");
+        var roundId = play.GetProperty("roundId").GetString()!;
+        var stored = await scope.ServiceProvider.GetRequiredService<IAudioTokenService>()
+            .GetRoundAsync(SignedInWebApplicationFactory.UserId, exerciseId, roundId);
+        var expected = JObject.Parse(stored!.ExpectedAnswerJson);
+        var answer = expected["answer"]!.Value<string>()!;
+        _factory.Mixer.ProcessingPlans.Should().HaveCount(2)
+            .And.OnlyContain(plan => plan.Processors.Last() is LoudnessMatchProcessor);
+
+        var result = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
+            new { exerciseId, roundId, userGuess = answer }));
+        result.GetProperty("success").GetBoolean().Should().BeTrue();
+        result.GetProperty("isCorrect").GetBoolean().Should().BeTrue();
+        result.GetProperty("detail").GetProperty("score").GetDouble().Should().Be(1);
+        var repeat = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
+            new { exerciseId, roundId, userGuess = answer }));
+        repeat.GetProperty("success").GetBoolean().Should().BeFalse();
+        db.ScoreSnapshots.Count(snapshot => snapshot.ExerciseId == exerciseId).Should().Be(before + 1);
     }
 
     [Theory]
@@ -84,12 +132,12 @@ public class NewAudioExerciseTests : IDisposable
         }));
         play.EnumerateObject().Select(property => property.Name).Should().Equal("roundId", "clips");
         var clips = play.GetProperty("clips").EnumerateArray().ToArray();
-        clips.Should().HaveCount(2);
+        clips.Should().HaveCount(name == "MixProblem" ? 7 : 2);
         foreach (var clip in clips)
             clip.EnumerateObject().Select(property => property.Name).Should().Equal("key", "token");
         play.ToString().Should().NotContainAny("source", "ratio", "direction", "region", "threshold", "frequency", "width", ".wav");
         var plans = _factory.Mixer.ProcessingPlans.ToArray();
-        plans.Should().HaveCount(2);
+        plans.Should().HaveCount(name == "MixProblem" ? 7 : 2);
         plans.Select(plan => plan.SourceKey).Distinct().Should().ContainSingle();
         plans.Should().OnlyContain(plan => plan.Processors.Last() is LoudnessMatchProcessor);
         var roundId = play.GetProperty("roundId").GetString()!;

@@ -102,6 +102,15 @@ test('generic A/B playback supports mouse, keyboard, switching, replay and error
   const fetched: string[] = [];
   let releaseInitialAudio!: () => void;
   const initialAudio = new Promise<void>(resolve => { releaseInitialAudio = resolve; });
+  await page.addInitScript(() => {
+    const windowWithAudioStarts = window as typeof window & { __aaAudioStarts: number[] };
+    windowWithAudioStarts.__aaAudioStarts = [];
+    const originalStart = AudioBufferSourceNode.prototype.start;
+    AudioBufferSourceNode.prototype.start = function (when = 0, ...args: number[]) {
+      windowWithAudioStarts.__aaAudioStarts.push(when);
+      return originalStart.call(this, when, ...args);
+    };
+  });
   await page.route('**/audio/token/*', async route => {
     const token = decodeURIComponent(new URL(route.request().url()).pathname.split('/').pop()!);
     fetched.push(token);
@@ -152,11 +161,17 @@ test('generic A/B playback supports mouse, keyboard, switching, replay and error
   await expect(b).toHaveAttribute('aria-pressed', 'true');
   await expect(a).toHaveAttribute('aria-pressed', 'false');
   await expect(status).toHaveText('Playing B.');
+  const startsAfterSwitch = await page.evaluate(() => (window as typeof window & { __aaAudioStarts: number[] }).__aaAudioStarts);
+  expect(startsAfterSwitch).toHaveLength(2);
+  expect(startsAfterSwitch[0]).toBe(startsAfterSwitch[1]);
   await expect(status).toHaveText('A and B are ready.');
   await expect(replay).toBeEnabled();
 
   await page.keyboard.press('Space');
   await expect(status).toHaveText('Playing B.');
+  const startsAfterReplay = await page.evaluate(() => (window as typeof window & { __aaAudioStarts: number[] }).__aaAudioStarts);
+  expect(startsAfterReplay).toHaveLength(4);
+  expect(startsAfterReplay[2]).toBe(startsAfterReplay[3]);
   await expect(status).toHaveText('A and B are ready.');
   expect(fetched.sort()).toEqual(['opaque-a', 'opaque-b']);
 
@@ -510,7 +525,7 @@ test('an Audio foundations session scores all three exercises and keeps Music pr
   for (const href of await page.locator('.aa-challenge-title').evaluateAll(links => links.map(link => link.getAttribute('href')))) {
     expect(['/Exercise/LevelMatch', '/Exercise/StereoPosition', '/Exercise/GuessFrequency',
       '/Exercise/BoostOrCut', '/Exercise/GuessQ', '/Exercise/Compression',
-      ...expandedAudioComparisons.map(([name]) => `/Exercise/${name}`)]).toContain(href);
+      ...expandedAudioComparisons.map(([name]) => `/Exercise/${name}`), '/Exercise/EqMatching']).toContain(href);
   }
   await page.goto(dashboard, { waitUntil: 'networkidle' });
   expect(await answers()).toBe(musicBefore);
@@ -522,7 +537,7 @@ const expandedAudioComparisons = [
   ['ReverbDecay', 2, 'dcLevel'], ['ReverbPreDelay', 2, 'rpLevel'], ['EchoTime', 3, 'etLevel'], ['Distortion', 2, 'dsLevel'],
   ['HighPassCutoff', 3, 'hpfLevel'], ['LowPassCutoff', 3, 'lpfLevel'], ['LowShelf', 2, 'lsLevel'],
   ['HighShelf', 2, 'hsLevel'], ['EqGain', 3, 'egLevel'], ['CompressorThreshold', 2, 'ctLevel'],
-  ['EchoFeedback', 2, 'efLevel'], ['ReverbMix', 3, 'rmLevel'], ['NoiseDetection', 2, 'ndLevel'], ['MixProblem', 5, 'mpLevel'],
+  ['EchoFeedback', 2, 'efLevel'], ['ReverbMix', 4, 'rmLevel'], ['NoiseDetection', 2, 'ndLevel'], ['MixProblem', 5, 'mpLevel'],
 ] as const;
 
 test('Audio catalog lists all supported difficulties and opens the selected level', async ({ page, baseURL }) => {
@@ -531,6 +546,7 @@ test('Audio catalog lists all supported difficulties and opens the selected leve
   const exercises = [
     ['LevelMatch', 'lmLevel'], ['StereoPosition', 'spLevel'], ['GuessFrequency', 'gfLevel'],
     ['BoostOrCut', 'bcLevel'], ['GuessQ', 'gqLevel'], ['Compression', 'cpLevel'],
+    ['EqMatching', 'eqmLevel'],
     ...expandedAudioComparisons.map(([name, , filter]) => [name, filter]),
   ];
   const summaries = {
@@ -578,7 +594,7 @@ test('Audio comparisons and progress localize and fit every supported screen', a
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   for (const culture of cultures) {
     for (const path of ['/Exercise/GuessFrequency', '/Exercise/BoostOrCut', '/Exercise/GuessQ',
-      '/Exercise/Compression', ...expandedAudioComparisons.map(([name]) => `/Exercise/${name}`), '/Dashboard?track=audio']) {
+      '/Exercise/Compression', '/Exercise/EqMatching', ...expandedAudioComparisons.map(([name]) => `/Exercise/${name}`), '/Dashboard?track=audio']) {
       const separator = path.includes('?') ? '&' : '?';
       await page.goto(`${baseURL}${path}${separator}culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
       await closeTourIfStarted(page);
@@ -586,6 +602,7 @@ test('Audio comparisons and progress localize and fit every supported screen', a
       await expect(page.locator('body')).not.toContainText('Exercise.BoostOrCut.');
       await expect(page.locator('body')).not.toContainText('Exercise.GuessQ.');
       await expect(page.locator('body')).not.toContainText('Exercise.Compression.');
+      await expect(page.locator('body')).not.toContainText('Exercise.EqMatching.');
       for (const [name] of expandedAudioComparisons)
         await expect(page.locator('body')).not.toContainText(`Exercise.${name}.`);
       await expect(page.locator('body')).not.toContainText('Exercise.AudioComparison.');
@@ -610,26 +627,36 @@ test('Audio comparisons and progress localize and fit every supported screen', a
 test('Audio comparisons play, score, reset and report failures', async ({ page, baseURL }) => {
   test.setTimeout(240_000);
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  let validationRequests = 0;
+  page.on('request', request => {
+    if (request.url().includes('/Exercise/ValidateExercise')) validationRequests++;
+  });
   for (const [exercise, count, filter] of [
-    ['BoostOrCut', 6, 'bcLevel'], ['GuessQ', 3, 'gqLevel'], ['Compression', 2, 'cpLevel'],
+    ['BoostOrCut', 14, 'bcLevel'], ['GuessQ', 3, 'gqLevel'], ['Compression', 2, 'cpLevel'],
     ...expandedAudioComparisons,
   ] as const) {
     await page.goto(`${baseURL}/Exercise/${exercise}?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
     await closeTourIfStarted(page);
     await page.locator('#aaFreePractice').uncheck();
-    await expect(page.locator('.guessAnswer')).toHaveCount(count);
+    await expect(page.locator('.guessAnswer:visible')).toHaveCount(count);
     await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
     const play = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
     const audio = page.waitForResponse(response => response.url().includes('/audio/token/') && response.status() === 200);
     await page.click('#Play');
     const round = await (await play).json();
     expect(Object.keys(round)).toEqual(['roundId', 'clips']);
-    expect(round.clips).toHaveLength(2);
+    expect(round.clips).toHaveLength(exercise === 'MixProblem' ? 7 : 2);
     expect(JSON.stringify(round)).not.toMatch(/source|ratio|direction|threshold|frequency|width|\.wav/i);
     const audioBytes = await (await audio).body();
     expect(audioBytes.length).toBeGreaterThan(1000);
     verifyPrivateChunk(audioBytes);
     await page.locator('[data-aa-ab-play="B"]').click();
+    if (exercise === 'MixProblem') {
+      for (const key of ['C', 'D', 'E', 'F', 'G']) {
+        await expect(page.locator(`[data-aa-ab-play="${key}"]`)).toBeEnabled();
+      }
+      await page.locator('[data-aa-ab-play="C"]').click();
+    }
     await page.locator('.guessAnswer').first().focus();
     await page.keyboard.press('Enter');
     const validated = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise') && response.status() === 200);
@@ -652,7 +679,12 @@ test('Audio comparisons play, score, reset and report failures', async ({ page, 
       else await celebration.locator('.swal2-confirm').click();
       await expect(celebration).toBeHidden();
     }
-    await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
+    await expect(page.locator('[data-aa-ab-play="A"]')).toBeEnabled();
+    await expect(page.locator('[data-aa-ab-play="B"]')).toBeEnabled();
+    const scoredRequests = validationRequests;
+    await page.locator('[data-aa-ab-replay]').click();
+    await expect(page.locator('[data-aa-ab-status]')).toHaveText(/ready|Playing/);
+    expect(validationRequests).toBe(scoredRequests);
     await expect(page.locator('.guessAnswer.selected')).toHaveCount(0);
     const pending = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
     await page.click('#Play');
@@ -673,6 +705,77 @@ test('Audio comparisons play, score, reset and report failures', async ({ page, 
   await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
 });
 
+test('EQ Matching auditions continuous settings and keeps replay available after scoring', async ({ page, baseURL }) => {
+  test.setTimeout(90_000);
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/EqMatching?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  await page.locator('#aaFreePractice').check();
+  await expect(page.locator('#eqFrequency')).toBeDisabled();
+
+  const response = page.waitForResponse(item => item.url().includes('/Exercise/RequestPlay') && item.status() === 200);
+  await page.click('#Play');
+  const round = await (await response).json();
+  expect(Object.keys(round)).toEqual(['roundId', 'clips']);
+  expect(round.clips).toHaveLength(2);
+  expect(JSON.stringify(round)).not.toMatch(/frequency|gain|\bq\b|source|\.wav/i);
+  await expect(page.locator('#eqFrequency')).toBeEnabled();
+  await expect(page.locator('#previewEq')).toBeEnabled();
+  const gainKnob = page.locator('#eqGain');
+  const curve = page.locator('#eqResponseCurve');
+  const initialCurve = await curve.getAttribute('d');
+  await gainKnob.scrollIntoViewIfNeeded();
+  const box = (await gainKnob.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 - 30, { steps: 6 });
+  await page.mouse.up();
+  await expect(gainKnob).toHaveValue('3');
+  await expect(gainKnob).toHaveAttribute('aria-valuetext', '3 dB');
+  expect(await curve.getAttribute('d')).not.toBe(initialCurve);
+  await gainKnob.press('ArrowRight');
+  await expect(gainKnob).toHaveValue('3.1');
+  await gainKnob.press('End');
+  await expect(gainKnob).toHaveValue('12');
+  await gainKnob.press('Home');
+  await expect(gainKnob).toHaveValue('-12');
+  await expect(page.locator('[data-eq-knob][data-dragging]')).toHaveCount(0);
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate(theme => document.documentElement.setAttribute('data-bs-theme', theme), theme);
+    for (const width of [360, 768, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth),
+        `EQ strip ${theme}, ${width}px`).toBe(0);
+      for (const id of ['eqFrequency', 'eqGain', 'eqQ'])
+        await expect(page.locator(`#${id}`)).toBeVisible();
+    }
+  }
+  await page.locator('#eqFrequency').evaluate((element: HTMLInputElement) => {
+    element.value = '700';
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await page.locator('#eqGain').evaluate((element: HTMLInputElement) => {
+    element.value = '3.5';
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await page.locator('#eqQ').evaluate((element: HTMLInputElement) => {
+    element.value = '2.5';
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await page.click('#previewEq');
+  const validated = page.waitForResponse(item => item.url().includes('/Exercise/ValidateExercise') && item.status() === 200);
+  await page.click('#validateGuess');
+  const result = await (await validated).json();
+  expect(result.success).toBe(true);
+  expect(result.detail.score).toBeGreaterThanOrEqual(0);
+  expect(result.detail.score).toBeLessThanOrEqual(1);
+  await expect(page.locator('.swal2-html-container')).not.toContainText('undefined');
+  await page.click('.swal2-confirm');
+  await expect(page.locator('[data-aa-ab-play="A"]')).toBeEnabled();
+  await page.locator('[data-aa-ab-replay]').click();
+  await expect(page.locator('[data-aa-ab-status]')).toHaveText(/ready|Playing/);
+});
+
 for (const [exercise, , filter] of expandedAudioComparisons) {
   test(`${exercise} plays decodable A/B music at every level in free practice`, async ({ page, baseURL }) => {
     test.setTimeout(90_000);
@@ -688,7 +791,7 @@ for (const [exercise, , filter] of expandedAudioComparisons) {
       await page.click('#Play');
       const round = await (await pending).json();
       expect(Object.keys(round)).toEqual(['roundId', 'clips']);
-      expect(round.clips).toHaveLength(2);
+      expect(round.clips).toHaveLength(exercise === 'MixProblem' ? 7 : 2);
       for (const clip of round.clips) {
         const response = await page.request.get(`${baseURL}/audio/token/${encodeURIComponent(clip.token)}`);
         expect(response.ok()).toBe(true);

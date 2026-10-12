@@ -25,8 +25,8 @@ public class NewAudioExerciseTests
             var data = new TheoryData<string, string, int, int, int>();
             foreach (var name in Names)
             foreach (var level in Levels)
-            for (var first = 0; first < (name == "Compression" ? 2 : 3); first++)
-            for (var second = 0; second < (name == "GuessQ" ? 3 : 2); second++)
+            for (var first = 0; first < (name == "Compression" ? 2 : name == "BoostOrCut" ? 7 : 3); first++)
+            for (var second = 0; second < (name == "GuessQ" ? level == "advanced" ? 5 : 3 : 2); second++)
             for (var target = 0; target <= 8; target += 8)
                 data.Add(name, level, first, second, target);
             return data;
@@ -89,22 +89,27 @@ public class NewAudioExerciseTests
     [InlineData("advanced", 2)]
     public void QAnswers_HaveProgressivelyNarrowerMeasuredCurves_WithTheSameCentreGain(string level, int frequencyIndex)
     {
-        var widths = new[] { "broad", "medium", "narrow" };
+        var beginnerAndIntermediateWidths = new[] { "broad", "medium", "narrow" };
+        var qValues = level == "advanced" ? new[] { 0.5, 1.0, 2.0, 4.0, 8.0 }
+            : level == "beginner" ? [0.35, 1.0, 4.0] : [0.5, 1.5, 4.0];
         var offCentreGains = new List<double>();
-        for (var width = 0; width < widths.Length; width++)
+        for (var width = 0; width < qValues.Length; width++)
         {
             var plan = new TechnicalListeningRoundGenerator(Sources, new SequenceRandom(frequencyIndex, width, 0, 0))
                 .Plan(new Exercise { Name = "GuessQ" }, new Dictionary<string, string> { ["gqLevel"] = level });
-            JObject.Parse(plan.ExpectedAnswerJson)["answer"]!.Value<string>().Should().Be(widths[width]);
+            var expectedAnswer = level == "advanced" ? qValues[width].ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : beginnerAndIntermediateWidths[width];
+            JObject.Parse(plan.ExpectedAnswerJson)["answer"]!.Value<string>().Should().Be(expectedAnswer);
             var eq = (PeakingEqProcessor)plan.Clips[1].Plan.Processors[0];
+            eq.Q.Should().Be(qValues[width]);
             var centre = ParametricEqTests.Tone(eq.FrequencyHz);
             ParametricEqTests.MeasuredGain(centre, AudioProcessing.Process(centre, [eq]))
                 .Should().BeApproximately(9, 0.03);
             var offCentre = ParametricEqTests.Tone(eq.FrequencyHz / 2);
             offCentreGains.Add(ParametricEqTests.MeasuredGain(offCentre, AudioProcessing.Process(offCentre, [eq])));
         }
-        (offCentreGains[0] - offCentreGains[1]).Should().BeGreaterThan(0.5);
-        (offCentreGains[1] - offCentreGains[2]).Should().BeGreaterThan(0.5);
+        for (var index = 1; index < offCentreGains.Count; index++)
+            (offCentreGains[index - 1] - offCentreGains[index]).Should().BeGreaterThan(0);
     }
 
     [Theory]

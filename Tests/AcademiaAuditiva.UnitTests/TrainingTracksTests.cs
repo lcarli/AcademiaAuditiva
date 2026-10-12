@@ -36,7 +36,7 @@ public class TrainingTracksTests
             "CompressorAttack", "CompressorRelease", "CompressionRatio", "StereoWidth", "ChannelPolarity",
             "ReverbPresence", "ReverbDecay", "ReverbPreDelay", "EchoTime", "Distortion",
             "HighPassCutoff", "LowPassCutoff", "LowShelf", "HighShelf", "EqGain", "CompressorThreshold",
-            "EchoFeedback", "ReverbMix", "NoiseDetection", "MixProblem"];
+            "EchoFeedback", "ReverbMix", "NoiseDetection", "MixProblem", "EqMatching"];
         ExerciseCatalog.All.Where(e => audioNames.Contains(e.Name))
             .Should().OnlyContain(e => e.Track == TrainingTracks.Audio);
         ExerciseCatalog.All.Where(e => !audioNames.Contains(e.Name))

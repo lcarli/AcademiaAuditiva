@@ -5059,6 +5059,7 @@
   <data name="Exercise.GuessFrequency.Feedback" xml:space="preserve">
     <value>O sinal {0} recebeu um realce em {1} Hz ({2}). {3}</value>
   </data>
+  <data name="Exercise.GuessFrequency.Region.sub" xml:space="preserve"><value>subgrave: profundidade e impacto</value></data>
   <data name="Exercise.GuessFrequency.Region.bass" xml:space="preserve">
     <value>graves: peso e calor</value>
   </data>
@@ -5068,6 +5069,7 @@
   <data name="Exercise.GuessFrequency.Region.mids" xml:space="preserve">
     <value>médios: definição e destaque</value>
   </data>
+  <data name="Exercise.GuessFrequency.Region.upperMids" xml:space="preserve"><value>médios-agudos: ataque e clareza</value></data>
   <data name="Exercise.GuessFrequency.Region.presence" xml:space="preserve">
     <value>presença: ataque e intensidade</value>
   </data>
@@ -5108,11 +5110,11 @@
   <data name="GuessQ" xml:space="preserve"><value>Identificação de Q</value></data>
   <data name="Compression" xml:space="preserve"><value>Compressão</value></data>
   <data name="Exercise.AudioComparison.Reference" xml:space="preserve"><value>A é a referência. B tem a alteração de EQ. Os dois têm loudness equivalente.</value></data>
-  <data name="Exercise.BoostOrCut.Subtitle" xml:space="preserve"><value>Identifique se o EQ realçou ou cortou graves, médios ou agudos.</value></data>
-  <data name="Exercise.BoostOrCut.Instructions" xml:space="preserve"><value>Alterne entre A (referência) e B (equalizado). Escolha a direção e a região afetada. O loudness é equivalente: um corte não significa simplesmente um sinal mais baixo.</value></data>
-  <data name="Exercise.BoostOrCut.Tip1" xml:space="preserve"><value>Ouça o peso dos graves, o corpo dos médios ou o brilho dos agudos.</value></data>
+  <data name="Exercise.BoostOrCut.Subtitle" xml:space="preserve"><value>Identifique a direção e a região de frequência de um único ajuste de EQ.</value></data>
+  <data name="Exercise.BoostOrCut.Instructions" xml:space="preserve"><value>Alterne entre A (referência) e B (equalizado). Escolha se a banda foi realçada ou cortada e identifique a região. O loudness é equivalente: um corte não significa simplesmente um sinal mais baixo.</value></data>
+  <data name="Exercise.BoostOrCut.Tip1" xml:space="preserve"><value>Ouça em sequência, do peso dos subgraves ao corpo, à presença e ao ar dos agudos.</value></data>
   <data name="Exercise.BoostOrCut.Tip2" xml:space="preserve"><value>Um realce destaca uma região; um corte retira essa região em relação ao restante.</value></data>
-  <data name="Exercise.BoostOrCut.Tip3" xml:space="preserve"><value>As frequências centrais são 125 Hz, 1 kHz e 8 kHz. O ganho passa de 9 para 6 e 3 dB conforme a dificuldade aumenta.</value></data>
+  <data name="Exercise.BoostOrCut.Tip3" xml:space="preserve"><value>As sete frequências centrais vão de 100 Hz a 8 kHz. O ganho passa de 9 para 6 e 3 dB conforme a dificuldade aumenta.</value></data>
   <data name="Exercise.BoostOrCut.Question" xml:space="preserve"><value>O que mudou em B?</value></data>
   <data name="Exercise.BoostOrCut.New" xml:space="preserve"><value>Nova comparação</value></data>
   <data name="Exercise.BoostOrCut.Incomplete" xml:space="preserve"><value>Gere uma comparação e escolha uma direção e região antes de validar.</value></data>
@@ -5121,15 +5123,23 @@
   <data name="Exercise.BoostOrCut.Level.Advanced" xml:space="preserve"><value>Avançado · 3 dB</value></data>
   <data name="Exercise.BoostOrCut.Option.boost|bass" xml:space="preserve"><value>Realce de graves</value></data>
   <data name="Exercise.BoostOrCut.Option.cut|bass" xml:space="preserve"><value>Corte de graves</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|sub" xml:space="preserve"><value>Realce de subgraves</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|sub" xml:space="preserve"><value>Corte de subgraves</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|lowMids" xml:space="preserve"><value>Realce de médios-graves</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|lowMids" xml:space="preserve"><value>Corte de médios-graves</value></data>
   <data name="Exercise.BoostOrCut.Option.boost|mids" xml:space="preserve"><value>Realce de médios</value></data>
   <data name="Exercise.BoostOrCut.Option.cut|mids" xml:space="preserve"><value>Corte de médios</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|upperMids" xml:space="preserve"><value>Realce de médios-agudos</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|upperMids" xml:space="preserve"><value>Corte de médios-agudos</value></data>
+  <data name="Exercise.BoostOrCut.Option.boost|presence" xml:space="preserve"><value>Realce de presença</value></data>
+  <data name="Exercise.BoostOrCut.Option.cut|presence" xml:space="preserve"><value>Corte de presença</value></data>
   <data name="Exercise.BoostOrCut.Option.boost|air" xml:space="preserve"><value>Realce de agudos</value></data>
   <data name="Exercise.BoostOrCut.Option.cut|air" xml:space="preserve"><value>Corte de agudos</value></data>
   <data name="Exercise.BoostOrCut.Direction.boost" xml:space="preserve"><value>realce</value></data>
   <data name="Exercise.BoostOrCut.Direction.cut" xml:space="preserve"><value>corte</value></data>
   <data name="Exercise.BoostOrCut.Feedback" xml:space="preserve"><value>B recebeu um {0} na região de {1} ({2} Hz, {3} dB). Compare essa região com A, não o volume geral.</value></data>
-  <data name="Exercise.GuessQ.Subtitle" xml:space="preserve"><value>Reconheça um realce de EQ largo, médio ou estreito pela alteração do timbre.</value></data>
-  <data name="Exercise.GuessQ.Instructions" xml:space="preserve"><value>Compare A (referência) e B (equalizado) e escolha a largura do realce em B. Todos os realces têm o mesmo ganho central de 9 dB; um Q maior significa uma banda mais estreita.</value></data>
+  <data name="Exercise.GuessQ.Subtitle" xml:space="preserve"><value>Reconheça a largura do EQ, de categorias amplas a valores numéricos de Q.</value></data>
+  <data name="Exercise.GuessQ.Instructions" xml:space="preserve"><value>Compare A (referência) e B (equalizado) e identifique a largura do realce em B. Nos níveis iniciante e intermediário, escolha uma categoria; no avançado, identifique o Q exato entre cinco opções. Todos os realces têm ganho central de 9 dB.</value></data>
   <data name="Exercise.GuessQ.Tip1" xml:space="preserve"><value>Um realce largo altera boa parte do timbre; um realce estreito soa mais concentrado ou ressonante.</value></data>
   <data name="Exercise.GuessQ.Tip2" xml:space="preserve"><value>Ouça ao redor da frequência enfatizada, não apenas no centro.</value></data>
   <data name="Exercise.GuessQ.Tip3" xml:space="preserve"><value>Os centros variam entre 500 Hz, 1 kHz e 2 kHz. As larguras ficam mais próximas nos níveis superiores.</value></data>
@@ -5138,7 +5148,7 @@
   <data name="Exercise.GuessQ.Incomplete" xml:space="preserve"><value>Gere uma comparação e escolha uma largura antes de validar.</value></data>
   <data name="Exercise.GuessQ.Level.Beginner" xml:space="preserve"><value>Iniciante · Q 0,35 / 1 / 4</value></data>
   <data name="Exercise.GuessQ.Level.Intermediate" xml:space="preserve"><value>Intermediário · Q 0,5 / 1,5 / 4</value></data>
-  <data name="Exercise.GuessQ.Level.Advanced" xml:space="preserve"><value>Avançado · Q 0,7 / 1,4 / 2,8</value></data>
+  <data name="Exercise.GuessQ.Level.Advanced" xml:space="preserve"><value>Avançado · identifique Q 0,5 / 1 / 2 / 4 / 8</value></data>
   <data name="Exercise.GuessQ.Option.broad" xml:space="preserve"><value>Largo</value></data>
   <data name="Exercise.GuessQ.Option.medium" xml:space="preserve"><value>Médio</value></data>
   <data name="Exercise.GuessQ.Option.narrow" xml:space="preserve"><value>Estreito</value></data>
@@ -5413,13 +5423,14 @@
   <data name="LearningPath.Unit.EchoFeedback.Description" xml:space="preserve"><value>Distinga realimentação sem mudar o tempo do delay.</value></data>
   <data name="ReverbMix" xml:space="preserve"><value>Mistura de reverb</value></data>
   <data name="Exercise.ReverbMix.Subtitle" xml:space="preserve"><value>Classifique a quantidade de reverb adicionado.</value></data>
-  <data name="Exercise.ReverbMix.Instructions" xml:space="preserve"><value>A é o original. B tem o mesmo reverb nominal de 1,2 s e pré-delay de 20 ms, mas uma de três misturas wet. Escolha leve, média ou forte dentro do perfil selecionado.</value></data>
+  <data name="Exercise.ReverbMix.Instructions" xml:space="preserve"><value>A é o original. B tem o mesmo reverb nominal de 1,2 s e pré-delay de 20 ms, mas pode estar seco ou usar uma de três misturas wet. Escolha a quantidade mais próxima dentro do perfil selecionado.</value></data>
   <data name="Exercise.ReverbMix.Tip1" xml:space="preserve"><value>Ouça o equilíbrio dos ataques diretos em relação às reflexões adicionadas.</value></data>
   <data name="Exercise.ReverbMix.Tip2" xml:space="preserve"><value>A rede de decaimento fica fixa. Mais sinal wet não significa uma configuração de decaimento mais longo.</value></data>
   <data name="Exercise.ReverbMix.Question" xml:space="preserve"><value>Quanto reverb foi misturado em B?</value></data>
-  <data name="Exercise.ReverbMix.Level.Beginner" xml:space="preserve"><value>Iniciante · 15% / 40% / 70% wet</value></data>
-  <data name="Exercise.ReverbMix.Level.Intermediate" xml:space="preserve"><value>Intermediário · 20% / 40% / 60% wet</value></data>
-  <data name="Exercise.ReverbMix.Level.Advanced" xml:space="preserve"><value>Avançado · 30% / 40% / 50% wet</value></data>
+  <data name="Exercise.ReverbMix.Level.Beginner" xml:space="preserve"><value>Iniciante · seco / 15% / 40% / 70% wet</value></data>
+  <data name="Exercise.ReverbMix.Level.Intermediate" xml:space="preserve"><value>Intermediário · seco / 20% / 40% / 60% wet</value></data>
+  <data name="Exercise.ReverbMix.Level.Advanced" xml:space="preserve"><value>Avançado · seco / 30% / 40% / 50% wet</value></data>
+  <data name="Exercise.ReverbMix.Option.dry" xml:space="preserve"><value>Seco (sem reverb)</value></data>
   <data name="Exercise.ReverbMix.Option.light" xml:space="preserve"><value>Leve</value></data>
   <data name="Exercise.ReverbMix.Option.medium" xml:space="preserve"><value>Média</value></data>
   <data name="Exercise.ReverbMix.Option.strong" xml:space="preserve"><value>Forte</value></data>
@@ -5441,20 +5452,22 @@
   <data name="LearningPath.Unit.NoiseDetection.Title" xml:space="preserve"><value>Encontre o piso de ruído</value></data>
   <data name="LearningPath.Unit.NoiseDetection.Description" xml:space="preserve"><value>Reconheça chiado adicionado sem depender do volume geral.</value></data>
   <data name="MixProblem" xml:space="preserve"><value>Diagnóstico da mixagem</value></data>
-  <data name="Exercise.MixProblem.Subtitle" xml:space="preserve"><value>Diagnostique uma alteração introduzida intencionalmente.</value></data>
-  <data name="Exercise.MixProblem.Instructions" xml:space="preserve"><value>A é o original. B tem exatamente uma alteração adicionada: menos graves, menos agudos, eco, distorção suave ou ruído branco. Identifique a alteração, não se a mixagem original é boa ou ruim.</value></data>
-  <data name="Exercise.MixProblem.Tip1" xml:space="preserve"><value>Comece pelo equilíbrio tonal, depois ouça repetições, coloração não linear ou chiado.</value></data>
-  <data name="Exercise.MixProblem.Tip2" xml:space="preserve"><value>Todos os trechos suportam as cinco respostas. O perfil avançado deixa cada alteração mais sutil.</value></data>
-  <data name="Exercise.MixProblem.Question" xml:space="preserve"><value>Qual alteração foi introduzida em B?</value></data>
+  <data name="Exercise.MixProblem.Subtitle" xml:space="preserve"><value>Diagnostique um problema de mixagem e escolha uma correção.</value></data>
+  <data name="Exercise.MixProblem.Instructions" xml:space="preserve"><value>Compare A e B. Identifique o problema em B e escolha o ajuste corretivo que tentaria. B contém um problema controlado de excesso de médios-graves, presença agressiva, excesso de graves, base fraca ou imagem estéreo estreita.</value></data>
+  <data name="Exercise.MixProblem.Tip1" xml:space="preserve"><value>Ouça mascaramento e equilíbrio tonal antes de decidir qual pequeno ajuste pode melhorar a mixagem.</value></data>
+  <data name="Exercise.MixProblem.Tip2" xml:space="preserve"><value>Cada rodada muda um recurso controlado; o perfil altera a intensidade do problema.</value></data>
+  <data name="Exercise.MixProblem.Question" xml:space="preserve"><value>Qual problema você ouve e o que tentaria primeiro?</value></data>
   <data name="Exercise.MixProblem.Level.Beginner" xml:space="preserve"><value>Iniciante · alterações evidentes</value></data>
   <data name="Exercise.MixProblem.Level.Intermediate" xml:space="preserve"><value>Intermediário · alterações moderadas</value></data>
   <data name="Exercise.MixProblem.Level.Advanced" xml:space="preserve"><value>Avançado · alterações sutis</value></data>
-  <data name="Exercise.MixProblem.Option.bass" xml:space="preserve"><value>Menos graves</value></data>
-  <data name="Exercise.MixProblem.Option.treble" xml:space="preserve"><value>Menos agudos</value></data>
-  <data name="Exercise.MixProblem.Option.echo" xml:space="preserve"><value>Eco adicionado</value></data>
-  <data name="Exercise.MixProblem.Option.distortion" xml:space="preserve"><value>Distorção adicionada</value></data>
-  <data name="Exercise.MixProblem.Option.noise" xml:space="preserve"><value>Ruído adicionado</value></data>
-  <data name="Exercise.MixProblem.Feedback" xml:space="preserve"><value>A alteração introduzida foi {0}. Compare B com A e isole essa pista; as outras categorias de processamento não foram adicionadas.</value></data>
+  <data name="Exercise.MixProblem.Option.muddy" xml:space="preserve"><value>Médios-graves embolados → tente um pequeno corte perto de 250 Hz</value></data>
+  <data name="Exercise.MixProblem.Option.harsh" xml:space="preserve"><value>Presença agressiva → tente um pequeno corte perto de 4 kHz</value></data>
+  <data name="Exercise.MixProblem.Option.boomy" xml:space="preserve"><value>Graves excessivos → tente um pequeno corte perto de 125 Hz</value></data>
+  <data name="Exercise.MixProblem.Option.thin" xml:space="preserve"><value>Graves fracos → tente um pequeno realce perto de 150 Hz</value></data>
+  <data name="Exercise.MixProblem.Option.narrow" xml:space="preserve"><value>Imagem estéreo estreita → tente ampliar o campo estéreo</value></data>
+  <data name="Exercise.MixProblem.AuditionFix" xml:space="preserve"><value>Ouvir correção proposta: {0}</value></data>
+  <data name="Exercise.MixProblem.Fix" xml:space="preserve"><value>Testar ajuste {0}</value></data>
+  <data name="Exercise.MixProblem.Feedback" xml:space="preserve"><value>O problema da mixagem foi {0}. Um ajuste corretivo moderado deve mirar essa região e ser avaliado no contexto da mixagem completa.</value></data>
   <data name="LearningPath.Unit.MixProblem.Title" xml:space="preserve"><value>Diagnostique uma alteração</value></data>
   <data name="LearningPath.Unit.MixProblem.Description" xml:space="preserve"><value>Aplique a escuta de timbre, tempo e textura para identificar uma mudança.</value></data>
   <data name="Home.Cta.ChooseTrack" xml:space="preserve"><value>Conhecer as trilhas</value></data>
@@ -5466,4 +5479,32 @@
   <data name="Home.Tracks.Audio.Cta" xml:space="preserve"><value>Ver todos os exercícios de Áudio</value></data>
   <data name="Home.Faq7.Q" xml:space="preserve"><value>Como funciona a trilha de Áudio?</value></data>
   <data name="Home.Faq7.A" xml:space="preserve"><value>Compare versões do mesmo trecho musical licenciado e identifique uma alteração controlada. As comparações de timbre, dinâmica e efeitos têm loudness equivalente; os exercícios de nível o alteram de propósito. Os perfis avançados usam diferenças mais sutis. Comece com volume confortável e use fones ou caixas estéreo nos exercícios de estéreo. Não precisa de software de estúdio.</value></data>
+  <data name="EqMatching" xml:space="preserve"><value>Correspondência de EQ</value></data>
+  <data name="Exercise.EqMatching.Subtitle" xml:space="preserve"><value>Modele um EQ ouvindo, sem olhar para os parâmetros.</value></data>
+  <data name="Exercise.EqMatching.Instructions" xml:space="preserve"><value>Compare A, o original, com B, o alvo de EQ oculto. Ajuste frequência, ganho e Q e ouça suas configurações aplicadas a A. A e B têm loudness equivalente.</value></data>
+  <data name="Exercise.EqMatching.Tip1" xml:space="preserve"><value>Mova primeiro a frequência central e ouça qual região se altera.</value></data>
+  <data name="Exercise.EqMatching.Tip2" xml:space="preserve"><value>Use ajustes moderados de ganho; a pontuação premia a correspondência da curva, não um sinal mais alto.</value></data>
+  <data name="Exercise.EqMatching.Tip3" xml:space="preserve"><value>Q controla a largura: um Q menor afeta uma região mais ampla ao redor da frequência central.</value></data>
+  <data name="Exercise.EqMatching.Question" xml:space="preserve"><value>Combine a frequência, o ganho e o Q do EQ que você ouve.</value></data>
+  <data name="Exercise.EqMatching.New" xml:space="preserve"><value>Novo alvo de EQ</value></data>
+  <data name="Exercise.EqMatching.Reference" xml:space="preserve"><value>A é o original. B é o alvo de EQ. Ambos têm loudness equivalente.</value></data>
+  <data name="Exercise.EqMatching.FrequencyLabel" xml:space="preserve"><value>Frequência central</value></data>
+  <data name="Exercise.EqMatching.FrequencyValue" xml:space="preserve"><value>{0} Hz</value></data>
+  <data name="Exercise.EqMatching.GainLabel" xml:space="preserve"><value>Ganho do EQ</value></data>
+  <data name="Exercise.EqMatching.GainValue" xml:space="preserve"><value>{0} dB</value></data>
+  <data name="Exercise.EqMatching.QLabel" xml:space="preserve"><value>Q (largura de banda)</value></data>
+  <data name="Exercise.EqMatching.Preview" xml:space="preserve"><value>Ouvir meu EQ</value></data>
+  <data name="Exercise.EqMatching.ChannelTitle" xml:space="preserve"><value>Equalizador paramétrico</value></data>
+  <data name="Exercise.EqMatching.BandType" xml:space="preserve"><value>1 banda · Bell</value></data>
+  <data name="Exercise.EqMatching.MyCurve" xml:space="preserve"><value>Sua curva de EQ</value></data>
+  <data name="Exercise.EqMatching.CurveDescription" xml:space="preserve"><value>Resposta de frequência dos seus ajustes, não do alvo oculto.</value></data>
+  <data name="Exercise.EqMatching.KnobHelp" xml:space="preserve"><value>Arraste para cima ou para a direita para aumentar. Use as setas ou segure Shift ao arrastar para um ajuste fino.</value></data>
+  <data name="Exercise.EqMatching.Incomplete" xml:space="preserve"><value>Gere um alvo antes de conferir sua correspondência de EQ.</value></data>
+  <data name="Exercise.EqMatching.Feedback" xml:space="preserve"><value>Correspondência ponderada: {0}%. Alvo: {1} Hz, {2} dB, Q {3}. Suas configurações: {4} Hz, {5} dB, Q {6}.</value></data>
+  <data name="Exercise.EqMatching.PreviewError" xml:space="preserve"><value>Não foi possível reproduzir a prévia do EQ.</value></data>
+  <data name="Exercise.EqMatching.Level.Beginner" xml:space="preserve"><value>Iniciante · 250 Hz–4 kHz</value></data>
+  <data name="Exercise.EqMatching.Level.Intermediate" xml:space="preserve"><value>Intermediário · 120 Hz–8 kHz</value></data>
+  <data name="Exercise.EqMatching.Level.Advanced" xml:space="preserve"><value>Avançado · 60 Hz–12 kHz</value></data>
+  <data name="LearningPath.Unit.EqMatching.Title" xml:space="preserve"><value>Combine uma curva de EQ completa</value></data>
+  <data name="LearningPath.Unit.EqMatching.Description" xml:space="preserve"><value>Use a escuta e a prévia para estimar frequência, ganho e largura de banda.</value></data>
 </root>

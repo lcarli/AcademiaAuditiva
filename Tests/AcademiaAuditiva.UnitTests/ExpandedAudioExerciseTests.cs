@@ -50,10 +50,38 @@ public class ExpandedAudioExerciseTests
         validation.Detail.Should().BeEquivalentTo(new ExpandedAudioValidationDetail(answer, expected["parameters"]!.ToObject<double[]>()!));
         foreach (var wrong in definition.Answers.Where(option => option != answer).Append("invalid").Append(""))
             validator.Validate(wrong, plan.ExpectedAnswerJson).IsCorrect.Should().BeFalse();
-        if (name is "StereoWidth" or "ChannelPolarity")
+        if (name is "StereoWidth" or "ChannelPolarity" or "ReverbMix")
         {
-            var unchanged = name == "StereoWidth" ? answer == "same" : answer == "normal";
+            var unchanged = name switch
+            {
+                "StereoWidth" => answer == "same",
+                "ChannelPolarity" => answer == "normal",
+                _ => answer == "dry",
+            };
             if (unchanged) rendered[0].Samples.Should().Equal(rendered[1].Samples);
+        }
+    }
+
+    [Theory]
+    [InlineData("beginner")]
+    [InlineData("intermediate")]
+    [InlineData("advanced")]
+    public async Task MixProblem_CorrectRepairMovesTheAudioTowardTheReference(string level)
+    {
+        var definition = AudioComparisonCatalog.Find("MixProblem")!;
+        foreach (var choice in Enumerable.Range(0, definition.Answers.Count))
+        {
+            var plan = Plan(Sources, "MixProblem", level, 0, choice);
+            var source = Sources.Find(plan.Clips[0].Plan.SourceKey)!;
+            var input = await Sources.ReadAsync(source);
+            var rendered = RenderAndCheck(plan, input, "MixProblem");
+            var answer = JObject.Parse(plan.ExpectedAnswerJson)["answer"]!.Value<string>()!;
+            answer.Should().Be(definition.Answers[choice]);
+
+            var problemDistance = NewAudioExerciseTests.RelativeDifference(rendered[0], rendered[1]);
+            var repairIndex = Array.IndexOf(definition.Answers.ToArray(), answer) + 2;
+            NewAudioExerciseTests.RelativeDifference(rendered[0], rendered[repairIndex])
+                .Should().BeLessThan(problemDistance, $"{answer} should repair the introduced mix issue");
         }
     }
 
@@ -95,7 +123,8 @@ public class ExpandedAudioExerciseTests
     internal static PcmAudio[] RenderAndCheck(TechnicalListeningRoundPlan plan, PcmAudio input, string name, double target = -30)
     {
         var output = plan.Clips.Select(clip => AudioProcessing.Process(input, clip.Plan.Processors)).ToArray();
-        plan.Clips.Select(clip => clip.Key).Should().Equal("A", "B");
+        plan.Clips.Select(clip => clip.Key).Should().Equal(name == "MixProblem"
+            ? ["A", "B", "C", "D", "E", "F", "G"] : ["A", "B"]);
         plan.Clips.Select(clip => clip.Plan.SourceKey).Distinct().Should().ContainSingle();
         foreach (var audio in output)
         {
@@ -105,7 +134,8 @@ public class ExpandedAudioExerciseTests
             Loudness.IntegratedLufs(audio).Should().BeApproximately(target, 0.1, name);
         }
         var answer = JObject.Parse(plan.ExpectedAnswerJson)["answer"]!.Value<string>();
-        if (!(name == "StereoWidth" && answer == "same" || name == "ChannelPolarity" && answer == "normal"))
+        if (!(name == "StereoWidth" && answer == "same" || name == "ChannelPolarity" && answer == "normal"
+            || name == "ReverbMix" && answer == "dry"))
             NewAudioExerciseTests.RelativeDifference(output[0], output[1]).Should().BeGreaterThan(0.015, name);
         return output;
     }

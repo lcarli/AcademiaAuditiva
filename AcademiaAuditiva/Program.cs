@@ -276,6 +276,7 @@ builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.Exer
 foreach (var definition in AcademiaAuditiva.Services.Audio.AudioComparisonCatalog.Expansion)
     builder.Services.AddSingleton<IExerciseValidator>(
         new AcademiaAuditiva.Services.ExerciseValidators.ExpandedAudioExerciseValidator(definition.Name));
+builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.EqMatchingValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessScaleTypeValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessGreekModeValidator>();
 builder.Services.AddSingleton<IExerciseValidator, AcademiaAuditiva.Services.ExerciseValidators.GuessCadenceValidator>();
