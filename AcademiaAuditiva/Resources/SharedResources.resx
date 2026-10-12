@@ -5120,6 +5120,10 @@
   <data name="Exercise.BoostOrCut.Tip2" xml:space="preserve"><value>A boost brings a region forward; a cut takes that region away relative to the rest.</value></data>
   <data name="Exercise.BoostOrCut.Tip3" xml:space="preserve"><value>The seven center frequencies span 100 Hz to 8 kHz. Gain changes from 9 to 6 to 3 dB as difficulty increases.</value></data>
   <data name="Exercise.BoostOrCut.Question" xml:space="preserve"><value>What changed in B?</value></data>
+  <data name="Exercise.BoostOrCut.ChannelTitle" xml:space="preserve"><value>Parametric EQ · boost or cut</value></data>
+  <data name="Exercise.BoostOrCut.ChannelMode" xml:space="preserve"><value>7-band listening</value></data>
+  <data name="Exercise.BoostOrCut.DirectionPrompt" xml:space="preserve"><value>1 · Choose the direction</value></data>
+  <data name="Exercise.BoostOrCut.RegionPrompt" xml:space="preserve"><value>2 · Select the frequency region</value></data>
   <data name="Exercise.BoostOrCut.New" xml:space="preserve"><value>New comparison</value></data>
   <data name="Exercise.BoostOrCut.Incomplete" xml:space="preserve"><value>Generate a comparison and choose a direction and region before checking.</value></data>
   <data name="Exercise.BoostOrCut.Level.Beginner" xml:space="preserve"><value>Beginner · 9 dB</value></data>

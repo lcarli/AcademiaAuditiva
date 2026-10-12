@@ -642,7 +642,7 @@ test('Audio comparisons play, score, reset and report failures', async ({ page, 
     if (request.url().includes('/Exercise/ValidateExercise')) validationRequests++;
   });
   for (const [exercise, count, filter] of [
-    ['BoostOrCut', 14, 'bcLevel'], ['GuessQ', 3, 'gqLevel'], ['Compression', 2, 'cpLevel'],
+    ['BoostOrCut', 7, 'bcLevel'], ['GuessQ', 3, 'gqLevel'], ['Compression', 2, 'cpLevel'],
     ...expandedAudioComparisons,
   ] as const) {
     await page.goto(`${baseURL}/Exercise/${exercise}?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
@@ -667,8 +667,18 @@ test('Audio comparisons play, score, reset and report failures', async ({ page, 
       }
       await page.locator('[data-aa-ab-play="C"]').click();
     }
-    await page.locator('.guessAnswer').first().focus();
-    await page.keyboard.press('Enter');
+    if (exercise === 'BoostOrCut') {
+      const boost = page.locator('[data-bc-direction="boost"]');
+      await boost.focus();
+      await page.keyboard.press('Enter');
+      await expect(boost).toHaveAttribute('aria-pressed', 'true');
+      await page.locator('.guessAnswer').first().focus();
+      await page.keyboard.press('Enter');
+      await expect(page.locator('.guessAnswer.selected')).toHaveCount(1);
+    } else {
+      await page.locator('.guessAnswer').first().focus();
+      await page.keyboard.press('Enter');
+    }
     const validated = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise') && response.status() === 200);
     await page.click('#validateGuess');
     const result = await (await validated).json();
@@ -699,13 +709,21 @@ test('Audio comparisons play, score, reset and report failures', async ({ page, 
     const pending = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
     await page.click('#Play');
     await pending;
-    await page.locator('.guessAnswer').first().click();
+    if (exercise === 'BoostOrCut') {
+      await page.locator('[data-bc-direction="cut"]').click();
+      await page.locator('.guessAnswer').first().click();
+      await expect(page.locator('#validateGuess')).toBeEnabled();
+    } else {
+      await page.locator('.guessAnswer').first().click();
+    }
     const filters = page.locator('#filtersModal');
     await page.locator('[data-bs-target="#filtersModal"]:visible').first().click();
     await filters.locator(`select[name="${filter}"]`).selectOption('advanced');
     await filters.locator('.btn-close').click();
     await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
     await expect(page.locator('.guessAnswer.selected')).toHaveCount(0);
+    if (exercise === 'BoostOrCut')
+      await expect(page.locator('.aa-bc-direction[aria-pressed="true"]')).toHaveCount(0);
   }
   await page.route('**/Exercise/RequestPlay', route => route.fulfill({
     json: { success: false, title: 'Audio unavailable', message: 'Could not prepare the comparison.' },
@@ -713,6 +731,49 @@ test('Audio comparisons play, score, reset and report failures', async ({ page, 
   await page.click('#Play');
   await expect(page.locator('.swal2-title')).toHaveText('Audio unavailable');
   await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
+});
+
+test('Boost or Cut console composes direction and frequency region into the correct answer', async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.goto(`${baseURL}/Exercise/BoostOrCut?practice=free&culture=pt-BR&ui-culture=pt-BR`, { waitUntil: 'networkidle' });
+  await closeTourIfStarted(page);
+  await expect(page.locator('.aa-bc-band')).toHaveCount(7);
+
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate(theme => document.documentElement.setAttribute('data-bs-theme', theme), theme);
+    for (const width of [360, 768, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth),
+        `Boost or Cut console ${theme}, ${width}px`).toBe(0);
+      await expect(page.locator('.aa-bc-console')).toBeVisible();
+    }
+  }
+
+  const play = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
+  await page.click('#Play');
+  const round = await (await play).json();
+  const reveal = page.waitForResponse(response => response.url().includes('/Exercise/RevealAnswer') && response.status() === 200);
+  await page.locator('[data-aa-reveal]').click();
+  const answer = (await (await reveal).json()).answer as string;
+  const [direction, region] = answer.split('|');
+  await page.click('.swal2-confirm');
+
+  const directionButton = page.locator(`[data-bc-direction="${direction}"]`);
+  await directionButton.click();
+  await expect(directionButton).toHaveAttribute('aria-pressed', 'true');
+  const band = page.locator(`.aa-bc-band[value="${region}"]`);
+  await band.click();
+  await expect(band).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#validateGuess')).toBeEnabled();
+
+  const validated = page.waitForResponse(response =>
+    response.url().includes('/Exercise/ValidateExercise') && response.status() === 200);
+  await page.click('#validateGuess');
+  const result = await (await validated).json();
+  expect(result.success).toBe(true);
+  expect(result.isCorrect).toBe(true);
+  expect(result.free).toBe(true);
+  expect(round.roundId).toBeTruthy();
 });
 
 test('EQ Matching auditions continuous settings and keeps replay available after scoring', async ({ page, baseURL }) => {
