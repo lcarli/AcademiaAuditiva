@@ -93,8 +93,10 @@ The track now includes twenty-seven exercises, reusing the foundations:
 
 The expanded comparisons have beginner, intermediate and advanced profiles.
 Mix Problem's candidate repairs are rendered from the same source and loudness
-target; the learner can audition each proposal before choosing one. EQ Matching
-uses frequency, gain and Q weights of 50%, 30% and 20%. Errors receive full
+target; the learner can audition each proposal before choosing one. EQ Matching's
+rotary controls participate in the shared exercise tutorial. Playback
+controls wrap on narrow screens, including Mix Problem's five candidate repairs.
+EQ Matching uses frequency, gain and Q weights of 50%, 30% and 20%. Errors receive full
 credit within 200 cents, 1.5 dB and 20% Q respectively, then lose credit
 linearly to zero at one octave, 6 dB and a 2:1 Q ratio. A weighted score above
 80% is correct. Continuous full-mix challenges remain on the roadmap.

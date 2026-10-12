@@ -611,6 +611,16 @@ test('Audio comparisons and progress localize and fit every supported screen', a
         await page.setViewportSize({ width, height: 900 });
         await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth),
           { message: `${path} ${culture} at ${width} px` }).toBe(0);
+        if (path.endsWith('MixProblem')) {
+          await expect(page.locator('[data-aa-ab-play]')).toHaveCount(7);
+          const bounds = (await page.locator('[data-aa-ab]').boundingBox())!;
+          for (const button of await page.locator('[data-aa-ab-play], [data-aa-ab-replay]').all()) {
+            await expect(button).toBeVisible();
+            const box = (await button.boundingBox())!;
+            expect(box.x).toBeGreaterThanOrEqual(bounds.x - 1);
+            expect(box.x + box.width).toBeLessThanOrEqual(bounds.x + bounds.width + 1);
+          }
+        }
       }
       if (path.startsWith('/Dashboard')) {
         const map = JSON.parse((await page.locator('#aa-i18n-map').textContent())!);
@@ -835,6 +845,38 @@ test('EQ Matching auditions continuous settings and keeps replay available after
   await expect(page.locator('[data-aa-ab-play="A"]')).toBeEnabled();
   await page.locator('[data-aa-ab-replay]').click();
   await expect(page.locator('[data-aa-ab-status]')).toHaveText(/ready|Playing/);
+});
+
+test('EQ Matching knobs respond to touch dragging on a phone', async ({ browser, browserName, baseURL }) => {
+  test.skip(browserName !== 'chromium', 'Touch dragging uses the Chromium input protocol.');
+  const context = await browser.newContext({
+    baseURL, viewport: { width: 360, height: 800 }, isMobile: true, hasTouch: true,
+  });
+  try {
+    const page = await context.newPage();
+    const errors = collectErrors(page, []);
+    await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+    await page.goto(`${baseURL}/Exercise/EqMatching?practice=free&culture=pt-BR&ui-culture=pt-BR`, { waitUntil: 'networkidle' });
+    await closeTourIfStarted(page);
+    await page.locator('#Play').tap();
+    const gain = page.locator('#eqGain');
+    await expect(gain).toBeEnabled();
+    await gain.scrollIntoViewIfNeeded();
+    const box = (await gain.boundingBox())!;
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    const input = await context.newCDPSession(page);
+    await input.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    await input.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y - 24 }] });
+    await input.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await expect(gain).toHaveValue('2.4');
+    await expect(gain).toHaveAttribute('aria-valuetext', '2,4 dB');
+    await expect(page.locator('[data-eq-knob][data-dragging]')).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+    expect(errors).toEqual([]);
+  } finally {
+    await context.close();
+  }
 });
 
 for (const [exercise, , filter] of expandedAudioComparisons) {
