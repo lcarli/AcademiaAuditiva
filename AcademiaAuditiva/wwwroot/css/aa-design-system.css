@@ -1902,12 +1902,15 @@ a:focus-visible {
 
 .aa-ab-playback {
     display: grid;
+    min-width: 0;
     justify-items: center;
     gap: .65rem;
 }
 
 .aa-ab-controls {
     display: flex;
+    flex-wrap: wrap;
+    width: 100%;
     align-items: center;
     justify-content: center;
     gap: .75rem;

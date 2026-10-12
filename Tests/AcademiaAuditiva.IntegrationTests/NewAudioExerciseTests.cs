@@ -53,6 +53,7 @@ public class NewAudioExerciseTests : IDisposable
             html.Should().Contain("id=\"eqFrequency\"").And.Contain("id=\"eqGain\"").And.Contain("id=\"eqQ\"")
                 .And.Contain("id=\"previewEq\"").And.Contain("aa-channel-strip")
                 .And.Contain("id=\"eqResponseCurve\"").And.Contain("aria-describedby=\"eqKnobHelp\"")
+                .And.Contain("class=\"aa-eq-controls\" data-tour=\"answer\"")
                 .And.NotContain("Exercise.EqMatching.");
         if (AudioComparisonCatalog.Expansion.Any(definition => definition.Name == exercise))
         {
