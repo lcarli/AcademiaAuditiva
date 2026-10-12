@@ -2,8 +2,8 @@ namespace AcademiaAuditiva.Services;
 
 /// <summary>
 /// The exercises the app offers, read once from <see cref="SeedData.Exercises"/>: pages such
-/// as the landing page list and count them without asking the database, and a new exercise
-/// shows up there as soon as it is seeded.
+/// as the landing page count them and show selected examples without asking the database.
+/// Newly seeded exercises are available in the catalog automatically.
 /// </summary>
 public static class ExerciseCatalog
 {
@@ -17,8 +17,8 @@ public static class ExerciseCatalog
     public static int Count => All.Count;
 
     /// <summary>
-    /// The exercises of each category that has any, the categories in the landing page's
-    /// order and the easiest exercises first in each.
+    /// The exercises of each populated category, in track/category order, with the easiest
+    /// exercises first in each.
     /// </summary>
     public static IReadOnlyList<CatalogCategory> ByCategory { get; } =
     [

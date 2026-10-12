@@ -1,49 +1,106 @@
 name: CD - Deploy to Azure
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [master]
-    paths:
-      - "AcademiaAuditiva/**"
-      - "infra/**"
-      - "Dockerfile"
-      - "Directory.Build.props"
-      - "Directory.Packages.props"
-      - "global.json"
-      - ".github/workflows/cd.yml"
   workflow_dispatch:
 
 permissions:
+  actions: read
   id-token: write
   contents: read
   security-events: write
 
-# One deployment at a time; a newer push replaces any run still waiting.
-concurrency:
-  group: cd-production
-  cancel-in-progress: false
-
 env:
+  DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
   RESOURCE_GROUP: rg-aa-prd
   CONTAINER_APP: ca-aa-prd
   IMAGE_NAME: academiaauditiva
   ACR_NAME: ${{ vars.ACR_NAME }}
 
 jobs:
-  ci:
+  manual-ci:
     name: CI
+    if: github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/ci.yml
     permissions:
+      actions: read
       contents: read
       security-events: write
 
+  validated-source:
+    name: Verify tested deployment commit
+    needs: manual-ci
+    if: >-
+      always() &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_branch == 'master' &&
+        github.event.workflow_run.head_repository.full_name == github.repository))
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.decision.outputs.deploy }}
+    steps:
+      - name: Require successful CI
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          COMPLETED_CI_RESULT: ${{ github.event.workflow_run.conclusion }}
+          MANUAL_CI_RESULT: ${{ needs.manual-ci.result }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            result="$MANUAL_CI_RESULT"
+          else
+            result="$COMPLETED_CI_RESULT"
+          fi
+          if [ "$result" != "success" ]; then
+            echo "CI did not succeed ($result); deployment is forbidden." >&2
+            exit 1
+          fi
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
+      - name: Download successful CI decision
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v8
+        with:
+          name: ci-impact
+          path: artifacts/ci-impact
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify exact tested SHA and deployment scope
+        id: decision
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            python3 scripts/ci_scope.py verify-deployment artifacts/ci-impact/ci-impact.json --sha "$DEPLOY_SHA"
+          fi
+
   build-and-deploy:
     name: Build image, push, deploy
-    needs: ci
+    needs: validated-source
+    if: needs.validated-source.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     environment: production
+    # Documentation-only runs must not replace a queued application deployment.
+    concurrency:
+      group: cd-production
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
+
+      - name: Reject superseded automatic deployment
+        if: github.event_name == 'workflow_run'
+        run: |
+          git fetch --no-tags --depth=1 origin master
+          current=$(git rev-parse FETCH_HEAD)
+          python3 scripts/ci_scope.py check-current-deployment --sha "$DEPLOY_SHA" --current-master "$current"
 
       - name: Azure login (OIDC)
         uses: azure/login@v3
@@ -57,8 +114,8 @@ jobs:
 
       - name: Build and push image
         run: |
-          IMAGE_TAG="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          docker build --build-arg APP_VERSION=${{ github.sha }} -t "$IMAGE_TAG" .
+          IMAGE_TAG="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.DEPLOY_SHA }}"
+          docker build --build-arg APP_VERSION=${{ env.DEPLOY_SHA }} -t "$IMAGE_TAG" .
           docker push "$IMAGE_TAG"
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
@@ -69,7 +126,7 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --image "$IMAGE_TAG" \
-            --set-env-vars APP_VERSION=${{ github.sha }} Storage__TrainingSourcesContainer=audio-training-sources
+            --set-env-vars APP_VERSION=${{ env.DEPLOY_SHA }} Storage__TrainingSourcesContainer=audio-training-sources
 
       - name: Wait for latest revision
         run: |
@@ -117,14 +174,14 @@ jobs:
           for i in {1..30}; do
             live=$(curl -fsS "https://$FQDN/health/live" || true)
             version=$(jq -r '.version // empty' <<< "$live" 2>/dev/null || true)
-            if [ "$version" = "${{ github.sha }}" ]; then
+            if [ "$version" = "${{ env.DEPLOY_SHA }}" ]; then
               echo "Live OK on version $version"; break
             fi
-            echo "Waiting for live endpoint to serve ${{ github.sha }} (got '${version:-none}')"
+            echo "Waiting for live endpoint to serve ${{ env.DEPLOY_SHA }} (got '${version:-none}')"
             sleep 5
           done
           ready=$(curl -fsS "https://$FQDN/health/ready") || (echo "Readiness failed"; exit 1)
           ready_version=$(jq -r '.version // empty' <<< "$ready" 2>/dev/null || true)
-          test "$ready_version" = "${{ github.sha }}" || (echo "Readiness returned the wrong version '${ready_version:-none}'"; exit 1)
+          test "$ready_version" = "${{ env.DEPLOY_SHA }}" || (echo "Readiness returned the wrong version '${ready_version:-none}'"; exit 1)
           test "$(jq -r '.audioSources.privateStorage' <<< "$ready")" = "true" || (echo "Private music sources are disabled"; exit 1)
           test "$(jq -r '.audioSources.preparedChunks' <<< "$ready")" = "96" || (echo "Private music catalog is incomplete"; exit 1)

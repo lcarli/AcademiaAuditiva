@@ -227,11 +227,18 @@ place.
 ## CI/CD with GitHub Actions
 
 Once the manual deploy works, automate it with the workflow under
-`.github/workflows/cd.yml`. On pushes to `master` that touch the app,
-infra, or build files, it first runs the CI workflow (build, xUnit tests
-including real SQL Server tests, Playwright E2E against SQL Server + Azurite,
-Bicep validation, and report-only Trivy SARIF upload) and deploys only if CI
-passes. It builds the image with the git SHA as `APP_VERSION`, pushes it to
+`.github/workflows/cd.yml`. Automatic CD starts after the `CI` workflow
+completes for a push to `master`; it never deploys from a PR or fork run.
+It requires successful CI, downloads that run's `ci-impact` artifact, and
+verifies its SHA before using its app/infra/build-file deployment decision.
+CI is not repeated inside automatic CD. Documentation/test-only changes
+skip deployment; landing-only PRs use focused checks, while deployable
+`master` pushes, functional or uncertain changes keep the full suite (see
+[CI scopes](../CONTRIBUTING.md#continuous-integration)). A manual CD run
+still invokes full CI before deploying.
+
+It checks out the exact tested SHA (not the potentially newer default-branch
+HEAD), builds the image with that SHA as `APP_VERSION`, pushes it to
 ACR, updates the Container App image and `APP_VERSION`, waits until
 `latestReadyRevisionName == latestRevisionName` with the new image and 100%
 traffic, then smoke-tests `/health/live` and `/health/ready` and verifies the

@@ -135,9 +135,14 @@ Secrets Officer** for seeding/rotating.
 1. Bicep provisions the entire stack (`infra/scripts/deploy-infra.ps1`).
 2. Operator runs `seed-keyvault.ps1` to set the optional secrets.
 3. Operator runs `grant-mi-sql.ps1` so the MI can run EF migrations.
-4. CI builds/tests the app, runs Playwright E2E with SQL Server + Azurite,
-   validates Bicep, and scans the container image with Trivy SARIF upload.
-5. CD builds the Docker image with `APP_VERSION=<git sha>`, pushes to ACR,
+4. CI selects documentation, landing or full validation by impact; functional
+   changes retain the full build/test, production-like DSP and Playwright
+   coverage. Deployable `master` pushes always get full CI before production.
+   Bicep runs for infrastructure changes; deployable app changes retain the
+   image scan.
+5. Automatic CD reuses successful `master` push CI, verifies its deployment
+   decision and exact SHA, and builds that commit's image with
+   `APP_VERSION=<tested git sha>`, pushes to ACR,
    updates the Container App image/env var, waits until the latest revision
    is ready on that image with 100% traffic, then smoke-tests the versioned
    health endpoints.

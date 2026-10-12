@@ -12,7 +12,7 @@ test.afterEach(async ({ page }) => {
   expect([...new Set(errors)]).toEqual([]);
 });
 
-test('home, catalog and privacy load in every supported culture', async ({ page, baseURL }) => {
+test('home, catalog and privacy load in every supported culture', { tag: '@landing' }, async ({ page, baseURL }) => {
   for (const culture of cultures) {
     for (const path of ['/', '/Exercise', '/Home/Privacy']) {
       const response = await page.goto(`${baseURL}${path}?culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
@@ -22,23 +22,63 @@ test('home, catalog and privacy load in every supported culture', async ({ page,
   }
 });
 
-test('the home page counts every exercise it lists, by category, each linking to its page', async ({ page, baseURL }) => {
-  await page.goto(`${baseURL}/?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
-
-  const title = await page.locator('#aa-ex-title').textContent();
-  const count = Number(title!.match(/^(\d+) ways to train your ear$/)![1]);
-  expect(count).toBeGreaterThan(29);
-  await expect(page.locator('.aa-feature-title').first()).toContainText(`${count} exercises`);
-  await expect(page.locator('.aa-ex-group-title')).toHaveText(['Ear Training', 'Melody', 'Harmony', 'Scales', 'Rhythm']);
-  const items = page.locator('.aa-ex-group .aa-ex-item');
-  await expect(items).toHaveCount(count);
-  const links = await items.evaluateAll(links => links.map(link => link.getAttribute('href')));
-  expect(new Set(links).size, 'each exercise is listed once').toBe(count);
-  for (const group of await page.locator('.aa-ex-group').all()) {
-    await expect(group.locator('.aa-ex-item').first()).toBeVisible();
+test('the home page previews Music and Audio with a few examples and full catalog links', { tag: '@landing' }, async ({ page, baseURL }) => {
+  const titles = { 'en-US': ['Music', 'Audio'], 'pt-BR': ['Música', 'Áudio'], 'fr-CA': ['Musique', 'Audio'] };
+  for (const culture of cultures) {
+    await page.goto(`${baseURL}/?culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
+    const count = Number((await page.locator('#aa-ex-title').textContent())!.match(/^\d+/)![0]);
+    expect(count).toBeGreaterThan(55);
+    await expect(page.locator('.aa-feature-title').first()).toContainText(String(count));
+    await expect(page.locator('#tracks article h3')).toHaveText(titles[culture]);
+    let trackTotal = 0;
+    for (const track of ['Music', 'Audio']) {
+      const card = page.locator(`[data-aa-track="${track}"]`);
+      const trackCount = Number((await card.locator('p').first().textContent())!.match(/^\d+/)![0]);
+      trackTotal += trackCount;
+      const examples = card.locator('.aa-ex-item');
+      await expect(examples).toHaveCount(4);
+      expect(trackCount).toBeGreaterThan(await examples.count());
+      await expect(card.locator(`a[href="/Exercise?track=${track.toLowerCase()}"]`)).toBeVisible();
+      if (track === 'Audio') await expect(card).toContainText('A/B');
+    }
+    expect(trackTotal).toBe(count);
+    const items = page.locator('#tracks .aa-ex-item');
+    await expect(items).toHaveCount(8);
+    const links = await items.evaluateAll(links => links.map(link => link.getAttribute('href')));
+    expect(new Set(links).size, 'only distinct examples are shown').toBe(8);
+    await expect(page.locator('.aa-hero-ctas a[href="#tracks"]')).toBeVisible();
+    await expect(page.locator('body')).not.toContainText('Home.Tracks.');
+    await page.locator('button[aria-controls="aaFaq-7"]').click();
+    await expect(page.locator('#aaFaq-7')).toBeVisible();
+    await expect(page.locator('#aaFaq-7')).not.toContainText('Home.Faq7.');
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate(theme => document.documentElement.setAttribute('data-bs-theme', theme), theme);
+      for (const width of [360, 768, 1024, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        expect(overflow, `home ${culture}, ${theme}, ${width}px`).toBe(0);
+        for (const track of ['music', 'audio']) {
+          const catalog = page.locator(`#tracks a[href="/Exercise?track=${track}"]`);
+          await catalog.scrollIntoViewIfNeeded();
+          await expect(catalog).toBeInViewport({ ratio: 1 });
+        }
+      }
+    }
   }
-
+  await page.goto(`${baseURL}/?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
   await expect(page.locator('.aa-ex-item', { hasText: 'In tune or not?' })).toHaveAttribute('href', '/Exercise/GuessTuning');
+});
+
+test('the signed-in home page opens either complete track catalog', { tag: '@landing' }, async ({ page, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  for (const track of ['music', 'audio']) {
+    await page.goto(`${baseURL}/?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
+    await expect(page.locator('.aa-hero-ctas a[href="#tracks"]')).toBeVisible();
+    await page.locator(`#tracks a[href="/Exercise?track=${track}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`/Exercise\\?track=${track}$`));
+    await expect(page.locator('#trackTabs a[aria-current="page"]')).toHaveAttribute('href', `/Exercise?track=${track}`);
+    await expect(page.locator('#byDifficulty [data-aa-exercise]')).not.toHaveCount(0);
+  }
 });
 
 test('health endpoints expose the running app version', async ({ request }) => {
@@ -1792,7 +1832,7 @@ test('on a phone the header menus open over the page and stay on screen', async 
   await expectHeaderMenuUsable(page, '.aa-site-header .dropdown-toggle.aa-ghost-btn');
 });
 
-test('public pages never scroll sideways on phones, tablets or small laptops', async ({ page, baseURL }) => {
+test('public pages never scroll sideways on phones, tablets or small laptops', { tag: '@landing' }, async ({ page, baseURL }) => {
   const paths = [...cultures.map(c => `/?culture=${c}&ui-culture=${c}`), '/Exercise', '/Home/Privacy', '/Identity/Account/Login', '/Identity/Account/Register'];
   for (const path of paths) {
     await page.setViewportSize({ width: 360, height: 740 });

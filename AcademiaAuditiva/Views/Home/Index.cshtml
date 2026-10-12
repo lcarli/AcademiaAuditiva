@@ -9,9 +9,14 @@
 
     var features = new[] { 1, 2, 3 };
     var steps = new[] { 1, 2, 3 };
-    // The main landing page is the Music landing page. Other tracks have their own catalog tabs.
     var music = ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Music);
-    var exerciseCount = music.Exercises.Count();
+    var audio = ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Audio);
+    var tracks = new[]
+    {
+        (Catalog: music, Icon: "bi-music-note-beamed", Examples: new[] { "GuessTuning", "GuessInterval", "GuessChords", "RhythmDictation" }),
+        (Catalog: audio, Icon: "bi-soundwave", Examples: new[] { "GuessFrequency", "Compression", "StereoWidth", "MixProblem" }),
+    };
+    var exerciseCount = tracks.Sum(track => track.Catalog.Exercises.Count());
     var roles = new[]
     {
         (Id: "student", Tab: "Home.Roles.TabStudent", Prefix: "Home.Roles.Student", Note: (string?)null),
@@ -29,13 +34,13 @@
             <div class="aa-hero-ctas">
                 @if (signedIn)
                 {
-                    <a class="btn btn-primary btn-lg px-4" asp-area="" asp-controller="Exercise" asp-action="Index">@Localizer["Home.Cta.GoToExercises"]</a>
+                    <a class="btn btn-primary btn-lg px-4" href="#tracks">@Localizer["Home.Cta.ChooseTrack"]</a>
                     <a class="btn btn-lg aa-ghost-btn px-4" asp-area="" asp-controller="Dashboard" asp-action="Index">@Localizer["Home.Cta.MyProgress"]</a>
                 }
                 else
                 {
                     <a class="btn btn-primary btn-lg px-4" asp-area="Identity" asp-page="/Account/Register">@Localizer["Home.Cta.Start"]</a>
-                    <a class="btn btn-lg aa-ghost-btn px-4" href="#how-it-works">@Localizer["Home.Cta.HowItWorks"]</a>
+                    <a class="btn btn-lg aa-ghost-btn px-4" href="#tracks">@Localizer["Home.Cta.ChooseTrack"]</a>
                 }
             </div>
         </div>
@@ -57,6 +62,52 @@
             </li>
         }
     </ul>
+</section>
+
+<section id="tracks" class="aa-section" aria-labelledby="aa-ex-title">
+    <div class="aa-section-head">
+        <span class="aa-eyebrow">@Localizer["Home.Exercises.Badge"]</span>
+        <h2 id="aa-ex-title" class="aa-section-title">@Localizer["Home.Exercises.Title", exerciseCount]</h2>
+        <p>@Localizer["Home.Exercises.Lead"]</p>
+    </div>
+    <div class="row g-4">
+        @foreach (var track in tracks)
+        {
+            var key = track.Catalog.Key;
+            var prefix = $"Home.Tracks.{key}.";
+            <div class="col-lg-6">
+                <article class="aa-card aa-card-accent h-100 p-4 p-lg-5 d-flex flex-column" data-aa-track="@key" aria-labelledby="aa-track-@key">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="aa-icon-pill" aria-hidden="true"><i class="bi @track.Icon"></i></span>
+                        <div>
+                            <h3 id="aa-track-@key" class="h4 mb-1">@Localizer[$"TrainingTrack.{key}"]</h3>
+                            <p class="small text-secondary mb-0">@Localizer["Home.Feature1.Title", track.Catalog.Exercises.Count()]</p>
+                        </div>
+                    </div>
+                    <p class="text-secondary">@Localizer[prefix + "Description"]</p>
+                    <p class="small fw-semibold text-body-emphasis">@Localizer["Home.Tracks.Levels"]</p>
+                    <h4 id="aa-examples-@key" class="aa-eyebrow mb-3">@Localizer["Home.Tracks.Examples"]</h4>
+                    <ul class="aa-ex-list mb-4" aria-labelledby="aa-examples-@key">
+                        @foreach (var name in track.Examples)
+                        {
+                            var exercise = track.Catalog.Exercises.Single(exercise => exercise.Name == name);
+                            <li>
+                                <a class="aa-ex-item" asp-area="" asp-controller="Exercise" asp-action="@exercise.Name">
+                                    <i class="bi @track.Icon mt-1" aria-hidden="true"></i>
+                                    <span>
+                                        <span class="aa-ex-item-title">@Localizer[exercise.Name]</span>
+                                        <span class="aa-ex-item-sub">@Localizer[$"Exercise.{exercise.Name}.Subtitle"]</span>
+                                    </span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                    <a class="btn btn-primary align-self-start mt-auto" asp-area="" asp-controller="Exercise" asp-action="Index"
+                       asp-route-track="@key.ToLowerInvariant()">@Localizer[prefix + "Cta"]</a>
+                </article>
+            </div>
+        }
+    </div>
 </section>
 
 <section id="how-it-works" class="aa-section" aria-labelledby="aa-how-title">
@@ -82,34 +133,6 @@
             </li>
         }
     </ol>
-</section>
-
-<section class="aa-section" aria-labelledby="aa-ex-title">
-    <div class="aa-section-head">
-        <span class="aa-eyebrow">@Localizer["Home.Exercises.Badge"]</span>
-        <h2 id="aa-ex-title" class="aa-section-title">@Localizer["Home.Exercises.Title", exerciseCount]</h2>
-        <p>@Localizer["Home.Exercises.Lead"]</p>
-    </div>
-    @foreach (var category in music.Categories)
-    {
-        <div class="aa-ex-group">
-            <h3 class="aa-ex-group-title" id="aa-ex-@category.Name">@Localizer[$"ExerciseCategory.{category.Name}"]</h3>
-            <ul class="aa-ex-list" aria-labelledby="aa-ex-@category.Name">
-                @foreach (var exercise in category.Exercises)
-                {
-                    <li>
-                        <a class="aa-ex-item" asp-area="" asp-controller="Exercise" asp-action="@exercise.Name">
-                            @noteHead
-                            <span>
-                                <span class="aa-ex-item-title">@Localizer[exercise.Name]</span>
-                                <span class="aa-ex-item-sub">@Localizer[$"Exercise.{exercise.Name}.Subtitle"]</span>
-                            </span>
-                        </a>
-                    </li>
-                }
-            </ul>
-        </div>
-    }
 </section>
 
 <section class="aa-section" aria-labelledby="aa-badges-title">
@@ -198,7 +221,7 @@
         </div>
         <div class="col-lg-8">
             <div class="accordion accordion-flush aa-faq" id="aaFaq">
-                @for (var i = 1; i <= 6; i++)
+                @for (var i = 1; i <= 7; i++)
                 {
                     var open = i == 1;
                     <div class="accordion-item">
@@ -227,7 +250,7 @@
     <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
         @if (signedIn)
         {
-            <a class="btn btn-primary btn-lg px-4" asp-area="" asp-controller="Exercise" asp-action="Index">@Localizer["Home.Cta.GoToExercises"]</a>
+            <a class="btn btn-primary btn-lg px-4" href="#tracks">@Localizer["Home.Cta.ChooseTrack"]</a>
         }
         else
         {

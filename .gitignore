@@ -4,6 +4,12 @@
 # Project specific
 node_modules/*
 
+# Python CI-policy script caches
+__pycache__/
+
+# Local Azure deployment plans and environment values
+.azure/
+
 # macOS Finder metadata
 .DS_Store
 **/.DS_Store
@@ -280,4 +286,3 @@ AcademiaAuditiva/UserDiagnosticsReport.txt
 # Compiled Bicep outputs
 infra/**/*.json
 !infra/**/main.parameters.*.json
-
