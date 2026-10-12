@@ -40,6 +40,14 @@ secrets in Key Vault and pulled by the app's user-assigned Managed Identity.
 └────────────────────────────────────────────────────┘
 ```
 
+## Paired melody playback
+
+Paired melody playback (`GuessChangedNote` and `GuessMissingNote`) keeps a
+versioned playback sequence: validation, practice reset, replay, single-clip
+playback and a new round cancel any queued second melody before its token is
+consumed. Tokens are captured per sequence; cancelled playback never uses a
+cleared token or resumes after the pause.
+
 ## Identity model
 
 | Role | Self-assigned? | Capabilities |

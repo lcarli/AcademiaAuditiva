@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let melody1Token = null;
   let melody2Token = null;
   let roundId = null;
+  let playbackVersion = 0;
   let selectedGuess = "";
 
   const exerciseId = document.getElementById("exerciseId")?.value;
@@ -23,15 +24,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  function stopPlayback() {
+    playbackVersion += 1;
+    AudioEngine.stop();
+    return playbackVersion;
+  }
+
   async function playBoth(gapSeconds) {
     if (!melody1Token || !melody2Token) return;
-    await AudioEngine.playToken(melody1Token);
+    const version = stopPlayback();
+    const first = melody1Token;
+    const second = melody2Token;
+    await AudioEngine.playToken(first);
+    if (version !== playbackVersion) return;
     await new Promise((r) => setTimeout(r, gapSeconds * 1000));
-    await AudioEngine.playToken(melody2Token);
+    if (version === playbackVersion) await AudioEngine.playToken(second);
   }
 
   // Turning free practice on or off drops the round on screen.
   AAPractice.onReset(() => {
+    stopPlayback();
     melody1Token = null;
     melody2Token = null;
     roundId = null;
@@ -40,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const playBtn = document.getElementById("Play");
   if (playBtn) {
     playBtn.addEventListener("click", () => {
+      stopPlayback();
       const length = document.getElementById("melodyLength")?.value || 5;
 
       AAPractice.play({
@@ -52,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
           melody2Token = data.melody2Token;
           roundId = data.roundId;
           // 1s gap between the two melodies, matching the legacy UX.
-          playBoth(1.0);
+          return playBoth(1.0);
         })
         .catch((err) => console.error("Erro ao gerar melodias:", err));
     });
@@ -65,21 +78,23 @@ document.addEventListener("DOMContentLoaded", () => {
         AAi18n.noAudio(loc);
         return;
       }
-      playBoth(0.6);
+      playBoth(0.6).catch((err) => console.error("GuessMissingNote playback failed:", err));
     });
   }
 
   const m1Btn = document.getElementById("Melody1");
   if (m1Btn) {
     m1Btn.addEventListener("click", () => {
-      if (melody1Token) AudioEngine.playToken(melody1Token);
+      stopPlayback();
+      if (melody1Token) AudioEngine.playToken(melody1Token).catch((err) => console.error("GuessMissingNote playback failed:", err));
     });
   }
 
   const m2Btn = document.getElementById("Melody2");
   if (m2Btn) {
     m2Btn.addEventListener("click", () => {
-      if (melody2Token) AudioEngine.playToken(melody2Token);
+      stopPlayback();
+      if (melody2Token) AudioEngine.playToken(melody2Token).catch((err) => console.error("GuessMissingNote playback failed:", err));
     });
   }
 
@@ -91,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      stopPlayback();
       AAPractice.validate({
         exerciseId: exerciseId,
         roundId: roundId,
