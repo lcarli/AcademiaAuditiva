@@ -32,7 +32,7 @@ public class GamificationPagesTests : IClassFixture<SignedInWebApplicationFactor
             .And.Contain("80 XP", "3 correct answers and one badge")
             .And.Contain("1 day")
             .And.Contain("You practiced today. See you tomorrow!")
-            .And.Contain("1 of 18")
+            .And.Contain($"1 of {BadgeCatalog.Available.Count}")
             .And.Contain("href=\"/Dashboard/Achievements\"");
         html.Should().MatchRegex(@"<img src=""/img/badges/first_session\.webp\?v=[\w-]+""", "the latest badges show their art");
         html.Should().NotContain("Gamification.", "every text has a resource");
