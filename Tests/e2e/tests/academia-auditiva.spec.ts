@@ -644,6 +644,14 @@ test('Audio comparisons play, score, reset and report failures', async ({ page, 
     else if (exercise === 'Compression') await expect(feedback).toContainText('ratio');
     else await expect(feedback).not.toBeEmpty();
     await page.click('.swal2-confirm');
+    if (result.rewards?.celebration || result.path?.celebration) {
+      const celebration = page.locator('.aa-celebration-popup');
+      await expect(celebration).toBeVisible();
+      const keepPracticing = celebration.locator('.swal2-cancel');
+      if (await keepPracticing.isVisible()) await keepPracticing.click();
+      else await celebration.locator('.swal2-confirm').click();
+      await expect(celebration).toBeHidden();
+    }
     await expect(page.locator('[data-aa-ab-play="A"]')).toBeDisabled();
     await expect(page.locator('.guessAnswer.selected')).toHaveCount(0);
     const pending = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay') && response.status() === 200);
