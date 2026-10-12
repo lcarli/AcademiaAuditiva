@@ -162,7 +162,8 @@ the remaining roadmap.
 
 ## Current architecture and gaps
 
-The existing exercise flow already provides most product infrastructure:
+At the start of this plan, the existing exercise flow already provided most
+product infrastructure:
 
 - `SeedData.Exercises()` defines the exercise catalog;
 - `ExerciseController.RequestPlay` creates a round and issues opaque audio
@@ -174,7 +175,7 @@ The existing exercise flow already provides most product infrastructure:
 - score snapshots, dashboards, routines, daily challenges, games, streaks and
   badges consume recorded answers.
 
-The main gaps are:
+The original gaps were:
 
 1. the product has one flat category list and one musical learning path;
 2. `ExercisePlaybackPlanner` is coupled to
@@ -187,6 +188,22 @@ The main gaps are:
    exercises need named reference and processed tokens;
 6. the dashboard and recommendation surfaces do not distinguish training
    tracks.
+
+**Current status (2026-10-12).** These foundation gaps have been addressed:
+`TrainingTracks` provides the explicit track/category catalog; Audio has its
+own learning path; `TechnicalListeningRoundGenerator` creates technical rounds
+without going through the musical planner; processing plans support gain, pan,
+EQ, compression, stereo, echo, reverb, saturation and noise; the source library
+supports both bundled assets and qualified private recordings; named opaque
+tokens support comparisons; and dashboards/recommendations filter by track.
+The target architecture and slices below distinguish the original proposal
+from the implementation.
+
+Remaining work includes combined catalog filters, pedagogical calibration,
+post-answer technical feedback, continuous-error analytics, adaptive sessions
+and full interactive Mix Challenges. The prioritized follow-up phases are in
+[Audio Exercises Review](Audio-Exercises-Review.md#7-roadmap-sugerido);
+human listening review remains separate from automated DSP qualification.
 
 ## Target architecture
 
@@ -836,8 +853,10 @@ layout.
 - personal-data export and deletion include any new stored fields.
 
 **Engagement policy:** Audio has its own daily challenge, selected on the
-Audio dashboard. All three Foundations exercises participate, with progress
-counted on the player's local date independently of the Music challenge.
+Audio dashboard. Its pool includes Foundations and the expanded Audio
+exercises, selected by track/category rather than a fixed three-exercise list,
+with progress counted on the player's local date independently of the Music
+challenge.
 Games (including the weak-spots game), placement and the legacy all-exercise,
 all-category, total-mastery and daily-challenge badges remain Music-only.
 No new achievements are introduced without finished art and rules.
@@ -846,7 +865,9 @@ The dashboard defaults to Music and has a track selector. KPIs, timelines,
 history, categories, difficulty, weak-spots analysis and recommendations are
 filtered before analysis; the learning-path and daily-challenge cards follow
 the same selection. Audio difficulty uses the recorded `lmLevel`, `spLevel`
-or `gfLevel` instead of calling every answer Beginner from its seed row.
+or `gfLevel` for Foundations and the `AudioComparisonCatalog.LevelFilter`
+for expanded exercises, instead of calling every answer Beginner from its
+seed row.
 XP, general practice streaks and the shared badge collection stay global and
 are labeled as such. Music learning-path percentages and placement never use
 Audio answers.
@@ -865,20 +886,42 @@ and confirms an Audio session changes Audio totals without changing Music.
 Tests also complete the entire Audio learning path while preserving Music
 placement/percentages and the legacy badge requirements.
 
+**Later engagement delivery.** Seven Audio achievements now have rules, art
+and localization: `audio_first_contact`, `audio_level_match`,
+`audio_stereo_position`, `audio_frequency_radar`, `audio_analytical_ear`,
+`audio_explorer` and `audio_foundations_mastered`. Their scopes differ:
+first contact, analytical sessions and exploration include the Audio track;
+the three exercise-specific badges and Foundations completion retain their
+named scope. These do not change legacy Music badge requirements.
+
 ### 10. Expand the track
 
-The first three expansion exercises are implemented as one batch:
+The first three expansion exercises were implemented as one batch. The table
+records their current profiles, including later console/answer updates.
+Profile lists below are beginner / intermediate / advanced:
 
 | Exercise | Question and answers | Profiles |
 |---|---|---|
-| Boost or Cut | A is the reference; B has EQ. Choose boost/cut and bass/mids/highs (six answers). | 125/1000/8000 Hz, Q 1; gain magnitude 9/6/3 dB. |
-| Guess the Q | A is the reference; B has a +9 dB boost. Choose broad/medium/narrow. | Centers 500/1000/2000 Hz; Q sets 0.35/1/4, 0.5/1.5/4, 0.7/1.4/2.8. |
+| Boost or Cut | A is the reference; B has EQ. The console combines boost/cut with one of seven regions (14 answers). | Centers 100/125/250/1000/2000/4000/8000 Hz at every level, Q 1; gain magnitude 9/6/3 dB. |
+| Guess the Q | A is the reference; B has a +9 dB boost. Beginner/intermediate choose broad/medium/narrow; advanced chooses one of five numerical Q values. | Centers 500/1000/2000 Hz at every level; Q sets 0.35/1/4, 0.5/1.5/4, 0.5/1/2/4/8. |
 | Compression | Identify the compressed side, randomized A/B. | Threshold/ratio: -28 dBFS/6:1, -24/3:1, -22/2:1; fixed instantaneous attack and 20 ms release. |
 
+Boost or Cut's region codes are `sub`, `bass`, `lowMids`, `mids`, `upperMids`,
+`presence` and `air`, in the frequency order above. Every level currently
+offers all seven regions; the beginner subset and wider low-frequency
+spacing proposed in review phase E have not been implemented. Guess the Q's
+fixed introductory center is likewise a proposal, not the current profile.
+Changing either difficulty resets the pending round and answer selection.
+Default catalog entry remains the seeded difficulty; a difficulty-view Start
+link explicitly selects its displayed profile.
+
 All comparisons explicitly match BS.1770 loudness at a common randomized
--28 to -32 LUFS target. EQ direction/Q use the profile-wide qualified
-intermediate EQ source set, independently of the correct answer. Processing
-parameters and source identities stay server-side until the answer is validated.
+-28 to -32 LUFS target. Guess the Q uses the qualified intermediate EQ source
+set for its center frequencies. Boost or Cut selects from sources qualified
+for the selected center; bundled eligibility can differ by center, so the
+common all-candidate source pool proposed in review phase E remains pending.
+Processing parameters and source identities stay server-side until the
+answer is validated.
 Trusted result metadata enters snapshots, exports and played-difficulty reports.
 The three new beginner units extend the Audio path to six steps, without changing
 Music placement, badges or game eligibility. Teacher filters remain authoritative.
