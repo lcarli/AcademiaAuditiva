@@ -141,6 +141,9 @@
     <value>Par type</value>
     <comment />
   </data>
+  <data name="Exercise.Tab3.Category" xml:space="preserve">
+    <value>Par catégorie</value>
+  </data>
   <data name="Exercise.Beginner" xml:space="preserve">
     <value>Débutant</value>
     <comment />
@@ -657,7 +660,7 @@
     <value>Voir les exercices de musique</value>
   </data>
   <data name="ExerciseCategory.Level" xml:space="preserve">
-    <value>Niveau</value>
+    <value>Niveau et gain</value>
   </data>
   <data name="ExerciseCategory.FrequencyEq" xml:space="preserve">
     <value>Fréquence et égalisation</value>
@@ -666,13 +669,13 @@
     <value>Dynamique</value>
   </data>
   <data name="ExerciseCategory.StereoPhase" xml:space="preserve">
-    <value>Stéréo et phase</value>
+    <value>Stéréo et polarité</value>
   </data>
   <data name="ExerciseCategory.SpaceTime" xml:space="preserve">
     <value>Espace et temps</value>
   </data>
   <data name="ExerciseCategory.CriticalListening" xml:space="preserve">
-    <value>Écoute critique</value>
+    <value>Écoute critique et diagnostic</value>
   </data>
   <data name="Exercise.SelectIntervalText" xml:space="preserve">
     <value>Veuillez sélectionner un intervalle.</value>

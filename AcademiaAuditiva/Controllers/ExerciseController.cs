@@ -104,7 +104,10 @@ namespace AcademiaAuditiva.Controllers
 			if (current is null)
 				return NotFound();
 
-			var all = await _context.Exercises.Include(e => e.ExerciseCategory).ToListAsync();
+			var all = await _context.Exercises
+				.Include(e => e.ExerciseCategory)
+				.Include(e => e.ExerciseType)
+				.ToListAsync();
 			var exercises = all.Where(e => TrackOf(e) == current.Key).ToList();
 			var tracks = TrainingTracks.All
 				.Where(t => t == current || all.Any(e => TrackOf(e) == t.Key))
@@ -113,8 +116,17 @@ namespace AcademiaAuditiva.Controllers
 			ViewBag.Tracks = tracks.Count > 1 ? tracks : new List<TrainingTrack>();
 			var difficulties = await _context.DifficultyLevels.OrderBy(d => d.Id).ToListAsync();
 			ViewBag.DifficultyLevels = difficulties;
-			var exerciseTypes = await _context.ExerciseTypes.OrderBy(t => t.Id).ToListAsync();
-			ViewBag.ExerciseTypes = exerciseTypes;
+			var categoryOrder = current.Categories.Select((name, index) => (name, index))
+				.ToDictionary(entry => entry.name, entry => entry.index, StringComparer.Ordinal);
+			ViewBag.ExerciseCategories = exercises.Select(e => e.ExerciseCategory)
+				.DistinctBy(category => category.Id)
+				.OrderBy(category => categoryOrder.GetValueOrDefault(category.Name, int.MaxValue))
+				.ThenBy(category => category.Id)
+				.ToList();
+			ViewBag.ExerciseTypes = exercises.Select(e => e.ExerciseType)
+				.DistinctBy(type => type.Id)
+				.OrderBy(type => type.Id)
+				.ToList();
 			return View(exercises);
 		}
 

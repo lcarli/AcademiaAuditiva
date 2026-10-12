@@ -103,10 +103,19 @@ linearly to zero at one octave, 6 dB and a 2:1 Q ratio. A weighted score above
 
 The Audio catalog's difficulty view lists each exercise under every level
 declared by its difficulty filter. Each Start link preselects that level on
-the exercise page; the type view lists the available levels together. The
-legacy seeded difficulty remains the default entry level, not a claim that
+the exercise page; the type and category views list the available levels
+together. The legacy seeded difficulty remains the default entry level, not a claim that
 every round is beginner-only. Music retains its existing single catalog
 classification. No score history or database migration is changed.
+
+The category view lists each exercise once, in the selected track's category
+order. Audio exposes its six existing areas: level and gain, frequency and EQ,
+dynamics, stereo and polarity, space and time, and critical listening and
+diagnosis. All three views identify each card's category with a localized badge.
+Category and type sections without exercises are omitted. Category keys and
+foreign keys stay unchanged, and category/type Start links retain the default
+entry level. The grouping tabs support keyboard navigation and wrap on narrow
+screens. Combined category/type/level filters remain a separate roadmap item.
 
 The public landing page introduces Music and Audio together, with dynamic
 exercise counts, four examples per track and links to the complete catalogs.
@@ -203,8 +212,9 @@ of its category. No column or migration was added. `ExerciseCatalog` fails at
 startup on a seeded category that no track lists, `CatalogExercise.Track`
 exposes the track and `ExerciseCatalog.ByTrack` groups categories by track.
 The Audio categories (`Level`, `FrequencyEq`, `Dynamics`, `StereoPhase`,
-`SpaceTime`, `CriticalListening`) are declared and named in all cultures but
-not seeded yet; Mix categories wait for Phase 3.
+`SpaceTime`, `CriticalListening`) are declared and named in all cultures and
+are now seeded by the Audio slices described below; Mix categories wait for
+Phase 3.
 
 `/Exercise` keeps listing Music; `/Exercise?track=audio` (case-insensitive)
 lists another track and an unknown track is a 404. The track selector only

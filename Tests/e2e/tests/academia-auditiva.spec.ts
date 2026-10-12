@@ -540,6 +540,90 @@ const expandedAudioComparisons = [
   ['EchoFeedback', 2, 'efLevel'], ['ReverbMix', 4, 'rmLevel'], ['NoiseDetection', 2, 'ndLevel'], ['MixProblem', 5, 'mpLevel'],
 ] as const;
 
+test('catalog categories stay localized, unique and keyboard accessible on narrow screens', async ({ page, baseURL }) => {
+  test.setTimeout(120_000);
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.setViewportSize({ width: 360, height: 900 });
+  const audioCategories = {
+    Level: ['LevelMatch'],
+    FrequencyEq: ['GuessFrequency', 'BoostOrCut', 'GuessQ', 'HighPassCutoff', 'LowPassCutoff', 'LowShelf', 'HighShelf', 'EqGain', 'EqMatching'],
+    Dynamics: ['Compression', 'CompressorAttack', 'CompressorRelease', 'CompressionRatio', 'CompressorThreshold'],
+    StereoPhase: ['StereoPosition', 'StereoWidth', 'ChannelPolarity'],
+    SpaceTime: ['ReverbPresence', 'ReverbDecay', 'ReverbPreDelay', 'EchoTime', 'EchoFeedback', 'ReverbMix'],
+    CriticalListening: ['Distortion', 'NoiseDetection', 'MixProblem'],
+  };
+  const categoryTitles = {
+    'en-US': ['Level and gain', 'Frequency and EQ', 'Dynamics', 'Stereo and polarity', 'Space and time', 'Critical listening and diagnosis'],
+    'pt-BR': ['Nível e ganho', 'Frequência e EQ', 'Dinâmica', 'Estéreo e polaridade', 'Espaço e tempo', 'Escuta crítica e diagnóstico'],
+    'fr-CA': ['Niveau et gain', 'Fréquence et égalisation', 'Dynamique', 'Stéréo et polarité', 'Espace et temps', 'Écoute critique et diagnostic'],
+  };
+  const tabTitles = { 'en-US': 'By Category', 'pt-BR': 'Por categoria', 'fr-CA': 'Par catégorie' };
+
+  for (const culture of cultures) {
+    for (const track of ['music', 'audio']) {
+      await page.goto(`${baseURL}/Exercise?track=${track}&culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
+      const difficultyNames = await page.locator('#byDifficulty [data-aa-exercise]')
+        .evaluateAll(cards => [...new Set(cards.map(card => card.getAttribute('data-aa-exercise')))].sort());
+      const categoryTab = page.locator('#category-tab');
+      await expect(categoryTab).toHaveText(tabTitles[culture]);
+      await categoryTab.focus();
+      await page.keyboard.press('Enter');
+      await expect(categoryTab).toHaveAttribute('aria-selected', 'true');
+      await expect(page.locator('#byCategory')).toBeVisible();
+      const categoryNames = await page.locator('#byCategory [data-aa-exercise]')
+        .evaluateAll(cards => cards.map(card => card.getAttribute('data-aa-exercise')).sort());
+      expect(categoryNames).toEqual(difficultyNames);
+      expect(new Set(categoryNames).size).toBe(categoryNames.length);
+      for (const section of await page.locator('#byCategory [data-aa-category]').all()) {
+        const category = await section.getAttribute('data-aa-category');
+        const cards = section.locator('[data-aa-exercise]');
+        expect(await cards.count()).toBeGreaterThan(0);
+        for (const card of await cards.all()) {
+          const name = await card.getAttribute('data-aa-exercise');
+          await expect(card.locator('[data-aa-category-badge]')).toHaveAttribute('data-aa-category-badge', category!);
+          await expect(card.locator('a')).toHaveAttribute('href', `/Exercise/${name}`);
+        }
+      }
+      if (track === 'audio') {
+        expect(await page.locator('#byCategory [data-aa-category]')
+          .evaluateAll(sections => sections.map(section => section.getAttribute('data-aa-category'))))
+          .toEqual(Object.keys(audioCategories));
+        await expect(page.locator('#byCategory h4')).toHaveText(categoryTitles[culture]);
+        for (const [category, names] of Object.entries(audioCategories)) {
+          const cards = page.locator(`#byCategory [data-aa-category="${category}"] [data-aa-exercise]`);
+          expect(await cards.evaluateAll(elements => elements.map(element => element.getAttribute('data-aa-exercise')).sort()))
+            .toEqual([...names].sort());
+        }
+      }
+
+      await categoryTab.focus();
+      await page.keyboard.press('ArrowRight');
+      await expect(page.locator('#type-tab')).toHaveAttribute('aria-selected', 'true');
+      await expect(page.locator('#byType')).toBeVisible();
+      for (const section of await page.locator('#byType [data-aa-type]').all()) {
+        expect(await section.locator('[data-aa-exercise]').count()).toBeGreaterThan(0);
+      }
+      if (track === 'audio') {
+        await expect(page.locator('#byType [data-aa-type]')).toHaveCount(1);
+        await expect(page.locator('#byType [data-aa-type]')).toHaveAttribute('data-aa-type', 'AudioComparison');
+      }
+      await page.keyboard.press('Home');
+      await expect(page.locator('#difficulty-tab')).toHaveAttribute('aria-selected', 'true');
+      await page.keyboard.press('End');
+      await expect(page.locator('#type-tab')).toHaveAttribute('aria-selected', 'true');
+
+      for (const theme of ['light', 'dark']) {
+        await page.evaluate(value => document.documentElement.setAttribute('data-bs-theme', value), theme);
+        for (const tab of ['difficulty', 'category', 'type']) {
+          await page.locator(`#${tab}-tab`).click();
+          await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth),
+            { message: `${track} catalog, ${tab}, ${culture}, ${theme}, 360px` }).toBe(0);
+        }
+      }
+    }
+  }
+});
+
 test('Audio catalog lists all supported difficulties and opens the selected level', async ({ page, baseURL }) => {
   test.setTimeout(120_000);
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
