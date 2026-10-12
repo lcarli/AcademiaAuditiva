@@ -1771,6 +1771,7 @@ public static class SeedData
         new Badge { BadgeKey = "first_session", Title = "Iniciador de Jornada", Description = "Primeira sessão realizada" },
         new Badge { BadgeKey = "10_sessions_week", Title = "10 Sessões em 1 Semana", Description = "Alta frequência semanal" },
         new Badge { BadgeKey = "daily_challenge_complete", Title = "Desafio Diário Completo", Description = "Completou um desafio do dia" },
+        new Badge { BadgeKey = "audio_first_contact", Title = "Primeiro Contato", Description = "Concluiu sua primeira sessão de áudio" },
 
         // Evolução
         new Badge { BadgeKey = "comeback_kid", Title = "Deu a Volta por Cima", Description = "Começou errando e depois passou de 80%" },
@@ -1780,6 +1781,7 @@ public static class SeedData
         new Badge { BadgeKey = "notable_progress", Title = "Evolução Notável", Description = "Melhorou em todas as categorias em 1 mês" },
         new Badge { BadgeKey = "resilient_ear", Title = "Resiliência Auditiva", Description = "Acertou após 3 erros seguidos" },
         new Badge { BadgeKey = "interval_tamer", Title = "Domador de Intervalos", Description = "10 sessões de intervalos com +80%" },
+        new Badge { BadgeKey = "audio_foundations_mastered", Title = "Fundamentos Dominados", Description = "Completou os três exercícios de fundamentos de áudio" },
 
         // Diversão
         new Badge { BadgeKey = "mission_addict", Title = "Viciado em Desafios", Description = "Completou 10 desafios do dia" },
@@ -1789,6 +1791,11 @@ public static class SeedData
         new Badge { BadgeKey = "all_rounder", Title = "Músico Completo", Description = "10 respostas em cada categoria de exercício" },
         new Badge { BadgeKey = "night_owl", Title = "Coruja da Noite", Description = "Começou uma sessão entre 22h e 5h" },
         new Badge { BadgeKey = "early_bird", Title = "Madrugador", Description = "Começou uma sessão entre 5h e 7h" },
+        new Badge { BadgeKey = "audio_explorer", Title = "Explorador Sonoro", Description = "Respondeu a todos os exercícios de áudio" },
         new Badge { BadgeKey = "badge_collector", Title = "Colecionador de Badges", Description = "Obteve 15 conquistas" },
+        new Badge { BadgeKey = "audio_level_match", Title = "Equilíbrio Perfeito", Description = "Acertou 10 questões de Level Match" },
+        new Badge { BadgeKey = "audio_stereo_position", Title = "Mestre do Panorama", Description = "Acertou 20 questões de Stereo Position" },
+        new Badge { BadgeKey = "audio_frequency_radar", Title = "Radar de Frequências", Description = "Acertou 20 questões de Guess Frequency" },
+        new Badge { BadgeKey = "audio_analytical_ear", Title = "Ouvido Analítico", Description = "Concluiu 3 sessões de áudio com ao menos 10 respostas e 80% de acerto" },
     ];
 }

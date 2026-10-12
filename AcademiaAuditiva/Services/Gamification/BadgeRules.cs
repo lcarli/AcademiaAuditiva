@@ -1,3 +1,4 @@
+using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.DailyChallenge;
 using AcademiaAuditiva.Services.LearningPath;
 
@@ -79,6 +80,14 @@ public static class BadgeRules
         BadgeKeys.DailyChallengeComplete => h.ChallengeDays.Count >= 1,
         BadgeKeys.Explorer => AllOf(h.ExerciseNames, name => h.PracticedNames.Contains(name)),
         BadgeKeys.FilterNinja => h.Sessions.Count(s => s.Any(h.UsedCustomFilters)) >= 5,
+        BadgeKeys.AudioFirstContact => PracticeSessions.Counted(h.AudioAnswers).Count > 0,
+        BadgeKeys.AudioLevelMatch => h.ResultsOf("LevelMatch").Count(correct => correct) >= 10,
+        BadgeKeys.AudioStereoPosition => h.ResultsOf("StereoPosition").Count(correct => correct) >= 20,
+        BadgeKeys.AudioFrequencyRadar => h.ResultsOf("GuessFrequency").Count(correct => correct) >= 20,
+        BadgeKeys.AudioAnalyticalEar => PracticeSessions.Counted(h.AudioAnswers)
+            .Count(session => session.Count >= 10 && PracticeSessions.AccuracyAtLeast(session, 80)) >= 3,
+        BadgeKeys.AudioExplorer => AllOf(h.AudioExercises, id => h.Results(id).Count > 0),
+        BadgeKeys.AudioFoundationsMastered => CompletedAudioFoundations(h),
 
         BadgeKeys.MasterChords => h.Exercises(e => e.Type == "ChordRecognition")
             .Count(id => PracticeSessions.HasWindow(h.Results(id), 20, 18)) >= 3,
@@ -157,6 +166,21 @@ public static class BadgeRules
     {
         var steps = LearningPathCatalog.Steps.Where(s => h.IdsByName.ContainsKey(s.Exercise)).ToList();
         return steps.Count > 0
+            && LearningPathEvaluator.Evaluate(steps, h.IdsByName, h.Answers).Steps.All(s => s.State == StepState.Completed);
+    }
+
+    private static bool CompletedAudioFoundations(History h)
+    {
+        var foundationExercises = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "LevelMatch", "StereoPosition", "GuessFrequency",
+        };
+        var steps = LearningPathCatalog.AudioUnits
+            .SelectMany(unit => unit.Steps)
+            .Where(step => foundationExercises.Contains(step.Exercise))
+            .ToList();
+        return steps.Count == foundationExercises.Count
+            && steps.All(step => h.IdsByName.ContainsKey(step.Exercise))
             && LearningPathEvaluator.Evaluate(steps, h.IdsByName, h.Answers).Steps.All(s => s.State == StepState.Completed);
     }
 
@@ -242,6 +266,7 @@ public static class BadgeRules
         private readonly Dictionary<int, List<List<PracticeAnswer>>> _sessionsByExercise = [];
         private readonly Dictionary<(int ExerciseId, string FilterJson), bool> _customFilters = [];
         private List<List<PracticeAnswer>>? _sessions;
+        private List<PracticeAnswer>? _audioAnswers;
         private int? _bestStreak;
         private HashSet<string>? _exerciseNames;
         private HashSet<string>? _practicedNames;
@@ -272,6 +297,16 @@ public static class BadgeRules
 
         /// <summary>Counted sessions across all exercises.</summary>
         public List<List<PracticeAnswer>> Sessions => _sessions ??= PracticeSessions.Counted(Answers);
+
+        /// <summary>Answers to exercises in the Audio training track.</summary>
+        public IReadOnlyList<PracticeAnswer> AudioAnswers => _audioAnswers ??= Answers
+            .Where(a => _exercises.TryGetValue(a.ExerciseId, out var exercise)
+                && TrainingTracks.OfCategory(exercise.Category) == TrainingTracks.Audio)
+            .ToList();
+
+        /// <summary>Every known Audio exercise, practiced or not.</summary>
+        public IEnumerable<int> AudioExercises =>
+            Exercises(e => TrainingTracks.OfCategory(e.Category) == TrainingTracks.Audio);
 
         public int BestStreak => _bestStreak ??=
             PracticeStreak.Compute(Answers.Select(a => a.Timestamp), TimeZone, NowUtc).Best;

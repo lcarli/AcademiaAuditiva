@@ -23,7 +23,7 @@ at 40 px. Badges carry no words, because the site comes in three languages.
 
 ## Status
 
-All 18 badges players can earn are in the app. The file in brackets is the original PNG, kept outside the repository.
+All 25 badges players can earn are in the app. The file in brackets is the original PNG, kept outside the repository.
 
 | # | Key | Title (pt-BR) | Group | Status |
 |---|-----|---------------|-------|--------|
@@ -45,6 +45,13 @@ All 18 badges players can earn are in the app. The file in brackets is the origi
 | 16 | `resilient_ear` | Ouvido resiliente | Progress | Approved (`Emerald Shield Check Badge.png`) |
 | 17 | `interval_tamer` | Domador de intervalos | Progress | Approved (`Emerald Musical Notes Badge.png`) |
 | 18 | `badge_collector` | Colecionador de conquistas | Fun | Approved, magenta reference (`Gemstone Music Medal Badge.png`) |
+| 19 | `audio_first_contact` | Primeiro Contato 🎧 | Dedication | Approved (`Primeiro_Contato.png`) |
+| 20 | `audio_level_match` | Equilíbrio Perfeito | Mastery | Approved (`Equilibrio_Perfeito.png`) |
+| 21 | `audio_stereo_position` | Mestre do Panorama | Mastery | Approved (`Mestre_do_Panorama.png`) |
+| 22 | `audio_frequency_radar` | Radar de Frequências | Mastery | Approved (`Radar_de_Frequencias.png`) |
+| 23 | `audio_analytical_ear` | Ouvido Analítico | Mastery | Approved (`Ouvido_Analitico.png`) |
+| 24 | `audio_foundations_mastered` | Fundamentos Dominados | Progress | Approved (`Fundamentos_Dominados.png`) |
+| 25 | `audio_explorer` | Explorador Sonoro | Fun | Approved (`Explorador_Sonoro.png`) |
 
 The 15 [hidden badges](#hidden-badges) are at the end. Their rules are in the app; each one is released once its art
 is approved.

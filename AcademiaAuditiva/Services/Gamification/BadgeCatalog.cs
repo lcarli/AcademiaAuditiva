@@ -26,6 +26,8 @@ public static class BadgeKeys
     public const string DailyChallengeComplete = "daily_challenge_complete";
     public const string Explorer = "explorer";
     public const string FilterNinja = "filter_ninja";
+    public const string AudioFirstContact = "audio_first_contact";
+    public const string AudioExplorer = "audio_explorer";
 
     public const string MasterChords = "master_chords";
     public const string SharpListener = "sharp_listener";
@@ -33,6 +35,10 @@ public static class BadgeKeys
     public const string MelodyExplorer = "melody_explorer";
     public const string ScaleClimber = "scale_climber";
     public const string PerfectSession = "perfect_session";
+    public const string AudioLevelMatch = "audio_level_match";
+    public const string AudioStereoPosition = "audio_stereo_position";
+    public const string AudioFrequencyRadar = "audio_frequency_radar";
+    public const string AudioAnalyticalEar = "audio_analytical_ear";
 
     public const string ComebackKid = "comeback_kid";
     public const string AdvancedConqueror = "advanced_conqueror";
@@ -41,6 +47,7 @@ public static class BadgeKeys
     public const string ResilientEar = "resilient_ear";
     public const string IntervalTamer = "interval_tamer";
     public const string TotalMastery = "total_mastery";
+    public const string AudioFoundationsMastered = "audio_foundations_mastered";
 
     public const string MissionAddict = "mission_addict";
     public const string Speedster = "speedster";
@@ -75,6 +82,7 @@ public static class BadgeCatalog
         new(BadgeKeys.DailyChallengeComplete, BadgeGroup.Dedication, IsAvailable: false),
         new(BadgeKeys.Explorer, BadgeGroup.Dedication, IsAvailable: false),
         new(BadgeKeys.FilterNinja, BadgeGroup.Dedication, IsAvailable: false),
+        new(BadgeKeys.AudioFirstContact, BadgeGroup.Dedication),
 
         new(BadgeKeys.MasterChords, BadgeGroup.Mastery),
         new(BadgeKeys.SharpListener, BadgeGroup.Mastery),
@@ -82,6 +90,10 @@ public static class BadgeCatalog
         new(BadgeKeys.MelodyExplorer, BadgeGroup.Mastery),
         new(BadgeKeys.ScaleClimber, BadgeGroup.Mastery),
         new(BadgeKeys.PerfectSession, BadgeGroup.Mastery, IsAvailable: false),
+        new(BadgeKeys.AudioLevelMatch, BadgeGroup.Mastery),
+        new(BadgeKeys.AudioStereoPosition, BadgeGroup.Mastery),
+        new(BadgeKeys.AudioFrequencyRadar, BadgeGroup.Mastery),
+        new(BadgeKeys.AudioAnalyticalEar, BadgeGroup.Mastery),
 
         new(BadgeKeys.ComebackKid, BadgeGroup.Progress),
         new(BadgeKeys.AdvancedConqueror, BadgeGroup.Progress),
@@ -90,6 +102,7 @@ public static class BadgeCatalog
         new(BadgeKeys.ResilientEar, BadgeGroup.Progress),
         new(BadgeKeys.IntervalTamer, BadgeGroup.Progress),
         new(BadgeKeys.TotalMastery, BadgeGroup.Progress, IsAvailable: false),
+        new(BadgeKeys.AudioFoundationsMastered, BadgeGroup.Progress),
 
         new(BadgeKeys.MissionAddict, BadgeGroup.Fun, IsAvailable: false),
         new(BadgeKeys.Speedster, BadgeGroup.Fun, IsAvailable: false),
@@ -98,6 +111,7 @@ public static class BadgeCatalog
         new(BadgeKeys.AllRounder, BadgeGroup.Fun, IsAvailable: false),
         new(BadgeKeys.NightOwl, BadgeGroup.Fun, IsAvailable: false),
         new(BadgeKeys.EarlyBird, BadgeGroup.Fun, IsAvailable: false),
+        new(BadgeKeys.AudioExplorer, BadgeGroup.Fun),
         new(BadgeKeys.BadgeCollector, BadgeGroup.Fun),
     ];
 

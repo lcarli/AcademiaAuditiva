@@ -3856,6 +3856,48 @@
   <data name="Badge.early_bird.Description" xml:space="preserve">
     <value>Commencez une séance de pratique entre 5 h et 7 h.</value>
   </data>
+  <data name="Badge.audio_first_contact.Title" xml:space="preserve">
+    <value>Premier contact 🎧</value>
+  </data>
+  <data name="Badge.audio_first_contact.Description" xml:space="preserve">
+    <value>Terminez votre première séance d’entraînement audio.</value>
+  </data>
+  <data name="Badge.audio_level_match.Title" xml:space="preserve">
+    <value>Équilibre parfait</value>
+  </data>
+  <data name="Badge.audio_level_match.Description" xml:space="preserve">
+    <value>Réussissez 10 questions de comparaison de niveau.</value>
+  </data>
+  <data name="Badge.audio_stereo_position.Title" xml:space="preserve">
+    <value>Maître du panoramique</value>
+  </data>
+  <data name="Badge.audio_stereo_position.Description" xml:space="preserve">
+    <value>Réussissez 20 questions de position stéréo.</value>
+  </data>
+  <data name="Badge.audio_frequency_radar.Title" xml:space="preserve">
+    <value>Radar des fréquences</value>
+  </data>
+  <data name="Badge.audio_frequency_radar.Description" xml:space="preserve">
+    <value>Réussissez 20 questions de reconnaissance des fréquences.</value>
+  </data>
+  <data name="Badge.audio_analytical_ear.Title" xml:space="preserve">
+    <value>Oreille analytique</value>
+  </data>
+  <data name="Badge.audio_analytical_ear.Description" xml:space="preserve">
+    <value>Terminez 3 séances audio d’au moins 10 réponses avec 80 % de réussite chacune.</value>
+  </data>
+  <data name="Badge.audio_explorer.Title" xml:space="preserve">
+    <value>Explorateur sonore</value>
+  </data>
+  <data name="Badge.audio_explorer.Description" xml:space="preserve">
+    <value>Répondez à au moins une question dans chaque exercice audio disponible.</value>
+  </data>
+  <data name="Badge.audio_foundations_mastered.Title" xml:space="preserve">
+    <value>Fondements maîtrisés</value>
+  </data>
+  <data name="Badge.audio_foundations_mastered.Description" xml:space="preserve">
+    <value>Terminez les trois exercices de base du parcours audio.</value>
+  </data>
   <data name="Header.LearningPath" xml:space="preserve">
     <value>Parcours</value>
   </data>
