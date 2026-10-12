@@ -293,5 +293,27 @@ class GitImpactTests(unittest.TestCase):
         self.assertIn("does not match", result.stderr)
 
 
+class DeploymentWorkflowTests(unittest.TestCase):
+    def setUp(self):
+        workflow = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "cd.yml"
+        self.before_deploy, self.deploy_job = workflow.read_text(encoding="utf-8").split("\n  build-and-deploy:\n", 1)
+
+    def test_automatic_deploy_overrides_transitive_skipped_manual_ci(self):
+        condition = next(line.strip() for line in self.deploy_job.splitlines() if line.strip().startswith("if:"))
+        self.assertIn("!cancelled()", condition)
+        self.assertIn("needs.validated-source.result == 'success'", condition)
+        self.assertIn("needs.validated-source.outputs.deploy == 'true'", condition)
+
+    def test_production_registry_is_resolved_in_the_environment_job(self):
+        self.assertNotIn("ACR_NAME:", self.before_deploy)
+        self.assertIn("environment: production", self.deploy_job)
+        self.assertIn("ACR_NAME: ${{ vars.ACR_NAME }}", self.deploy_job)
+        self.assertLess(
+            self.deploy_job.index("Verify production configuration"),
+            self.deploy_job.index("Azure login (OIDC)"),
+        )
+        self.assertIn('test -n "$ACR_NAME"', self.deploy_job)
+
+
 if __name__ == "__main__":
     unittest.main()
