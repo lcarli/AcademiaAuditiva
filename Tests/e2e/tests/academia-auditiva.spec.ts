@@ -1027,6 +1027,69 @@ test('EQ Matching auditions continuous settings and keeps replay available after
   await expect(page.locator('[data-aa-ab-status]')).toHaveText(/ready|Playing/);
 });
 
+test('EQ Matching pilot explains failed criteria even with high partial credit in every culture', async ({ page, baseURL }) => {
+  test.setTimeout(120_000);
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.setViewportSize({ width: 360, height: 900 });
+  const policy = { 'en-US': 'Pilot rule v2', 'pt-BR': 'Regra piloto v2', 'fr-CA': 'Règle pilote v2' };
+  for (const culture of cultures) {
+    await page.goto(`${baseURL}/Exercise/EqMatching?practice=free&culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
+    await closeTourIfStarted(page);
+    const messages = await page.locator('#localizer').evaluate(element => ({
+      gain: element.getAttribute('data-failure-gain')!,
+      direction: element.getAttribute('data-failure-direction')!,
+      frequency: element.getAttribute('data-failure-frequency')!,
+      q: element.getAttribute('data-failure-q')!,
+    }));
+    for (const criterion of ['gain', 'direction', 'frequency', 'q'] as const) {
+      const playing = page.waitForResponse(response => response.url().includes('/Exercise/RequestPlay') && response.ok());
+      await page.locator('#Play').click();
+      const round = await (await playing).json();
+      expect(Object.keys(round)).toEqual(['roundId', 'clips']);
+      const reveal = await page.request.post(`${baseURL}/Exercise/RevealAnswer`, {
+        headers: { 'RequestVerificationToken': (await page.locator('meta[name="request-verification-token"]').getAttribute('content'))! },
+        data: { exerciseId: Number(await page.locator('#exerciseId').inputValue()), roundId: round.roundId },
+      });
+      expect(reveal.ok()).toBe(true);
+      const revealed = await reveal.json();
+      const [frequency, gain, q] = revealed.answer.split('|').map(Number);
+      const selectedFrequency = criterion === 'frequency' ? frequency * Math.pow(2, 450 / 1200) : frequency;
+      const selectedGain = criterion === 'direction' ? 0 : criterion === 'gain'
+        ? Math.sign(gain) * (Math.abs(gain) - Math.min(3, Math.abs(gain) / 2) - 0.2)
+        : gain;
+      const selectedQ = criterion === 'q' ? q * 1.6 : q;
+      for (const [id, value] of [
+        ['eqFrequency', Math.round(Math.log(selectedFrequency / 60) / Math.log(200) * 1000)],
+        ['eqGain', Math.round(selectedGain * 10) / 10],
+        ['eqQ', Math.round(selectedQ * 20) / 20],
+      ] as const) {
+        await page.locator(`#${id}`).evaluate((element: HTMLInputElement, setting) => {
+          element.value = String(setting);
+          element.dispatchEvent(new Event('input', { bubbles: true }));
+        }, value);
+      }
+      const validated = page.waitForResponse(response => response.url().includes('/Exercise/ValidateExercise') && response.ok());
+      await page.locator('#validateGuess').click();
+      const result = await (await validated).json();
+      expect(result.success).toBe(true);
+      expect(result.isCorrect).toBe(false);
+      expect(result.free).toBe(true);
+      expect(result.detail.scoringVersion).toBe(2);
+      expect(result.detail.failedCriteria).toContain(criterion);
+      if (criterion !== 'direction') {
+        expect(result.detail.score).toBeGreaterThan(0.8);
+        expect(result.detail.failedCriteria).toEqual([criterion]);
+      }
+      await expect(page.locator('.swal2-html-container')).toContainText(policy[culture]);
+      await expect(page.locator('.swal2-html-container')).toContainText(messages[criterion]);
+      await expect(page.locator('.swal2-html-container')).not.toContainText('undefined');
+      await expect(page.locator('.swal2-icon.swal2-error')).toBeVisible();
+      await page.locator('.swal2-confirm').click();
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+    }
+  }
+});
+
 test('EQ Matching knobs respond to touch dragging on a phone', async ({ browser, browserName, baseURL }) => {
   test.skip(browserName !== 'chromium', 'Touch dragging uses the Chromium input protocol.');
   const context = await browser.newContext({

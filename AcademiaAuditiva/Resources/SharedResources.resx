@@ -5545,9 +5545,9 @@
   <data name="Home.Faq7.A" xml:space="preserve"><value>Compare versions of the same licensed music excerpt and identify a controlled change. Tone, dynamics and effects comparisons use matched loudness; level exercises deliberately change it. Advanced profiles use subtler differences. Start at a comfortable volume, and use stereo headphones or speakers for stereo exercises. No studio software is needed.</value></data>
   <data name="EqMatching" xml:space="preserve"><value>EQ Matching</value></data>
   <data name="Exercise.EqMatching.Subtitle" xml:space="preserve"><value>Shape an EQ by listening, not by looking.</value></data>
-  <data name="Exercise.EqMatching.Instructions" xml:space="preserve"><value>Compare A, the original, with B, the hidden EQ target. Adjust frequency, gain and Q, then audition your settings on A. A and B have matched loudness.</value></data>
+  <data name="Exercise.EqMatching.Instructions" xml:space="preserve"><value>Compare A, the original, with B, the hidden EQ target. Adjust frequency, gain and Q, then audition your settings on A. A and B have matched loudness. New rounds use pilot rule v2 at every level: weighted accuracy must exceed 80%, boost/cut direction must match, frequency error must be at most 400 cents, gain error must be at most 3 dB or half the target magnitude (whichever is smaller), and Q must be between the target divided by 1.5 and multiplied by 1.5.</value></data>
   <data name="Exercise.EqMatching.Tip1" xml:space="preserve"><value>Move the center frequency first and listen for the region that changes.</value></data>
-  <data name="Exercise.EqMatching.Tip2" xml:space="preserve"><value>Use a modest gain adjustment; the score rewards matching the curve, not making the clip louder.</value></data>
+  <data name="Exercise.EqMatching.Tip2" xml:space="preserve"><value>Match both boost/cut direction and gain amount. A high overall percentage cannot compensate for a parameter outside its limit.</value></data>
   <data name="Exercise.EqMatching.Tip3" xml:space="preserve"><value>Q controls bandwidth: a lower Q affects a wider area around the center frequency.</value></data>
   <data name="Exercise.EqMatching.Question" xml:space="preserve"><value>Match the frequency, gain and Q of the EQ you hear.</value></data>
   <data name="Exercise.EqMatching.New" xml:space="preserve"><value>New EQ target</value></data>
@@ -5565,6 +5565,14 @@
   <data name="Exercise.EqMatching.KnobHelp" xml:space="preserve"><value>Drag up or right to increase. Use arrow keys, or hold Shift while dragging for fine adjustment.</value></data>
   <data name="Exercise.EqMatching.Incomplete" xml:space="preserve"><value>Generate a target before checking your EQ match.</value></data>
   <data name="Exercise.EqMatching.Feedback" xml:space="preserve"><value>Weighted match: {0}%. Target: {1} Hz, {2} dB, Q {3}. Your settings: {4} Hz, {5} dB, Q {6}.</value></data>
+  <data name="Exercise.EqMatching.PilotRule" xml:space="preserve"><value>Pilot rule v2: a correct match needs more than 80% accuracy, the correct boost/cut direction and every parameter within its limit. The percentage still shows partial credit.</value></data>
+  <data name="Exercise.EqMatching.LegacyRule" xml:space="preserve"><value>Legacy rule v1: this round started under the previous rule and is correct only when weighted accuracy exceeds 80%.</value></data>
+  <data name="Exercise.EqMatching.Failure.Direction" xml:space="preserve"><value>Direction: match the target's boost or cut. Zero gain does not count.</value></data>
+  <data name="Exercise.EqMatching.Failure.Frequency" xml:space="preserve"><value>Frequency: the error exceeds 400 cents (one third of an octave).</value></data>
+  <data name="Exercise.EqMatching.Failure.Gain" xml:space="preserve"><value>Gain: the error exceeds 3 dB or half the target's gain magnitude, whichever is smaller.</value></data>
+  <data name="Exercise.EqMatching.Failure.Q" xml:space="preserve"><value>Q: choose a value between the target divided by 1.5 and multiplied by 1.5.</value></data>
+  <data name="Exercise.EqMatching.Failure.Score" xml:space="preserve"><value>Overall accuracy: the weighted percentage must be strictly greater than 80%.</value></data>
+  <data name="Exercise.EqMatching.Failure.InvalidGuess" xml:space="preserve"><value>Settings: submit valid frequency, gain and Q values within the control limits.</value></data>
   <data name="Exercise.EqMatching.PreviewError" xml:space="preserve"><value>The EQ preview could not be played.</value></data>
   <data name="Exercise.EqMatching.Level.Beginner" xml:space="preserve"><value>Beginner · 250 Hz–4 kHz</value></data>
   <data name="Exercise.EqMatching.Level.Intermediate" xml:space="preserve"><value>Intermediate · 120 Hz–8 kHz</value></data>

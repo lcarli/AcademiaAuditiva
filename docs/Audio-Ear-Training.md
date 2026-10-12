@@ -97,9 +97,39 @@ target; the learner can audition each proposal before choosing one. EQ Matching'
 rotary controls participate in the shared exercise tutorial. Playback
 controls wrap on narrow screens, including Mix Problem's five candidate repairs.
 EQ Matching uses frequency, gain and Q weights of 50%, 30% and 20%. Errors receive full
-credit within 200 cents, 1.5 dB and 20% Q respectively, then lose credit
-linearly to zero at one octave, 6 dB and a 2:1 Q ratio. A weighted score above
-80% is correct. Continuous full-mix challenges remain on the roadmap.
+credit within 200 cents, 1.5 dB and a 1.2:1 Q ratio respectively, then lose
+credit linearly to zero at one octave, 6 dB and a 2:1 Q ratio. This percentage
+continues to report partial accuracy.
+
+**EQ Matching pilot rule v2 (product decision, 2026-10-12).** A new round is
+correct only when its weighted score is strictly above 80% **and** every
+criterion below passes:
+
+| Criterion | Inclusive individual limit |
+|---|---|
+| Direction | Same boost/cut sign as the target; zero gain never passes |
+| Frequency | At most 400 cents (one third of an octave) of logarithmic error |
+| Gain | At most `min(3 dB, abs(target gain) / 2)` of absolute error |
+| Q | Between `target Q / 1.5` and `target Q * 1.5` |
+
+The same pilot limits apply to beginner, intermediate and advanced; these are
+initial product criteria, not a claim of psychoacoustically validated
+tolerances. For a +3 dB target, the gain must be between +1.5 and +4.5 dB.
+Passing each limit alone does not replace the weighted-score threshold.
+Post-validation feedback preserves the percentage and lists every failed
+criterion, including insufficient overall accuracy or malformed settings.
+It does not disclose targets before validation in a scored round.
+
+New server-generated expected answers carry `scoringVersion: 2`; missing or
+explicit version 1 keeps the original score-only rule for already-issued
+rounds. Invalid/unsupported explicit versions are errors, not legacy fallbacks.
+The validator's applied version is recorded as trusted `eqmScoringVersion`
+metadata in new scored snapshots' existing `FilterJson`, never selected by the
+client. Old snapshots retain their stored `IsCorrect`, metadata, XP and
+progress; no reclassification or schema migration occurs. Free practice uses
+the same validation rule but still writes no scores or rewards.
+
+Continuous full-mix challenges remain on the roadmap.
 
 The Audio catalog's difficulty view lists each exercise under every level
 declared by its difficulty filter. Each Start link preselects that level on

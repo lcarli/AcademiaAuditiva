@@ -5541,9 +5541,9 @@
   <data name="Home.Faq7.A" xml:space="preserve"><value>Comparez des versions du même extrait musical sous licence et identifiez un changement contrôlé. Les comparaisons de timbre, de dynamique et d’effets ont une sonie équivalente ; les exercices de niveau la modifient volontairement. Les profils avancés utilisent des différences plus subtiles. Commencez à un volume confortable et utilisez un casque ou des enceintes stéréo pour les exercices de stéréo. Aucun logiciel de studio n’est nécessaire.</value></data>
   <data name="EqMatching" xml:space="preserve"><value>Correspondance d’égalisation</value></data>
   <data name="Exercise.EqMatching.Subtitle" xml:space="preserve"><value>Façonnez une égalisation à l’écoute, sans regarder les paramètres.</value></data>
-  <data name="Exercise.EqMatching.Instructions" xml:space="preserve"><value>Comparez A, l’original, à B, la cible d’égalisation masquée. Réglez la fréquence, le gain et le Q, puis écoutez vos réglages appliqués à A. A et B ont une sonie équivalente.</value></data>
+  <data name="Exercise.EqMatching.Instructions" xml:space="preserve"><value>Comparez A, l’original, à B, la cible d’égalisation masquée. Réglez la fréquence, le gain et le Q, puis écoutez vos réglages appliqués à A. A et B ont une sonie équivalente. Les nouvelles rondes utilisent la règle pilote v2 à tous les niveaux : précision pondérée supérieure à 80 %, accentuation/atténuation dans le bon sens, erreur de fréquence d’au plus 400 cents, erreur de gain d’au plus 3 dB ou la moitié de l’amplitude du gain cible (la plus petite limite), et Q entre la cible divisée par 1,5 et multipliée par 1,5.</value></data>
   <data name="Exercise.EqMatching.Tip1" xml:space="preserve"><value>Déplacez d’abord la fréquence centrale et écoutez la région qui change.</value></data>
-  <data name="Exercise.EqMatching.Tip2" xml:space="preserve"><value>Faites des réglages de gain modérés ; le pointage récompense la courbe, pas un signal plus fort.</value></data>
+  <data name="Exercise.EqMatching.Tip2" xml:space="preserve"><value>Reproduisez le sens de l’accentuation/atténuation et l’amplitude du gain. Un pourcentage global élevé ne compense pas un paramètre hors limite.</value></data>
   <data name="Exercise.EqMatching.Tip3" xml:space="preserve"><value>Le Q règle la largeur : un Q plus faible affecte une zone plus large autour de la fréquence centrale.</value></data>
   <data name="Exercise.EqMatching.Question" xml:space="preserve"><value>Reproduisez la fréquence, le gain et le Q de l’égalisation entendue.</value></data>
   <data name="Exercise.EqMatching.New" xml:space="preserve"><value>Nouvelle cible d’égalisation</value></data>
@@ -5561,6 +5561,14 @@
   <data name="Exercise.EqMatching.KnobHelp" xml:space="preserve"><value>Glissez vers le haut ou la droite pour augmenter. Utilisez les flèches ou maintenez Maj en glissant pour un réglage fin.</value></data>
   <data name="Exercise.EqMatching.Incomplete" xml:space="preserve"><value>Générez une cible avant de vérifier votre égalisation.</value></data>
   <data name="Exercise.EqMatching.Feedback" xml:space="preserve"><value>Correspondance pondérée : {0} %. Cible : {1} Hz, {2} dB, Q {3}. Vos réglages : {4} Hz, {5} dB, Q {6}.</value></data>
+  <data name="Exercise.EqMatching.PilotRule" xml:space="preserve"><value>Règle pilote v2 : une réponse correcte exige plus de 80 % de précision, le bon sens d’accentuation/atténuation et chaque paramètre dans sa limite. Le pourcentage montre toujours le crédit partiel.</value></data>
+  <data name="Exercise.EqMatching.LegacyRule" xml:space="preserve"><value>Ancienne règle v1 : cette ronde a commencé sous la règle précédente et est correcte seulement si la précision pondérée dépasse 80 %.</value></data>
+  <data name="Exercise.EqMatching.Failure.Direction" xml:space="preserve"><value>Sens : reproduisez l’accentuation ou l’atténuation cible. Un gain nul ne compte pas.</value></data>
+  <data name="Exercise.EqMatching.Failure.Frequency" xml:space="preserve"><value>Fréquence : l’erreur dépasse 400 cents (un tiers d’octave).</value></data>
+  <data name="Exercise.EqMatching.Failure.Gain" xml:space="preserve"><value>Gain : l’erreur dépasse 3 dB ou la moitié de l’amplitude du gain cible, selon la plus petite limite.</value></data>
+  <data name="Exercise.EqMatching.Failure.Q" xml:space="preserve"><value>Q : choisissez une valeur entre la cible divisée par 1,5 et multipliée par 1,5.</value></data>
+  <data name="Exercise.EqMatching.Failure.Score" xml:space="preserve"><value>Précision globale : le pourcentage pondéré doit être strictement supérieur à 80 %.</value></data>
+  <data name="Exercise.EqMatching.Failure.InvalidGuess" xml:space="preserve"><value>Réglages : envoyez des valeurs valides de fréquence, de gain et de Q dans les limites des commandes.</value></data>
   <data name="Exercise.EqMatching.PreviewError" xml:space="preserve"><value>Impossible de lire l’aperçu d’égalisation.</value></data>
   <data name="Exercise.EqMatching.Level.Beginner" xml:space="preserve"><value>Débutant · 250 Hz–4 kHz</value></data>
   <data name="Exercise.EqMatching.Level.Intermediate" xml:space="preserve"><value>Intermédiaire · 120 Hz–8 kHz</value></data>
