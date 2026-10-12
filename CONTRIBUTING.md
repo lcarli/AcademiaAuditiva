@@ -106,6 +106,14 @@ Manual CD still runs the full CI first. Do not replace
 job-level selection with top-level workflow path exclusions: required
 checks must still report their outcome for lightweight PRs.
 
+Automatic deployment skips the manual-only CI job, so the deploy job's
+condition must explicitly override GitHub Actions' implicit status check
+while still requiring the validated-source job to succeed and authorize
+deployment. Production environment variables (notably `ACR_NAME`) are
+resolved in the deployment job, not at workflow scope. Verify the actual
+deploy job and production version; an overall green CD with a skipped
+deploy job is not proof of a release.
+
 ## Security review
 
 Any change that touches authentication, authorization, secrets, file
