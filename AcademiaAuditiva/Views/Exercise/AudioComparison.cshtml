@@ -51,7 +51,7 @@
                     </div>
                     <div class="aa-bc-divider" aria-hidden="true"><span>EQ</span></div>
                     <p class="aa-bc-prompt">@Localizer["Exercise.BoostOrCut.DirectionPrompt"]</p>
-                    <div class="aa-bc-directions" role="group" aria-label="@Localizer["Exercise.BoostOrCut.DirectionPrompt"]">
+                    <div class="aa-bc-directions" data-tour="answer" role="group" aria-label="@Localizer["Exercise.BoostOrCut.DirectionPrompt"]">
                         <button type="button" class="aa-bc-direction aa-bc-boost" data-bc-direction="boost" aria-pressed="false">
                             <span aria-hidden="true">＋</span>@Localizer["Exercise.BoostOrCut.Direction.boost"]
                         </button>
@@ -60,7 +60,7 @@
                         </button>
                     </div>
                     <p class="aa-bc-prompt">@Localizer["Exercise.BoostOrCut.RegionPrompt"]</p>
-                    <div class="aa-bc-bands" role="group" aria-label="@Localizer["Exercise.BoostOrCut.RegionPrompt"]">
+                    <div class="aa-bc-bands" data-tour="answer" role="group" aria-label="@Localizer["Exercise.BoostOrCut.RegionPrompt"]">
                         @foreach (var (region, frequency) in boostCutRegions)
                         {
                             <button type="button" class="aa-bc-band aa-answer guessAnswer" value="@region"

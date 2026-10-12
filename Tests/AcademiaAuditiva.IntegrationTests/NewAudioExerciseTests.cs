@@ -50,7 +50,9 @@ public class NewAudioExerciseTests : IDisposable
         if (exercise == "BoostOrCut")
         {
             html.Should().Contain("data-bc-direction=\"boost\"").And.Contain("data-bc-direction=\"cut\"")
-                .And.Contain("data-bc-direction=\"boost\"").And.Contain("value=\"sub\"").And.Contain("value=\"air\"")
+                .And.Contain("class=\"aa-bc-directions\" data-tour=\"answer\"")
+                .And.Contain("class=\"aa-bc-bands\" data-tour=\"answer\"")
+                .And.Contain("value=\"sub\"").And.Contain("value=\"air\"")
                 .And.Contain("125 Hz").And.Contain("8 kHz");
             foreach (var answer in AudioComparisonCatalog.Find(exercise)!.Answers)
                 html.Should().Contain($"value=\"{answer.Split('|')[1]}\"");
