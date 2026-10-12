@@ -5158,6 +5158,10 @@
   <data name="Exercise.BoostOrCut.Tip2" xml:space="preserve"><value>Une accentuation met une région en avant ; une atténuation la retire par rapport au reste.</value></data>
   <data name="Exercise.BoostOrCut.Tip3" xml:space="preserve"><value>Les sept fréquences centrales vont de 100 Hz à 8 kHz. Le gain passe de 9 à 6 puis à 3 dB avec la difficulté.</value></data>
   <data name="Exercise.BoostOrCut.Question" xml:space="preserve"><value>Quel changement entendez-vous dans B ?</value></data>
+  <data name="Exercise.BoostOrCut.ChannelTitle" xml:space="preserve"><value>Égaliseur paramétrique · accentuation ou atténuation</value></data>
+  <data name="Exercise.BoostOrCut.ChannelMode" xml:space="preserve"><value>Écoute sur 7 bandes</value></data>
+  <data name="Exercise.BoostOrCut.DirectionPrompt" xml:space="preserve"><value>1 · Choisissez la direction</value></data>
+  <data name="Exercise.BoostOrCut.RegionPrompt" xml:space="preserve"><value>2 · Choisissez la région de fréquence</value></data>
   <data name="Exercise.BoostOrCut.New" xml:space="preserve"><value>Nouvelle comparaison</value></data>
   <data name="Exercise.BoostOrCut.Incomplete" xml:space="preserve"><value>Générez une comparaison et choisissez une direction et une région avant de valider.</value></data>
   <data name="Exercise.BoostOrCut.Level.Beginner" xml:space="preserve"><value>Débutant · 9 dB</value></data>

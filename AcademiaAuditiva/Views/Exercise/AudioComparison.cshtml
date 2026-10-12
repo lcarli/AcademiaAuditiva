@@ -8,6 +8,11 @@
     var definition = AudioComparisonCatalog.Find(name) ?? throw new InvalidOperationException("Unknown Audio comparison.");
     var expanded = AudioComparisonCatalog.Expansion.Contains(definition);
     var options = definition.Answers;
+    var boostCutRegions = new[]
+    {
+        ("sub", 100), ("bass", 125), ("lowMids", 250), ("mids", 1000),
+        ("upperMids", 2000), ("presence", 4000), ("air", 8000),
+    };
     if (name == "MixProblem")
     {
         ViewData["ABExtraClips"] = options.Select((option, index) => (
@@ -17,40 +22,91 @@
     }
 }
 
+@if (name == "BoostOrCut")
+{
+    <link rel="stylesheet" href="~/css/boost-cut-console.css" asp-append-version="true" />
+}
 @await Html.PartialAsync("_ExerciseHeader", Model)
 <input type="hidden" id="exerciseId" value="@Model.ExerciseId" />
 <div class="row g-4">
     <div class="col-lg-8 order-lg-2">
         <section class="aa-panel" aria-labelledby="aa-question">
             <h2 id="aa-question" class="aa-question">@Localizer[prefix + "Question"]</h2>
-            <div class="d-flex justify-content-center mb-4">
-                <button type="button" id="Play" class="btn btn-primary px-4" data-aa-audio-unlock>
-                    <i class="bi bi-shuffle me-1" aria-hidden="true"></i>@Localizer[expanded ? "Exercise.AudioComparison.New" : prefix + "New"]
-                </button>
-            </div>
-            @if (definition.ReferenceIsA)
+            @if (name == "BoostOrCut")
             {
-                <p class="text-center text-body-secondary">@Localizer[expanded ? "Exercise.AudioComparison.ReferenceGeneric" : "Exercise.AudioComparison.Reference"]</p>
+                <div class="aa-bc-console">
+                    <header class="aa-bc-header">
+                        <div>
+                            <span class="aa-bc-model">AA / TONE-01</span>
+                            <h3>@Localizer["Exercise.BoostOrCut.ChannelTitle"]</h3>
+                        </div>
+                        <span class="aa-bc-mode">@Localizer["Exercise.BoostOrCut.ChannelMode"]</span>
+                    </header>
+                    <div class="aa-bc-transport">
+                        <p>@Localizer["Exercise.AudioComparison.Reference"]</p>
+                        <button type="button" id="Play" class="btn btn-primary px-4" data-aa-audio-unlock>
+                            <i class="bi bi-shuffle me-1" aria-hidden="true"></i>@Localizer[prefix + "New"]
+                        </button>
+                        @await Html.PartialAsync("_ABPlayback")
+                    </div>
+                    <div class="aa-bc-divider" aria-hidden="true"><span>EQ</span></div>
+                    <p class="aa-bc-prompt">@Localizer["Exercise.BoostOrCut.DirectionPrompt"]</p>
+                    <div class="aa-bc-directions" data-tour="answer" role="group" aria-label="@Localizer["Exercise.BoostOrCut.DirectionPrompt"]">
+                        <button type="button" class="aa-bc-direction aa-bc-boost" data-bc-direction="boost" aria-pressed="false">
+                            <span aria-hidden="true">＋</span>@Localizer["Exercise.BoostOrCut.Direction.boost"]
+                        </button>
+                        <button type="button" class="aa-bc-direction aa-bc-cut" data-bc-direction="cut" aria-pressed="false">
+                            <span aria-hidden="true">−</span>@Localizer["Exercise.BoostOrCut.Direction.cut"]
+                        </button>
+                    </div>
+                    <p class="aa-bc-prompt">@Localizer["Exercise.BoostOrCut.RegionPrompt"]</p>
+                    <div class="aa-bc-bands" data-tour="answer" role="group" aria-label="@Localizer["Exercise.BoostOrCut.RegionPrompt"]">
+                        @foreach (var (region, frequency) in boostCutRegions)
+                        {
+                            <button type="button" class="aa-bc-band aa-answer guessAnswer" value="@region"
+                                    aria-pressed="false">
+                                <span class="aa-bc-band-indicator" aria-hidden="true"></span>
+                                <span class="aa-bc-band-name">@Localizer[$"Exercise.GuessFrequency.Region.{region}"]</span>
+                                <span class="aa-bc-band-frequency">@(frequency < 1000 ? $"{frequency} Hz" : $"{frequency / 1000} kHz")</span>
+                            </button>
+                        }
+                    </div>
+                    <div class="aa-validate">
+                        <button type="button" id="validateGuess" class="btn btn-primary px-4">@Localizer["Exercise.ValidationButton"]</button>
+                    </div>
+                </div>
             }
-            @await Html.PartialAsync("_ABPlayback")
-            <div class="aa-answer-grid mt-4" role="group" aria-label="@Localizer[prefix + "Question"]">
-                @foreach (var option in options)
+            else
+            {
+                <div class="d-flex justify-content-center mb-4">
+                    <button type="button" id="Play" class="btn btn-primary px-4" data-aa-audio-unlock>
+                        <i class="bi bi-shuffle me-1" aria-hidden="true"></i>@Localizer[expanded ? "Exercise.AudioComparison.New" : prefix + "New"]
+                    </button>
+                </div>
+                @if (definition.ReferenceIsA)
                 {
-                    <button type="button" class="aa-answer guessAnswer" value="@option"
-                            data-levels="@(name == "GuessQ" ? "beginner intermediate" : null)"
-                            aria-pressed="false">@Localizer[prefix + "Option." + option]</button>
+                    <p class="text-center text-body-secondary">@Localizer[expanded ? "Exercise.AudioComparison.ReferenceGeneric" : "Exercise.AudioComparison.Reference"]</p>
                 }
-                @if (name == "GuessQ")
-                {
-                    @foreach (var option in new[] { "0.5", "1", "2", "4", "8" })
+                @await Html.PartialAsync("_ABPlayback")
+                <div class="aa-answer-grid mt-4" role="group" aria-label="@Localizer[prefix + "Question"]">
+                    @foreach (var option in options)
                     {
-                        <button type="button" class="aa-answer guessAnswer" value="@option" data-levels="advanced" aria-pressed="false">Q @option</button>
+                        <button type="button" class="aa-answer guessAnswer" value="@option"
+                                data-levels="@(name == "GuessQ" ? "beginner intermediate" : null)"
+                                aria-pressed="false">@Localizer[prefix + "Option." + option]</button>
                     }
-                }
-            </div>
-            <div class="aa-validate">
-                <button type="button" id="validateGuess" class="btn btn-primary px-4">@Localizer["Exercise.ValidationButton"]</button>
-            </div>
+                    @if (name == "GuessQ")
+                    {
+                        @foreach (var option in new[] { "0.5", "1", "2", "4", "8" })
+                        {
+                            <button type="button" class="aa-answer guessAnswer" value="@option" data-levels="advanced" aria-pressed="false">Q @option</button>
+                        }
+                    }
+                </div>
+                <div class="aa-validate">
+                    <button type="button" id="validateGuess" class="btn btn-primary px-4">@Localizer["Exercise.ValidationButton"]</button>
+                </div>
+            }
         </section>
     </div>
     <div class="col-lg-4 order-lg-1">

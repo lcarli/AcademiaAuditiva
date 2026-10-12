@@ -5158,6 +5158,10 @@
   <data name="Exercise.BoostOrCut.Tip2" xml:space="preserve"><value>Um realce destaca uma região; um corte retira essa região em relação ao restante.</value></data>
   <data name="Exercise.BoostOrCut.Tip3" xml:space="preserve"><value>As sete frequências centrais vão de 100 Hz a 8 kHz. O ganho passa de 9 para 6 e 3 dB conforme a dificuldade aumenta.</value></data>
   <data name="Exercise.BoostOrCut.Question" xml:space="preserve"><value>O que mudou em B?</value></data>
+  <data name="Exercise.BoostOrCut.ChannelTitle" xml:space="preserve"><value>Equalizador paramétrico · realce ou corte</value></data>
+  <data name="Exercise.BoostOrCut.ChannelMode" xml:space="preserve"><value>Escuta em 7 bandas</value></data>
+  <data name="Exercise.BoostOrCut.DirectionPrompt" xml:space="preserve"><value>1 · Escolha a direção</value></data>
+  <data name="Exercise.BoostOrCut.RegionPrompt" xml:space="preserve"><value>2 · Selecione a região de frequência</value></data>
   <data name="Exercise.BoostOrCut.New" xml:space="preserve"><value>Nova comparação</value></data>
   <data name="Exercise.BoostOrCut.Incomplete" xml:space="preserve"><value>Gere uma comparação e escolha uma direção e região antes de validar.</value></data>
   <data name="Exercise.BoostOrCut.Level.Beginner" xml:space="preserve"><value>Iniciante · 9 dB</value></data>
