@@ -114,8 +114,22 @@ dynamics, stereo and polarity, space and time, and critical listening and
 diagnosis. All three views identify each card's category with a localized badge.
 Category and type sections without exercises are omitted. Category keys and
 foreign keys stay unchanged, and category/type Start links retain the default
-entry level. The grouping tabs support keyboard navigation and wrap on narrow
-screens. Combined category/type/level filters remain a separate roadmap item.
+entry level unless a level filter is selected. The grouping tabs support
+keyboard navigation and wrap on narrow screens.
+
+The catalog combines GET filters `track`, `category`, `type` and `level`, for
+example `/Exercise?track=audio&category=FrequencyEq&level=intermediate`.
+Category/type keys must belong to the selected track; unknown keys return 404
+rather than silently showing all exercises. Audio level eligibility comes
+from each exercise's declared profile options; Music keeps its seeded
+difficulty. A selected Audio level is passed to Start links in all three
+groupings using the real exercise filter, such as `gqLevel=intermediate`.
+Counts represent unique exercise names, not repeated difficulty cards.
+Valid empty combinations show localized feedback and a clear-filters link
+that preserves the track and explicit culture parameters. Filter choices
+remain available from the whole track, even when a combination has no
+results. The labeled GET form works without JavaScript and stacks at 360 px;
+track switching clears the previous track's filters.
 
 The public landing page introduces Music and Audio together, with dynamic
 exercise counts, four examples per track and links to the complete catalogs.
@@ -199,7 +213,7 @@ tokens support comparisons; and dashboards/recommendations filter by track.
 The target architecture and slices below distinguish the original proposal
 from the implementation.
 
-Remaining work includes combined catalog filters, pedagogical calibration,
+Remaining work includes pedagogical calibration,
 post-answer technical feedback, continuous-error analytics, adaptive sessions
 and full interactive Mix Challenges. The prioritized follow-up phases are in
 [Audio Exercises Review](Audio-Exercises-Review.md#7-roadmap-sugerido);

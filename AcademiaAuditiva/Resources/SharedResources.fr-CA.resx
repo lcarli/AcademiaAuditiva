@@ -144,6 +144,17 @@
   <data name="Exercise.Tab3.Category" xml:space="preserve">
     <value>Par catégorie</value>
   </data>
+  <data name="Exercise.Filter.Category" xml:space="preserve"><value>Catégorie</value></data>
+  <data name="Exercise.Filter.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Exercise.Filter.Level" xml:space="preserve"><value>Niveau</value></data>
+  <data name="Exercise.Filter.AllCategories" xml:space="preserve"><value>Toutes les catégories</value></data>
+  <data name="Exercise.Filter.AllTypes" xml:space="preserve"><value>Tous les types</value></data>
+  <data name="Exercise.Filter.AllLevels" xml:space="preserve"><value>Tous les niveaux</value></data>
+  <data name="Exercise.Filter.Apply" xml:space="preserve"><value>Appliquer les filtres</value></data>
+  <data name="Exercise.Filter.Clear" xml:space="preserve"><value>Effacer les filtres</value></data>
+  <data name="Exercise.Filter.ResultCount" xml:space="preserve"><value>{0} exercice</value></data>
+  <data name="Exercise.Filter.ResultsCount" xml:space="preserve"><value>{0} exercices</value></data>
+  <data name="Exercise.Filter.Empty" xml:space="preserve"><value>Aucun exercice ne correspond à ces filtres.</value></data>
   <data name="Exercise.Beginner" xml:space="preserve">
     <value>Débutant</value>
     <comment />

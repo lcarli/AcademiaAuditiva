@@ -144,6 +144,17 @@
   <data name="Exercise.Tab3.Category" xml:space="preserve">
     <value>By Category</value>
   </data>
+  <data name="Exercise.Filter.Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Exercise.Filter.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Exercise.Filter.Level" xml:space="preserve"><value>Level</value></data>
+  <data name="Exercise.Filter.AllCategories" xml:space="preserve"><value>All categories</value></data>
+  <data name="Exercise.Filter.AllTypes" xml:space="preserve"><value>All types</value></data>
+  <data name="Exercise.Filter.AllLevels" xml:space="preserve"><value>All levels</value></data>
+  <data name="Exercise.Filter.Apply" xml:space="preserve"><value>Apply filters</value></data>
+  <data name="Exercise.Filter.Clear" xml:space="preserve"><value>Clear filters</value></data>
+  <data name="Exercise.Filter.ResultCount" xml:space="preserve"><value>{0} exercise</value></data>
+  <data name="Exercise.Filter.ResultsCount" xml:space="preserve"><value>{0} exercises</value></data>
+  <data name="Exercise.Filter.Empty" xml:space="preserve"><value>No exercises match these filters.</value></data>
   <data name="Exercise.Beginner" xml:space="preserve">
     <value>Beginner</value>
     <comment />

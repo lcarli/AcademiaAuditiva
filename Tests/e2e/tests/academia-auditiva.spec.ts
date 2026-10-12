@@ -624,6 +624,102 @@ test('catalog categories stay localized, unique and keyboard accessible on narro
   }
 });
 
+test('catalog GET filters combine across groupings and preserve selected Audio profiles', async ({ page, baseURL }) => {
+  test.setTimeout(120_000);
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  await page.setViewportSize({ width: 360, height: 900 });
+  const counts = { 'en-US': '9 exercises', 'pt-BR': '9 exercícios', 'fr-CA': '9 exercices' };
+  for (const culture of cultures) {
+    await page.goto(`${baseURL}/Exercise?track=audio&culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
+    await page.locator('#catalogCategory').selectOption('FrequencyEq');
+    await page.locator('#catalogType').selectOption('AudioComparison');
+    await page.locator('#catalogLevel').selectOption('intermediate');
+    await page.locator('#catalogFilters button[type="submit"]').focus();
+    await Promise.all([
+      page.waitForURL(url => url.searchParams.get('level') === 'intermediate'),
+      page.keyboard.press('Enter'),
+    ]);
+    await expect(page.locator('#catalogResults')).toHaveText(counts[culture]);
+    await expect(page.locator('#catalogCategory')).toHaveValue('FrequencyEq');
+    await expect(page.locator('#catalogType')).toHaveValue('AudioComparison');
+    await expect(page.locator('#catalogLevel')).toHaveValue('intermediate');
+    const url = new URL(page.url());
+    expect(url.searchParams.get('culture')).toBe(culture);
+    expect(url.searchParams.get('ui-culture')).toBe(culture);
+    await expect(page.locator('#byDifficulty [data-aa-difficulty]')).toHaveCount(1);
+    for (const tab of ['difficulty', 'category', 'type']) {
+      await page.locator(`#${tab}-tab`).click();
+      const pane = page.locator(`#by${tab === 'difficulty' ? 'Difficulty' : tab === 'category' ? 'Category' : 'Type'}`);
+      await expect(pane.locator('[data-aa-exercise]')).toHaveCount(9);
+      await expect(pane.locator('[data-aa-exercise="GuessQ"] a')).toHaveAttribute('href', '/Exercise/GuessQ?gqLevel=intermediate');
+      for (const theme of ['light', 'dark']) {
+        await page.evaluate(value => document.documentElement.setAttribute('data-bs-theme', value), theme);
+        await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth))
+          .toBe(0);
+      }
+    }
+    await page.reload({ waitUntil: 'networkidle' });
+    await expect(page.locator('#catalogResults')).toHaveText(counts[culture]);
+    await page.locator('#catalogClear').click();
+    await expect(page.locator('#catalogResults')).toHaveAttribute('data-aa-count', '27');
+    await expect(page.locator('#catalogCategory')).toHaveValue('');
+    expect(new URL(page.url()).searchParams.get('culture')).toBe(culture);
+    await page.goBack({ waitUntil: 'networkidle' });
+    await expect(page.locator('#catalogLevel')).toHaveValue('intermediate');
+  }
+
+  await page.locator('#category-tab').click();
+  await page.locator('#byCategory [data-aa-exercise="GuessQ"] a').click();
+  await closeTourIfStarted(page);
+  await expect(page.locator('#gqLevel')).toHaveValue('intermediate');
+
+  await page.goto(`${baseURL}/Exercise`, { waitUntil: 'networkidle' });
+  const category = page.locator('#byCategory [data-aa-category]').first();
+  const categoryKey = await category.getAttribute('data-aa-category');
+  const names = await category.locator('[data-aa-exercise]')
+    .evaluateAll(cards => cards.map(card => card.getAttribute('data-aa-exercise')));
+  const types = await page.locator('#byType [data-aa-type]').evaluateAll(sections => sections.map(section => ({
+    key: section.getAttribute('data-aa-type'),
+    names: [...section.querySelectorAll('[data-aa-exercise]')].map(card => card.getAttribute('data-aa-exercise')),
+  })));
+  const incompatibleType = types.find(type => type.names.every(name => !names.includes(name)));
+  expect(incompatibleType).toBeTruthy();
+  await page.locator('#catalogCategory').selectOption(categoryKey!);
+  await page.locator('#catalogType').selectOption(incompatibleType!.key!);
+  await page.locator('#catalogFilters button[type="submit"]').click();
+  await expect(page.locator('#catalogEmpty')).toBeVisible();
+  await expect(page.locator('#catalogResults')).toHaveAttribute('data-aa-count', '0');
+  await expect(page.locator('#trackEmpty')).toHaveCount(0);
+  await page.locator('#catalogClear').click();
+  await expect(page.locator('#catalogCategory')).toHaveValue('');
+  await expect(page.locator('#byDifficulty [data-aa-exercise="GuessNote"] a')).toHaveAttribute('href', '/Exercise/GuessNote');
+});
+
+test('catalog filtering and Start profile links work without JavaScript', async ({ page, browser, baseURL }) => {
+  await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
+  const context = await browser.newContext({
+    storageState: await page.context().storageState(),
+    javaScriptEnabled: false,
+    viewport: { width: 360, height: 900 },
+  });
+  try {
+    const catalog = await context.newPage();
+    await catalog.goto(`${baseURL}/Exercise?track=audio&culture=pt-BR&ui-culture=pt-BR`);
+    await catalog.locator('#catalogCategory').selectOption('Level');
+    await catalog.locator('#catalogLevel').selectOption('advanced');
+    await catalog.locator('#catalogFilters button[type="submit"]').click();
+    await expect(catalog.locator('#catalogResults')).toHaveText('1 exercício');
+    await expect(catalog.locator('#byDifficulty [data-aa-exercise]')).toHaveCount(1);
+    await catalog.locator('#byDifficulty [data-aa-exercise="LevelMatch"] a').click();
+    await expect(catalog.locator('#lmLevel')).toHaveValue('advanced');
+    await catalog.goBack();
+    await catalog.locator('#catalogClear').click();
+    await expect(catalog.locator('#catalogResults')).toHaveAttribute('data-aa-count', '27');
+  } finally {
+    await context.close();
+  }
+});
+
 test('Audio catalog lists all supported difficulties and opens the selected level', async ({ page, baseURL }) => {
   test.setTimeout(120_000);
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
