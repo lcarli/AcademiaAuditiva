@@ -1,0 +1,30 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AcademiaAuditiva.Resources.SharedResources> S
+@model AcademiaAuditiva.ViewModels.ExerciseCatalogCardViewModel
+
+@{
+    var exercise = Model.Exercise;
+    var subtitle = S[$"Exercise.{exercise.Name}.Subtitle"];
+    var icon = Model.Levels is null ? "bi-music-note-beamed" : "bi-puzzle";
+}
+
+<div class="col-md-6 col-lg-4">
+    <div class="aa-card aa-card-accent h-100 p-4 d-flex flex-column" data-aa-exercise="@exercise.Name">
+        <span class="aa-icon-pill mb-3" aria-hidden="true"><i class="bi @icon"></i></span>
+        <h5 class="fw-bold text-body-emphasis">@Localizer[exercise.Name]</h5>
+        <span class="aa-badge-soft align-self-start mb-3 mw-100" data-aa-category-badge="@exercise.ExerciseCategory.Name">@Model.CategoryLabel</span>
+        <p class="small text-secondary mb-2">
+            @if (Model.Levels is null)
+            {
+                <i class="bi bi-bullseye me-1" aria-hidden="true"></i>@Localizer["ExerciseType." + exercise.ExerciseType.Name]
+            }
+            else
+            {
+                <i class="bi bi-bar-chart-steps me-1" aria-hidden="true"></i>@string.Join(" / ", Model.Levels.Select(level => Localizer["Exercise." + level.Name].Value))
+            }
+        </p>
+        <p class="card-text small text-secondary flex-grow-1">@(subtitle.ResourceNotFound ? exercise.Description : subtitle.Value)</p>
+        <a href="@Url.Action(exercise.Name, "Exercise", Model.Filters)" class="btn btn-primary btn-sm align-self-start">
+            <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer["Exercise.Start"]
+        </a>
+    </div>
+</div>

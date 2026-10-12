@@ -82,7 +82,8 @@ public class TrainingTracksTests
         var resources = Resources(culture);
         var keys = TrainingTracks.All.Select(t => $"TrainingTrack.{t.Key}")
             .Concat(TrainingTracks.All.SelectMany(t => t.Categories).Where(c => c != "Misc").Select(c => $"ExerciseCategory.{c}"))
-            .Concat(["TrainingTrack.Label", "TrainingTrack.Empty.Text", "TrainingTrack.Empty.Back"]);
+            .Concat(["TrainingTrack.Label", "TrainingTrack.Empty.Text", "TrainingTrack.Empty.Back",
+                "Exercise.Tab1.Level", "Exercise.Tab2.Type", "Exercise.Tab3.Category"]);
 
         foreach (var key in keys)
         {

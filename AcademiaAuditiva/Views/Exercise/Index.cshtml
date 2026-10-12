@@ -2,11 +2,13 @@
 @using AcademiaAuditiva.Extensions
 @using AcademiaAuditiva.Services
 @using AcademiaAuditiva.Services.Audio
+@using AcademiaAuditiva.ViewModels
 @model IEnumerable<AcademiaAuditiva.Models.Exercise>
 
 @{
     ViewBag.Title = Localizer["Exercise.Header"].Value;
     var difficulties = (List<DifficultyLevel>)ViewBag.DifficultyLevels;
+    var categories = (List<ExerciseCategory>)ViewBag.ExerciseCategories;
     var audioLevels = Model.Where(e => ExerciseCatalog.TrackOf(e.Name) == TrainingTracks.Audio)
         .ToDictionary(e => e.ExerciseId, e => ExerciseFilterPresets.Groups(e.FiltersJson)
             .Single(group => group.Name == TechnicalListeningRoundGenerator.LevelFilterFor(e.Name)));
@@ -17,10 +19,12 @@
 }
 
 @functions {
-    string LocSubtitle(AcademiaAuditiva.Models.Exercise e)
+    string LocCategory(ExerciseCategory category)
     {
-        var loc = S[$"Exercise.{e.Name}.Subtitle"];
-        return loc.ResourceNotFound ? e.Description : loc.Value;
+        var loc = S[$"ExerciseCategory.{category.Name}"];
+        if (!loc.ResourceNotFound)
+            return loc.Value;
+        return string.IsNullOrWhiteSpace(category.DisplayName) ? category.Name : category.DisplayName;
     }
 }
 
@@ -60,18 +64,21 @@
 else
 {
 <div class="d-flex justify-content-center mb-4">
-    <div class="aa-pill-tab" role="tablist" id="exerciseTabs">
-        <button class="active" id="difficulty-tab" data-bs-toggle="tab" data-bs-target="#byDifficulty" type="button" role="tab">
+    <div class="aa-pill-tab flex-wrap justify-content-center mw-100" role="tablist" id="exerciseTabs">
+        <button class="active" id="difficulty-tab" data-bs-toggle="tab" data-bs-target="#byDifficulty" type="button" role="tab" aria-controls="byDifficulty" aria-selected="true">
             <i class="bi bi-bar-chart-steps me-1" aria-hidden="true"></i>@Localizer["Exercise.Tab1.Level"]
         </button>
-        <button id="type-tab" data-bs-toggle="tab" data-bs-target="#byType" type="button" role="tab">
+        <button id="category-tab" data-bs-toggle="tab" data-bs-target="#byCategory" type="button" role="tab" aria-controls="byCategory" aria-selected="false">
+            <i class="bi bi-collection me-1" aria-hidden="true"></i>@Localizer["Exercise.Tab3.Category"]
+        </button>
+        <button id="type-tab" data-bs-toggle="tab" data-bs-target="#byType" type="button" role="tab" aria-controls="byType" aria-selected="false">
             <i class="bi bi-grid-3x3-gap me-1" aria-hidden="true"></i>@Localizer["Exercise.Tab2.Type"]
         </button>
     </div>
 </div>
 
 <div class="tab-content" id="exerciseTabsContent">
-    <div class="tab-pane fade show active" id="byDifficulty" role="tabpanel">
+    <div class="tab-pane fade show active" id="byDifficulty" role="tabpanel" aria-labelledby="difficulty-tab" tabindex="0">
         @foreach (var level in difficulties)
         {
             var levelName = "Exercise." + level.Name;
@@ -86,47 +93,38 @@ else
                         {
                             filters[group.Name] = levelValue;
                         }
-                        <div class="col-md-6 col-lg-4">
-                            <div class="aa-card aa-card-accent h-100 p-4 d-flex flex-column" data-aa-exercise="@exercise.Name">
-                                <span class="aa-icon-pill mb-3" aria-hidden="true"><i class="bi bi-music-note-beamed"></i></span>
-                                <h5 class="fw-bold text-body-emphasis">@Localizer[exercise.Name]</h5>
-                                <p class="small text-secondary mb-2">
-                                    <i class="bi bi-bullseye me-1" aria-hidden="true"></i>@Localizer["ExerciseType." + exercise.ExerciseType.Name]
-                                </p>
-                                <p class="card-text small text-secondary flex-grow-1">@LocSubtitle(exercise)</p>
-                                <a href="@Url.Action(exercise.Name, "Exercise", filters)" class="btn btn-primary btn-sm align-self-start">
-                                    <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer["Exercise.Start"]
-                                </a>
-                            </div>
-                        </div>
+                        @await Html.PartialAsync("_ExerciseCatalogCard", new ExerciseCatalogCardViewModel(exercise, LocCategory(exercise.ExerciseCategory), Filters: filters))
                     }
                 </div>
             </section>
         }
     </div>
 
-    <div class="tab-pane fade" id="byType" role="tabpanel">
+    <div class="tab-pane fade" id="byCategory" role="tabpanel" aria-labelledby="category-tab" tabindex="0">
+        @foreach (var category in categories)
+        {
+            <section class="mb-5" data-aa-category="@category.Name">
+                <h4 class="aa-eyebrow mb-3">@LocCategory(category)</h4>
+                <div class="row g-4">
+                    @foreach (var exercise in Model.Where(e => e.ExerciseCategoryId == category.Id))
+                    {
+                        @await Html.PartialAsync("_ExerciseCatalogCard", new ExerciseCatalogCardViewModel(exercise, LocCategory(category), availableLevels[exercise.ExerciseId]))
+                    }
+                </div>
+            </section>
+        }
+    </div>
+
+    <div class="tab-pane fade" id="byType" role="tabpanel" aria-labelledby="type-tab" tabindex="0">
         @foreach (var type in (List<ExerciseType>)ViewBag.ExerciseTypes)
         {
             var typeName = "ExerciseType." + type.Name;
-            <section class="mb-5">
+            <section class="mb-5" data-aa-type="@type.Name">
                 <h4 class="aa-eyebrow mb-3">@Localizer[typeName]</h4>
                 <div class="row g-4">
-                    @foreach (var exercise in Model.Where(e => e.ExerciseType == type))
+                    @foreach (var exercise in Model.Where(e => e.ExerciseTypeId == type.Id))
                     {
-                        <div class="col-md-6 col-lg-4">
-                            <div class="aa-card aa-card-accent h-100 p-4 d-flex flex-column" data-aa-exercise="@exercise.Name">
-                                <span class="aa-icon-pill mb-3" aria-hidden="true"><i class="bi bi-puzzle"></i></span>
-                                <h5 class="fw-bold text-body-emphasis">@Localizer[exercise.Name]</h5>
-                                <p class="small text-secondary mb-2">
-                                    <i class="bi bi-bar-chart-steps me-1" aria-hidden="true"></i>@string.Join(" / ", availableLevels[exercise.ExerciseId].Select(level => Localizer["Exercise." + level.Name].Value))
-                                </p>
-                                <p class="card-text small text-secondary flex-grow-1">@LocSubtitle(exercise)</p>
-                                <a href="@Url.Action(exercise.Name, "Exercise")" class="btn btn-primary btn-sm align-self-start">
-                                    <i class="bi bi-play-fill me-1" aria-hidden="true"></i>@Localizer["Exercise.Start"]
-                                </a>
-                            </div>
-                        </div>
+                        @await Html.PartialAsync("_ExerciseCatalogCard", new ExerciseCatalogCardViewModel(exercise, LocCategory(exercise.ExerciseCategory), availableLevels[exercise.ExerciseId]))
                     }
                 </div>
             </section>
