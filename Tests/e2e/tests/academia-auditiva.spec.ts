@@ -12,7 +12,7 @@ test.afterEach(async ({ page }) => {
   expect([...new Set(errors)]).toEqual([]);
 });
 
-test('home, catalog and privacy load in every supported culture', async ({ page, baseURL }) => {
+test('home, catalog and privacy load in every supported culture', { tag: '@landing' }, async ({ page, baseURL }) => {
   for (const culture of cultures) {
     for (const path of ['/', '/Exercise', '/Home/Privacy']) {
       const response = await page.goto(`${baseURL}${path}?culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
@@ -22,7 +22,7 @@ test('home, catalog and privacy load in every supported culture', async ({ page,
   }
 });
 
-test('the home page previews Music and Audio with a few examples and full catalog links', async ({ page, baseURL }) => {
+test('the home page previews Music and Audio with a few examples and full catalog links', { tag: '@landing' }, async ({ page, baseURL }) => {
   const titles = { 'en-US': ['Music', 'Audio'], 'pt-BR': ['Música', 'Áudio'], 'fr-CA': ['Musique', 'Audio'] };
   for (const culture of cultures) {
     await page.goto(`${baseURL}/?culture=${culture}&ui-culture=${culture}`, { waitUntil: 'networkidle' });
@@ -69,7 +69,7 @@ test('the home page previews Music and Audio with a few examples and full catalo
   await expect(page.locator('.aa-ex-item', { hasText: 'In tune or not?' })).toHaveAttribute('href', '/Exercise/GuessTuning');
 });
 
-test('the signed-in home page opens either complete track catalog', async ({ page, baseURL }) => {
+test('the signed-in home page opens either complete track catalog', { tag: '@landing' }, async ({ page, baseURL }) => {
   await login(page, baseURL!, process.env.AA_EMAIL!, process.env.AA_PASSWORD!);
   for (const track of ['music', 'audio']) {
     await page.goto(`${baseURL}/?culture=en-US&ui-culture=en-US`, { waitUntil: 'networkidle' });
@@ -1832,7 +1832,7 @@ test('on a phone the header menus open over the page and stay on screen', async 
   await expectHeaderMenuUsable(page, '.aa-site-header .dropdown-toggle.aa-ghost-btn');
 });
 
-test('public pages never scroll sideways on phones, tablets or small laptops', async ({ page, baseURL }) => {
+test('public pages never scroll sideways on phones, tablets or small laptops', { tag: '@landing' }, async ({ page, baseURL }) => {
   const paths = [...cultures.map(c => `/?culture=${c}&ui-culture=${c}`), '/Exercise', '/Home/Privacy', '/Identity/Account/Login', '/Identity/Account/Register'];
   for (const path of paths) {
     await page.setViewportSize({ width: 360, height: 740 });

@@ -4,18 +4,54 @@ on:
   pull_request:
     branches: [master]
   push:
-    branches: [master, "feat/**"]
-  # Lets the CD workflow gate deployments on this exact pipeline.
+    branches: [master]
+  workflow_dispatch:
+  # Manual CD runs still validate before deploying.
   workflow_call:
 
 permissions:
+  actions: read
   contents: read
   security-events: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 jobs:
+  changes:
+    name: Select CI scope
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.scope.outputs.mode }}
+      infra: ${{ steps.scope.outputs.infra }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Verify scope policy
+        run: python3 scripts/test_ci_scope.py
+      - name: Classify changes
+        id: scope
+        run: |
+          python3 scripts/ci_scope.py classify \
+            --event "$GITHUB_EVENT_PATH" --event-name "$GITHUB_EVENT_NAME" \
+            --sha "$GITHUB_SHA" --output artifacts/ci-impact.json
+      - name: Publish tested commit and deployment decision
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-impact
+          path: artifacts/ci-impact.json
+          retention-days: 7
+          if-no-files-found: error
+
   build-and-test:
     name: Build & Test
+    needs: changes
+    if: needs.changes.outputs.mode != 'docs'
     runs-on: ubuntu-latest
+    env:
+      CI_MODE: ${{ needs.changes.outputs.mode }}
     steps:
       - uses: actions/checkout@v7
 
@@ -24,16 +60,38 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.*.props', '**/*.csproj', '**/NuGet.Config', '**/nuget.config') }}
+          restore-keys: nuget-${{ runner.os }}-
+
       - name: Restore
-        run: dotnet restore AcademiaAuditiva.sln
+        run: |
+          target=AcademiaAuditiva.sln
+          if [ "$CI_MODE" = "landing" ]; then
+            target=Tests/AcademiaAuditiva.IntegrationTests/AcademiaAuditiva.IntegrationTests.csproj
+          fi
+          echo "CI_TARGET=$target" >> "$GITHUB_ENV"
+          dotnet restore "$target"
 
       - name: Build
-        run: dotnet build AcademiaAuditiva.sln --configuration Release --no-restore
+        run: dotnet build "$CI_TARGET" --configuration Release --no-restore
 
-      - name: Test
+      - name: Test full suite
+        if: env.CI_MODE == 'full'
         run: dotnet test AcademiaAuditiva.sln --configuration Release --no-build --filter "Category!=AudioDspBudget" --logger "trx;LogFileName=test-results.trx" --collect "XPlat Code Coverage"
 
+      - name: Test landing, catalogs and localization
+        if: env.CI_MODE == 'landing'
+        run: |
+          dotnet test "$CI_TARGET" --configuration Release --no-build \
+            --filter "FullyQualifiedName~HomePageTests|FullyQualifiedName~ExerciseIndexTests|FullyQualifiedName~LocalizedNamesTests" \
+            --logger "trx;LogFileName=test-results.trx"
+
       - name: Verify audio DSP in production-like Linux container
+        if: env.CI_MODE == 'full'
         run: |
           docker run --rm --cpus=0.5 --memory=1g \
             --mount "type=bind,source=$PWD,target=/repo,readonly" \
@@ -51,6 +109,8 @@ jobs:
 
   e2e:
     name: E2E (Playwright)
+    needs: changes
+    if: needs.changes.outputs.mode != 'docs'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -72,6 +132,7 @@ jobs:
       E2E_BASE_URL: http://127.0.0.1:5072
       E2E_EXPECT_VERSION: ${{ github.sha }}
       STORAGE_CONNECTION_STRING: UseDevelopmentStorage=true
+      CI_MODE: ${{ needs.changes.outputs.mode }}
     steps:
       - uses: actions/checkout@v7
 
@@ -96,6 +157,13 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.*.props', '**/*.csproj', '**/NuGet.Config', '**/nuget.config') }}
+          restore-keys: nuget-${{ runner.os }}-
+
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
@@ -105,7 +173,7 @@ jobs:
 
       - name: Restore and publish app
         run: |
-          dotnet restore AcademiaAuditiva.sln
+          dotnet restore AcademiaAuditiva/AcademiaAuditiva.csproj
           dotnet publish AcademiaAuditiva/AcademiaAuditiva.csproj --configuration Release --no-restore --output ./artifacts/app /p:UseAppHost=false
 
       # The synthetic samples never change, so they're cached and ffmpeg is only
@@ -184,7 +252,12 @@ jobs:
           AA_PASSWORD: ${{ env.SQL_PASSWORD }}
           E2E_BASE_URL: ${{ env.E2E_BASE_URL }}
           E2E_EXPECT_VERSION: ${{ env.E2E_EXPECT_VERSION }}
-        run: npm test
+        run: |
+          if [ "$CI_MODE" = "landing" ]; then
+            npm test -- --grep @landing
+          else
+            npm test
+          fi
 
       - name: Stop app
         if: always()
@@ -203,6 +276,8 @@ jobs:
 
   image-scan:
     name: Image scan (Trivy)
+    needs: changes
+    if: needs.changes.outputs.mode != 'docs'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -230,6 +305,8 @@ jobs:
 
   bicep-validate:
     name: Validate Bicep
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

@@ -99,9 +99,12 @@ and #31, in [Later, or needs a decision](#later-or-needs-a-decision).
 
 - One pull request per item, on a branch off `master`; a git worktree keeps
   the main checkout free. Details are in [CONTRIBUTING.md](../CONTRIBUTING.md).
-- CI must pass before merging: build and tests (including real SQL Server
-  through Testcontainers), Playwright E2E, CodeQL, Trivy, Gitleaks and Bicep
-  validation. Then squash-merge and delete the branch.
+- CI must pass before merging with the applicable
+  [impact-based checks](../CONTRIBUTING.md#continuous-integration).
+  Functional changes retain build/tests (including real SQL Server through
+  Testcontainers), complete Playwright coverage, CodeQL and Trivy; Gitleaks
+  stays enabled, and infrastructure changes require Bicep validation.
+  Then squash-merge and delete the branch.
 - CD deploys only when `AcademiaAuditiva/**`, `infra/**`, `Dockerfile`,
   `Directory.Build.props`, `Directory.Packages.props`, `global.json` or
   `.github/workflows/cd.yml` change. After a deploy,

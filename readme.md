@@ -130,7 +130,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). In short:
 
 1. Fork & clone, create a feature branch
 2. Run tests: `dotnet test`; set `AA_TEST_SQL_CONNECTION` to include the focused SQL Server integration checks locally
-3. Open a PR to `master` — CI runs build, xUnit, Playwright E2E, Bicep validation, and Trivy image scanning; CodeQL and Gitleaks scan it too
+3. Open a PR to `master` — [CI selects checks by impact](CONTRIBUTING.md#continuous-integration): documentation is lightweight, landing-only PRs get focused coverage, and functional/uncertain changes and deployable `master` pushes run the full suite. Gitleaks remains enabled; CodeQL scans code changes.
 
 ## License
 
