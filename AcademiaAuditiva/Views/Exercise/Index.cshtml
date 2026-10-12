@@ -22,7 +22,9 @@
     string LocCategory(ExerciseCategory category)
     {
         var loc = S[$"ExerciseCategory.{category.Name}"];
-        return loc.ResourceNotFound ? category.DisplayName : loc.Value;
+        if (!loc.ResourceNotFound)
+            return loc.Value;
+        return string.IsNullOrWhiteSpace(category.DisplayName) ? category.Name : category.DisplayName;
     }
 }
 

@@ -65,3 +65,7 @@ f2ffeceab33d57ccb289cd52aa4f9c0bee98365d:AcademiaAuditiva/Data/Migrations/Applic
 # IIS Express sessionKey from a committed .vs folder.
 795efbe24a7d0cf42cd45059d5eb9bf6a2b8ff01:.vs/AcademiaAuditiva/config/applicationhost.config:generic-api-key:127
 795efbe24a7d0cf42cd45059d5eb9bf6a2b8ff01:.vs/AcademiaAuditiva/config/applicationhost.config:generic-api-key:128
+
+# False positive: the Audio review's TOKEN appendix row cites AudioTokenService.cs,
+# not a credential. Only this exact historical occurrence is ignored.
+0e73ff887f17cd16deed1f8a41f4f531190fe03e:docs/Audio-Exercises-Review.md:generic-api-key:1060

@@ -246,15 +246,19 @@ public class ExerciseIndexTests : IClassFixture<ExerciseRequestBodyTests.Authent
         CardNames(CatalogSection(html, "type", type)).Should().Equal(name);
     }
 
-    [Fact]
-    public async Task Music_KeepsUnlistedLegacyCategories_AndUsesTheirDisplayName()
+    [Theory]
+    [InlineData("Legacy category", "Legacy category")]
+    [InlineData("", "Legacy")]
+    [InlineData(" ", "Legacy")]
+    public async Task Music_KeepsUnlistedLegacyCategories_AndUsesTheirDisplayNameOrName(
+        string displayName, string label)
     {
         using var factory = new ExerciseRequestBodyTests.AuthenticatedFactory();
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             SeedData.SeedExercises(db);
-            var category = new ExerciseCategory { Name = "Legacy", DisplayName = "Legacy category" };
+            var category = new ExerciseCategory { Name = "Legacy", DisplayName = displayName };
             db.ExerciseCategories.Add(category);
             db.Exercises.Single(e => e.Name == "GuessNote").ExerciseCategory = category;
             await db.SaveChangesAsync();
@@ -264,7 +268,11 @@ public class ExerciseIndexTests : IClassFixture<ExerciseRequestBodyTests.Authent
         GroupNames(categories, "category").Last().Should().Be("Legacy");
         var section = CatalogSection(categories, "category", "Legacy");
         CardNames(section).Should().Equal("GuessNote");
-        section.Should().Contain("Legacy category").And.NotContain("ExerciseCategory.Legacy");
+        section.Should().Contain($"<h4 class=\"aa-eyebrow mb-3\">{label}</h4>")
+            .And.NotContain("ExerciseCategory.Legacy");
+        var badge = Regex.Match(section, @"data-aa-category-badge=""Legacy"">(.*?)</span>");
+        badge.Success.Should().BeTrue();
+        badge.Groups[1].Value.Should().Be(label);
     }
 
     [Fact]
