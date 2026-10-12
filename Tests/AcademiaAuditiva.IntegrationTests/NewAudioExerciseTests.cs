@@ -47,7 +47,14 @@ public class NewAudioExerciseTests : IDisposable
             .And.Contain("data-aa-ab-play=\"A\"").And.Contain("data-aa-ab-play=\"B\"")
             .And.NotContain("id=\"instrumentButtons\"").And.NotContain("id=\"rangeFilter\"");
         html.Should().NotMatchRegex(@"Exercise\.(BoostOrCut|GuessQ|Compression|AudioComparison|AB)\.");
-        if (exercise == "BoostOrCut") html.Should().Contain("value=\"cut|bass\"").And.Contain("value=\"boost|air\"");
+        if (exercise == "BoostOrCut")
+        {
+            html.Should().Contain("data-bc-direction=\"boost\"").And.Contain("data-bc-direction=\"cut\"")
+                .And.Contain("data-bc-direction=\"boost\"").And.Contain("value=\"sub\"").And.Contain("value=\"air\"")
+                .And.Contain("125 Hz").And.Contain("8 kHz");
+            foreach (var answer in AudioComparisonCatalog.Find(exercise)!.Answers)
+                html.Should().Contain($"value=\"{answer.Split('|')[1]}\"");
+        }
         if (exercise == "GuessQ") html.Should().Contain("value=\"broad\"").And.Contain("value=\"narrow\"");
         if (exercise == "EqMatching")
             html.Should().Contain("id=\"eqFrequency\"").And.Contain("id=\"eqGain\"").And.Contain("id=\"eqQ\"")
