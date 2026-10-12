@@ -3856,6 +3856,48 @@
   <data name="Badge.early_bird.Description" xml:space="preserve">
     <value>Comece uma sessão de prática entre 5h e 7h.</value>
   </data>
+  <data name="Badge.audio_first_contact.Title" xml:space="preserve">
+    <value>Primeiro Contato 🎧</value>
+  </data>
+  <data name="Badge.audio_first_contact.Description" xml:space="preserve">
+    <value>Conclua sua primeira sessão de áudio.</value>
+  </data>
+  <data name="Badge.audio_level_match.Title" xml:space="preserve">
+    <value>Equilíbrio Perfeito</value>
+  </data>
+  <data name="Badge.audio_level_match.Description" xml:space="preserve">
+    <value>Acerte 10 questões de Level Match.</value>
+  </data>
+  <data name="Badge.audio_stereo_position.Title" xml:space="preserve">
+    <value>Mestre do Panorama</value>
+  </data>
+  <data name="Badge.audio_stereo_position.Description" xml:space="preserve">
+    <value>Acerte 20 questões de Stereo Position.</value>
+  </data>
+  <data name="Badge.audio_frequency_radar.Title" xml:space="preserve">
+    <value>Radar de Frequências</value>
+  </data>
+  <data name="Badge.audio_frequency_radar.Description" xml:space="preserve">
+    <value>Acerte 20 questões de Guess Frequency.</value>
+  </data>
+  <data name="Badge.audio_analytical_ear.Title" xml:space="preserve">
+    <value>Ouvido Analítico</value>
+  </data>
+  <data name="Badge.audio_analytical_ear.Description" xml:space="preserve">
+    <value>Conclua 3 sessões de áudio, cada uma com pelo menos 10 respostas e 80% de acerto.</value>
+  </data>
+  <data name="Badge.audio_explorer.Title" xml:space="preserve">
+    <value>Explorador Sonoro</value>
+  </data>
+  <data name="Badge.audio_explorer.Description" xml:space="preserve">
+    <value>Responda a pelo menos uma questão de cada exercício de áudio disponível.</value>
+  </data>
+  <data name="Badge.audio_foundations_mastered.Title" xml:space="preserve">
+    <value>Fundamentos Dominados</value>
+  </data>
+  <data name="Badge.audio_foundations_mastered.Description" xml:space="preserve">
+    <value>Conclua os três exercícios básicos da trilha de áudio.</value>
+  </data>
   <data name="Header.LearningPath" xml:space="preserve">
     <value>Trilha</value>
   </data>
