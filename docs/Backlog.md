@@ -211,11 +211,17 @@ through every seeded exercise check much of it:
 - Its row in `SeedData.Exercises()`. Seeding adds the missing exercises, by
   name, and updates the others (`SeedData.cs:46-68`), so it reaches production
   with the deploy.
-- A case in `MusicTheoryService.GenerateNoteForExercise`, and one in
-  `ExercisePlaybackPlanner.Plan`, which throws on an exercise it doesn't know
-  (`AcademiaAuditiva/Services/Audio/ExercisePlaybackPlanner.cs:303-305`).
+- For Music, a case in `MusicTheoryService.GenerateNoteForExercise`, and one
+  in `ExercisePlaybackPlanner.Plan`, which throws on an exercise it doesn't
+  know. Audio instead needs support in `TechnicalListeningRoundGenerator`;
+  `ExerciseController.RequestPlay` routes supported technical exercises
+  there before the musical planner. Shared Audio comparisons also need an
+  `AudioComparisonCatalog` definition with their answers and level filter.
 - An `IExerciseValidator`, registered in `AcademiaAuditiva/Program.cs:230-259`.
-- `Views/Exercise/<Name>.cshtml` and `wwwroot/js/Exercises/<Name>.js`.
+- A view, script and GET action. Music normally uses
+  `Views/Exercise/<Name>.cshtml` and `wwwroot/js/Exercises/<Name>.js`;
+  Audio comparisons reuse `AudioComparison.cshtml` and `AudioComparison.js`,
+  while continuous EQ Matching uses its own view/script.
 - In the three `.resx` files: its name
   (`Tests/AcademiaAuditiva.IntegrationTests/LocalizedNamesTests.cs:31-55`),
   `Exercise.<Name>.Subtitle`, which the home page lists it with, and
@@ -240,9 +246,9 @@ through every seeded exercise check much of it:
   rounds follow the octave range
   (`Tests/AcademiaAuditiva.UnitTests/NoteRangeFilterTests.cs:92`).
 
-Each new exercise, unless it needs a microphone, also raises the bar for three
-badges that stay hidden until their art is ready (#16): `explorer` asks for
-every exercise
+Each new Music exercise, unless it needs a microphone, also raises the bar
+for three Music-only badges that stay hidden until their art is ready (#16):
+`explorer` asks for every exercise
 (`AcademiaAuditiva/Services/Gamification/BadgeRules.cs:80`), `total_mastery`
 for the whole learning path (`:103`), and `all_rounder` for 10 answers in
 every category that has an exercise (`:109` and `:330-333`), so the first

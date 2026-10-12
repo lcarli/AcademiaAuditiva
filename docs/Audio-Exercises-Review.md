@@ -7,13 +7,13 @@
 
 ## Acompanhamento da implementação
 
-**Atualização:** 12/10/2026. **Base da implementação:** `master`, `e4096fc`. **Branch:** `feat/audio-catalog-categories`.
+**Atualização:** 12/10/2026. **Fase B incorporada:** PR #166, `master`, `33cf907`. **Base da fase A:** esse mesmo commit. **Branch documental:** `docs/audio-review-sync`.
 
 | Fase | Estado | Entrega ou próxima decisão |
 |---|---|---|
-| A — documentação sincronizada | Pendente | Este incremento atualiza o registro de categorias; ainda falta sincronizar os parâmetros de Boost or Cut e Guess the Q. |
-| B — categorias visíveis | **Implementada nesta branch** | Aba **Por categoria**, badges nos cards dos três agrupamentos e remoção de seções vazias de categoria/tipo. Áudio exibe suas seis áreas na ordem de `TrainingTracks.Audio`; Música mantém suas categorias e URLs. |
-| C — filtros combináveis | Pendente | Combinar categoria/tipo/nível por GET e contar exercícios únicos; não faz parte da entrega B. |
+| A — documentação sincronizada | **Implementada nesta branch** | Registro técnico sincronizado: sete regiões/14 combinações de Boost or Cut, cinco Q avançados, categorias/defaults, arquitetura entregue, engagement expandido, sete badges e checklist específico para Áudio. Nenhum comportamento alterado. |
+| B — categorias visíveis | **Incorporada no master (#166)** | Aba **Por categoria**, badges nos cards dos três agrupamentos e remoção de seções vazias de categoria/tipo. Áudio exibe suas seis áreas na ordem de `TrainingTracks.Audio`; Música mantém suas categorias e URLs. |
+| C — filtros combináveis | **Próxima implementação funcional** | Combinar categoria/tipo/nível por GET e contar exercícios únicos; não faz parte das entregas A/B. |
 | D — validade EQ Matching | Aguarda decisão de produto | Definir exigência de direção e pisos por componente antes de alterar `IsCorrect`; preservar o histórico. |
 | E a N | Não iniciadas | Seguir as dependências e critérios da seção 7; não ampliar DSP, trilha ou conteúdo neste incremento. |
 
@@ -23,7 +23,9 @@ A fase B reutiliza as chaves e FKs existentes, mantém os filtros de nível e os
 
 O Gitleaks interpretou a expressão descritiva `round/private` na linha `TOKEN` do apêndice como chave de API. A descrição atual foi reescrita; somente as duas ocorrências históricas já publicadas foram registradas por fingerprint na baseline. Nenhuma credencial foi encontrada nessa descrição, e nenhum padrão global de exclusão foi ampliado. A validação local com Gitleaks 8.30.1 foi aprovada para o histórico completo e a versão atual do relatório.
 
-**Para retomar:** este arquivo e a implementação da fase B seguem juntos no PR da branch acima. A correção documental restante da fase A pode sair de forma independente; a fase C pode continuar sobre B; a fase D ainda exige a decisão de produto indicada na seção 8. Não há merge ou deploy incluído nesta entrega.
+**Fase A:** `Audio-Ear-Training.md` agora distingue as lacunas iniciais da arquitetura atual e descreve os perfis reais, os limites de elegibilidade das fontes e o engagement entregue. `Backlog.md` diferencia o gerador técnico e as views compartilhadas do caminho musical. A seleção de fontes comuns e a simplificação pedagógica de Boost or Cut continuam propostas da fase E, não entregas documentais.
+
+**Para retomar:** a fase B já está no master; a fase A é uma entrega exclusivamente documental nesta branch. A próxima fase funcional é C; a fase D ainda exige a decisão de produto indicada na seção 8. Nenhuma mudança de DSP, pontuação ou deploy integra a fase A.
 
 ## Como usar este relatório
 
@@ -560,7 +562,7 @@ Recomenda-se ampliar por **janelas espectrais qualificadas**, não liberar as 28
 - A regra de adicionar exercício em Backlog foi escrita para Music: novos Áudio entram no gerador técnico antes de `ExercisePlaybackPlanner`. [BACKLOG:218–242; CTRL:252–255]
 - Ao atualizar o status de gamificação, registrar os sete badges Audio já incorporados; não descrever seu escopo como somente XP/streak ou como inteiramente futuro. [BADGE; BRULE]
 - Não duplicar o roadmap de Mix Challenges/adaptação como se fosse descoberta inédita: já está registrado em DOC:104–106,122–128.
-- **Este relatório não altera esses documentos:** sugere uma PR curta de sincronização, preservando o histórico de slices.
+- **Status posterior:** os ajustes acima foram incorporados na fase A, preservando o histórico de slices. Os números de linha desta seção registram o diagnóstico original; o acompanhamento no início do relatório descreve a entrega atual.
 
 ## 5. Categorias de exercícios
 
@@ -899,8 +901,8 @@ A sequência seguinte acompanha a ordem dos batches do catálogo, não apenas pr
 
 | PR / fase | Escopo | Depende de | Esforço | Testes/aceite principal | Pode sair sozinha? |
 |---|---|---|---|---|---|
-| A — documentação sincronizada | Corrigir DOC para7 bandas/Q avançado; esclarecer categorias/defaults | Nada | S | Revisão de referências; política docs-only | Sim |
-| B — categorias visíveis **(implementada)** | Aba/category badges e tipos sem seções vazias; mesmas FKs | Nada | S | INDEXTEST, UTCATALOG, TRACKTEST, E2E3 culturas/360 px | Sim |
+| A — documentação sincronizada **(implementada nesta branch)** | Corrigir DOC para 7 bandas/Q avançado; esclarecer categorias/defaults e status entregue | Nada | S | Revisão de referências; política docs-only | Sim |
+| B — categorias visíveis **(incorporada no master, #166)** | Aba/category badges e tipos sem seções vazias; mesmas FKs | Nada | S | INDEXTEST, UTCATALOG, TRACKTEST, E2E3 culturas/360 px | Sim |
 | C — filtros combináveis | GET categoria/tipo/nível e contagem única | B, ou contrato de UX equivalente | M | URLs/presets, empty/unknown, Music sem regressão | Sim após B |
 | D — validade EQ Matching | Casos-limite, decisão de `IsCorrect`, versão de regra e feedback claro | Decisão sobre pisos/sinal | S–M | EQMTEST, ITA, ITP; score antigo não reclassificado | Sim |
 | E — BoostOrCut pedagógico | Pools comuns no bundled, subsets por nível, centros revisados | Aprovação de63 Hz se usado | M | UTNEW/PRIVATE, todos candidatos por fonte, reset/console/loc | Sim |
