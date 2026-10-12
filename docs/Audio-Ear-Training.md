@@ -101,6 +101,12 @@ legacy seeded difficulty remains the default entry level, not a claim that
 every round is beginner-only. Music retains its existing single catalog
 classification. No score history or database migration is changed.
 
+The public landing page introduces Music and Audio together, with dynamic
+exercise counts, four examples per track and links to the complete catalogs.
+It previews the tracks rather than listing every exercise. The hero, practice
+steps and FAQ explain musical practice alongside real-music A/B comparisons,
+progressive Audio profiles and comfortable stereo listening.
+
 ### Not in the first release
 
 - continuous EQ matching;

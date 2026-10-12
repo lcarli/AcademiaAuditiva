@@ -983,7 +983,7 @@
     <value>Como funciona</value>
   </data>
   <data name="Home.PageTitle" xml:space="preserve">
-    <value>Treine seu ouvido musical</value>
+    <value>Treino auditivo para música e áudio</value>
   </data>
   <data name="Home.Hero.Eyebrow" xml:space="preserve">
     <value>Treino auditivo · grátis</value>
@@ -992,7 +992,7 @@
     <value>Afine seu ouvido.</value>
   </data>
   <data name="Home.Hero.Lead" xml:space="preserve">
-    <value>Exercícios curtos de notas, intervalos, acordes, ritmo e melodia, com progresso que você enxerga.</value>
+    <value>De notas e acordes a EQ e compressão. Desenvolva seu ouvido musical e sua escuta crítica com duas trilhas de aprendizado e progresso que você enxerga.</value>
   </data>
   <data name="Home.How.Badge" xml:space="preserve">
     <value>Como funciona</value>
@@ -1004,25 +1004,25 @@
     <value>Cada rodada leva poucos segundos. O que conta é praticar um pouco todo dia.</value>
   </data>
   <data name="Home.How.Step1.Title" xml:space="preserve">
-    <value>Escolha um exercício</value>
+    <value>Escolha sua trilha e seu nível</value>
   </data>
   <data name="Home.How.Step1.Desc" xml:space="preserve">
-    <value>Comece por notas isoladas ou vá direto para intervalos e acordes.</value>
+    <value>Explore Música ou Áudio e escolha um exercício com a dificuldade adequada para você.</value>
   </data>
   <data name="Home.How.Step2.Title" xml:space="preserve">
     <value>Ouça e responda</value>
   </data>
   <data name="Home.How.Step2.Desc" xml:space="preserve">
-    <value>Toque o som quantas vezes precisar e responda no teclado ou nos botões.</value>
+    <value>Repita uma frase musical ou alterne entre A e B para comparar uma mudança no áudio. Responda e receba feedback na hora.</value>
   </data>
   <data name="Home.How.Step3.Title" xml:space="preserve">
     <value>Acompanhe sua evolução</value>
   </data>
   <data name="Home.How.Step3.Desc" xml:space="preserve">
-    <value>Seu painel mostra seus acertos por habilidade e dificuldade, e os itens em que você mais erra.</value>
+    <value>Cada trilha tem seu próprio percurso e progresso. Veja seus acertos por habilidade e dificuldade e o que precisa de mais prática.</value>
   </data>
   <data name="Home.Exercises.Badge" xml:space="preserve">
-    <value>Exercícios</value>
+    <value>Duas trilhas de aprendizado</value>
   </data>
   <data name="Home.Exercises.Title" xml:space="preserve">
     <value>{0} jeitos de treinar o ouvido</value>
@@ -1088,7 +1088,7 @@
     <value>Preciso saber teoria musical?</value>
   </data>
   <data name="Home.Faq1.A" xml:space="preserve">
-    <value>Não. Cada exercício traz instruções e dicas, e você pode começar por notas isoladas antes de passar para intervalos e acordes.</value>
+    <value>Não. As duas trilhas trazem instruções e dicas. Comece por notas isoladas em Música ou por diferenças claras de nível e timbre em Áudio, depois avance para exercícios mais exigentes.</value>
   </data>
   <data name="Home.Faq2.Q" xml:space="preserve">
     <value>Funciona no celular?</value>
@@ -1112,7 +1112,7 @@
     <value>Quais exercícios existem?</value>
   </data>
   <data name="Home.Faq5.A" xml:space="preserve">
-    <value>{0}, agrupados por área: percepção, melodia, harmonia, escalas e ritmo. Vão de dizer se uma segunda nota é mais alta ou mais grave até ditados melódicos e rítmicos e cantar no microfone. A lista completa está acima.</value>
+    <value>{0} exercícios entre Música e Áudio. Música inclui notas, intervalos, acordes, melodia e ritmo; Áudio inclui nível, EQ, compressão, estéreo, reverb, ruído e alterações na mixagem. Os exemplos acima dão uma ideia; cada trilha tem um link para o catálogo completo.</value>
   </data>
   <data name="Home.Faq6.Q" xml:space="preserve">
     <value>É gratuito?</value>
@@ -1124,7 +1124,7 @@
     <value>Pronto para treinar o ouvido?</value>
   </data>
   <data name="Home.Final.Lead" xml:space="preserve">
-    <value>Crie sua conta gratuita e comece pelo primeiro exercício.</value>
+    <value>Crie sua conta gratuita e escolha Música, Áudio ou as duas.</value>
   </data>
   <data name="Dashboard.StartTraining" xml:space="preserve">
     <value>Iniciar treino</value>
@@ -2030,7 +2030,7 @@
     <value>{0} exercícios</value>
   </data>
   <data name="Home.Feature1.Desc" xml:space="preserve">
-    <value>Notas, intervalos, acordes, harmonia, escalas, ritmo, ditado e canto.</value>
+    <value>Percepção musical e escuta crítica de áudio, do iniciante ao avançado.</value>
   </data>
   <data name="Home.Feature2.Title" xml:space="preserve">
     <value>3 idiomas</value>
@@ -2045,7 +2045,7 @@
     <value>Turmas, convites e relatórios de progresso.</value>
   </data>
   <data name="Home.Exercises.Lead" xml:space="preserve">
-    <value>De comparar duas notas a cantar uma melodia, em três níveis de dificuldade.</value>
+    <value>Escolha o que quer ouvir melhor. Veja alguns exemplos de cada trilha e explore os catálogos completos quando quiser.</value>
   </data>
   <data name="Home.Badges.Badge" xml:space="preserve">
     <value>Conquistas</value>
@@ -5457,4 +5457,13 @@
   <data name="Exercise.MixProblem.Feedback" xml:space="preserve"><value>A alteração introduzida foi {0}. Compare B com A e isole essa pista; as outras categorias de processamento não foram adicionadas.</value></data>
   <data name="LearningPath.Unit.MixProblem.Title" xml:space="preserve"><value>Diagnostique uma alteração</value></data>
   <data name="LearningPath.Unit.MixProblem.Description" xml:space="preserve"><value>Aplique a escuta de timbre, tempo e textura para identificar uma mudança.</value></data>
+  <data name="Home.Cta.ChooseTrack" xml:space="preserve"><value>Conhecer as trilhas</value></data>
+  <data name="Home.Tracks.Levels" xml:space="preserve"><value>Iniciante · Intermediário · Avançado</value></data>
+  <data name="Home.Tracks.Examples" xml:space="preserve"><value>Algumas coisas que você pode treinar</value></data>
+  <data name="Home.Tracks.Music.Description" xml:space="preserve"><value>Desenvolva seu ouvido musical com notas, intervalos, acordes, melodia e ritmo. Para tocar, cantar e entender o que você ouve.</value></data>
+  <data name="Home.Tracks.Music.Cta" xml:space="preserve"><value>Ver todos os exercícios de Música</value></data>
+  <data name="Home.Tracks.Audio.Description" xml:space="preserve"><value>Perceba o que muda em uma mixagem. Compare versões A/B de trechos musicais reais para reconhecer EQ, compressão, estéreo, ambiência e textura.</value></data>
+  <data name="Home.Tracks.Audio.Cta" xml:space="preserve"><value>Ver todos os exercícios de Áudio</value></data>
+  <data name="Home.Faq7.Q" xml:space="preserve"><value>Como funciona a trilha de Áudio?</value></data>
+  <data name="Home.Faq7.A" xml:space="preserve"><value>Compare versões do mesmo trecho musical licenciado e identifique uma alteração controlada. As comparações de timbre, dinâmica e efeitos têm loudness equivalente; os exercícios de nível o alteram de propósito. Os perfis avançados usam diferenças mais sutis. Comece com volume confortável e use fones ou caixas estéreo nos exercícios de estéreo. Não precisa de software de estúdio.</value></data>
 </root>

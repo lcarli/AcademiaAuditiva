@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AcademiaAuditiva.IntegrationTests;
 
 /// <summary>
-/// The home page counts and lists every exercise by category, shows a few medals, named in
+/// The home page counts both tracks and highlights a few exercises, shows medals, named in
 /// each culture, and the eight illustrations of docs/landing-art.md, and every image on it is
 /// served as WebP.
 /// </summary>
@@ -38,14 +38,15 @@ public class HomePageTests : IClassFixture<TestWebApplicationFactory>
     }
 
     [Theory]
-    [InlineData("en-US", "{0} exercises", "{0} ways to train your ear", "{0}, grouped by area",
-        "Ear Training|Melody|Harmony|Scales|Rhythm", "In tune or not?")]
-    [InlineData("pt-BR", "{0} exercícios", "{0} jeitos de treinar o ouvido", "{0}, agrupados por área",
-        "Percepção|Melodia|Harmonia|Escalas|Ritmo", "Afinado ou não?")]
-    [InlineData("fr-CA", "{0} exercices", "{0} façons d'entraîner votre oreille", "{0}, regroupés par domaine",
-        "Entraînement de l'oreille|Mélodie|Harmonie|Gammes|Rythme", "Juste ou pas\u00A0?")]
-    public async Task HomePage_CountsAndListsEveryExercise_ByCategory_WithoutTheDatabase(
-        string culture, string feature, string title, string faq, string categories, string guessTuning)
+    [InlineData("en-US", "{0} exercises", "{0} ways to train your ear", "Music", "Audio", "In tune or not?",
+        "Beginner · Intermediate · Advanced", "How does the Audio track work?")]
+    [InlineData("pt-BR", "{0} exercícios", "{0} jeitos de treinar o ouvido", "Música", "Áudio", "Afinado ou não?",
+        "Iniciante · Intermediário · Avançado", "Como funciona a trilha de Áudio?")]
+    [InlineData("fr-CA", "{0} exercices", "{0} façons d'entraîner votre oreille", "Musique", "Audio", "Juste ou pas\u00A0?",
+        "Débutant · Intermédiaire · Avancé", "Comment fonctionne le parcours Audio\u00A0?")]
+    public async Task HomePage_CountsBothTracks_AndShowsOnlySelectedExamples_WithoutTheDatabase(
+        string culture, string feature, string title, string music, string audio, string guessTuning,
+        string levels, string audioQuestion)
     {
         using (var scope = _factory.Services.CreateScope())
         {
@@ -55,27 +56,49 @@ public class HomePageTests : IClassFixture<TestWebApplicationFactory>
 
         var html = WebUtility.HtmlDecode(await _factory.CreateClient().GetStringAsync($"/?culture={culture}"));
 
-        var music = ExerciseCatalog.ByTrack.Single(t => t.Key == TrainingTracks.Music);
-        var count = music.Exercises.Count();
+        var catalogs = ExerciseCatalog.ByTrack.Where(t => t.Key is TrainingTracks.Music or TrainingTracks.Audio).ToArray();
+        var count = catalogs.Sum(track => track.Exercises.Count());
         count.Should().BeGreaterThan(29);
         html.Should().Contain(string.Format(feature, count) + "</h2>")
             .And.Contain(string.Format(title, count) + "</h2>")
-            .And.Contain(">" + string.Format(faq, count));
+            .And.Contain(">" + string.Format(feature, count));
 
-        var groups = Regex.Matches(html,
-                @"<h3 class=""aa-ex-group-title"" id=""aa-ex-(\w+)"">([^<]*)</h3>\s*<ul class=""aa-ex-list"" aria-labelledby=""aa-ex-\1"">(.*?)</ul>",
-                RegexOptions.Singleline)
-            .Select(m => (Category: m.Groups[1].Value, Title: m.Groups[2].Value,
-                Exercises: Regex.Matches(m.Groups[3].Value, @"<a class=""aa-ex-item"" href=""/Exercise/(\w+)"">").Select(a => a.Groups[1].Value).ToList()))
-            .ToList();
-
-        groups.Select(g => g.Title).Should().Equal(categories.Split('|'));
-        groups.Select(g => (g.Category, g.Exercises)).Should().BeEquivalentTo(
-            music.Categories.Select(c => (c.Name, c.Exercises.Select(e => e.Name).ToList())),
-            options => options.WithStrictOrdering());
-        groups.SelectMany(g => g.Exercises).Should().HaveCount(count).And.OnlyHaveUniqueItems();
+        var cards = Regex.Matches(html, @"<article\b[^>]*data-aa-track=""(\w+)""[^>]*>(.*?)</article>",
+            RegexOptions.Singleline).ToDictionary(match => match.Groups[1].Value, match => match.Groups[2].Value);
+        cards.Keys.Should().Equal(TrainingTracks.Music, TrainingTracks.Audio);
+        cards[TrainingTracks.Music].Should().Contain($">{music}</h3>");
+        cards[TrainingTracks.Audio].Should().Contain($">{audio}</h3>").And.Contain("A/B");
+        foreach (var catalog in catalogs)
+        {
+            var card = cards[catalog.Key];
+            card.Should().Contain(string.Format(feature, catalog.Exercises.Count())).And.Contain(levels)
+                .And.Contain($"href=\"/Exercise?track={catalog.Key.ToLowerInvariant()}\"");
+            var examples = Regex.Matches(card, @"<a class=""aa-ex-item"" href=""/Exercise/(\w+)"">")
+                .Select(match => match.Groups[1].Value).ToArray();
+            examples.Should().HaveCount(4).And.OnlyHaveUniqueItems()
+                .And.OnlyContain(name => catalog.Exercises.Any(exercise => exercise.Name == name));
+            examples.Length.Should().BeLessThan(catalog.Exercises.Count(), "the landing is a preview, not the full catalog");
+        }
+        var allExamples = Regex.Matches(html, @"<a class=""aa-ex-item"" href=""/Exercise/(\w+)"">");
+        allExamples.Should().HaveCount(8);
         html.Should().Contain($"<span class=\"aa-ex-item-title\">{guessTuning}</span>");
+        html.Should().Contain(audioQuestion).And.Contain("id=\"aaFaq-7\"").And.Contain("href=\"#tracks\"");
+        html.IndexOf("id=\"tracks\"", StringComparison.Ordinal).Should()
+            .BeLessThan(html.IndexOf("id=\"how-it-works\"", StringComparison.Ordinal), "both tracks are introduced near the top");
+        html.Should().Contain("href=\"/Identity/Account/Register\"", "anonymous visitors can create an account");
         html.Should().NotMatchRegex(@"Exercise\.\w+\.Subtitle|ExerciseCategory\.|>Home\.", "every text has a resource");
+    }
+
+    [Fact]
+    public async Task SignedInHomePage_OffersBothTracksRatherThanDefaultingToMusic()
+    {
+        using var factory = new SignedInWebApplicationFactory();
+        var html = await factory.CreateClient().GetStringAsync("/");
+        Regex.Matches(html, @"href=""#tracks""").Should().HaveCount(2, "hero and final CTA choose a track");
+        html.Should().Contain("href=\"/Exercise?track=music\"").And.Contain("href=\"/Exercise?track=audio\"")
+            .And.Contain("href=\"/Dashboard\"");
+        Regex.Match(html, @"<div class=""aa-hero-ctas"">(.*?)</div>", RegexOptions.Singleline).Value
+            .Should().NotContain("href=\"/Identity/Account/Register\"");
     }
 
     [Fact]

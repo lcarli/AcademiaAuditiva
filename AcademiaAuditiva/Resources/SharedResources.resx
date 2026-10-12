@@ -983,7 +983,7 @@
     <value>How it works</value>
   </data>
   <data name="Home.PageTitle" xml:space="preserve">
-    <value>Train your musical ear</value>
+    <value>Ear training for music and audio</value>
   </data>
   <data name="Home.Hero.Eyebrow" xml:space="preserve">
     <value>Ear training · free</value>
@@ -992,7 +992,7 @@
     <value>Tune your ear.</value>
   </data>
   <data name="Home.Hero.Lead" xml:space="preserve">
-    <value>Short exercises on notes, intervals, chords, rhythm and melody, with progress you can see.</value>
+    <value>From notes and chords to EQ and compression. Train your musical ear and your critical listening with two learning tracks and progress you can see.</value>
   </data>
   <data name="Home.How.Badge" xml:space="preserve">
     <value>How it works</value>
@@ -1004,25 +1004,25 @@
     <value>Each round takes a few seconds. What counts is practising a little every day.</value>
   </data>
   <data name="Home.How.Step1.Title" xml:space="preserve">
-    <value>Pick an exercise</value>
+    <value>Choose your track and level</value>
   </data>
   <data name="Home.How.Step1.Desc" xml:space="preserve">
-    <value>Start with single notes or go straight to intervals and chords.</value>
+    <value>Explore Music or Audio, then choose an exercise and a difficulty that suits you.</value>
   </data>
   <data name="Home.How.Step2.Title" xml:space="preserve">
     <value>Listen and answer</value>
   </data>
   <data name="Home.How.Step2.Desc" xml:space="preserve">
-    <value>Play the sound as often as you need, then answer on the keyboard or with the buttons.</value>
+    <value>Replay a musical phrase or switch between A and B to compare an audio change. Answer and get immediate feedback.</value>
   </data>
   <data name="Home.How.Step3.Title" xml:space="preserve">
     <value>Follow your progress</value>
   </data>
   <data name="Home.How.Step3.Desc" xml:space="preserve">
-    <value>Your dashboard shows your accuracy by skill and difficulty, and the items you miss most.</value>
+    <value>Each track has its own learning path and progress. See your accuracy by skill and difficulty, and what needs more practice.</value>
   </data>
   <data name="Home.Exercises.Badge" xml:space="preserve">
-    <value>Exercises</value>
+    <value>Two learning tracks</value>
   </data>
   <data name="Home.Exercises.Title" xml:space="preserve">
     <value>{0} ways to train your ear</value>
@@ -1088,7 +1088,7 @@
     <value>Do I need to know music theory?</value>
   </data>
   <data name="Home.Faq1.A" xml:space="preserve">
-    <value>No. Every exercise comes with instructions and tips, and you can start with single notes before moving on to intervals and chords.</value>
+    <value>No. Both tracks include instructions and tips. Start with single notes in Music or clear differences in level and tone in Audio, then move to more demanding exercises.</value>
   </data>
   <data name="Home.Faq2.Q" xml:space="preserve">
     <value>Does it work on my phone?</value>
@@ -1112,7 +1112,7 @@
     <value>Which exercises are available?</value>
   </data>
   <data name="Home.Faq5.A" xml:space="preserve">
-    <value>{0}, grouped by area: ear training, melody, harmony, scales and rhythm. They range from telling whether a second note is higher or lower to melodic and rhythmic dictation and singing into the microphone. The full list is above.</value>
+    <value>{0} exercises across Music and Audio. Music covers notes, intervals, chords, melody and rhythm; Audio covers level, EQ, compression, stereo, reverb, noise and mix changes. The examples above give you a taste; each track links to its full catalog.</value>
   </data>
   <data name="Home.Faq6.Q" xml:space="preserve">
     <value>Is it free?</value>
@@ -1124,7 +1124,7 @@
     <value>Ready to train your ear?</value>
   </data>
   <data name="Home.Final.Lead" xml:space="preserve">
-    <value>Create your free account and start with your first exercise.</value>
+    <value>Create your free account and choose Music, Audio or both.</value>
   </data>
   <data name="Dashboard.StartTraining" xml:space="preserve">
     <value>Start training</value>
@@ -2030,7 +2030,7 @@
     <value>{0} exercises</value>
   </data>
   <data name="Home.Feature1.Desc" xml:space="preserve">
-    <value>Notes, intervals, chords, harmony, scales, rhythm, dictation and singing.</value>
+    <value>Musical ear training and critical listening for audio, from beginner to advanced.</value>
   </data>
   <data name="Home.Feature2.Title" xml:space="preserve">
     <value>3 languages</value>
@@ -2045,7 +2045,7 @@
     <value>Classes, invitations and progress reports.</value>
   </data>
   <data name="Home.Exercises.Lead" xml:space="preserve">
-    <value>From comparing two notes to singing a melody, across three difficulty levels.</value>
+    <value>Choose what you want to hear better. Here are a few examples from each track; the full catalogs are one click away.</value>
   </data>
   <data name="Home.Badges.Badge" xml:space="preserve">
     <value>Badges</value>
@@ -5457,4 +5457,13 @@
   <data name="Exercise.MixProblem.Feedback" xml:space="preserve"><value>The introduced change was {0}. Compare B with A and isolate that cue; the other processing categories were not added.</value></data>
   <data name="LearningPath.Unit.MixProblem.Title" xml:space="preserve"><value>Diagnose a mix change</value></data>
   <data name="LearningPath.Unit.MixProblem.Description" xml:space="preserve"><value>Apply tonal, timing and texture listening to identify one change.</value></data>
+  <data name="Home.Cta.ChooseTrack" xml:space="preserve"><value>Explore the tracks</value></data>
+  <data name="Home.Tracks.Levels" xml:space="preserve"><value>Beginner · Intermediate · Advanced</value></data>
+  <data name="Home.Tracks.Examples" xml:space="preserve"><value>A few things you can practise</value></data>
+  <data name="Home.Tracks.Music.Description" xml:space="preserve"><value>Build your musical ear with notes, intervals, chords, melody and rhythm. For playing, singing and understanding what you hear.</value></data>
+  <data name="Home.Tracks.Music.Cta" xml:space="preserve"><value>Explore all Music exercises</value></data>
+  <data name="Home.Tracks.Audio.Description" xml:space="preserve"><value>Hear what changes in a mix. Compare A/B versions of real music excerpts to recognise EQ, compression, stereo, ambience and texture.</value></data>
+  <data name="Home.Tracks.Audio.Cta" xml:space="preserve"><value>Explore all Audio exercises</value></data>
+  <data name="Home.Faq7.Q" xml:space="preserve"><value>How does the Audio track work?</value></data>
+  <data name="Home.Faq7.A" xml:space="preserve"><value>Compare versions of the same licensed music excerpt and identify a controlled change. Tone, dynamics and effects comparisons use matched loudness; level exercises deliberately change it. Advanced profiles use subtler differences. Start at a comfortable volume, and use stereo headphones or speakers for stereo exercises. No studio software is needed.</value></data>
 </root>

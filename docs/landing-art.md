@@ -49,7 +49,7 @@ All eight images are in the app. Their original PNGs stay with the owner, outsid
 | 1 | `hero` | Hero, right of "Tune your ear."; the reference for the style and the student | 1536×1024 | `Image 1.png` |
 | 2 | `student` | "Train on your own or with your class.", For students tab, beside the list | 1536×1024 | `Curly Girl’s Purple Beanbag Playlist.png` |
 | 3 | `teacher` | Same section, For teachers tab, beside the list | 1536×1024 | `Music Lesson with Colorful Notes.png` |
-| 4 | `step-1` | "Listen, answer, repeat.", above "Pick an exercise" | 1024×1024 | `Image 4.png` |
+| 4 | `step-1` | "Listen, answer, repeat.", above "Choose your track and level" | 1024×1024 | `Image 4.png` |
 | 5 | `step-2` | Same section, above "Listen and answer" | 1024×1024 | `Purple Headphones and Glowing Piano Keys.png` |
 | 6 | `step-3` | Same section, above "Follow your progress" | 1024×1024 | `Image 6.png` |
 | 7 | `faq` | "Common questions", under the title, on wide screens only | 1024×1024 | `Image 7.png` |
