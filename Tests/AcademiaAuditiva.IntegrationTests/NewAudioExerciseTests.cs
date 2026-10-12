@@ -5,8 +5,10 @@ using System.Resources;
 using AcademiaAuditiva.Data;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Interfaces;
+using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Audio;
 using AcademiaAuditiva.Services.Audio.Processing;
+using AcademiaAuditiva.Services.Gamification;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 
@@ -88,7 +90,7 @@ public class NewAudioExerciseTests : IDisposable
 
         var play = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new
         {
-            exerciseId, filters = new Dictionary<string, string> { ["eqmLevel"] = level },
+            exerciseId, filters = new Dictionary<string, string> { ["eqmLevel"] = level, ["eqmScoringVersion"] = "1" },
         }));
         play.EnumerateObject().Select(property => property.Name).Should().Equal("roundId", "clips");
         play.GetProperty("clips").GetArrayLength().Should().Be(2);
@@ -97,6 +99,7 @@ public class NewAudioExerciseTests : IDisposable
         var stored = await scope.ServiceProvider.GetRequiredService<IAudioTokenService>()
             .GetRoundAsync(SignedInWebApplicationFactory.UserId, exerciseId, roundId);
         var expected = JObject.Parse(stored!.ExpectedAnswerJson);
+        expected["scoringVersion"]!.Value<int>().Should().Be(2);
         var answer = expected["answer"]!.Value<string>()!;
         _factory.Mixer.ProcessingPlans.Should().HaveCount(2)
             .And.OnlyContain(plan => plan.Processors.Last() is LoudnessMatchProcessor);
@@ -106,10 +109,119 @@ public class NewAudioExerciseTests : IDisposable
         result.GetProperty("success").GetBoolean().Should().BeTrue();
         result.GetProperty("isCorrect").GetBoolean().Should().BeTrue();
         result.GetProperty("detail").GetProperty("score").GetDouble().Should().Be(1);
+        result.GetProperty("detail").GetProperty("scoringVersion").GetInt32().Should().Be(2);
+        result.GetProperty("detail").GetProperty("failedCriteria").GetArrayLength().Should().Be(0);
         var repeat = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
             new { exerciseId, roundId, userGuess = answer }));
         repeat.GetProperty("success").GetBoolean().Should().BeFalse();
         db.ScoreSnapshots.Count(snapshot => snapshot.ExerciseId == exerciseId).Should().Be(before + 1);
+        var snapshot = db.ScoreSnapshots.Single(snapshot => snapshot.ExerciseId == exerciseId);
+        JObject.Parse(snapshot.FilterJson!)["eqmScoringVersion"]!.Value<string>().Should().Be("2");
+    }
+
+    [Theory]
+    [InlineData("beginner", false)]
+    [InlineData("intermediate", false)]
+    [InlineData("advanced", false)]
+    [InlineData("beginner", true)]
+    public async Task EqMatchingPilot_HighPartialCreditIsNotCorrect_AndFreePracticeStillStoresNothing(
+        string level, bool free)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var exerciseId = db.Exercises.Single(e => e.Name == "EqMatching").ExerciseId;
+        var client = await IntegrationHttp.WithAntiforgeryHeaderAsync(_factory.CreateClient());
+        _factory.AudioRandom.Use(0, 0, 0, 0, 0, 0, 0);
+        var play = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/RequestPlay", new
+        {
+            exerciseId, free, filters = new Dictionary<string, string> { ["eqmLevel"] = level, ["eqmScoringVersion"] = "1" },
+        }));
+        var roundId = play.GetProperty("roundId").GetString()!;
+        var stored = await scope.ServiceProvider.GetRequiredService<IAudioTokenService>()
+            .GetRoundAsync(SignedInWebApplicationFactory.UserId, exerciseId, roundId);
+        var target = JObject.Parse(stored!.ExpectedAnswerJson);
+        var guess = FormattableString.Invariant($"{target["frequencyHz"]!.Value<double>():R}|0|{target["q"]!.Value<double>():R}");
+        var result = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
+            new { exerciseId, roundId, userGuess = guess }));
+
+        result.GetProperty("success").GetBoolean().Should().BeTrue();
+        result.GetProperty("isCorrect").GetBoolean().Should().BeFalse();
+        var detail = result.GetProperty("detail");
+        detail.GetProperty("score").GetDouble().Should().BeApproximately(0.9, 1e-12);
+        detail.GetProperty("scoringVersion").GetInt32().Should().Be(2);
+        detail.GetProperty("failedCriteria").EnumerateArray().Select(e => e.GetString())
+            .Should().Equal("direction", "gain");
+        if (free)
+        {
+            result.GetProperty("free").GetBoolean().Should().BeTrue();
+            result.TryGetProperty("rewards", out _).Should().BeFalse();
+            db.ScoreSnapshots.Should().BeEmpty();
+            db.Scores.Should().BeEmpty();
+            db.ScoreAggregates.Should().BeEmpty();
+        }
+        else
+        {
+            var snapshot = db.ScoreSnapshots.Single(s => s.ExerciseId == exerciseId);
+            snapshot.IsCorrect.Should().BeFalse();
+            var filters = ExerciseFilterPresets.Parse(snapshot.FilterJson);
+            filters["eqmScoringVersion"].Should().Be("2");
+            filters["eqmLevel"].Should().Be(level);
+            result.GetProperty("newCorrectCount").GetInt32().Should().Be(0);
+            result.GetProperty("newErrorCount").GetInt32().Should().Be(1);
+            var rewards = result.GetProperty("rewards");
+            rewards.GetProperty("xpGained").GetInt32().Should().Be(
+                Leveling.XpPerWrongAnswer + rewards.GetProperty("badges").GetArrayLength() * Leveling.XpPerBadge);
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task EqMatching_OldPendingRoundAndHistoricalCreditRemainLegacy_WhenNewRoundsUsePilot(bool explicitVersion)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var exerciseId = db.Exercises.Single(e => e.Name == "EqMatching").ExerciseId;
+        var tokens = scope.ServiceProvider.GetRequiredService<IAudioTokenService>();
+        var client = await IntegrationHttp.WithAntiforgeryHeaderAsync(_factory.CreateClient());
+        var expected = JObject.Parse("""{"frequencyHz":1000,"gainDb":3,"q":1}""");
+        if (explicitVersion) expected["scoringVersion"] = 1;
+        var oldRound = await tokens.CreateRoundAsync(SignedInWebApplicationFactory.UserId, exerciseId,
+            expected.ToString(), [ExploreWebApplicationFactory.Clip, ExploreWebApplicationFactory.Clip],
+            filterJson: """{"eqmLevel":"beginner"}""", clipKeys: ["A", "B"]);
+        var oldResult = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
+            new { exerciseId, roundId = oldRound.RoundId, userGuess = "1000|0|1" }));
+        oldResult.GetProperty("isCorrect").GetBoolean().Should().BeTrue();
+        oldResult.GetProperty("detail").GetProperty("scoringVersion").GetInt32().Should().Be(1);
+        var oldSnapshot = db.ScoreSnapshots.Single(s => s.ExerciseId == exerciseId);
+        ExerciseFilterPresets.Parse(oldSnapshot.FilterJson)["eqmScoringVersion"].Should().Be("1");
+        // Model history saved before policy metadata was introduced.
+        oldSnapshot.FilterJson = """{"eqmLevel":"beginner"}""";
+        await db.SaveChangesAsync();
+        var oldSnapshotId = oldSnapshot.Id;
+        var oldFilters = oldSnapshot.FilterJson;
+        var xpBefore = oldResult.GetProperty("rewards").GetProperty("xp").GetInt32();
+        var pilotRound = await tokens.CreateRoundAsync(SignedInWebApplicationFactory.UserId, exerciseId,
+            """{"frequencyHz":1000,"gainDb":3,"q":1,"scoringVersion":2}""",
+            [ExploreWebApplicationFactory.Clip, ExploreWebApplicationFactory.Clip],
+            filterJson: """{"eqmLevel":"beginner","eqmScoringVersion":"fake"}""", clipKeys: ["A", "B"]);
+        var result = await IntegrationHttp.ReadJsonAsync(await client.PostAsJsonAsync("/Exercise/ValidateExercise",
+            new { exerciseId, roundId = pilotRound.RoundId, userGuess = "1000|0|1" }));
+
+        result.GetProperty("isCorrect").GetBoolean().Should().BeFalse();
+        result.GetProperty("newCorrectCount").GetInt32().Should().Be(1);
+        result.GetProperty("newErrorCount").GetInt32().Should().Be(1);
+        result.GetProperty("rewards").GetProperty("xp").GetInt32()
+            .Should().Be(xpBefore + Leveling.XpPerWrongAnswer);
+        db.ChangeTracker.Clear();
+        var history = db.ScoreSnapshots.Single(s => s.Id == oldSnapshotId);
+        history.IsCorrect.Should().BeTrue();
+        history.FilterJson.Should().Be(oldFilters);
+        ExerciseFilterPresets.Parse(history.FilterJson).Should().NotContainKey("eqmScoringVersion");
+        var current = db.ScoreSnapshots.Single(s => s.ExerciseId == exerciseId && s.Id != oldSnapshotId);
+        current.IsCorrect.Should().BeFalse();
+        ExerciseFilterPresets.Parse(current.FilterJson)["eqmScoringVersion"].Should().Be("2");
+        db.ScoreAggregates.Single(s => s.ExerciseId == exerciseId).CorrectCount.Should().Be(1);
     }
 
     [Theory]

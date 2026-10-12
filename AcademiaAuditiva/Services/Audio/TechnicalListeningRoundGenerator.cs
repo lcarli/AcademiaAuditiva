@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services.Audio.Processing;
 using AcademiaAuditiva.Services.Audio.Sources;
+using AcademiaAuditiva.Services.ExerciseValidators;
 using Newtonsoft.Json;
 
 namespace AcademiaAuditiva.Services.Audio;
@@ -295,6 +296,7 @@ public sealed partial class TechnicalListeningRoundGenerator
             {
                 answer = FormattableString.Invariant($"{frequency:R}|{gain:R}|{q:R}"),
                 frequencyHz = frequency, gainDb = gain, q, level,
+                scoringVersion = EqMatchingValidator.CurrentScoringVersion,
             }),
             clips,
             new Dictionary<string, string>(StringComparer.Ordinal));

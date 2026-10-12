@@ -3,6 +3,7 @@ using AcademiaAuditiva.Extensions;
 using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Resources;
 using AcademiaAuditiva.Services;
+using AcademiaAuditiva.Services.ExerciseValidators;
 using AcademiaAuditiva.Services.Gamification;
 using AcademiaAuditiva.Services.Games;
 using AcademiaAuditiva.Services.LearningPath;
@@ -577,6 +578,11 @@ namespace AcademiaAuditiva.Controllers
 			var validation = validator.Validate(dto.UserGuess, expectedAnswer);
 			var isCorrect = validation.IsCorrect;
 			var currentAnswer = validation.CanonicalAnswer;
+			if (validation.Detail is EqMatchingValidationDetail eqMatching)
+				filterJson = MergeAnswerMetadata(filterJson, new Dictionary<string, string>
+				{
+					["eqmScoringVersion"] = eqMatching.ScoringVersion.ToString(System.Globalization.CultureInfo.InvariantCulture)
+				});
 
 			// One-shot semantics. Drop both the modern round (so the same
 			// audio tokens can't be replayed against the just-checked

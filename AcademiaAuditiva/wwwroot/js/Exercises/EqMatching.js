@@ -170,6 +170,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (AAi18n.serverError(data, loc)) return;
 
       const detail = data.detail;
+      if (![1, 2].includes(detail.scoringVersion))
+        throw new Error(`Unknown EQ matching scoring version: ${detail.scoringVersion}`);
       const values = [
         Math.round(detail.score * 100),
         number(detail.targetFrequencyHz),
@@ -179,11 +181,33 @@ document.addEventListener("DOMContentLoaded", () => {
         number(guess.gainDb),
         number(guess.q),
       ];
-      const text = loc.feedback.replace(/\{(\d+)\}/g, (_, index) => values[Number(index)]);
+      const failures = {
+        direction: loc.failureDirection,
+        frequency: loc.failureFrequency,
+        gain: loc.failureGain,
+        q: loc.failureQ,
+        score: loc.failureScore,
+        invalidGuess: loc.failureInvalidGuess,
+      };
+      const reasons = detail.failedCriteria.map(criterion => {
+        if (!Object.hasOwn(failures, criterion))
+          throw new Error(`Unknown EQ matching criterion: ${criterion}`);
+        return failures[criterion];
+      });
+      const feedback = document.createElement("div");
+      [
+        loc.feedback.replace(/\{(\d+)\}/g, (_, index) => values[Number(index)]),
+        detail.scoringVersion === 1 ? loc.legacyRule : loc.pilotRule,
+        ...reasons,
+      ].forEach(text => {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        feedback.append(paragraph);
+      });
       Swal.fire(AAi18n.withRewards({
         icon: data.isCorrect ? "success" : "error",
         title: data.isCorrect ? loc.correctMessage : loc.wrongMessage,
-        text,
+        html: feedback,
       }, data));
       roundId = null;
     } catch (error) {

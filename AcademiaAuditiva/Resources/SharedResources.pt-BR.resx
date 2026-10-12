@@ -5541,9 +5541,9 @@
   <data name="Home.Faq7.A" xml:space="preserve"><value>Compare versões do mesmo trecho musical licenciado e identifique uma alteração controlada. As comparações de timbre, dinâmica e efeitos têm loudness equivalente; os exercícios de nível o alteram de propósito. Os perfis avançados usam diferenças mais sutis. Comece com volume confortável e use fones ou caixas estéreo nos exercícios de estéreo. Não precisa de software de estúdio.</value></data>
   <data name="EqMatching" xml:space="preserve"><value>Correspondência de EQ</value></data>
   <data name="Exercise.EqMatching.Subtitle" xml:space="preserve"><value>Modele um EQ ouvindo, sem olhar para os parâmetros.</value></data>
-  <data name="Exercise.EqMatching.Instructions" xml:space="preserve"><value>Compare A, o original, com B, o alvo de EQ oculto. Ajuste frequência, ganho e Q e ouça suas configurações aplicadas a A. A e B têm loudness equivalente.</value></data>
+  <data name="Exercise.EqMatching.Instructions" xml:space="preserve"><value>Compare A, o original, com B, o alvo de EQ oculto. Ajuste frequência, ganho e Q e ouça suas configurações aplicadas a A. A e B têm loudness equivalente. Novas rodadas usam a regra piloto v2 em todos os níveis: precisão ponderada acima de 80%, direção de realce/corte correta, erro de frequência de até 400 cents, erro de ganho de até 3 dB ou metade da magnitude do alvo (o menor dos dois) e Q entre o alvo dividido por 1,5 e multiplicado por 1,5.</value></data>
   <data name="Exercise.EqMatching.Tip1" xml:space="preserve"><value>Mova primeiro a frequência central e ouça qual região se altera.</value></data>
-  <data name="Exercise.EqMatching.Tip2" xml:space="preserve"><value>Use ajustes moderados de ganho; a pontuação premia a correspondência da curva, não um sinal mais alto.</value></data>
+  <data name="Exercise.EqMatching.Tip2" xml:space="preserve"><value>Combine a direção de realce/corte e a quantidade de ganho. Uma porcentagem total alta não compensa um parâmetro fora do limite.</value></data>
   <data name="Exercise.EqMatching.Tip3" xml:space="preserve"><value>Q controla a largura: um Q menor afeta uma região mais ampla ao redor da frequência central.</value></data>
   <data name="Exercise.EqMatching.Question" xml:space="preserve"><value>Combine a frequência, o ganho e o Q do EQ que você ouve.</value></data>
   <data name="Exercise.EqMatching.New" xml:space="preserve"><value>Novo alvo de EQ</value></data>
@@ -5561,6 +5561,14 @@
   <data name="Exercise.EqMatching.KnobHelp" xml:space="preserve"><value>Arraste para cima ou para a direita para aumentar. Use as setas ou segure Shift ao arrastar para um ajuste fino.</value></data>
   <data name="Exercise.EqMatching.Incomplete" xml:space="preserve"><value>Gere um alvo antes de conferir sua correspondência de EQ.</value></data>
   <data name="Exercise.EqMatching.Feedback" xml:space="preserve"><value>Correspondência ponderada: {0}%. Alvo: {1} Hz, {2} dB, Q {3}. Suas configurações: {4} Hz, {5} dB, Q {6}.</value></data>
+  <data name="Exercise.EqMatching.PilotRule" xml:space="preserve"><value>Regra piloto v2: o acerto exige precisão acima de 80%, direção de realce/corte correta e todos os parâmetros dentro dos limites. A porcentagem continua mostrando o crédito parcial.</value></data>
+  <data name="Exercise.EqMatching.LegacyRule" xml:space="preserve"><value>Regra anterior v1: esta rodada começou sob a regra antiga e conta como acerto somente com precisão ponderada acima de 80%.</value></data>
+  <data name="Exercise.EqMatching.Failure.Direction" xml:space="preserve"><value>Direção: reproduza o realce ou corte do alvo. Ganho zero não conta.</value></data>
+  <data name="Exercise.EqMatching.Failure.Frequency" xml:space="preserve"><value>Frequência: o erro supera 400 cents (um terço de oitava).</value></data>
+  <data name="Exercise.EqMatching.Failure.Gain" xml:space="preserve"><value>Ganho: o erro supera 3 dB ou metade da magnitude do ganho do alvo, o menor dos dois.</value></data>
+  <data name="Exercise.EqMatching.Failure.Q" xml:space="preserve"><value>Q: escolha um valor entre o alvo dividido por 1,5 e multiplicado por 1,5.</value></data>
+  <data name="Exercise.EqMatching.Failure.Score" xml:space="preserve"><value>Precisão total: a porcentagem ponderada deve ser estritamente maior que 80%.</value></data>
+  <data name="Exercise.EqMatching.Failure.InvalidGuess" xml:space="preserve"><value>Configurações: envie valores válidos de frequência, ganho e Q dentro dos limites dos controles.</value></data>
   <data name="Exercise.EqMatching.PreviewError" xml:space="preserve"><value>Não foi possível reproduzir a prévia do EQ.</value></data>
   <data name="Exercise.EqMatching.Level.Beginner" xml:space="preserve"><value>Iniciante · 250 Hz–4 kHz</value></data>
   <data name="Exercise.EqMatching.Level.Intermediate" xml:space="preserve"><value>Intermediário · 120 Hz–8 kHz</value></data>

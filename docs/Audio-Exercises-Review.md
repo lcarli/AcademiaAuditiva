@@ -7,14 +7,14 @@
 
 ## Acompanhamento da implementação
 
-**Atualização:** 12/10/2026. **Fase B incorporada:** PR #166, `33cf907`. **Fase A incorporada:** PR #167, `356789a`. **Base da fase C:** esse último commit de `master`. **Branch:** `feat/audio-catalog-filters`.
+**Atualização:** 12/10/2026. **Fase B incorporada:** PR #166, `33cf907`. **Fase A incorporada:** PR #167, `356789a`. **Fase C incorporada:** PR #168, `d4cc939`. **Base da fase D:** esse último commit de `master`. **Branch:** `feat/eq-matching-validity`.
 
 | Fase | Estado | Entrega ou próxima decisão |
 |---|---|---|
 | A — documentação sincronizada | **Incorporada no master (#167)** | Registro técnico sincronizado: sete regiões/14 combinações de Boost or Cut, cinco Q avançados, categorias/defaults, arquitetura entregue, engagement expandido, sete badges e checklist específico para Áudio. Nenhum comportamento alterado. |
 | B — categorias visíveis | **Incorporada no master (#166)** | Aba **Por categoria**, badges nos cards dos três agrupamentos e remoção de seções vazias de categoria/tipo. Áudio exibe suas seis áreas na ordem de `TrainingTracks.Audio`; Música mantém suas categorias e URLs. |
-| C — filtros combináveis | **Implementada nesta branch** | Formulário GET `track/category/type/level` nos três agrupamentos, contagem única, estado vazio e limpeza localizada. O Start recebe o perfil real de Áudio; Música mantém a classificação e URLs existentes. Chaves desconhecidas ou de outra track retornam 404. |
-| D — validade EQ Matching | Aguarda decisão de produto | Definir exigência de direção e pisos por componente antes de alterar `IsCorrect`; preservar o histórico. |
+| C — filtros combináveis | **Incorporada no master (#168)** | Formulário GET `track/category/type/level` nos três agrupamentos, contagem única, estado vazio e limpeza localizada. O Start recebe o perfil real de Áudio; Música mantém a classificação e URLs existentes. Chaves desconhecidas ou de outra track retornam 404. |
+| D — validade EQ Matching | **Piloto aprovado e implementado nesta branch** | Regra v2: precisão >80%, direção correta e limites por frequência/ganho/Q. Feedback mantém crédito parcial e explica os critérios não atendidos. Rodadas v1 e histórico preservados; versão aplicada registrada sem migration. |
 | E a N | Não iniciadas | Seguir as dependências e critérios da seção 7; não ampliar DSP, trilha ou conteúdo neste incremento. |
 
 A fase B reutiliza as chaves e FKs existentes, mantém os filtros de nível e os links de entrada padrão e não altera DSP, pontuação, trilha, badges de conquista ou schema. Os nomes visuais e a nova aba estão em en-US, pt-BR e fr-CA. Cards compartilham `_ExerciseCatalogCard.cshtml`, para que categoria, subtítulo e links permaneçam consistentes nos três agrupamentos.
@@ -29,7 +29,13 @@ O Gitleaks interpretou a expressão descritiva `round/private` na linha `TOKEN` 
 
 **Verificação da fase C:** 54 testes de integração direcionados de catálogo/localização aprovados em Release, incluindo combinações, URLs de perfil, culturas, singular/plural, chaves inválidas, opções declaradas e IDs de lookup não ordinais. Quatro cenários Playwright aprovados no Chromium, cobrindo filtros GET, teclado, reload/back, estado vazio, fluxo sem JavaScript, regressão dos agrupamentos, perfis e temas em 360 px. O navegador usou a aplicação real via `WebApplicationFactory`/Kestrel com EF InMemory e conta descartável; Docker/SQL não estavam disponíveis localmente. Isso não substitui o SQL real e a suíte completa da CI.
 
-**Para retomar:** A/B já estão no master; C é a entrega desta branch, sem alteração de DSP, pontuação ou histórico. A próxima fase na ordem do roadmap é D, mas ela exige a decisão de produto sobre direção e pisos de EQ Matching indicada na seção 8 antes da implementação.
+**Decisão de produto da fase D, aprovada em 12/10/2026:** manter o percentual ponderado; exigir >80% e direção de realce/corte correta (ganho zero não passa); limitar erro de frequência a 400 cents, erro de ganho a `min(3 dB, metade da magnitude do alvo)` e Q ao intervalo `alvo/1,5` até `alvo×1,5`. Os limites individuais são inclusivos e iguais nos três níveis. São critérios iniciais para um piloto, com calibração por escuta posterior, não tolerâncias auditivas comprovadas. Para alvo +3 dB, o ganho aceito fica entre +1,5 e +4,5 dB.
+
+**Fase D:** novas rodadas levam `scoringVersion: 2` no alvo privado do servidor. Rodadas pendentes sem versão ou com versão 1 conservam a regra anterior; versão explícita inválida/desconhecida é erro, não fallback. Após validar, o retorno inclui a versão e todos os critérios não atendidos. Snapshots novos registram `eqmScoringVersion` a partir do validador, não do cliente; snapshots antigos não são atualizados nem reclassificados. XP, conquistas e progresso antigos continuam derivados dos acertos já registrados. Free practice conserva sua política sem persistência/recompensas. Não há alteração de DSP, fontes, pesos do percentual ou schema.
+
+**Verificação da fase D:** 52 testes unitários de EQ Matching e 81 testes de integração direcionados de scoring/páginas/localização aprovados em Release. Cobrem limites inclusivos, corte estrito de 80%, ganho zero/oposto, versões inválidas, percentual inalterado, rodadas legadas, snapshots/XP históricos e free practice. Três cenários Playwright aprovados no Chromium: audition/replay/teclado, feedback de erros com alta precisão parcial nas três culturas em 360 px e arraste touch. O navegador usou aplicação/Identity/Kestrel reais com EF InMemory, mixer de gravação e áudio WAV sintético; não houve validação local com SQL real nem calibração por escuta. Isso não substitui a suíte completa da CI nem a avaliação auditiva do piloto.
+
+**Para retomar:** A/B/C já estão no master; D é a entrega desta branch. A fase E é a próxima na ordem do roadmap, mas a aprovação de novos centros e a qualificação das fontes continuam separadas. A escuta/calibração do piloto D também permanece pendente.
 
 ## Como usar este relatório
 
@@ -764,7 +770,8 @@ Intervalos contínuos têm extremidade superior praticamente exclusiva por `Unit
 | GuessFrequency | String da frequência exata | Bandas próximas contam como erro completo. [VAL:225–238] |
 | BoostOrCut / GuessQ / Compression | Campo `answer` exato | Direção/região ou categoria errada não recebe crédito parcial. [VAL:247–297] |
 | Expansão | Campo `answer` exato; detalhes com parâmetros | Não valida uma estimativa contínua ou ação alternativa plausível. [EV:17–27] |
-| EqMatching | Score ponderado, correto quando **>0.8**, não ≥0.8 | Precisão parcial aparece no feedback, mas history/XP convertem para correto/erro. [EQV:8–36; CTRL:616–640] |
+| EqMatching (v1, revisão original) | Score ponderado, correto quando **>0.8**, não ≥0.8 | Precisão parcial aparece no feedback, mas history/XP convertem para correto/erro. [EQV:8–36; CTRL:616–640] |
+| EqMatching (v2, fase D) | Score **>0.8** e todos os limites individuais/direção aprovados | A compensação entre dimensões não permite ignorar um parâmetro; percentual e motivos permanecem no feedback. Ver decisão no acompanhamento inicial. |
 
 Para EQ Matching:
 
@@ -780,7 +787,7 @@ Para EQ Matching:
 Com o mesmo alvo, palpite `1000|-1|1` → **83.33%/correto**, embora o alvo seja boost e o palpite cut.
 O exemplo2500/+5/Q1.4 →2700/+4.6/Q1.2 do README recebe100%, não91%: os três erros estão na região de crédito total. Isso confirma que a tolerância atual é bastante generosa.
 Isso não é erro aritmético: é o efeito de permitir compensação entre dimensões com o corte global >80%.
-**Proposta:** conservar o percentual como feedback, mas decidir requisito de direção correta e piso de acurácia por parâmetro para `IsCorrect`.
+**Decisão posterior:** os exemplos acima descrevem v1 e continuam válidos para rodadas legadas. Na fase D, o piloto v2 conserva exatamente esse percentual, mas rejeita os dois palpites de ganho zero/direção oposta. Os limites aprovados estão no acompanhamento inicial; os acertos históricos não são reavaliados.
 
 ### 6.5 Inconsistências e pontos de atenção encontrados
 
@@ -907,8 +914,8 @@ A sequência seguinte acompanha a ordem dos batches do catálogo, não apenas pr
 |---|---|---|---|---|---|
 | A — documentação sincronizada **(incorporada no master, #167)** | Corrigir DOC para 7 bandas/Q avançado; esclarecer categorias/defaults e status entregue | Nada | S | Revisão de referências; política docs-only | Sim |
 | B — categorias visíveis **(incorporada no master, #166)** | Aba/category badges e tipos sem seções vazias; mesmas FKs | Nada | S | INDEXTEST, UTCATALOG, TRACKTEST, E2E3 culturas/360 px | Sim |
-| C — filtros combináveis **(implementada nesta branch)** | GET categoria/tipo/nível e contagem única | B, ou contrato de UX equivalente | M | URLs/presets, empty/unknown, Music sem regressão | Sim após B |
-| D — validade EQ Matching | Casos-limite, decisão de `IsCorrect`, versão de regra e feedback claro | Decisão sobre pisos/sinal | S–M | EQMTEST, ITA, ITP; score antigo não reclassificado | Sim |
+| C — filtros combináveis **(incorporada no master, #168)** | GET categoria/tipo/nível e contagem única | B, ou contrato de UX equivalente | M | URLs/presets, empty/unknown, Music sem regressão | Sim após B |
+| D — validade EQ Matching **(piloto implementado nesta branch)** | Casos-limite, versão de regra e feedback claro | Decisão sobre pisos/sinal aprovada em 12/10/2026 | S–M | EQMTEST, ITA, ITP; score antigo não reclassificado | Sim |
 | E — BoostOrCut pedagógico | Pools comuns no bundled, subsets por nível, centros revisados | Aprovação de63 Hz se usado | M | UTNEW/PRIVATE, todos candidatos por fonte, reset/console/loc | Sim |
 | F — tema/controles compartilhados | Extração knob/range, contraste, light/dark e números localizados | Nada; preservar UI atual | M | EQ/BC touch, teclado, aria, tutorial, viewport | Sim |
 | G — primeira família de novos layouts | StereoPosition, GuessFrequency, cutoff/shelf/EQ gain | F para knob; rail/SVG podem sair antes | M | Não mudar respostas; contratos JSON e E2E | Por família |
@@ -987,7 +994,7 @@ Funcionalidade exige a CI completa definida em CONTRIBUTING; testes seletivos n�
 | Pergunta | Recomendação inicial | Consequência da alternativa |
 |---|---|---|
 | Concluir a Audio path significa conhecer os fenômenos ou dominar Advanced? | Nomear como percurso introdutório; domínio avançado separado | Exigir A altera duração, fixtures e progressão histórica. |
-| Score90% com ganho zero em EQ Matching pode ser “correto”? | Manter precisão parcial, mas exigir direção/piso de cada componente | Aceitar regra atual deve ser uma decisão consciente, explicada no feedback. |
+| Score90% com ganho zero em EQ Matching pode ser “correto”? | **Decidido:** piloto v2 exige direção e limites individuais; percentual parcial mantido | Rodadas v1/acertos históricos preservados; calibração por escuta ainda pendente. |
 | Q introdutório deve generalizar frequência já no primeiro nível? | Centro público fixo no B; variabilidade depois | Manter centro oculto exige reconhecer a carga adicional. |
 | Boost or Cut deve ter todas as sete bandas desde B? | Subsets por perfil; sete no A | Manter sete requer fontes/centros que sustentem discriminação fácil. |
 | MixProblem mede diagnóstico puro ou decisão com audition? | Explicitar decisão com audition; duas etapas se quiser medir diagnóstico separado | Audition antes do diagnóstico pode revelar a solução por comparação; isso é dinâmica, não fuga de metadata. |
