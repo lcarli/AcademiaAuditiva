@@ -24,17 +24,26 @@ public static class AudioComparisonCatalog
         new("EqGain", "egLevel", 9, ["light", "medium", "strong"], true),
         new("CompressorThreshold", "ctLevel", 10, ["A", "B"], false),
         new("EchoFeedback", "efLevel", 12, ["A", "B"], false),
-        new("ReverbMix", "rmLevel", 12, ["light", "medium", "strong"], true),
+        new("ReverbMix", "rmLevel", 12, ["dry", "light", "medium", "strong"], true),
         new("NoiseDetection", "ndLevel", 13, ["A", "B"], false),
-        new("MixProblem", "mpLevel", 13, ["bass", "treble", "echo", "distortion", "noise"], true),
+        new("MixProblem", "mpLevel", 13, ["muddy", "harsh", "boomy", "thin", "narrow"], true),
+    ];
+
+    public static IReadOnlyList<AudioComparisonDefinition> Continuous { get; } =
+    [
+        new("EqMatching", "eqmLevel", 9, [], true),
     ];
 
     public static IReadOnlyList<AudioComparisonDefinition> All { get; } =
     [
-        new("BoostOrCut", "bcLevel", 9, ["boost|bass", "cut|bass", "boost|mids", "cut|mids", "boost|air", "cut|air"], true),
+        new("BoostOrCut", "bcLevel", 9,
+            ["boost|sub", "cut|sub", "boost|bass", "cut|bass", "boost|lowMids", "cut|lowMids",
+                "boost|mids", "cut|mids", "boost|upperMids", "cut|upperMids", "boost|presence", "cut|presence",
+                "boost|air", "cut|air"], true),
         new("GuessQ", "gqLevel", 9, ["broad", "medium", "narrow"], true),
         new("Compression", "cpLevel", 10, ["A", "B"], false),
         .. Expansion,
+        .. Continuous,
     ];
 
     public static AudioComparisonDefinition? Find(string name) =>

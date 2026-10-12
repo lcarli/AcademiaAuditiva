@@ -80,6 +80,8 @@ public static class LearningPathCatalog
         new("CompressionFoundations", [Step("Compression", 10, 7, ("cpLevel", "beginner"))]),
         .. Audio.AudioComparisonCatalog.Expansion.Select(definition =>
             new PathUnit(definition.Name, [Step(definition.Name, 10, 7, (definition.LevelFilter, "beginner"))])),
+        .. Audio.AudioComparisonCatalog.Continuous.Select(definition =>
+            new PathUnit(definition.Name, [Step(definition.Name, 10, 7, (definition.LevelFilter, "beginner"))])),
     ];
 
     public static IReadOnlyDictionary<string, IReadOnlyList<PathUnit>> ByTrack { get; } =

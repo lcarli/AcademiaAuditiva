@@ -102,7 +102,7 @@ public class PrivateTrainingSourcesTests
             foreach (var q in new[] { 0.35, 0.5, 0.7, 1, 1.4, 1.5, 2.8, 4 })
                 CheckPair(input, new PeakingEqProcessor(frequency, 9, q), -28, source.Key);
         }
-        foreach (var name in new[] { "LevelMatch", "StereoPosition", "GuessFrequency", "BoostOrCut", "GuessQ", "Compression" })
+        foreach (var name in new[] { "LevelMatch", "StereoPosition", "GuessFrequency", "BoostOrCut", "GuessQ", "Compression", "EqMatching" })
             generator.Plan(new Exercise { Name = name }, new Dictionary<string, string>())
                 .Clips.Should().OnlyContain(clip => library.Find(clip.Plan.SourceKey)!.IsRemote);
     }

@@ -2,8 +2,9 @@
 
 ## Status
 
-Implementation plan, started on 2026-10-08. Slices 1-9 implement
-**Audio Ear Training: Foundations**; slice 10 is the next expansion.
+Implementation record, started on 2026-10-08. **Audio Ear Training:
+Foundations** and its expanded track currently include twenty-seven exercises;
+full interactive Mix Challenges remain on the roadmap.
 
 This document turns the audio-engineering training concept into incremental
 work that fits the current Academia Auditiva architecture. GitHub issues
@@ -76,7 +77,7 @@ the rest of the track: gain, pan and parametric EQ.
 
 ### Expanded track
 
-The track now includes twenty-six exercises, reusing the foundations:
+The track now includes twenty-seven exercises, reusing the foundations:
 
 1. **Boost or Cut** - identify the direction and region of an EQ change.
 2. **Guess the Q** - identify broad, medium and narrow EQ curves.
@@ -87,12 +88,18 @@ The track now includes twenty-six exercises, reusing the foundations:
 7. **Echo Timing and Find the Distortion** - identify repeat intervals and added saturation.
 8. **High-pass Cutoff, Low-pass Cutoff, Low Shelf, High Shelf and EQ Gain** - distinguish cutoff, broad tonal balance and boost strength.
 9. **Compressor Threshold, Echo Feedback and Reverb Mix** - distinguish onset of gain reduction, repeat persistence and direct/processed balance.
-10. **Find the Noise and Find the Mix Change** - detect added noise and diagnose one deliberately introduced change.
+10. **Find the Noise and Find the Mix Problem** - detect added noise, diagnose a realistic tonal or stereo issue, choose a corrective move and audition candidate fixes.
+11. **EQ Matching** - continuously estimate a parametric EQ's frequency, gain and Q, with a local audition preview.
 
-All ten exercises in the latest batch have beginner, intermediate and advanced
-profiles with progressively subtler differences. Continuous interactive mix
-challenges remain on the roadmap; the delivered diagnostic identifies one
-introduced change rather than judging the quality of the original recording.
+The expanded comparisons have beginner, intermediate and advanced profiles.
+Mix Problem's candidate repairs are rendered from the same source and loudness
+target; the learner can audition each proposal before choosing one. EQ Matching's
+rotary controls participate in the shared exercise tutorial. Playback
+controls wrap on narrow screens, including Mix Problem's five candidate repairs.
+EQ Matching uses frequency, gain and Q weights of 50%, 30% and 20%. Errors receive full
+credit within 200 cents, 1.5 dB and 20% Q respectively, then lose credit
+linearly to zero at one octave, 6 dB and a 2:1 Q ratio. A weighted score above
+80% is correct. Continuous full-mix challenges remain on the roadmap.
 
 The Audio catalog's difficulty view lists each exercise under every level
 declared by its difficulty filter. Each Start link preselects that level on
@@ -109,7 +116,6 @@ progressive Audio profiles and comfortable stereo listening.
 
 ### Not in the first release
 
-- continuous EQ matching;
 - compressor ratio or gain-reduction estimation;
 - polarity, phase and mono compatibility;
 - reverb type, decay and pre-delay estimation;
@@ -275,7 +281,7 @@ are never playable sources. Full file hashes, measured PCM layouts and the
 catalog rules are checked, rather than synthesizing measurements from filenames.
 Stereo chunks serve level/EQ, and mono chunks serve pan. Compression uses a
 qualified subset of stereo percussion/funk excerpts. Once configured, qualified
-music chunks take precedence over bundled recordings for all twenty-six Audio exercises.
+music chunks take precedence over bundled recordings for all twenty-seven Audio exercises.
 Discovery errors or missing assets block readiness and requests, with no bundled
 fallback. Local development and CI keep the bundled catalog by default.
 
@@ -945,9 +951,19 @@ steps. Profiles below are beginner / intermediate / advanced:
 | EQ Gain | Is B's boost light, medium or strong? | 3/7.5/12, 3/6/9, 3/4.5/6 dB; 1000 Hz, Q 1. |
 | Compressor Threshold | Which side has the lower threshold? | Source peak minus 15 vs 3 / 12 vs 4 / 10 vs 5 dB; 4:1, 3 ms attack, 50 ms release. |
 | Echo Feedback | Which side has stronger feedback? | 10 vs 65 / 20 vs 50 / 30 vs 45%; 250 ms delay, 50% wet. |
-| Reverb Mix | Is B's wet mix light, medium or strong? | 15/40/70, 20/40/60, 30/40/50%; 1.2 s nominal decay, 20 ms pre-delay. |
+| Reverb Mix | Is B dry or how strong is its wet mix? | Dry or 15/40/70, 20/40/60, 30/40/50%; 1.2 s nominal decay, 20 ms pre-delay. |
 | Find the Noise | Which side has added white noise? | 12/21/30 dB RMS signal-to-noise ratio. |
-| Find the Mix Change | What was introduced in B? | Bass/treble shelf cut 9/6/3 dB; echo 45/30/20% wet; saturation knee 9/6/3 dB below the source peak; noise SNR 12/21/30 dB. |
+| Find the Mix Problem | Which tonal or stereo issue is present, and what corrective move would you try? | Muddy low mids, harsh presence, boomy low end, weak low end or narrow image; audition five candidate EQ or width repairs against the flawed mix. |
+
+EQ Matching is the twenty-seventh Audio learning-path step. Each round keeps a
+random peaking-EQ target server-side and returns only two opaque clip tokens.
+Its console-style EQ module has three rotary knobs, numerical readouts and a
+response plot of the learner's settings only. Knobs support mouse/touch dragging,
+Shift-drag fine adjustment and native range keyboard controls.
+The browser auditions user-selected frequency, gain and Q on the dry reference,
+with playback RMS-matched to the unprocessed reference and peak-limited to avoid
+clipping; the answer validator applies the weighted continuous score described
+above.
 
 The `p5` processing engine adds second-order Butterworth high/low-pass filters
 (12 dB/octave; -3.01 dB at cutoff), unit-slope low/high shelving biquads, and

@@ -1150,11 +1150,13 @@ namespace AcademiaAuditiva.Controllers
 		public IActionResult ReverbMix() => AudioComparison("ReverbMix");
 		public IActionResult NoiseDetection() => AudioComparison("NoiseDetection");
 		public IActionResult MixProblem() => AudioComparison("MixProblem");
+		public IActionResult EqMatching() => AudioComparison("EqMatching");
 
 		private IActionResult AudioComparison(string name)
 		{
 			var exercise = _context.Exercises.FirstOrDefault(e => e.Name == name);
-			return exercise == null ? NotFound() : View("AudioComparison", exercise.ToViewModel(_localizer));
+			return exercise == null ? NotFound()
+				: View(name == "EqMatching" ? "EqMatching" : "AudioComparison", exercise.ToViewModel(_localizer));
 		}
 		#endregion
 

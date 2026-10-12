@@ -3,6 +3,8 @@
     // A round of one clip (a single-source exercise) has one control and its own texts.
     var single = ViewData["ABSingle"] as bool? == true;
     var keys = single ? new[] { "A" } : new[] { "A", "B" };
+    var extraClips = ViewData["ABExtraClips"] as IReadOnlyList<(string Key, string Label, int Index)>
+        ?? Array.Empty<(string Key, string Label, int Index)>();
 }
 
 <div class="aa-ab-playback"
@@ -28,6 +30,22 @@
                 {
                     <span>@key</span>
                 }
+            </button>
+        }
+        @foreach (var clip in extraClips)
+        {
+            <button type="button"
+                    class="aa-ab-clip aa-ab-fix"
+                    data-aa-ab-play="@clip.Key"
+                    aria-label="@S["Exercise.MixProblem.AuditionFix", clip.Label]"
+                    title="@S["Exercise.MixProblem.AuditionFix", clip.Label]"
+                    aria-keyshortcuts="@clip.Key"
+                    aria-pressed="false"
+                    disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M7 5l12 7-12 7z" fill="currentColor" />
+                </svg>
+                <span>@S["Exercise.MixProblem.Fix", clip.Index]</span>
             </button>
         }
         <button type="button"

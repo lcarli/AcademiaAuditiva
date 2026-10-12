@@ -158,12 +158,12 @@ public sealed partial class TechnicalListeningRoundGenerator
                 parameters = [lowFeedback * 100, highFeedback * 100, 250];
                 break;
             case "ReverbMix":
-                var mixIndex = _random.Next(3);
+                var mixIndex = _random.Next(4);
                 var mixes = difficulty switch
                 {
-                    0 => new[] { 0.15, 0.4, 0.7 },
-                    1 => [0.2, 0.4, 0.6],
-                    _ => [0.3, 0.4, 0.5],
+                    0 => new[] { 0.0, 0.15, 0.4, 0.7 },
+                    1 => [0.0, 0.2, 0.4, 0.6],
+                    _ => [0.0, 0.3, 0.4, 0.5],
                 };
                 var mix = mixes[mixIndex];
                 second = [new ReverbProcessor(1.2, 20, mix)];
@@ -179,14 +179,14 @@ public sealed partial class TechnicalListeningRoundGenerator
             case "MixProblem":
                 var problemIndex = _random.Next(definition.Answers.Count);
                 answer = definition.Answers[problemIndex];
-                var change = new[] { 9.0, 6, 3 }[difficulty];
+                var change = new[] { 6.0, 4, 2 }[difficulty];
                 second = answer switch
                 {
-                    "bass" => [new ShelfEqProcessor(150, -change, false)],
-                    "treble" => [new ShelfEqProcessor(4000, -change, true)],
-                    "echo" => [new EchoProcessor(250, 0.3, new[] { 0.45, 0.3, 0.2 }[difficulty])],
-                    "distortion" => [new SaturationProcessor(source.Audio.PeakDbfs - change)],
-                    "noise" => [new WhiteNoiseProcessor(NoiseSnr(difficulty), 1 + _random.Next(int.MaxValue - 1))],
+                    "muddy" => [new PeakingEqProcessor(250, change, 1)],
+                    "harsh" => [new PeakingEqProcessor(4000, change, 1)],
+                    "boomy" => [new PeakingEqProcessor(125, change, 1)],
+                    "thin" => [new PeakingEqProcessor(150, -change, 1)],
+                    "narrow" => [new StereoWidthProcessor(new[] { 0.5, 0.65, 0.8 }[difficulty])],
                     _ => throw new InvalidOperationException("Unknown mix diagnostic answer."),
                 };
                 parameters = [];
@@ -200,11 +200,22 @@ public sealed partial class TechnicalListeningRoundGenerator
             (first, second) = (second, first);
             answer = answer == "A" ? "B" : "A";
         }
-        var clips = new[]
+        var clips = new List<NamedAudioProcessingPlan>
         {
             new NamedAudioProcessingPlan("A", new(source.Key, [.. first, new FadeOutProcessor(15), target])),
             new NamedAudioProcessingPlan("B", new(source.Key, [.. second, new FadeOutProcessor(15), target])),
         };
+        if (definition.Name == "MixProblem")
+        {
+            for (var index = 0; index < definition.Answers.Count; index++)
+            {
+                var key = definition.Answers[index];
+                var repair = MixProblemCorrection(key, difficulty);
+                clips.Add(new NamedAudioProcessingPlan(
+                    ((char)('C' + index)).ToString(),
+                    new(source.Key, [.. second, repair, new FadeOutProcessor(15), target])));
+            }
+        }
         foreach (var clip in clips) AudioProcessing.Validate(clip.Plan, source);
         return new TechnicalListeningRoundPlan(
             JsonConvert.SerializeObject(new { answer, parameters, level, sourceKind = source.Kind }),
@@ -215,6 +226,16 @@ public sealed partial class TechnicalListeningRoundGenerator
                 ["audioSourceKind"] = source.Kind,
             });
     }
+
+    private static AudioProcessor MixProblemCorrection(string answer, int difficulty) => answer switch
+    {
+        "muddy" => new PeakingEqProcessor(250, new[] { -6.0, -4, -2 }[difficulty], 1),
+        "harsh" => new PeakingEqProcessor(4000, new[] { -6.0, -4, -2 }[difficulty], 1),
+        "boomy" => new PeakingEqProcessor(125, new[] { -6.0, -4, -2 }[difficulty], 1),
+        "thin" => new PeakingEqProcessor(150, new[] { 6.0, 4, 2 }[difficulty], 1),
+        "narrow" => new StereoWidthProcessor(1 / new[] { 0.5, 0.65, 0.8 }[difficulty]),
+        _ => throw new InvalidOperationException("Unknown mix correction."),
+    };
 
     private static double NoiseSnr(int difficulty) => new[] { 12.0, 21, 30 }[difficulty];
 

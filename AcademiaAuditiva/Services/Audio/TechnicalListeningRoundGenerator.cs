@@ -95,6 +95,7 @@ public sealed partial class TechnicalListeningRoundGenerator
             "BoostOrCut" => PlanBoostOrCut(filters),
             "GuessQ" => PlanGuessQ(filters),
             "Compression" => PlanCompression(filters),
+            "EqMatching" => PlanEqMatching(filters),
             _ when AudioComparisonCatalog.Find(exercise.Name) is { } definition => PlanExpansion(definition, filters),
             _ => throw new ArgumentException($"No technical-listening generator exists for '{exercise.Name}'.", nameof(exercise)),
         };
@@ -197,10 +198,14 @@ public sealed partial class TechnicalListeningRoundGenerator
     {
         var level = Level(filters, "bcLevel");
         var gain = level == "beginner" ? 9 : level == "intermediate" ? 6 : 3;
-        var regions = new[] { ("bass", 125), ("mids", 1000), ("air", 8000) };
+        var regions = new[]
+        {
+            ("sub", 100), ("bass", 125), ("lowMids", 250), ("mids", 1000),
+            ("upperMids", 2000), ("presence", 4000), ("air", 8000),
+        };
         var (region, frequency) = regions[_random.Next(regions.Length)];
         var direction = _random.Next(2) == 0 ? "boost" : "cut";
-        var source = Pick(FrequencySourcesFor("intermediate", frequency), "BoostOrCut");
+        var source = Pick(EqSourcesForFrequency(frequency), "BoostOrCut");
         var eq = new PeakingEqProcessor(frequency, direction == "boost" ? gain : -gain, 1);
         return Comparison(source, eq, "B", new
         {
@@ -213,22 +218,32 @@ public sealed partial class TechnicalListeningRoundGenerator
         });
     }
 
+    private IReadOnlyList<AudioSource> EqSourcesForFrequency(int frequency) =>
+        PreferMusic(_sources.Sources.Where(source =>
+            source.Uses.Contains("eq", StringComparer.Ordinal)
+            && source.Difficulties.Contains(2)
+            && (source.IsRemote
+                ? AudioSourceLibrary.SupportsStorageEqDifficulty(source.Key, 2)
+                : FrequencySourceBands.TryGetValue(source.Key, out var bands) && bands.Contains(frequency))
+            && frequency <= AudioProcessing.MaxEqFrequencyRateRatio * source.Audio.SampleRate));
+
     private TechnicalListeningRoundPlan PlanGuessQ(IReadOnlyDictionary<string, string> filters)
     {
         var level = Level(filters, "gqLevel");
         var frequency = new[] { 500, 1000, 2000 }[_random.Next(3)];
         var widths = new[] { "broad", "medium", "narrow" };
-        var index = _random.Next(widths.Length);
         var qValues = level == "beginner" ? new[] { 0.35, 1.0, 4.0 }
-            : level == "intermediate" ? [0.5, 1.5, 4.0] : [0.7, 1.4, 2.8];
+            : level == "intermediate" ? [0.5, 1.5, 4.0] : [0.5, 1.0, 2.0, 4.0, 8.0];
+        var index = _random.Next(qValues.Length);
         var q = qValues[index];
+        var answer = level == "advanced" ? Number(q) : widths[index];
         var source = Pick(FrequencySourcesFor("intermediate", frequency), "GuessQ");
         return Comparison(source, new PeakingEqProcessor(frequency, 9, q), "B", new
         {
-            answer = widths[index], q, frequencyHz = frequency, level, sourceKind = source.Kind,
+            answer, q, frequencyHz = frequency, level, sourceKind = source.Kind,
         }, new Dictionary<string, string>
         {
-            ["gqWidth"] = widths[index], ["gqQ"] = Number(q),
+            ["gqWidth"] = answer, ["gqQ"] = Number(q),
             ["gqFrequencyHz"] = Number(frequency), ["gqSourceKind"] = source.Kind,
         });
     }
@@ -251,6 +266,41 @@ public sealed partial class TechnicalListeningRoundGenerator
             ["cpSourceKind"] = source.Kind,
         });
     }
+
+    private TechnicalListeningRoundPlan PlanEqMatching(IReadOnlyDictionary<string, string> filters)
+    {
+        var level = Level(filters, "eqmLevel");
+        var (minFrequency, maxFrequency, maxGain, minQ, maxQ) = level switch
+        {
+            "beginner" => (250.0, 4000.0, 6.0, 0.7, 3.0),
+            "intermediate" => (120.0, 8000.0, 9.0, 0.5, 6.0),
+            _ => (60.0, 12000.0, 12.0, 0.5, 8.0),
+        };
+        var frequency = Math.Pow(2, Math.Log2(minFrequency)
+            + UnitRandom() * (Math.Log2(maxFrequency) - Math.Log2(minFrequency)));
+        var gainMagnitude = 3 + UnitRandom() * (maxGain - 3);
+        var gain = _random.Next(2) == 0 ? gainMagnitude : -gainMagnitude;
+        var q = Math.Pow(2, Math.Log2(minQ) + UnitRandom() * (Math.Log2(maxQ) - Math.Log2(minQ)));
+        var source = Pick(FrequencySourcesFor("intermediate", 1000), "EqMatching");
+        var target = new PeakingEqProcessor(frequency, gain, q);
+        var targetLufs = -30 - _random.Next(9) / 2.0;
+        var clips = new[]
+        {
+            new NamedAudioProcessingPlan("A", new(source.Key, [new LoudnessMatchProcessor(targetLufs)])),
+            new NamedAudioProcessingPlan("B", new(source.Key, [target, new LoudnessMatchProcessor(targetLufs)])),
+        };
+        foreach (var clip in clips) AudioProcessing.Validate(clip.Plan, source);
+        return new TechnicalListeningRoundPlan(
+            JsonConvert.SerializeObject(new
+            {
+                answer = FormattableString.Invariant($"{frequency:R}|{gain:R}|{q:R}"),
+                frequencyHz = frequency, gainDb = gain, q, level,
+            }),
+            clips,
+            new Dictionary<string, string>(StringComparer.Ordinal));
+    }
+
+    private double UnitRandom() => _random.Next(1_000_000) / 1_000_000.0;
 
     internal static CompressorProcessor CompressionFor(string level) => level switch
     {

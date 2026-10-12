@@ -25,12 +25,14 @@ const AudioEngine = (() => {
     // A round produces one or two short clips. Keeping the latest decoded
     // clips makes Replay instant without a second fetch (the server forbids
     // HTTP caching); older rounds are dropped so long sessions stay light.
-    const MAX_CACHED_CLIPS = 4;
+    const MAX_CACHED_CLIPS = 8;
     const bufferCache = new Map();
     let context = null;
     let output = null;
     let analyser = null;
     const playing = new Set();
+    let synchronizedPair = null;
+    let playbackGeneration = 0;
 
     // Created on first use so pages don't open an audio device before the
     // learner asks for sound. Clips play through one gain node, which the
@@ -97,15 +99,97 @@ const AudioEngine = (() => {
     }
 
     async function preload(token) {
-        if (!token) return;
-        try { await loadBuffer(token); } catch (err) { console.warn("preload failed", err); }
+        if (!token) return false;
+        try {
+            await loadBuffer(token);
+            return true;
+        } catch (err) {
+            console.warn("preload failed", err);
+            return false;
+        }
     }
 
     function stop() {
+        playbackGeneration += 1;
+        const pair = synchronizedPair;
+        synchronizedPair = null;
+        pair?.resolve?.();
         for (const source of playing) {
             try { source.stop(); } catch { /* already stopped */ }
         }
         playing.clear();
+    }
+
+    function setSynchronizedSide(key) {
+        const pair = synchronizedPair;
+        if (!pair || !pair.keys.has(key)) return false;
+        pair.activeKey = key;
+        if (pair.gains.length) {
+            const audio = getContext();
+            Array.from(pair.keys).forEach((clipKey, index) => {
+                const gain = pair.gains[index].gain;
+                gain.cancelScheduledValues(audio.currentTime);
+                gain.setTargetAtTime(clipKey === key ? 1 : 0, audio.currentTime, 0.005);
+            });
+        }
+        return pair.started;
+    }
+
+    async function playSynchronized(clips, activeKey, { onStart } = {}) {
+        if (!Array.isArray(clips) || clips.length !== 2
+            || clips.some(clip => !clip || typeof clip.key !== "string" || typeof clip.token !== "string")
+            || !clips.some(clip => clip.key === activeKey)) {
+            throw new Error("Synchronized playback requires exactly two keyed clips.");
+        }
+
+        const audio = resume();
+        stop();
+        const pair = {
+            keys: new Set(clips.map(clip => clip.key)),
+            activeKey,
+            started: false,
+            sources: [],
+            gains: [],
+            remaining: clips.length,
+            resolve: null
+        };
+        synchronizedPair = pair;
+        const completed = new Promise(resolve => { pair.resolve = resolve; });
+
+        const buffers = await Promise.all(clips.map(clip => loadBuffer(clip.token)));
+        if (synchronizedPair !== pair) {
+            pair.resolve();
+            return completed;
+        }
+
+        clips.forEach((clip, index) => {
+            const source = audio.createBufferSource();
+            const gain = audio.createGain();
+            source.buffer = buffers[index];
+            gain.gain.value = clip.key === pair.activeKey ? 1 : 0;
+            source.connect(gain);
+            gain.connect(output);
+            pair.sources.push(source);
+            pair.gains.push(gain);
+            playing.add(source);
+            source.onended = () => {
+                source.disconnect();
+                gain.disconnect();
+                playing.delete(source);
+                pair.remaining -= 1;
+                if (pair.remaining === 0) {
+                    if (synchronizedPair === pair) synchronizedPair = null;
+                    pair.resolve();
+                }
+            };
+        });
+
+        setSynchronizedSide(pair.activeKey);
+        const startAt = audio.currentTime + 0.02;
+        pair.started = true;
+        pair.sources.forEach(source => source.start(startAt));
+        if (typeof onStart === "function") onStart();
+        return completed;
     }
 
     // What the browser knows of the time a sample takes from the render clock
@@ -140,6 +224,87 @@ const AudioEngine = (() => {
                 onStart(() => audio.currentTime - startedAt - latency(audio));
             }
         });
+    }
+
+    async function playTokenWithEq(token, { frequencyHz, gainDb, q }, { onStart } = {}) {
+        if (!token || ![frequencyHz, gainDb, q].every(Number.isFinite)
+            || frequencyHz < 20 || frequencyHz > 20000 || gainDb < -12 || gainDb > 12
+            || q < 0.25 || q > 8) {
+            throw new Error("EQ preview parameters are outside the supported range.");
+        }
+        const audio = resume();
+        stop();
+        const generation = playbackGeneration;
+        const buffer = await loadBuffer(token);
+        const compensation = await eqLoudnessCompensation(buffer, frequencyHz, gainDb, q);
+        if (generation !== playbackGeneration) return;
+
+        const source = audio.createBufferSource();
+        const filter = audio.createBiquadFilter();
+        const normalization = audio.createGain();
+        source.buffer = buffer;
+        filter.type = "peaking";
+        filter.frequency.value = frequencyHz;
+        filter.gain.value = gainDb;
+        filter.Q.value = q;
+        source.connect(filter);
+        filter.connect(normalization);
+        normalization.gain.value = compensation;
+        normalization.connect(output);
+        playing.add(source);
+
+        return new Promise((resolve) => {
+            source.onended = () => {
+                source.disconnect();
+                filter.disconnect();
+                normalization.disconnect();
+                playing.delete(source);
+                resolve();
+            };
+            source.start();
+            if (typeof onStart === "function") {
+                const startedAt = audio.currentTime;
+                onStart(() => audio.currentTime - startedAt - latency(audio));
+            }
+        });
+    }
+
+    async function eqLoudnessCompensation(buffer, frequencyHz, gainDb, q) {
+        const OfflineContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+        if (!OfflineContext) throw new Error("Loudness-matched EQ preview is not supported.");
+
+        const offline = new OfflineContext(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
+        const source = offline.createBufferSource();
+        const filter = offline.createBiquadFilter();
+        source.buffer = buffer;
+        filter.type = "peaking";
+        filter.frequency.value = frequencyHz;
+        filter.gain.value = gainDb;
+        filter.Q.value = q;
+        source.connect(filter);
+        filter.connect(offline.destination);
+        source.start();
+        const processed = await offline.startRendering();
+
+        let inputEnergy = 0;
+        let outputEnergy = 0;
+        let outputPeak = 0;
+        let sampleCount = 0;
+        for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+            const input = buffer.getChannelData(channel);
+            const output = processed.getChannelData(channel);
+            sampleCount += input.length;
+            for (let index = 0; index < input.length; index++) {
+                inputEnergy += input[index] * input[index];
+                outputEnergy += output[index] * output[index];
+                outputPeak = Math.max(outputPeak, Math.abs(output[index]));
+            }
+        }
+        if (outputEnergy === 0 || outputPeak === 0) return 1;
+
+        const inputRms = Math.sqrt(inputEnergy / sampleCount);
+        const outputRms = Math.sqrt(outputEnergy / sampleCount);
+        return Math.min(inputRms / outputRms, 0.98 / outputPeak, 4);
     }
 
     // === WAVEFORM VISUAL ===
@@ -244,6 +409,9 @@ const AudioEngine = (() => {
 
     return {
         playToken,
+        playTokenWithEq,
+        playSynchronized,
+        setSynchronizedSide,
         preload,
         stop,
         setupWaveform,

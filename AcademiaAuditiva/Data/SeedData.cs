@@ -1695,6 +1695,8 @@ public static class SeedData
         };
         exercises.AddRange(AudioComparisonCatalog.Expansion.Select(definition =>
             AudioComparison(definition.Name, definition.LevelFilter, definition.CategoryId)));
+        exercises.AddRange(AudioComparisonCatalog.Continuous.Select(definition =>
+            AudioComparison(definition.Name, definition.LevelFilter, definition.CategoryId)));
         return exercises;
     }
 

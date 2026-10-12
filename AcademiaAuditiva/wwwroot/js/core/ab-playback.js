@@ -22,6 +22,7 @@
     let lastKey = null;
     let playSequence = 0;
     let destroyed = false;
+    let readyPromise = Promise.resolve(false);
 
     function say(text, state = "") {
       if (status) status.textContent = text || "";
@@ -38,9 +39,22 @@
       });
     }
 
-    async function play(key) {
+    function hasSynchronizedPair() {
+      return tokens.has("A") && tokens.has("B");
+    }
+
+    async function play(key, restart = false) {
       const token = tokens.get(key);
       if (!token || destroyed) return false;
+
+      if (!restart && hasSynchronizedPair() && (key === "A" || key === "B")
+          && AudioEngine.setSynchronizedSide(key)) {
+        lastKey = key;
+        if (replayButton) replayButton.disabled = false;
+        markPlaying(key);
+        say(format(root.dataset.playing, key), "playing");
+        return true;
+      }
 
       const sequence = ++playSequence;
       lastKey = key;
@@ -49,13 +63,15 @@
       say(format(root.dataset.loading, key), "loading");
 
       try {
-        await AudioEngine.playToken(token, {
-          onStart() {
-            if (sequence === playSequence && !destroyed) {
-              say(format(root.dataset.playing, key), "playing");
-            }
-          },
-        });
+        const onStart = () => {
+          if (sequence === playSequence && !destroyed) {
+            say(format(root.dataset.playing, key), "playing");
+          }
+        };
+        const playback = hasSynchronizedPair() && (key === "A" || key === "B")
+          ? AudioEngine.playSynchronized(["A", "B"].map(clipKey => ({ key: clipKey, token: tokens.get(clipKey) })), key, { onStart })
+          : AudioEngine.playToken(token, { onStart });
+        await playback;
         if (sequence === playSequence && !destroyed) {
           markPlaying("");
           say(root.dataset.ready, "ready");
@@ -93,7 +109,8 @@
       playButtons.forEach((button) => { button.disabled = false; });
       if (replayButton) replayButton.disabled = true;
       say(root.dataset.ready, "ready");
-      next.forEach((token) => AudioEngine.preload(token));
+      readyPromise = Promise.all([...next.values()].map(token => AudioEngine.preload(token)))
+        .then(results => results.every(Boolean));
     }
 
     function clear() {
@@ -104,11 +121,12 @@
       markPlaying("");
       playButtons.forEach((button) => { button.disabled = true; });
       if (replayButton) replayButton.disabled = true;
+      readyPromise = Promise.resolve(false);
       say("", "");
     }
 
     function replay() {
-      return lastKey ? play(lastKey) : Promise.resolve(false);
+      return lastKey ? play(lastKey, true) : Promise.resolve(false);
     }
 
     function onKeydown(event) {
@@ -136,6 +154,7 @@
       clear,
       play,
       replay,
+      whenReady: () => readyPromise,
       destroy() {
         if (destroyed) return;
         clear();
