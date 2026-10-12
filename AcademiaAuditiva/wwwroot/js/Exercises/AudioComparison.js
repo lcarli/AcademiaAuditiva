@@ -5,17 +5,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const levelSelect = document.getElementById(loc.levelFilter);
   const ab = ABPlayback.create(document.querySelector("[data-aa-ab]"));
   const buttons = [...document.querySelectorAll(".guessAnswer")];
+  const directionButtons = [...document.querySelectorAll("[data-bc-direction]")];
   const validateButton = document.getElementById("validateGuess");
   let roundId = null;
   let answer = "";
+  let direction = "";
   let validating = false;
 
   function select(selected) {
-    answer = selected?.value || "";
     buttons.forEach(button => {
       button.classList.toggle("selected", button === selected);
       button.setAttribute("aria-pressed", button === selected ? "true" : "false");
     });
+    const region = selected?.value || "";
+    answer = loc.exercise === "BoostOrCut"
+      ? direction && region ? `${direction}|${region}` : ""
+      : region;
+  }
+
+  function clearSelection() {
+    direction = "";
+    directionButtons.forEach(button => {
+      button.classList.remove("selected");
+      button.setAttribute("aria-pressed", "false");
+    });
+    select(null);
   }
 
   function applyAnswerLevels() {
@@ -30,16 +44,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function clearRound() {
     roundId = null;
-    select(null);
+    clearSelection();
     ab?.clear();
   }
 
   function finishRound() {
     roundId = null;
-    select(null);
+    clearSelection();
   }
 
   buttons.forEach(button => button.addEventListener("click", () => select(button)));
+  directionButtons.forEach(button => button.addEventListener("click", () => {
+    direction = button.dataset.bcDirection;
+    directionButtons.forEach(option => {
+      const selected = option === button;
+      option.classList.toggle("selected", selected);
+      option.setAttribute("aria-pressed", selected ? "true" : "false");
+    });
+    const selectedRegion = buttons.find(option => option.classList.contains("selected"));
+    answer = selectedRegion ? `${direction}|${selectedRegion.value}` : "";
+  }));
   applyAnswerLevels();
   levelSelect?.addEventListener("change", () => {
     AAPractice.reset();
@@ -61,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       roundId = data.roundId;
-      select(null);
+      clearSelection();
       ab.play("A");
     });
   });
