@@ -7,25 +7,29 @@
 
 ## Acompanhamento da implementação
 
-**Atualização:** 12/10/2026. **Fase B incorporada:** PR #166, `master`, `33cf907`. **Base da fase A:** esse mesmo commit. **Branch documental:** `docs/audio-review-sync`.
+**Atualização:** 12/10/2026. **Fase B incorporada:** PR #166, `33cf907`. **Fase A incorporada:** PR #167, `356789a`. **Base da fase C:** esse último commit de `master`. **Branch:** `feat/audio-catalog-filters`.
 
 | Fase | Estado | Entrega ou próxima decisão |
 |---|---|---|
-| A — documentação sincronizada | **Implementada nesta branch** | Registro técnico sincronizado: sete regiões/14 combinações de Boost or Cut, cinco Q avançados, categorias/defaults, arquitetura entregue, engagement expandido, sete badges e checklist específico para Áudio. Nenhum comportamento alterado. |
+| A — documentação sincronizada | **Incorporada no master (#167)** | Registro técnico sincronizado: sete regiões/14 combinações de Boost or Cut, cinco Q avançados, categorias/defaults, arquitetura entregue, engagement expandido, sete badges e checklist específico para Áudio. Nenhum comportamento alterado. |
 | B — categorias visíveis | **Incorporada no master (#166)** | Aba **Por categoria**, badges nos cards dos três agrupamentos e remoção de seções vazias de categoria/tipo. Áudio exibe suas seis áreas na ordem de `TrainingTracks.Audio`; Música mantém suas categorias e URLs. |
-| C — filtros combináveis | **Próxima implementação funcional** | Combinar categoria/tipo/nível por GET e contar exercícios únicos; não faz parte das entregas A/B. |
+| C — filtros combináveis | **Implementada nesta branch** | Formulário GET `track/category/type/level` nos três agrupamentos, contagem única, estado vazio e limpeza localizada. O Start recebe o perfil real de Áudio; Música mantém a classificação e URLs existentes. Chaves desconhecidas ou de outra track retornam 404. |
 | D — validade EQ Matching | Aguarda decisão de produto | Definir exigência de direção e pisos por componente antes de alterar `IsCorrect`; preservar o histórico. |
 | E a N | Não iniciadas | Seguir as dependências e critérios da seção 7; não ampliar DSP, trilha ou conteúdo neste incremento. |
 
 A fase B reutiliza as chaves e FKs existentes, mantém os filtros de nível e os links de entrada padrão e não altera DSP, pontuação, trilha, badges de conquista ou schema. Os nomes visuais e a nova aba estão em en-US, pt-BR e fr-CA. Cards compartilham `_ExerciseCatalogCard.cshtml`, para que categoria, subtítulo e links permaneçam consistentes nos três agrupamentos.
 
-**Verificação executada:** build Release com 22 testes unitários e 44 de integração direcionados aprovados; dois cenários Playwright aprovados no Edge com SQL local temporário. A cobertura inclui as três culturas, Música/Áudio, agrupamento único, FKs de bases existentes, seções vazias, nomes legados sem rótulo de exibição, teclado, temas claro/escuro a 360 px e os links de nível existentes em 360/768/1024/1280 px. O banco temporário foi removido. Isso não é uma avaliação de escuta nem substitui a CI completa do PR.
+**Verificação da fase B:** build Release com 22 testes unitários e 44 de integração direcionados aprovados; dois cenários Playwright aprovados no Edge com SQL local temporário. A cobertura inclui as três culturas, Música/Áudio, agrupamento único, FKs de bases existentes, seções vazias, nomes legados sem rótulo de exibição, teclado, temas claro/escuro a 360 px e os links de nível existentes em 360/768/1024/1280 px. O banco temporário foi removido. Isso não é uma avaliação de escuta nem substitui a CI completa do PR.
 
 O Gitleaks interpretou a expressão descritiva `round/private` na linha `TOKEN` do apêndice como chave de API. A descrição atual foi reescrita; somente as duas ocorrências históricas já publicadas foram registradas por fingerprint na baseline. Nenhuma credencial foi encontrada nessa descrição, e nenhum padrão global de exclusão foi ampliado. A validação local com Gitleaks 8.30.1 foi aprovada para o histórico completo e a versão atual do relatório.
 
 **Fase A:** `Audio-Ear-Training.md` agora distingue as lacunas iniciais da arquitetura atual e descreve os perfis reais, os limites de elegibilidade das fontes e o engagement entregue. `Backlog.md` diferencia o gerador técnico e as views compartilhadas do caminho musical. A seleção de fontes comuns e a simplificação pedagógica de Boost or Cut continuam propostas da fase E, não entregas documentais.
 
-**Para retomar:** a fase B já está no master; a fase A é uma entrega exclusivamente documental nesta branch. A próxima fase funcional é C; a fase D ainda exige a decisão de produto indicada na seção 8. Nenhuma mudança de DSP, pontuação ou deploy integra a fase A.
+**Fase C:** os filtros usam os lookups do banco e os perfis declarados, sem IDs ordinais ou migrations. As opções vêm da track inteira para que uma combinação vazia possa ser corrigida. Limpar preserva track/culturas explícitas; trocar de track remove os filtros anteriores. O formulário funciona sem JavaScript, empilha selects em 360 px e mantém a contagem visível. Não há atualização assíncrona: aplicar navega para a URL GET e atualiza todos os agrupamentos juntos.
+
+**Verificação da fase C:** 54 testes de integração direcionados de catálogo/localização aprovados em Release, incluindo combinações, URLs de perfil, culturas, singular/plural, chaves inválidas, opções declaradas e IDs de lookup não ordinais. Quatro cenários Playwright aprovados no Chromium, cobrindo filtros GET, teclado, reload/back, estado vazio, fluxo sem JavaScript, regressão dos agrupamentos, perfis e temas em 360 px. O navegador usou a aplicação real via `WebApplicationFactory`/Kestrel com EF InMemory e conta descartável; Docker/SQL não estavam disponíveis localmente. Isso não substitui o SQL real e a suíte completa da CI.
+
+**Para retomar:** A/B já estão no master; C é a entrega desta branch, sem alteração de DSP, pontuação ou histórico. A próxima fase na ordem do roadmap é D, mas ela exige a decisão de produto sobre direção e pisos de EQ Matching indicada na seção 8 antes da implementação.
 
 ## Como usar este relatório
 
@@ -901,9 +905,9 @@ A sequência seguinte acompanha a ordem dos batches do catálogo, não apenas pr
 
 | PR / fase | Escopo | Depende de | Esforço | Testes/aceite principal | Pode sair sozinha? |
 |---|---|---|---|---|---|
-| A — documentação sincronizada **(implementada nesta branch)** | Corrigir DOC para 7 bandas/Q avançado; esclarecer categorias/defaults e status entregue | Nada | S | Revisão de referências; política docs-only | Sim |
+| A — documentação sincronizada **(incorporada no master, #167)** | Corrigir DOC para 7 bandas/Q avançado; esclarecer categorias/defaults e status entregue | Nada | S | Revisão de referências; política docs-only | Sim |
 | B — categorias visíveis **(incorporada no master, #166)** | Aba/category badges e tipos sem seções vazias; mesmas FKs | Nada | S | INDEXTEST, UTCATALOG, TRACKTEST, E2E3 culturas/360 px | Sim |
-| C — filtros combináveis | GET categoria/tipo/nível e contagem única | B, ou contrato de UX equivalente | M | URLs/presets, empty/unknown, Music sem regressão | Sim após B |
+| C — filtros combináveis **(implementada nesta branch)** | GET categoria/tipo/nível e contagem única | B, ou contrato de UX equivalente | M | URLs/presets, empty/unknown, Music sem regressão | Sim após B |
 | D — validade EQ Matching | Casos-limite, decisão de `IsCorrect`, versão de regra e feedback claro | Decisão sobre pisos/sinal | S–M | EQMTEST, ITA, ITP; score antigo não reclassificado | Sim |
 | E — BoostOrCut pedagógico | Pools comuns no bundled, subsets por nível, centros revisados | Aprovação de63 Hz se usado | M | UTNEW/PRIVATE, todos candidatos por fonte, reset/console/loc | Sim |
 | F — tema/controles compartilhados | Extração knob/range, contraste, light/dark e números localizados | Nada; preservar UI atual | M | EQ/BC touch, teclado, aria, tutorial, viewport | Sim |

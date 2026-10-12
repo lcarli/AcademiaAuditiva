@@ -9,13 +9,8 @@
     ViewBag.Title = Localizer["Exercise.Header"].Value;
     var difficulties = (List<DifficultyLevel>)ViewBag.DifficultyLevels;
     var categories = (List<ExerciseCategory>)ViewBag.ExerciseCategories;
-    var audioLevels = Model.Where(e => ExerciseCatalog.TrackOf(e.Name) == TrainingTracks.Audio)
-        .ToDictionary(e => e.ExerciseId, e => ExerciseFilterPresets.Groups(e.FiltersJson)
-            .Single(group => group.Name == TechnicalListeningRoundGenerator.LevelFilterFor(e.Name)));
-    var availableLevels = Model.ToDictionary(e => e.ExerciseId, e => difficulties.Where(level =>
-        audioLevels.TryGetValue(e.ExerciseId, out var group)
-            ? group.Options.Any(option => option.Value == level.Name.ToLowerInvariant())
-            : e.DifficultyLevelId == level.Id).ToArray());
+    var catalogFilters = (ExerciseCatalogFiltersViewModel)ViewBag.CatalogFilters;
+    var availableLevels = (Dictionary<int, DifficultyLevel[]>)ViewBag.AvailableLevels;
 }
 
 @functions {
@@ -25,6 +20,14 @@
         if (!loc.ResourceNotFound)
             return loc.Value;
         return string.IsNullOrWhiteSpace(category.DisplayName) ? category.Name : category.DisplayName;
+    }
+
+    Dictionary<string, object?> StartFilters(Exercise exercise, string? level)
+    {
+        var filters = new Dictionary<string, object?>();
+        if (level is not null && TrainingTracks.OfCategory(exercise.ExerciseCategory.Name) == TrainingTracks.Audio)
+            filters[TechnicalListeningRoundGenerator.LevelFilterFor(exercise.Name)] = level;
+        return filters;
     }
 }
 
@@ -36,6 +39,12 @@
 @{
     var track = (string)ViewBag.Track;
     var tracks = (List<AcademiaAuditiva.Services.TrainingTrack>)ViewBag.Tracks;
+    var clearRoute = new Dictionary<string, object?> { ["track"] = track.ToLowerInvariant() };
+    foreach (var key in new[] { "culture", "ui-culture" })
+    {
+        if (Context.Request.Query.TryGetValue(key, out var culture))
+            clearRoute[key] = culture.ToString();
+    }
 }
 @if (tracks.Count > 0)
 {
@@ -52,13 +61,73 @@
     </nav>
 }
 
-@if (!Model.Any())
+@if (catalogFilters.TrackHasExercises)
+{
+    <form method="get" action="@Url.Action("Index", "Exercise")" class="aa-card p-3 p-md-4 mb-4" id="catalogFilters">
+        <input type="hidden" name="track" value="@track.ToLowerInvariant()" />
+        @foreach (var key in new[] { "culture", "ui-culture" })
+        {
+            @if (Context.Request.Query.TryGetValue(key, out var culture))
+            {
+                <input type="hidden" name="@key" value="@culture" />
+            }
+        }
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-4">
+                <label for="catalogCategory" class="form-label">@Localizer["Exercise.Filter.Category"]</label>
+                <select id="catalogCategory" name="category" class="form-select">
+                    <option value="">@Localizer["Exercise.Filter.AllCategories"]</option>
+                    @foreach (var category in catalogFilters.Categories)
+                    {
+                        <option value="@category.Name" selected="@(category.Name == catalogFilters.Category)">@LocCategory(category)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-md-4">
+                <label for="catalogType" class="form-label">@Localizer["Exercise.Filter.Type"]</label>
+                <select id="catalogType" name="type" class="form-select">
+                    <option value="">@Localizer["Exercise.Filter.AllTypes"]</option>
+                    @foreach (var type in catalogFilters.Types)
+                    {
+                        <option value="@type.Name" selected="@(type.Name == catalogFilters.Type)">@Localizer["ExerciseType." + type.Name]</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-md-4">
+                <label for="catalogLevel" class="form-label">@Localizer["Exercise.Filter.Level"]</label>
+                <select id="catalogLevel" name="level" class="form-select">
+                    <option value="">@Localizer["Exercise.Filter.AllLevels"]</option>
+                    @foreach (var level in catalogFilters.Levels)
+                    {
+                        <option value="@level.Name.ToLowerInvariant()" selected="@(level.Name.ToLowerInvariant() == catalogFilters.Level)">@Localizer["Exercise." + level.Name]</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+            <button type="submit" class="btn btn-primary">@Localizer["Exercise.Filter.Apply"]</button>
+            @if (catalogFilters.IsFiltered)
+            {
+                <a id="catalogClear" class="btn btn-outline-primary" href="@Url.Action("Index", "Exercise", clearRoute)">@Localizer["Exercise.Filter.Clear"]</a>
+            }
+            <p id="catalogResults" class="text-secondary mb-0" role="status" data-aa-count="@catalogFilters.ResultsCount">@Localizer[catalogFilters.ResultsCount == 1 ? "Exercise.Filter.ResultCount" : "Exercise.Filter.ResultsCount", catalogFilters.ResultsCount]</p>
+        </div>
+    </form>
+}
+
+@if (!catalogFilters.TrackHasExercises)
 {
     <div class="aa-card p-4 p-lg-5 text-center mx-auto" style="max-width: 40rem;" id="trackEmpty">
         <span class="aa-icon-pill mb-3" aria-hidden="true"><i class="bi bi-soundwave"></i></span>
         <h2 class="h5 fw-bold text-body-emphasis">@Localizer["TrainingTrack.Empty.Title", Localizer["TrainingTrack." + track]]</h2>
         <p class="text-secondary mb-3">@Localizer["TrainingTrack.Empty.Text"]</p>
         <a href="@Url.Action("Index", "Exercise")" class="btn btn-outline-primary btn-sm">@Localizer["TrainingTrack.Empty.Back"]</a>
+    </div>
+}
+else if (!Model.Any())
+{
+    <div id="catalogEmpty" class="aa-card p-4 text-center">
+        <p class="mb-0">@Localizer["Exercise.Filter.Empty"]</p>
     </div>
 }
 else
@@ -83,16 +152,16 @@ else
         {
             var levelName = "Exercise." + level.Name;
             var levelValue = level.Name.ToLowerInvariant();
+            var levelExercises = Model.Where(e => availableLevels[e.ExerciseId].Contains(level)
+                && (catalogFilters.Level is null || catalogFilters.Level == levelValue)).ToArray();
+            if (levelExercises.Length == 0)
+                continue;
             <section class="mb-5" data-aa-difficulty="@levelValue">
                 <h4 class="aa-eyebrow mb-3">@Localizer[levelName]</h4>
                 <div class="row g-4">
-                    @foreach (var exercise in Model.Where(e => availableLevels[e.ExerciseId].Contains(level)))
+                    @foreach (var exercise in levelExercises)
                     {
-                        var filters = new Dictionary<string, object?>();
-                        if (audioLevels.TryGetValue(exercise.ExerciseId, out var group))
-                        {
-                            filters[group.Name] = levelValue;
-                        }
+                        var filters = StartFilters(exercise, levelValue);
                         @await Html.PartialAsync("_ExerciseCatalogCard", new ExerciseCatalogCardViewModel(exercise, LocCategory(exercise.ExerciseCategory), Filters: filters))
                     }
                 </div>
@@ -108,7 +177,9 @@ else
                 <div class="row g-4">
                     @foreach (var exercise in Model.Where(e => e.ExerciseCategoryId == category.Id))
                     {
-                        @await Html.PartialAsync("_ExerciseCatalogCard", new ExerciseCatalogCardViewModel(exercise, LocCategory(category), availableLevels[exercise.ExerciseId]))
+                        @await Html.PartialAsync("_ExerciseCatalogCard", new ExerciseCatalogCardViewModel(exercise, LocCategory(category),
+                            availableLevels[exercise.ExerciseId].Where(l => catalogFilters.Level is null || l.Name.ToLowerInvariant() == catalogFilters.Level).ToArray(),
+                            StartFilters(exercise, catalogFilters.Level)))
                     }
                 </div>
             </section>
@@ -124,7 +195,9 @@ else
                 <div class="row g-4">
                     @foreach (var exercise in Model.Where(e => e.ExerciseTypeId == type.Id))
                     {
-                        @await Html.PartialAsync("_ExerciseCatalogCard", new ExerciseCatalogCardViewModel(exercise, LocCategory(exercise.ExerciseCategory), availableLevels[exercise.ExerciseId]))
+                        @await Html.PartialAsync("_ExerciseCatalogCard", new ExerciseCatalogCardViewModel(exercise, LocCategory(exercise.ExerciseCategory),
+                            availableLevels[exercise.ExerciseId].Where(l => catalogFilters.Level is null || l.Name.ToLowerInvariant() == catalogFilters.Level).ToArray(),
+                            StartFilters(exercise, catalogFilters.Level)))
                     }
                 </div>
             </section>

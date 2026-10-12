@@ -5,6 +5,7 @@ using AcademiaAuditiva.Models;
 using AcademiaAuditiva.Services;
 using AcademiaAuditiva.Services.Audio;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
@@ -219,6 +220,19 @@ public class ExerciseIndexTests : IClassFixture<ExerciseRequestBodyTests.Authent
             CardNames(CatalogSection(categories, "category", category.Name))
                 .Should().BeEquivalentTo(category.Exercises.Select(e => e.Name));
         CardNames(TabPane(html, "byType")).Should().BeEquivalentTo(catalog.Exercises.Select(e => e.Name));
+        var firstCategory = catalog.Categories.First();
+        var filtered = await factory.CreateClient().GetStringAsync(
+            $"/Exercise?track={track}&category={firstCategory.Name}&level=beginner");
+        var expected = firstCategory.Exercises
+            .Where(e => track == TrainingTracks.Audio || e.Difficulty == 1).Select(e => e.Name).ToArray();
+        CardNames(TabPane(filtered, "byCategory")).Should().BeEquivalentTo(expected);
+        foreach (var name in expected)
+        {
+            var href = track == TrainingTracks.Audio
+                ? $"/Exercise/{name}?{TechnicalListeningRoundGenerator.LevelFilterFor(name)}=beginner"
+                : $"/Exercise/{name}";
+            TabPane(filtered, "byCategory").Should().Contain($"href=\"{href}\"");
+        }
     }
 
     [Theory]
@@ -318,5 +332,154 @@ public class ExerciseIndexTests : IClassFixture<ExerciseRequestBodyTests.Authent
         var response = await client.GetAsync("/Exercise?track=bogus");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Theory]
+    [InlineData("en-US", "9 exercises", "Apply filters")]
+    [InlineData("pt-BR", "9 exercícios", "Aplicar filtros")]
+    [InlineData("fr-CA", "9 exercices", "Appliquer les filtres")]
+    public async Task CombinedFilters_ApplyToEveryGrouping_AndCarryTheRealAudioProfile(
+        string culture, string count, string apply)
+    {
+        var html = WebUtility.HtmlDecode(await _factory.CreateClient().GetStringAsync(
+            $"/Exercise?track=audio&category=frequencyeq&type=audiocomparison&level=INTERMEDIATE&culture={culture}&ui-culture={culture}"));
+        var names = ExerciseCatalog.All.Where(e => e.Category == "FrequencyEq").Select(e => e.Name).ToArray();
+
+        html.Should().Contain("id=\"catalogFilters\"").And.Contain("method=\"get\"")
+            .And.Contain(count).And.Contain(apply).And.Contain("data-aa-count=\"9\"")
+            .And.NotContain("Exercise.Filter.").And.NotContain("data-aa-difficulty=\"beginner\"")
+            .And.NotContain("data-aa-difficulty=\"advanced\"");
+        html.Should().Contain("<option value=\"FrequencyEq\" selected=\"selected\">")
+            .And.Contain("<option value=\"AudioComparison\" selected=\"selected\">")
+            .And.Contain("<option value=\"intermediate\" selected=\"selected\">");
+        foreach (var pane in new[] { "byDifficulty", "byCategory", "byType" })
+        {
+            var content = TabPane(html, pane);
+            CardNames(content).Should().BeEquivalentTo(names).And.OnlyHaveUniqueItems();
+            foreach (var name in names)
+                content.Should().Contain($"href=\"/Exercise/{name}?{TechnicalListeningRoundGenerator.LevelFilterFor(name)}=intermediate\"");
+        }
+        html.Should().Contain($"href=\"/Exercise?track=audio&culture={culture}&ui-culture={culture}\"");
+        // Options come from the whole track, not the filtered result.
+        html.Should().Contain("<option value=\"Dynamics\">").And.Contain("<option value=\"advanced\">");
+    }
+
+    [Theory]
+    [InlineData("en-US", "1 exercise")]
+    [InlineData("pt-BR", "1 exercício")]
+    [InlineData("fr-CA", "1 exercice")]
+    public async Task CategoryOnlyFilter_CountsUniqueExercises_AndPreservesDefaultLinks(string culture, string count)
+    {
+        var html = WebUtility.HtmlDecode(await _factory.CreateClient().GetStringAsync(
+            $"/Exercise?track=audio&category=Level&culture={culture}"));
+        html.Should().Contain(count).And.Contain("data-aa-count=\"1\"");
+        foreach (var level in new[] { "beginner", "intermediate", "advanced" })
+            CardNames(DifficultySection(html, level)).Should().Equal("LevelMatch");
+        foreach (var pane in new[] { "byCategory", "byType" })
+        {
+            CardNames(TabPane(html, pane)).Should().Equal("LevelMatch");
+            TabPane(html, pane).Should().Contain("href=\"/Exercise/LevelMatch\"");
+        }
+    }
+
+    [Fact]
+    public async Task MusicCombinedFilters_UseDatabaseClassificationWithoutAddingAudioProfileQueries()
+    {
+        string category;
+        string type;
+        string level;
+        string[] names;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var exercise = db.Exercises.Single(e => e.Name == "GuessNote");
+            category = db.ExerciseCategories.Single(c => c.Id == exercise.ExerciseCategoryId).Name;
+            type = db.ExerciseTypes.Single(t => t.Id == exercise.ExerciseTypeId).Name;
+            level = db.DifficultyLevels.Single(d => d.Id == exercise.DifficultyLevelId).Name.ToLowerInvariant();
+            names = db.Exercises.Where(e => e.ExerciseCategoryId == exercise.ExerciseCategoryId
+                && e.ExerciseTypeId == exercise.ExerciseTypeId && e.DifficultyLevelId == exercise.DifficultyLevelId)
+                .Select(e => e.Name).ToArray();
+        }
+        var html = WebUtility.HtmlDecode(await _factory.CreateClient().GetStringAsync(
+            $"/Exercise?category={category}&type={type}&level={level}"));
+        foreach (var pane in new[] { "byDifficulty", "byCategory", "byType" })
+        {
+            var content = TabPane(html, pane);
+            CardNames(content).Should().BeEquivalentTo(names);
+            foreach (var name in names)
+                content.Should().Contain($"href=\"/Exercise/{name}\"");
+        }
+        GroupNames(TabPane(html, "byDifficulty"), "difficulty").Should().Equal(level);
+        html.Should().Contain($"data-aa-count=\"{names.Length}\"");
+    }
+
+    [Theory]
+    [InlineData("en-US", "No exercises match these filters.")]
+    [InlineData("pt-BR", "Nenhum exercício corresponde a esses filtros.")]
+    [InlineData("fr-CA", "Aucun exercice ne correspond à ces filtres.")]
+    public async Task ValidEmptyCombination_ShowsLocalizedEmptyStateAndClearLink(string culture, string message)
+    {
+        string category;
+        string type;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var trackExercises = db.Exercises.Include(e => e.ExerciseCategory).Include(e => e.ExerciseType)
+                .AsEnumerable().Where(e => TrainingTracks.IsMusic(e.ExerciseCategory.Name)).ToArray();
+            var exercise = trackExercises.Single(e => e.Name == "GuessNote");
+            category = exercise.ExerciseCategory.Name;
+            type = trackExercises.First(e => !trackExercises.Any(other =>
+                other.ExerciseCategoryId == exercise.ExerciseCategoryId && other.ExerciseTypeId == e.ExerciseTypeId))
+                .ExerciseType.Name;
+        }
+        var html = WebUtility.HtmlDecode(await _factory.CreateClient().GetStringAsync(
+            $"/Exercise?category={category}&type={type}&culture={culture}"));
+        html.Should().Contain("id=\"catalogEmpty\"").And.Contain(message)
+            .And.Contain("data-aa-count=\"0\"").And.Contain("id=\"catalogClear\"")
+            .And.Contain("id=\"catalogFilters\"").And.NotContain("id=\"trackEmpty\"")
+            .And.NotContain("id=\"exerciseTabs\"").And.NotContain("data-aa-exercise=");
+    }
+
+    [Theory]
+    [InlineData("category=unknown")]
+    [InlineData("type=unknown")]
+    [InlineData("level=unknown")]
+    [InlineData("track=audio&category=Harmony")]
+    [InlineData("track=music&category=FrequencyEq")]
+    [InlineData("track=music&type=AudioComparison")]
+    [InlineData("track=mix&category=FrequencyEq")]
+    public async Task UnknownOrCrossTrackFilter_IsNotFound(string query)
+    {
+        var response = await _factory.CreateClient().GetAsync($"/Exercise?{query}");
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task EmptyFilterValues_AreUnfiltered()
+    {
+        var html = await _factory.CreateClient().GetStringAsync("/Exercise?track=audio&category=&type=&level=");
+        CardNames(TabPane(html, "byCategory")).Should().HaveCount(27);
+        html.Should().Contain("data-aa-count=\"27\"").And.NotContain("id=\"catalogClear\"");
+    }
+
+    [Fact]
+    public async Task LevelFilter_UsesDeclaredOptions_NotTheSeededAudioDifficulty()
+    {
+        using var factory = new ExerciseRequestBodyTests.AuthenticatedFactory();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            SeedData.SeedExercises(db);
+            var exercise = db.Exercises.Single(e => e.Name == "LevelMatch");
+            var groups = ExerciseFilterPresets.Groups(exercise.FiltersJson);
+            groups.Single(g => g.Name == "lmLevel").Options.RemoveAll(o => o.Value == "advanced");
+            exercise.FiltersJson = JsonConvert.SerializeObject(groups);
+            await db.SaveChangesAsync();
+        }
+        var html = await factory.CreateClient().GetStringAsync("/Exercise?track=audio&category=Level&level=advanced");
+        html.Should().Contain("id=\"catalogEmpty\"").And.Contain("data-aa-count=\"0\"");
+        html = await factory.CreateClient().GetStringAsync("/Exercise?track=audio&category=Level&level=intermediate");
+        foreach (var pane in new[] { "byDifficulty", "byCategory", "byType" })
+            TabPane(html, pane).Should().Contain("href=\"/Exercise/LevelMatch?lmLevel=intermediate\"");
     }
 }

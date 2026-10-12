@@ -98,7 +98,7 @@ namespace AcademiaAuditiva.Controllers
 		/// <paramref name="track"/> names another. The track selector lists the tracks that have
 		/// exercises, and the one asked for, when that makes more than one.
 		/// </summary>
-		public async Task<IActionResult> Index(string? track = null)
+		public async Task<IActionResult> Index(string? track = null, string? category = null, string? type = null, string? level = null)
 		{
 			var current = string.IsNullOrWhiteSpace(track) ? TrainingTracks.All[0] : TrainingTracks.Find(track);
 			if (current is null)
@@ -115,19 +115,48 @@ namespace AcademiaAuditiva.Controllers
 			ViewBag.Track = current.Key;
 			ViewBag.Tracks = tracks.Count > 1 ? tracks : new List<TrainingTrack>();
 			var difficulties = await _context.DifficultyLevels.OrderBy(d => d.Id).ToListAsync();
-			ViewBag.DifficultyLevels = difficulties;
 			var categoryOrder = current.Categories.Select((name, index) => (name, index))
 				.ToDictionary(entry => entry.name, entry => entry.index, StringComparer.Ordinal);
-			ViewBag.ExerciseCategories = exercises.Select(e => e.ExerciseCategory)
+			var categories = exercises.Select(e => e.ExerciseCategory)
 				.DistinctBy(category => category.Id)
 				.OrderBy(category => categoryOrder.GetValueOrDefault(category.Name, int.MaxValue))
 				.ThenBy(category => category.Id)
 				.ToList();
-			ViewBag.ExerciseTypes = exercises.Select(e => e.ExerciseType)
+			var types = exercises.Select(e => e.ExerciseType)
 				.DistinctBy(type => type.Id)
 				.OrderBy(type => type.Id)
 				.ToList();
-			return View(exercises);
+
+			var selectedCategory = categories.FirstOrDefault(c => string.Equals(c.Name, category, StringComparison.OrdinalIgnoreCase));
+			var selectedType = types.FirstOrDefault(t => string.Equals(t.Name, type, StringComparison.OrdinalIgnoreCase));
+			var selectedLevel = difficulties.FirstOrDefault(d => string.Equals(d.Name, level, StringComparison.OrdinalIgnoreCase));
+			if ((!string.IsNullOrWhiteSpace(category) && selectedCategory is null)
+				|| (!string.IsNullOrWhiteSpace(type) && selectedType is null)
+				|| (!string.IsNullOrWhiteSpace(level) && selectedLevel is null))
+				return NotFound();
+
+			var availableLevels = exercises.ToDictionary(e => e.ExerciseId, e =>
+			{
+				var group = TrackOf(e) == TrainingTracks.Audio
+					? ExerciseFilterPresets.Groups(e.FiltersJson)
+						.Single(g => g.Name == AcademiaAuditiva.Services.Audio.TechnicalListeningRoundGenerator.LevelFilterFor(e.Name))
+					: null;
+				return difficulties.Where(d => group is null
+					? e.DifficultyLevelId == d.Id
+					: group.Options.Any(option => option.Value == d.Name.ToLowerInvariant())).ToArray();
+			});
+			var results = exercises.Where(e =>
+				(selectedCategory is null || e.ExerciseCategoryId == selectedCategory.Id)
+				&& (selectedType is null || e.ExerciseTypeId == selectedType.Id)
+				&& (selectedLevel is null || availableLevels[e.ExerciseId].Contains(selectedLevel))).ToList();
+			ViewBag.CatalogFilters = new ExerciseCatalogFiltersViewModel(categories, types, difficulties,
+				selectedCategory?.Name, selectedType?.Name, selectedLevel?.Name.ToLowerInvariant(),
+				results.Select(e => e.Name).Distinct(StringComparer.Ordinal).Count(), exercises.Count > 0);
+			ViewBag.AvailableLevels = availableLevels;
+			ViewBag.DifficultyLevels = difficulties;
+			ViewBag.ExerciseCategories = categories.Where(c => results.Any(e => e.ExerciseCategoryId == c.Id)).ToList();
+			ViewBag.ExerciseTypes = types.Where(t => results.Any(e => e.ExerciseTypeId == t.Id)).ToList();
+			return View(results);
 		}
 
 		// A category no track lists counts as Music, as TrainingTracks.IsMusic.
