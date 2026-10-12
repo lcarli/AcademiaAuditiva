@@ -21,7 +21,7 @@ A fase B reutiliza as chaves e FKs existentes, mantém os filtros de nível e os
 
 **Verificação executada:** build Release com 22 testes unitários e 44 de integração direcionados aprovados; dois cenários Playwright aprovados no Edge com SQL local temporário. A cobertura inclui as três culturas, Música/Áudio, agrupamento único, FKs de bases existentes, seções vazias, nomes legados sem rótulo de exibição, teclado, temas claro/escuro a 360 px e os links de nível existentes em 360/768/1024/1280 px. O banco temporário foi removido. Isso não é uma avaliação de escuta nem substitui a CI completa do PR.
 
-O Gitleaks interpretou a referência de arquivo na linha `TOKEN` do apêndice como chave de API. A citação atual foi reformulada; somente a ocorrência do primeiro commit foi registrada por fingerprint na baseline histórica. Nenhuma credencial foi encontrada nessa referência, e nenhum padrão global de exclusão foi ampliado.
+O Gitleaks interpretou a expressão descritiva `round/private` na linha `TOKEN` do apêndice como chave de API. A descrição atual foi reescrita; somente as duas ocorrências históricas já publicadas foram registradas por fingerprint na baseline. Nenhuma credencial foi encontrada nessa descrição, e nenhum padrão global de exclusão foi ampliado. A validação local com Gitleaks 8.30.1 foi aprovada para o histórico completo e a versão atual do relatório.
 
 **Para retomar:** este arquivo e a implementação da fase B seguem juntos no PR da branch acima. A correção documental restante da fase A pode sair de forma independente; a fase C pode continuar sobre B; a fase D ainda exige a decisão de produto indicada na seção 8. Não há merge ou deploy incluído nesta entrega.
 
@@ -1059,7 +1059,7 @@ Referências são do checkout consultado e podem deslocar com merges. **Caminhos
 | TIME | `AcademiaAuditiva\Services\Audio\Processing\TimeBasedAudioProcessing.cs:5–96` | Echo/reverb, pre-delay e damping, duração preservada |
 | SOURCES | `AcademiaAuditiva\Audio\Sources\sources.json:1–209` | Seis assets bundled, tipos, tags, usos/dificuldades e medidas |
 | LIB | `AcademiaAuditiva\Services\Audio\Sources\AudioSourceLibrary.cs:198–268` | Chunks privados, kindmix, filtros de elegibilidade |
-| TOKEN | `AcademiaAuditiva\Services\Audio\AudioTokenService.cs`, linhas 10–99 | Tokens opacos, round/private state, TTL e TimeProvider |
+| TOKEN | `AcademiaAuditiva\Services\Audio\AudioTokenService.cs:10–99` | Rodadas e identificadores opacos, estado privado, TTL e TimeProvider |
 | FILTER | `AcademiaAuditiva\Services\ExerciseFilterPresets.cs:23–144` | Defaults, sanitização de presets e serialização |
 | FVIEW | `AcademiaAuditiva\Views\Exercise\_ExerciseFilters.cshtml:67–101` | Query pré-selecionada e locks da rotina |
 | INDEX | `AcademiaAuditiva\Views\Exercise\Index.cshtml:1–136` | Track tabs, níveis declarados, agrupamentos nível/tipo |
