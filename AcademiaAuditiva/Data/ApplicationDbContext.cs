@@ -29,6 +29,14 @@ namespace AcademiaAuditiva.Data
             ConfigureGames(modelBuilder);
             ConfigureEmails(modelBuilder);
             ConfigureNotifications(modelBuilder);
+            modelBuilder.Entity<StudyPushSubscription>(b =>
+            {
+                b.HasIndex(s => s.EndpointHash).IsUnique();
+                b.HasIndex(s => s.UserId);
+                b.Property(s => s.LeaseUntil).IsConcurrencyToken();
+                b.HasOne(s => s.User).WithMany().HasForeignKey(s => s.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
 
         // A notification goes with its reader, assignment or classroom. SQL Server allows one
@@ -260,6 +268,7 @@ namespace AcademiaAuditiva.Data
         public DbSet<GameRun> GameRuns => Set<GameRun>();
         public DbSet<EmailDailyCount> EmailDailyCounts => Set<EmailDailyCount>();
         public DbSet<Notification> Notifications => Set<Notification>();
+        public DbSet<StudyPushSubscription> StudyPushSubscriptions => Set<StudyPushSubscription>();
 
         // Teaching domain
         public DbSet<Classroom> Classrooms => Set<Classroom>();

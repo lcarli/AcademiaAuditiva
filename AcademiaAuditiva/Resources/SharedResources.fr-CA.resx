@@ -5553,4 +5553,26 @@
   <data name="Exercise.EqMatching.Level.Advanced" xml:space="preserve"><value>Avancé · 60 Hz–12 kHz</value></data>
   <data name="LearningPath.Unit.EqMatching.Title" xml:space="preserve"><value>Reproduisez une courbe d’égalisation complète</value></data>
   <data name="LearningPath.Unit.EqMatching.Description" xml:space="preserve"><value>Estimez la fréquence, le gain et la largeur de bande à l’écoute et en auditionnant vos réglages.</value></data>
+  <data name="Push.SettingsTitle" xml:space="preserve"><value>Rappels d'étude quotidiens</value></data>
+  <data name="Push.Title" xml:space="preserve"><value>C'est l'heure d'entraîner votre oreille</value></data>
+  <data name="Push.Body" xml:space="preserve"><value>Quelques minutes de pratique font une différence. Ouvrez le défi du jour!</value></data>
+  <data name="Push.Intro" xml:space="preserve"><value>Recevez une notification par jour sur cet appareil, seulement si vous n'avez pas encore répondu à un exercice ce jour-là. Chaque appareil a ses propres réglages.</value></data>
+  <data name="Push.InstallHelp" xml:space="preserve"><value>Sur iPhone ou iPad (iOS 16.4 ou ultérieur), ouvrez ce site dans Safari, choisissez Partager → Sur l'écran d'accueil, ouvrez-le depuis son icône et activez les rappels ici. Dans les autres navigateurs compatibles, vous pouvez les activer directement.</value></data>
+  <data name="Push.DeliveryHelp" xml:space="preserve"><value>L'application n'a pas besoin de rester ouverte. La connexion, le mode Concentration et les réglages de l'appareil peuvent retarder les notifications. Les exercices nécessitent toujours Internet.</value></data>
+  <data name="Push.Time" xml:space="preserve"><value>Heure du rappel</value></data>
+  <data name="Push.TimeZone" xml:space="preserve"><value>Fuseau horaire</value></data>
+  <data name="Push.TimeZoneHelp" xml:space="preserve"><value>Détecté sur cet appareil. Utilisez un fuseau IANA, comme America/Toronto ou America/Sao_Paulo. Mettez-le à jour quand vous voyagez.</value></data>
+  <data name="Push.Enable" xml:space="preserve"><value>Activer / enregistrer le rappel</value></data>
+  <data name="Push.Disable" xml:space="preserve"><value>Désactiver sur cet appareil</value></data>
+  <data name="Push.Loading" xml:space="preserve"><value>Vérification des notifications…</value></data>
+  <data name="Push.Unavailable" xml:space="preserve"><value>Les rappels push ne sont pas encore activés sur le serveur.</value></data>
+  <data name="Push.Unsupported" xml:space="preserve"><value>Les notifications ne sont pas disponibles dans ce navigateur. Sur iPhone ou iPad, installez d'abord l'application sur l'écran d'accueil et ouvrez-la depuis son icône. Utilisez HTTPS et un navigateur compatible.</value></data>
+  <data name="Push.Denied" xml:space="preserve"><value>Les notifications sont bloquées ou n'ont pas été autorisées. Activez-les dans les réglages de votre appareil ou navigateur, puis rechargez cette page.</value></data>
+  <data name="Push.Enabled" xml:space="preserve"><value>Rappel quotidien enregistré pour cet appareil.</value></data>
+  <data name="Push.Disabled" xml:space="preserve"><value>Les rappels quotidiens sont désactivés sur cet appareil.</value></data>
+  <data name="Push.Error" xml:space="preserve"><value>Impossible de mettre à jour le rappel de cet appareil. Vérifiez votre connexion, rechargez la page et réessayez.</value></data>
+  <data name="Push.Invalid" xml:space="preserve"><value>Vérifiez l'heure, le fuseau horaire et l'abonnement push.</value></data>
+  <data name="Push.OtherAccount" xml:space="preserve"><value>Cet appareil est lié à un autre compte. Désactivez ses rappels, puis activez-les pour ce compte.</value></data>
+  <data name="Push.DisableAll" xml:space="preserve"><value>Désactiver sur tous les appareils</value></data>
+  <data name="Push.DeviceLimit" xml:space="preserve"><value>Ce compte a déjà des rappels sur dix appareils. Désactivez les rappels sur tous les appareils avant de les réinscrire.</value></data>
 </root>

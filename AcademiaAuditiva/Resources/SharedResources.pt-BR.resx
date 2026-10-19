@@ -5553,4 +5553,26 @@
   <data name="Exercise.EqMatching.Level.Advanced" xml:space="preserve"><value>Avançado · 60 Hz–12 kHz</value></data>
   <data name="LearningPath.Unit.EqMatching.Title" xml:space="preserve"><value>Combine uma curva de EQ completa</value></data>
   <data name="LearningPath.Unit.EqMatching.Description" xml:space="preserve"><value>Use a escuta e a prévia para estimar frequência, ganho e largura de banda.</value></data>
+  <data name="Push.SettingsTitle" xml:space="preserve"><value>Lembretes diários de estudo</value></data>
+  <data name="Push.Title" xml:space="preserve"><value>Hora de treinar seu ouvido</value></data>
+  <data name="Push.Body" xml:space="preserve"><value>Alguns minutos de prática fazem diferença. Abra o desafio de hoje!</value></data>
+  <data name="Push.Intro" xml:space="preserve"><value>Receba um push por dia neste dispositivo, apenas se ainda não tiver respondido um exercício naquele dia. Cada dispositivo tem suas próprias configurações.</value></data>
+  <data name="Push.InstallHelp" xml:space="preserve"><value>No iPhone ou iPad (iOS 16.4 ou posterior), abra este site no Safari, escolha Compartilhar → Adicionar à Tela de Início, abra pelo ícone e ative os lembretes aqui. Em outros navegadores compatíveis, você pode ativá-los diretamente.</value></data>
+  <data name="Push.DeliveryHelp" xml:space="preserve"><value>O aplicativo não precisa ficar aberto. A conexão, o modo Foco e as configurações do dispositivo podem atrasar as notificações. Os exercícios continuam precisando de internet.</value></data>
+  <data name="Push.Time" xml:space="preserve"><value>Horário do lembrete</value></data>
+  <data name="Push.TimeZone" xml:space="preserve"><value>Fuso horário</value></data>
+  <data name="Push.TimeZoneHelp" xml:space="preserve"><value>Detectado neste dispositivo. Use um fuso IANA, como America/Sao_Paulo ou America/Toronto. Atualize ao viajar.</value></data>
+  <data name="Push.Enable" xml:space="preserve"><value>Ativar / salvar lembrete</value></data>
+  <data name="Push.Disable" xml:space="preserve"><value>Desativar neste dispositivo</value></data>
+  <data name="Push.Loading" xml:space="preserve"><value>Verificando suporte a push…</value></data>
+  <data name="Push.Unavailable" xml:space="preserve"><value>Os lembretes push ainda não foram habilitados no servidor.</value></data>
+  <data name="Push.Unsupported" xml:space="preserve"><value>Push indisponível neste navegador. No iPhone ou iPad, instale o aplicativo na Tela de Início e abra pelo ícone. Use HTTPS e um navegador compatível.</value></data>
+  <data name="Push.Denied" xml:space="preserve"><value>As notificações estão bloqueadas ou não foram autorizadas. Habilite-as nos ajustes do dispositivo ou navegador e recarregue esta página.</value></data>
+  <data name="Push.Enabled" xml:space="preserve"><value>Lembrete diário salvo para este dispositivo.</value></data>
+  <data name="Push.Disabled" xml:space="preserve"><value>Os lembretes diários estão desativados neste dispositivo.</value></data>
+  <data name="Push.Error" xml:space="preserve"><value>Não foi possível atualizar o lembrete deste dispositivo. Confira a conexão, recarregue a página e tente novamente.</value></data>
+  <data name="Push.Invalid" xml:space="preserve"><value>Confira o horário, o fuso e a inscrição push.</value></data>
+  <data name="Push.OtherAccount" xml:space="preserve"><value>Este dispositivo está vinculado a outra conta. Desative os lembretes neste dispositivo e depois ative-os para esta conta.</value></data>
+  <data name="Push.DisableAll" xml:space="preserve"><value>Desativar em todos os dispositivos</value></data>
+  <data name="Push.DeviceLimit" xml:space="preserve"><value>Esta conta já tem lembretes em dez dispositivos. Desative os lembretes em todos os dispositivos antes de cadastrá-los novamente.</value></data>
 </root>

@@ -80,6 +80,7 @@ fr-CA). It runs at <https://academiaauditiva.com>.
 | Doc | What it covers |
 |---|---|
 | [docs/Run-Locally.md](docs/Run-Locally.md) | Run the app on your workstation |
+| [docs/Push-Reminders.md](docs/Push-Reminders.md) | Install on iPhone/iPad and configure daily Web Push reminders |
 | [docs/Deploy-Azure.md](docs/Deploy-Azure.md) | Provision and ship to Azure end-to-end |
 | [docs/Architecture.md](docs/Architecture.md) | Application layers, identity, Azure topology |
 | [docs/Security.md](docs/Security.md) | Threat model, secret rotation runbook |

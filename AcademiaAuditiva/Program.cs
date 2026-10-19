@@ -240,12 +240,22 @@ builder.Services.Configure<AcademiaAuditiva.Services.Email.NotificationEmailOpti
 builder.Services.AddSingleton<AcademiaAuditiva.Services.Email.NotificationEmailQuota>();
 builder.Services.AddSingleton<AcademiaAuditiva.Services.Email.BackgroundEmailQueue>();
 builder.Services.AddHostedService<AcademiaAuditiva.Services.Email.BackgroundEmailWorker>();
+builder.Services.AddOptions<AcademiaAuditiva.Services.Push.WebPushOptions>()
+    .Bind(builder.Configuration.GetSection(AcademiaAuditiva.Services.Push.WebPushOptions.Section))
+    .Validate(options => options.IsValid(), "WebPush requires a valid subject and matching P-256 VAPID keys when enabled.")
+    .ValidateOnStart();
+builder.Services.AddHttpClient<AcademiaAuditiva.Services.Push.IStudyPushSender, AcademiaAuditiva.Services.Push.WebPushSender>(
+    client => client.Timeout = TimeSpan.FromSeconds(30))
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false })
+    .RemoveAllLoggers();
+builder.Services.AddScoped<AcademiaAuditiva.Services.Push.StudyReminderDispatcher>();
 // Site notifications (the bell) are written as things happen; this job reminds students of the
 // routines due the next day and deletes old notifications. Tests call the notifier themselves,
 // with their own clock, and their in-memory database cannot run its bulk delete.
 if (!builder.Environment.IsEnvironment("Testing"))
 {
     builder.Services.AddHostedService<AcademiaAuditiva.Services.Notifications.NotificationsJob>();
+    builder.Services.AddHostedService<AcademiaAuditiva.Services.Push.StudyReminderJob>();
 }
 
 //Inject AnalyticsService

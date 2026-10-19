@@ -541,6 +541,39 @@ public class PersonalDataServiceTests : IClassFixture<TestWebApplicationFactory>
         return await Db(scope).Notifications.Where(n => ids.Contains(n.Id)).Select(n => n.Id).ToListAsync();
     }
 
+    [Fact]
+    public async Task Export_IncludesOnlyTheCurrentUsersPushSubscriptions()
+    {
+        var student = await CreateUserAsync("push-student");
+        var other = await CreateUserAsync("push-other");
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = Db(scope);
+            db.StudyPushSubscriptions.AddRange(
+                new StudyPushSubscription
+                {
+                    UserId = student.Id, EndpointHash = Guid.NewGuid().ToString(),
+                    Endpoint = "https://web.push.apple.com/student", P256dh = "public-key", Auth = "auth-key",
+                    TimeZoneId = "America/Sao_Paulo", MinuteOfDay = 1140
+                },
+                new StudyPushSubscription
+                {
+                    UserId = other.Id, EndpointHash = Guid.NewGuid().ToString(),
+                    Endpoint = "https://web.push.apple.com/private-other"
+                });
+            await db.SaveChangesAsync();
+        }
+        var json = await ExportAsync(student.Id);
+        using var doc = JsonDocument.Parse(json);
+        var reminders = doc.RootElement.GetProperty("studyReminders").EnumerateArray().ToList();
+        reminders.Should().ContainSingle();
+        reminders[0].GetProperty("endpoint").GetString().Should().Be("https://web.push.apple.com/student");
+        reminders[0].GetProperty("auth").GetString().Should().Be("auth-key");
+        reminders[0].GetProperty("timeZoneId").GetString().Should().Be("America/Sao_Paulo");
+        reminders[0].GetProperty("minuteOfDay").GetInt32().Should().Be(1140);
+        json.Should().NotContain("private-other");
+    }
+
     private static ApplicationDbContext Db(IServiceScope scope)
         => scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
