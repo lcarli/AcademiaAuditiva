@@ -323,7 +323,11 @@ public class PersonalDataService
                 Invitations = invitations
             },
             ["teacher"] = new { Classrooms = ownedClassrooms, Routines = ownedRoutines },
-            ["notifications"] = notifications
+            ["notifications"] = notifications,
+            ["studyReminders"] = await _db.StudyPushSubscriptions.AsNoTracking()
+                .Where(s => s.UserId == userId)
+                .Select(s => new { s.Endpoint, s.P256dh, s.Auth, s.TimeZoneId, s.MinuteOfDay, s.LastReminderDate })
+                .ToListAsync(ct)
         };
 
         return JsonSerializer.SerializeToUtf8Bytes(export, ExportJsonOptions);

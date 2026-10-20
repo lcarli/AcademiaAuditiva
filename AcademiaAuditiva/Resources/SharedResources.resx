@@ -5579,4 +5579,26 @@
   <data name="Exercise.EqMatching.Level.Advanced" xml:space="preserve"><value>Advanced · 60 Hz–12 kHz</value></data>
   <data name="LearningPath.Unit.EqMatching.Title" xml:space="preserve"><value>Match a complete EQ curve</value></data>
   <data name="LearningPath.Unit.EqMatching.Description" xml:space="preserve"><value>Use listening and auditioning to estimate frequency, gain and bandwidth.</value></data>
+  <data name="Push.SettingsTitle" xml:space="preserve"><value>Daily study reminders</value></data>
+  <data name="Push.Title" xml:space="preserve"><value>Time to train your ear</value></data>
+  <data name="Push.Body" xml:space="preserve"><value>A few minutes of practice make a difference. Open today's challenge!</value></data>
+  <data name="Push.Intro" xml:space="preserve"><value>Receive one daily push on this device, only if you have not answered an exercise that day. Each device has its own settings.</value></data>
+  <data name="Push.InstallHelp" xml:space="preserve"><value>On iPhone or iPad (iOS 16.4 or later), open this site in Safari, choose Share → Add to Home Screen, then open it from its icon and activate reminders here. On other supported browsers, you can activate them directly.</value></data>
+  <data name="Push.DeliveryHelp" xml:space="preserve"><value>The app does not need to stay open. Internet access, Focus mode and your device settings may delay notifications. Exercises still require an internet connection.</value></data>
+  <data name="Push.Time" xml:space="preserve"><value>Reminder time</value></data>
+  <data name="Push.TimeZone" xml:space="preserve"><value>Time zone</value></data>
+  <data name="Push.TimeZoneHelp" xml:space="preserve"><value>Detected from this device. Use an IANA time zone, such as America/Toronto or America/Sao_Paulo. Update it when you travel.</value></data>
+  <data name="Push.Enable" xml:space="preserve"><value>Activate / save reminder</value></data>
+  <data name="Push.Disable" xml:space="preserve"><value>Turn off on this device</value></data>
+  <data name="Push.Loading" xml:space="preserve"><value>Checking push support…</value></data>
+  <data name="Push.Unavailable" xml:space="preserve"><value>Push reminders have not been enabled on the server yet.</value></data>
+  <data name="Push.Unsupported" xml:space="preserve"><value>Push is not available in this browser. On iPhone or iPad, install the app on your Home Screen first, then open it from its icon. Use HTTPS and a supported browser.</value></data>
+  <data name="Push.Denied" xml:space="preserve"><value>Notifications are blocked or were not allowed. Enable them in your device or browser settings, then reload this page.</value></data>
+  <data name="Push.Enabled" xml:space="preserve"><value>Daily reminder saved for this device.</value></data>
+  <data name="Push.Disabled" xml:space="preserve"><value>Daily reminders are off for this device.</value></data>
+  <data name="Push.Error" xml:space="preserve"><value>Could not update this device's reminder. Check your connection, reload the page and try again.</value></data>
+  <data name="Push.Invalid" xml:space="preserve"><value>Check the reminder time, time zone and push subscription.</value></data>
+  <data name="Push.OtherAccount" xml:space="preserve"><value>This device is linked to another account. Turn off reminders on this device, then activate them for this account.</value></data>
+  <data name="Push.DisableAll" xml:space="preserve"><value>Turn off on all devices</value></data>
+  <data name="Push.DeviceLimit" xml:space="preserve"><value>This account already has reminders on ten devices. Turn off reminders on all devices before registering them again.</value></data>
 </root>

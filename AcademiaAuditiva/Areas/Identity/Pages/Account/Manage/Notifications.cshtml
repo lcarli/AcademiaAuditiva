@@ -1,5 +1,6 @@
 @page
 @model NotificationsModel
+@inject Microsoft.Extensions.Options.IOptions<AcademiaAuditiva.Services.Push.WebPushOptions> PushOptions
 @{
     ViewData["Title"] = Localizer["Manage.Notifications.Title"].Value;
     ViewData["ActivePage"] = ManageNavPages.Notifications;
@@ -27,3 +28,40 @@
         </form>
     </div>
 </div>
+
+<section id="study-reminders" class="mt-5" aria-labelledby="study-reminder-heading"
+         data-public-key="@(PushOptions.Value.Enabled ? PushOptions.Value.PublicKey : "")"
+         data-unavailable="@Localizer["Push.Unavailable"]"
+         data-unsupported="@Localizer["Push.Unsupported"]"
+         data-denied="@Localizer["Push.Denied"]"
+         data-enabled="@Localizer["Push.Enabled"]"
+         data-disabled="@Localizer["Push.Disabled"]"
+         data-error="@Localizer["Push.Error"]"
+         data-invalid="@Localizer["Push.Invalid"]">
+    <h3 id="study-reminder-heading">@Localizer["Push.SettingsTitle"]</h3>
+    <p>@Localizer["Push.Intro"]</p>
+    <p class="small text-body-secondary">@Localizer["Push.InstallHelp"]</p>
+    <p class="small text-body-secondary">@Localizer["Push.DeliveryHelp"]</p>
+    <form id="study-reminder-form" class="row g-3">
+        <div class="col-sm-4">
+            <label for="study-reminder-time" class="form-label">@Localizer["Push.Time"]</label>
+            <input id="study-reminder-time" type="time" class="form-control" value="19:00" required />
+        </div>
+        <div class="col-sm-8">
+            <label for="study-reminder-zone" class="form-label">@Localizer["Push.TimeZone"]</label>
+            <input id="study-reminder-zone" type="text" class="form-control" maxlength="64" required
+                   aria-describedby="study-reminder-zone-help" />
+            <div id="study-reminder-zone-help" class="form-text">@Localizer["Push.TimeZoneHelp"]</div>
+        </div>
+        <div class="col-12 d-flex gap-2 flex-wrap">
+            <button id="enable-study-reminders" type="submit" class="btn btn-primary" disabled>@Localizer["Push.Enable"]</button>
+            <button id="disable-study-reminders" type="button" class="btn btn-outline-secondary" disabled>@Localizer["Push.Disable"]</button>
+            <button id="disable-all-study-reminders" type="button" class="btn btn-outline-secondary" disabled>@Localizer["Push.DisableAll"]</button>
+        </div>
+    </form>
+    <p id="study-reminder-status" class="mt-3" role="status" aria-live="polite">@Localizer["Push.Loading"]</p>
+</section>
+
+@section Scripts {
+    <script src="~/js/study-reminders.js" asp-append-version="true" defer></script>
+}

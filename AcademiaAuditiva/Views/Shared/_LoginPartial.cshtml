@@ -29,6 +29,11 @@
                 </a>
             </li>
             <li>
+                <a class="dropdown-item" asp-page="/Account/Manage/Notifications" asp-area="Identity">
+                    <i class="bi bi-bell me-2" aria-hidden="true"></i>@Localizer["Push.SettingsTitle"]
+                </a>
+            </li>
+            <li>
                 <form method="post" asp-page="/Account/Logout" asp-area="Identity">
                     <button type="submit" class="dropdown-item">
                         <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>@Localizer["Login.Logout"]
